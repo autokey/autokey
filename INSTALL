@@ -1,0 +1,13 @@
+$Id: INSTALL 23 2008-02-01 01:04:14Z peabody $
+
+This REQUIRES the python-xlib package to run.  On Debian or Ubuntu
+systems, the package name is python-xlib, just apt-get it.
+
+There's no ./configure, just type make and make install.  Type make
+uninstall if you don't like it.
+
+Be sure to copy the example abbr.ini to $HOME/.abbr.ini
+
+Type hotstring.py into a terminal to run the program.
+
+kill it from a terminal with 'killall hotstring.py'

@@ -1,0 +1,162 @@
+$Id$
+
+Read INSTALL for installation instructions, and see the end of this
+document for known problems.
+
+Autokey is a text replacement tool anologous to the Mac and Windows
+utilities Textpander, Texter and AutoHotKey's hotstrings, but for X11
+on Linux.  The user is to keep a list of textual abbreviations in
+~/.abbr.ini.  Currently these abbreviations are case-insensitive.
+
+The program hotstring.py will read ~/.abbr.ini file on startup, build
+a dictionary of abbreviations and use hotstring_keylogger to capture
+all keyboard input (which must have the right /dev/input/ file
+specified in the hotstring.py file).  Once a recognized abbreviation
+is typed, followed by a non-word character, a series of backspaces are
+sent to the program, followed by a serious of KeyPress/KeyRelease
+events (this is done using the python-xlib library with the xtest X11
+module).  The right hand side of the abbreviations are passed to the
+echo command in a subshell, so subshell and environment variables may
+be used.
+
+This is prototype code, although it has become quite usable.  It
+requires python, the python-xlib package (the xmacro package is not
+required anymore), the gksudo program and zenity (part of the default
+install in Ubuntu GNU/Linux).
+
+This program uses a keylogger written by Eddie Bell with my
+modifications.  No license was provided with the code I found, the
+original version is available here:
+
+http://archives.neohapsis.com/archives/sf/linux/2005-q3/0065.html
+
+It also assumes the gksudo command is available on your system (so that
+the keylogger can be run with root permissions).
+
+A few notes on the files...
+
+- autokey.py was my first attempt at the problem.  It depends on
+  pressing a shortcut key to type out text shortcuts (hardwired to f6
+  right now).  It's still needed for its utility functions, but it is
+  no longer the program you run.
+
+- hotstring.py is my latest attempt.  It uses the keylogger.c program
+  to read from the /dev/input/* file mapped to your keyboard.  It
+  (unfortunately) has to run this program as root, so you will receive
+  a gksudo prompt.  While this is a keylogger program, I have read the
+  source code and I will say that it doesn't seem to do anything
+  insecure or fishy.
+
+  The hotstring.py program has the benefit of not requiring a prefix
+  shortcut key; as soon as you type the right sequence followed by a
+  non-word character, the text expansion is sent.
+
+- keylogger.c is my modification to Eddie Bell's excellent example
+  keylogger program.  When I bumped into this I saw for the first time
+  that you could capture keyboard input without patching the kernel.
+  hotstring.py uses this to capture every keystroke from the keyboard.
+
+Both of these solutions don't work for virtual terminals.  As far as I
+can tell, the only solution for those is to write a kernel module.
+
+I started this project to fill the gap in Linux text replacement tools
+on the desktop.  Specifically, I wanted to see if I could come up with
+something that wouldn't require patching the kernel and I have
+succeeded, though not without some major bumps.
+
+Another excellent project of this nature is Ben Kudria's Snippits
+program.  It's written in Ruby and open source as well.  Check it out
+@ http://ben.kudria.net/code/snippits.  He hasn't incorporated
+replace-as-you-type behavior yet, but he may have that completed
+sometime in the future.
+
+Please let me know if you're interested in helping with the project
+(programming skills aren't necessary, I need testers as well). Send
+bug reports to peabodyenator@gmail.com.
+
+KNOWN PROBLEMS
+================
+
+Because the keylogger program echos the raw key codes from the
+keyboard, it doesn't have a way of detecting the user's keyboard
+layout.  Currently, I ask the user whether they are using a qwerty or
+dvorak keyboard.  Saying that this is inadequate, is the under
+statement of the year.  However, I haven't figured out a good way of
+detecting keyboard layouts on my own.  I could use all the help I
+could get here.
+
+I currently have a delay set in hotstring.py to help prevent the final
+character that breaks the abbreviation from being typed more than
+once.  This delay will not work for everyone's system...it's probably
+too much delay for older systems and too little delay for newer
+systems.  Look for the time.sleep call in hotstring.py and experiment
+with changing it's values to your liking.
+
+You must authenticate the keylogger program so that it may read from
+/dev/input/eventX.  This limits who may use the program to system
+administrators.  I'd like to work around this, but I don't know of a
+way that wouldn't be a security concern.
+
+My debug output is still active, which means the input stack is echoed
+to a terminal if run inside a terminal.  This means that passwords
+could be echoed to the screen if the terminal is visible.  I need to
+change this for my release version.
+
+Subshell commands hang the hotstring functionality until they
+complete.  That really isn't too big a deal in my book.  However, all
+input is still being logged while they're running, and if any input
+matches any of the abbreviations, they will be expanded upon
+completion of the subshell command which is pretty nerve wracking and
+confusing.  This is probably easy to fix.
+
+Sometimes the proper /dev/input/eventX file is not detected.  I've
+made it so that the user can specify the proper event file by making
+an abbreviation called eventfile and having it point to the full path
+of the right event file.
+
+However, there are certain problems that I don't think are solvable
+with the current design...
+
+Every once in a while the expansion will 'hiccup' and not type
+properly.  Sometimes the backspacing goes too far and gobbles up data
+before the point where the abbreviation was typed.  Sometimes the last
+non-word character gets repeated.  Sometimes weird looking modifier
+key representations get typed out instead.
+
+These problems are because getting input from the /dev/input/* rather
+than the x11 event system introduces race conditions.
+hotstring_logger seems to receive and process input faster than X11 on
+average under my Ubuntu GNU/Linux system.  I've introduced a delay to
+compensate for this and it seems to improve things by a lot.  However,
+I think it is probably impossible to prevent this with the current
+design.  The fact that hotstring_logger is not synchronized with X11
+events means that this problem will always be a possibility.  The only
+so-called "solution" is to make it a statistical improbability by
+finding good delay values for the user's typing speed and I'm not sure
+how effective that can actually be made.
+
+Other problems seem to stem from the keylogger program.  It seems to
+be repeating keys randomly (bouncing key problem).  No, this doesn't
+have anything to do to listening to both keypress and release, I know
+the program is only listening to keypress events.  I've hacked a fix
+by eliminating adjacent duplicates.  This creates a restriction on the
+text of the abbreviations (there can be no adjacent repeated
+characters).  I really don't have a good solution to this problem at
+the moment.
+
+I would prefer to do something that is synchronized with the X11 event
+system.  It would solve almost every problem, including the keyboard
+layout problems.  In fact, that was the first thing I looked into, but
+I didn't have much luck.  Firstly, I couldn't find how to use
+XSelectInput from python-xlib, which means I would have to rely on a
+pipe from an X11 C program, like I am now, which may not prevent race
+conditions.  The three keylogger solutions for X11 that I looked into
+weren't promising.  Two of them completely didn't work on my system.
+xkey.c was the only keylogger that did work and even it didn't
+properly capture input events for newly created windows.  One of the
+keylogger solutions seemed to be trying to work around that by
+continually running an XQueryTree and adding any new windows with
+XSelectInput.  However, that would seem to me to involve race
+conditions as well (though much more harmless ones that will be
+statistically unlikely to ever be detected by the user).  If it can be
+done this way, I'm all for it.

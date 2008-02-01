@@ -1,0 +1,10 @@
+# $Id: autokey.desktop 22 2008-01-29 11:29:13Z peabody $
+[Desktop Entry]
+Encoding=UTF-8
+Name=Autokey
+Comment=Text Replacement Program for Linux
+Exec=hotstring.py
+Terminal=false
+Type=Application
+Icon=gnome-terminal.png
+Categories=GNOME;GTK;Utility
