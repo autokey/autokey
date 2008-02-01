@@ -1,3 +1,4 @@
+# $Id$
 prefix = /usr/local
 py_files = autokey.py hotstring.py keyreader.py
 all:
