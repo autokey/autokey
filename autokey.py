@@ -6,7 +6,7 @@
 
 # Copyright (C) 2008 Sam Peterson
 
-# requires packages python-xlib and xmacro
+# requires packages python-xlib
 # project tarball is now located at, be sure to get this from there
 # http://peabody.weeman.org/autokey.tar.bz2
 

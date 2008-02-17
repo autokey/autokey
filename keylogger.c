@@ -110,7 +110,7 @@ void
 read_keys (int rfd, char *keys[])
 {
   struct input_event ev[64];
-  int rd, value, size = sizeof (struct input_event);
+  int i, rd, value, size = sizeof (struct input_event);
 
   while (1)
   {
@@ -120,7 +120,7 @@ read_keys (int rfd, char *keys[])
     // Only read the key press event
     // NOT the key release event
 
-    value = ev[0].value;
+    //value = ev[0].value;
     // Sam's change
 //    if (value != ' ' && ev[1].value == 1 && ev[1].type == 1)
 //    {
@@ -130,9 +130,13 @@ read_keys (int rfd, char *keys[])
 //	fflush (stdout);
 //      }
 //    }
-    if (ev[1].type == 1 && ev[1].value == 1)
-      printf("%d\n", value);
-    fflush(stdout);
+    /* taken from evtest.c, prevents all this duplicate nonsense */
+    for (i = 0; i < rd / sizeof(struct input_event); i++)
+    {
+      if (ev[i].type == 1 && ev[i].value == 1)
+	printf("%d\n", ev[i].code);
+      fflush(stdout);
+    }
   }
 
 }
@@ -247,6 +251,7 @@ main (int argc, char *argv[])
   }
 
   ioctl (fd, EVIOCGNAME (sizeof (name)), name);
+  //ioctl (fd, 0x40044590, name);
   //printf ("Reading From : %s (%s)\n", device, name);
 
   // handle all singles so the device will be closed before exit
