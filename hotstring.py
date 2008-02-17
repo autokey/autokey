@@ -34,6 +34,10 @@ import autokey
 import signal
 #import pdb
 
+# timeout value to try
+try: sleep_value = float(sys.argv[1])
+except: sleep_value = 0.08
+
 # run a check to see if we're already running
 user_folder = os.path.expanduser('~')
 lock_file = os.path.join(user_folder, '.hotstring.lck')
@@ -43,7 +47,7 @@ if os.path.exists(lock_file):
 else:
     open(lock_file, 'w')
 
-# get rid of the program lock file
+# handler to get rid of the program lockfile
 def cleanup(one = None, two = None):
     try:
         os.unlink(lock_file)
@@ -184,7 +188,7 @@ while True:
                 # hack! sending the last value too soon seems to
                 # randomly duplicate the character (sync problems
                 # with X11)
-                time.sleep(0.08)
+                time.sleep(sleep_value)
                 # send the last key and hope for the best.
                 autokey.send_text(disp, root, current[-1])
                 disp.flush()
