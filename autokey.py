@@ -51,7 +51,7 @@
 #  find a way to send the shortcut key so it doesn't have to be effectively
 #  "blacked out"
 
-import os,re,keyreader,ConfigParser
+import os,re,keyreader,ConfigParser,sys
 
 try:
     import Xlib.X as X
