@@ -21,6 +21,9 @@ import os,sys,glob
 
 import os,sys
 
+print "Don't run this program anymore, run autokey.py"
+sys.exit(1)
+
 try:
     import Xlib.X as X
     import Xlib.ext.xtest as xtest
@@ -54,6 +57,14 @@ def cleanup(one = None, two = None):
         os.system("killall hotstring_logger")
     except OSError: pass
     sys.exit(1)
+
+# this code will be 
+# FIXME: change zeros to keycodes.
+modifier_keys = [["<control>", 0], ["<shift>", 0], ["<alt>", 0]]
+
+def unset_modifiers(modifier_keys):
+    for key in modifier_keys:
+        autokey
 
 # be sure to delete lock file on exit
 signal.signal(signal.SIGHUP, cleanup)
@@ -144,6 +155,9 @@ ignore = False                   # flag to ignore input
 # set of things considered word characters
 word_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 
+# say hi to the world
+os.system("espeak 'Autokey is running'")
+
 # loop until explicitly killed
 while True:
     # value to hold text expansion
@@ -184,6 +198,7 @@ while True:
                 print "Last value of current was: '" + current[-1] + "'"
                 send_backspace(root, len(current))
                 disp.flush()
+                os.system("espeak 'expanding' &")
                 autokey.send_text(disp, root, value)
                 # hack! sending the last value too soon seems to
                 # randomly duplicate the character (sync problems

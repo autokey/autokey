@@ -8,10 +8,10 @@ utilities Textpander, Texter and AutoHotKey's hotstrings, but for X11
 on Linux.  The user is to keep a list of textual abbreviations in
 ~/.abbr.ini.  Currently these abbreviations are case-insensitive.
 
-The program hotstring.py will read ~/.abbr.ini file on startup, build
-a dictionary of abbreviations and use hotstring_keylogger to capture
-all keyboard input (which must have the right /dev/input/ file
-specified in the hotstring.py file).  Once a recognized abbreviation
+The program autokey.py will read the ~/.abbr.ini file on startup,
+build a dictionary of abbreviations and use hotstring_keylogger to
+capture all keyboard input (which must have the right /dev/input/ file
+specified in the autokey.py file).  Once a recognized abbreviation
 is typed, followed by a non-word character, a series of backspaces are
 sent to the program, followed by a serious of KeyPress/KeyRelease
 events (this is done using the python-xlib library with the xtest X11
@@ -20,9 +20,8 @@ echo command in a subshell, so subshell and environment variables may
 be used.
 
 This is prototype code, although it has become quite usable.  It
-requires python, the python-xlib package (the xmacro package is not
-required anymore), the gksudo program and zenity (part of the default
-install in Ubuntu GNU/Linux).
+requires python, the python-xlib package, the gksudo program and
+zenity (part of the default install in Ubuntu GNU/Linux).
 
 This program uses a keylogger written by Eddie Bell with my
 modifications.  No license was provided with the code I found, the
@@ -35,21 +34,14 @@ the keylogger can be run with root permissions).
 
 A few notes on the files...
 
-- autokey.py was my first attempt at the problem.  It depends on
-  pressing a shortcut key to type out text shortcuts (hardwired to f6
-  right now).  It's still needed for its utility functions, but it is
-  no longer the program you run.
+- autokey.py is now (yet again) the main program.  It used to be the
+  case that hotstring.py was the main program.  This was due to the
+  fact that I took a vastly different inital approach to this program
+  which I eventually scrapped.  In the mean time I experimented with
+  hotstring.py and managed to create something I was quite happy with.
+  I've now since merged it back into autokey.py.
 
-- hotstring.py is my latest attempt.  It uses the keylogger.c program
-  to read from the /dev/input/* file mapped to your keyboard.  It
-  (unfortunately) has to run this program as root, so you will receive
-  a gksudo prompt.  While this is a keylogger program, I have read the
-  source code and I will say that it doesn't seem to do anything
-  insecure or fishy.
-
-  The hotstring.py program has the benefit of not requiring a prefix
-  shortcut key; as soon as you type the right sequence followed by a
-  non-word character, the text expansion is sent.
+- hotstring.py is now old code.  It will eventually be deleted.
 
 - keylogger.c is my modification to Eddie Bell's excellent example
   keylogger program.  When I bumped into this I saw for the first time
@@ -65,10 +57,14 @@ something that wouldn't require patching the kernel and I have
 succeeded, though not without some major bumps.
 
 Another excellent project of this nature is Ben Kudria's Snippits
-program.  It's written in Ruby and open source as well.  Check it out
-@ http://ben.kudria.net/code/snippits.  He hasn't incorporated
+program.  It's written in Ruby and is open source as well.  Check it
+out @ http://ben.kudria.net/code/snippits.  He hasn't incorporated
 replace-as-you-type behavior yet, but he may have that completed
-sometime in the future.
+sometime in the future.  In the mean time, you can use both his
+program and mine together by calling the snippit program in a subshell
+from one of my abbreviations, for example:
+
+mysnip = $(snippit mysnip)
 
 Please let me know if you're interested in helping with the project
 (programming skills aren't necessary, I need testers as well). Send
@@ -77,25 +73,32 @@ bug reports to peabodyenator@gmail.com.
 KNOWN PROBLEMS
 ================
 
-Because the keylogger program echos the raw key codes from the
+Currently, if an abbreviation is finished while shift, control or alt
+is pressed, the expansion will happen with that key being held down.
+This produces weird results, such as expansions being produced all in
+caps, or menu shortcuts being taken.  I'm working on a way of turning
+off the modifier keys before expanding, but until then be very careful
+:).
+
+I pass expansions to an 'echo' shell command so subshells and
+environment variables can be expanded.  This has one nasty little side
+effect: it limits the size of an abbreviation to Linux's ARG_MAX
+(which, if Google has anything to say about it, is around 131072
+bytes, or about 128KB).
+
+Because the keylogger program echos the raw scancodes from the
 keyboard, it doesn't have a way of detecting the user's keyboard
 layout.  Currently, I ask the user whether they are using a qwerty or
-dvorak keyboard.  Saying that this is inadequate, is the under
+dvorak keyboard.  Saying that this is inadequate is the under
 statement of the year.  However, I haven't figured out a good way of
 detecting keyboard layouts on my own.  I could use all the help I
 could get here.
 
-I currently have a delay set in hotstring.py to help prevent the final
-character that breaks the abbreviation from being typed more than
-once.  This delay will not work for everyone's system...it's probably
-too much delay for older systems and too little delay for newer
-systems.  Look for the time.sleep call in hotstring.py and experiment
-with changing it's values to your liking.
-
-You must authenticate the keylogger program so that it may read from
-/dev/input/eventX.  This limits who may use the program to system
+You must authenticate the hotstring_logger program so that it may read
+from /dev/input/eventX.  This limits who may use the program to system
 administrators.  I'd like to work around this, but I don't know of a
-way that wouldn't be a security concern.
+way that wouldn't be a security concern.  A likely solution would be a
+udev rule apparently.
 
 My debug output is still active, which means the input stack is echoed
 to a terminal if run inside a terminal.  This means that passwords
@@ -107,14 +110,14 @@ complete.  That really isn't too big a deal in my book.  However, all
 input is still being logged while they're running, and if any input
 matches any of the abbreviations, they will be expanded upon
 completion of the subshell command which is pretty nerve wracking and
-confusing.  This is probably easy to fix.
+confusing.
 
 Sometimes the proper /dev/input/eventX file is not detected.  I've
 made it so that the user can specify the proper event file by making
 an abbreviation called eventfile and having it point to the full path
 of the right event file.
 
-However, there are certain problems that I don't think are solvable
+There are certain problems that I don't think are solvable
 with the current design...
 
 Every once in a while the expansion will 'hiccup' and not type
@@ -126,23 +129,16 @@ key representations get typed out instead.
 These problems are because getting input from the /dev/input/* rather
 than the x11 event system introduces race conditions.
 hotstring_logger seems to receive and process input faster than X11 on
-average under my Ubuntu GNU/Linux system.  I've introduced a delay to
-compensate for this and it seems to improve things by a lot.  However,
+average under my Ubuntu GNU/Linux system.  Therefore, the user can
+specific a wait_time value, in seconds, as the first argument to
+autokey.py.  This does a pretty good job of working around the
+problem.  I would like to completely eradicate the problem.  However,
 I think it is probably impossible to prevent this with the current
 design.  The fact that hotstring_logger is not synchronized with X11
 events means that this problem will always be a possibility.  The only
 so-called "solution" is to make it a statistical improbability by
-finding good delay values for the user's typing speed and I'm not sure
-how effective that can actually be made.
-
-Other problems seem to stem from the keylogger program.  It seems to
-be repeating keys randomly (bouncing key problem).  No, this doesn't
-have anything to do to listening to both keypress and release, I know
-the program is only listening to keypress events.  I've hacked a fix
-by eliminating adjacent duplicates.  This creates a restriction on the
-text of the abbreviations (there can be no adjacent repeated
-characters).  I really don't have a good solution to this problem at
-the moment.
+finding good delay values for the user's typing speed and machine.
+This seems like a band-aid approach to me.  I'm not happy with it.
 
 I would prefer to do something that is synchronized with the X11 event
 system.  It would solve almost every problem, including the keyboard

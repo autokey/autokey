@@ -1,0 +1,107 @@
+.\" Copyright (C), 2008  Sam Peterson
+.\" You may distribute this file under the terms of the GPL v2 or at
+. \" your option, any later version.
+.TH autokey.py 1 2008-02-17 
+.SH NAME
+autokey.py \- Text expansion program for GNU/Linux X11
+.SH SYNOPSIS
+.B autokey.py [ wait_time ]
+
+.SH DESCRIPTION
+
+autokey.py is a text expansion program for GNU/Linux X11 written in
+Python.  It reads a dictionary of abbreviations in ~/.abbr.ini.  It
+then reads from the hotstring_logger program which will be listening
+for input by using the kernel evdev system, reading from the
+/dev/input/eventX file that is attached to your keyboard.  If a
+sequence of keystrokes is pressed that corresponds to one of the
+abbreviations in abbr.ini, it will backspace what has been currently
+typed and type out the expansion.
+
+When the program is first run it will launch a subprocess called
+hotstring_logger via the gksudo command.  This is so the
+hotstring_logger program is able to run with the proper permissions to
+read from the /dev/input/eventX file.  After that, the user will be
+prompted for their keyboard layout using the zenity(1) program.
+
+If the program is not guessing your keyboard file correctly, you may
+explicitly specify an event file by creating an abbreviation
+called 'eventfile' in the abbr.ini, whose expansion is the absolute
+path to the proper /dev/input/eventX.
+
+At anytime that the program is running, the scroll lock key may be
+pressed to toggle expansions on and off.
+
+The program also attempts to use the espeak(1) text-to-speech program
+to give audio queues when the program is started, closed, when an
+expansion is triggered, and when expansion functionality is toggled on
+and off.  espeak seems to use OSS per default on many distros, so you
+may wish to run the autokey.py program via the alsa-oss emulation
+package if you use ALSA, which provides the aoss(1) command (aoss
+autokey.py).
+
+To close the program, kill the autokey.py process from a terminal:
+
+ killall autokey.py
+
+.SH OPTIONS
+
+wait_time - a floating point value indicating the time to wait before
+expanding.  Experimenting with this value helps prevent the last
+character from being typed twice, or having the expansion take place
+too late.
+
+.SH FILES
+
+.B ~/.abbr.ini abbreviation file read by the program.  It is a windows
+ini format file that can be read by Python's ConfigParser module.  The
+[abbr] section is where all abbreviations go.  The following, is an
+example:
+
+ ; example abbreviation file
+ ; changes to this are loaded dynamically.
+ ; $Id: abbr.ini 2 2008-02-01 04:10:13Z peabody17 $
+ [abbr]
+ adr = Multiline
+  values are possible
+  just make sure you keep
+  at least a single whitespace value
+  at the beginning of continuing lines.
+ 
+ ; xclip is a command line utility that lets you access the clipboard
+ ; it's not often installed per default on Linux distros however.
+ alnk = <a href="$(xclip -o -selection clipboard)"></a>
+ 
+ ; common forums stuff
+ btw = by the way
+ idn = I don't know
+ afaik = As far as I know
+ fwiw = For what it's worth
+ ftw = for the win
+ ianal = I am not a lawyer
+ ymmv = your mileage may vary
+ brb = be right back
+ asl = age/sex/location
+ otoh = On the other hand
+ idts = I don't think so
+ ; auto correct like behavior
+ linux = Linux
+ emacs = Emacs
+ ; example shell commands, be careful with these, fragile they are...
+ dte = $(date)
+ edt = $(gedit ~/.abbr.ini)
+ dr = $(ls)
+ chfile = $(zenity --file-selection --multiple --separator=" -- ")
+ grt = $(echo Salutations $(zenity --entry))
+
+.SH "SEE ALSO"
+
+gksu(1), espeak(1), zenity(1), aoss(1)
+
+.SH BUGS
+Too many to count :), see known problems in the README.  In
+particular, people who aren't in the /etc/sudoers file will not be
+able to run the program without changing permissions on the proper
+/dev/input/eventX file.
+.SH AUTHOR
+Sam Peterson <peabodyenator@gmail.com>

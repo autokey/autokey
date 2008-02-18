@@ -84,8 +84,8 @@ echoctl (int type)
 }
 
 /*
- * * turn character echoing back on
- * */
+ *  turn character echoing back on
+ */
 
 void
 handler (int sig)
@@ -117,20 +117,9 @@ read_keys (int rfd, char *keys[])
     if ((rd = read (rfd, ev, size * 64)) < size)
       perror_exit ("read()");
 
-    // Only read the key press event
-    // NOT the key release event
-
-    //value = ev[0].value;
-    // Sam's change
-//    if (value != ' ' && ev[1].value == 1 && ev[1].type == 1)
-//    {
-//      if (keys[value] != NULL)
-//      {
-//	printf ("%s", (keys[value]));
-//	fflush (stdout);
-//      }
-//    }
-    /* taken from evtest.c, prevents all this duplicate nonsense */
+    /* Sam's change */
+    /* loop construct taken from evtest.c */
+    /* reports input more accurately */
     for (i = 0; i < rd / sizeof(struct input_event); i++)
     {
       if (ev[i].type == 1 && ev[i].value == 1)
@@ -172,9 +161,9 @@ test_device (char buf[])
 }
 
 /*
- * * Check each device in /dev/input and determine if
- * * it is a keyboard device
- * */
+ *  Check each device in /dev/input and determine if
+ *  it is a keyboard device
+ */
 
 char *
 scan_for_devices ()
@@ -250,8 +239,7 @@ main (int argc, char *argv[])
     printf ("%s is not a vaild device. try using the argument 'scan'\n", device);
   }
 
-  ioctl (fd, EVIOCGNAME (sizeof (name)), name);
-  //ioctl (fd, 0x40044590, name);
+  //ioctl (fd, EVIOCGNAME (sizeof (name)), name);
   //printf ("Reading From : %s (%s)\n", device, name);
 
   // handle all singles so the device will be closed before exit

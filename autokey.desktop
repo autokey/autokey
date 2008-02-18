@@ -3,7 +3,7 @@
 Encoding=UTF-8
 Name=Autokey
 Comment=Text Replacement Program for Linux
-Exec=hotstring.py
+Exec=autokey.py
 Terminal=false
 Type=Application
 Icon=gnome-terminal.png

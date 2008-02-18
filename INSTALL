@@ -8,6 +8,9 @@ uninstall if you don't like it.
 
 Be sure to copy the example abbr.ini to $HOME/.abbr.ini
 
-Type hotstring.py into a terminal to run the program.
+Type autokey.py into a terminal to run the program.  If the last key
+you use to break up the expansion seems to be typed twice, or if the
+expansion seems to expand too late, try playing with wait_time values
+on the command line.
 
-kill it from a terminal with 'killall hotstring.py'
+kill it from a terminal with 'killall autokey.py'

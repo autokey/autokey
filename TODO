@@ -1,6 +1,3 @@
-FEATURES
-================
-
 Currently, abbreviations are case insensitive.  This is because the
 hotstring_logger program only receives keypress events, so there's no
 way to reliably track the status of the shift key.  I would like to
@@ -8,21 +5,33 @@ have this fixed so I can tell the case of the letter in the
 abbreviations and expand the abbreviations according to the case
 pattern as in Emacs.
 
+Experiment with sending cursor keys, home, function keys, etc.
+
+Expand abbreviation functionality so it is more versatile, I'd like to
+come up with a mechanism by which we can pass arguments to
+abbreviations.
+
+Find a way to present visual queues to the user
+
+Create a shorcut key to toggle abbrevs on and off.
+
 Automatic keyboard detection is a must.  Having the user tell the
 program what they're using is lame!  Plus it breaks if the user
-changes keyboard layouts!  I also think that this is likely to cause
-problems with international keyboards, hindering the program's
-adoption.  The only keyboard layouts I'm familiar with are qwerty and
-dvorak.
+changes keyboard layouts while the program is running!  I also think
+that this is likely to cause problems with international keyboards,
+hindering the program's adoption.  The only keyboard layouts I'm
+familiar with are qwerty and dvorak.
 
 I would like to have *some* kind of user interface, however minimal.
 The zenity script hacks are lame.  Plus, the only way to close the
-program is to "killall hotstring.py" from a terminal.
-
-I need a way to switch off abbrevs temporarily, but I think that's
-going to hinge on the completion of some sort of systray gui program.
+program is to "killall autokey.py" from a terminal.  However, I
+think I don't want this implemented directly in the program.  I want
+other programs to communicate directly with my program as a sort of
+backend.
 
 I think it would also be nice to be able to specify a black list of
 windows to avoid typing text expansions to.
 
-I need to clean up and refactor the code.  It's turned into a mess.
+I need to clean up and refactor the code.  It's turned into a mess.  I
+went through one phase of refactoring, but I'm definitely going to
+need another.
