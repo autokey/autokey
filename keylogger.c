@@ -122,9 +122,14 @@ read_keys (int rfd, char *keys[])
     /* reports input more accurately */
     for (i = 0; i < rd / sizeof(struct input_event); i++)
     {
-      if (ev[i].type == 1 && ev[i].value == 1)
+      if (ev[i].type == 1
+	  && (ev[i].value == 1 || ev[i].code == 42 || ev[i].code == 54
+	      || ev[i].code == 29 || ev[i].code == 97 || ev[i].code == 56
+	      || ev[i].code == 100))
+      {
 	printf("%d\n", ev[i].code);
-      fflush(stdout);
+	fflush(stdout);
+      }
     }
   }
 

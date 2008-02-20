@@ -25,6 +25,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import sys
+
 try:
     import Xlib.X as X
     import Xlib.display as display
@@ -34,10 +36,10 @@ except ImportError:
     print 'On Debian/Ubuntu: apt-get install python-xlib'
     sys.exit(1)
 
-import os,re,keyreader,ConfigParser,glob
-import sys
+import os,re,ConfigParser,glob
 import time
 import signal
+import string
 
 #import pdb
 
@@ -48,12 +50,15 @@ lock_file = ""
 
 # structure to keep track of which modifier keys are on
 modifier_keys = [["<control>", 0], ["<shift>", 0], ["<alt>", 0]]
+mk = ("<control>", "<shift>", "<alt>")
 
 # set of things considered word characters
-word_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
+word_chars = "`abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'"
 
-# tuple containing shifted values
-shifted = ('~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '_', '{', '}', '?', '+', '"', '<', '>', ':')
+# shifted values
+shifted = '~!@#$%^&*()_{}?+"<>:'
+orig_shifted = "`1234567890-[]/=',.;"
+shifted_transtable = string.maketrans(orig_shifted,shifted)
 
 # need to find a way to detect the keyboard layout...then the user
 # wouldn't have to be asked about which translation table to use
@@ -61,7 +66,7 @@ qwerty = [ "", "<esc>", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
   "-", "=", "<backspace>",
   "<tab>", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "[",
   "]", "\n", "<control>", "a", "s", "d", "f", "g",
-  "h", "j", "k", "l", ";", "'", "", "<shift>",
+  "h", "j", "k", "l", ";", "'", "`", "<shift>",
   "\\", "z", "x", "c", "v", "b", "n", "m", ",", ".",
   "/", "<shift>", "", "<alt>", " ", "<capslock>", "<f1>",
   "<f2>", "<f3>", "<f4>", "<f5>", "<f6>", "<f7>", "<f8>", "<f9>",
@@ -75,7 +80,7 @@ dvorak = [ "", "<esc>", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
   "-", "=", "<backspace>",
   "<tab>", "'", ",", ".", "p", "y", "f", "g", "c", "r", "l", "/",
   "=", "\n", "<control>", "a", "o", "e", "u", "i",
-  "d", "h", "t", "n", "s", "-", "", "<shift>",
+  "d", "h", "t", "n", "s", "-", "`", "<shift>",
   "\\", ";", "q", "j", "k", "x", "b", "m", "w", "v",
   "z", "<shift>", "", "<alt>", " ", "<capslock>", "<f1>",
   "<f2>", "<f3>", "<f4>", "<f5>", "<f6>", "<f7>", "<f8>", "<f9>",
@@ -83,6 +88,12 @@ dvorak = [ "", "<esc>", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
   "", "", "", "\\", "f11", "f12", "", "", "", "", "", "",
   "", "", "<control>", "", "<sysrq>"
 ]
+
+user_folder = os.path.expanduser('~')
+def get_abbr(file = user_folder + '/.abbr.ini'):
+    parser = ConfigParser.ConfigParser()
+    parser.readfp(open(file))
+    return dict(parser.items('abbr'))
 
 # timeout value to try
 try: sleep_value = float(sys.argv[1])
@@ -107,6 +118,12 @@ def cleanup(one = None, two = None):
     except OSError: pass
     os.system("espeak 'Autokey is exiting'")
     sys.exit(1)
+
+# grab scroll lock shortcut key, FIXME: need to parameterize this
+def grab_keys(display, root_window):
+    root_window.change_attributes(event_mask = X.KeyPressMask)
+    # set keyboard shortcut to f6
+    root_window.grab_key(78, X.AnyModifier, 0, X.GrabModeAsync, X.GrabModeAsync)
 
 # FIXME: in the future, this will be one of a set of functions which
 # handle modifier keys.  The idea will be to turn off all modifier
@@ -153,35 +170,80 @@ def watch_key(input, keycodes, pipe):
     except IndexError: pass # blank is okay
     # ignore blanks
     if input and input[-1] == '': input.pop()
-    # ignore shift
-    if input and input[-1] == '<shift>': input.pop()
+    # ignore duplicate shifts
+    if input[-2:] == ['<shift>', '<shift>']:
+        input.pop()
 
 # text shortcuts read here
 def update_abbr():
     global abbreviations
     try:
-        abbreviations = keyreader.get_abbr()
+        abbreviations = get_abbr()
     except ConfigParser.ParsingError:
         os.system("zenity --info --text='You have errors in your abbr file'")
         cleanup()
 
 def possible_match(input):
     global abbreviations
+    input = translate_shifted(input)
+    if '~' in input: return True
     for key in abbreviations.keys():
+        # substring match
         if key[0:len(input)] == input:
             return True
     print "key not found, stopping input"
     return False
 
+def translate_shifted(input):
+    # filter modifiers (code to deal with modifiers will go here)
+    shift_groups = input.split("<shift>")
+    if len(shift_groups) > 1:
+        # modify every even shift group
+        for i in xrange(1, len(shift_groups), 2):
+            shift_groups[i] = \
+                shift_groups[i].translate(shifted_transtable)
+        input = ''.join(shift_groups)
+    return input
+
 def try_abbr(input):
     global abbreviations
     # I'm hoping to add a command to quickly display all abbrs
-    try: return abbreviations[input]
+    try:
+        # translate shifted and remove modifiers
+        input = translate_shifted(input)
+
+        values = input.split('~')
+        if len(values) > 1:
+            try:
+                return abbreviations[values[0]] % tuple(values[1:])
+            except TypeError:
+                os.system("zenity --error --text='Badly formmated abbr argument'")
+                return ""
+        elif '%%' in abbreviations[input]:
+            try:
+                firstpart, secondpart = abbreviations[input].split('%%')
+                # count lefts and ups
+                rows = secondpart.split('\n')
+                left, ups = len(rows[0]), len(rows) - 1
+                return (''.join([firstpart, secondpart]), (left, ups))
+            except ValueError:
+                os.system("zenity --error --text='Badly formmated abbr argument'")
+                return ""
+        else:
+            return abbreviations[input]
     except KeyError: return ""
 
 def stop_grab(display):
     display.ungrab_keyboard(X.CurrentTime)
     display.flush()
+
+def send_left(display, root, num):
+    for i in xrange(num):
+        send_key(root, 100)
+
+def send_up(display, root, num):
+    for i in xrange(num):
+        send_key(root, 98)
 
 def send_text(display, root, text):
     new_text = escape_lines(text)
@@ -232,6 +294,14 @@ def send_key(window, keycode):
         xtest.fake_input(window, X.KeyPress, keycode)
         xtest.fake_input(window, X.KeyRelease, keycode)
 
+def check_toggle(display, root_window):
+    result = False
+    i = root_window.display.pending_events()
+    while i > 0:
+        event = root_window.display.next_event()
+        if event.type == X.KeyPress: result = True
+        i = i - 1
+    return result
 
 def main():
     # make the connections to the X server
@@ -309,7 +379,7 @@ def main():
                 input = input[:-2]
 
             # on non-word character, try expanding the abbreviation
-            elif not input[-1] in word_chars:
+            elif not input[-1] in word_chars and not input[-1] in mk:
                 # if we were ignoring input, clear flag and input
                 if ignore:
                     ignore = False
@@ -317,15 +387,23 @@ def main():
                     continue
                 # else, try to expand the abbreviation
                 value = try_abbr(''.join(input[:-1]))
-                current = input
+                # get input buffer minus modifiers
+                current = [x for x in input if x not in mk]
                 input = []
                 if value:
-                    print "Sending '" + value + "'"
+                    # code for sending events to X
+                    print "Sending '" + str(value) + "'"
                     print "Last value of current was: '" + current[-1] + "'"
                     send_backspace(root, len(current))
                     disp.flush()
                     os.system("espeak 'expanding' &")
-                    send_text(disp, root, value)
+                    if type(value) == tuple:
+                        send_text(disp, root, value[0])
+                        send_up(disp, root, value[1][1])
+                        send_left(disp, root, value[1][0])
+                    else:
+                        print "Whoa dude!"
+                        send_text(disp, root, value)
                     # hack! sending the last value too soon seems to
                     # randomly duplicate the character (sync problems
                     # with X11)
@@ -343,21 +421,6 @@ def main():
 # old code below, I don't want to delete this yet because it's a good
 # example of how to setup a shortcut key.  I may use that in the
 # future to setup a shortcut key to toggle expansion off and on.
-
-# might need to use threads...maybe.
-def grab_keys(display, root_window):
-    root_window.change_attributes(event_mask = X.KeyPressMask)
-    # set keyboard shortcut to f6
-    root_window.grab_key(78, X.AnyModifier, 0, X.GrabModeAsync, X.GrabModeAsync)
-
-def check_toggle(display, root_window):
-    result = False
-    i = root_window.display.pending_events()
-    while i > 0:
-        event = root_window.display.next_event()
-        if event.type == X.KeyPress: result = True
-        i = i - 1
-    return result
 
 def handle_keypress(abbreviations, display, root_window):
     '''Grabs the keyboard and listens for abbreviation sequence'''
