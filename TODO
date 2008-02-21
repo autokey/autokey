@@ -1,10 +1,3 @@
-Currently, abbreviations are case insensitive.  This is because the
-hotstring_logger program only receives keypress events, so there's no
-way to reliably track the status of the shift key.  I would like to
-have this fixed so I can tell the case of the letter in the
-abbreviations and expand the abbreviations according to the case
-pattern as in Emacs.
-
 Experiment with sending cursor keys, home, function keys, etc.
 
 Expand abbreviation functionality so it is more versatile, I'd like to

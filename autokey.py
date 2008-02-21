@@ -45,6 +45,7 @@ import string
 
 # globals
 abbreviations = {}
+audio_cues = False
 
 lock_file = ""
 
@@ -91,8 +92,13 @@ dvorak = [ "", "<esc>", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
 
 user_folder = os.path.expanduser('~')
 def get_abbr(file = user_folder + '/.abbr.ini'):
+    global audio_cues
     parser = ConfigParser.ConfigParser()
     parser.readfp(open(file))
+    # configuration is checked here
+    try:
+        audio_cues = dict(parser.items('config'))['voice'].lower() == 'yes'
+    except ConfigParser.NoSectionError: pass
     return dict(parser.items('abbr'))
 
 # timeout value to try
@@ -116,7 +122,7 @@ def cleanup(one = None, two = None):
     try:
         os.unlink(lock_file)
     except OSError: pass
-    os.system("espeak 'Autokey is exiting'")
+    if audio_cues: os.system("espeak 'Autokey is exiting'")
     sys.exit(1)
 
 # grab scroll lock shortcut key, FIXME: need to parameterize this
@@ -331,7 +337,7 @@ def main():
         sys.exit(1)
 
     # say hi to the world
-    os.system("espeak 'Autokey is running' &")
+    if audio_cues: os.system("espeak 'Autokey is running' &")
 
     expansion_off = False
 
@@ -343,9 +349,9 @@ def main():
 
         # audio queue
         if exp_check and not expansion_off:
-            os.system("espeak 'expansions off' &")
+            if audio_cues: os.system("espeak 'expansions off' &")
         elif exp_check and expansion_off:
-            os.system("espeak 'expansions on' &")
+            if audio_cues: os.system("espeak 'expansions on' &")
 
         expansion_off = expansion_off ^ exp_check
         if expansion_off:
@@ -396,7 +402,7 @@ def main():
                     print "Last value of current was: '" + current[-1] + "'"
                     send_backspace(root, len(current))
                     disp.flush()
-                    os.system("espeak 'expanding' &")
+                    if audio_cues: os.system("espeak 'expanding' &")
                     if type(value) == tuple:
                         send_text(disp, root, value[0])
                         send_up(disp, root, value[1][1])
