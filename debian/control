@@ -1,0 +1,13 @@
+Source: autokey
+Section: unknown
+Priority: optional
+Maintainer: Sam Peterson <peabodyenator@gmail.com>
+Build-Depends: debhelper (>= 5), python (>= 2.3)
+Standards-Version: 3.7.2
+
+Package: autokey
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, python (>= 2.3), python-xlib (>= 0.13), zenity 
+Description: a text expansion program for X11 under GNU/Linux
+ autokey expands text as you type it based off of a user defined
+ dictionary of abbreviations in ~/.abbr.ini.

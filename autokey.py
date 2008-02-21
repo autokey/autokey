@@ -46,6 +46,7 @@ import string
 # globals
 abbreviations = {}
 audio_cues = False
+event_file = ""
 
 lock_file = ""
 
@@ -92,13 +93,15 @@ dvorak = [ "", "<esc>", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0",
 
 user_folder = os.path.expanduser('~')
 def get_abbr(file = user_folder + '/.abbr.ini'):
-    global audio_cues
+    global audio_cues, event_file
     parser = ConfigParser.ConfigParser()
     parser.readfp(open(file))
     # configuration is checked here
     try:
-        audio_cues = dict(parser.items('config'))['voice'].lower() == 'yes'
-    except ConfigParser.NoSectionError: pass
+        config = dict(parser.items('config'))
+        audio_cues = config['voice'].lower() == 'yes'
+        event_file = config['eventfile']
+    except (ConfigParser.NoSectionError, KeyError): pass
     return dict(parser.items('abbr'))
 
 # timeout value to try
@@ -153,14 +156,14 @@ def set_signal_handlers():
     signal.signal(signal.SIGINT, cleanup)
 
 def make_capture_command():
-    kbd_input_file = abbreviations.setdefault('eventfile','')
+    kbd_input_file = event_file
     # hopefully the right keyboard device file is found
     if not kbd_input_file:
         try:
             kbd_input_file = glob.glob('/dev/input/by-path/*kbd')[0]
         except IndexError:
             # hope for the best
-            os.system("echo 'Cannot find event file!  Guessing, /dev/input/event1.  If this is wrong, hotstrings will not work!  Try and find out which /dev/input/eventX file your keyboard is attached to and make an abbrev called eventfile = /path/to/event/file | zenity --text-info")
+            os.system("echo 'Cannot find event file!  Guessing, /dev/input/event1.  If this is wrong, hotstrings will not work!  Try and find out which /dev/input/eventX file your keyboard is attached and set eventfile to in in abbr.ini [config]'")
             kbd_input_file = '/dev/input/event1'
     return 'gksudo hotstring_logger %s' % kbd_input_file
 
@@ -366,9 +369,6 @@ def main():
         value = ''
         # update abbreviations file
         update_abbr()
-        # get rid of event abbrev
-        try: del abbreviations['eventfile']
-        except KeyError: pass
 
         print "Input after loop:", input
 

@@ -1,0 +1,8 @@
+autokey for Debian
+------------------
+
+This package is peculiar enough that I won't be using distutils for its
+distribution.  Instead, $(prefix)/share/autokey will contain the byte compiled
+versions of any package specific modules and autokey.py adds this to its path.
+
+ -- Sam Peterson <peabodyenator@gmail.com>  Mon, 18 Feb 2008 17:14:17 -0800

@@ -11,13 +11,13 @@ on Linux.  The user is to keep a list of textual abbreviations in
 The program autokey.py will read the ~/.abbr.ini file on startup,
 build a dictionary of abbreviations and use hotstring_keylogger to
 capture all keyboard input (which must have the right /dev/input/ file
-specified in the autokey.py file).  Once a recognized abbreviation
-is typed, followed by a non-word character, a series of backspaces are
-sent to the program, followed by a serious of KeyPress/KeyRelease
-events (this is done using the python-xlib library with the xtest X11
-module).  The right hand side of the abbreviations are passed to the
-echo command in a subshell, so subshell and environment variables may
-be used.
+specified in the [config] section of abbr.ini).  Once a recognized
+abbreviation is typed, followed by a non-word character, a series of
+backspaces are sent to the program, followed by a serious of
+KeyPress/KeyRelease events (this is done using the python-xlib library
+with the xtest X11 module).  The right hand side of the abbreviations
+are passed to the echo command in a subshell, so subshell and
+environment variables may be used.
 
 This is prototype code, although it has become quite usable.  It
 requires python, the python-xlib package, the gksudo program and
@@ -67,8 +67,10 @@ from one of my abbreviations, for example:
 mysnip = $(snippit mysnip)
 
 Please let me know if you're interested in helping with the project
-(programming skills aren't necessary, I need testers as well). Send
-bug reports to peabodyenator@gmail.com.
+(programming skills aren't necessary, I need testers as well).  I am
+no longer able to work on it until, most likely, summer of 2008, so I
+need maintainers.  Please email peabodyenator@gmail.com if you are at
+all interested in the project.
 
 KNOWN PROBLEMS
 ================

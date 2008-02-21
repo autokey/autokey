@@ -1,0 +1,18 @@
+autokey (0.31.1-0ubuntu3) gutsy; urgency=low
+
+  * Cleaned up code so eventfile specification goes in [config] section
+
+ -- Sam Peterson <peabodyenator@gmail.com>  Thu, 21 Feb 2008 11:49:03 -0800
+
+autokey (0.31-0ubuntu2) gutsy; urgency=low
+
+  * Update so abbr.ini has config option for turning voice off
+
+ -- Sam Peterson <peabodyenator@gmail.com>  Thu, 21 Feb 2008 11:49:03 -0800
+
+autokey (0.30-0ubuntu1) gutsy; urgency=low
+
+  * Initial release
+
+ -- Sam Peterson <peabodyenator@gmail.com>  Mon, 18 Feb 2008 17:14:17 -0800
+
