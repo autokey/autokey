@@ -55,7 +55,7 @@ class XLibInterface(threading.Thread):
         
     def __init__(self, mediator):
         threading.Thread.__init__(self)
-        #self.setDaemon(True)
+        self.setDaemon(True)
         self.mediator = mediator
         self.local_dpy = display.Display()
         self.record_dpy = display.Display()
@@ -109,9 +109,9 @@ class XLibInterface(threading.Thread):
         self.record_dpy.record_free_context(self.ctx)
         
     def cancel(self):
-        self.record_dpy.record_disable_context(self.ctx)
+        self.local_dpy.record_disable_context(self.ctx)
         self.local_dpy.flush()
-        self.join()
+        #self.join()
         
     def lookup_string(self, keyCode, shifted):
         if keyCode in self.keyNames.keys():

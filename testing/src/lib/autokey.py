@@ -120,6 +120,7 @@ class AutoKeyTrayIcon(gobject.GObject):
         self.service.pause()
         if self.icon is not None:
             self.removeMenuItem.set_sensitive(False)   
+        print str(threading.enumerate())
             
     def config_reloaded(self, errorMessage=None):
         if errorMessage is None:
