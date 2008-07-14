@@ -126,7 +126,7 @@ class IoMediator:
         Sends the given string for output.
         """
         self.__clearModifiers()
-        self.interface.send_string(string)
+        self.interface.send_string(string.encode("utf-8"))
         self.__reapplyModifiers()
         
     def send_key(self, keyName):

@@ -124,7 +124,7 @@ class AutoKeyTrayIcon(gobject.GObject):
             
     def config_reloaded(self, errorMessage=None):
         if errorMessage is None:
-            self.emit("show-notify", "Configuration file has been reloaded", gtk.STOCK_DIALOG_INFO)
+            self.emit("show-notify", "The configuration file has been reloaded.", gtk.STOCK_DIALOG_INFO)
         else:
             self.emit("show-notify", errorMessage, gtk.STOCK_DIALOG_ERROR)
         

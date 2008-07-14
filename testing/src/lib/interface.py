@@ -20,9 +20,6 @@ def threaded(f):
 
 # Xlib Interface ----
 
-SHIFTED_CHARS = '~!@#$%^&*()_{}?+"<>:'
-SHIFTABLE_CHAR_REGEX = re.compile('^[a-z0-9]$|^minus$|^equal$|^bracketleft$|^bracketright$|^semicolon$|^backslash$|^apostrophe$|^comma$|^period$|^slash$|^grave$')
-
 # Modifiers
 SHIFT_REGEX = '^Shift'
 CAPSLOCK_REGEX = '^Caps_Lock'
@@ -79,7 +76,7 @@ class XLibInterface(threading.Thread):
                     
             if len(regexList) == 0:
                 # if all regexes have been mapped, leave the loop
-                break
+                break        
         
     def run(self):
         if not self.record_dpy.has_extension("RECORD"):
@@ -116,31 +113,37 @@ class XLibInterface(threading.Thread):
     def lookup_string(self, keyCode, shifted):
         if keyCode in self.keyNames.keys():
             return self.keyNames[keyCode]
-        
         else:
-            keyName = self.__lookupKeyName(keyCode)
-            if SHIFTABLE_CHAR_REGEX.match(keyName):
-                if shifted:
-                    return chr(self.local_dpy.keycode_to_keysym(keyCode, 1))
-                else:
-                    return chr(self.local_dpy.keycode_to_keysym(keyCode, 0))
+            if shifted:
+                return unichr(self.local_dpy.keycode_to_keysym(keyCode, 1))
             else:
-                return None
+                return unichr(self.local_dpy.keycode_to_keysym(keyCode, 0))
     
     def send_string(self, string):
+        """
+        Send a string of printable characters.
+        """
         for char in string:
-            if char.isupper() or char in SHIFTED_CHARS:
-                self.press_key(iomediator.KEY_SHIFT)
-                self.send_key(char)
-                self.release_key(iomediator.KEY_SHIFT)
-            else:
-                self.send_key(char)
+            keySymList = self.local_dpy.keysym_to_keycodes(ord(char))
     
+            if len(keySymList) > 0:
+                keyCode, offset = keySymList[0]
+                # TODO - other offsets needed (e.g. for Alt-Gr)
+                if offset == 1:
+                    self.press_key(iomediator.KEY_SHIFT)
+                    self.__sendKeyCode(keyCode)
+                    self.release_key(iomediator.KEY_SHIFT)
+                else:
+                    self.__sendKeyCode(keyCode)
+                    
+            else:
+                self.__sendKeyCode(self.__lookupKeyCode(char))
+                
     def send_key(self, keyName):
-        keyCode = self.__lookupKeyCode(keyName)
-        print "send %s: %s" % (keyName, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        """
+        Send a specific non-printing key, eg Up, Left, etc
+        """
+        self.__sendKeyCode(self.__lookupKeyCode(keyName))
         
     def flush(self):
         self.local_dpy.flush()
@@ -182,15 +185,7 @@ class XLibInterface(threading.Thread):
             self.mediator.handle_modifier_up(modifier)
         else:
             self.mediator.handle_keypress(keyCode)
-                        
-    def __lookupKeyName(self, keyCode):
-        keySym = self.local_dpy.keycode_to_keysym(keyCode, 0)
-            
-        for name in dir(XK):
-            if name.startswith("XK_") and getattr(XK, name) == keySym:
-                return name[3:]
-        return None
-                
+                    
     def __decodeModifier(self, keyCode):
         """
         Checks if the given keyCode is a modifier key. If it is, returns the modifier name
@@ -202,6 +197,10 @@ class XLibInterface(threading.Thread):
                 return keyName
         
         return None
+    
+    def __sendKeyCode(self, keyCode):
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
         
     def __lookupKeyCode(self, char):
         if char in self.keyCodes.keys():
