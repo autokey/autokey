@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, os.path, threading, gamin, string, time, ConfigParser, select, re
+import sys, os, os.path, threading, gamin, string, time, ConfigParser, select, re, subprocess
 import iomediator
 from abbreviation import *
 
@@ -32,7 +32,7 @@ def synchronized(lock):
 
 def escape_text(text):
     #text = text.replace("\\", "\\\\"
-    return text.replace('"','\\\"')  
+    return "\"%s\"" % text.replace('"','\\\"')
 
 class ExpansionService:
     
@@ -78,16 +78,23 @@ class ExpansionService:
         if self.is_running():
             self.pause()
             self.monitor.stop()
+        
         try:
             config = ConfigParser.ConfigParser()
             config.read([CONFIG_FILE])        
             config.set(CONFIG_SECTION, METHOD_OPTION, self.interfaceType)
             fp = open(CONFIG_FILE, 'w')
             config.write(fp)
+
         except Exception:
             pass
+
         finally:
-            fp.close()
+            try:
+                fp.close()
+            except Exception:
+                pass
+                
     
     def handle_keypress(self, key):        
        
@@ -108,22 +115,30 @@ class ExpansionService:
 
                 for abbreviation in abbreviations:
                     expansion = abbreviation.check_input(self.inputStack)
-                    if expansion is not None: break
+                    if expansion is not None:
+                        matchedAbbr = abbreviation.abbreviation
+                        break
                 
                 if expansion is not None:
                     self.mediator.send_backspace(expansion.backspaces)
                     
                     # Shell expansion
-                    text = os.popen('/bin/echo -e "%s"' % escape_text(expansion.string)).read()
-                    text = text[:-1] # remove trailing newline
+                    p = subprocess.Popen("/bin/echo -e " + escape_text(expansion.string), stdout=subprocess.PIPE,
+                                          stderr=subprocess.PIPE, shell=True)
+                    result = p.wait()
+                    if result == 0:
+                        text = p.stdout.read()
+                        text = text[:-1] # remove trailing newline
                     
-                    self.mediator.send_string(text)
+                        self.mediator.send_string(text)
+                        self.mediator.send_up(expansion.ups)
+                        self.mediator.send_left(expansion.lefts)
+                        self.mediator.flush()
                     
-                    self.mediator.send_up(expansion.ups)
-                    self.mediator.send_left(expansion.lefts)
-                    
-                    #self.ignoreCount = len(text)
-                    self.mediator.flush()
+                    else:
+                        if self.trayIcon is not None:
+                            errorDetails =  p.stderr.read() + p.stdout.read()
+                            self.trayIcon.show_notify("Error during shell expansion of '%s'." % matchedAbbr, True, errorDetails)
                     
                 
         if len(self.inputStack) > MAX_STACK_LENGTH: 
@@ -134,7 +149,7 @@ class ExpansionService:
     @synchronized(ABBREVIATIONS_LOCK)
     def __getAbbreviations(self):
         """
-        Synchronised access to the abbreviations is required due to prevent simultaneous
+        Synchronised access to the abbreviations is required to prevent simultaneous
         access by the monitoring thread and the expansion thread.
         """
         return self.abbreviations
@@ -170,9 +185,10 @@ class ExpansionService:
         try:
             self.__loadAbbreviations()
             if self.trayIcon is not None:
-                self.trayIcon.config_reloaded()
+                self.trayIcon.show_notify("The abbreviations have been reloaded.")
         except Exception, e:
-            self.trayIcon.config_reloaded("Abbreviations have not been reloaded.\n" + str(e))
+            if self.trayIcon is not None:
+                self.trayIcon.show_notify("An error occurred while reloading the abbreviations.\n", True, str(e))
         
 class FileMonitor(threading.Thread):
     

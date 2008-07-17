@@ -13,9 +13,10 @@ def gthreaded(f):
     
     def wrapper(*args):
         gtk.gdk.threads_enter()
-        t = threading.Thread(target=f, args=args)
-        t.setDaemon(True)
-        t.start()
+        #t = threading.Thread(target=f, args=args)
+        #t.setDaemon(True)
+        #t.start()
+        f(*args)
         gtk.gdk.threads_leave()
         
     wrapper.__name__ = f.__name__
@@ -26,13 +27,14 @@ def gthreaded(f):
 class AutoKeyTrayIcon(gobject.GObject):
 
     __gsignals__ = { "show-notify" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-                                      (gobject.TYPE_STRING, gobject.TYPE_STRING)) }    
+                                      (gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)) }    
     
     def __init__(self, icon=True):
         try:
             self.initialise(icon)
         except Exception, e:
             self.__showErrorDialog("Unable to start expansion service.\n" + str(e))
+            sys.exit(1)
         
     def initialise(self, icon):
         gobject.GObject.__init__(self)
@@ -119,19 +121,18 @@ class AutoKeyTrayIcon(gobject.GObject):
     def stop_service(self):
         self.service.pause()
         if self.icon is not None:
-            self.removeMenuItem.set_sensitive(False)   
-        print str(threading.enumerate())
+            self.removeMenuItem.set_sensitive(False)
             
-    def config_reloaded(self, errorMessage=None):
-        if errorMessage is None:
-            self.emit("show-notify", "The configuration file has been reloaded.", gtk.STOCK_DIALOG_INFO)
+    def show_notify(self, message, isError=False, details=''):
+        if isError:
+            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_ERROR)
         else:
-            self.emit("show-notify", errorMessage, gtk.STOCK_DIALOG_ERROR)
+            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)
         
     def main(self):
         gtk.main()        
     
-    # ---- Signal Handlers ----
+    # Signal Handlers ----
         
     def on_popup_menu(self, status_icon, button, activate_time, data=None):
         self.menu.popup(None, None, None, button, activate_time)
@@ -176,13 +177,23 @@ class AutoKeyTrayIcon(gobject.GObject):
                 self.__showErrorDialog("Unable to switch expansion method.\n" + str(e))
     
     @gthreaded
-    def on_show_notify(self, widget, message, iconName):
-        n = pynotify.Notification("Autokey abbreviations", message, iconName)
+    def on_show_notify(self, widget, message, details, iconName):
+        n = pynotify.Notification("Autokey", message, iconName)
         n.set_urgency(pynotify.URGENCY_LOW)
         n.attach_to_status_icon(self.icon)
+        #if details != '':
+        #    n.add_action("details", "Details", self.__notifyClicked, details)
+        # This doesn't seem to work at all. Bug in pynotify???
+
         n.show()
                     
-    # ---- Utility methods ----
+    # Utility methods ----
+    
+    def __notifyClicked(self, notification, action, details):
+        dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                                 message_format=details)
+        dlg.connect("close", lambda x: x.destroy())
+        dlg.show()
                 
     def __getSelectedMethod(self):
         if self.xlibMethodRadioItem.active:
