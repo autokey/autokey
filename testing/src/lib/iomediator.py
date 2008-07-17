@@ -6,7 +6,7 @@ ATSPI_INTERFACE = "AT-SPI"
 KEY_UP = "up"
 KEY_LEFT = "left"
 KEY_BACKSPACE = "backspace"
-KEY_TAB = "tab"
+KEY_TAB = "\t"
 
 # Modifier keys
 KEY_CONTROL = "ctrl"
@@ -126,7 +126,7 @@ class IoMediator:
         Sends the given string for output.
         """
         self.__clearModifiers()
-        self.interface.send_string(string.encode("utf-8"))
+        self.interface.send_string(string.decode("utf-8"))
         self.__reapplyModifiers()
         
     def send_key(self, keyName):

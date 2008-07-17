@@ -125,7 +125,6 @@ class XLibInterface(threading.Thread):
         """
         for char in string:
             keySymList = self.local_dpy.keysym_to_keycodes(ord(char))
-    
             if len(keySymList) > 0:
                 keyCode, offset = keySymList[0]
                 # TODO - other offsets needed (e.g. for Alt-Gr)
@@ -178,6 +177,8 @@ class XLibInterface(threading.Thread):
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
+        #else:
+        #    self.mediator.handle_keypress(keyCode)
             
     def __handleKeyRelease(self, keyCode):
         modifier = self.__decodeModifier(keyCode)

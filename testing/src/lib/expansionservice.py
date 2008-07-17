@@ -2,19 +2,19 @@
 
 import sys, os, os.path, threading, gamin, string, time, ConfigParser, select, re
 import iomediator
+from abbreviation import *
 
 CONFIG_FILE = "../../config/abbr.ini"
 LOCK_FILE = ".autokey.lck"
 
 # Local configuration sections
 CONFIG_SECTION = "config"
-METHOD_OPTION = "method"
+DEFAULTS_SECTION = "defaults"
 ABBR_SECTION = "abbr"
+METHOD_OPTION = "method"
 
 ABBREVIATIONS_LOCK = threading.Lock()
-
-WORD_CHAR_RE = re.compile('[\w~]', re.UNICODE)
-DIGIT_RE = re.compile('\d', re.UNICODE)
+MAX_STACK_LENGTH = 50
 
 def synchronized(lock):
     """
@@ -40,13 +40,11 @@ class ExpansionService:
         self.trayIcon = trayIcon
         
         # Read configuration
-        config = ConfigParser.ConfigParser()
-        config.read([CONFIG_FILE])
+        config = self.__loadAbbreviations()
         self.interfaceType = config.get(CONFIG_SECTION, METHOD_OPTION)
-        self.abbreviations = dict(config.items(ABBR_SECTION))
         
         # Set up config file monitoring
-        self.monitor = FileMonitor(self.__loadAbbreviations)
+        self.monitor = FileMonitor(self.__reloadAbbreviations)
         self.monitor.start()    
     
     def start(self):
@@ -92,30 +90,28 @@ class ExpansionService:
             fp.close()
     
     def handle_keypress(self, key):        
-        # Check for modification of config file
-        #if self.monitor.event_pending() > 0:
-        #    self.__loadAbbreviations()
-        #self.monitor.handle_events() # flush any remaining events
-        
-        # Ignore keys received after sending an expansion
-        if self.ignoreCount > 0:
-            self.ignoreCount -= 1
-            return
-        
+       
         if key == iomediator.KEY_BACKSPACE:
             # handle backspace by dropping the last saved character
             self.inputStack = self.inputStack[:-1]
+            
+        elif key is None:
+            self.inputStack = []
+        
+        elif len(key) > 1:
+            self.inputStack = []
 
-        elif key is not None:
-            if WORD_CHAR_RE.match(key) and not DIGIT_RE.match(key):
-                # Key is a word character
+        else:
+            # Key is a character
                 self.inputStack.append(key)
+                abbreviations = self.__getAbbreviations()
+
+                for abbreviation in abbreviations:
+                    expansion = abbreviation.check_input(self.inputStack)
+                    if expansion is not None: break
                 
-            else:
-                # Key is a character and not a word character
-                expansion = self.__attemptExpansion()
                 if expansion is not None:
-                    self.mediator.send_backspace(len(self.inputStack) + 1)
+                    self.mediator.send_backspace(expansion.backspaces)
                     
                     # Shell expansion
                     text = os.popen('/bin/echo -e "%s"' % escape_text(expansion.string)).read()
@@ -123,69 +119,17 @@ class ExpansionService:
                     
                     self.mediator.send_string(text)
                     
-                    if expansion.ups > 0:
-                        self.mediator.send_up(expansion.ups)
+                    self.mediator.send_up(expansion.ups)
+                    self.mediator.send_left(expansion.lefts)
                     
-                    if expansion.lefts > 0:
-                        self.mediator.send_left(expansion.lefts)
-                    
-                    if key is not None:
-                        if len(key) == 1:
-                            self.mediator.send_string(key)
-                        else:
-                            self.mediator.send_key(key)
-    
-                    self.ignoreCount = len(text) + len(self.inputStack) + 1
+                    #self.ignoreCount = len(text)
                     self.mediator.flush()
                     
-                self.inputStack = []
                 
-        if not self.__possibleMatch():
-            self.inputStack = []
+        if len(self.inputStack) > MAX_STACK_LENGTH: 
+            self.inputStack.pop(0)
             
         #print self.inputStack
-        
-    def __possibleMatch(self):
-        input = ''.join(self.inputStack)
-        abbreviations = self.__getAbbreviations()
-
-        if '~' in input:
-            return True
-
-        for key in abbreviations.keys():
-            if key.startswith(input):
-                return True
-        
-        return False
-        
-    def __attemptExpansion(self):
-        try:
-            abbreviations = self.__getAbbreviations()
-            input = ''.join(self.inputStack)
-            values = input.split('~')
-            if len(values) > 1:
-                try:
-                    return Expansion(abbreviations[values[0]] % tuple(values[1:]))
-                except TypeError:
-                    print "Badly formatted abbreviation argument"
-                    return None
-            elif '%%' in abbreviations[input]:
-                try:
-                    firstpart, secondpart = abbreviations[input].split('%%')
-                    # count lefts and ups
-                    rows = secondpart.split('\n')
-                    lefts, ups = len(rows[0]), len(rows) - 1
-                    result = Expansion(''.join([firstpart, secondpart]))
-                    result.lefts = lefts
-                    result.ups = ups
-                    return result
-                except ValueError:
-                    print "Badly formatted abbreviation argument"
-                    return None
-            else:
-                return Expansion(abbreviations[input])
-        except KeyError:
-            return None
     
     @synchronized(ABBREVIATIONS_LOCK)
     def __getAbbreviations(self):
@@ -203,22 +147,32 @@ class ExpansionService:
         self.abbreviations = abbr
         
     def __loadAbbreviations(self):
+        p = ConfigParser.ConfigParser()
+        p.read([CONFIG_FILE])
+        abbrDefinitions = dict(p.items(ABBR_SECTION))
+        defaultSettings = dict(p.items(DEFAULTS_SECTION))
+        applySettings(Abbreviation.global_settings, defaultSettings)
+        abbreviations = []
+        
+        for definition in abbrDefinitions.keys():
+            # Determine if definition is an option
+            if '.' in definition:
+                if definition.split('.')[1] in ABBREVIATION_OPTIONS:
+                    continue # skip this definition
+            
+            abbreviations.append(Abbreviation(definition, abbrDefinitions))
+            
+        self.__setAbbreviations(abbreviations)
+        
+        return p
+            
+    def __reloadAbbreviations(self):
         try:
-            p = ConfigParser.ConfigParser()
-            p.read([CONFIG_FILE])
-            self.__setAbbreviations(dict(p.items(ABBR_SECTION)))
+            self.__loadAbbreviations()
             if self.trayIcon is not None:
                 self.trayIcon.config_reloaded()
         except Exception, e:
             self.trayIcon.config_reloaded("Abbreviations have not been reloaded.\n" + str(e))
-        
-class Expansion:
-    
-    def __init__(self, string):
-        self.string = string
-        self.ups = 0
-        self.lefts = 0
-        
         
 class FileMonitor(threading.Thread):
     
