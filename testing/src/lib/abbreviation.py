@@ -1,7 +1,5 @@
 import re
 
-__all__ = ["applySettings", "Abbreviation", "Expansion", "ABBREVIATION_OPTIONS"]
-
 WORD_CHARS_REGEX_OPTION = "wordchars"
 IMMEDIATE_OPTION = "immediate"
 IGNORE_CASE_OPTION = "ignorecase"
@@ -79,7 +77,9 @@ class Abbreviation:
             currentString = currentString.lower()
         
         if self.abbreviation in currentString:
-            stringBefore, stringAfter = currentString.split(self.abbreviation)
+            splitList = currentString.split(self.abbreviation)
+            stringBefore = ''.join(splitList[:-1])
+            stringAfter = splitList[-1]
             
             # Check trigger character condition
             if not self.settings[IMMEDIATE_OPTION]:
