@@ -10,6 +10,7 @@ class AbbreviationTest(unittest.TestCase):
                     WORD_CHARS_REGEX_OPTION : '[\w~]',
                     IMMEDIATE_OPTION : 'false',
                     IGNORE_CASE_OPTION : 'false',
+                    MATCH_CASE_OPTION : 'false',
                     BACKSPACE_OPTION : 'true',
                     OMIT_TRIGGER_OPTION : 'false',
                     TRIGGER_INSIDE_OPTION : 'false'
@@ -21,6 +22,7 @@ class AbbreviationTest(unittest.TestCase):
     def testApplySettings(self):
         self.assertEqual(self.defaultAbbr.settings[IMMEDIATE_OPTION], False)
         self.assertEqual(self.defaultAbbr.settings[IGNORE_CASE_OPTION], False)
+        self.assertEqual(self.defaultAbbr.settings[MATCH_CASE_OPTION], False)
         self.assertEqual(self.defaultAbbr.settings[BACKSPACE_OPTION], True)
         self.assertEqual(self.defaultAbbr.settings[OMIT_TRIGGER_OPTION], False)
         self.assertEqual(self.defaultAbbr.settings[TRIGGER_INSIDE_OPTION], False)
@@ -53,6 +55,23 @@ class AbbreviationTest(unittest.TestCase):
         abbr = Abbreviation("xp@", config)
         result = abbr.check_input(list("XP@ "))
         self.assertEqual(result.string, "expansion@autokey.com ")
+        
+    def testMatchCaseOption(self):
+        config = {
+                  "xp@" : "expansion@autokey.com",
+                  "xp@.ignorecase" : "true",
+                  "xp@.matchcase" : "true"
+                  }
+        
+        abbr = Abbreviation("xp@", config)
+        result = abbr.check_input(list("asdf XP@ "))
+        self.assertEqual(result.string, "EXPANSION@AUTOKEY.COM ")        
+        
+        result = abbr.check_input(list("ASDF Xp@ "))
+        self.assertEqual(result.string, "Expansion@Autokey.Com ")
+        
+        result = abbr.check_input(list("Asdf xp@ "))
+        self.assertEqual(result.string, "expansion@autokey.com ")        
         
     def testBackspaceOption(self):
         
@@ -118,6 +137,15 @@ class AbbreviationTest(unittest.TestCase):
         abbr = Abbreviation("udc", config)
         result = abbr.check_input(list("udc "))
         self.assertEqual(result.lefts, 6)
+        
+        # Test with immediate true
+        config = {
+                  "udc" : "[udc]%%[/udc]",
+                  "udc.immediate" : "true"
+                  }
+        abbr = Abbreviation("udc", config)
+        result = abbr.check_input(list("udc"))
+        self.assertEqual(result.lefts, 6)        
         
     def testMultipleAbbrs(self):
         

@@ -1,4 +1,20 @@
 
+# Copyright (C) 2008 Chris Dekter
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 XLIB_INTERFACE = "XLib"
 ATSPI_INTERFACE = "AT-SPI"
 
@@ -11,11 +27,12 @@ KEY_TAB = "\t"
 # Modifier keys
 KEY_CONTROL = "ctrl"
 KEY_ALT = "alt"
+KEY_ALT_GR = "alt_gr"
 KEY_SHIFT = "shift"
 KEY_SUPER = "super"
 KEY_CAPSLOCK = "capslock"
 
-MODIFIERS = [KEY_CONTROL, KEY_ALT, KEY_SHIFT, KEY_SUPER, KEY_CAPSLOCK]
+MODIFIERS = [KEY_CONTROL, KEY_ALT, KEY_ALT_GR, KEY_SHIFT, KEY_SUPER, KEY_CAPSLOCK]
 NON_PRINTING_MODIFIERS = [KEY_CONTROL, KEY_ALT, KEY_SUPER]
 
 CHAR_NEWLINE = '\n'
@@ -40,6 +57,7 @@ class IoMediator:
         self.modifiers = {
                           KEY_CONTROL : False,
                           KEY_ALT : False,
+                          KEY_ALT_GR: False,
                           KEY_SHIFT : False,
                           KEY_SUPER : False,
                           KEY_CAPSLOCK : False                         

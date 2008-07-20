@@ -1,3 +1,20 @@
+
+# Copyright (C) 2008 Chris Dekter
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
 import threading, re
 
 from Xlib import X, XK, display, error
@@ -24,7 +41,8 @@ def threaded(f):
 SHIFT_REGEX = '^Shift'
 CAPSLOCK_REGEX = '^Caps_Lock'
 CONTROL_REGEX = '^Control'
-ALT_REGEX = '^Alt'
+ALT_REGEX = '^Alt_L'
+ALT_GR_REGEX = '^Alt_R'
 SUPER_REGEX = '^Super'
 
 SPACE_REGEX = '^space'
@@ -39,6 +57,7 @@ REGEX_MAP = {
            CAPSLOCK_REGEX : iomediator.KEY_CAPSLOCK,
            CONTROL_REGEX : iomediator.KEY_CONTROL,
            ALT_REGEX : iomediator.KEY_ALT,
+           ALT_GR_REGEX : iomediator.KEY_ALT_GR,
            SUPER_REGEX : iomediator.KEY_SUPER,
            SPACE_REGEX : iomediator.CHAR_SPACE,
            TAB_REGEX : iomediator.KEY_TAB,
@@ -76,7 +95,7 @@ class XLibInterface(threading.Thread):
                     
             if len(regexList) == 0:
                 # if all regexes have been mapped, leave the loop
-                break        
+                break
         
     def run(self):
         if not self.record_dpy.has_extension("RECORD"):
@@ -124,19 +143,21 @@ class XLibInterface(threading.Thread):
         Send a string of printable characters.
         """
         for char in string:
-            keySymList = self.local_dpy.keysym_to_keycodes(ord(char))
-            if len(keySymList) > 0:
-                keyCode, offset = keySymList[0]
-                # TODO - other offsets needed (e.g. for Alt-Gr)
+            keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
+            if len(keyCodeList) > 0:
+                keyCode, offset = keyCodeList[0]
                 if offset == 1:
                     self.press_key(iomediator.KEY_SHIFT)
                     self.__sendKeyCode(keyCode)
                     self.release_key(iomediator.KEY_SHIFT)
-                else:
+                elif offset == 2:
+                    self.press_key(iomediator.KEY_ALT_GR)
                     self.__sendKeyCode(keyCode)
-                    
+                    self.release_key(iomediator.KEY_ALT_GR)
+                else:
+                    self.__sendKeyCode(keyCode)                    
             else:
-                self.__sendKeyCode(self.__lookupKeyCode(char))
+                self.send_key(char)
                 
     def send_key(self, keyName):
         """
