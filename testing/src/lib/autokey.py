@@ -65,7 +65,7 @@ class AutoKeyTrayIcon(gobject.GObject):
             
             # Main Menu items
             self.enableMenuItem = gtk.CheckMenuItem("Enable expansions")
-            methodMenuItem = gtk.MenuItem("Expansion method")
+            #methodMenuItem = gtk.MenuItem("Expansion method")
             editMenuItem = gtk.ImageMenuItem("Edit abbreviations file")
             editMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_EDIT, gtk.ICON_SIZE_MENU))
             self.removeMenuItem = gtk.ImageMenuItem("Remove tray icon")
@@ -74,8 +74,8 @@ class AutoKeyTrayIcon(gobject.GObject):
             aboutMenuItem = gtk.ImageMenuItem(gtk.STOCK_ABOUT)
             
             # Sub-menu items
-            self.xlibMethodRadioItem = gtk.RadioMenuItem(None, iomediator.XLIB_INTERFACE)
-            self.pyAtspiMethodRadioItem = gtk.RadioMenuItem(self.xlibMethodRadioItem, iomediator.ATSPI_INTERFACE)
+            #self.xlibMethodRadioItem = gtk.RadioMenuItem(None, iomediator.XLIB_INTERFACE)
+            #self.pyAtspiMethodRadioItem = gtk.RadioMenuItem(self.xlibMethodRadioItem, iomediator.ATSPI_INTERFACE)
                 
             self.ignoreToggle = False
             self.enableMenuItem.set_active(True)
@@ -88,15 +88,15 @@ class AutoKeyTrayIcon(gobject.GObject):
             editMenuItem.connect("activate", self.on_edit_config)
             
             # Construct sub menu
-            methodMenu = gtk.Menu()
-            methodMenu.append(self.xlibMethodRadioItem)
-            methodMenu.append(self.pyAtspiMethodRadioItem)
-            methodMenuItem.set_submenu(methodMenu)
+            #methodMenu = gtk.Menu()
+            #methodMenu.append(self.xlibMethodRadioItem)
+            #methodMenu.append(self.pyAtspiMethodRadioItem)
+            #methodMenuItem.set_submenu(methodMenu)
             
             # Construct main menu
             self.menu = gtk.Menu()
             self.menu.append(self.enableMenuItem)
-            self.menu.append(methodMenuItem)
+            #self.menu.append(methodMenuItem)
             self.menu.append(editMenuItem)
             self.menu.append(self.removeMenuItem)
             self.menu.append(quitMenuItem)
@@ -111,12 +111,12 @@ class AutoKeyTrayIcon(gobject.GObject):
             
             self.connect("show-notify", self.on_show_notify)
         
-            if self.service.interfaceType == iomediator.XLIB_INTERFACE:
-                self.xlibMethodRadioItem.set_active(True)
-            else:
-                self.pyAtspiMethodRadioItem.set_active(True)
+            #if self.service.interfaceType == iomediator.XLIB_INTERFACE:
+            #    self.xlibMethodRadioItem.set_active(True)
+            #else:
+            #    self.pyAtspiMethodRadioItem.set_active(True)
             # connect now that initial state has been set
-            self.xlibMethodRadioItem.connect("activate", self.on_method_changed)
+            #self.xlibMethodRadioItem.connect("activate", self.on_method_changed)
             
         self.start_service()
     
@@ -174,7 +174,7 @@ class AutoKeyTrayIcon(gobject.GObject):
         dlg = gtk.AboutDialog()
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion/replacement utility for Linux and X11")
-        dlg.set_version("0.31.1")
+        dlg.set_version("0.40.1")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
         dlg.run()
@@ -186,12 +186,12 @@ class AutoKeyTrayIcon(gobject.GObject):
         editor = config.get(expansionservice.CONFIG_SECTION, EDITOR_OPTION)
         subprocess.Popen([editor, expansionservice.CONFIG_FILE])
         
-    def on_method_changed(self, widget, data=None):
-        if self.enableMenuItem.active:
-            try:
-                self.service.switch_method(self.__getSelectedMethod())
-            except Exception, e:
-                self.__showErrorDialog("Unable to switch expansion method.\n" + str(e))
+    #def on_method_changed(self, widget, data=None):
+    #    if self.enableMenuItem.active:
+    #        try:
+    #            self.service.switch_method(self.__getSelectedMethod())
+    #        except Exception, e:
+    #            self.__showErrorDialog("Unable to switch expansion method.\n" + str(e))
     
     @gthreaded
     def on_show_notify(self, widget, message, details, iconName):
@@ -212,11 +212,11 @@ class AutoKeyTrayIcon(gobject.GObject):
         dlg.connect("close", lambda x: x.destroy())
         dlg.show()
                 
-    def __getSelectedMethod(self):
-        if self.xlibMethodRadioItem.active:
-            return iomediator.XLIB_INTERFACE
-        else:
-            return iomediator.ATSPI_INTERFACE
+    #def __getSelectedMethod(self):
+    #    if self.xlibMethodRadioItem.active:
+    #        return iomediator.XLIB_INTERFACE
+    #    else:
+    #        return iomediator.ATSPI_INTERFACE
         
     def __showErrorDialog(self, message):
         dlg = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,

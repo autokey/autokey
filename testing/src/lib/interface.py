@@ -23,20 +23,6 @@ from Xlib.protocol import rq
 
 import iomediator
 
-def threaded(f):
-    
-    def wrapper(*args):
-        t = threading.Thread(target=f, args=args)
-        t.setDaemon(True)
-        t.start()
-        
-    wrapper.__name__ = f.__name__
-    wrapper.__dict__ = f.__dict__
-    wrapper.__doc__ = f.__doc__
-    return wrapper
-
-# Xlib Interface ----
-
 # Modifiers
 SHIFT_REGEX = '^Shift'
 CAPSLOCK_REGEX = '^Caps_Lock'
@@ -95,12 +81,16 @@ class XLibInterface(threading.Thread):
                     
             if len(regexList) == 0:
                 # if all regexes have been mapped, leave the loop
+                # temporary workaround - set Alt-Gr
+                self.keyCodes[iomediator.KEY_ALT_GR] = 113
+                self.keyNames[113] = iomediator.KEY_ALT_GR
+                print repr(self.keyCodes)
                 break
         
     def run(self):
         if not self.record_dpy.has_extension("RECORD"):
             print "RECORD extension not found"
-            # TODO raise exception
+            # TODO report error back to GUI
 
         # Create a recording context; we only want key and mouse events
         self.ctx = self.record_dpy.record_create_context(
@@ -237,18 +227,4 @@ class XLibInterface(threading.Thread):
             except Exception, e:
                 # TODO - improve this
                 print "Unknown key name: " + char
-                raise    
-        
-        
-
-class AtSpiInterface:
-    
-    pass
-
-if __name__ == "__main__":
-    import time
-    x = XLibInterface(None)
-    x.start()
-    time.sleep(2.0)
-    x.send_string("blah")
-    x.cancel()
+                raise
