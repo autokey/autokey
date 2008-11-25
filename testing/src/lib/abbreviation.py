@@ -76,12 +76,15 @@ class Abbreviation:
     
     global_settings = {}
     
-    def __init__(self, abbreviation, config):
+    def __init__(self, definitions, config):
         """
+        @param definitions: list of definitions yet to be processed, with the abbreviation definition
+        to be instantiated at the start of the list
         @param config: dictionary containing the config from the 'abbr' section
         """
-        self.abbreviation = abbreviation
-        self.expansion = config[abbreviation]
+        self.abbreviation = definitions[0]
+        self.expansion = config[self.abbreviation]
+	definitions.pop(0)
         self.settings = {}
         
         # Copy global settings
@@ -90,11 +93,17 @@ class Abbreviation:
         
         # Apply local setting overrides
         ownSettings = {}
-        startString = abbreviation + '.'
+        startString = self.abbreviation + '.'
         offset = len(startString)
-        for key, value in config.iteritems():
+
+        while len(definitions) > 0:
+            key = definitions[0]
             if key.startswith(startString):
-                ownSettings[key[offset:]] = value
+                ownSettings[key[offset:]] = config[key]
+                definitions.pop(0)
+            else:
+                # no more options for me - leave loop
+                break
                 
         applySettings(self.settings, ownSettings)
         
@@ -102,7 +111,7 @@ class Abbreviation:
             self.abbreviation = self.abbreviation.lower()
         
     def check_input(self, buffer):
-        currentString = ''.join(buffer)
+        currentString = buffer
         
         if self.settings[IGNORE_CASE_OPTION]:
             matchString = currentString.lower()

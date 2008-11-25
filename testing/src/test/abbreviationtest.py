@@ -1,5 +1,8 @@
 import unittest
 
+import sys
+sys.path.append("../")
+
 from lib.abbreviation import *
 
 class AbbreviationTest(unittest.TestCase):
@@ -17,7 +20,7 @@ class AbbreviationTest(unittest.TestCase):
                    }
         
         applySettings(Abbreviation.global_settings, globals)
-        self.defaultAbbr = Abbreviation("xp@", {"xp@" : "expansion@autokey.com"})
+        self.defaultAbbr = Abbreviation(["xp@"], {"xp@" : "expansion@autokey.com"})
         
     def testApplySettings(self):
         self.assertEqual(self.defaultAbbr.settings[IMMEDIATE_OPTION], False)
@@ -30,30 +33,34 @@ class AbbreviationTest(unittest.TestCase):
     def testImmediateOption(self):
         
         # Test default setting (false)
-        self.assertEqual(self.defaultAbbr.check_input(list("xp@")), None)
+        self.assertEqual(self.defaultAbbr.check_input("xp@"), None)
         
         # Test true setting
         config = {
                   "xp@" : "expansion@autokey.com",
                   "xp@.immediate" : "true"
                   }
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("xp@"))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("xp@")
         self.assertEqual(result.string, "expansion@autokey.com")
         self.assertEqual(result.backspaces, 3)
         
     def testIgnoreCaseOption(self):
         
         # Test default setting (false)
-        self.assertEqual(self.defaultAbbr.check_input(list("XP@ ")), None)
+        self.assertEqual(self.defaultAbbr.check_input("XP@ "), None)
         
         # Test true setting
         config = {
                   "xp@" : "expansion@autokey.com",
                   "xp@.ignorecase" : "true"
                   }
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("XP@ "))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("XP@ ")
         self.assertEqual(result.string, "expansion@autokey.com ")
         
     def testMatchCaseOption(self):
@@ -63,20 +70,22 @@ class AbbreviationTest(unittest.TestCase):
                   "xp@.matchcase" : "true"
                   }
         
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("asdf XP@ "))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("asdf XP@ ")
         self.assertEqual(result.string, "EXPANSION@AUTOKEY.COM ")        
         
-        result = abbr.check_input(list("ASDF Xp@ "))
+        result = abbr.check_input("ASDF Xp@ ")
         self.assertEqual(result.string, "Expansion@Autokey.Com ")
         
-        result = abbr.check_input(list("Asdf xp@ "))
+        result = abbr.check_input("Asdf xp@ ")
         self.assertEqual(result.string, "expansion@autokey.com ")        
         
     def testBackspaceOption(self):
         
         # Test default setting (true)
-        result = self.defaultAbbr.check_input(list("xp@ "))
+        result = self.defaultAbbr.check_input("xp@ ")
         self.assertEqual(result.backspaces, 4)
         
         # Test false setting
@@ -84,14 +93,16 @@ class AbbreviationTest(unittest.TestCase):
                   "xp@" : "expansion@autokey.com",
                   "xp@.backspace" : "false"
                   }
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("xp@ "))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("xp@ ")
         self.assertEqual(result.backspaces, 0)
         
     def testOmitTriggerOption(self):
         
         # Test default setting (false)
-        result = self.defaultAbbr.check_input(list("xp@\n"))
+        result = self.defaultAbbr.check_input("xp@\n")
         self.assertEqual(result.string, "expansion@autokey.com\n")
         
         # Test true setting
@@ -99,18 +110,20 @@ class AbbreviationTest(unittest.TestCase):
                   "xp@" : "expansion@autokey.com",
                   "xp@.omittrigger" : "true"
                   }
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("xp@."))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("xp@.")
         self.assertEqual(result.string, "expansion@autokey.com")
         self.assertEqual(result.backspaces, 4)
         
     def testTriggerInsideOption(self):
         
         # Test default setting (false)
-        self.assertEqual(self.defaultAbbr.check_input(list("asdfxp@\n")), None)
+        self.assertEqual(self.defaultAbbr.check_input("asdfxp@\n"), None)
 
         # when separated by a non-word char, should still trigger
-        result = self.defaultAbbr.check_input(list("asdf.xp@ "))
+        result = self.defaultAbbr.check_input("asdf.xp@ ")
         self.assertEqual(result.string, "expansion@autokey.com ")
         
         # Test true setting
@@ -118,15 +131,17 @@ class AbbreviationTest(unittest.TestCase):
                   "xp@" : "expansion@autokey.com",
                   "xp@.triggerinside" : "true"
                   }
-        abbr = Abbreviation("xp@", config)
-        result = abbr.check_input(list("asdfxp@."))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("asdfxp@.")
         self.assertEqual(result.string, "expansion@autokey.com.")
                 
     def testLefts(self):
         
         # Test with omit trigger false
-        abbr = Abbreviation("udc", {"udc" : "[udc]%%[/udc]"})
-        result = abbr.check_input(list("udc "))
+        abbr = Abbreviation(["udc"], {"udc" : "[udc]%%[/udc]"})
+        result = abbr.check_input("udc ")
         self.assertEqual(result.lefts, 7)
         
         # Test with omit trigger true
@@ -134,8 +149,10 @@ class AbbreviationTest(unittest.TestCase):
                   "udc" : "[udc]%%[/udc]",
                   "udc.omittrigger" : "true"
                   }
-        abbr = Abbreviation("udc", config)
-        result = abbr.check_input(list("udc "))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("udc ")
         self.assertEqual(result.lefts, 6)
         
         # Test with immediate true
@@ -143,14 +160,16 @@ class AbbreviationTest(unittest.TestCase):
                   "udc" : "[udc]%%[/udc]",
                   "udc.immediate" : "true"
                   }
-        abbr = Abbreviation("udc", config)
-        result = abbr.check_input(list("udc"))
+        keys = config.keys()
+	keys.sort()
+        abbr = Abbreviation(keys, config)
+        result = abbr.check_input("udc")
         self.assertEqual(result.lefts, 6)        
         
     def testMultipleAbbrs(self):
         
-        abbr = Abbreviation("sdf", {"sdf" : "Some abbr"})
-        input = list("fgh xp@asdf sdf ")
+        abbr = Abbreviation(["sdf"], {"sdf" : "Some abbr"})
+        input = "fgh xp@asdf sdf "
         
         # Abbreviation should not trigger
         self.assertEqual(self.defaultAbbr.check_input(input), None)
@@ -158,4 +177,5 @@ class AbbreviationTest(unittest.TestCase):
         result = abbr.check_input(input)
         self.assertEqual(result.string, "Some abbr ")
         
-        
+if __name__ == "__main__":
+    unittest.main()

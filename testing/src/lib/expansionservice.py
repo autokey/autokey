@@ -128,9 +128,10 @@ class ExpansionService:
             # Key is a character
                 self.inputStack.append(key)
                 abbreviations = self.__getAbbreviations()
+                currentInput = ''.join(self.inputStack)
 
                 for abbreviation in abbreviations:
-                    expansion = abbreviation.check_input(self.inputStack)
+                    expansion = abbreviation.check_input(currentInput)
                     if expansion is not None:
                         matchedAbbr = abbreviation.abbreviation
                         break
@@ -184,15 +185,29 @@ class ExpansionService:
         defaultSettings = dict(p.items(DEFAULTS_SECTION))
         applySettings(Abbreviation.global_settings, defaultSettings)
         abbreviations = []
+        definitions = abbrDefinitions.keys()
+        definitions.sort()
+
+        while len(definitions) > 0:
+
+            # Flush any unused options that weren't matched with an abbreviation definition
+            while '.' in definitions[0]:
+                isOption = False
+                for option in ABBREVIATION_OPTIONS:
+                    if definitions[0].endswith(option):
+                        definitions.pop(0)
+                        isOption = True
+                        break
+
+                if len(definitions) == 0:
+                    break # leave the flushing loop if no definitions remaining
+                if len(definitions) == 1 and not isOption:
+                    break # leave the flushing loop if the last remaining definition is not an option
+                    
+
+            if len(definitions) > 0:
+                abbreviations.append(Abbreviation(definitions, abbrDefinitions))
         
-        for definition in abbrDefinitions.keys():
-            # Determine if definition is an option
-            if '.' in definition:
-                if definition.split('.')[1] in ABBREVIATION_OPTIONS:
-                    continue # skip this definition
-            
-            abbreviations.append(Abbreviation(definition, abbrDefinitions))
-            
         self.__setAbbreviations(abbreviations)
         
         return p
