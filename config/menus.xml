@@ -1,0 +1,20 @@
+<ui>
+	<menubar name="MenuBar">
+		<menu action="File">
+			<menuitem action="New Folder" />
+			<menuitem action="New Phrase" />
+			<menuitem action="Delete" />
+			<separator />
+			<menuitem action="Import Settings" />
+			<separator />
+			<menuitem action="Close" />
+			<menuitem action="Quit" />
+		</menu>
+		<menu action="Settings">
+			<menuitem action="Enable Expansions" />
+		</menu>		
+		<menu action="Help">
+			<menuitem action="About" />
+		</menu>
+	</menubar>
+</ui>

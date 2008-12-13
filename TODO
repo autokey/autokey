@@ -1,30 +1,36 @@
-Experiment with sending cursor keys, home, function keys, etc.
+Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Expand abbreviation functionality so it is more versatile, I'd like to
-come up with a mechanism by which we can pass arguments to
-abbreviations.
+Add general crash handler for interface at run() level
 
-Find a way to present visual queues to the user
+Get rid of commented out code
+Add method comments
 
-Create a shorcut key to toggle abbrevs on and off.
+Add gettext support
 
-Automatic keyboard detection is a must.  Having the user tell the
-program what they're using is lame!  Plus it breaks if the user
-changes keyboard layouts while the program is running!  I also think
-that this is likely to cause problems with international keyboards,
-hindering the program's adoption.  The only keyboard layouts I'm
-familiar with are qwerty and dvorak.
+Include stats idea in 0.50 - expand on it
 
-I would like to have *some* kind of user interface, however minimal.
-The zenity script hacks are lame.  Plus, the only way to close the
-program is to "killall autokey.py" from a terminal.  However, I
-think I don't want this implemented directly in the program.  I want
-other programs to communicate directly with my program as a sort of
-backend.
+Nice reporting and logging of errors so users can report bugs
 
-I think it would also be nice to be able to specify a black list of
-windows to avoid typing text expansions to.
+Abbreviation must be unique - allows show in tray folders to have abbrs
 
-I need to clean up and refactor the code.  It's turned into a mess.  I
-went through one phase of refactoring, but I'm definitely going to
-need another.
+Global hotkey to show configuration menu
+
+Global hotkey to toggle service on and off.
+
+Detect shell expanded phrases on expansion and process via BASH
+
+LATER PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
+Option to activate/deactivate above feature
+
+LATER PLUGIN Add spell checker with a hotkey which checks the last word typed
+
+LATER Profile and speed up abbreviation detection code
+Improvement ideas (if profiling shows any issues)
+Add allFolders and allPhrases attributes to configManager
+Add abbreviationPhrasesAndFolders attribute to configManager - search through these first and stop at the first matching entry
+
+Plugin system allowing additional actions to be added - eg insert time of day etc
+- Shell expansion plugin
+
+Automatic frequently typed phrase recognition using nltk
+
