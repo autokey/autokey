@@ -54,6 +54,13 @@ class ConfigurationManager:
         myPhrases = PhraseFolder("My Phrases")
         myPhrases.set_hotkey([Key.CONTROL], '<f7>')
         myPhrases.set_modes([PhraseMode.HOTKEY])
+        
+        f = PhraseFolder("Addresses")
+        adr = Phrase("Home Address", "3406/22 Carraway Street\nKelvin Grove\nQLD\n4059")
+        adr.set_modes([PhraseMode.ABBREVIATION])
+        adr.set_abbreviation("adr")
+        f.add_phrase(adr)
+        myPhrases.add_folder(f)        
 
         p = Phrase("First phrase", "Test phrase number one!")
         p.set_modes([PhraseMode.PREDICTIVE])
@@ -100,16 +107,22 @@ class ConfigurationManager:
             self.allFolders.append(folder)
             
             self.__processFolder(folder)
+            
+        #print repr(self.hotKeyFolders)
+        #print repr(self.hotKeyPhrases)
+        #print repr(self.abbrPhrases)
+        #print repr(self.allFolders)
+        #print repr(self.allPhrases)
                     
-    def __processFolder(self, folder):
-        for folder in folder.folders.values():
+    def __processFolder(self, parentFolder):
+        for folder in parentFolder.folders:
             if PhraseMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
             
             self.__processFolder(folder)
             
-        for phrase in folder.phrases.values():
+        for phrase in parentFolder.phrases:
             if PhraseMode.HOTKEY in phrase.modes:
                 self.hotKeyPhrases.append(phrase)
             if PhraseMode.ABBREVIATION in phrase.modes:
@@ -120,51 +133,44 @@ class ConfigurationManager:
     def import_legacy_settings(self, configFilePath):
         importer = LegacyImporter()
         importer.load_config(configFilePath)
-        newRow = False
-        # TODO import exception
         
-        # Check that default Abbreviations folder exists
-        if not self.folders.has_key(DEFAULT_ABBR_FOLDER):
-            self.folders[DEFAULT_ABBR_FOLDER] = PhraseFolder(DEFAULT_ABBR_FOLDER)
-            newRow = True
-            
-        folder = self.folders[DEFAULT_ABBR_FOLDER]
+        # TODO import exception        
+        folder = PhraseFolder(DEFAULT_ABBR_FOLDER)
         #for phrase in importer.phrases:
         #    folder.add_phrase(phrase)
-        
-        return (newRow, folder, importer.phrases)
+        #self.folders[folder.title] = folder
+        #self.config_altered()
+        return (folder, importer.phrases)
     
-    def check_abbreviation_unique(self, abbr):
+    def check_abbreviation_unique(self, abbreviation, targetPhrase):
         """
         Checks that the given abbreviation is not already in use.
         """
         for item in self.allFolders:
             if PhraseMode.ABBREVIATION in item.modes:
-                if item.abbreviation == abbr:
-                    return False
+                if item.abbreviation == abbreviation:
+                    return item is targetPhrase
             
         for item in self.allPhrases:
             if PhraseMode.ABBREVIATION in item.modes:
-                if item.abbrevation == abbr:
-                    return False
-            
+                if item.abbreviation == abbreviation:
+                    return item is targetPhrase
+        
         return True
             
-    def check_hotkey_unique(self, modifiers, key):
+    def check_hotkey_unique(self, modifiers, hotKey, targetPhrase):
         """
         Checks that the given hotkey is not already in use.
         """
-        modifiers.sort()
-        
         for item in self.allFolders:
             if PhraseMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == key:
-                    return False
+                if item.modifiers == modifiers and item.hotKey == hotKey:
+                    return item is targetPhrase
             
         for item in self.allPhrases:
             if PhraseMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == key:
-                    return False        
+                if item.modifiers == modifiers and item.hotKey == hotKey:
+                    return item is targetPhrase     
 
         return True
 

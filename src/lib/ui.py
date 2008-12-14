@@ -22,7 +22,7 @@ EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
 def validate(expression, message, widget, parent):
     if not expression:
-        dlg = gtk.MessageDialog(parent, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
+        dlg = gtk.MessageDialog(parent, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
                                  gtk.BUTTONS_OK, message)
         dlg.run()
         dlg.destroy()
@@ -66,9 +66,9 @@ class ConfigurationWindow(gtk.Window):
         # Menu Bar
         actionGroup = gtk.ActionGroup("menu")
         actions = [
-                   ("File", None, "_File"),
-                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder"),
-                   ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase"),
+                   ("File", None, "_File", None, None, self.on_show_file),
+                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder", self.on_new_folder),
+                   ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase", self.on_new_phrase),
                    ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
                    ("Import Settings", None, "_Import Settings", None, "Import settings from AutoKey 0.40", self.on_import_settings),                   
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
@@ -89,8 +89,6 @@ class ConfigurationWindow(gtk.Window):
         vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False, 7)
         
         # Get references to toolbar buttons and misc items
-        self.deleteMenuItem = self.uiManager.get_widget("/MenuBar/File/Delete")
-        self.deleteMenuItem.set_sensitive(False)
         self.toggleExpansionsMenuItem = self.uiManager.get_widget("/MenuBar/Settings/Enable Expansions")
         self.uiManager.get_widget("/MenuBar/Settings/Enable Expansions").set_active(autokeyApp.service.is_running())
 
@@ -129,6 +127,13 @@ class ConfigurationWindow(gtk.Window):
         model, iter = self.treeView.get_selection().get_selected()
         model.update_item(iter, item)
         
+    def on_show_file(self, widget, data=None):
+        selection = self.__getTreeSelection()
+        canCreate = isinstance(selection, phrase.PhraseFolder)
+        self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreate)
+        self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreate)
+        self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
+        
     def on_show_settings(self, widget, data=None):
         self.toggleExpansionsMenuItem.set_active(ConfigurationManager.serviceRunning)
         
@@ -147,10 +152,9 @@ class ConfigurationWindow(gtk.Window):
         
     def on_tree_selection_changed(self, widget, data=None):
         selectedObject = self.__getTreeSelection()
+        child = self.settingsBox.get_children()[0]
+        
         if selectedObject is not None:
-            self.deleteMenuItem.set_sensitive(True)
-
-            child = self.settingsBox.get_children()[0]
             if isinstance(selectedObject, phrase.Phrase):
                 if child is not self.phraseSettings:
                     self.settingsBox.remove(child)
@@ -160,18 +164,51 @@ class ConfigurationWindow(gtk.Window):
                 if child is not self.folderSettings:
                     self.settingsBox.remove(child)
                     self.settingsBox.add(self.folderSettings)
-                self.folderSettings.load(selectedObject)            
-
-        else:
-            self.deleteMenuItem.set_sensitive(False)
-            
+                self.folderSettings.load(selectedObject)
+        
+        else:    
+            self.settingsBox.remove(child)
+            self.settingsBox.add(gtk.Label(""))  
+    
+    def on_new_folder(self, widget, data=None):
+        model, parentIter = self.treeView.get_selection().get_selected()
+        parentFolder = self.__getTreeSelection()
+        newFolder = phrase.PhraseFolder("New Folder")
+        parentFolder.add_folder(newFolder)
+        newIter = model.append(parentIter, newFolder.get_tuple())
+        self.treeView.expand_to_path(model.get_path(newIter))
+        self.treeView.get_selection().select_iter(newIter)
+        self.on_tree_selection_changed(self.treeView)
+        
+    def on_new_phrase(self, widget, data=None):
+        model, parentIter = self.treeView.get_selection().get_selected()
+        parentFolder = self.__getTreeSelection()
+        newPhrase = phrase.Phrase("New Phrase", "Enter phrase contents")
+        parentFolder.add_phrase(newPhrase)
+        newIter = model.append(parentIter, newPhrase.get_tuple())
+        self.treeView.expand_to_path(model.get_path(newIter))
+        self.treeView.get_selection().select_iter(newIter)
+        self.on_tree_selection_changed(self.treeView)        
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
         model, item = selection.get_selected()
+        
+        # Prompt for removal of a folder with phrases
+        if model.iter_n_children(item) > 0:
+            dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+                                    "Are you sure you want to delete this folder and all the phrases in it?")
+            if dlg.run() == gtk.RESPONSE_YES:
+                self.__removeItem(model, item)
+            dlg.destroy()
+            
+        else:
+            self.__removeItem(model, item)
+
+    def __removeItem(self, model, item):
         model.remove_item(item)
         self.app.service.configManager.config_altered()
-        self.deleteMenuItem.set_sensitive(False)
+        self.on_tree_selection_changed(self.treeView)            
         
     def on_import_settings(self, widget, data=None):
         dlg = gtk.FileChooserDialog("Import settings from AutoKey 0.40", self, 
@@ -184,15 +221,15 @@ class ConfigurationWindow(gtk.Window):
         dlg.add_filter(filter)
         
         if dlg.run() == gtk.RESPONSE_OK:
-            isNewRow, folder, phrases = self.app.service.configManager.import_legacy_settings(dlg.get_filename())
+            folder, phrases = self.app.service.configManager.import_legacy_settings(dlg.get_filename())
             model = self.treeView.get_model()
             
-            if isNewRow:
-                model.inserted(folder)
+            iter = model.append_item(folder, None)
             for phrase in phrases:
-                model.add(folder, phrase)
+                model.append_item(phrase, iter)
 
         dlg.destroy()
+        self.app.service.configManager.config_altered()
         
     def on_expansions_toggled(self, widget, data=None):
         if self.toggleExpansionsMenuItem.active:
@@ -276,10 +313,14 @@ class PhraseFolderSettings(gtk.VBox):
         self.folderTitle.set_text(theFolder.title)
         self.showInTray.set_active(theFolder.showInTrayMenu)
         self.settingsNoteBook.load(theFolder)
+        self.folderTitle.grab_focus()
         
     def on_save(self, widget, data=None):
         if self.validate():
             self.currentFolder.title = self.folderTitle.get_text()
+            self.currentFolder.set_modes([])
+            self.currentFolder.showInTrayMenu = self.showInTray.get_active()
+            self.settingsNoteBook.save(self.currentFolder)
             self.configWindow.refresh_tree(self.currentFolder)
         
     def on_revert(self, widget, data=None):
@@ -291,7 +332,6 @@ class PhraseFolderSettings(gtk.VBox):
             return False
         
         return True
-
         
 
 class PhraseSettings(gtk.VBox):
@@ -350,8 +390,8 @@ class PhraseSettings(gtk.VBox):
         self.predictive.set_active(phrase.PhraseMode.PREDICTIVE in thePhrase.modes)
         self.promptBefore.set_active(thePhrase.prompt)
         self.showInTray.set_active(thePhrase.showInTrayMenu)
-        
         self.settingsNoteBook.load(thePhrase)
+        self.phraseContents.grab_focus()
         
     def on_save(self, widget, data=None):
         if self.validate():
@@ -385,7 +425,7 @@ class PhraseSettings(gtk.VBox):
                          self.configWindow):
             return False
         
-        if not self.settingsNoteBook.validate():
+        if not self.settingsNoteBook.validate(self.currentPhrase):
             return False
         
         return True
@@ -412,12 +452,11 @@ class SettingsNotebook(gtk.Notebook):
         self.hotKeySettings.save(thePhrase)
         self.windowFilterSettings.save(thePhrase)
         
-    def validate(self):
-        if not self.abbrSettings.validate(): return False
-        if not self.hotKeySettings.validate(): return False
+    def validate(self, targetPhrase):
+        if not self.abbrSettings.validate(targetPhrase): return False
+        if not self.hotKeySettings.validate(targetPhrase): return False
         if not self.windowFilterSettings.validate(): return False
-        return True
-        
+        return True        
         
         
 class FolderSettingsNotebook(SettingsNotebook):
@@ -430,24 +469,29 @@ class FolderSettingsNotebook(SettingsNotebook):
         self.append_page(self.abbrSettings, gtk.Label("Abbreviation"))
         self.append_page(self.hotKeySettings, gtk.Label("Hotkey"))
         self.append_page(self.windowFilterSettings, gtk.Label("Window Filter"))
-        
+                
 
-class AbbreviationSettings(gtk.VBox):
+class AbbreviationSettings(gtk.Alignment):
     
     def __init__(self, configWindow):
-        gtk.VBox.__init__(self)
+        gtk.Alignment.__init__(self, xscale=1.0)
+        self.set_padding(5, 5, 5, 5)
         self.configWindow = configWindow
+
+        self.vbox = gtk.VBox()
+        self.add(self.vbox)
+
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
-        self.useAbbr.connect("toggled", self.on_useAbbr_toggled)
-        self.pack_start(self.useAbbr, False)
+        self.useAbbr.connect("toggled", self.on_useAbbr_toggled)        
+        self.vbox.pack_start(self.useAbbr, False)
         
-        self.pack_start(gtk.HSeparator(), False, False, 5)
+        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
-        hBox.pack_start(self.abbrText)
-        self.pack_start(hBox, False, False)
+        hBox.pack_start(self.abbrText, False)
+        self.vbox.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
         self.omitTrigger = self._addCheckButton("Omit trigger character")
@@ -457,6 +501,7 @@ class AbbreviationSettings(gtk.VBox):
         self.ignoreCase.connect("toggled", self.on_ignore_case_toggled)
         self.triggerInside = self._addCheckButton("Trigger when typed as part of a word")
         self.immediate = self._addCheckButton("Trigger immediately (don't require a trigger character)")
+        self.immediate.connect("toggled", self.on_immediate_toggled)
         
         self.wordChars = gtk.combo_box_entry_new_text()
         model = self.wordChars.get_model()
@@ -466,8 +511,9 @@ class AbbreviationSettings(gtk.VBox):
         
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Word Characters "), False)
-        hBox.pack_start(self.wordChars)
-        self.pack_start(hBox, False, False, 5)
+        hBox.pack_start(self.wordChars, False)
+        #hBox.set_child_packing()
+        self.vbox.pack_start(hBox, False, False, 5)
         
         self.useAbbr.emit("toggled")
         
@@ -498,7 +544,7 @@ class AbbreviationSettings(gtk.VBox):
             thePhrase.set_word_chars(self._getWordCharRegex())            
         
     def on_useAbbr_toggled(self, widget, data=None):
-        self.foreach(lambda x: x.set_sensitive(widget.get_active()))
+        self.vbox.foreach(lambda x: x.set_sensitive(widget.get_active()))
         widget.set_sensitive(True)
         
     def on_match_case_toggled(self, widget, data=None):
@@ -508,10 +554,17 @@ class AbbreviationSettings(gtk.VBox):
     def on_ignore_case_toggled(self, widget, data=None):
         if not widget.get_active():
             self.matchCase.set_active(False)
+            
+    def on_immediate_toggled(self, widget, data=None):
+        if widget.get_active():
+            self.omitTrigger.set_active(False)
+            self.omitTrigger.set_sensitive(False)
+        else:
+            self.omitTrigger.set_sensitive(True)
 
     def _addCheckButton(self, label):
         checkButton = gtk.CheckButton(label)
-        self.pack_start(checkButton, False)
+        self.vbox.pack_start(checkButton, False)
         return checkButton
     
     def _getWordCharRegex(self):
@@ -532,15 +585,19 @@ class AbbreviationSettings(gtk.VBox):
         if not matched:
             self.wordChars.child.set_text(regex)
             
-    def validate(self):
+    def validate(self, targetPhrase):
         if self.useAbbr.get_active():
-            if not validate(not EMPTY_FIELD_REGEX.match(self.abbrText.get_text()), "Abbreviation can not be empty.",
-                             self.abbrText, self.configWindow):
-                return False
+            configManager = self.configWindow.app.service.configManager
+            abbrText = self.abbrText.get_text() 
+            if not validate(configManager.check_abbreviation_unique(abbrText, targetPhrase),
+                             "The abbreviation is already in use.\nAbbreviations must be unique.", self.abbrText,
+                             self.configWindow): return False
+            
+            if not validate(not EMPTY_FIELD_REGEX.match(abbrText), "Abbreviation can not be empty.",
+                             self.abbrText, self.configWindow): return False
             
             if not validate(not EMPTY_FIELD_REGEX.match(self._getWordCharRegex()), "Invalid word characters expression.",
-                             self.wordChars, self.configWindow):
-                return False
+                             self.wordChars, self.configWindow): return False
         
         return True
             
@@ -548,19 +605,24 @@ class AbbreviationSettings(gtk.VBox):
 class FolderAbbreviationSettings(AbbreviationSettings):
     
     def __init__(self, configWindow):
-        gtk.VBox.__init__(self)
+        gtk.Alignment.__init__(self, xscale=1.0)
+        self.set_padding(5, 5, 5, 5)
         self.configWindow = configWindow
+
+        self.vbox = gtk.VBox()
+        self.add(self.vbox)
+
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
         self.useAbbr.connect("toggled", self.on_useAbbr_toggled)
-        self.pack_start(self.useAbbr, False)
+        self.vbox.pack_start(self.useAbbr, False)
         
-        self.pack_start(gtk.HSeparator(), False, False, 5)
+        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
-        hBox.pack_start(self.abbrText)
-        self.pack_start(hBox, False, False)
+        hBox.pack_start(self.abbrText, False)
+        self.vbox.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
         self.triggerInside = self._addCheckButton("Trigger when typed as part of a word")
@@ -574,8 +636,8 @@ class FolderAbbreviationSettings(AbbreviationSettings):
         
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Word Characters "), False)
-        hBox.pack_start(self.wordChars)
-        self.pack_start(hBox, False, False, 5)
+        hBox.pack_start(self.wordChars, False)
+        self.vbox.pack_start(hBox, False, False, 5)
         
         self.useAbbr.emit("toggled")
         
@@ -600,7 +662,7 @@ class FolderAbbreviationSettings(AbbreviationSettings):
             theFolder.set_word_chars(self._getWordCharRegex())            
         
         
-class HotkeySettings(gtk.VBox):
+class HotkeySettings(gtk.Alignment):
     
     KEY_MAP = {
                ' ' : "<space>",
@@ -612,20 +674,24 @@ class HotkeySettings(gtk.VBox):
     REVERSE_KEY_MAP = {}
     
     def __init__(self, configWindow):
-        gtk.VBox.__init__(self)
+        gtk.Alignment.__init__(self, xscale=1.0)
+        self.set_padding(5, 5, 5, 5)
         self.configWindow = configWindow
         for key, value in self.KEY_MAP.iteritems():
-            self.REVERSE_KEY_MAP[value] = key        
+            self.REVERSE_KEY_MAP[value] = key
+            
+        self.vbox = gtk.VBox()        
+        self.add(self.vbox)
         
         self.useHotkey = gtk.CheckButton("Use a hotkey")
         self.useHotkey.connect("toggled", self.on_useHotkey_toggled)
-        self.pack_start(self.useHotkey, False, False, 5)
+        self.vbox.pack_start(self.useHotkey, False, False, 5)
         
-        self.pack_start(gtk.HSeparator(), False)
+        self.vbox.pack_start(gtk.HSeparator(), False)
         
         hBox = gtk.HButtonBox()
         hBox.set_layout(gtk.BUTTONBOX_START)
-        self.pack_start(hBox, False, False, 5)
+        self.vbox.pack_start(hBox, False, False, 5)
         
         self.control = gtk.ToggleButton("Control")
         hBox.pack_start(self.control)
@@ -659,15 +725,7 @@ class HotkeySettings(gtk.VBox):
             thePhrase.modes.append(phrase.PhraseMode.HOTKEY)
             
             # Build modifier list
-            modifiers = []
-            if self.control.get_active():
-                modifiers.append(iomediator.Key.CONTROL) 
-            if self.alt.get_active():
-                modifiers.append(iomediator.Key.ALT)
-            if self.shift.get_active():
-                modifiers.append(iomediator.Key.SHIFT)
-            if self.super.get_active():
-                modifiers.append(iomediator.Key.SUPER)
+            modifiers = self.__buildModifiers()
                 
             keyText = self.keyLabel.get_label()
             if keyText in self.REVERSE_KEY_MAP:
@@ -678,7 +736,7 @@ class HotkeySettings(gtk.VBox):
             thePhrase.set_hotkey(modifiers, key)
         
     def on_useHotkey_toggled(self, widget, data=None):
-        self.foreach(lambda x: x.set_sensitive(widget.get_active()))
+        self.vbox.foreach(lambda x: x.set_sensitive(widget.get_active()))
         widget.set_sensitive(True)
         
     def on_set_key(self, widget, data=None):
@@ -690,37 +748,59 @@ class HotkeySettings(gtk.VBox):
             key = self.KEY_MAP[key]
         self.keyLabel.set_label(key)
 
-    def validate(self):
+    def validate(self, targetPhrase):
         if self.useHotkey.get_active():
-            modifierDown = (self.control.get_active() or self.alt.get_active() or
-                             self.shift.get_active() or self.super.get_active())
-
-            if not validate(self.keyLabel.get_label() != "None", "You must specify a key for the Hotkey.", None,
-                             self.configWindow):
-                return False
+            modifiers = self.__buildModifiers()
+            keyText = self.keyLabel.get_label()
+            configManager = self.configWindow.app.service.configManager
             
-            if not validate(modifierDown, "You must select at least one modifier for the Hotkey", None,
-                             self.configWindow):
-                return False
+            if not validate(configManager.check_hotkey_unique(modifiers, keyText, targetPhrase),
+                             "The hotkey is already in use.\nHotkeys must be unique.", None,
+                             self.configWindow): return False
+
+            if not validate(keyText != "None", "You must specify a key for the Hotkey.", None,
+                             self.configWindow): return False
+            
+            if not validate(len(modifiers) > 0, "You must select at least one modifier for the Hotkey", None,
+                             self.configWindow): return False
         
         return True
+    
+    def __buildModifiers(self):
+        modifiers = []
+        if self.control.get_active():
+            modifiers.append(iomediator.Key.CONTROL) 
+        if self.alt.get_active():
+            modifiers.append(iomediator.Key.ALT)
+        if self.shift.get_active():
+            modifiers.append(iomediator.Key.SHIFT)
+        if self.super.get_active():
+            modifiers.append(iomediator.Key.SUPER)
+        
+        modifiers.sort()
+        return modifiers
+        
 
-class WindowFilterSettings(gtk.VBox):
+class WindowFilterSettings(gtk.Alignment):
     
     def __init__(self, configWindow):
-        gtk.VBox.__init__(self)
+        gtk.Alignment.__init__(self, xscale=1.0)
+        self.set_padding(5, 5, 5, 5)
         self.configWindow = configWindow
+        self.vbox = gtk.VBox()
+        self.add(self.vbox)
+        
         self.alwaysTrigger = gtk.CheckButton("Trigger in all windows")
         self.alwaysTrigger.connect("toggled", self.on_alwaysTrigger_toggled)
-        self.pack_start(self.alwaysTrigger, False, False)
+        self.vbox.pack_start(self.alwaysTrigger, False)
         
-        self.pack_start(gtk.HSeparator(), False, False, 5)
+        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
         
         label = gtk.Label("Trigger only in windows with title matching")
         label.set_alignment(0, 0.5)
-        self.pack_start(label, False, False, 5)
+        self.vbox.pack_start(label, False, False, 5)
         self.windowFilter = gtk.Entry()
-        self.pack_start(self.windowFilter, False)
+        self.vbox.pack_start(self.windowFilter, False)
         
     def load(self, thePhrase):
         self.alwaysTrigger.set_active(thePhrase.uses_default_filter())
@@ -733,7 +813,7 @@ class WindowFilterSettings(gtk.VBox):
             thePhrase.set_window_titles(self.windowFilter.get_text())
         
     def on_alwaysTrigger_toggled(self, widget, data=None):
-        self.foreach(lambda x: x.set_sensitive(not widget.get_active()))
+        self.vbox.foreach(lambda x: x.set_sensitive(not widget.get_active()))
         widget.set_sensitive(True)
         
     def validate(self):
@@ -808,18 +888,18 @@ class PhraseTreeModel(gtk.TreeStore):
             
         self.folders = folders
 
-    def __buildTreeStore(self, parent, folder):
-        for folder in folder.folders.values():
+    def __buildTreeStore(self, parent, parentFolder):
+        for folder in parentFolder.folders:
             iter = self.append(parent, folder.get_tuple())
             self.__buildTreeStore(iter, folder)
         
-        for phrase in folder.phrases.values():
+        for phrase in parentFolder.phrases:
             self.append(parent, phrase.get_tuple())
             
     def append_item(self, item, parentIter):
         if parentIter is None:
             self.folders[item.title] = item
-            self.append(None, item.get_tuple())
+            return self.append(None, item.get_tuple())
         
         else:
             parentFolder = self.get_value(parentIter, self.OBJECT_COLUMN)
@@ -828,7 +908,7 @@ class PhraseTreeModel(gtk.TreeStore):
             else:
                 parentFolder.add_phrase(item)
             
-            self.append(parentIter, item.get_tuple())
+            return self.append(parentIter, item.get_tuple())
             
     def remove_item(self, iter):
         item = self.get_value(iter, self.OBJECT_COLUMN)
@@ -962,3 +1042,31 @@ class Notifier(gobject.GObject):
         
 gobject.type_register(Notifier)                
 
+class FolderChoiceDialog(gtk.Dialog):
+    # TODO Probably not going to use this
+    
+    def __init__(self, parent, forFolder=True):
+        """
+        @param parent: parent window of the dialog
+        @param forFolder: whether the choice is for a folder or a phrase
+        """
+        gtk.Dialog.__init__(self, "Choose a folder", parent, gtk.DIALOG_MODAL,
+                             (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        
+        configManager = parent.app.service.configManager
+        self.combo = gtk.combo_box_new_text()
+        if forFolder:
+            self.combo.append_text("(Root)")
+        for folder in configManager.allFolders:
+            self.combo.append_text(folder.title)
+        self.combo.set_active(0)
+        
+        if forFolder:
+            self.vbox.pack_start(gtk.Label("Create new folder under"))
+        else:
+            self.vbox.pack_start(gtk.Label("Create new phrase under"))
+        self.vbox.pack_start(self.combo, padding=10)
+        self.show_all()
+        
+    def get_choice(self):
+        return self.combo.get_active_text()

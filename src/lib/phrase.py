@@ -193,9 +193,9 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
         self.title = title
-        self.folders = {}
-        self.phrases = {}
-        self.modes = set()
+        self.folders = []
+        self.phrases = []
+        self.modes = []
         self.usageCount = 0
         self.showInTrayMenu = showInTrayMenu
         self.parent = None
@@ -208,23 +208,27 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def add_folder(self, folder):
         folder.parent = self
-        self.folders[folder.title] = folder
+        #self.folders[folder.title] = folder
+        self.folders.append(folder)
         
     def remove_folder(self, folder):
-        del self.folders[folder.title]
+        #del self.folders[folder.title]
+        self.folders.remove(folder)
         
     def add_phrase(self, phrase):
         """
         Add a new phrase to the folder.
         """
         phrase.parent = self
-        self.phrases[phrase.description] = phrase
+        #self.phrases[phrase.description] = phrase
+        self.phrases.append(phrase)
         
     def remove_phrase(self, phrase):
         """
         Removes the given phrase from the folder.
         """
-        del self.phrases[phrase.description]
+        #del self.phrases[phrase.description]
+        self.phrases.remove(phrase)
         
     def set_modes(self, modes):
         self.modes = modes
