@@ -20,43 +20,6 @@ from configurationmanager import *
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
-def get_first_item_by_key(dictionary):
-    keys = dictionary.keys()
-    keys.sort()
-    return dictionary[keys[0]]
-
-def get_next_item_by_key(dictionary, currentKey):
-    try:
-        keys = dictionary.keys()
-        keys.sort()
-        index = keys.index(currentKey)        
-        key = keys[index + 1]
-        return dictionary[key]
-    except IndexError:
-        return None
-    
-def get_item_index(dictionary, key):
-    keys = dictionary.keys()
-    keys.sort()
-    return keys.index(key)
-    
-def get_nth_item_by_key(index, dictionary1, dictionary2={}):
-    totalItems = len(dictionary1) + len(dictionary2)
-    if index >= (totalItems):
-        return None
-    else:
-        if index >= len(dictionary1):
-            # Index is in second dictionary
-            index -= len(dictionary1)
-            return __getNthItem(index, dictionary2)
-        else:
-            return __getNthItem(index, dictionary1)
-            
-def __getNthItem(index, dictionary):
-    keys = dictionary.keys()
-    keys.sort()
-    return dictionary[keys[index]]    
-
 class AbstractAbbreviation:
     """
     Abstract class encapsulating the common functionality of an abbreviation
@@ -258,52 +221,22 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return self.parent.get_backspace_count(buffer)
 
         return 0
-        
-    # Tree model utility methods ----
-        
-    def get_child(self, childRef):
+    
+    def calculate_input(self, buffer):
         """
-        Return the child object (folder or phrase) for the given child reference.
+        Calculate how many keystrokes were used in triggering this folder (if applicable).
         """
-        if childRef in self.folders.keys():
-            return self.folders[childRef]
-        else:
-            return self.phrases[childRef]
-        
-    def get_next_child(self, child):
-        childRef = str(child)
-        if childRef in self.folders.keys():
-            # Child is a folder
-            nextChild = get_next_item_by_key(self.folders, childRef)
-            if nextChild is not None:
-                return nextChild
-            else:
-                return get_first_item_by_key(self.phrases)
-        else:
-            return get_next_item_by_key(self.phrases, childRef)
-        
-    def has_children(self):
-        return self.get_child_count() > 0
-    
-    def get_child_count(self):
-        return len(self.folders) + len(self.phrases)
-    
-    def get_first_child(self):
-        if len(self.folders) > 0:
-            return get_first_item_by_key(self.folders)
-        elif len(self.phrases) > 0:
-            return get_first_item_by_key(self.phrases)
-        else:
-            return None
-        
-    def get_nth_child(self, index):
-        return get_nth_item_by_key(index, self.folders, self.phrases)
-    
-    def get_child_index(self, child):
-        if isinstance(child, PhraseFolder):
-            return get_item_index(self.folders, str(child))
-        else:
-            return get_item_index(self.phrases, str(child)) + len(self.folders)
+        if PhraseMode.ABBREVIATION in self.modes and self.backspace:
+            if self._should_trigger_abbreviation(buffer):
+                if self.immediate:
+                    return len(self.abbreviation)
+                else:
+                    return len(self.abbreviation) + 1
+                        
+        if self.parent is not None:
+            return self.parent.calculate_input(buffer)
+
+        return 0        
         
     def __cmp__(self, other):
         if self.usageCount != other.usageCount:
@@ -407,6 +340,38 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
         self.__parsePositionTokens(expansion)
         return expansion
+    
+    def calculate_input(self, buffer):
+        """
+        Calculate how many keystrokes were used in triggering this phrase.
+        """
+        if PhraseMode.ABBREVIATION in self.modes:
+            if self._should_trigger_abbreviation(buffer):
+                if self.immediate:
+                    return len(self.abbreviation)
+                else:
+                    return len(self.abbreviation) + 1
+
+        if PhraseMode.PREDICTIVE in self.modes:
+            if self._should_trigger_predictive(buffer):
+                return ConfigurationManager.predictiveLength
+            
+        if PhraseMode.HOTKEY in self.modes:
+            if buffer == '':
+                return len(self.modifiers) + 1
+            
+        return self.parent.calculate_input(buffer)
+    
+    def should_prompt(self, buffer):
+        """
+        Get a value indicating whether the user should be prompted to select the phrase.
+        Always returns true if the phrase has been triggered using predictive mode.
+        """
+        if PhraseMode.PREDICTIVE in self.modes:
+            if self._should_trigger_predictive(buffer):
+                return True
+        
+        return self.prompt
     
     def _should_trigger_predictive(self, buffer):
         if len(buffer) >= ConfigurationManager.predictiveLength: 

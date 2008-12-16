@@ -60,10 +60,14 @@ class Key:
     PAGE_UP = "<page_up>"
     PAGE_DOWN = "<page_down>"
 
+    @classmethod
+    def is_key(klass, keyString):
+        return keyString in klass.__dict__.values()
+
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK]
 NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
 
-import time, threading
+import time, threading, re
 from interface import *
 from configurationmanager import ConfigurationManager
 
@@ -78,6 +82,8 @@ def threaded(f):
     wrapper.__dict__ = f.__dict__
     wrapper.__doc__ = f.__doc__
     return wrapper
+
+KEY_SPLIT_RE = re.compile("(<.*>)", re.UNICODE)
 
 class IoMediator:
     """
@@ -116,7 +122,6 @@ class IoMediator:
         
     def pause(self):
         """
-        @deprecated: 
         Stops the underlying keystroke interface from sending and receiving events.
         """        
         #self.interface.cancel()
@@ -203,7 +208,11 @@ class IoMediator:
         self.acquire_lock()
 
         self.__clearModifiers()
-        self.interface.send_string(string.decode("utf-8"))
+        for section in KEY_SPLIT_RE.split(string.decode("utf-8")):
+            if Key().is_key(section):
+                self.interface.send_key(section)
+            else:
+                self.interface.send_string(section)
         self.__reapplyModifiers()
         
         self.release_lock()
@@ -285,12 +294,5 @@ class IoMediator:
         return False
     
 if __name__ == "__main__":
-    import time
-    import expansionservice
-    e = expansionservice.ExpansionService()
-    e.start()
-    time.sleep(15.0)
-    #e.tempsendstring("blah")
-    e.pause()
-        
+    pass
         

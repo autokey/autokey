@@ -15,13 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-#import os.path, ConfigParser
 import os.path, configobj, gtk
 import cPickle as pickle
 
 CONFIG_FILE = "../../config/autokey.bin"
 
-DEFAULT_ABBR_FOLDER = "Abbreviations"
+DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
 
 def get_config_manager():
     if os.path.exists(CONFIG_FILE):
@@ -41,6 +40,7 @@ class ConfigurationManager:
     showTrayIcon = True
     sortByUsageCount = True
     predictiveLength = 5
+    inputSavings = 0
     
     def __init__(self):
         """

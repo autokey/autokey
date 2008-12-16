@@ -26,6 +26,7 @@ class PhraseTest(unittest.TestCase):
         
         # Test default setting (false)
         self.assertEqual(self.defaultPhrase.check_input("xp@", ""), False)
+        self.assertEqual(self.defaultPhrase.calculate_input("xp@ "), 4)
         
         # Test true setting
         phrase = Phrase("xp@", "expansion@autokey.com")
@@ -38,6 +39,8 @@ class PhraseTest(unittest.TestCase):
         result = phrase.build_phrase("xp@")
         self.assertEqual(result.string, "expansion@autokey.com")
         self.assertEqual(result.backspaces, 3)
+        self.assertEqual(phrase.calculate_input("xp@"), 3)
+        
         
     def testIgnoreCaseOption(self):
         
@@ -180,6 +183,8 @@ class PhraseTest(unittest.TestCase):
         
         self.assertEqual(result.backspaces, 5)
         self.assertEqual(result.string, "Testing")
+        self.assertEqual(phrase.calculate_input("asdf "), 5)
+        self.assertEqual(phrase.should_prompt("asdf "), False)
         
     def testWindowName(self):
         phrase = Phrase("Some abbr", "Some abbr")
@@ -209,6 +214,12 @@ class PredictivePhraseTest(unittest.TestCase):
         self.assertEqual(result.backspaces, 0)
         self.assertEqual(result.string, "is a test phrase")
         
+    def testCalcInput(self):
+        self.assertEqual(self.phrase.calculate_input("This "), 5)
+        
+    def testShouldPrompt(self):
+        self.assertEqual(self.phrase.should_prompt("This "), True)
+        
 class HotkeyPhrasetest(unittest.TestCase):
     
     def setUp(self):
@@ -232,19 +243,16 @@ class HotkeyPhrasetest(unittest.TestCase):
         result = self.phrase.build_phrase("")
         self.assertEqual(result.string, "This is a test phrase") 
         
+    def testCalcInput(self):
+        self.assertEqual(self.phrase.calculate_input(''), 3)
+        
 class PhraseFolderTest(unittest.TestCase):
     
     def setUp(self):
         self.folder = PhraseFolder("Folder")
         self.folder.set_abbreviation("sdf")
         self.folder.set_modes([PhraseMode.ABBREVIATION])
-        
-    def testHasChildren(self):
-        self.assertEqual(self.folder.has_children(), False)
-        
-        self.folder.add_phrase(Phrase("Test Phrase", "Testing"))
-        self.assertEqual(self.folder.has_children(), True)
-        
+                
     def testCheckInput(self):
         self.assertEqual(self.folder.check_input("sdf ", ""), True)
     

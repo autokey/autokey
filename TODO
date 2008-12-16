@@ -1,5 +1,10 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
+FIXME Add check for duplicate abbreviations to legacy importer
+Add exception handling at the same time
+
+Add actual persistence to configmanager
+
 Add general crash handler for interface at run() level
 
 Get rid of commented out code
@@ -7,11 +12,7 @@ Add method comments
 
 Add gettext support
 
-Include stats idea in 0.50 - expand on it
-
 Nice reporting and logging of errors so users can report bugs
-
-Abbreviation must be unique - allows show in tray folders to have abbrs
 
 Global hotkey to show configuration menu
 
@@ -23,11 +24,6 @@ LATER PLUGIN Capitalisation autocorrect feature (track last correction and don't
 Option to activate/deactivate above feature
 
 LATER PLUGIN Add spell checker with a hotkey which checks the last word typed
-
-LATER Profile and speed up abbreviation detection code
-Improvement ideas (if profiling shows any issues)
-Add allFolders and allPhrases attributes to configManager
-Add abbreviationPhrasesAndFolders attribute to configManager - search through these first and stop at the first matching entry
 
 Plugin system allowing additional actions to be added - eg insert time of day etc
 - Shell expansion plugin

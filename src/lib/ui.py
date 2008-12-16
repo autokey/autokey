@@ -240,7 +240,8 @@ class ConfigurationWindow(gtk.Window):
     def on_show_about(self, widget, data=None):        
         dlg = gtk.AboutDialog()
         dlg.set_name("AutoKey")
-        dlg.set_comments("A text expansion and hotkey utility for Linux")
+        dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
+                         self.app.service.configManager.inputSavings)
         dlg.set_version("0.50.0")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
@@ -285,7 +286,7 @@ class PhraseFolderSettings(gtk.VBox):
         label.set_alignment(0, 0.5)
         self.pack_start(label, False)
         
-        self.folderTitle = gtk.Entry(20)
+        self.folderTitle = gtk.Entry(50)
         self.pack_start(self.folderTitle, False)
         
         self.showInTray = gtk.CheckButton("Show in tray menu")
@@ -344,7 +345,7 @@ class PhraseSettings(gtk.VBox):
         label.set_alignment(0, 0.5)
         self.pack_start(label, False)
         
-        self.phraseDescription = gtk.Entry(20)
+        self.phraseDescription = gtk.Entry(50)
         self.pack_start(self.phraseDescription, False)
         
         label = gtk.Label("Phrase Contents")
@@ -361,7 +362,7 @@ class PhraseSettings(gtk.VBox):
         
         self.predictive = gtk.CheckButton("Suggest this phrase using predictive mode")
         self.pack_start(self.predictive, False)
-        self.promptBefore = gtk.CheckButton("Prompt before pasting this phrase")
+        self.promptBefore = gtk.CheckButton("Always prompt before pasting this phrase")
         self.pack_start(self.promptBefore, False)
         self.showInTray = gtk.CheckButton("Show in tray menu")
         self.pack_start(self.showInTray, False)
@@ -391,7 +392,7 @@ class PhraseSettings(gtk.VBox):
         self.promptBefore.set_active(thePhrase.prompt)
         self.showInTray.set_active(thePhrase.showInTrayMenu)
         self.settingsNoteBook.load(thePhrase)
-        self.phraseContents.grab_focus()
+        self.phraseDescription.grab_focus()
         
     def on_save(self, widget, data=None):
         if self.validate():
@@ -438,9 +439,9 @@ class SettingsNotebook(gtk.Notebook):
         self.abbrSettings = AbbreviationSettings(configWindow)
         self.hotKeySettings = HotkeySettings(configWindow)
         self.windowFilterSettings = WindowFilterSettings(configWindow)   
-        self.append_page(self.abbrSettings, gtk.Label("Abbreviation"))
-        self.append_page(self.hotKeySettings, gtk.Label("Hotkey"))
-        self.append_page(self.windowFilterSettings, gtk.Label("Window Filter"))
+        self.add_page(self.abbrSettings, "Abbreviation")
+        self.add_page(self.hotKeySettings, "Hotkey")
+        self.add_page(self.windowFilterSettings, "Window Filter")
         
     def load(self, thePhrase):
         self.abbrSettings.load(thePhrase)
@@ -456,7 +457,13 @@ class SettingsNotebook(gtk.Notebook):
         if not self.abbrSettings.validate(targetPhrase): return False
         if not self.hotKeySettings.validate(targetPhrase): return False
         if not self.windowFilterSettings.validate(): return False
-        return True        
+        return True
+    
+    def add_page(self, page, pageTitle):
+        alignment = gtk.Alignment(xscale=1.0)
+        alignment.set_padding(5, 5, 5, 5)
+        alignment.add(page)
+        self.append_page(alignment, gtk.Label(pageTitle))
         
         
 class FolderSettingsNotebook(SettingsNotebook):
@@ -466,32 +473,28 @@ class FolderSettingsNotebook(SettingsNotebook):
         self.abbrSettings = FolderAbbreviationSettings(configWindow)
         self.hotKeySettings = HotkeySettings(configWindow)
         self.windowFilterSettings = WindowFilterSettings(configWindow)   
-        self.append_page(self.abbrSettings, gtk.Label("Abbreviation"))
-        self.append_page(self.hotKeySettings, gtk.Label("Hotkey"))
-        self.append_page(self.windowFilterSettings, gtk.Label("Window Filter"))
+        self.add_page(self.abbrSettings, "Abbreviation")
+        self.add_page(self.hotKeySettings, "Hotkey")
+        self.add_page(self.windowFilterSettings, "Window Filter")
                 
 
-class AbbreviationSettings(gtk.Alignment):
+class AbbreviationSettings(gtk.VBox):
     
     def __init__(self, configWindow):
-        gtk.Alignment.__init__(self, xscale=1.0)
-        self.set_padding(5, 5, 5, 5)
+        gtk.VBox.__init__(self)
         self.configWindow = configWindow
-
-        self.vbox = gtk.VBox()
-        self.add(self.vbox)
 
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
         self.useAbbr.connect("toggled", self.on_useAbbr_toggled)        
-        self.vbox.pack_start(self.useAbbr, False)
+        self.pack_start(self.useAbbr, False)
         
-        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
+        self.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
         hBox.pack_start(self.abbrText, False)
-        self.vbox.pack_start(hBox, False)
+        self.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
         self.omitTrigger = self._addCheckButton("Omit trigger character")
@@ -513,7 +516,7 @@ class AbbreviationSettings(gtk.Alignment):
         hBox.pack_start(gtk.Label("Word Characters "), False)
         hBox.pack_start(self.wordChars, False)
         #hBox.set_child_packing()
-        self.vbox.pack_start(hBox, False, False, 5)
+        self.pack_start(hBox, False, False, 5)
         
         self.useAbbr.emit("toggled")
         
@@ -544,7 +547,7 @@ class AbbreviationSettings(gtk.Alignment):
             thePhrase.set_word_chars(self._getWordCharRegex())            
         
     def on_useAbbr_toggled(self, widget, data=None):
-        self.vbox.foreach(lambda x: x.set_sensitive(widget.get_active()))
+        self.foreach(lambda x: x.set_sensitive(widget.get_active()))
         widget.set_sensitive(True)
         
     def on_match_case_toggled(self, widget, data=None):
@@ -564,7 +567,7 @@ class AbbreviationSettings(gtk.Alignment):
 
     def _addCheckButton(self, label):
         checkButton = gtk.CheckButton(label)
-        self.vbox.pack_start(checkButton, False)
+        self.pack_start(checkButton, False)
         return checkButton
     
     def _getWordCharRegex(self):
@@ -605,24 +608,20 @@ class AbbreviationSettings(gtk.Alignment):
 class FolderAbbreviationSettings(AbbreviationSettings):
     
     def __init__(self, configWindow):
-        gtk.Alignment.__init__(self, xscale=1.0)
-        self.set_padding(5, 5, 5, 5)
+        gtk.VBox.__init__(self)
         self.configWindow = configWindow
-
-        self.vbox = gtk.VBox()
-        self.add(self.vbox)
 
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
         self.useAbbr.connect("toggled", self.on_useAbbr_toggled)
-        self.vbox.pack_start(self.useAbbr, False)
+        self.pack_start(self.useAbbr, False)
         
-        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
+        self.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
         hBox.pack_start(self.abbrText, False)
-        self.vbox.pack_start(hBox, False)
+        self.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
         self.triggerInside = self._addCheckButton("Trigger when typed as part of a word")
@@ -637,7 +636,7 @@ class FolderAbbreviationSettings(AbbreviationSettings):
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Word Characters "), False)
         hBox.pack_start(self.wordChars, False)
-        self.vbox.pack_start(hBox, False, False, 5)
+        self.pack_start(hBox, False, False, 5)
         
         self.useAbbr.emit("toggled")
         
@@ -662,7 +661,7 @@ class FolderAbbreviationSettings(AbbreviationSettings):
             theFolder.set_word_chars(self._getWordCharRegex())            
         
         
-class HotkeySettings(gtk.Alignment):
+class HotkeySettings(gtk.VBox):
     
     KEY_MAP = {
                ' ' : "<space>",
@@ -674,24 +673,20 @@ class HotkeySettings(gtk.Alignment):
     REVERSE_KEY_MAP = {}
     
     def __init__(self, configWindow):
-        gtk.Alignment.__init__(self, xscale=1.0)
-        self.set_padding(5, 5, 5, 5)
+        gtk.VBox.__init__(self)
         self.configWindow = configWindow
         for key, value in self.KEY_MAP.iteritems():
             self.REVERSE_KEY_MAP[value] = key
             
-        self.vbox = gtk.VBox()        
-        self.add(self.vbox)
-        
         self.useHotkey = gtk.CheckButton("Use a hotkey")
         self.useHotkey.connect("toggled", self.on_useHotkey_toggled)
-        self.vbox.pack_start(self.useHotkey, False, False, 5)
+        self.pack_start(self.useHotkey, False, False, 5)
         
-        self.vbox.pack_start(gtk.HSeparator(), False)
+        self.pack_start(gtk.HSeparator(), False)
         
         hBox = gtk.HButtonBox()
         hBox.set_layout(gtk.BUTTONBOX_START)
-        self.vbox.pack_start(hBox, False, False, 5)
+        self.pack_start(hBox, False, False, 5)
         
         self.control = gtk.ToggleButton("Control")
         hBox.pack_start(self.control)
@@ -736,7 +731,7 @@ class HotkeySettings(gtk.Alignment):
             thePhrase.set_hotkey(modifiers, key)
         
     def on_useHotkey_toggled(self, widget, data=None):
-        self.vbox.foreach(lambda x: x.set_sensitive(widget.get_active()))
+        self.foreach(lambda x: x.set_sensitive(widget.get_active()))
         widget.set_sensitive(True)
         
     def on_set_key(self, widget, data=None):
@@ -781,26 +776,23 @@ class HotkeySettings(gtk.Alignment):
         return modifiers
         
 
-class WindowFilterSettings(gtk.Alignment):
+class WindowFilterSettings(gtk.VBox):
     
     def __init__(self, configWindow):
-        gtk.Alignment.__init__(self, xscale=1.0)
-        self.set_padding(5, 5, 5, 5)
+        gtk.VBox.__init__(self)
         self.configWindow = configWindow
-        self.vbox = gtk.VBox()
-        self.add(self.vbox)
-        
+
         self.alwaysTrigger = gtk.CheckButton("Trigger in all windows")
         self.alwaysTrigger.connect("toggled", self.on_alwaysTrigger_toggled)
-        self.vbox.pack_start(self.alwaysTrigger, False)
+        self.pack_start(self.alwaysTrigger, False)
         
-        self.vbox.pack_start(gtk.HSeparator(), False, False, 5)
+        self.pack_start(gtk.HSeparator(), False, False, 5)
         
         label = gtk.Label("Trigger only in windows with title matching")
         label.set_alignment(0, 0.5)
-        self.vbox.pack_start(label, False, False, 5)
+        self.pack_start(label, False, False, 5)
         self.windowFilter = gtk.Entry()
-        self.vbox.pack_start(self.windowFilter, False)
+        self.pack_start(self.windowFilter, False)
         
     def load(self, thePhrase):
         self.alwaysTrigger.set_active(thePhrase.uses_default_filter())
@@ -813,7 +805,7 @@ class WindowFilterSettings(gtk.Alignment):
             thePhrase.set_window_titles(self.windowFilter.get_text())
         
     def on_alwaysTrigger_toggled(self, widget, data=None):
-        self.vbox.foreach(lambda x: x.set_sensitive(not widget.get_active()))
+        self.foreach(lambda x: x.set_sensitive(not widget.get_active()))
         widget.set_sensitive(True)
         
     def validate(self):
