@@ -56,7 +56,7 @@ class ConfigurationManager:
         myPhrases.set_modes([PhraseMode.HOTKEY])
         
         f = PhraseFolder("Addresses")
-        adr = Phrase("Home Address", "3406/22 Carraway Street\nKelvin Grove\nQLD\n4059")
+        adr = Phrase("Home Address", "22 Avenue Street\Brisbane\nQLD\n4000")
         adr.set_modes([PhraseMode.ABBREVIATION])
         adr.set_abbreviation("adr")
         f.add_phrase(adr)
