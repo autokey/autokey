@@ -19,19 +19,39 @@
 
 import pygtk
 pygtk.require("2.0")
-import sys, gtk, traceback
+import sys, gtk, traceback, os.path
 import expansionservice, ui
-from configurationmanager import ConfigurationManager
+from configurationmanager import *
+
+LOCK_FILE = "../../config/autokey.pid"
 
 class AutoKeyApplication:
 
     def __init__(self):
         try:
+            if os.path.exists(LOCK_FILE):
+                f = open(LOCK_FILE, 'r')
+                pid = f.read()
+                f.close()
+                if os.path.exists("/proc/" + pid):
+                    self.show_error_dialog("AutoKey is already running (pid %s)" % pid)
+                    sys.exit(1)
+                else:
+                    self.__createLockFile()
+            else:
+                self.__createLockFile()
+                
             self.initialise()
+            
         except Exception, e:
             self.show_error_dialog("Fatal error starting AutoKey.\n" + str(e))
             traceback.print_exc()
             sys.exit(1)
+            
+    def __createLockFile(self):
+        f = open(LOCK_FILE, 'w')
+        f.write(str(os.getpid()))
+        f.close()
         
     def initialise(self):
         self.service = expansionservice.ExpansionService()
@@ -40,18 +60,10 @@ class AutoKeyApplication:
         self.notifier = ui.Notifier(self)
         self.configureWindow = None
         
-        if ConfigurationManager.isFirstRun:
-            self.show_configure()            
+        if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
+            ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
+            self.show_configure() 
         
-    def start_service(self):
-        """
-        @deprecated: 
-        """
-        try:
-            self.service.start()
-        except Exception, e:
-            self.show_error_dialog("Unable to start expansion service.\n" + str(e))
-            
     def unpause_service(self):
         self.service.unpause()
     
@@ -60,6 +72,7 @@ class AutoKeyApplication:
         
     def shutdown(self):
         self.service.shutdown()
+        os.remove(LOCK_FILE)
             
     def show_notify(self, message, isError=False, details=''):
         self.notifier.show_notify(message, isError, details)

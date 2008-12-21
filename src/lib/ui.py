@@ -1,6 +1,6 @@
 import gtk, gobject, pynotify, re
 import phrase, phrasemenu, iomediator
-from configurationmanager import ConfigurationManager
+from configurationmanager import *
 
 UI_DESCRIPTION_FILE = "../../config/menus.xml"
 ICON_FILE = "../../config/autokeyicon.svg"
@@ -135,7 +135,7 @@ class ConfigurationWindow(gtk.Window):
         self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
         
     def on_show_settings(self, widget, data=None):
-        self.toggleExpansionsMenuItem.set_active(ConfigurationManager.serviceRunning)
+        self.toggleExpansionsMenuItem.set_active(ConfigurationManager.SETTINGS[SERVICE_RUNNING])
         
     def on_close(self, widget, data=None):
         self.hide()
@@ -241,7 +241,7 @@ class ConfigurationWindow(gtk.Window):
         dlg = gtk.AboutDialog()
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
-                         self.app.service.configManager.inputSavings)
+                         ConfigurationManager.SETTINGS[INPUT_SAVINGS])
         dlg.set_version("0.50.0")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
@@ -938,7 +938,7 @@ class Notifier(gobject.GObject):
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
         
-        if ConfigurationManager.showTrayIcon:
+        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
             self.icon.set_tooltip("AutoKey")
             self.icon.connect("popup_menu", self.on_popup_menu)
@@ -1006,7 +1006,7 @@ class Notifier(gobject.GObject):
             
     def on_remove_icon(self, widget, data=None):
         self.icon.set_visible(False)
-        ConfigurationManager.showTrayIcon = False
+        ConfigurationManager.SETTINGS[SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()
@@ -1016,7 +1016,7 @@ class Notifier(gobject.GObject):
     def on_show_notify(self, widget, message, details, iconName):
         n = pynotify.Notification("Autokey", message, iconName)
         n.set_urgency(pynotify.URGENCY_LOW)
-        if ConfigurationManager.showTrayIcon:
+        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
             n.attach_to_status_icon(self.icon)
         if details != '':
             n.add_action("details", "Details", self.__notifyClicked, details)

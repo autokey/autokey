@@ -22,37 +22,55 @@ CONFIG_FILE = "../../config/autokey.bin"
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
 
+IS_FIRST_RUN = "isFirstRun"
+SERVICE_RUNNING = "serviceRunning"
+MENU_TAKES_FOCUS = "menuTakesFocus"
+SHOW_TRAY_ICON = "showTrayIcon"
+SORT_BY_USAGE_COUNT = "sortByUsageCount"
+PREDICTIVE_LENGTH = "predictiveLength"
+INPUT_SAVINGS = "inputSavings"
+
 def get_config_manager():
     if os.path.exists(CONFIG_FILE):
         pFile = open(CONFIG_FILE, 'r')
-        config = pickle.load(pFile)
+        settings, configManager = pickle.load(pFile)
         pFile.close()
-        return config
+        ConfigurationManager.SETTINGS = settings
+        return configManager
     else:
         return ConfigurationManager()
+
+def save_config(configManager):
+    outFile = open(CONFIG_FILE, "wb")
+    pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
+    outFile.close()
+    
 
 class ConfigurationManager:
 
     # Static members for global application settings ----
-    isFirstRun = True
-    serviceRunning = False
-    menuTakesFocus = True
-    showTrayIcon = True
-    sortByUsageCount = True
-    predictiveLength = 5
-    inputSavings = 0
+    SETTINGS = {
+                IS_FIRST_RUN : True,
+                SERVICE_RUNNING : True,
+                MENU_TAKES_FOCUS : False,
+                SHOW_TRAY_ICON : True,
+                SORT_BY_USAGE_COUNT : True,
+                PREDICTIVE_LENGTH : 5,
+                INPUT_SAVINGS : 0
+                }
     
     def __init__(self):
         """
         Create initial default configuration
-        """    
+        """        
+        
         self.folders = {}
         #self.folders[DEFAULT_ABBR_FOLDER] = PhraseFolder(DEFAULT_ABBR_FOLDER)
                 
         # TODO TESTING REMOVE ME LATER
         from iomediator import Key
         myPhrases = PhraseFolder("My Phrases")
-        myPhrases.set_hotkey([Key.CONTROL], '<f7>')
+        myPhrases.set_hotkey([Key.CONTROL], Key.F7)
         myPhrases.set_modes([PhraseMode.HOTKEY])
         
         f = PhraseFolder("Addresses")
@@ -64,7 +82,6 @@ class ConfigurationManager:
 
         p = Phrase("First phrase", "Test phrase number one!")
         p.set_modes([PhraseMode.PREDICTIVE])
-        p.prompt = True
         p.set_window_titles(".* - gedit")
         myPhrases.add_phrase(p)
         
@@ -173,7 +190,7 @@ class ConfigurationManager:
                     return item is targetPhrase     
 
         return True
-
+    
 # Legacy Importer ----
 
 # Legacy configuration sections

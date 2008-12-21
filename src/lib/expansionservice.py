@@ -42,20 +42,21 @@ class ExpansionService:
         self.lastStackState = ''
         self.lastMenu = None
         self.ignoreCount = 0
+        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
         
     def unpause(self):
-        ConfigurationManager.serviceRunning = True
+        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
         
     def pause(self):
         #self.mediator.pause()
-        ConfigurationManager.serviceRunning = False
+        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
         
     def is_running(self):
         #if self.mediator is not None:
         #    return self.mediator.is_running()
         #else:
         #    return False
-        return configurationmanager.ConfigurationManager.serviceRunning
+        return self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING]
         
     def switch_method(self, method):
         """
@@ -74,6 +75,7 @@ class ExpansionService:
             
     def shutdown(self):
         self.mediator.shutdown()
+        configurationmanager.save_config(self.configManager)
             
     def handle_mouseclick(self):
         # Initial attempt at handling mouseclicks
@@ -125,8 +127,8 @@ class ExpansionService:
         if windowName == ui.CONFIG_WINDOW_TITLE or not self.is_running():
             return
 
-        if self.lastMenu is not None and not self.configManager.menuTakesFocus:
-            # not self.configManager.menuTakesFocus: don't need to worry about hiding the menu if it has keyboard focus
+        if self.lastMenu is not None and not self.configManager.SETTINGS[configurationmanager.MENU_TAKES_FOCUS]:
+            # don't need to worry about hiding the menu if it has keyboard focus
             self.lastMenu.remove_from_desktop()
             self.lastMenu = None
        
@@ -206,4 +208,4 @@ class ExpansionService:
         self.mediator.send_left(expansion.lefts)
         self.mediator.flush()    
     
-        self.configManager.inputSavings += (len(expansion.string) - phrase.calculate_input(buffer)) 
+        self.configManager.SETTINGS[configurationmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer)) 

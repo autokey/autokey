@@ -118,14 +118,6 @@ class IoMediator:
         #else:
         #    self.interface = AtSpiInterface(self)
         self.interface.start()
-        ConfigurationManager.serviceRunning = True
-        
-    def pause(self):
-        """
-        Stops the underlying keystroke interface from sending and receiving events.
-        """        
-        #self.interface.cancel()
-        ConfigurationManager.serviceRunning = False
         
     def shutdown(self):
         self.interface.cancel()

@@ -1,5 +1,5 @@
 import gtk, time
-from configurationmanager import ConfigurationManager
+from configurationmanager import *
 
 from phrase import PhraseFolder # remove later
 
@@ -10,9 +10,9 @@ class PhraseMenu(gtk.Menu):
 
     def __init__(self, expansionService, phraseFolders=[], phrases=[], expandFolders=True):
         gtk.Menu.__init__(self)
-        self.set_take_focus(ConfigurationManager.menuTakesFocus)
+        self.set_take_focus(ConfigurationManager.SETTINGS[MENU_TAKES_FOCUS])
         
-        if ConfigurationManager.sortByUsageCount:
+        if ConfigurationManager.SETTINGS[SORT_BY_USAGE_COUNT]:
             phraseFolders.sort(reverse=True)
             phrases.sort(reverse=True)
         
@@ -47,7 +47,7 @@ class PhraseMenu(gtk.Menu):
         
     def __addPhrasesToSelf(self, phrases, expansionService):
         # Create phrase section
-        if ConfigurationManager.sortByUsageCount:
+        if ConfigurationManager.SETTINGS[SORT_BY_USAGE_COUNT]:
             phrases.sort(reverse=True)
             
         for phrase in phrases:

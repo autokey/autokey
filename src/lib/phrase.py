@@ -331,7 +331,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                         
         if PhraseMode.PREDICTIVE in self.modes:
             if self._should_trigger_predictive(buffer):
-                expansion.string = expansion.string[ConfigurationManager.predictiveLength:]
+                expansion.string = expansion.string[ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]:]
                 triggerFound = True
             
         if not triggerFound:
@@ -354,7 +354,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
         if PhraseMode.PREDICTIVE in self.modes:
             if self._should_trigger_predictive(buffer):
-                return ConfigurationManager.predictiveLength
+                return ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]
             
         if PhraseMode.HOTKEY in self.modes:
             if buffer == '':
@@ -374,8 +374,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return self.prompt
     
     def _should_trigger_predictive(self, buffer):
-        if len(buffer) >= ConfigurationManager.predictiveLength: 
-            typed = buffer[-ConfigurationManager.predictiveLength:]
+        if len(buffer) >= ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]: 
+            typed = buffer[-ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]:]
             return self.phrase.startswith(typed)
         else:
             return False
