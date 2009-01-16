@@ -17,14 +17,13 @@
 
 __all__ = ["XLibInterface"]
 
-import threading, re
+import threading, re, time
 from iomediator import Key, MODIFIERS
 
 # Xlib Interface ----
-
 from Xlib import X, XK, display, error
 from Xlib.ext import record, xtest
-from Xlib.protocol import rq
+from Xlib.protocol import rq, event
 
 # Modifiers
 SHIFT = 'XK_Shift_L'
@@ -184,13 +183,13 @@ class XLibInterface(threading.Thread):
             if len(keyCodeList) > 0:
                 keyCode, offset = keyCodeList[0]
                 if offset == 1:
-                    self.press_key(Key.SHIFT)
-                    self.__sendKeyCode(keyCode)
-                    self.release_key(Key.SHIFT)
+                    #self.press_key(Key.SHIFT)
+                    self.__sendKeyCode(keyCode, X.ShiftMask)
+                    #self.release_key(Key.SHIFT)
                 elif offset == 2:
-                    self.press_key(Key.ALT_GR)
-                    self.__sendKeyCode(keyCode)
-                    self.release_key(Key.ALT_GR)
+                    #self.press_key(Key.ALT_GR)
+                    self.__sendKeyCode(keyCode, X.Mod1Mask)
+                    #self.release_key(Key.ALT_GR)
                 else:
                     self.__sendKeyCode(keyCode)                    
             else:
@@ -206,10 +205,12 @@ class XLibInterface(threading.Thread):
         self.local_dpy.flush()
         
     def press_key(self, keyName):
-        xtest.fake_input(self.rootWindow, X.KeyPress, self.__lookupKeyCode(keyName))
+        #xtest.fake_input(self.rootWindow, X.KeyPress, self.__lookupKeyCode(keyName))
+        self.__sendKeyPressEvent(self.__lookupKeyCode(keyName))
         
     def release_key(self, keyName):
-        xtest.fake_input(self.rootWindow, X.KeyRelease, self.__lookupKeyCode(keyName))  
+        #xtest.fake_input(self.rootWindow, X.KeyRelease, self.__lookupKeyCode(keyName))
+        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName))  
 
     def __processEvent(self, reply):
         if reply.category != record.FromServer:
@@ -257,9 +258,48 @@ class XLibInterface(threading.Thread):
         
         return None
     
-    def __sendKeyCode(self, keyCode):
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+    #def __sendKeyCode(self, keyCode):
+    #    xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+    #    xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+    
+    def __sendKeyCode(self, keyCode, modifiers=0):
+        self.__sendKeyPressEvent(keyCode, modifiers)
+        self.__sendKeyReleaseEvent(keyCode, modifiers)
+        #time.sleep(0.001)
+        
+    def __sendKeyPressEvent(self, keyCode, modifiers):
+        focus = self.local_dpy.get_input_focus().focus
+        keyEvent = event.KeyPress(
+                                  detail=keyCode,
+                                  time=X.CurrentTime,
+                                  root=self.rootWindow,
+                                  window=focus,
+                                  child=X.NONE,
+                                  root_x=1,
+                                  root_y=1,
+                                  event_x=1,
+                                  event_y=1,
+                                  state=modifiers,
+                                  same_screen=1
+                                  )
+        focus.send_event(keyEvent)
+        
+    def __sendKeyReleaseEvent(self, keyCode, modifiers):
+        focus = self.local_dpy.get_input_focus().focus
+        keyEvent = event.KeyRelease(
+                                  detail=keyCode,
+                                  time=X.CurrentTime,
+                                  root=self.rootWindow,
+                                  window=focus,
+                                  child=X.NONE,
+                                  root_x=1,
+                                  root_y=1,
+                                  event_x=1,
+                                  event_y=1,
+                                  state=modifiers,
+                                  same_screen=1
+                                  )
+        focus.send_event(keyEvent)
         
     def __lookupKeyCode(self, char):
         if char in self.keyCodes.keys():

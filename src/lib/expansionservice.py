@@ -179,7 +179,7 @@ class ExpansionService:
         if len(self.inputStack) > MAX_STACK_LENGTH: 
             self.inputStack.pop(0)
             
-        #print self.inputStack
+        print self.inputStack
         
     def phrase_selected(self, event, phrase):
         time.sleep(0.1) # wait for window to be active
