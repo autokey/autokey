@@ -120,9 +120,10 @@ class ExpansionService:
 
     
     def handle_keypress(self, key, windowName=""):
-        if self.ignoreCount > 0:
-            self.ignoreCount -= 1
-            return
+        #if self.ignoreCount > 0:
+        #    print "ignoring"
+        #    self.ignoreCount -= 1
+        #    return
         
         if windowName == ui.CONFIG_WINDOW_TITLE or not self.is_running():
             return
@@ -148,7 +149,7 @@ class ExpansionService:
             # Check abbreviation phrases first
             for phrase in self.configManager.abbrPhrases:
                 if phrase.check_input(currentInput, windowName) and not phrase.prompt:
-                    self.__sendPhrase(phrase, currentInput)
+                    self.__sendPhrase(phrase, currentInput)              
                     return
                 
             # Code below here only executes if no immediate abbreviation phrase is matched
@@ -179,7 +180,7 @@ class ExpansionService:
         if len(self.inputStack) > MAX_STACK_LENGTH: 
             self.inputStack.pop(0)
             
-        print self.inputStack
+        #print self.inputStack
         
     def phrase_selected(self, event, phrase):
         time.sleep(0.1) # wait for window to be active
@@ -206,6 +207,7 @@ class ExpansionService:
         self.mediator.send_string(expansion.string)
         self.mediator.send_string(extraKeys)
         self.mediator.send_left(expansion.lefts)
-        self.mediator.flush()    
+        self.mediator.flush()
     
-        self.configManager.SETTINGS[configurationmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer)) 
+        self.configManager.SETTINGS[configurationmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
+        

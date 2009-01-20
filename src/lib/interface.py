@@ -265,7 +265,7 @@ class XLibInterface(threading.Thread):
     def __sendKeyCode(self, keyCode, modifiers=0):
         self.__sendKeyPressEvent(keyCode, modifiers)
         self.__sendKeyReleaseEvent(keyCode, modifiers)
-        #time.sleep(0.001)
+        #time.sleep(0.001) #TODO QT4 workaround
         
     def __sendKeyPressEvent(self, keyCode, modifiers):
         focus = self.local_dpy.get_input_focus().focus
