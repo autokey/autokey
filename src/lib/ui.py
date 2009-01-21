@@ -221,14 +221,20 @@ class ConfigurationWindow(gtk.Window):
         dlg.add_filter(filter)
         
         if dlg.run() == gtk.RESPONSE_OK:
-            folder, phrases = self.app.service.configManager.import_legacy_settings(dlg.get_filename())
-            model = self.treeView.get_model()
-            
-            iter = model.append_item(folder, None)
-            for phrase in phrases:
-                model.append_item(phrase, iter)
+            fileName = dlg.get_filename()
+            dlg.destroy()
+            try:
+                folder, phrases = self.app.service.configManager.import_legacy_settings(fileName)
+            except ImportException, ie:
+                self.app.show_error_dialog("Unable to import the configuration file:\n" + str(ie))
+            else:
+                model = self.treeView.get_model()
+                
+                iter = model.append_item(folder, None)
+                for phrase in phrases:
+                    model.append_item(phrase, iter)
 
-        dlg.destroy()
+        
         self.app.service.configManager.config_altered()
         
     def on_expansions_toggled(self, widget, data=None):
@@ -521,7 +527,7 @@ class AbbreviationSettings(gtk.VBox):
         self.useAbbr.emit("toggled")
         
     def load(self, thePhrase):
-        self.useAbbr.set_active(phrase.PhraseMode.ABBREVIATION in thePhrase.modes)
+        
         if thePhrase.abbreviation is not None:
             self.abbrText.set_text(thePhrase.abbreviation)
         else:
@@ -533,6 +539,8 @@ class AbbreviationSettings(gtk.VBox):
         self.triggerInside.set_active(thePhrase.triggerInside)
         self.immediate.set_active(thePhrase.immediate)
         self._setWordCharRegex(thePhrase.get_word_chars())
+        
+        self.useAbbr.set_active(phrase.PhraseMode.ABBREVIATION in thePhrase.modes)
         
     def save(self, thePhrase):
         if self.useAbbr.get_active():

@@ -1,8 +1,5 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-FIXME Add check for duplicate abbreviations to legacy importer
-Add exception handling at the same time
-
 Add general crash handler for interface at run() level
 
 Get rid of commented out code

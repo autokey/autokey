@@ -29,6 +29,7 @@ SHOW_TRAY_ICON = "showTrayIcon"
 SORT_BY_USAGE_COUNT = "sortByUsageCount"
 PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
+ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 
 def get_config_manager():
     if os.path.exists(CONFIG_FILE):
@@ -46,6 +47,10 @@ def save_config(configManager):
     outFile.close()
     
 
+class ImportException(Exception):
+    pass
+    
+
 class ConfigurationManager:
 
     # Static members for global application settings ----
@@ -56,7 +61,8 @@ class ConfigurationManager:
                 SHOW_TRAY_ICON : True,
                 SORT_BY_USAGE_COUNT : True,
                 PREDICTIVE_LENGTH : 5,
-                INPUT_SAVINGS : 0
+                INPUT_SAVINGS : 0,
+                ENABLE_QT4_WORKAROUND : False
                 }
     
     def __init__(self):
@@ -74,7 +80,7 @@ class ConfigurationManager:
         myPhrases.set_modes([PhraseMode.HOTKEY])
         
         f = PhraseFolder("Addresses")
-        adr = Phrase("Home Address", "22 Avenue Street\Brisbane\nQLD\n4000")
+        adr = Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
         adr.set_modes([PhraseMode.ABBREVIATION])
         adr.set_abbreviation("adr")
         f.add_phrase(adr)
@@ -149,14 +155,13 @@ class ConfigurationManager:
         
     def import_legacy_settings(self, configFilePath):
         importer = LegacyImporter()
-        importer.load_config(configFilePath)
-        
-        # TODO import exception        
+        importer.load_config(configFilePath)        
         folder = PhraseFolder(DEFAULT_ABBR_FOLDER)
-        #for phrase in importer.phrases:
-        #    folder.add_phrase(phrase)
-        #self.folders[folder.title] = folder
-        #self.config_altered()
+        
+        # Check phrases for unique abbreviations
+        for phrase in importer.phrases:
+            if not self.check_abbreviation_unique(phrase.abbreviation, phrase):
+                raise ImportException("The abbreviation '" + phrase.abbreviation + "' is already in use.")
         return (folder, importer.phrases)
     
     def check_abbreviation_unique(self, abbreviation, targetPhrase):
@@ -221,12 +226,10 @@ ABBREVIATION_OPTIONS = [
 class LegacyImporter:
     
     def load_config(self, configFilePath):
-        # TODO catch exceptions and throw import exception
-        #p = ConfigParser.ConfigParser()
-        #p.read([configFilePath])
-        #abbrDefinitions = dict(p.items(ABBR_SECTION))
-        
-        config = configobj.ConfigObj(configFilePath, list_values=False)
+        try:
+            config = configobj.ConfigObj(configFilePath, list_values=False)
+        except Exception, e:
+            raise ImportException(str(e))
         abbrDefinitions = config[ABBR_SECTION]
         
         definitions = abbrDefinitions.keys()
@@ -328,3 +331,14 @@ class LegacyImporter:
             return defaults[optionName]
 
 from phrase import *
+
+class GlobalHotkey(AbstractHotkey):
+    
+    def set_closure(self, closure):
+        self.closure = closure
+        
+    def check_hotkey(self, modifiers, key, windowTitle):
+        if super(GlobalHotkey, self).check_hotkey(modifiers, key, windowTitle):
+            self.closure()
+        return False
+

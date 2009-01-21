@@ -19,6 +19,7 @@ __all__ = ["XLibInterface"]
 
 import threading, re, time
 from iomediator import Key, MODIFIERS
+from configurationmanager import *
 
 # Xlib Interface ----
 from Xlib import X, XK, display, error
@@ -113,6 +114,7 @@ class XLibInterface(threading.Thread):
         self.record_dpy = display.Display()
         self.rootWindow = self.local_dpy.screen().root
         self.lock = threading.RLock()
+        self.lastChars = [] # FIXME QT4 Workaround - remove me once the bug is fixed
         
         # Check for record extension 
         if not self.record_dpy.has_extension("RECORD"):
@@ -203,6 +205,7 @@ class XLibInterface(threading.Thread):
         
     def flush(self):
         self.local_dpy.flush()
+        self.lastChars = []
         
     def press_key(self, keyName):
         #xtest.fake_input(self.rootWindow, X.KeyPress, self.__lookupKeyCode(keyName))
@@ -263,9 +266,23 @@ class XLibInterface(threading.Thread):
     #    xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
     
     def __sendKeyCode(self, keyCode, modifiers=0):
+        if ConfigurationManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+            self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers)
-        self.__sendKeyReleaseEvent(keyCode, modifiers)
-        #time.sleep(0.001) #TODO QT4 workaround
+        self.__sendKeyReleaseEvent(keyCode, modifiers)        
+        
+    def __doQT4Workaround(self, keyCode):
+        if len(self.lastChars) > 0:
+            if keyCode in self.lastChars and not self.lastChars[-1] == keyCode:
+                time.sleep(0.0125)
+                #print "waiting"
+
+        self.lastChars.append(keyCode)
+        
+        if len(self.lastChars) > 10:
+            self.lastChars.pop(0)
+        
+        #print self.lastChars
         
     def __sendKeyPressEvent(self, keyCode, modifiers):
         focus = self.local_dpy.get_input_focus().focus
