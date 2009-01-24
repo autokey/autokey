@@ -1,5 +1,7 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
+Add Save menu item with Ctrl+S accelerator
+
 Add general crash handler for interface at run() level
 
 Get rid of commented out code

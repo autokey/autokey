@@ -119,8 +119,10 @@ class ConfigurationWindow(gtk.Window):
         self.add(vbox)
         self.connect("hide", self.on_close)
         self.show_all()
-        self.treeView.get_selection().select_path(0)
-        self.on_tree_selection_changed(self.treeView)
+        #self.treeView.get_selection().select_path(0)
+        #self.on_tree_selection_changed(self.treeView)
+        
+        self.dirty = False
         
     def refresh_tree(self, item):
         self.app.service.configManager.config_altered()
@@ -153,7 +155,16 @@ class ConfigurationWindow(gtk.Window):
     def on_tree_selection_changed(self, widget, data=None):
         selectedObject = self.__getTreeSelection()
         child = self.settingsBox.get_children()[0]
-        
+ 
+        # TODO - find a way to make this work
+        #if self.dirty:
+        #    dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+        #                            "There are unsaved changes. Would you like to save them?")
+        #    if dlg.run() != gtk.RESPONSE_YES:
+        #        if not isinstance(child, gtk.Label):
+        #            child.on_save(widget)
+        #    dlg.destroy()
+             
         if selectedObject is not None:
             if isinstance(selectedObject, phrase.Phrase):
                 if child is not self.phraseSettings:
@@ -165,6 +176,8 @@ class ConfigurationWindow(gtk.Window):
                     self.settingsBox.remove(child)
                     self.settingsBox.add(self.folderSettings)
                 self.folderSettings.load(selectedObject)
+            
+            self.dirty = False
         
         else:    
             self.settingsBox.remove(child)
@@ -233,7 +246,6 @@ class ConfigurationWindow(gtk.Window):
                 iter = model.append_item(folder, None)
                 for phrase in phrases:
                     model.append_item(phrase, iter)
-
         
         self.app.service.configManager.config_altered()
         
@@ -293,27 +305,34 @@ class PhraseFolderSettings(gtk.VBox):
         self.pack_start(label, False)
         
         self.folderTitle = gtk.Entry(50)
+        self.folderTitle.connect("changed", self.on_modified)
         self.pack_start(self.folderTitle, False)
         
         self.showInTray = gtk.CheckButton("Show in tray menu")
+        self.showInTray.connect("toggled", self.on_modified)
         self.pack_start(self.showInTray, False)
         
-        self.settingsNoteBook = FolderSettingsNotebook(configWindow)
+        self.saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
+        self.revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
+        
+        self.settingsNoteBook = FolderSettingsNotebook(configWindow, self)
         self.pack_start(self.settingsNoteBook, False, True, 5)
         
         self.pack_start(gtk.Label(""))
         
         buttonBox = gtk.HButtonBox()
-        saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
-        saveButton.connect("clicked", self.on_save)
-        revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
-        revertButton.connect("clicked", self.on_revert)
-        buttonBox.pack_end(saveButton)
-        buttonBox.pack_end(revertButton)
+        #self.saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
+        self.saveButton.connect("clicked", self.on_save)
+        #self.revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
+        self.revertButton.connect("clicked", self.on_revert)
+        buttonBox.pack_end(self.saveButton)
+        buttonBox.pack_end(self.revertButton)
         buttonBox.set_layout(gtk.BUTTONBOX_END)
         self.pack_start(buttonBox, False, False, 5)
         
         self.show_all()
+        
+        #self.dirty = False
         
     def load(self, theFolder):
         self.currentFolder = theFolder
@@ -321,6 +340,13 @@ class PhraseFolderSettings(gtk.VBox):
         self.showInTray.set_active(theFolder.showInTrayMenu)
         self.settingsNoteBook.load(theFolder)
         self.folderTitle.grab_focus()
+        self.saveButton.set_sensitive(False)
+        self.revertButton.set_sensitive(False)        
+        
+    def set_dirty(self):
+        self.saveButton.set_sensitive(True)
+        self.revertButton.set_sensitive(True)
+        self.configWindow.dirty = True
         
     def on_save(self, widget, data=None):
         if self.validate():
@@ -329,13 +355,21 @@ class PhraseFolderSettings(gtk.VBox):
             self.currentFolder.showInTrayMenu = self.showInTray.get_active()
             self.settingsNoteBook.save(self.currentFolder)
             self.configWindow.refresh_tree(self.currentFolder)
-        
+            self.saveButton.set_sensitive(False)
+            self.revertButton.set_sensitive(False)
+            
+    def on_modified(self, widget, data=None):
+        self.set_dirty()        
+                    
     def on_revert(self, widget, data=None):
         self.load(self.currentFolder)
 
     def validate(self):
         if not validate(not EMPTY_FIELD_REGEX.match(self.folderTitle.get_text()), "Folder title can not be empty",
                          self.folderTitle, self.configWindow):
+            return False
+        
+        if not self.settingsNoteBook.validate(self.currentFolder):
             return False
         
         return True
@@ -352,6 +386,7 @@ class PhraseSettings(gtk.VBox):
         self.pack_start(label, False)
         
         self.phraseDescription = gtk.Entry(50)
+        self.phraseDescription.connect("changed", self.on_modified)
         self.pack_start(self.phraseDescription, False)
         
         label = gtk.Label("Phrase Contents")
@@ -367,38 +402,53 @@ class PhraseSettings(gtk.VBox):
         self.pack_start(scrolledWindow)
         
         self.predictive = gtk.CheckButton("Suggest this phrase using predictive mode")
+        self.predictive.connect("toggled", self.on_modified)
         self.pack_start(self.predictive, False)
         self.promptBefore = gtk.CheckButton("Always prompt before pasting this phrase")
+        self.promptBefore.connect("toggled", self.on_modified)
         self.pack_start(self.promptBefore, False)
         self.showInTray = gtk.CheckButton("Show in tray menu")
+        self.showInTray.connect("toggled", self.on_modified)
         self.pack_start(self.showInTray, False)
         
-        self.settingsNoteBook = SettingsNotebook(configWindow)        
+        self.saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
+        self.revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
+        self.settingsNoteBook = SettingsNotebook(configWindow, self)        
         self.pack_start(self.settingsNoteBook, False, True, 5)
         
         buttonBox = gtk.HButtonBox()
-        saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
-        saveButton.connect("clicked", self.on_save)
-        revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
-        revertButton.connect("clicked", self.on_revert)
-        buttonBox.pack_end(saveButton)
-        buttonBox.pack_end(revertButton)
+        #self.saveButton = gtk.Button("Save", gtk.STOCK_SAVE)
+        self.saveButton.connect("clicked", self.on_save)
+        #self.revertButton = gtk.Button("Revert", gtk.STOCK_REVERT_TO_SAVED)
+        self.revertButton.connect("clicked", self.on_revert)
+        buttonBox.pack_end(self.saveButton)
+        buttonBox.pack_end(self.revertButton)
         buttonBox.set_layout(gtk.BUTTONBOX_END)
         self.pack_start(buttonBox, False, False, 5)
         
         self.show_all()
+        
+        #self.dirty = False
         
     def load(self, thePhrase):
         self.currentPhrase = thePhrase
         self.phraseDescription.set_text(thePhrase.description)
         buffer = gtk.TextBuffer()
         buffer.set_text(thePhrase.phrase)
+        buffer.connect("changed", self.on_modified)
         self.phraseContents.set_buffer(buffer)
         self.predictive.set_active(phrase.PhraseMode.PREDICTIVE in thePhrase.modes)
         self.promptBefore.set_active(thePhrase.prompt)
         self.showInTray.set_active(thePhrase.showInTrayMenu)
         self.settingsNoteBook.load(thePhrase)
         self.phraseDescription.grab_focus()
+        self.saveButton.set_sensitive(False)
+        self.revertButton.set_sensitive(False)        
+        
+    def set_dirty(self):
+        self.saveButton.set_sensitive(True)
+        self.revertButton.set_sensitive(True)        
+        self.configWindow.dirty = True
         
     def on_save(self, widget, data=None):
         if self.validate():
@@ -417,9 +467,16 @@ class PhraseSettings(gtk.VBox):
             self.settingsNoteBook.save(self.currentPhrase)
             
             self.configWindow.refresh_tree(self.currentPhrase)
+            
+            self.saveButton.set_sensitive(False)
+            self.revertButton.set_sensitive(False)        
+            
         
     def on_revert(self, widget, data=None):
         self.load(self.currentPhrase)
+        
+    def on_modified(self, widget, data=None):
+        self.set_dirty()
         
     def validate(self):
         if not validate(not EMPTY_FIELD_REGEX.match(self.phraseDescription.get_text()),
@@ -440,11 +497,12 @@ class PhraseSettings(gtk.VBox):
         
 class SettingsNotebook(gtk.Notebook):
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, settingsPane):
         gtk.Notebook.__init__(self)
-        self.abbrSettings = AbbreviationSettings(configWindow)
-        self.hotKeySettings = HotkeySettings(configWindow)
-        self.windowFilterSettings = WindowFilterSettings(configWindow)   
+        self.settingsPane = settingsPane
+        self.abbrSettings = AbbreviationSettings(configWindow, self)
+        self.hotKeySettings = HotkeySettings(configWindow, self)
+        self.windowFilterSettings = WindowFilterSettings(configWindow, self)
         self.add_page(self.abbrSettings, "Abbreviation")
         self.add_page(self.hotKeySettings, "Hotkey")
         self.add_page(self.windowFilterSettings, "Window Filter")
@@ -453,6 +511,9 @@ class SettingsNotebook(gtk.Notebook):
         self.abbrSettings.load(thePhrase)
         self.hotKeySettings.load(thePhrase)
         self.windowFilterSettings.load(thePhrase)
+        
+    def set_dirty(self):
+        self.settingsPane.set_dirty()
         
     def save(self, thePhrase):
         self.abbrSettings.save(thePhrase)
@@ -474,11 +535,12 @@ class SettingsNotebook(gtk.Notebook):
         
 class FolderSettingsNotebook(SettingsNotebook):
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, settingsPane):
         gtk.Notebook.__init__(self)
-        self.abbrSettings = FolderAbbreviationSettings(configWindow)
-        self.hotKeySettings = HotkeySettings(configWindow)
-        self.windowFilterSettings = WindowFilterSettings(configWindow)   
+        self.settingsPane = settingsPane
+        self.abbrSettings = FolderAbbreviationSettings(configWindow, self)
+        self.hotKeySettings = HotkeySettings(configWindow, self)
+        self.windowFilterSettings = WindowFilterSettings(configWindow, self)
         self.add_page(self.abbrSettings, "Abbreviation")
         self.add_page(self.hotKeySettings, "Hotkey")
         self.add_page(self.windowFilterSettings, "Window Filter")
@@ -486,37 +548,52 @@ class FolderSettingsNotebook(SettingsNotebook):
 
 class AbbreviationSettings(gtk.VBox):
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, noteBook):
         gtk.VBox.__init__(self)
         self.configWindow = configWindow
+        self.noteBook = noteBook
 
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
-        self.useAbbr.connect("toggled", self.on_useAbbr_toggled)        
+        self.useAbbr.connect("toggled", self.on_useAbbr_toggled)
+        self.useAbbr.connect("toggled", self.on_modified)            
         self.pack_start(self.useAbbr, False)
         
         self.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
+        self.abbrText.connect("changed", self.on_modified)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
         hBox.pack_start(self.abbrText, False)
         self.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
+        self.removeTyped.connect("toggled", self.on_modified)
+        
         self.omitTrigger = self._addCheckButton("Omit trigger character")
+        self.omitTrigger.connect("toggled", self.on_modified)
+        
         self.matchCase = self._addCheckButton("Match phrase case to typed abbreviation")
         self.matchCase.connect("toggled", self.on_match_case_toggled)
+        self.matchCase.connect("toggled", self.on_modified)
+        
         self.ignoreCase = self._addCheckButton("Ignore case of typed abbreviation")
         self.ignoreCase.connect("toggled", self.on_ignore_case_toggled)
+        self.ignoreCase.connect("toggled", self.on_modified)
+        
         self.triggerInside = self._addCheckButton("Trigger when typed as part of a word")
+        self.triggerInside.connect("toggled", self.on_modified)
+        
         self.immediate = self._addCheckButton("Trigger immediately (don't require a trigger character)")
         self.immediate.connect("toggled", self.on_immediate_toggled)
+        self.immediate.connect("toggled", self.on_modified)
         
         self.wordChars = gtk.combo_box_entry_new_text()
         model = self.wordChars.get_model()
         for key in WORD_CHAR_OPTIONS_ORDERED:
             model.append([key])
         self.wordChars.set_active(0)
+        self.wordChars.connect("changed", self.on_modified)
         
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Word Characters "), False)
@@ -572,6 +649,9 @@ class AbbreviationSettings(gtk.VBox):
             self.omitTrigger.set_sensitive(False)
         else:
             self.omitTrigger.set_sensitive(True)
+            
+    def on_modified(self, widget, data=None):
+        self.noteBook.set_dirty()
 
     def _addCheckButton(self, label):
         checkButton = gtk.CheckButton(label)
@@ -615,31 +695,38 @@ class AbbreviationSettings(gtk.VBox):
             
 class FolderAbbreviationSettings(AbbreviationSettings):
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, noteBook):
         gtk.VBox.__init__(self)
         self.configWindow = configWindow
+        self.noteBook = noteBook
 
         self.useAbbr = gtk.CheckButton("Use an abbreviation")
         self.useAbbr.connect("toggled", self.on_useAbbr_toggled)
+        self.useAbbr.connect("toggled", self.on_modified)
         self.pack_start(self.useAbbr, False)
         
         self.pack_start(gtk.HSeparator(), False, False, 5)
         
         self.abbrText = gtk.Entry(10)
+        self.abbrText.connect("changed", self.on_modified)
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Abbreviation "), False)
         hBox.pack_start(self.abbrText, False)
         self.pack_start(hBox, False)
         
         self.removeTyped = self._addCheckButton("Remove typed abbreviation")
+        self.removeTyped.connect("toggled", self.on_modified)
         self.triggerInside = self._addCheckButton("Trigger when typed as part of a word")
+        self.triggerInside.connect("toggled", self.on_modified)
         self.immediate = self._addCheckButton("Trigger immediately (don't require a trigger character)")
+        self.immediate.connect("toggled", self.on_modified)
         
         self.wordChars = gtk.combo_box_entry_new_text()
         model = self.wordChars.get_model()
         for key in WORD_CHAR_OPTIONS_ORDERED:
             model.append([key])
         self.wordChars.set_active(0)
+        self.wordChars.connect("changed", self.on_modified)
         
         hBox = gtk.HBox()
         hBox.pack_start(gtk.Label("Word Characters "), False)
@@ -680,14 +767,16 @@ class HotkeySettings(gtk.VBox):
     
     REVERSE_KEY_MAP = {}
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, noteBook):
         gtk.VBox.__init__(self)
         self.configWindow = configWindow
+        self.noteBook = noteBook
         for key, value in self.KEY_MAP.iteritems():
             self.REVERSE_KEY_MAP[value] = key
             
         self.useHotkey = gtk.CheckButton("Use a hotkey")
         self.useHotkey.connect("toggled", self.on_useHotkey_toggled)
+        self.useHotkey.connect("toggled", self.on_modified)
         self.pack_start(self.useHotkey, False, False, 5)
         
         self.pack_start(gtk.HSeparator(), False)
@@ -697,12 +786,16 @@ class HotkeySettings(gtk.VBox):
         self.pack_start(hBox, False, False, 5)
         
         self.control = gtk.ToggleButton("Control")
+        self.control.connect("toggled", self.on_modified)
         hBox.pack_start(self.control)
         self.alt = gtk.ToggleButton("Alt")
+        self.alt.connect("toggled", self.on_modified)
         hBox.pack_start(self.alt)
         self.shift = gtk.ToggleButton("Shift")
+        self.shift.connect("toggled", self.on_modified)
         hBox.pack_start(self.shift)
         self.super = gtk.ToggleButton("Super")
+        self.super.connect("toggled", self.on_modified)
         hBox.pack_start(self.super)
         
         self.keyLabel = gtk.Label("None")
@@ -720,8 +813,7 @@ class HotkeySettings(gtk.VBox):
         self.alt.set_active(iomediator.Key.ALT in thePhrase.modifiers)
         self.shift.set_active(iomediator.Key.SHIFT in thePhrase.modifiers)
         self.super.set_active(iomediator.Key.SUPER in thePhrase.modifiers)
-        self.keyLabel.set_label(str(thePhrase.hotKey))
-        
+        self.keyLabel.set_label(str(thePhrase.hotKey))        
         
     def save(self, thePhrase):
         if self.useHotkey.get_active():
@@ -745,11 +837,15 @@ class HotkeySettings(gtk.VBox):
     def on_set_key(self, widget, data=None):
         dlg = KeyCaptureDialog(self)
         dlg.start()
+
+    def on_modified(self, widget, data=None):
+        self.noteBook.set_dirty()
         
     def set_key(self, key):
         if key in self.KEY_MAP.keys():
             key = self.KEY_MAP[key]
         self.keyLabel.set_label(key)
+        self.noteBook.set_dirty()
 
     def validate(self, targetPhrase):
         if self.useHotkey.get_active():
@@ -786,12 +882,14 @@ class HotkeySettings(gtk.VBox):
 
 class WindowFilterSettings(gtk.VBox):
     
-    def __init__(self, configWindow):
+    def __init__(self, configWindow, noteBook):
         gtk.VBox.__init__(self)
         self.configWindow = configWindow
+        self.noteBook = noteBook
 
         self.alwaysTrigger = gtk.CheckButton("Trigger in all windows")
         self.alwaysTrigger.connect("toggled", self.on_alwaysTrigger_toggled)
+        self.alwaysTrigger.connect("toggled", self.on_modified)
         self.pack_start(self.alwaysTrigger, False)
         
         self.pack_start(gtk.HSeparator(), False, False, 5)
@@ -800,6 +898,7 @@ class WindowFilterSettings(gtk.VBox):
         label.set_alignment(0, 0.5)
         self.pack_start(label, False, False, 5)
         self.windowFilter = gtk.Entry()
+        self.windowFilter.connect("changed", self.on_modified)
         self.pack_start(self.windowFilter, False)
         
     def load(self, thePhrase):
@@ -815,6 +914,9 @@ class WindowFilterSettings(gtk.VBox):
     def on_alwaysTrigger_toggled(self, widget, data=None):
         self.foreach(lambda x: x.set_sensitive(not widget.get_active()))
         widget.set_sensitive(True)
+        
+    def on_modified(self, widget, data=None):
+        self.noteBook.set_dirty()
         
     def validate(self):
         if not self.alwaysTrigger.get_active():
@@ -950,6 +1052,7 @@ class Notifier(gobject.GObject):
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
             self.icon.set_tooltip("AutoKey")
             self.icon.connect("popup_menu", self.on_popup_menu)
+            self.icon.connect("activate", self.on_show_configure)
             
             self.connect("show-notify", self.on_show_notify)  
             
