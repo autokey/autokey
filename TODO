@@ -1,6 +1,6 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Add Save menu item with Ctrl+S accelerator
+Shell expansions
 
 Add general crash handler for interface at run() level
 
@@ -10,10 +10,6 @@ Add method comments
 Add gettext support
 
 Nice reporting and logging of errors so users can report bugs
-
-Global hotkey to show configuration menu
-
-Global hotkey to toggle service on and off.
 
 Detect shell expanded phrases on expansion and process via BASH
 

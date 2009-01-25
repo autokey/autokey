@@ -69,11 +69,13 @@ class ConfigurationWindow(gtk.Window):
                    ("File", None, "_File", None, None, self.on_show_file),
                    ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder", self.on_new_folder),
                    ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase", self.on_new_phrase),
+                   ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
                    ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
                    ("Import Settings", None, "_Import Settings", None, "Import settings from AutoKey 0.40", self.on_import_settings),                   
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
                    ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit ),
                    ("Settings", None, "_Settings", None, None, self.on_show_settings),
+                   ("Advanced Settings", gtk.STOCK_PREFERENCES, "_Advanced Settings", "", "Advanced configuration options", self.on_show_advanced_settings),
                    ("Help", None, "_Help"),
                    ("About", gtk.STOCK_ABOUT, "About AutoKey", None, "Show program information", self.on_show_about)
                    ]
@@ -108,6 +110,7 @@ class ConfigurationWindow(gtk.Window):
         treeViewVbox.pack_start(treeViewScrolledWindow)
         self.treeView = PhraseTreeView(autokeyApp.service.configManager.folders)
         self.treeView.connect("cursor-changed", self.on_tree_selection_changed)
+        self.treeView.connect("button-press-event", self.on_popup_menu)
         treeViewScrolledWindow.add(self.treeView)
         
         # Search expander
@@ -134,6 +137,7 @@ class ConfigurationWindow(gtk.Window):
         canCreate = isinstance(selection, phrase.PhraseFolder)
         self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreate)
         self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreate)
+        self.uiManager.get_widget("/MenuBar/File/Save").set_sensitive(self.dirty)
         self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
         
     def on_show_settings(self, widget, data=None):
@@ -201,7 +205,11 @@ class ConfigurationWindow(gtk.Window):
         newIter = model.append(parentIter, newPhrase.get_tuple())
         self.treeView.expand_to_path(model.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
-        self.on_tree_selection_changed(self.treeView)        
+        self.on_tree_selection_changed(self.treeView)
+        
+    def on_save(self, widget, data=None):
+        child = self.settingsBox.get_children()[0]
+        child.on_save(widget)
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
@@ -253,7 +261,14 @@ class ConfigurationWindow(gtk.Window):
         if self.toggleExpansionsMenuItem.active:
             self.app.unpause_service()
         else:
-            self.app.pause_service()        
+            self.app.pause_service()
+            
+    def on_show_advanced_settings(self, widget, data=None):
+        dlg = AdvancedSettingsDialog(self)
+        dlg.load(self.app.service.configManager)
+        if dlg.run() == gtk.RESPONSE_ACCEPT:
+            dlg.save(self.app.service.configManager)
+        dlg.destroy()        
 
     def on_show_about(self, widget, data=None):        
         dlg = gtk.AboutDialog()
@@ -266,14 +281,41 @@ class ConfigurationWindow(gtk.Window):
         dlg.run()
         dlg.destroy()
         
+    def on_popup_menu(self, widget, event, data=None):
+        if event.button == 3:
+            selection = self.__getTreeSelection()
+            canCreate = isinstance(selection, phrase.PhraseFolder)
+            
+            menu = gtk.Menu()
+            newFolderMenuItem = gtk.ImageMenuItem("New Folder")
+            newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
+            newFolderMenuItem.set_sensitive(canCreate)
+            newFolderMenuItem.connect("activate", self.on_new_folder)
+    
+            newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
+            newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
+            newPhraseMenuItem.set_sensitive(canCreate)
+            newPhraseMenuItem.connect("activate", self.on_new_phrase)
+            
+            deleteMenuItem = gtk.ImageMenuItem("Delete")
+            deleteMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+            deleteMenuItem.set_sensitive(selection is not None)
+            deleteMenuItem.connect("activate", self.on_delete_item)
+            
+            menu.append(newFolderMenuItem)
+            menu.append(newPhraseMenuItem)
+            menu.append(deleteMenuItem)
+            menu.show_all()
+            
+            menu.popup(None, None, None, event.button, event.time)
+        
     def __getTreeSelection(self):
         selection = self.treeView.get_selection()
         model, item = selection.get_selected()
         if item is not None:
             return model.get_value(item, 3)
         else:
-            return None
-        
+            return None    
         
 class SearchExpander(gtk.Expander):
     
@@ -292,6 +334,83 @@ class SearchExpander(gtk.Expander):
 
         self.searchEntry = gtk.Entry()
         vbox.pack_start(self.searchEntry)
+        
+        
+class AdvancedSettingsDialog(gtk.Dialog):
+    
+    def __init__(self, parent):
+        gtk.Dialog.__init__(self, "Advanced Settings", parent, gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                             (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+        self.set_has_separator(False)
+        self.noteBook = gtk.Notebook()
+        self.vbox.add(self.noteBook)
+        
+        # General settings page
+        self.showInTray = gtk.CheckButton("Show a tray icon (requires restart)")
+        self.takesFocus = gtk.CheckButton("Allow keyboard navigation of phrase menu")
+        self.sortByCount = gtk.CheckButton("Sort phrase menu items by highest usage")
+        
+        hbox = gtk.HBox()
+        hbox.pack_start(gtk.Label("Suggest phrases after entering "), False)
+        self.predictiveLength = gtk.SpinButton(gtk.Adjustment(5, 5, 20, 1))
+        hbox.pack_start(self.predictiveLength, False)
+        hbox.pack_start(gtk.Label(" characters"), False)
+        
+        label = gtk.Label("Enable this option if you experience randomly garbled text output in KDE 4.x")
+        label.set_alignment(0, 0.5)
+        #label.set_line_wrap(True)
+        self.useWorkAround = gtk.CheckButton("Enable QT4 workaround")
+        
+        vbox = gtk.VBox()
+        vbox.pack_start(self.showInTray)
+        vbox.pack_start(self.takesFocus)
+        vbox.pack_start(self.sortByCount)
+        vbox.pack_start(hbox, False, False, 5)
+        vbox.pack_start(gtk.HSeparator(), padding=10)
+        vbox.pack_start(label)
+        vbox.pack_start(self.useWorkAround)
+        self.add_page(vbox, "General")
+        
+        # Hotkey settings Page
+        self.showConfigSetting = GlobalHotkeySettings(parent, self, "Use a hotkey to show the configuration window")
+        self.toggleServiceSetting = GlobalHotkeySettings(parent, self, "Use a hotkey to toggle expansions")
+        
+        vbox = gtk.VBox()
+        vbox.pack_start(self.showConfigSetting)
+        vbox.pack_start(self.toggleServiceSetting)
+        self.add_page(vbox, "Special Hotkeys")
+        
+        self.show_all()
+        
+    def load(self, configManager):
+        self.showInTray.set_active(configManager.SETTINGS[SHOW_TRAY_ICON])
+        self.takesFocus.set_active(configManager.SETTINGS[MENU_TAKES_FOCUS])
+        self.sortByCount.set_active(configManager.SETTINGS[SORT_BY_USAGE_COUNT])
+        self.predictiveLength.set_value(configManager.SETTINGS[PREDICTIVE_LENGTH])
+        self.useWorkAround.set_active(configManager.SETTINGS[ENABLE_QT4_WORKAROUND])
+        
+        self.showConfigSetting.load(configManager.configHotkey)
+        self.toggleServiceSetting.load(configManager.toggleServiceHotkey)
+        
+    def save(self, configManager):
+        configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
+        configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
+        configManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByCount.get_active()
+        configManager.SETTINGS[PREDICTIVE_LENGTH] = self.predictiveLength.get_value()
+        configManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.useWorkAround.get_active()
+        
+        self.showConfigSetting.save(configManager.configHotkey)
+        self.toggleServiceSetting.save(configManager.toggleServiceHotkey)
+        
+    def add_page(self, page, pageTitle):
+        alignment = gtk.Alignment(xscale=1.0)
+        alignment.set_padding(5, 5, 5, 5)
+        alignment.add(page)
+        self.noteBook.append_page(alignment, gtk.Label(pageTitle))
+        
+    def set_dirty(self):
+        pass
+
 
 
 class PhraseFolderSettings(gtk.VBox):
@@ -820,7 +939,7 @@ class HotkeySettings(gtk.VBox):
             thePhrase.modes.append(phrase.PhraseMode.HOTKEY)
             
             # Build modifier list
-            modifiers = self.__buildModifiers()
+            modifiers = self._buildModifiers()
                 
             keyText = self.keyLabel.get_label()
             if keyText in self.REVERSE_KEY_MAP:
@@ -849,7 +968,7 @@ class HotkeySettings(gtk.VBox):
 
     def validate(self, targetPhrase):
         if self.useHotkey.get_active():
-            modifiers = self.__buildModifiers()
+            modifiers = self._buildModifiers()
             keyText = self.keyLabel.get_label()
             configManager = self.configWindow.app.service.configManager
             
@@ -865,7 +984,7 @@ class HotkeySettings(gtk.VBox):
         
         return True
     
-    def __buildModifiers(self):
+    def _buildModifiers(self):
         modifiers = []
         if self.control.get_active():
             modifiers.append(iomediator.Key.CONTROL) 
@@ -878,7 +997,35 @@ class HotkeySettings(gtk.VBox):
         
         modifiers.sort()
         return modifiers
-        
+    
+
+class GlobalHotkeySettings(HotkeySettings):
+
+    def load(self, theHotkey):
+        self.useHotkey.set_active(theHotkey.enabled)
+        self.control.set_active(iomediator.Key.CONTROL in theHotkey.modifiers)
+        self.alt.set_active(iomediator.Key.ALT in theHotkey.modifiers)
+        self.shift.set_active(iomediator.Key.SHIFT in theHotkey.modifiers)
+        self.super.set_active(iomediator.Key.SUPER in theHotkey.modifiers)
+        self.keyLabel.set_label(str(theHotkey.hotKey))
+    
+    def save(self, theHotkey):        
+        if self.useHotkey.get_active():
+            theHotkey.enabled = True
+            
+            # Build modifier list
+            modifiers = self._buildModifiers()
+                
+            keyText = self.keyLabel.get_label()
+            if keyText in self.REVERSE_KEY_MAP:
+                key = self.REVERSE_KEY_MAP[keyText]
+            else:
+                key = keyText
+                
+            theHotkey.set_hotkey(modifiers, key)
+        else:
+            theHotkey.enabled = False
+
 
 class WindowFilterSettings(gtk.VBox):
     
@@ -923,6 +1070,7 @@ class WindowFilterSettings(gtk.VBox):
             return validate(not EMPTY_FIELD_REGEX.match(self.windowFilter.get_text()), "Window filter expression can not be empty.",
                              self.windowFilter, self.configWindow)
         return True
+
         
 class KeyCaptureDialog(gtk.Window):
     
@@ -1032,6 +1180,9 @@ class PhraseTreeModel(gtk.TreeStore):
             updateList.append(itemTuple[n])
         #print repr(updateList)
         self.set(targetIter, *updateList)
+        
+
+
                
                
 class Notifier(gobject.GObject):

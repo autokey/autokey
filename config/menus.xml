@@ -3,6 +3,7 @@
 		<menu action="File">
 			<menuitem action="New Folder" />
 			<menuitem action="New Phrase" />
+			<menuitem action="Save" />
 			<menuitem action="Delete" />
 			<separator />
 			<menuitem action="Import Settings" />
@@ -12,6 +13,7 @@
 		</menu>
 		<menu action="Settings">
 			<menuitem action="Enable Expansions" />
+			<menuitem action="Advanced Settings" />
 		</menu>		
 		<menu action="Help">
 			<menuitem action="About" />
