@@ -767,14 +767,14 @@ class HotkeySettings(gtk.VBox):
     
     REVERSE_KEY_MAP = {}
     
-    def __init__(self, configWindow, noteBook):
+    def __init__(self, configWindow, noteBook, title="Use a hotkey"):
         gtk.VBox.__init__(self)
         self.configWindow = configWindow
         self.noteBook = noteBook
         for key, value in self.KEY_MAP.iteritems():
             self.REVERSE_KEY_MAP[value] = key
             
-        self.useHotkey = gtk.CheckButton("Use a hotkey")
+        self.useHotkey = gtk.CheckButton(title)
         self.useHotkey.connect("toggled", self.on_useHotkey_toggled)
         self.useHotkey.connect("toggled", self.on_modified)
         self.pack_start(self.useHotkey, False, False, 5)

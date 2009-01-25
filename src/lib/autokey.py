@@ -57,6 +57,11 @@ class AutoKeyApplication:
         self.service = expansionservice.ExpansionService()
         self.service.start()
         
+        # initialise global hotkeys
+        configManager = self.service.configManager
+        configManager.toggleServiceHotkey.set_closure(self.toggle_service)
+        configManager.configHotkey.set_closure(self.show_configure)
+        
         self.notifier = ui.Notifier(self)
         self.configureWindow = None
         
@@ -69,6 +74,12 @@ class AutoKeyApplication:
     
     def pause_service(self):
         self.service.pause()
+        
+    def toggle_service(self):
+        if self.service.is_running():
+            self.pause_service()
+        else:
+            self.unpause_service()
         
     def shutdown(self):
         self.service.shutdown()

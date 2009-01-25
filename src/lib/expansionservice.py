@@ -84,6 +84,11 @@ class ExpansionService:
         self.inputStack = []
         
     def handle_hotkey(self, key, modifiers, windowName):
+        # Always check global hotkeys
+        for hotkey in self.configManager.globalHotkeys:
+            hotkey.check_hotkey(modifiers, key, windowName)
+        
+        # Check other hotkeys if service enabled and not in config window
         if not windowName == ui.CONFIG_WINDOW_TITLE and self.is_running():
             self.inputStack = []
             folderMatch = None

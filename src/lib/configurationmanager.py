@@ -17,6 +17,7 @@
 
 import os.path, configobj, gtk
 import cPickle as pickle
+from iomediator import Key
 
 CONFIG_FILE = "../../config/autokey.bin"
 
@@ -42,6 +43,8 @@ def get_config_manager():
         return ConfigurationManager()
 
 def save_config(configManager):
+    configManager.configHotkey.set_closure(None)
+    configManager.toggleServiceHotkey.set_closure(None)
     outFile = open(CONFIG_FILE, "wb")
     pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
     outFile.close()
@@ -71,7 +74,13 @@ class ConfigurationManager:
         """        
         
         self.folders = {}
-        #self.folders[DEFAULT_ABBR_FOLDER] = PhraseFolder(DEFAULT_ABBR_FOLDER)
+        self.configHotkey = GlobalHotkey()
+        self.configHotkey.set_hotkey(["<ctrl>"], "k")
+        self.configHotkey.enabled = True
+        
+        self.toggleServiceHotkey = GlobalHotkey()
+        self.toggleServiceHotkey.set_hotkey(["<ctrl>", "<shift>"], "k")
+        self.toggleServiceHotkey.enabled = True        
                 
         # TODO TESTING REMOVE ME LATER
         from iomediator import Key
@@ -130,6 +139,10 @@ class ConfigurationManager:
             self.allFolders.append(folder)
             
             self.__processFolder(folder)
+        
+        self.globalHotkeys = []
+        self.globalHotkeys.append(self.configHotkey)
+        self.globalHotkeys.append(self.toggleServiceHotkey)
             
         #print repr(self.hotKeyFolders)
         #print repr(self.hotKeyPhrases)
@@ -334,11 +347,16 @@ from phrase import *
 
 class GlobalHotkey(AbstractHotkey):
     
+    def __init__(self):
+        AbstractHotkey.__init__(self)
+        self.enabled = False
+        self.windowTitleRegex = None
+    
     def set_closure(self, closure):
         self.closure = closure
         
     def check_hotkey(self, modifiers, key, windowTitle):
-        if super(GlobalHotkey, self).check_hotkey(modifiers, key, windowTitle):
+        if AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
             self.closure()
         return False
 
