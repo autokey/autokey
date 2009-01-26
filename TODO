@@ -1,7 +1,5 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Shell expansions
-
 Add general crash handler for interface at run() level
 
 Get rid of commented out code

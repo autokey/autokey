@@ -38,7 +38,6 @@ def get_config_manager():
         settings, configManager = pickle.load(pFile)
         pFile.close()
         ConfigurationManager.SETTINGS = settings
-        print repr(ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH])
         return configManager
     else:
         return ConfigurationManager()
@@ -207,6 +206,11 @@ class ConfigurationManager:
             if PhraseMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
                     return item is targetPhrase     
+
+        for item in self.globalHotkeys:
+            if item.enabled:
+                if item.modifiers == modifiers and item.hotKey == hotKey:
+                    return False
 
         return True
     
