@@ -38,6 +38,7 @@ def get_config_manager():
         settings, configManager = pickle.load(pFile)
         pFile.close()
         ConfigurationManager.SETTINGS = settings
+        print repr(ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH])
         return configManager
     else:
         return ConfigurationManager()

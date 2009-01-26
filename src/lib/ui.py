@@ -396,7 +396,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
         configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
         configManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByCount.get_active()
-        configManager.SETTINGS[PREDICTIVE_LENGTH] = self.predictiveLength.get_value()
+        configManager.SETTINGS[PREDICTIVE_LENGTH] = int(self.predictiveLength.get_value())
         configManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.useWorkAround.get_active()
         
         self.showConfigSetting.save(configManager.configHotkey)

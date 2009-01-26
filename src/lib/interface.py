@@ -134,8 +134,8 @@ class XLibInterface(threading.Thread):
             self.keyCodes[keyName] = keyCode
             self.keyNames[keyCode] = keyName
 
-        self.keyCodes[Key.ALT_GR] = 113
-        self.keyNames[113] = Key.ALT_GR
+        #self.keyCodes[Key.ALT_GR] = 113
+        #self.keyNames[113] = Key.ALT_GR
         
         if self.testMode:
             print repr(self.keyCodes)
@@ -224,13 +224,17 @@ class XLibInterface(threading.Thread):
             if len(keyCodeList) > 0:
                 keyCode, offset = keyCodeList[0]
                 if offset == 1:
-                    #self.press_key(Key.SHIFT)
                     self.__sendKeyCode(keyCode, X.ShiftMask)
-                    #self.release_key(Key.SHIFT)
                 elif offset == 2:
-                    #self.press_key(Key.ALT_GR)
                     self.__sendKeyCode(keyCode, X.Mod1Mask)
-                    #self.release_key(Key.ALT_GR)
+                elif offset == 3:
+                    self.__sendKeyCode(keyCode, X.Mod2Mask)
+                elif offset == 4:
+                    self.__sendKeyCode(keyCode, X.Mod3Mask)
+                elif offset == 5:
+                    self.__sendKeyCode(keyCode, X.Mod4Mask)
+                elif offset == 6:
+                    self.__sendKeyCode(keyCode, X.Mod5Mask)
                 else:
                     self.__sendKeyCode(keyCode)                    
             else:
