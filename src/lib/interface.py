@@ -141,12 +141,18 @@ class XLibInterface(threading.Thread):
             print repr(self.keyCodes)
         
     def keymap_test(self):
+        print "XK keymap:"
+        for attr in XK.__dict__.iteritems():
+            if attr[0].startswith("XK"):
+                print "%s, %s" % (attr[0], attr[1])        
+        
         print "The following is a printout of how your X server maps each character"
         for char in "`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
             if len(keyCodeList) > 0:
-                keyCode, offset = keyCodeList[0]
-                print "[%s], %d, %d" % (char, keyCode, offset)
+                #keyCode, offset = keyCodeList[0]
+                #print "[%s], %d, %d" % (char, keyCode, offset)
+                print "[" + char + "] : " + repr(keyCodeList)
             else:
                 print "No mapping for [" + char + "]"
                 
