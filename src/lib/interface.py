@@ -105,7 +105,7 @@ KEY_MAP = {
 
 class XLibInterface(threading.Thread):
         
-    def __init__(self, mediator):
+    def __init__(self, mediator, testMode=False):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.setName("XLibInterface-thread")
@@ -115,6 +115,7 @@ class XLibInterface(threading.Thread):
         self.rootWindow = self.local_dpy.screen().root
         self.lock = threading.RLock()
         self.lastChars = [] # FIXME QT4 Workaround - remove me once the bug is fixed
+        self.testMode = testMode
         
         # Check for record extension 
         if not self.record_dpy.has_extension("RECORD"):
@@ -135,6 +136,38 @@ class XLibInterface(threading.Thread):
 
         self.keyCodes[Key.ALT_GR] = 113
         self.keyNames[113] = Key.ALT_GR
+        
+        if self.testMode:
+            print repr(self.keyCodes)
+        
+    def keymap_test(self):
+        print "The following is a printout of how your X server maps each character"
+        for char in "`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
+            keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
+            if len(keyCodeList) > 0:
+                keyCode, offset = keyCodeList[0]
+                print "[%s], %d, %d" % (char, keyCode, offset)
+            else:
+                print "No mapping for [" + char + "]"
+                
+        print "The following is a test for Alt-Gr modifier mapping. Please open a text editing program for this test."
+        print "After 10 seconds, the test will commence. 6 key events will be sent. Please monitor the output and record"
+        print "which of the 6 events produces a '{' (left curly brace)"
+        time.sleep(10)
+        keyCodeList = self.local_dpy.keysym_to_keycodes(ord("{"))
+        keyCode, offset = keyCodeList[0]
+        self.__sendKeyCode(keyCode, X.ShiftMask)
+        time.sleep(0.5)
+        self.__sendKeyCode(keyCode, X.Mod1Mask)
+        time.sleep(0.5)
+        self.__sendKeyCode(keyCode, X.Mod2Mask)
+        time.sleep(0.5)
+        self.__sendKeyCode(keyCode, X.Mod3Mask)
+        time.sleep(0.5)
+        self.__sendKeyCode(keyCode, X.Mod4Mask)
+        time.sleep(0.5)
+        self.__sendKeyCode(keyCode, X.Mod5Mask)
+        print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
     def run(self):
         # Create a recording context; we only want key and mouse events
@@ -236,6 +269,8 @@ class XLibInterface(threading.Thread):
                 self.mediator.handle_mouse_click()
                 
     def __handleKeyPress(self, keyCode):
+        if self.testMode:
+            print repr(keyCode)
         self.lock.acquire()
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
@@ -346,11 +381,32 @@ class XLibInterface(threading.Thread):
             return wmname
         except:
             return ""
+
+class MockMediator:
+    """
+    Mock IoMediator for testing purposes.
+    """
+    
+    def handle_modifier_down(self, modifier):
+        pass
+        
+    def handle_modifier_up(self, modifier):
+        pass
+    
+
+    def handle_keypress(self, keyCode, windowName):
+        pass
+    
+    def handle_mouse_click(self):
+        pass
+        
+
         
 if __name__ == "__main__":
     import time
-    x = XLibInterface(None)
+    x = XLibInterface(MockMediator(), True)
     x.start()
+    x.keymap_test()
     time.sleep(10.0)
-    #x.send_string("blah")
     x.cancel()
+    print "Test completed. Thank you for your assistance in improving AutoKey!"
