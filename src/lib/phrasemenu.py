@@ -17,7 +17,15 @@ class PhraseMenu(gtk.Menu):
             phrases.sort(reverse=True)
         
         if len(phraseFolders) == 1 and len(phrases) == 0 and expandFolders:
-            # Only one folder - create menu with just its phrases
+            # Only one folder - create menu with just its folders and phrases
+            for folder in phraseFolders[0].folders:
+                menuItem = gtk.MenuItem(folder.title)
+                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases))
+                self.append(menuItem)
+    
+            if len(phraseFolders[0].folders) > 0:
+                self.append(gtk.SeparatorMenuItem())
+            
             self.__addPhrasesToSelf(phraseFolders[0].phrases, expansionService)
         
         else:
