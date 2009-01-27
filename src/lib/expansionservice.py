@@ -20,6 +20,7 @@ import time
 import iomediator, configurationmanager, ui
 from iomediator import Key
 from phrasemenu import *
+from plugin.manager import PluginManager, PluginError
 
 MAX_STACK_LENGTH = 50
 
@@ -29,11 +30,12 @@ MAX_STACK_LENGTH = 50
 
 class ExpansionService:
     
-    def __init__(self):
+    def __init__(self, app):
         # Read configuration
         self.configManager = configurationmanager.get_config_manager()
         self.interfaceType = iomediator.XLIB_INTERFACE # permanently set to xlib for the time being
         self.mediator = None
+        self.app = app
     
     def start(self):
         self.mediator = iomediator.IoMediator(self, self.interfaceType)
@@ -41,7 +43,9 @@ class ExpansionService:
         self.inputStack = []
         self.lastStackState = ''
         self.lastMenu = None
+        self.lastAbbr = None
         self.ignoreCount = 0
+        self.pluginManager = PluginManager()
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
         
     def unpause(self):
@@ -154,7 +158,12 @@ class ExpansionService:
             # Check abbreviation phrases first
             for phrase in self.configManager.abbrPhrases:
                 if phrase.check_input(currentInput, windowName) and not phrase.prompt:
-                    self.__sendPhrase(phrase, currentInput)              
+                    # send only if not same as last abbreviation to prevent repeated autocorrect
+                    if phrase.abbreviation != self.lastAbbr:
+                        self.lastAbbr = phrase.abbreviation 
+                        self.__sendPhrase(phrase, currentInput)
+                    else:
+                        self.lastAbbr = None
                     return
                 
             # Code below here only executes if no immediate abbreviation phrase is matched
@@ -193,6 +202,12 @@ class ExpansionService:
         
     def __sendPhrase(self, phrase, buffer=''):
         expansion = phrase.build_phrase(buffer)
+        try:
+            self.pluginManager.process_expansion(expansion)
+        except PluginError, pe:
+            self.app.show_notify("A plug-in reported an error.", True, pe.message)
+            
+        phrase.parsePositionTokens(expansion)
 
         # Check for extra keys that have been typed since this invocation started
         # This looks pretty hacky, but if you can do better feel free to send a patch :)

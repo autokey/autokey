@@ -3,6 +3,7 @@
 		<menu action="File">
 			<menuitem action="New Folder" />
 			<menuitem action="New Phrase" />
+			<menuitem action="Insert Macro" />
 			<menuitem action="Save" />
 			<menuitem action="Delete" />
 			<separator />

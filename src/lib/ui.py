@@ -69,11 +69,12 @@ class ConfigurationWindow(gtk.Window):
                    ("File", None, "_File", None, None, self.on_show_file),
                    ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder", self.on_new_folder),
                    ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase", self.on_new_phrase),
+                   ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
                    ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
                    ("Import Settings", None, "_Import Settings", None, "Import settings from AutoKey 0.40", self.on_import_settings),                   
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
-                   ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit ),
+                   ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit),
                    ("Settings", None, "_Settings", None, None, self.on_show_settings),
                    ("Advanced Settings", gtk.STOCK_PREFERENCES, "_Advanced Settings", "", "Advanced configuration options", self.on_show_advanced_settings),
                    ("Help", None, "_Help"),
@@ -139,6 +140,23 @@ class ConfigurationWindow(gtk.Window):
         self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreate)
         self.uiManager.get_widget("/MenuBar/File/Save").set_sensitive(self.dirty)
         self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
+        
+        insertMacroItem = self.uiManager.get_widget("/MenuBar/File/Insert Macro") 
+        if isinstance(selection, phrase.Phrase):
+            insertMacroItem.set_sensitive(True)
+            
+            # Build submenu
+            subMenu = gtk.Menu()
+            for actionName in self.app.service.pluginManager.get_action_list():
+                menuItem = gtk.MenuItem(actionName)
+                menuItem.connect("activate", self.on_insert_macro, actionName)
+                subMenu.append(menuItem)
+            
+            subMenu.show_all()
+            insertMacroItem.set_submenu(subMenu)
+                
+        else:
+            insertMacroItem.set_sensitive(False)
         
     def on_show_settings(self, widget, data=None):
         self.toggleExpansionsMenuItem.set_active(ConfigurationManager.SETTINGS[SERVICE_RUNNING])
@@ -206,6 +224,12 @@ class ConfigurationWindow(gtk.Window):
         self.treeView.expand_to_path(model.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
+        
+    def on_insert_macro(self, widget, actionName):
+        phraseSettings = self.settingsBox.get_children()[0]
+        token = self.app.service.pluginManager.get_token(actionName, self)
+        if token is not None:
+            phraseSettings.insert_token(token)        
         
     def on_save(self, widget, data=None):
         child = self.settingsBox.get_children()[0]
@@ -548,6 +572,10 @@ class PhraseSettings(gtk.VBox):
         self.show_all()
         
         #self.dirty = False
+        
+    def insert_token(self, token):
+        buffer = self.phraseContents.get_buffer()
+        buffer.insert_at_cursor(token)
         
     def load(self, thePhrase):
         self.currentPhrase = thePhrase
@@ -1282,17 +1310,18 @@ class Notifier(gobject.GObject):
             n.attach_to_status_icon(self.icon)
         if details != '':
             n.add_action("details", "Details", self.__notifyClicked, details)
-        # This doesn't seem to work at all. Bug in pynotify???
-
+        self.__n = n
+        self.__details = details
         n.show()
                     
     # Utility methods ----
     
+    @gthreaded
     def __notifyClicked(self, notification, action, details):
         dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                                  message_format=details)
-        dlg.connect("close", lambda x: x.destroy())
-        dlg.show()
+        dlg.run()
+        dlg.destroy()
         
 gobject.type_register(Notifier)                
 

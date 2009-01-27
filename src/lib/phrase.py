@@ -17,6 +17,7 @@
 
 import re
 from configurationmanager import *
+from lib.plugin.plugins import CURSOR_POSITION_TOKEN 
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
@@ -338,7 +339,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             # Phrase could have been triggered from menu - check parents for backspace count
             expansion.backspaces = self.parent.get_backspace_count(buffer)
         
-        self.__parsePositionTokens(expansion)
+        #self.__parsePositionTokens(expansion)
         return expansion
     
     def calculate_input(self, buffer):
@@ -380,10 +381,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         else:
             return False
         
-    def __parsePositionTokens(self, expansion):
+    def parsePositionTokens(self, expansion):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
-        if '%%' in expansion.string:
-            firstpart, secondpart = expansion.string.split('%%')
+        if CURSOR_POSITION_TOKEN in expansion.string:
+            firstpart, secondpart = expansion.string.split(CURSOR_POSITION_TOKEN)
             expansion.string = firstpart + secondpart
             expansion.lefts = len(secondpart)
         

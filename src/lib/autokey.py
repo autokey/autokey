@@ -54,7 +54,7 @@ class AutoKeyApplication:
         f.close()
         
     def initialise(self):
-        self.service = expansionservice.ExpansionService()
+        self.service = expansionservice.ExpansionService(self)
         self.service.start()
         
         # initialise global hotkeys
