@@ -100,7 +100,7 @@ class ConfigurationManager:
         p.set_window_titles(".* - gedit")
         myPhrases.add_phrase(p)
         
-        p1 = Phrase("Positioning Phrase", "[udc]%%[/udc]\nBlah")
+        p1 = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]\nBlah")
         p1.set_modes([PhraseMode.ABBREVIATION, PhraseMode.HOTKEY])
         p1.set_hotkey([Key.CONTROL], 'j')
         p1.set_abbreviation("udc")

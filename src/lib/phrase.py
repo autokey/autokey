@@ -17,7 +17,7 @@
 
 import re
 from configurationmanager import *
-from lib.plugin.plugins import CURSOR_POSITION_TOKEN 
+from plugin.plugins import CURSOR_POSITION_TOKEN 
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
