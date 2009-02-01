@@ -112,7 +112,7 @@ class IoMediator:
         """
         Starts the underlying keystroke interface sending and receiving events.
         """
-        # TODO re-enable when GUI development is done
+        # TODO re-enable if adding interfaces
         if self.interfaceType == XLIB_INTERFACE:
             self.interface = XLibInterface(self)
         #else:

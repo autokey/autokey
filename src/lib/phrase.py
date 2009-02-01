@@ -374,6 +374,19 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
         return self.prompt
     
+    def get_description(self, buffer):
+        if self._should_trigger_predictive(buffer):
+            length = ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]
+            endPoint = length + 30
+            if len(self.phrase) > endPoint:
+                description = "... " + self.phrase[length:endPoint] + "..."
+            else:
+                description = "... " + self.phrase[length:]
+            description = description.replace('\n', ' ')
+            return description
+        else:
+            return self.description
+    
     def _should_trigger_predictive(self, buffer):
         if len(buffer) >= ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]: 
             typed = buffer[-ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]:]

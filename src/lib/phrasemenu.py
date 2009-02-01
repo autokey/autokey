@@ -8,7 +8,7 @@ class PhraseMenu(gtk.Menu):
     A popup menu that allows the user to select a phrase.
     """
 
-    def __init__(self, expansionService, phraseFolders=[], phrases=[], expandFolders=True):
+    def __init__(self, expansionService, phraseFolders=[], phrases=[], onDesktop=True):
         gtk.Menu.__init__(self)
         self.set_take_focus(ConfigurationManager.SETTINGS[MENU_TAKES_FOCUS])
         
@@ -16,29 +16,29 @@ class PhraseMenu(gtk.Menu):
             phraseFolders.sort(reverse=True)
             phrases.sort(reverse=True)
         
-        if len(phraseFolders) == 1 and len(phrases) == 0 and expandFolders:
+        if len(phraseFolders) == 1 and len(phrases) == 0 and onDesktop:
             # Only one folder - create menu with just its folders and phrases
             for folder in phraseFolders[0].folders:
                 menuItem = gtk.MenuItem(folder.title)
-                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases))
+                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
                 self.append(menuItem)
     
             if len(phraseFolders[0].folders) > 0:
                 self.append(gtk.SeparatorMenuItem())
             
-            self.__addPhrasesToSelf(phraseFolders[0].phrases, expansionService)
+            self.__addPhrasesToSelf(phraseFolders[0].phrases, expansionService, onDesktop)
         
         else:
             # Create phrase folder section
             for folder in phraseFolders:
                 menuItem = gtk.MenuItem(folder.title)
-                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases))
+                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
                 self.append(menuItem)
     
             if len(phraseFolders) > 0:
                 self.append(gtk.SeparatorMenuItem())
     
-            self.__addPhrasesToSelf(phrases, expansionService)
+            self.__addPhrasesToSelf(phrases, expansionService, onDesktop)
             
         self.show_all()
 
@@ -53,13 +53,16 @@ class PhraseMenu(gtk.Menu):
         self.popdown()
         gtk.gdk.threads_leave()
         
-    def __addPhrasesToSelf(self, phrases, expansionService):
+    def __addPhrasesToSelf(self, phrases, expansionService, onDesktop):
         # Create phrase section
         if ConfigurationManager.SETTINGS[SORT_BY_USAGE_COUNT]:
             phrases.sort(reverse=True)
             
         for phrase in phrases:
-            menuItem = gtk.MenuItem(phrase.description)
+            if onDesktop:
+                menuItem = gtk.MenuItem(phrase.get_description(expansionService.lastStackState))
+            else:
+                menuItem = gtk.MenuItem(phrase.description)
             menuItem.connect("activate", expansionService.phrase_selected, phrase)
             self.append(menuItem)        
 

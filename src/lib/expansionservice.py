@@ -24,10 +24,6 @@ from plugin.manager import PluginManager, PluginError
 
 MAX_STACK_LENGTH = 50
 
-# TODO this belongs in the shell expansion plugin
-#def escape_text(text):
-#    return "\"%s\"" % text.replace('"','\\\"')
-
 class ExpansionService:
     
     def __init__(self, app):
@@ -44,7 +40,7 @@ class ExpansionService:
         self.lastStackState = ''
         self.lastMenu = None
         self.lastAbbr = None
-        self.ignoreCount = 0
+        self.clearAfter = 0
         self.pluginManager = PluginManager()
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
         
@@ -129,10 +125,14 @@ class ExpansionService:
 
     
     def handle_keypress(self, key, windowName=""):
-        #if self.ignoreCount > 0:
-        #    print "ignoring"
-        #    self.ignoreCount -= 1
-        #    return
+        # TODO - this method is really monolithic - refactor into several smaller ones
+        
+        # allow duplicate invocation of an abbreviation after a reasonable amount of time
+        if self.clearAfter > 0:
+            if self.clearAfter == 1:
+                self.lastAbbr = None
+            
+            self.clearAfter -= 1
         
         if windowName == ui.CONFIG_WINDOW_TITLE or not self.is_running():
             return
@@ -147,6 +147,7 @@ class ExpansionService:
             self.inputStack = self.inputStack[:-1]
             
         elif len(key) > 1:
+            # FIXME exception occurs if key is None
             # non-simple key
             self.inputStack = []
             
@@ -161,8 +162,9 @@ class ExpansionService:
                     # send only if not same as last abbreviation to prevent repeated autocorrect
                     if phrase.abbreviation != self.lastAbbr:
                         self.lastAbbr = phrase.abbreviation 
-                        self.__sendPhrase(phrase, currentInput)
+                        self.clearAfter = self.__sendPhrase(phrase, currentInput) + len(self.lastAbbr) + 2
                     else:
+                        # immediately clear last abbreviation to allow next invocation to trigger
                         self.lastAbbr = None
                     return
                 
@@ -230,4 +232,5 @@ class ExpansionService:
         self.mediator.flush()
     
         self.configManager.SETTINGS[configurationmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
-        
+        self.lastStackState = ''
+        return len(expansion.string)

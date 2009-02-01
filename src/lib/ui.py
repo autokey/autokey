@@ -1137,7 +1137,7 @@ class PhraseTreeView(gtk.TreeView):
         gtk.TreeView.__init__(self)
         self.set_model(PhraseTreeModel(folders))
         self.set_headers_clickable(True)
-        self.set_reorderable(True)
+        self.set_reorderable(False)
         
         # Treeview columns
         column = gtk.TreeViewColumn("Folders and Phrases")
@@ -1151,6 +1151,12 @@ class PhraseTreeView(gtk.TreeView):
         column.set_sort_indicator(True)
         self.set_search_column(1)
         self.append_column(column)
+        
+        # Row double click event handler
+        self.connect("row-activated", self.on_row_activated)
+        
+    def on_row_activated(self, widget, path, viewColumn, data=None):
+        self.expand_row(path, False)
          
 
 class PhraseTreeModel(gtk.TreeStore):
@@ -1324,32 +1330,3 @@ class Notifier(gobject.GObject):
         dlg.destroy()
         
 gobject.type_register(Notifier)                
-
-class FolderChoiceDialog(gtk.Dialog):
-    # TODO Probably not going to use this
-    
-    def __init__(self, parent, forFolder=True):
-        """
-        @param parent: parent window of the dialog
-        @param forFolder: whether the choice is for a folder or a phrase
-        """
-        gtk.Dialog.__init__(self, "Choose a folder", parent, gtk.DIALOG_MODAL,
-                             (gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT, gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        
-        configManager = parent.app.service.configManager
-        self.combo = gtk.combo_box_new_text()
-        if forFolder:
-            self.combo.append_text("(Root)")
-        for folder in configManager.allFolders:
-            self.combo.append_text(folder.title)
-        self.combo.set_active(0)
-        
-        if forFolder:
-            self.vbox.pack_start(gtk.Label("Create new folder under"))
-        else:
-            self.vbox.pack_start(gtk.Label("Create new phrase under"))
-        self.vbox.pack_start(self.combo, padding=10)
-        self.show_all()
-        
-    def get_choice(self):
-        return self.combo.get_active_text()

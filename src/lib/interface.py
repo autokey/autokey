@@ -114,7 +114,7 @@ class XLibInterface(threading.Thread):
         self.record_dpy = display.Display()
         self.rootWindow = self.local_dpy.screen().root
         self.lock = threading.RLock()
-        self.lastChars = [] # FIXME QT4 Workaround - remove me once the bug is fixed
+        self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         self.testMode = testMode
         
         # Check for record extension 
