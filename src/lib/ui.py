@@ -68,7 +68,8 @@ class ConfigurationWindow(gtk.Window):
         actions = [
                    ("File", None, "_File", None, None, self.on_show_file),
                    ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder", self.on_new_folder),
-                   ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase", self.on_new_phrase),
+                   ("New Subfolder", gtk.STOCK_NEW, "New Subf_older", "", "Create a new phrase folder in the current folder", self.on_new_subfolder),
+                   ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase in the current folder", self.on_new_phrase),
                    ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
                    ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
@@ -135,9 +136,11 @@ class ConfigurationWindow(gtk.Window):
         
     def on_show_file(self, widget, data=None):
         selection = self.__getTreeSelection()
-        canCreate = isinstance(selection, phrase.PhraseFolder)
-        self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreate)
-        self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreate)
+        canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
+        canCreateSubFolder = canCreatePhrase
+        self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(True)
+        self.uiManager.get_widget("/MenuBar/File/New Subfolder").set_sensitive(canCreateSubFolder)
+        self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreatePhrase)
         self.uiManager.get_widget("/MenuBar/File/Save").set_sensitive(self.dirty)
         self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
         
@@ -206,21 +209,24 @@ class ConfigurationWindow(gtk.Window):
             self.settingsBox.add(gtk.Label(""))  
     
     def on_new_folder(self, widget, data=None):
+        self.__createFolder(None)
+        
+    def on_new_subfolder(self, widget, data=None):
         model, parentIter = self.treeView.get_selection().get_selected()
-        parentFolder = self.__getTreeSelection()
-        newFolder = phrase.PhraseFolder("New Folder")
-        parentFolder.add_folder(newFolder)
-        newIter = model.append(parentIter, newFolder.get_tuple())
+        self.__createFolder(parentIter)
+        
+    def __createFolder(self, parentIter):
+        model = self.treeView.get_model()
+        newFolder = phrase.PhraseFolder("New Folder")   
+        newIter = model.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(model.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
         
     def on_new_phrase(self, widget, data=None):
         model, parentIter = self.treeView.get_selection().get_selected()
-        parentFolder = self.__getTreeSelection()
         newPhrase = phrase.Phrase("New Phrase", "Enter phrase contents")
-        parentFolder.add_phrase(newPhrase)
-        newIter = model.append(parentIter, newPhrase.get_tuple())
+        newIter = model.append_item(newPhrase, parentIter)
         self.treeView.expand_to_path(model.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
@@ -242,7 +248,7 @@ class ConfigurationWindow(gtk.Window):
         # Prompt for removal of a folder with phrases
         if model.iter_n_children(item) > 0:
             dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-                                    "Are you sure you want to delete this folder and all the phrases in it?")
+                                    "Are you sure you want to delete this folder and all the folders/phrases in it?")
             if dlg.run() == gtk.RESPONSE_YES:
                 self.__removeItem(model, item)
             dlg.destroy()
@@ -307,18 +313,24 @@ class ConfigurationWindow(gtk.Window):
         
     def on_popup_menu(self, widget, event, data=None):
         if event.button == 3:
-            selection = self.__getTreeSelection()
-            canCreate = isinstance(selection, phrase.PhraseFolder)
+            selection = self.__getTreeSelection()            
+            canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
+            canCreateSubFolder = canCreatePhrase
             
             menu = gtk.Menu()
             newFolderMenuItem = gtk.ImageMenuItem("New Folder")
             newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newFolderMenuItem.set_sensitive(canCreate)
+            newFolderMenuItem.set_sensitive(True)
             newFolderMenuItem.connect("activate", self.on_new_folder)
+            
+            newSubFolderMenuItem = gtk.ImageMenuItem("New Subfolder")
+            newSubFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
+            newSubFolderMenuItem.set_sensitive(canCreateSubFolder)
+            newSubFolderMenuItem.connect("activate", self.on_new_subfolder)            
     
             newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
             newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newPhraseMenuItem.set_sensitive(canCreate)
+            newPhraseMenuItem.set_sensitive(canCreatePhrase)
             newPhraseMenuItem.connect("activate", self.on_new_phrase)
             
             deleteMenuItem = gtk.ImageMenuItem("Delete")
@@ -327,6 +339,7 @@ class ConfigurationWindow(gtk.Window):
             deleteMenuItem.connect("activate", self.on_delete_item)
             
             menu.append(newFolderMenuItem)
+            menu.append(newSubFolderMenuItem)
             menu.append(newPhraseMenuItem)
             menu.append(deleteMenuItem)
             menu.show_all()
@@ -373,6 +386,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.showInTray = gtk.CheckButton("Show a tray icon (requires restart)")
         self.takesFocus = gtk.CheckButton("Allow keyboard navigation of phrase menu")
         self.sortByCount = gtk.CheckButton("Sort phrase menu items by highest usage")
+        self.detectUnwanted = gtk.CheckButton("Detect unwanted abbreviation triggers")
         
         hbox = gtk.HBox()
         hbox.pack_start(gtk.Label("Suggest phrases after entering "), False)
@@ -389,6 +403,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.showInTray)
         vbox.pack_start(self.takesFocus)
         vbox.pack_start(self.sortByCount)
+        vbox.pack_start(self.detectUnwanted)
         vbox.pack_start(hbox, False, False, 5)
         vbox.pack_start(gtk.HSeparator(), padding=10)
         vbox.pack_start(label)
@@ -410,6 +425,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.showInTray.set_active(configManager.SETTINGS[SHOW_TRAY_ICON])
         self.takesFocus.set_active(configManager.SETTINGS[MENU_TAKES_FOCUS])
         self.sortByCount.set_active(configManager.SETTINGS[SORT_BY_USAGE_COUNT])
+        self.detectUnwanted.set_active(configManager.SETTINGS[DETECT_UNWANTED_ABBR])
         self.predictiveLength.set_value(configManager.SETTINGS[PREDICTIVE_LENGTH])
         self.useWorkAround.set_active(configManager.SETTINGS[ENABLE_QT4_WORKAROUND])
         
@@ -420,6 +436,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
         configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
         configManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByCount.get_active()
+        configManager.SETTINGS[DETECT_UNWANTED_ABBR] = self.detectUnwanted.get_active()
         configManager.SETTINGS[PREDICTIVE_LENGTH] = int(self.predictiveLength.get_value())
         configManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.useWorkAround.get_active()
         

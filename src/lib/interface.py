@@ -28,8 +28,10 @@ from Xlib.protocol import rq, event
 
 # Modifiers
 SHIFT = 'XK_Shift_L'
+SHIFT_R = 'XK_Shift_R'
 CAPSLOCK = 'XK_Caps_Lock'
 CONTROL = 'XK_Control_L'
+CONTROL_R = 'XK_Control_R'
 ALT = 'XK_Alt_L'
 ALT_GR = 'XK_Alt_R'
 SUPER = 'XK_Super_L'
@@ -69,8 +71,10 @@ PAGE_DOWN = "XK_Page_Down"
 
 KEY_MAP = {
            SHIFT : Key.SHIFT,
+           SHIFT_R : Key.SHIFT,
            CAPSLOCK : Key.CAPSLOCK,
            CONTROL : Key.CONTROL,
+           CONTROL_R : Key.CONTROL,
            ALT : Key.ALT,
            ALT_GR : Key.ALT_GR,
            SUPER : Key.SUPER,

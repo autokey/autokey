@@ -28,6 +28,7 @@ SERVICE_RUNNING = "serviceRunning"
 MENU_TAKES_FOCUS = "menuTakesFocus"
 SHOW_TRAY_ICON = "showTrayIcon"
 SORT_BY_USAGE_COUNT = "sortByUsageCount"
+DETECT_UNWANTED_ABBR = "detectUnwanted"
 PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
@@ -37,7 +38,8 @@ def get_config_manager():
         pFile = open(CONFIG_FILE, 'r')
         settings, configManager = pickle.load(pFile)
         pFile.close()
-        ConfigurationManager.SETTINGS = settings
+        apply_settings(settings)
+        #ConfigurationManager.SETTINGS = settings
         return configManager
     else:
         return ConfigurationManager()
@@ -49,6 +51,10 @@ def save_config(configManager):
     pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
     outFile.close()
     
+def apply_settings(settings):
+    # Allows new settings to be added without users having to lose all their config
+    for key, value in settings.iteritems():
+        ConfigurationManager.SETTINGS[key] = value    
 
 class ImportException(Exception):
     pass
@@ -63,6 +69,7 @@ class ConfigurationManager:
                 MENU_TAKES_FOCUS : False,
                 SHOW_TRAY_ICON : True,
                 SORT_BY_USAGE_COUNT : True,
+                DETECT_UNWANTED_ABBR : False,
                 PREDICTIVE_LENGTH : 5,
                 INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False
@@ -125,6 +132,12 @@ class ConfigurationManager:
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders. 
         """
+        # Rebuild root folder list
+        rootFolders = self.folders.values()
+        self.folders.clear()
+        for folder in rootFolders:
+            self.folders[folder.title] = folder
+        
         self.hotKeyFolders = []
         self.hotKeyPhrases = []
         

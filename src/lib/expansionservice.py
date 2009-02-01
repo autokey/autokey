@@ -159,13 +159,17 @@ class ExpansionService:
             # Check abbreviation phrases first
             for phrase in self.configManager.abbrPhrases:
                 if phrase.check_input(currentInput, windowName) and not phrase.prompt:
-                    # send only if not same as last abbreviation to prevent repeated autocorrect
-                    if phrase.abbreviation != self.lastAbbr:
-                        self.lastAbbr = phrase.abbreviation 
-                        self.clearAfter = self.__sendPhrase(phrase, currentInput) + len(self.lastAbbr) + 2
+                    if ConfigurationManager.SETTINGS[DETECT_UNWANTED_ABBR]:
+                        # send only if not same as last abbreviation to prevent repeated autocorrect
+                        if phrase.abbreviation != self.lastAbbr:
+                            self.lastAbbr = phrase.abbreviation
+                            self.clearAfter = self.__sendPhrase(phrase, currentInput) + len(self.lastAbbr) + 2
+                        else:
+                            # immediately clear last abbreviation to allow next invocation to trigger
+                            self.lastAbbr = None
                     else:
-                        # immediately clear last abbreviation to allow next invocation to trigger
-                        self.lastAbbr = None
+                        self.__sendPhrase(phrase, currentInput)
+                
                     return
                 
             # Code below here only executes if no immediate abbreviation phrase is matched
@@ -222,7 +226,7 @@ class ExpansionService:
             extraKeys = ''
         self.mediator.release_lock()
         
-        self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
+        #self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
         self.inputStack = []
         
         self.mediator.send_backspace(expansion.backspaces + extraBs)

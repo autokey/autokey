@@ -324,7 +324,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     
                 if self.matchCase:
                     if typedAbbr.istitle():
-                        expansion.string = expansion.string.title()
+                        expansion.string = expansion.string.capitalize()
                     elif typedAbbr.isupper():
                         expansion.string = expansion.string.upper()
                     elif typedAbbr.islower():

@@ -2,6 +2,7 @@
 	<menubar name="MenuBar">
 		<menu action="File">
 			<menuitem action="New Folder" />
+			<menuitem action="New Subfolder" />
 			<menuitem action="New Phrase" />
 			<menuitem action="Insert Macro" />
 			<menuitem action="Save" />
