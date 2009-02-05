@@ -250,6 +250,22 @@ class XLibInterface(threading.Thread):
         """
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
         
+    def send_modified_key(self, keyName, modifiers):
+        """
+        Send a modified key (e.g. when emulating a hotkey)
+        """
+        for modifier in modifiers:
+            modifierCode = self.keyCodes[modifier]
+            xtest.fake_input(self.rootWindow, X.KeyPress, modifierCode)
+            
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        
+        for modifier in modifiers:
+            modifierCode = self.keyCodes[modifier]
+            xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)
+        
     def flush(self):
         self.local_dpy.flush()
         self.lastChars = []
@@ -405,8 +421,7 @@ class MockMediator:
         pass
         
     def handle_modifier_up(self, modifier):
-        pass
-    
+        pass    
 
     def handle_keypress(self, keyCode, windowName):
         pass

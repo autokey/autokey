@@ -83,7 +83,7 @@ def threaded(f):
     wrapper.__doc__ = f.__doc__
     return wrapper
 
-KEY_SPLIT_RE = re.compile("(<.*>)", re.UNICODE)
+KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
 
 class IoMediator:
     """
@@ -198,13 +198,34 @@ class IoMediator:
         Sends the given string for output.
         """
         self.acquire_lock()
-
+        k = Key()
+        
         self.__clearModifiers()
+        modifiers = []
+        
         for section in KEY_SPLIT_RE.split(string.decode("utf-8")):
-            if Key().is_key(section):
-                self.interface.send_key(section)
-            else:
-                self.interface.send_string(section)
+            if len(section) > 0:
+                if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                    # Section is a modifier application (modifier followed by '+')
+                    modifiers.append(section[:-1])
+                    
+                else:
+                    if len(modifiers) > 0:
+                        # Modifiers ready for application - send modified key
+                        if k.is_key(section):
+                            self.interface.send_modified_key(section, modifiers)
+                        else:
+                            self.interface.send_modified_key(section[0], modifiers)
+                            if len(section) > 1:
+                                self.interface.send_string(section[1:])
+                            modifiers = []
+                    else:
+                        # Normal string/key operation                    
+                        if k.is_key(section):
+                            self.interface.send_key(section)
+                        else:
+                            self.interface.send_string(section)
+                        
         self.__reapplyModifiers()
         
         self.release_lock()

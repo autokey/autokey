@@ -67,8 +67,8 @@ class ConfigurationWindow(gtk.Window):
         actionGroup = gtk.ActionGroup("menu")
         actions = [
                    ("File", None, "_File", None, None, self.on_show_file),
-                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder", self.on_new_folder),
-                   ("New Subfolder", gtk.STOCK_NEW, "New Subf_older", "", "Create a new phrase folder in the current folder", self.on_new_subfolder),
+                   ("New Top-Level Folder", gtk.STOCK_NEW, "New _Top-Level Folder", "", "Create a new top-level phrase folder", self.on_new_folder),
+                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder in the current folder", self.on_new_subfolder),
                    ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase in the current folder", self.on_new_phrase),
                    ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
@@ -133,13 +133,13 @@ class ConfigurationWindow(gtk.Window):
         self.app.service.configManager.config_altered()
         model, iter = self.treeView.get_selection().get_selected()
         model.update_item(iter, item)
-        
+    
     def on_show_file(self, widget, data=None):
         selection = self.__getTreeSelection()
         canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
         canCreateSubFolder = canCreatePhrase
-        self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(True)
-        self.uiManager.get_widget("/MenuBar/File/New Subfolder").set_sensitive(canCreateSubFolder)
+        self.uiManager.get_widget("/MenuBar/File/New Top-Level Folder").set_sensitive(True)
+        self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreateSubFolder)
         self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreatePhrase)
         self.uiManager.get_widget("/MenuBar/File/Save").set_sensitive(self.dirty)
         self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
@@ -320,14 +320,9 @@ class ConfigurationWindow(gtk.Window):
             menu = gtk.Menu()
             newFolderMenuItem = gtk.ImageMenuItem("New Folder")
             newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newFolderMenuItem.set_sensitive(True)
+            newFolderMenuItem.set_sensitive(canCreateSubFolder)
             newFolderMenuItem.connect("activate", self.on_new_folder)
             
-            newSubFolderMenuItem = gtk.ImageMenuItem("New Subfolder")
-            newSubFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newSubFolderMenuItem.set_sensitive(canCreateSubFolder)
-            newSubFolderMenuItem.connect("activate", self.on_new_subfolder)            
-    
             newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
             newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
             newPhraseMenuItem.set_sensitive(canCreatePhrase)
@@ -339,7 +334,6 @@ class ConfigurationWindow(gtk.Window):
             deleteMenuItem.connect("activate", self.on_delete_item)
             
             menu.append(newFolderMenuItem)
-            menu.append(newSubFolderMenuItem)
             menu.append(newPhraseMenuItem)
             menu.append(deleteMenuItem)
             menu.show_all()
@@ -798,6 +792,7 @@ class AbbreviationSettings(gtk.VBox):
     def on_useAbbr_toggled(self, widget, data=None):
         self.foreach(lambda x: x.set_sensitive(widget.get_active()))
         widget.set_sensitive(True)
+        self.abbrText.grab_focus()
         
     def on_match_case_toggled(self, widget, data=None):
         if widget.get_active():
@@ -1106,6 +1101,7 @@ class WindowFilterSettings(gtk.VBox):
     def on_alwaysTrigger_toggled(self, widget, data=None):
         self.foreach(lambda x: x.set_sensitive(not widget.get_active()))
         widget.set_sensitive(True)
+        self.windowFilter.grab_focus()
         
     def on_modified(self, widget, data=None):
         self.noteBook.set_dirty()
