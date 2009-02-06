@@ -318,6 +318,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 if self.backspace:
                     # determine how many backspaces to send
                     expansion.backspaces = len(self.abbreviation) + len(stringAfter)
+                else:
+                    expansion.backspaces = len(stringAfter)
                 
                 if not self.omitTrigger:
                     expansion.string += stringAfter
