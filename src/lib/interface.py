@@ -217,7 +217,7 @@ class XLibInterface(threading.Thread):
                 else:
                     return unichr(self.local_dpy.keycode_to_keysym(keyCode, 0))
             except ValueError:
-                return None
+                return "<unknown>"
     
     def send_string(self, string):
         """
@@ -309,7 +309,11 @@ class XLibInterface(threading.Thread):
             self.mediator.handle_keypress(keyCode, self.__getWindowTitle())
             
     def __handleKeyRelease(self, keyCode):
-        self.lock.release()
+        try:
+            self.lock.release()
+        except RuntimeError, e:
+            pass # ignore releasing of lock when not acquired 
+                 # just means we got a KeyRelease with no matching KeyPress
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_up(modifier)
