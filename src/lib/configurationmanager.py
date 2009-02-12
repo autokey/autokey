@@ -29,6 +29,7 @@ MENU_TAKES_FOCUS = "menuTakesFocus"
 SHOW_TRAY_ICON = "showTrayIcon"
 SORT_BY_USAGE_COUNT = "sortByUsageCount"
 DETECT_UNWANTED_ABBR = "detectUnwanted"
+PROMPT_TO_SAVE = "promptToSave"
 PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
@@ -70,6 +71,7 @@ class ConfigurationManager:
                 SHOW_TRAY_ICON : True,
                 SORT_BY_USAGE_COUNT : True,
                 DETECT_UNWANTED_ABBR : False,
+                PROMPT_TO_SAVE: True,
                 PREDICTIVE_LENGTH : 5,
                 INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False
@@ -162,6 +164,8 @@ class ConfigurationManager:
         #print repr(self.abbrPhrases)
         #print repr(self.allFolders)
         #print repr(self.allPhrases)
+        
+        save_config(self)
                     
     def __processFolder(self, parentFolder):
         for folder in parentFolder.folders:

@@ -26,6 +26,8 @@ from Xlib import X, XK, display, error
 from Xlib.ext import record, xtest
 from Xlib.protocol import rq, event
 
+import select
+
 # Modifiers
 SHIFT = 'XK_Shift_L'
 SHIFT_R = 'XK_Shift_R'
@@ -120,10 +122,13 @@ class XLibInterface(threading.Thread):
         self.lock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         self.testMode = testMode
+        #self.cancelling = False
+        
+        #self.rootWindow.change_attributes(event_mask=X.KeyPressMask|X.KeyReleaseMask|X.ButtonPressMask)
         
         # Check for record extension 
-        if not self.record_dpy.has_extension("RECORD"):
-            raise Exception("Your X-Server does not have the RECORD extension available/enabled.")                            
+        #if not self.record_dpy.has_extension("RECORD"):
+        #    raise Exception("Your X-Server does not have the RECORD extension available/enabled.")                            
         
         # Map of keyname to keycode
         self.keyCodes = {}
@@ -179,6 +184,29 @@ class XLibInterface(threading.Thread):
         self.__sendKeyCode(keyCode, X.Mod5Mask)
         print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
+    def run_new(self):
+        while not self.cancelling:
+            #readable, w, e = select.select([self.local_dpy], [], [], 1)
+            
+            #if self.local_dpy in readable:
+                #for i in range(self.local_dpy.pending_events()):
+                
+                    
+            event = self.local_dpy.next_event()
+            print "got event"
+            if event.type == X.KeyPress:
+                self.__handleKeyPress(event.detail)
+            elif event.type == X.KeyRelease:
+                self.__handleKeyRelease(event.detail)
+            elif event.type == X.ButtonPress:
+                self.mediator.handle_mouse_click()
+            elif event.type == X.MappingNotify:
+                self.__updateMapping(event)
+                        
+    def __updateMapping(self, event):
+        print "update keyboard mapping"
+        self.local_dpy.refresh_keyboard_mapping(event)        
+        
     def run(self):
         # Create a recording context; we only want key and mouse events
         self.ctx = self.record_dpy.record_create_context(
@@ -201,6 +229,11 @@ class XLibInterface(threading.Thread):
         self.record_dpy.record_enable_context(self.ctx, self.__processEvent)
         # Finally free the context
         self.record_dpy.record_free_context(self.ctx)
+        
+    def cancel_new(self):
+        self.cancelling = True
+        self.local_dpy.flush()
+        self.join()
         
     def cancel(self):
         self.local_dpy.record_disable_context(self.ctx)
@@ -265,6 +298,18 @@ class XLibInterface(threading.Thread):
         for modifier in modifiers:
             modifierCode = self.keyCodes[modifier]
             xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)
+            
+    def send_unicode_key(self, keyDigits):
+        xtest.fake_input(self.rootWindow, X.KeyPress, self.keyCodes[Key.CONTROL])
+        xtest.fake_input(self.rootWindow, X.KeyPress, self.keyCodes[Key.SHIFT])
+        
+        for digit in keyDigits:
+            keyCode = self.__lookupKeyCode(str(digit))
+            xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+            xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+
+        xtest.fake_input(self.rootWindow, X.KeyRelease, self.keyCodes[Key.CONTROL])
+        xtest.fake_input(self.rootWindow, X.KeyRelease, self.keyCodes[Key.SHIFT])
         
     def flush(self):
         self.local_dpy.flush()
@@ -441,5 +486,7 @@ if __name__ == "__main__":
     x.start()
     x.keymap_test()
     time.sleep(10.0)
+    #time.sleep(4.0)
+    #x.send_unicode_key([0, 3, 9, 4])
     x.cancel()
     print "Test completed. Thank you for your assistance in improving AutoKey!"

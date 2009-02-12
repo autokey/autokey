@@ -19,7 +19,7 @@
 
 import pygtk
 pygtk.require("2.0")
-import sys, gtk, traceback, os.path
+import sys, gtk, traceback, os.path, signal
 import expansionservice, ui
 from configurationmanager import *
 
@@ -57,6 +57,8 @@ class AutoKeyApplication:
         self.service = expansionservice.ExpansionService(self)
         self.service.start()
         
+        signal.signal(signal.SIGTERM, self.shutdown)
+        
         # initialise global hotkeys
         configManager = self.service.configManager
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
@@ -67,7 +69,7 @@ class AutoKeyApplication:
         
         if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
             ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
-            self.show_configure() 
+            self.show_configure()
         
     def unpause_service(self):
         self.service.unpause()
@@ -107,4 +109,8 @@ class AutoKeyApplication:
 if __name__ == "__main__":
     gtk.gdk.threads_init()
     a = AutoKeyApplication()
-    a.main()
+    try:
+        a.main()
+    except KeyboardInterrupt:
+        a.shutdown()
+    sys.exit(0)

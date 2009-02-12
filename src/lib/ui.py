@@ -90,7 +90,10 @@ class ConfigurationWindow(gtk.Window):
                 
         self.uiManager.insert_action_group(actionGroup, 0)
         self.uiManager.add_ui_from_file(UI_DESCRIPTION_FILE)        
-        vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False, 7)
+        #vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False)
+        alignment = gtk.Alignment(xscale=1.0)
+        alignment.add(self.uiManager.get_widget("/MenuBar"))
+        vbox.pack_start(alignment, False, False, 5)
         
         # Get references to toolbar buttons and misc items
         self.toggleExpansionsMenuItem = self.uiManager.get_widget("/MenuBar/Settings/Enable Expansions")
@@ -112,7 +115,7 @@ class ConfigurationWindow(gtk.Window):
         treeViewVbox.pack_start(treeViewScrolledWindow)
         self.treeView = PhraseTreeView(autokeyApp.service.configManager.folders)
         self.treeView.connect("cursor-changed", self.on_tree_selection_changed)
-        self.treeView.connect("button-press-event", self.on_popup_menu)
+        self.treeView.connect("button-press-event", self.on_treeview_clicked)
         treeViewScrolledWindow.add(self.treeView)
         
         # Search expander
@@ -181,15 +184,6 @@ class ConfigurationWindow(gtk.Window):
         selectedObject = self.__getTreeSelection()
         child = self.settingsBox.get_children()[0]
  
-        # TODO - find a way to make this work
-        #if self.dirty:
-        #    dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-        #                            "There are unsaved changes. Would you like to save them?")
-        #    if dlg.run() != gtk.RESPONSE_YES:
-        #        if not isinstance(child, gtk.Label):
-        #            child.on_save(widget)
-        #    dlg.destroy()
-             
         if selectedObject is not None:
             if isinstance(selectedObject, phrase.Phrase):
                 if child is not self.phraseSettings:
@@ -311,34 +305,64 @@ class ConfigurationWindow(gtk.Window):
         dlg.run()
         dlg.destroy()
         
-    def on_popup_menu(self, widget, event, data=None):
-        if event.button == 3:
-            selection = self.__getTreeSelection()            
-            canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
-            canCreateSubFolder = canCreatePhrase
-            
-            menu = gtk.Menu()
-            newFolderMenuItem = gtk.ImageMenuItem("New Folder")
-            newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newFolderMenuItem.set_sensitive(canCreateSubFolder)
-            newFolderMenuItem.connect("activate", self.on_new_folder)
-            
-            newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
-            newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
-            newPhraseMenuItem.set_sensitive(canCreatePhrase)
-            newPhraseMenuItem.connect("activate", self.on_new_phrase)
-            
-            deleteMenuItem = gtk.ImageMenuItem("Delete")
-            deleteMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
-            deleteMenuItem.set_sensitive(selection is not None)
-            deleteMenuItem.connect("activate", self.on_delete_item)
-            
-            menu.append(newFolderMenuItem)
-            menu.append(newPhraseMenuItem)
-            menu.append(deleteMenuItem)
-            menu.show_all()
-            
-            menu.popup(None, None, None, event.button, event.time)
+    def on_treeview_clicked(self, widget, event, data=None):
+        if not self.__promptToSave():
+            # False result indicates user selected Cancel. Stop event propagation
+            return True
+        else:
+            if event.button == 3:
+                self.__popupMenu(event)
+
+    def __popupMenu(self, event):
+        selection = self.__getTreeSelection()            
+        canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
+        canCreateSubFolder = canCreatePhrase
+        
+        menu = gtk.Menu()
+        newFolderMenuItem = gtk.ImageMenuItem("New Folder")
+        newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
+        newFolderMenuItem.set_sensitive(canCreateSubFolder)
+        newFolderMenuItem.connect("activate", self.on_new_folder)
+        
+        newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
+        newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
+        newPhraseMenuItem.set_sensitive(canCreatePhrase)
+        newPhraseMenuItem.connect("activate", self.on_new_phrase)
+        
+        deleteMenuItem = gtk.ImageMenuItem("Delete")
+        deleteMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE, gtk.ICON_SIZE_MENU))
+        deleteMenuItem.set_sensitive(selection is not None)
+        deleteMenuItem.connect("activate", self.on_delete_item)
+        
+        menu.append(newFolderMenuItem)
+        menu.append(newPhraseMenuItem)
+        menu.append(deleteMenuItem)
+        menu.show_all()
+        
+        menu.popup(None, None, None, event.button, event.time)
+        
+    def __promptToSave(self):
+        selectedObject = self.__getTreeSelection()
+        child = self.settingsBox.get_children()[0]
+        result = True
+ 
+        if self.dirty:
+            if ConfigurationManager.SETTINGS[PROMPT_TO_SAVE]:
+                dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL,
+                                        "There are unsaved changes. Click OK to save, or Cancel to return.")
+                response = dlg.run()
+                 
+                if response == gtk.RESPONSE_OK:
+                    if not isinstance(child, gtk.Label):
+                        child.on_save(None)
+                elif response == gtk.RESPONSE_CANCEL:
+                    result = False
+                
+                dlg.destroy()
+            else:
+                child.on_save(None)
+        
+        return result
         
     def __getTreeSelection(self):
         selection = self.treeView.get_selection()
@@ -381,6 +405,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.takesFocus = gtk.CheckButton("Allow keyboard navigation of phrase menu")
         self.sortByCount = gtk.CheckButton("Sort phrase menu items by highest usage")
         self.detectUnwanted = gtk.CheckButton("Detect unwanted abbreviation triggers")
+        self.promptSave = gtk.CheckButton("Prompt for unsaved changes to folders or phrases")
         
         hbox = gtk.HBox()
         hbox.pack_start(gtk.Label("Suggest phrases after entering "), False)
@@ -398,6 +423,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.takesFocus)
         vbox.pack_start(self.sortByCount)
         vbox.pack_start(self.detectUnwanted)
+        vbox.pack_start(self.promptSave)
         vbox.pack_start(hbox, False, False, 5)
         vbox.pack_start(gtk.HSeparator(), padding=10)
         vbox.pack_start(label)
@@ -420,6 +446,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.takesFocus.set_active(configManager.SETTINGS[MENU_TAKES_FOCUS])
         self.sortByCount.set_active(configManager.SETTINGS[SORT_BY_USAGE_COUNT])
         self.detectUnwanted.set_active(configManager.SETTINGS[DETECT_UNWANTED_ABBR])
+        self.promptSave.set_active(configManager.SETTINGS[PROMPT_TO_SAVE])
         self.predictiveLength.set_value(configManager.SETTINGS[PREDICTIVE_LENGTH])
         self.useWorkAround.set_active(configManager.SETTINGS[ENABLE_QT4_WORKAROUND])
         
@@ -431,6 +458,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
         configManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByCount.get_active()
         configManager.SETTINGS[DETECT_UNWANTED_ABBR] = self.detectUnwanted.get_active()
+        configManager.SETTINGS[PROMPT_TO_SAVE] = self.promptSave.get_active()
         configManager.SETTINGS[PREDICTIVE_LENGTH] = int(self.predictiveLength.get_value())
         configManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.useWorkAround.get_active()
         
@@ -445,7 +473,6 @@ class AdvancedSettingsDialog(gtk.Dialog):
         
     def set_dirty(self):
         pass
-
 
 
 class PhraseFolderSettings(gtk.VBox):
@@ -1227,10 +1254,7 @@ class PhraseTreeModel(gtk.TreeStore):
             updateList.append(itemTuple[n])
         #print repr(updateList)
         self.set(targetIter, *updateList)
-        
 
-
-               
                
 class Notifier(gobject.GObject):
     """
