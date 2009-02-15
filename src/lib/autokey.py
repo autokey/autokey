@@ -130,7 +130,7 @@ class AutoKeyApplication:
         Show the abbreviation autocompletion popup.
         """
         self.__abbrPopup = ui.AbbreviationSelectorDialog(self.service)
-        self.__abbrPopup.show()
+        self.__abbrPopup.present()
                 
     def main(self):
         gtk.main()        

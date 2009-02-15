@@ -1400,23 +1400,28 @@ class AbbreviationSelectorDialog(gtk.Dialog):
     def __init__(self, expansionService):
         gtk.Dialog.__init__(self, SELECTOR_DIALOG_TITLE)
         self.service = expansionService
+        self.abbreviations = expansionService.configManager.abbrPhrases
         
         self.entry = gtk.Entry()
+        self.entry.connect("activate", self.on_entry_activated)
         self.completion = gtk.EntryCompletion()
         self.entry.set_completion(self.completion)
-        model = AbbreviationModel(expansionService.configManager.abbrPhrases)
+        model = AbbreviationModel(self.abbreviations)
         self.completion.set_model(model)
-        self.completion.set_match_func(model.match)
+        #self.completion.set_match_func(model.match)
         
-        abbrCell = gtk.CellRendererText()
-        self.completion.pack_start(abbrCell)
-        self.completion.add_attribute(abbrCell, "text", 0)
+        self.completion.set_text_column(0)
+        
+        #abbrCell = gtk.CellRendererText()
+        #self.completion.pack_start(abbrCell)
+        #self.completion.add_attribute(abbrCell, "text", 0)
         
         descriptionCell = gtk.CellRendererText()
         self.completion.pack_start(descriptionCell)
         self.completion.add_attribute(descriptionCell, "text", 1)
         
         self.completion.set_inline_completion(True)
+        self.completion.set_inline_selection(True)
         self.completion.connect("match-selected", self.on_match_selected)
         
         alignment = gtk.Alignment(0.5, 0.5, 1.0, 1.0)
@@ -1426,17 +1431,25 @@ class AbbreviationSelectorDialog(gtk.Dialog):
         
         self.show_all()
         self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        self.set_keep_above(True)
+        self.set_focus_on_map(True)
         #self.set_has_separator(False)
         #self.set_title(SELECTOR_DIALOG_TITLE)
         
         self.connect("hide", self.on_close)        
         
     def on_match_selected(self, completion, model, iter, data=None):
-        self.hide()
         thePhrase = model.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
         self.service.phrase_selected(None, thePhrase)
+        self.hide()
         
-        
+    def on_entry_activated(self, widget, data=None):
+        entered = self.entry.get_text()
+        for thePhrase in self.abbreviations:
+            if thePhrase.abbreviation == entered:
+                self.service.phrase_selected(None, thePhrase)
+        self.hide()
+    
     def on_close(self, widget, data=None):
         self.destroy()
 
