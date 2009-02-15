@@ -18,7 +18,7 @@
 
 import time
 import iomediator, configurationmanager, ui
-from iomediator import Key
+from iomediator import Key, threaded
 from phrasemenu import *
 from plugin.manager import PluginManager, PluginError
 
@@ -134,7 +134,7 @@ class ExpansionService:
             
             self.clearAfter -= 1
         
-        if windowName == ui.CONFIG_WINDOW_TITLE or not self.is_running():
+        if windowName in (ui.CONFIG_WINDOW_TITLE, ui.SELECTOR_DIALOG_TITLE) or not self.is_running():
             return
 
         if self.lastMenu is not None and not self.configManager.SETTINGS[configurationmanager.MENU_TAKES_FOCUS]:
@@ -201,9 +201,10 @@ class ExpansionService:
             self.inputStack.pop(0)
             
         #print self.inputStack
-        
+    
+    @threaded
     def phrase_selected(self, event, phrase):
-        time.sleep(0.1) # wait for window to be active
+        time.sleep(0.25) # wait for window to be active
         self.__sendPhrase(phrase, self.lastStackState)
         
     def __sendPhrase(self, phrase, buffer=''):

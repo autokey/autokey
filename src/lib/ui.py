@@ -168,6 +168,11 @@ class ConfigurationWindow(gtk.Window):
         self.toggleExpansionsMenuItem.set_active(ConfigurationManager.SETTINGS[SERVICE_RUNNING])
         
     def on_close(self, widget, data=None):
+        if self.dirty:
+            selectedObject = self.__getTreeSelection()
+            child = self.settingsBox.get_children()[0]
+            child.on_save(None)           
+        
         self.hide()
         self.destroy()
         self.app.configureWindow = None
@@ -348,19 +353,20 @@ class ConfigurationWindow(gtk.Window):
  
         if self.dirty:
             if ConfigurationManager.SETTINGS[PROMPT_TO_SAVE]:
-                dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_OK_CANCEL,
-                                        "There are unsaved changes. Click OK to save, or Cancel to return.")
+                dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+                                        "There are unsaved changes. Would you like to save them?")
+                dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
                 response = dlg.run()
                  
-                if response == gtk.RESPONSE_OK:
+                if response == gtk.RESPONSE_YES:
                     if not isinstance(child, gtk.Label):
-                        child.on_save(None)
+                        result = child.save()
                 elif response == gtk.RESPONSE_CANCEL:
                     result = False
                 
                 dlg.destroy()
             else:
-                child.on_save(None)
+                child.save(None)
         
         return result
         
@@ -433,10 +439,12 @@ class AdvancedSettingsDialog(gtk.Dialog):
         # Hotkey settings Page
         self.showConfigSetting = GlobalHotkeySettings(parent, self, "Use a hotkey to show the configuration window")
         self.toggleServiceSetting = GlobalHotkeySettings(parent, self, "Use a hotkey to toggle expansions")
+        self.showPopupSettings = GlobalHotkeySettings(parent, self, "Use a hotkey to show the abbreviations popup")
         
         vbox = gtk.VBox()
         vbox.pack_start(self.showConfigSetting)
         vbox.pack_start(self.toggleServiceSetting)
+        vbox.pack_start(self.showPopupSettings)
         self.add_page(vbox, "Special Hotkeys")
         
         self.show_all()
@@ -452,6 +460,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         
         self.showConfigSetting.load(configManager.configHotkey)
         self.toggleServiceSetting.load(configManager.toggleServiceHotkey)
+        self.showPopupSettings.load(configManager.showPopupHotkey)
         
     def save(self, configManager):
         configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
@@ -464,6 +473,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         
         self.showConfigSetting.save(configManager.configHotkey)
         self.toggleServiceSetting.save(configManager.toggleServiceHotkey)
+        self.showPopupSettings.save(configManager.showPopupHotkey)
         
     def add_page(self, page, pageTitle):
         alignment = gtk.Alignment(xscale=1.0)
@@ -524,26 +534,32 @@ class PhraseFolderSettings(gtk.VBox):
         self.saveButton.set_sensitive(False)
         self.revertButton.set_sensitive(False)        
         
-    def set_dirty(self):
-        self.saveButton.set_sensitive(True)
-        self.revertButton.set_sensitive(True)
-        self.configWindow.dirty = True
+    def set_dirty(self, dirtyState):
+        self.saveButton.set_sensitive(dirtyState)
+        self.revertButton.set_sensitive(dirtyState)
+        self.configWindow.dirty = dirtyState
         
     def on_save(self, widget, data=None):
+        self.save()
+        
+    def save(self):
         if self.validate():
             self.currentFolder.title = self.folderTitle.get_text()
             self.currentFolder.set_modes([])
             self.currentFolder.showInTrayMenu = self.showInTray.get_active()
             self.settingsNoteBook.save(self.currentFolder)
             self.configWindow.refresh_tree(self.currentFolder)
-            self.saveButton.set_sensitive(False)
-            self.revertButton.set_sensitive(False)
+            self.set_dirty(False)
+            return True
+        else:
+            return False
             
     def on_modified(self, widget, data=None):
-        self.set_dirty()        
+        self.set_dirty(True)        
                     
     def on_revert(self, widget, data=None):
         self.load(self.currentFolder)
+        self.set_dirty(False)
 
     def validate(self):
         if not validate(not EMPTY_FIELD_REGEX.match(self.folderTitle.get_text()), "Folder title can not be empty",
@@ -630,12 +646,15 @@ class PhraseSettings(gtk.VBox):
         self.saveButton.set_sensitive(False)
         self.revertButton.set_sensitive(False)        
         
-    def set_dirty(self):
-        self.saveButton.set_sensitive(True)
-        self.revertButton.set_sensitive(True)        
-        self.configWindow.dirty = True
+    def set_dirty(self, dirtyState):
+        self.saveButton.set_sensitive(dirtyState)
+        self.revertButton.set_sensitive(dirtyState)        
+        self.configWindow.dirty = dirtyState
         
     def on_save(self, widget, data=None):
+        self.save()
+        
+    def save(self):
         if self.validate():
             self.currentPhrase.description = self.phraseDescription.get_text()
         
@@ -653,15 +672,18 @@ class PhraseSettings(gtk.VBox):
             
             self.configWindow.refresh_tree(self.currentPhrase)
             
-            self.saveButton.set_sensitive(False)
-            self.revertButton.set_sensitive(False)        
+            self.set_dirty(False)
+            return True
+        else:
+            return False        
             
         
     def on_revert(self, widget, data=None):
         self.load(self.currentPhrase)
+        self.set_dirty(False)
         
     def on_modified(self, widget, data=None):
-        self.set_dirty()
+        self.set_dirty(True)
         
     def validate(self):
         if not validate(not EMPTY_FIELD_REGEX.match(self.phraseDescription.get_text()),
@@ -698,7 +720,7 @@ class SettingsNotebook(gtk.Notebook):
         self.windowFilterSettings.load(thePhrase)
         
     def set_dirty(self):
-        self.settingsPane.set_dirty()
+        self.settingsPane.set_dirty(True)
         
     def save(self, thePhrase):
         self.abbrSettings.save(thePhrase)
@@ -1274,7 +1296,7 @@ class Notifier(gobject.GObject):
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
             self.icon.set_tooltip("AutoKey")
             self.icon.connect("popup_menu", self.on_popup_menu)
-            self.icon.connect("activate", self.on_show_configure)
+            self.icon.connect("activate", self.on_activate)
             
             self.connect("show-notify", self.on_show_notify)  
             
@@ -1285,6 +1307,9 @@ class Notifier(gobject.GObject):
             self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)      
         
     # Signal Handlers ----
+    
+    def on_activate(self, widget, data=None):
+        self.app.show_abbr_selector()
         
     def on_popup_menu(self, status_icon, button, activate_time, data=None):
         # Main Menu items
@@ -1366,4 +1391,72 @@ class Notifier(gobject.GObject):
         dlg.run()
         dlg.destroy()
         
-gobject.type_register(Notifier)                
+gobject.type_register(Notifier)
+
+SELECTOR_DIALOG_TITLE = "Type an abbreviation"
+
+class AbbreviationSelectorDialog(gtk.Dialog):
+    
+    def __init__(self, expansionService):
+        gtk.Dialog.__init__(self, SELECTOR_DIALOG_TITLE)
+        self.service = expansionService
+        
+        self.entry = gtk.Entry()
+        self.completion = gtk.EntryCompletion()
+        self.entry.set_completion(self.completion)
+        model = AbbreviationModel(expansionService.configManager.abbrPhrases)
+        self.completion.set_model(model)
+        self.completion.set_match_func(model.match)
+        
+        abbrCell = gtk.CellRendererText()
+        self.completion.pack_start(abbrCell)
+        self.completion.add_attribute(abbrCell, "text", 0)
+        
+        descriptionCell = gtk.CellRendererText()
+        self.completion.pack_start(descriptionCell)
+        self.completion.add_attribute(descriptionCell, "text", 1)
+        
+        self.completion.set_inline_completion(True)
+        self.completion.connect("match-selected", self.on_match_selected)
+        
+        alignment = gtk.Alignment(0.5, 0.5, 1.0, 1.0)
+        alignment.set_padding(20, 20, 50, 50)
+        alignment.add(self.entry)
+        self.vbox.add(alignment)
+        
+        self.show_all()
+        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
+        #self.set_has_separator(False)
+        #self.set_title(SELECTOR_DIALOG_TITLE)
+        
+        self.connect("hide", self.on_close)        
+        
+    def on_match_selected(self, completion, model, iter, data=None):
+        self.hide()
+        thePhrase = model.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
+        self.service.phrase_selected(None, thePhrase)
+        
+        
+    def on_close(self, widget, data=None):
+        self.destroy()
+
+class AbbreviationModel(gtk.ListStore):
+    
+    OBJECT_COLUMN = 2
+        
+    def __init__(self, abbrPhrases):
+        gtk.ListStore.__init__(self, str, str, object)
+        
+        for thePhrase in abbrPhrases:
+            self.append((thePhrase.abbreviation, thePhrase.description, thePhrase))
+            
+    def match(self, completion, keyString, iter, data=None):
+        abbreviation = self.get_value(iter, 0)
+        description = self.get_value(iter, 1)
+        if abbreviation.startswith(keyString):
+            return True
+        elif len(keyString) > 1:
+            if keyString in description:
+                return True
+
+        return False

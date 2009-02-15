@@ -26,6 +26,10 @@ from configurationmanager import *
 LOCK_FILE = "../../config/autokey.pid"
 
 class AutoKeyApplication:
+    """
+    Main application class; starting and stopping of the application is controlled
+    from here, together with some interactions from the tray icon.
+    """
 
     def __init__(self):
         try:
@@ -63,6 +67,7 @@ class AutoKeyApplication:
         configManager = self.service.configManager
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure)
+        configManager.showPopupHotkey.set_closure(self.show_abbr_selector)
         
         self.notifier = ui.Notifier(self)
         self.configureWindow = None
@@ -72,35 +77,68 @@ class AutoKeyApplication:
             self.show_configure()
         
     def unpause_service(self):
+        """
+        Unpause the expansion service (start responding to keyboard and mouse events).
+        """
         self.service.unpause()
     
     def pause_service(self):
+        """
+        Pause the expansion service (stop responding to keyboard and mouse events).
+        """
         self.service.pause()
         
     def toggle_service(self):
+        """
+        Convenience method for toggling the expansion service on or off.
+        """
         if self.service.is_running():
             self.pause_service()
         else:
             self.unpause_service()
         
     def shutdown(self):
+        """
+        Shut down the entire application.
+        """
         self.service.shutdown()
         os.remove(LOCK_FILE)
             
     def show_notify(self, message, isError=False, details=''):
+        """
+        Show a libnotify popup.
+        
+        @param message: Message to show in the popup
+        @param isError: Whether the message is an error (shows with an error icon)
+        @param details: Error details, which the user can view in a dialog by clicking
+        the "View Details" button.
+        """
         self.notifier.show_notify(message, isError, details)
         
     def show_configure(self):
+        """
+        Show the configuration window, or deiconify (un-minimise) it if it's already open.
+        """
         if self.configureWindow is None:
             self.configureWindow = ui.ConfigurationWindow(self)
             self.configureWindow.show()
         else:    
             self.configureWindow.deiconify()
-        
+            
+    def show_abbr_selector(self):
+        """
+        Show the abbreviation autocompletion popup.
+        """
+        self.__abbrPopup = ui.AbbreviationSelectorDialog(self.service)
+        self.__abbrPopup.show()
+                
     def main(self):
         gtk.main()        
             
     def show_error_dialog(self, message):
+        """
+        Convenience method for showing an error dialog.
+        """
         dlg = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
                                  message_format=message)
         dlg.run()

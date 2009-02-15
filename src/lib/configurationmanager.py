@@ -40,7 +40,12 @@ def get_config_manager():
         settings, configManager = pickle.load(pFile)
         pFile.close()
         apply_settings(settings)
-        #ConfigurationManager.SETTINGS = settings
+        
+        if len(configManager.globalHotkeys) == 2:
+            configManager.showPopupHotkey = GlobalHotkey()
+            configManager.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
+            configManager.showPopupHotkey.enabled = True
+            configManager.globalHotkeys.append(configManager.showPopupHotkey)
         return configManager
     else:
         return ConfigurationManager()
@@ -48,22 +53,34 @@ def get_config_manager():
 def save_config(configManager):
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
+    configManager.showPopupHotkey.set_closure(None)
     outFile = open(CONFIG_FILE, "wb")
     pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
     outFile.close()
     
 def apply_settings(settings):
-    # Allows new settings to be added without users having to lose all their config
+    """
+    Allows new settings to be added without users having to lose all their configuration
+    """
     for key, value in settings.iteritems():
         ConfigurationManager.SETTINGS[key] = value    
 
 class ImportException(Exception):
+    """
+    Exception raised when an error occurs during the import of an abbreviations file.
+    """
     pass
     
 
 class ConfigurationManager:
+    """
+    Contains all application configuration, and provides methods for updating and 
+    maintaining consistency of the configuration. 
+    """
 
-    # Static members for global application settings ----
+    """
+    Static member for global application settings.
+    """
     SETTINGS = {
                 IS_FIRST_RUN : True,
                 SERVICE_RUNNING : True,
@@ -158,6 +175,7 @@ class ConfigurationManager:
         self.globalHotkeys = []
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
+        self.globalHotkeys.append(self.showPopupHotkey)
             
         #print repr(self.hotKeyFolders)
         #print repr(self.hotKeyPhrases)
@@ -184,6 +202,11 @@ class ConfigurationManager:
 
         
     def import_legacy_settings(self, configFilePath):
+        """
+        Import an abbreviations settings file from v0.4x.x.
+        
+        @param configFilePath: full path to the abbreviations file
+        """
         importer = LegacyImporter()
         importer.load_config(configFilePath)        
         folder = PhraseFolder(DEFAULT_ABBR_FOLDER)
@@ -197,6 +220,9 @@ class ConfigurationManager:
     def check_abbreviation_unique(self, abbreviation, targetPhrase):
         """
         Checks that the given abbreviation is not already in use.
+        
+        @param abbreviation: the abbreviation to check
+        @param targetPhrase: the phrase for which the abbreviation to be used 
         """
         for item in self.allFolders:
             if PhraseMode.ABBREVIATION in item.modes:
@@ -212,7 +238,12 @@ class ConfigurationManager:
             
     def check_hotkey_unique(self, modifiers, hotKey, targetPhrase):
         """
-        Checks that the given hotkey is not already in use.
+        Checks that the given hotkey is not already in use. Also checks the 
+        special hotkeys configured from the advanced settings dialog.
+        
+        @param modifiers: modifiers for the hotkey
+        @param abbreviation: the hotkey to check
+        @param targetPhrase: the phrase for which the abbreviation to be used         
         """
         for item in self.allFolders:
             if PhraseMode.HOTKEY in item.modes:
@@ -365,9 +396,14 @@ class LegacyImporter:
         else:
             return defaults[optionName]
 
+# This import placed here to prevent circular import conflicts
 from phrase import *
 
 class GlobalHotkey(AbstractHotkey):
+    """
+    A global application hotkey, configured from the advanced settings dialog.
+    Allows a method call to be attached to the hotkey.
+    """
     
     def __init__(self):
         AbstractHotkey.__init__(self)
@@ -375,6 +411,9 @@ class GlobalHotkey(AbstractHotkey):
         self.windowTitleRegex = None
     
     def set_closure(self, closure):
+        """
+        Set the callable to be executed when the hotkey is triggered.
+        """
         self.closure = closure
         
     def check_hotkey(self, modifiers, key, windowTitle):
