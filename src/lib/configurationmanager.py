@@ -106,7 +106,11 @@ class ConfigurationManager:
         
         self.toggleServiceHotkey = GlobalHotkey()
         self.toggleServiceHotkey.set_hotkey(["<ctrl>", "<shift>"], "k")
-        self.toggleServiceHotkey.enabled = True        
+        self.toggleServiceHotkey.enabled = True    
+        
+        self.showPopupHotkey = GlobalHotkey()
+        self.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
+        self.showPopupHotkey.enabled = True
                 
         # TODO TESTING REMOVE ME LATER
         from iomediator import Key

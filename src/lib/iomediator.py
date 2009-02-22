@@ -74,7 +74,7 @@ from configurationmanager import ConfigurationManager
 def threaded(f):
     
     def wrapper(*args):
-        t = threading.Thread(target=f, args=args)
+        t = threading.Thread(target=f, args=args, name="KeypressHandlerThread")
         t.setDaemon(False)
         t.start()
         

@@ -304,7 +304,7 @@ class ConfigurationWindow(gtk.Window):
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
                          ConfigurationManager.SETTINGS[INPUT_SAVINGS])
-        dlg.set_version("0.51.0")
+        dlg.set_version("0.52.0")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
         dlg.run()
@@ -1021,7 +1021,14 @@ class HotkeySettings(gtk.VBox):
         self.alt.set_active(iomediator.Key.ALT in thePhrase.modifiers)
         self.shift.set_active(iomediator.Key.SHIFT in thePhrase.modifiers)
         self.super.set_active(iomediator.Key.SUPER in thePhrase.modifiers)
-        self.keyLabel.set_label(str(thePhrase.hotKey))        
+
+        key = str(theHotkey.hotKey)
+        if key in self.KEY_MAP:
+            keyText = self.KEY_MAP[key]
+        else:
+            keyText = key
+        self.keyLabel.set_label(keyText)
+
         
     def save(self, thePhrase):
         if self.useHotkey.get_active():
@@ -1102,7 +1109,13 @@ class GlobalHotkeySettings(HotkeySettings):
         self.alt.set_active(iomediator.Key.ALT in theHotkey.modifiers)
         self.shift.set_active(iomediator.Key.SHIFT in theHotkey.modifiers)
         self.super.set_active(iomediator.Key.SUPER in theHotkey.modifiers)
-        self.keyLabel.set_label(str(theHotkey.hotKey))
+
+        key = str(theHotkey.hotKey)
+        if key in self.KEY_MAP:
+            keyText = self.KEY_MAP[key]
+        else:
+            keyText = key
+        self.keyLabel.set_label(keyText)
     
     def save(self, theHotkey):        
         if self.useHotkey.get_active():
