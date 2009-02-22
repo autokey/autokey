@@ -1022,7 +1022,7 @@ class HotkeySettings(gtk.VBox):
         self.shift.set_active(iomediator.Key.SHIFT in thePhrase.modifiers)
         self.super.set_active(iomediator.Key.SUPER in thePhrase.modifiers)
 
-        key = str(theHotkey.hotKey)
+        key = str(thePhrase.hotKey)
         if key in self.KEY_MAP:
             keyText = self.KEY_MAP[key]
         else:
