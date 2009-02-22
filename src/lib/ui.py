@@ -1,4 +1,4 @@
-import gtk, gobject, pynotify, re
+import gtk, gobject, pynotify, re, time
 import phrase, phrasemenu, iomediator
 from configurationmanager import *
 
@@ -327,7 +327,7 @@ class ConfigurationWindow(gtk.Window):
         newFolderMenuItem = gtk.ImageMenuItem("New Folder")
         newFolderMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
         newFolderMenuItem.set_sensitive(canCreateSubFolder)
-        newFolderMenuItem.connect("activate", self.on_new_folder)
+        newFolderMenuItem.connect("activate", self.on_new_subfolder)
         
         newPhraseMenuItem = gtk.ImageMenuItem("New Phrase")
         newPhraseMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_NEW, gtk.ICON_SIZE_MENU))
@@ -1043,8 +1043,13 @@ class HotkeySettings(gtk.VBox):
         widget.set_sensitive(True)
         
     def on_set_key(self, widget, data=None):
-        dlg = KeyCaptureDialog(self)
-        dlg.start()
+        #dlg = KeyCaptureDialog(self)
+        #dlg.start()
+        self.keyLabel.set_label("Press a key")
+        self.setKey.set_sensitive(False)
+        grabber = KeyGrabber(self)
+        grabber.start()
+        
 
     def on_modified(self, widget, data=None):
         self.noteBook.set_dirty()
@@ -1053,6 +1058,7 @@ class HotkeySettings(gtk.VBox):
         if key in self.KEY_MAP.keys():
             key = self.KEY_MAP[key]
         self.keyLabel.set_label(key)
+        self.setKey.set_sensitive(True)
         self.noteBook.set_dirty()
 
     def validate(self, targetPhrase):
@@ -1161,14 +1167,37 @@ class WindowFilterSettings(gtk.VBox):
                              self.windowFilter, self.configWindow)
         return True
 
-        
+
+class KeyGrabber:
+    
+    def __init__(self, parent):
+        self.targetParent = parent
+        self.mediator = iomediator.IoMediator(self, iomediator.XLIB_INTERFACE)
+    
+    def start(self):
+        self.mediator.start()
+                 
+    def handle_keypress(self, key, windowName=""):
+        if not key in iomediator.MODIFIERS:
+            self.mediator.shutdown()
+            self.targetParent.set_key(key)
+            
+    def handle_hotkey(self, key, modifiers, windowName):
+        pass
+    
+    def handle_mouseclick(self):
+        pass    
+
+
 class KeyCaptureDialog(gtk.Window):
     
     def __init__(self, parent):
         gtk.Window.__init__(self)
         self.set_title("Key selection")
+        self.set_transient_for(parent.get_transient_for())
         vbox = gtk.VBox()
         vbox.add(gtk.Label("Press a key to use for the hotkey"))
+        vbox.add(gtk.Entry())
         self.add(vbox)
         self.mediator = iomediator.IoMediator(self, iomediator.XLIB_INTERFACE)
         self.targetParent = parent

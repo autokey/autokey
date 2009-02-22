@@ -275,7 +275,7 @@ class XLibInterface(threading.Thread):
                 else:
                     self.__sendKeyCode(keyCode)                    
             else:
-                self.send_key(char)
+                self.send_unicode_char(char)
                 
     def send_key(self, keyName):
         """
@@ -299,17 +299,19 @@ class XLibInterface(threading.Thread):
             modifierCode = self.keyCodes[modifier]
             xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)
             
-    def send_unicode_key(self, keyDigits):
-        xtest.fake_input(self.rootWindow, X.KeyPress, self.keyCodes[Key.CONTROL])
-        xtest.fake_input(self.rootWindow, X.KeyPress, self.keyCodes[Key.SHIFT])
+    def send_unicode_char(self, char):
+        self.send_modified_key('u', [Key.CONTROL, Key.SHIFT])
+        
+        keyDigits = "%04x" % ord(char)
         
         for digit in keyDigits:
-            keyCode = self.__lookupKeyCode(str(digit))
+            keyCode = self.__lookupKeyCode(digit)
             xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
             xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-
-        xtest.fake_input(self.rootWindow, X.KeyRelease, self.keyCodes[Key.CONTROL])
-        xtest.fake_input(self.rootWindow, X.KeyRelease, self.keyCodes[Key.SHIFT])
+            
+        keyCode = self.__lookupKeyCode('\n')
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
         
     def flush(self):
         self.local_dpy.flush()
