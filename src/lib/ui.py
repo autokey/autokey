@@ -304,7 +304,7 @@ class ConfigurationWindow(gtk.Window):
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
                          ConfigurationManager.SETTINGS[INPUT_SAVINGS])
-        dlg.set_version("0.52.0")
+        dlg.set_version("0.52.1")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
         dlg.run()

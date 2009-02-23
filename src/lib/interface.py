@@ -319,11 +319,11 @@ class XLibInterface(threading.Thread):
         
     def press_key(self, keyName):
         #xtest.fake_input(self.rootWindow, X.KeyPress, self.__lookupKeyCode(keyName))
-        self.__sendKeyPressEvent(self.__lookupKeyCode(keyName))
+        self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
         
     def release_key(self, keyName):
         #xtest.fake_input(self.rootWindow, X.KeyRelease, self.__lookupKeyCode(keyName))
-        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName))  
+        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)  
 
     def __processEvent(self, reply):
         if reply.category != record.FromServer:
