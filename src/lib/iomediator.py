@@ -67,7 +67,7 @@ class Key:
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK]
 NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
 
-import time, threading, re
+import time, threading, Queue, re
 from interface import *
 from configurationmanager import ConfigurationManager
 
@@ -85,7 +85,7 @@ def threaded(f):
 
 KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
 
-class IoMediator:
+class IoMediator(threading.Thread):
     """
     The IoMediator is responsible for tracking the state of modifier keys and
     interfacing with the various Interface classes to obtain the correct
@@ -95,6 +95,8 @@ class IoMediator:
     """
     
     def __init__(self, service, interface):
+        threading.Thread.__init__(self, name="KeypressHandlerThread")
+        self.queue = Queue.Queue()
         self.service = service
         self.interfaceType = interface
         
@@ -108,7 +110,7 @@ class IoMediator:
                           Key.CAPSLOCK : False                         
                           }
         
-    def start(self):
+    def initialise(self):
         """
         Starts the underlying keystroke interface sending and receiving events.
         """
@@ -118,13 +120,12 @@ class IoMediator:
         #else:
         #    self.interface = AtSpiInterface(self)
         self.interface.start()
+        self.start()
         
     def shutdown(self):
         self.interface.cancel()
-        #pass
-        
-    #def is_running(self):
-    #    return self.interface.isAlive()
+        self.queue.put_nowait((None, None))
+        self.join()
         
     def switch_interface(self, interface):
         """
@@ -161,32 +162,42 @@ class IoMediator:
         # Caps lock is handled on key down only
         if not modifier == Key.CAPSLOCK:
             self.modifiers[modifier] = False
-                
-    @threaded
+    
     def handle_keypress(self, keyCode, windowName):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
         """
-        if self.__isNonPrintingModifierOn():
-            key = self.interface.lookup_string(keyCode, False)
-            modifiers = []
-            for modifier, isOn in self.modifiers.iteritems():
-                if isOn:
-                    modifiers.append(modifier)
-            modifiers.sort()
+        self.queue.put_nowait((keyCode, windowName))
+        
+    def run(self):
+        while True:
+            keyCode, windowName = self.queue.get()
             
-            self.service.handle_hotkey(key, modifiers, windowName)
+            if keyCode is None and windowName is None:
+                break
             
-        else:
-            if self.modifiers[Key.CAPSLOCK] and self.modifiers[Key.SHIFT]:
+            if self.__isNonPrintingModifierOn():
                 key = self.interface.lookup_string(keyCode, False)
-            elif self.modifiers[Key.CAPSLOCK] or self.modifiers[Key.SHIFT]:
-                key = self.interface.lookup_string(keyCode, True)
+                modifiers = []
+                for modifier, isOn in self.modifiers.iteritems():
+                    if isOn:
+                        modifiers.append(modifier)
+                modifiers.sort()
+                
+                self.service.handle_hotkey(key, modifiers, windowName)
+                
             else:
-                key = self.interface.lookup_string(keyCode, False)
-            
-            self.service.handle_keypress(key, windowName)
+                if self.modifiers[Key.CAPSLOCK] and self.modifiers[Key.SHIFT]:
+                    key = self.interface.lookup_string(keyCode, False)
+                elif self.modifiers[Key.CAPSLOCK] or self.modifiers[Key.SHIFT]:
+                    key = self.interface.lookup_string(keyCode, True)
+                else:
+                    key = self.interface.lookup_string(keyCode, False)
+                
+                self.service.handle_keypress(key, windowName)
+                
+            self.queue.task_done()
             
     def handle_mouse_click(self):
         self.service.handle_mouseclick()

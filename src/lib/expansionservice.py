@@ -35,7 +35,7 @@ class ExpansionService:
     
     def start(self):
         self.mediator = iomediator.IoMediator(self, self.interfaceType)
-        self.mediator.start()
+        self.mediator.initialise()
         self.inputStack = []
         self.lastStackState = ''
         self.lastMenu = None

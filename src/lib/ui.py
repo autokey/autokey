@@ -272,7 +272,7 @@ class ConfigurationWindow(gtk.Window):
         
         if dlg.run() == gtk.RESPONSE_OK:
             fileName = dlg.get_filename()
-            dlg.destroy()
+            
             try:
                 folder, phrases = self.app.service.configManager.import_legacy_settings(fileName)
             except ImportException, ie:
@@ -283,6 +283,8 @@ class ConfigurationWindow(gtk.Window):
                 iter = model.append_item(folder, None)
                 for phrase in phrases:
                     model.append_item(phrase, iter)
+                    
+        dlg.destroy()
         
         self.app.service.configManager.config_altered()
         
