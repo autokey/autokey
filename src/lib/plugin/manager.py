@@ -22,9 +22,9 @@ class PluginManager:
     
     def get_token(self, action, parentWindow):
         pluginId = self.actionMap[action]
-        return self.plugins[pluginId].get_token(parentWindow)        
+        return self.plugins[pluginId].get_token(parentWindow)
         
-    def process_expansion(self, expansion):
+    def process_expansion(self, expansion, buffer):
         """
         Tokenise the given expansion, and dispatch the tokens to the relevant plugins for replacement.
         Then return the finalised expansion.
@@ -37,7 +37,8 @@ class PluginManager:
                 # Identify plugin
                 pluginId = token.split(' ', 1)[0][2:]
                 try:
-                    finalString.append(self.plugins[pluginId].get_string(token))
+                    finalString.append(self.plugins[pluginId].get_string(token, buffer))
+                    expansion.backspaces += self.plugins[pluginId].get_backspace_count() 
                 except Exception, e:
                     raise PluginError(str(e))
             else:

@@ -33,6 +33,14 @@ class AbstractAbbreviation:
         self.immediate = False
         self.triggerInside = False
         self.wordChars = re.compile(DEFAULT_WORDCHAR_REGEX, re.UNICODE)
+        
+    def copy_abbreviation(self, abbr):
+        self.abbreviation = abbr.abbreviation
+        self.backspace = abbr.backspace
+        self.ignoreCase = abbr.ignoreCase
+        self.immediate = abbr.immediate
+        self.triggerInside = abbr.triggerInside
+        self.set_word_chars(abbr.get_word_chars())
                         
     def set_word_chars(self, regex):
         self.wordChars = re.compile(regex, re.UNICODE)
@@ -106,6 +114,9 @@ class AbstractWindowFilter:
     
     def __init__(self):
         self.windowTitleRegex = None
+        
+    def copy_window_filter(self, filter):
+        self.windowTitleRegex = filter.windowTitleRegex
     
     def set_window_titles(self, regex):
         if regex is not None:
@@ -134,6 +145,10 @@ class AbstractHotkey(AbstractWindowFilter):
     def __init__(self):
         self.modifiers = []
         self.hotKey = None
+        
+    def copy_hotkey(self, theHotkey):
+        [self.modifiers.append(modifier) for modifier in theHotkey.modifiers]
+        self.hotKey = theHotkey.hotKey
         
     def set_hotkey(self, modifiers, key):
         modifiers.sort()
@@ -284,6 +299,20 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = False
         self.parent = None
         self.showInTrayMenu = False
+        
+    def copy(self, thePhrase):
+        self.description = thePhrase.description
+        self.phrase = thePhrase.phrase
+        [self.modes.append(mode) for mode in thePhrase.modes]
+        self.usageCount = thePhrase.usageCount
+        self.prompt = thePhrase.prompt
+        self.omitTrigger = thePhrase.omitTrigger
+        self.matchCase = thePhrase.matchCase 
+        self.parent = thePhrase.parent
+        self.showInTrayMenu = thePhrase.showInTrayMenu
+        self.copy_abbreviation(thePhrase)
+        self.copy_hotkey(thePhrase)
+        self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
         return ("gtk-paste", self.description, self.abbreviation, self)

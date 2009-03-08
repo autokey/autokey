@@ -1,4 +1,4 @@
-import gtk, gobject, pynotify, re, time
+import gtk, gobject, pynotify, re, time, copy
 import phrase, phrasemenu, iomediator
 from configurationmanager import *
 
@@ -70,12 +70,16 @@ class ConfigurationWindow(gtk.Window):
                    ("New Top-Level Folder", gtk.STOCK_NEW, "New _Top-Level Folder", "", "Create a new top-level phrase folder", self.on_new_folder),
                    ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder in the current folder", self.on_new_subfolder),
                    ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase in the current folder", self.on_new_phrase),
-                   ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
-                   ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
                    ("Import Settings", None, "_Import Settings", None, "Import settings from AutoKey 0.40", self.on_import_settings),                   
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
                    ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit),
+                   ("Edit", None, "_Edit", None, None, self.on_show_edit),
+                   ("Cut", gtk.STOCK_CUT, "Cu_t", None, "Cut the selected item", self.on_cut_item),
+                   ("Copy", gtk.STOCK_COPY, "_Copy", None, "Copy the selected item", self.on_copy_item),
+                   ("Paste", gtk.STOCK_PASTE, "_Paste", None, "Paste the last cut/copied item", self.on_paste_item),
+                   ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
+                   ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Settings", None, "_Settings", None, None, self.on_show_settings),
                    ("Advanced Settings", gtk.STOCK_PREFERENCES, "_Advanced Settings", "", "Advanced configuration options", self.on_show_advanced_settings),
                    ("Help", None, "_Help"),
@@ -131,6 +135,7 @@ class ConfigurationWindow(gtk.Window):
         #self.on_tree_selection_changed(self.treeView)
         
         self.dirty = False
+        self.cutCopiedItem = None
         
     def refresh_tree(self, item):
         self.app.service.configManager.config_altered()
@@ -145,9 +150,16 @@ class ConfigurationWindow(gtk.Window):
         self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreateSubFolder)
         self.uiManager.get_widget("/MenuBar/File/New Phrase").set_sensitive(canCreatePhrase)
         self.uiManager.get_widget("/MenuBar/File/Save").set_sensitive(self.dirty)
-        self.uiManager.get_widget("/MenuBar/File/Delete").set_sensitive(selection is not None)
+            
+    def on_show_edit(self, widget, data=None):
+        selection = self.__getTreeSelection()
+        self.uiManager.get_widget("/MenuBar/Edit/Cut").set_sensitive(selection is not None)
+        self.uiManager.get_widget("/MenuBar/Edit/Copy").set_sensitive(isinstance(selection, phrase.Phrase))
+        self.uiManager.get_widget("/MenuBar/Edit/Paste").set_sensitive((self.cutCopiedItem is not None)
+                                                                        and canCreatePhrase)
+        self.uiManager.get_widget("/MenuBar/Edit/Delete").set_sensitive(selection is not None)
         
-        insertMacroItem = self.uiManager.get_widget("/MenuBar/File/Insert Macro") 
+        insertMacroItem = self.uiManager.get_widget("/MenuBar/Edit/Insert Macro") 
         if isinstance(selection, phrase.Phrase):
             insertMacroItem.set_sensitive(True)
             
@@ -240,6 +252,22 @@ class ConfigurationWindow(gtk.Window):
         child = self.settingsBox.get_children()[0]
         child.on_save(widget)
         
+    def on_cut_item(self, widget, data=None):
+        self.cutCopiedItem = self.__getTreeSelection()
+        selection = self.treeView.get_selection()
+        model, item = selection.get_selected()
+        self.__removeItem(model, item)
+    
+    def on_copy_item(self, widget, data=None):
+        self.cutCopiedItem = phrase.Phrase('', '')
+        self.cutCopiedItem.copy(self.__getTreeSelection())
+    
+    def on_paste_item(self, widget, data=None):
+        model, parentIter = self.treeView.get_selection().get_selected()
+        newIter = model.append_item(self.cutCopiedItem, parentIter)
+        self.treeView.expand_to_path(model.get_path(newIter))        
+        self.cutCopiedItem = None
+        
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
         model, item = selection.get_selected()
@@ -306,7 +334,7 @@ class ConfigurationWindow(gtk.Window):
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
                          ConfigurationManager.SETTINGS[INPUT_SAVINGS])
-        dlg.set_version("0.52.1")
+        dlg.set_version("0.52.2")
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
         dlg.run()
@@ -341,9 +369,25 @@ class ConfigurationWindow(gtk.Window):
         deleteMenuItem.set_sensitive(selection is not None)
         deleteMenuItem.connect("activate", self.on_delete_item)
         
+        cutMenuItem = gtk.ImageMenuItem(gtk.STOCK_CUT)
+        cutMenuItem.set_sensitive(selection is not None)
+        cutMenuItem.connect("activate", self.on_cut_item)
+        
+        copyMenuItem = gtk.ImageMenuItem(gtk.STOCK_COPY)
+        copyMenuItem.set_sensitive(isinstance(selection, phrase.Phrase))
+        copyMenuItem.connect("activate", self.on_copy_item)
+        
+        pasteMenuItem = gtk.ImageMenuItem(gtk.STOCK_PASTE)
+        pasteMenuItem.set_sensitive((self.cutCopiedItem is not None) and canCreatePhrase)
+        pasteMenuItem.connect("activate", self.on_paste_item)
+        
         menu.append(newFolderMenuItem)
         menu.append(newPhraseMenuItem)
         menu.append(deleteMenuItem)
+        menu.append(gtk.SeparatorMenuItem())
+        menu.append(cutMenuItem)
+        menu.append(copyMenuItem)
+        menu.append(pasteMenuItem)
         menu.show_all()
         
         menu.popup(None, None, None, event.button, event.time)

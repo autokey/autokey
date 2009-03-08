@@ -1,6 +1,6 @@
 import datetime, gtk, subprocess
 
-PLUGINS = ["CursorPositionPlugin", "CurrentDatePlugin", "ExecCommandPlugin"]
+PLUGINS = ["CursorPositionPlugin", "CurrentDatePlugin", "ExecCommandPlugin", "InsertPreviousWordPlugin"]
 
 CURSOR_POSITION_TOKEN = "$(cursor )"
 
@@ -29,11 +29,40 @@ class AbstractPlugin:
             result.append('=')
             result.append(value)
             result.append('&')
-            
-        result = result[:-1]
+        
+        if len(arguments) > 0:
+            result = result[:-1]
         result.append(")")
         return ''.join(result)
+    
+    def get_backspace_count(self):
+        return 0
         
+class InsertPreviousWordPlugin(AbstractPlugin):
+    
+    def __init__(self):
+        self.__backspaceCount = 0
+    
+    def get_id(self):
+        return "sub"
+    
+    def get_action(self):
+        return "Substitute preceding word"
+    
+    def get_token(self, parentWindow):
+        return self._build_token(self.get_id(), {})
+    
+    def get_string(self, token, buffer):
+        parts = buffer.split('~')
+        if len(parts) > 1:
+            partsBefore = parts[-2].split(' ')
+            self.__backspaceCount = len(partsBefore[-1]) + 1
+            return partsBefore[-1].strip()
+        else:
+            return ''
+        
+    def get_backspace_count(self):
+        return self.__backspaceCount
 
 class CursorPositionPlugin(AbstractPlugin):
     
@@ -41,12 +70,12 @@ class CursorPositionPlugin(AbstractPlugin):
         return "cursor"
     
     def get_action(self):
-        return "Position The Cursor"
+        return "Position the cursor"
     
     def get_token(self, parentWindow):
         return CURSOR_POSITION_TOKEN
     
-    def get_string(self, token):
+    def get_string(self, token, buffer):
         return CURSOR_POSITION_TOKEN
     
     
@@ -79,7 +108,7 @@ class CurrentDatePlugin(AbstractPlugin):
             dlg.destroy()
             return None 
     
-    def get_string(self, token):
+    def get_string(self, token, buffer):
         args = self._parse_arguments(token)
         now = datetime.datetime.now()
         return now.strftime(args["format"])
@@ -127,7 +156,7 @@ class ExecCommandPlugin(AbstractPlugin):
             dlg.destroy()
             return None        
     
-    def get_string(self, token):
+    def get_string(self, token, buffer):
         args = self._parse_arguments(token)
         pipe = subprocess.Popen(args["command"], shell=True, bufsize=-1, stdout=subprocess.PIPE).stdout
 

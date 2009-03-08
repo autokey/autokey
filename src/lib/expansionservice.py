@@ -210,7 +210,7 @@ class ExpansionService:
     def __sendPhrase(self, phrase, buffer=''):
         expansion = phrase.build_phrase(buffer)
         try:
-            self.pluginManager.process_expansion(expansion)
+            self.pluginManager.process_expansion(expansion, buffer)
         except PluginError, pe:
             self.app.show_notify("A plug-in reported an error.", True, pe.message)
             

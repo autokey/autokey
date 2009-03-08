@@ -15,11 +15,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os.path, configobj, gtk
+import os.path, shutil, configobj, gtk
 import cPickle as pickle
 from iomediator import Key
 
 CONFIG_FILE = "../../config/autokey.bin"
+CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
 
@@ -54,9 +55,17 @@ def save_config(configManager):
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
     configManager.showPopupHotkey.set_closure(None)
-    outFile = open(CONFIG_FILE, "wb")
-    pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
-    outFile.close()
+    # Back up configuration
+    shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
+    try:
+        outFile = open(CONFIG_FILE, "wb")
+        pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
+    except PickleError, pe:
+        shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+        raise Exception("Error while saving configuration. Backup has been restored.")
+    finally:
+        outFile.close()
+    
     
 def apply_settings(settings):
     """

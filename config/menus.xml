@@ -4,14 +4,20 @@
 			<menuitem action="New Top-Level Folder" />
 			<menuitem action="New Folder" />
 			<menuitem action="New Phrase" />
-			<menuitem action="Insert Macro" />
 			<menuitem action="Save" />
-			<menuitem action="Delete" />
 			<separator />
 			<menuitem action="Import Settings" />
 			<separator />
 			<menuitem action="Close" />
 			<menuitem action="Quit" />
+		</menu>
+		<menu action="Edit">
+			<menuitem action="Cut" />
+			<menuitem action="Copy" />
+			<menuitem action="Paste" />
+			<menuitem action="Delete" />
+			<separator />
+			<menuitem action="Insert Macro" />
 		</menu>
 		<menu action="Settings">
 			<menuitem action="Enable Expansions" />

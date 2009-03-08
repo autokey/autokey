@@ -1,5 +1,7 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
+Installation script using disttools
+
 Add general crash handler for interface at run() level
 
 Get rid of commented out code
@@ -9,15 +11,10 @@ Add gettext support
 
 Nice reporting and logging of errors so users can report bugs
 
-Detect shell expanded phrases on expansion and process via BASH
-
 LATER PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
 Option to activate/deactivate above feature
 
 LATER PLUGIN Add spell checker with a hotkey which checks the last word typed
-
-Plugin system allowing additional actions to be added - eg insert time of day etc
-- Shell expansion plugin
 
 Automatic frequently typed phrase recognition using nltk
 
