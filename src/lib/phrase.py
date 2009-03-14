@@ -303,8 +303,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def copy(self, thePhrase):
         self.description = thePhrase.description
         self.phrase = thePhrase.phrase
-        [self.modes.append(mode) for mode in thePhrase.modes]
-        self.usageCount = thePhrase.usageCount
+        #[self.modes.append(mode) for mode in thePhrase.modes]
+        if PhraseMode.PREDICTIVE in thePhrase.modes:
+            self.modes.append(PhraseMode.PREDICTIVE)
+        # self.usageCount = thePhrase.usageCount
         self.prompt = thePhrase.prompt
         self.omitTrigger = thePhrase.omitTrigger
         self.matchCase = thePhrase.matchCase 

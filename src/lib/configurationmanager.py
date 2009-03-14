@@ -55,8 +55,9 @@ def save_config(configManager):
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
     configManager.showPopupHotkey.set_closure(None)
-    # Back up configuration
-    shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
+    # Back up configuration if it exists
+    if os.path.exists(CONFIG_FILE):
+        shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         outFile = open(CONFIG_FILE, "wb")
         pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)

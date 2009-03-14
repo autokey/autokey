@@ -127,8 +127,8 @@ class XLibInterface(threading.Thread):
         #self.rootWindow.change_attributes(event_mask=X.KeyPressMask|X.KeyReleaseMask|X.ButtonPressMask)
         
         # Check for record extension 
-        #if not self.record_dpy.has_extension("RECORD"):
-        #    raise Exception("Your X-Server does not have the RECORD extension available/enabled.")                            
+        if not self.record_dpy.has_extension("RECORD"):
+            raise Exception("Your X-Server does not have the RECORD extension available/enabled.")                            
         
         # Map of keyname to keycode
         self.keyCodes = {}
@@ -257,26 +257,29 @@ class XLibInterface(threading.Thread):
         Send a string of printable characters.
         """
         for char in string:
-            keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
-            if len(keyCodeList) > 0:
-                keyCode, offset = keyCodeList[0]
-                if offset == 1:
-                    self.__sendKeyCode(keyCode, X.ShiftMask)
-                elif offset == 2:
-                    self.__sendKeyCode(keyCode, X.Mod1Mask)
-                elif offset == 3:
-                    self.__sendKeyCode(keyCode, X.Mod2Mask)
-                elif offset == 4:
-                    self.__sendKeyCode(keyCode, X.Mod3Mask)
-                elif offset == 5:
-                    self.__sendKeyCode(keyCode, X.Mod4Mask)
-                elif offset == 6:
-                    self.__sendKeyCode(keyCode, X.Mod5Mask)
-                else:
-                    self.__sendKeyCode(keyCode)                    
+            if char in self.keyCodes.keys():
+                self.send_key(char)
             else:
-                self.send_unicode_char(char)
-                
+                keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
+                if len(keyCodeList) > 0:
+                    keyCode, offset = keyCodeList[0]
+                    if offset == 1:
+                        self.__sendKeyCode(keyCode, X.ShiftMask)
+                    elif offset == 2:
+                        self.__sendKeyCode(keyCode, X.Mod1Mask)
+                    elif offset == 3:
+                        self.__sendKeyCode(keyCode, X.Mod2Mask)
+                    elif offset == 4:
+                        self.__sendKeyCode(keyCode, X.Mod3Mask)
+                    elif offset == 5:
+                        self.__sendKeyCode(keyCode, X.Mod4Mask)
+                    elif offset == 6:
+                        self.__sendKeyCode(keyCode, X.Mod5Mask)
+                    else:
+                        self.__sendKeyCode(keyCode)                    
+                else:
+                    self.send_unicode_char(char)
+                    
     def send_key(self, keyName):
         """
         Send a specific non-printing key, eg Up, Left, etc

@@ -265,7 +265,9 @@ class ConfigurationWindow(gtk.Window):
     def on_paste_item(self, widget, data=None):
         model, parentIter = self.treeView.get_selection().get_selected()
         newIter = model.append_item(self.cutCopiedItem, parentIter)
-        self.treeView.expand_to_path(model.get_path(newIter))        
+        if isinstance(self.cutCopiedItem, phrase.PhraseFolder):
+            model.populate_store(newIter, self.cutCopiedItem)
+        self.treeView.expand_to_path(model.get_path(newIter))  
         self.cutCopiedItem = None
         
     def on_delete_item(self, widget, data=None):
@@ -1318,14 +1320,14 @@ class PhraseTreeModel(gtk.TreeStore):
         
         for folder in folders.values():
             iter = self.append(None, folder.get_tuple())
-            self.__buildTreeStore(iter, folder)
+            self.populate_store(iter, folder)
             
         self.folders = folders
 
-    def __buildTreeStore(self, parent, parentFolder):
+    def populate_store(self, parent, parentFolder):
         for folder in parentFolder.folders:
             iter = self.append(parent, folder.get_tuple())
-            self.__buildTreeStore(iter, folder)
+            self.populate_store(iter, folder)
         
         for phrase in parentFolder.phrases:
             self.append(parent, phrase.get_tuple())
