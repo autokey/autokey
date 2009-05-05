@@ -35,12 +35,13 @@ PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 
-def get_config_manager():
+def get_config_manager(autoKeyApp):
     if os.path.exists(CONFIG_FILE):
         pFile = open(CONFIG_FILE, 'r')
         settings, configManager = pickle.load(pFile)
         pFile.close()
         apply_settings(settings)
+        configManager.app = autoKeyApp
         
         if len(configManager.globalHotkeys) == 2:
             configManager.showPopupHotkey = GlobalHotkey()
@@ -49,12 +50,15 @@ def get_config_manager():
             configManager.globalHotkeys.append(configManager.showPopupHotkey)
         return configManager
     else:
-        return ConfigurationManager()
+        return ConfigurationManager(autoKeyApp)
 
-def save_config(configManager):
+def save_config(configManager): 
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
     configManager.showPopupHotkey.set_closure(None)
+    autoKeyApp = configManager.app
+    configManager.app = None
+
     # Back up configuration if it exists
     if os.path.exists(CONFIG_FILE):
         shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
@@ -66,7 +70,8 @@ def save_config(configManager):
         raise Exception("Error while saving configuration. Backup has been restored.")
     finally:
         outFile.close()
-    
+        autoKeyApp.init_global_hotkeys()
+        configManager.app = autoKeyApp        
     
 def apply_settings(settings):
     """
@@ -104,11 +109,11 @@ class ConfigurationManager:
                 ENABLE_QT4_WORKAROUND : False
                 }
     
-    def __init__(self):
+    def __init__(self, app):
         """
         Create initial default configuration
         """        
-        
+        self.app = app
         self.folders = {}
         self.configHotkey = GlobalHotkey()
         self.configHotkey.set_hotkey(["<ctrl>"], "k")

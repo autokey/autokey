@@ -63,18 +63,21 @@ class AutoKeyApplication:
         
         signal.signal(signal.SIGTERM, self.shutdown)
         
+        self.init_global_hotkeys()
+        self.notifier = ui.Notifier(self)
+        self.configureWindow = None
+        self.abbrPopup = None
+        
+        if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
+            ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
+            self.show_configure()
+            
+    def init_global_hotkeys(self):
         # initialise global hotkeys
         configManager = self.service.configManager
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure)
         configManager.showPopupHotkey.set_closure(self.show_abbr_selector)
-        
-        self.notifier = ui.Notifier(self)
-        self.configureWindow = None
-        
-        if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
-            ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
-            self.show_configure()
         
     def unpause_service(self):
         """
@@ -129,8 +132,9 @@ class AutoKeyApplication:
         """
         Show the abbreviation autocompletion popup.
         """
-        self.__abbrPopup = ui.AbbreviationSelectorDialog(self.service)
-        self.__abbrPopup.present()
+        if self.abbrPopup is None:
+            self.abbrPopup = ui.AbbreviationSelectorDialog(self.service)
+            self.abbrPopup.present()
                 
     def main(self):
         gtk.main()        

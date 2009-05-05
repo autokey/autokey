@@ -1102,15 +1102,15 @@ class HotkeySettings(gtk.VBox):
         #dlg.start()
         self.keyLabel.set_label("Press a key")
         self.setKey.set_sensitive(False)
-        grabber = KeyGrabber(self)
-        grabber.start()
+        self.grabber = KeyGrabber(self)
+        self.grabber.start()
         
 
     def on_modified(self, widget, data=None):
         self.noteBook.set_dirty()
         
     def set_key(self, key):
-        if key in self.KEY_MAP.keys():
+        if self.KEY_MAP.has_key(key):
             key = self.KEY_MAP[key]
         self.keyLabel.set_label(key)
         self.setKey.set_sensitive(True)
@@ -1236,7 +1236,7 @@ class KeyGrabber:
         self.mediator = iomediator.IoMediator(self, iomediator.XLIB_INTERFACE)
     
     def start(self):
-        self.mediator.start()
+        self.mediator.initialise()
                  
     def handle_keypress(self, key, windowName=""):
         if not key in iomediator.MODIFIERS:
@@ -1491,6 +1491,7 @@ class AbbreviationSelectorDialog(gtk.Dialog):
         gtk.Dialog.__init__(self, SELECTOR_DIALOG_TITLE)
         self.service = expansionService
         self.abbreviations = expansionService.configManager.abbrPhrases
+        self.app = expansionService.app
         
         self.entry = gtk.Entry()
         self.entry.connect("activate", self.on_entry_activated)
@@ -1542,6 +1543,8 @@ class AbbreviationSelectorDialog(gtk.Dialog):
     
     def on_close(self, widget, data=None):
         self.destroy()
+        self.app.abbrPopup = None
+        
 
 class AbbreviationModel(gtk.ListStore):
     

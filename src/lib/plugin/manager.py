@@ -1,7 +1,7 @@
 import re
 from plugins import *
 
-TOKEN_RE = re.compile("(\$\(.*\))", re.UNICODE)
+TOKEN_RE = re.compile("(\$\(.*?\))", re.UNICODE)
 
 class PluginManager:
     

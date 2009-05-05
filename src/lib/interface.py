@@ -135,6 +135,9 @@ class XLibInterface(threading.Thread):
         # Map of keycode to keyname
         self.keyNames = {}
         
+        # Load xkb keysyms - related to non-US keyboard mappings
+        XK.load_keysym_group('xkb')
+        
         # Create map of iomediator key codes to X key codes
         keyList = KEY_MAP.keys()
         for xkKeyName in keyList:
@@ -143,6 +146,10 @@ class XLibInterface(threading.Thread):
             self.keyCodes[keyName] = keyCode
             self.keyNames[keyCode] = keyName
 
+        if self.keyCodes[Key.ALT_GR] == 0:
+            altGrCode = self.local_dpy.keysym_to_keycode(XK.XK_ISO_Level3_Shift)
+            self.keyCodes[Key.ALT_GR] = altGrCode
+            self.keyNames[altGrCode] = Key.ALT_GR 
         #self.keyCodes[Key.ALT_GR] = 113
         #self.keyNames[113] = Key.ALT_GR
         
@@ -241,7 +248,7 @@ class XLibInterface(threading.Thread):
         self.join()
         
     def lookup_string(self, keyCode, shifted):
-        if keyCode in self.keyNames.keys():
+        if self.keyNames.has_key(keyCode):
             return self.keyNames[keyCode]
         else:
             try:
@@ -257,7 +264,7 @@ class XLibInterface(threading.Thread):
         Send a string of printable characters.
         """
         for char in string:
-            if char in self.keyCodes.keys():
+            if self.keyCodes.has_key(char):
                 self.send_key(char)
             else:
                 keyCodeList = self.local_dpy.keysym_to_keycodes(ord(char))
@@ -373,7 +380,7 @@ class XLibInterface(threading.Thread):
         Checks if the given keyCode is a modifier key. If it is, returns the modifier name
         constant as defined in the iomediator module. If not, returns C{None}
         """
-        if keyCode in self.keyNames.keys():
+        if self.keyNames.has_key(keyCode):
             keyName = self.keyNames[keyCode]
             if keyName in MODIFIERS:
                 return keyName
@@ -438,7 +445,7 @@ class XLibInterface(threading.Thread):
         focus.send_event(keyEvent)
         
     def __lookupKeyCode(self, char):
-        if char in self.keyCodes.keys():
+        if self.keyCodes.has_key(char):
             return self.keyCodes[char]
         else:
             try:
@@ -462,7 +469,7 @@ class XLibInterface(threading.Thread):
                 windowvar = windowvar.query_tree().parent
                 wmname = windowvar.get_wm_name()
 
-            return wmname
+            return str(wmname)
         except:
             return ""
 

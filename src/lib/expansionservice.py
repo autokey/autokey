@@ -28,7 +28,7 @@ class ExpansionService:
     
     def __init__(self, app):
         # Read configuration
-        self.configManager = configurationmanager.get_config_manager()
+        self.configManager = configurationmanager.get_config_manager(app)
         self.interfaceType = iomediator.XLIB_INTERFACE # permanently set to xlib for the time being
         self.mediator = None
         self.app = app

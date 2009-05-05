@@ -26,7 +26,7 @@ class Key:
     UP = "<up>"
     DOWN = "<down>"
     BACKSPACE = "\b"
-    TAB = "\t"
+    TAB = "<tab>"
     RETURN = '\n'
     SPACE = ' '
     
@@ -125,7 +125,7 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         self.interface.cancel()
         self.queue.put_nowait((None, None))
-        self.join()
+        #self.join()
         
     def switch_interface(self, interface):
         """
