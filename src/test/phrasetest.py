@@ -124,26 +124,39 @@ class PhraseTest(unittest.TestCase):
         result = phrase.build_phrase("asdfxp@.")
         self.assertEqual(result.string, "expansion@autokey.com.")
     
-    #def testLefts(self):       
-        # Test with omit trigger false
-        #phrase = Phrase("Positioning Phrase", "[udc]%%[/udc]")
-        #phrase.set_abbreviation("udc")
-        #phrase.set_modes([PhraseMode.ABBREVIATION])
-        #self.defaultFolder.add_phrase(phrase)
+    def testLefts(self):
+        #Test with omit trigger false
+        phrase = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]")
+        phrase.set_abbreviation("udc")
+        phrase.set_modes([PhraseMode.ABBREVIATION])
+        self.defaultFolder.add_phrase(phrase)
         
-        #result = phrase.build_phrase("udc ")
-        #self.assertEqual(result.lefts, 7)
+        result = phrase.build_phrase("udc ")
+        phrase.parsePositionTokens(result)
+        self.assertEqual(result.lefts, 7)
         
-        # Test with omit trigger true
-        #phrase.omitTrigger = True
-        #result = phrase.build_phrase("udc ")
-        #self.assertEqual(result.lefts, 6)
+        #Test with omit trigger true
+        phrase.omitTrigger = True
+        result = phrase.build_phrase("udc ")
+        phrase.parsePositionTokens(result)
+        self.assertEqual(result.lefts, 6)
         
-        # Test with immediate true
-        #phrase.omitTrigger = False
-        #phrase.immediate = True
-        #result = phrase.build_phrase("udc")
-        #self.assertEqual(result.lefts, 6)
+        #Test with immediate true
+        phrase.omitTrigger = False
+        phrase.immediate = True
+        result = phrase.build_phrase("udc")
+        phrase.parsePositionTokens(result)
+        self.assertEqual(result.lefts, 6)
+        
+    def testLeftsWithSpecialKey(self):
+        phrase = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]<f1>")
+        phrase.set_abbreviation("udc")
+        phrase.set_modes([PhraseMode.ABBREVIATION])
+        self.defaultFolder.add_phrase(phrase)
+        
+        result = phrase.build_phrase("udc ")
+        phrase.parsePositionTokens(result)
+        self.assertEqual(result.lefts, 7)        
         
     def testMultipleAbbrs(self):
         phrase = Phrase("Some abbr", "Some abbr")
@@ -300,3 +313,4 @@ class E2ETest(unittest.TestCase):
         
         result = self.phrase.build_phrase("bottom1 ")
         self.assertEqual(result.backspaces, 8)
+

@@ -20,7 +20,7 @@
 import pygtk
 pygtk.require("2.0")
 import sys, gtk, traceback, os.path, signal
-import expansionservice, ui
+import expansionservice, ui, configurationmanager
 from configurationmanager import *
 
 LOCK_FILE = "../../config/autokey.pid"
@@ -58,12 +58,13 @@ class AutoKeyApplication:
         f.close()
         
     def initialise(self):
+        self.configManager = configurationmanager.get_config_manager(self)
         self.service = expansionservice.ExpansionService(self)
         self.service.start()
         
         signal.signal(signal.SIGTERM, self.shutdown)
         
-        self.init_global_hotkeys()
+        #self.init_global_hotkeys()
         self.notifier = ui.Notifier(self)
         self.configureWindow = None
         self.abbrPopup = None
@@ -72,9 +73,8 @@ class AutoKeyApplication:
             ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
             self.show_configure()
             
-    def init_global_hotkeys(self):
+    def init_global_hotkeys(self, configManager):
         # initialise global hotkeys
-        configManager = self.service.configManager
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure)
         configManager.showPopupHotkey.set_closure(self.show_abbr_selector)

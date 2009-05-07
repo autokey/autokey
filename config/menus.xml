@@ -24,6 +24,8 @@
 			<menuitem action="Advanced Settings" />
 		</menu>		
 		<menu action="Help">
+			<menuitem action="FAQ" />
+			<menuitem action="Online Help" />
 			<menuitem action="About" />
 		</menu>
 	</menubar>

@@ -62,7 +62,9 @@ class InsertPreviousWordPlugin(AbstractPlugin):
             return ''
         
     def get_backspace_count(self):
-        return self.__backspaceCount
+        returnValue = self.__backspaceCount
+        self.__backspaceCount = 0
+        return returnValue
 
 class CursorPositionPlugin(AbstractPlugin):
     

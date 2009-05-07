@@ -17,7 +17,6 @@
 
 import os.path, shutil, configobj, gtk
 import cPickle as pickle
-from iomediator import Key
 
 CONFIG_FILE = "../../config/autokey.bin"
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
@@ -70,7 +69,7 @@ def save_config(configManager):
         raise Exception("Error while saving configuration. Backup has been restored.")
     finally:
         outFile.close()
-        autoKeyApp.init_global_hotkeys()
+        autoKeyApp.init_global_hotkeys(configManager)
         configManager.app = autoKeyApp        
     
 def apply_settings(settings):
@@ -130,7 +129,7 @@ class ConfigurationManager:
         # TODO TESTING REMOVE ME LATER
         from iomediator import Key
         myPhrases = PhraseFolder("My Phrases")
-        myPhrases.set_hotkey([Key.CONTROL], Key.F7)
+        myPhrases.set_hotkey(["<ctrl>"], "<f7>")
         myPhrases.set_modes([PhraseMode.HOTKEY])
         
         f = PhraseFolder("Addresses")
@@ -147,7 +146,7 @@ class ConfigurationManager:
         
         p1 = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]\nBlah")
         p1.set_modes([PhraseMode.ABBREVIATION, PhraseMode.HOTKEY])
-        p1.set_hotkey([Key.CONTROL], 'j')
+        p1.set_hotkey(["<ctrl>"], 'j')
         p1.set_abbreviation("udc")
         p1.showInTrayMenu = True
         p1.immediate = True

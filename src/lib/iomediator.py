@@ -25,7 +25,7 @@ class Key:
     RIGHT = "<right>"
     UP = "<up>"
     DOWN = "<down>"
-    BACKSPACE = "\b"
+    BACKSPACE = "<backspace>"
     TAB = "<tab>"
     RETURN = '\n'
     SPACE = ' '
@@ -64,10 +64,14 @@ class Key:
     def is_key(klass, keyString):
         return keyString in klass.__dict__.values()
 
+import time, threading, Queue, re
+
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK]
 NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
+NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
-import time, threading, Queue, re
+KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
+
 from interface import *
 from configurationmanager import ConfigurationManager
 
@@ -82,8 +86,6 @@ def threaded(f):
     wrapper.__dict__ = f.__dict__
     wrapper.__doc__ = f.__doc__
     return wrapper
-
-KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
 
 class IoMediator(threading.Thread):
     """

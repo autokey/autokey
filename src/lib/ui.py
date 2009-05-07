@@ -1,10 +1,13 @@
-import gtk, gobject, pynotify, re, time, copy
+import gtk, gobject, pynotify, re, time, copy, webbrowser
 import phrase, phrasemenu, iomediator
 from configurationmanager import *
 
 UI_DESCRIPTION_FILE = "../../config/menus.xml"
 ICON_FILE = "../../config/autokeyicon.svg"
 CONFIG_WINDOW_TITLE = "AutoKey Configuration"
+
+FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
+HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 
 def gthreaded(f):
     
@@ -83,6 +86,8 @@ class ConfigurationWindow(gtk.Window):
                    ("Settings", None, "_Settings", None, None, self.on_show_settings),
                    ("Advanced Settings", gtk.STOCK_PREFERENCES, "_Advanced Settings", "", "Advanced configuration options", self.on_show_advanced_settings),
                    ("Help", None, "_Help"),
+                   ("FAQ", None, "_FAQ", None, "Display Frequently Asked Questions", self.on_show_faq),
+                   ("Online Help", gtk.STOCK_HELP, "Online _Help", None, "Display Online Help", self.on_show_help),
                    ("About", gtk.STOCK_ABOUT, "About AutoKey", None, "Show program information", self.on_show_about)
                    ]
         actionGroup.add_actions(actions)
@@ -330,6 +335,12 @@ class ConfigurationWindow(gtk.Window):
         if dlg.run() == gtk.RESPONSE_ACCEPT:
             dlg.save(self.app.service.configManager)
         dlg.destroy()        
+
+    def on_show_faq(self, widget, data=None):
+        webbrowser.open(FAQ_URL, False, True)
+        
+    def on_show_help(self, widget, data=None):
+        webbrowser.open(HELP_URL, False, True)
 
     def on_show_about(self, widget, data=None):        
         dlg = gtk.AboutDialog()
@@ -1224,8 +1235,16 @@ class WindowFilterSettings(gtk.VBox):
         
     def validate(self):
         if not self.alwaysTrigger.get_active():
-            return validate(not EMPTY_FIELD_REGEX.match(self.windowFilter.get_text()), "Window filter expression can not be empty.",
-                             self.windowFilter, self.configWindow)
+            windowFilterText = self.windowFilter.get_text()
+            if not validate(not EMPTY_FIELD_REGEX.match(windowFilterText), "Window filter expression can not be empty.",
+                             self.windowFilter, self.configWindow):
+                return False
+            try:
+                re.compile(windowFilterText, re.UNICODE)
+            except Exception, e:
+                return validate(False, "The expression you entered is not a valid regular expression.",
+                                self.windowFilter, self.configWindow)
+            
         return True
 
 

@@ -17,6 +17,7 @@
 
 import re
 from configurationmanager import *
+from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from plugin.plugins import CURSOR_POSITION_TOKEN 
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
@@ -431,8 +432,22 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
         if CURSOR_POSITION_TOKEN in expansion.string:
             firstpart, secondpart = expansion.string.split(CURSOR_POSITION_TOKEN)
+            foundNavigationKey = False
+            
+            for key in NAVIGATION_KEYS:
+                if key in expansion.string:
+                    expansion.lefts = 0
+                    foundNavigationKey = True
+                    break
+            
+            if not foundNavigationKey:
+                k = Key()
+                for section in KEY_SPLIT_RE.split(secondpart):
+                    if not k.is_key(section) or section in [' ', '\n']:
+                        expansion.lefts += len(section)
+            
             expansion.string = firstpart + secondpart
-            expansion.lefts = len(secondpart)
+            
         
     def __cmp__(self, other):
         if self.usageCount != other.usageCount:

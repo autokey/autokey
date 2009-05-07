@@ -17,7 +17,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time
-import iomediator, configurationmanager, ui
+import iomediator, ui, configurationmanager
 from iomediator import Key, threaded
 from phrasemenu import *
 from plugin.manager import PluginManager, PluginError
@@ -28,7 +28,7 @@ class ExpansionService:
     
     def __init__(self, app):
         # Read configuration
-        self.configManager = configurationmanager.get_config_manager(app)
+        self.configManager = app.configManager
         self.interfaceType = iomediator.XLIB_INTERFACE # permanently set to xlib for the time being
         self.mediator = None
         self.app = app
