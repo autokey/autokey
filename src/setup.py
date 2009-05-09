@@ -1,0 +1,40 @@
+
+# Copyright (C) 2008 Chris Dekter
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+# General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+
+from distutils.core import setup
+
+setup(
+      name="AutoKey",
+      version="0.53.0", 
+      author="Chris Dekter",
+      author_email="cdekter@gmail.com",
+      url="http://autokey.sourceforge.net/",
+      description="A text expansion and hotkey utility",
+      long_description="Autokey is a text expansion/replacement and hotkey utility for \
+        Linux and X11. It receives keyboard events using the Record extension and uses X \
+        events to drive the expansions.",
+      #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
+      #            "iomediator", "phrase", "phrasemenu", "ui"],
+      package_dir={"autokey": "lib"},
+      packages=["autokey", "autokey.plugin"],
+      package_data={"autokey" : ["data/menus.xml"]},
+      data_files=[("/usr/share/icons", ["../config/autokeyicon.svg"]),
+                  ("/usr/share/applications", ["../config/autokey.desktop"]),
+                  ("/usr/bin", ["../autokey"])],
+      scripts=['../autokey']
+      #packages=["plugin"]
+      )

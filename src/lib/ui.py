@@ -1,13 +1,15 @@
-import gtk, gobject, pynotify, re, time, copy, webbrowser
+import gtk, gobject, pynotify, re, time, copy, webbrowser, os.path
 import phrase, phrasemenu, iomediator
 from configurationmanager import *
 
-UI_DESCRIPTION_FILE = "../../config/menus.xml"
-ICON_FILE = "../../config/autokeyicon.svg"
+UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
+ICON_FILE = "/usr/share/icons/autokeyicon.svg"
 CONFIG_WINDOW_TITLE = "AutoKey Configuration"
 
 FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
+
+APPLICATION_VERSION = "0.53.0"
 
 def gthreaded(f):
     
@@ -98,6 +100,7 @@ class ConfigurationWindow(gtk.Window):
         actionGroup.add_toggle_actions(toggleActions)
                 
         self.uiManager.insert_action_group(actionGroup, 0)
+        print os.path.realpath('.')
         self.uiManager.add_ui_from_file(UI_DESCRIPTION_FILE)        
         #vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False)
         alignment = gtk.Alignment(xscale=1.0)
@@ -347,7 +350,7 @@ class ConfigurationWindow(gtk.Window):
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
                          ConfigurationManager.SETTINGS[INPUT_SAVINGS])
-        dlg.set_version("0.52.2")
+        dlg.set_version(APPLICATION_VERSION)
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
         dlg.run()

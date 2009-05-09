@@ -1,0 +1,13 @@
+#!/bin/python
+
+import gtk, sys
+from autokey.autokey import AutoKeyApplication
+
+gtk.gdk.threads_init()
+a = AutoKeyApplication()
+try:
+    a.main()
+except KeyboardInterrupt:
+    a.shutdown()
+sys.exit(0)
+

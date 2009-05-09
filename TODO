@@ -1,7 +1,5 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Installation script using disttools
-
 Add general crash handler for interface at run() level
 
 Get rid of commented out code
@@ -17,4 +15,3 @@ Option to activate/deactivate above feature
 LATER PLUGIN Add spell checker with a hotkey which checks the last word typed
 
 Automatic frequently typed phrase recognition using nltk
-

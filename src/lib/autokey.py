@@ -23,7 +23,8 @@ import sys, gtk, traceback, os.path, signal
 import expansionservice, ui, configurationmanager
 from configurationmanager import *
 
-LOCK_FILE = "../../config/autokey.pid"
+CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+LOCK_FILE = CONFIG_DIR + "/autokey.pid"
 
 class AutoKeyApplication:
     """
@@ -33,6 +34,8 @@ class AutoKeyApplication:
 
     def __init__(self):
         try:
+            if not os.path.exists(CONFIG_DIR):
+                os.makedirs(CONFIG_DIR)
             if os.path.exists(LOCK_FILE):
                 f = open(LOCK_FILE, 'r')
                 pid = f.read()

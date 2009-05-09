@@ -12,9 +12,10 @@ class IoMediatorTest(unittest.TestCase):
         self.assertEqual(result, ["asdf ", "<ctrl>+", "y asdf "])
         
         result = KEY_SPLIT_RE.split("<table><ctrl>+y</table>")
-        self.assertEqual(result, ["", "<table>", "", "<ctrl>+", "y", "</table>", ""])
+        self.assertEqual(result, ["<table>", "<ctrl>+", "y</table>"])
         
         result = KEY_SPLIT_RE.split("<!<alt_gr>+8CDATA<alt_gr>+8")
         self.assertEqual(result, ["<!", "<alt_gr>+", "8CDATA", "<alt_gr>+", "8"])
         
-        
+        result = KEY_SPLIT_RE.split("<ctrl>y")
+        self.assertEqual(result, ["<ctrl>y"])

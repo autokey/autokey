@@ -18,7 +18,7 @@
 import os.path, shutil, configobj, gtk
 import cPickle as pickle
 
-CONFIG_FILE = "../../config/autokey.bin"
+CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.bin")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
