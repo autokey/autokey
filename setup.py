@@ -18,23 +18,24 @@
 from distutils.core import setup
 
 setup(
-      name="AutoKey",
+      name="autokey",
       version="0.53.0", 
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.sourceforge.net/",
-      description="A text expansion and hotkey utility",
-      long_description="Autokey is a text expansion/replacement and hotkey utility for \
-        Linux and X11. It receives keyboard events using the Record extension and uses X \
-        events to drive the expansions.",
+      license="GPL v3",
+      description="Text expansion and hotkey utility",
+      long_description="AutoKey is a text expansion/replacement and hotkey utility for \
+Linux and X11. It receives keyboard events using the Record extension and uses X \
+events to drive the expansions.",
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
-      package_dir={"autokey": "lib"},
+      package_dir={"autokey": "src/lib"},
       packages=["autokey", "autokey.plugin"],
       package_data={"autokey" : ["data/menus.xml"]},
-      data_files=[("/usr/share/icons", ["../config/autokeyicon.svg"]),
-                  ("/usr/share/applications", ["../config/autokey.desktop"]),
-                  ("/usr/bin", ["../autokey"])],
-      scripts=['../autokey']
+      data_files=[("/usr/share/icons", ["config/autokeyicon.svg"]),
+                  ("/usr/share/applications", ["config/autokey.desktop"]),
+                  ("/usr/bin", ["autokey"])],
+      scripts=['autokey']
       #packages=["plugin"]
       )

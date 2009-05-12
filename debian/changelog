@@ -1,18 +1,18 @@
-autokey (0.31.1-0ubuntu3) gutsy; urgency=low
+autokey (0.53.0-1) unstable; urgency=low
 
-  * Cleaned up code so eventfile specification goes in [config] section
+   Added a fully functioning distutils-based installer.
+   Added links to the Manual and FAQ in the Help menu.
 
- -- Sam Peterson <peabodyenator@gmail.com>  Thu, 21 Feb 2008 11:49:03 -0800
+   Includes fixes for the following defects:
+   2782607 - Issues with '<' sign
+   2783421 - Multiple use of $(sub ) produces superfluous backspace
+   2720487 - $(sub ) problem with parentheses, quotes etc.
+   2783016 - Sub: '~' does not work as split character with DE keyboard
+   2782526 - <alt_gr> not working
+   2710535 - Exception on repeated window switching
+   2710118 - Multiple abbreviation windows opened
+   2697670 - Exception when using predefined hotkeys.
+   2697653 - Can't assign hotkey
 
-autokey (0.31-0ubuntu2) gutsy; urgency=low
-
-  * Update so abbr.ini has config option for turning voice off
-
- -- Sam Peterson <peabodyenator@gmail.com>  Thu, 21 Feb 2008 11:49:03 -0800
-
-autokey (0.30-0ubuntu1) gutsy; urgency=low
-
-  * Initial release
-
- -- Sam Peterson <peabodyenator@gmail.com>  Mon, 18 Feb 2008 17:14:17 -0800
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 12 May 2009 19:35:37 +1000
 

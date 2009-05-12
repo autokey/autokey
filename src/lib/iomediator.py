@@ -71,7 +71,7 @@ NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
 #KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
-KEY_SPLIT_RE = re.compile("(<[^<>]+>\+)", re.UNICODE)
+KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
 
 from interface import *
 from configurationmanager import ConfigurationManager

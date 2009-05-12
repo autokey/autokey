@@ -1,19 +1,34 @@
-This package was debianized by Sam Peterson <peabodyenator@gmail.com> on
-Mon, 18 Feb 2008 17:14:17 -0800.
+This package was debianized by Chris Dekter <cdekter@gmail.com> on
+Tue, 12 May 2009 19:35:37 +1000.
 
-It was downloaded from http://autokey.sf.net/
+It was downloaded from http://autokey.sourceforge.net/
 
-Upstream Author(s): 
+Upstream Author(s):
 
-    Sam Peterson <peabodyenator@gmail.com>
+    Chris Dekter <cdekter@gmail.com>
 
-Copyright: 
+Copyright:
 
-    Copyright (C) 2008 Sam Peterson
+    <Copyright (C) 2009 Chris Dekter>
 
 License:
 
-    GPL-2 /usr/share/common-licenses/GPL-2
+    This package is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-The Debian packaging is (C) 2008, Sam Peterson <peabodyenator@gmail.com> and
-is licensed under the GPL, see `/usr/share/common-licenses/GPL'.
+    This package is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this package; if not, write to the Free Software
+    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+
+On Debian systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL'.
+
+The Debian packaging is (C) 2009, Chris Dekter <cdekter@gmail.com> and
+is licensed under the GPL, see above.
