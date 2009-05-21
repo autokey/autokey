@@ -1,5 +1,14 @@
-autokey (0.53.0-1) unstable; urgency=low
+autokey (0.53.1-2~intrepid) intrepid; urgency=low
 
+   Alter cut/copy/paste to release standard key bindings to normal functions
+   Break sub plugin input at line endings, in addition to spaces
+   Add donate button as per ER 2789380
+	
+ -- Chris Dekter <cdekter@gmail.com>  Thu, 21 May 2009 19:13:37 +1000
+
+autokey (0.53.0-2) intrepid; urgency=low
+
+   Alter build-depends to allow compatibility with hardy
    Added a fully functioning distutils-based installer.
    Added links to the Manual and FAQ in the Help menu.
 

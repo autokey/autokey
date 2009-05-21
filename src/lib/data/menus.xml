@@ -12,10 +12,10 @@
 			<menuitem action="Quit" />
 		</menu>
 		<menu action="Edit">
-			<menuitem action="Cut" />
-			<menuitem action="Copy" />
-			<menuitem action="Paste" />
-			<menuitem action="Delete" />
+			<menuitem action="Cut Item" />
+			<menuitem action="Copy Item" />
+			<menuitem action="Paste Item" />
+			<menuitem action="Delete Item" />
 			<separator />
 			<menuitem action="Insert Macro" />
 		</menu>
@@ -26,6 +26,7 @@
 		<menu action="Help">
 			<menuitem action="FAQ" />
 			<menuitem action="Online Help" />
+			<menuitem action="Donate" />
 			<menuitem action="About" />
 		</menu>
 	</menubar>

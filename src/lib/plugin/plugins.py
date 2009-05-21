@@ -53,11 +53,12 @@ class InsertPreviousWordPlugin(AbstractPlugin):
         return self._build_token(self.get_id(), {})
     
     def get_string(self, token, buffer):
-        parts = buffer.split('~')
-        if len(parts) > 1:
-            partsBefore = parts[-2].split(' ')
-            self.__backspaceCount = len(partsBefore[-1]) + 1
-            return partsBefore[-1].strip()
+        partBefore, _, _ = buffer.rpartition('~')
+        if len(partBefore) > 0:
+            lastLine = partBefore.splitlines()[-1]
+            lastWord = lastLine.split()[-1]
+            self.__backspaceCount = len(lastWord) + 1
+            return lastWord
         else:
             return ''
         

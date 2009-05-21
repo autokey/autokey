@@ -2,7 +2,7 @@ Source: autokey
 Section: contrib/utils
 Priority: optional
 Maintainer: Chris Dekter <cdekter@gmail.com>
-Build-Depends: cdbs (>= 0.4.49), debhelper (>= 7), python-central (>= 0.6.0)
+Build-Depends: cdbs (>= 0.4.49), debhelper (>= 6), python-central (>= 0.6.0)
 Standards-Version: 3.7.3
 XS-Python-Version: >= 2.5
 Homepage: http://autokey.sourceforge.net/
@@ -12,6 +12,4 @@ Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gobject, python-xlib, python-configobj, python-notify
 XB-Python-Version: ${python:Versions}
 Description: Text expansion and hotkey utility
- AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It receives keyboard events using the Record 
- extension and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks,
- among other things.
+ AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It receives keyboard events using the Record extension and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks, among other things.

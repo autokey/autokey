@@ -8,8 +8,9 @@ CONFIG_WINDOW_TITLE = "AutoKey Configuration"
 
 FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
+DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
-APPLICATION_VERSION = "0.53.0"
+APPLICATION_VERSION = "0.53.1"
 
 def gthreaded(f):
     
@@ -80,16 +81,17 @@ class ConfigurationWindow(gtk.Window):
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
                    ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit),
                    ("Edit", None, "_Edit", None, None, self.on_show_edit),
-                   ("Cut", gtk.STOCK_CUT, "Cu_t", None, "Cut the selected item", self.on_cut_item),
-                   ("Copy", gtk.STOCK_COPY, "_Copy", None, "Copy the selected item", self.on_copy_item),
-                   ("Paste", gtk.STOCK_PASTE, "_Paste", None, "Paste the last cut/copied item", self.on_paste_item),
-                   ("Delete", gtk.STOCK_DELETE, "_Delete", None, "Delete the selected item", self.on_delete_item),
+                   ("Cut Item", gtk.STOCK_CUT, "Cu_t Item", "", "Cut the selected item", self.on_cut_item),
+                   ("Copy Item", gtk.STOCK_COPY, "_Copy Item", "", "Copy the selected item", self.on_copy_item),
+                   ("Paste Item", gtk.STOCK_PASTE, "_Paste Item", "", "Paste the last cut/copied item", self.on_paste_item),
+                   ("Delete Item", gtk.STOCK_DELETE, "_Delete Item", None, "Delete the selected item", self.on_delete_item),
                    ("Insert Macro", None, "Insert _Macro", "", "Insert a macro into the current phrase", None),
                    ("Settings", None, "_Settings", None, None, self.on_show_settings),
                    ("Advanced Settings", gtk.STOCK_PREFERENCES, "_Advanced Settings", "", "Advanced configuration options", self.on_show_advanced_settings),
                    ("Help", None, "_Help"),
                    ("FAQ", None, "_FAQ", None, "Display Frequently Asked Questions", self.on_show_faq),
                    ("Online Help", gtk.STOCK_HELP, "Online _Help", None, "Display Online Help", self.on_show_help),
+                   ("Donate", gtk.STOCK_YES, "Donate", "", "Make A Donation", self.on_donate),
                    ("About", gtk.STOCK_ABOUT, "About AutoKey", None, "Show program information", self.on_show_about)
                    ]
         actionGroup.add_actions(actions)
@@ -344,6 +346,9 @@ class ConfigurationWindow(gtk.Window):
         
     def on_show_help(self, widget, data=None):
         webbrowser.open(HELP_URL, False, True)
+        
+    def on_donate(self, widget, data=None):
+        webbrowser.open(DONATE_URL, False, True)
 
     def on_show_about(self, widget, data=None):        
         dlg = gtk.AboutDialog()
