@@ -10,7 +10,7 @@ FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
-APPLICATION_VERSION = "0.54.0"
+APPLICATION_VERSION = "0.54.1"
 
 def gthreaded(f):
     
@@ -1259,14 +1259,13 @@ class KeyGrabber:
     
     def __init__(self, parent):
         self.targetParent = parent
-        self.mediator = iomediator.IoMediator(self, iomediator.XLIB_INTERFACE)
     
     def start(self):
-        self.mediator.initialise()
+        iomediator.IoMediator.listeners.append(self)
                  
     def handle_keypress(self, key, windowName=""):
         if not key in iomediator.MODIFIERS:
-            self.mediator.shutdown()
+            iomediator.IoMediator.listeners.remove(self)
             self.targetParent.set_key(key)
             
     def handle_hotkey(self, key, modifiers, windowName):
@@ -1277,6 +1276,9 @@ class KeyGrabber:
 
 
 class KeyCaptureDialog(gtk.Window):
+    """
+    Deprecated!
+    """
     
     def __init__(self, parent):
         gtk.Window.__init__(self)
@@ -1286,7 +1288,7 @@ class KeyCaptureDialog(gtk.Window):
         vbox.add(gtk.Label("Press a key to use for the hotkey"))
         vbox.add(gtk.Entry())
         self.add(vbox)
-        self.mediator = iomediator.IoMediator(self, iomediator.XLIB_INTERFACE)
+        self.mediator = iomediator.IoMediator(self, iomediator.X_EVDEV_INTERFACE)
         self.targetParent = parent
         self.show_all()
         self.set_size_request(200, 100)

@@ -47,6 +47,7 @@ def get_config_manager(autoKeyApp):
             configManager.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
             configManager.showPopupHotkey.enabled = True
             configManager.globalHotkeys.append(configManager.showPopupHotkey)
+        autoKeyApp.init_global_hotkeys(configManager)
         return configManager
     else:
         return ConfigurationManager(autoKeyApp)

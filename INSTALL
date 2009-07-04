@@ -1,10 +1,8 @@
 $Id$
 
-This application requires the following packages (that are not on a default Debian-ish install:
-python-xlib
-python-configobj
+This application requires a full Debian package build - it cannot be installed using only
+the setup.py script:
 
-To install, you require python-distutils. Open a terminal in the ./src directory and type the
-following command (needs to be run as root, e.g. using sudo):
-
-sudo python setup.py install
+dpkg-buildpackage -us -uc
+cd ../
+sudo dpkg -i <buildpackagename>

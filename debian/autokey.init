@@ -76,17 +76,16 @@ class AutoKeyDaemon(daemon.Daemon):
     def __init__(self):
         logFile = "/var/log/autokey-daemon"
         daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
-    
-    def run(self):
-        bus = dbus.SystemBus()
+        
+    def get_device_paths(self):
+    	bus = dbus.SystemBus()
     
         hal_obj = bus.get_object ("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager")
         hal = dbus.Interface (hal_obj, "org.freedesktop.Hal.Manager")
         
         udis = hal.FindDeviceByCapability ("input.keyboard")
         if not len(udis):
-            sys.stdout.write("No keyboard device was found!\n")
-            sys.exit(1)
+            sys.stdout.write("WARN: No keyboard device was found!\n")
         elif len(udis) > 1:
             sys.stdout.write("Found multiple keyboard devices\n")
         
@@ -98,8 +97,7 @@ class AutoKeyDaemon(daemon.Daemon):
         
         udis = hal.FindDeviceByCapability ("input.mouse")
         if not len(udis):
-            sys.stdout.write("No mouse device was found!\n")
-            sys.exit(1)
+            sys.stdout.write("WARN: No mouse device was found!\n")
         elif len(udis) > 1:
             sys.stdout.write("Found multiple mouse devices\n")
         
@@ -111,10 +109,9 @@ class AutoKeyDaemon(daemon.Daemon):
     
         udis = hal.FindDeviceByCapability ("input.touchpad")
         if not len(udis):
-            sys.stdout.write("No touchpad device was found!\n")
-            sys.exit(1)
+            sys.stdout.write("No touchpad device was found\n")
         elif len(udis) > 1:
-            sys.stdout.write( "Found multiple touchpad devices\n")
+            sys.stdout.write("Found multiple touchpad devices\n")
         
         touchpadLocations = []
         for udisEntry in udis:
@@ -124,36 +121,24 @@ class AutoKeyDaemon(daemon.Daemon):
     
     
         sys.stdout.write("Keyboards: %s\nMice: %s\nTouchpads: %s\n" % (repr(keyboardLocations), repr(mouseLocations), repr(touchpadLocations)))
-        
+        return set(keyboardLocations + mouseLocations + touchpadLocations)	
+    
+    def run(self):
         if os.path.exists(DOMAIN_SOCKET_PATH):
             os.remove(DOMAIN_SOCKET_PATH)
-            
-        #while True:
-        #    event = devices.next_event()
-        #    if event is not None:
-        #        if event.type == "EV_KEY" and event.value == 1:
-        #            if event.code.startswith("KEY"):
-        #                print event.scanCode
-        #            elif event.code.startswith("BTN"):
-        #                print event.code
-            
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.socket = s
         s.bind(DOMAIN_SOCKET_PATH)
         os.chmod(DOMAIN_SOCKET_PATH, 0777)
-        
+
         while True:
             s.listen(1)
             try:
                 conn, addr = s.accept()
             except: break
             
-            devices = evdev.DeviceGroup(set(keyboardLocations + mouseLocations + touchpadLocations))
+            devices = evdev.DeviceGroup(self.get_device_paths())
             
             while True:
-                #data = conn.recv(512)
-                #if not data: break
-                
                 event = devices.next_event()
                 if event is not None:
                     if event.type == "EV_KEY" and event.value != 2:
@@ -188,10 +173,6 @@ class AutoKeyDaemon(daemon.Daemon):
         conn.send(sendData)
     
     def translate_keycode(self, keyCode):
-        #if keyCode < 9:
-        #    keyCode = 0
-        #elif keyCode < 97:
-        #    keyCode -= 8
         if keyCode < 112:
             keyCode += 8
         #elif keyCode < 158:
@@ -201,6 +182,7 @@ class AutoKeyDaemon(daemon.Daemon):
         elif keyCode == 115:
             keyCode = 211
         else:
+            sys.stdout.write("DEBUG: Got untranslatable evdev keycode: %d\n" % keyCode)
             keyCode = 0
         return keyCode
     

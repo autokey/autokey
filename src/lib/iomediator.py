@@ -99,10 +99,14 @@ class IoMediator(threading.Thread):
     This class must not store or maintain any configuration details.
     """
     
+    # List of targets interested in receiving keypress, hotkey and mouse events
+    listeners = []
+    
     def __init__(self, service, interface):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
         self.queue = Queue.Queue()
-        self.service = service
+        #self.service = service
+        self.listeners.append(service)
         self.interfaceType = interface
         
         # Modifier tracking
@@ -189,7 +193,9 @@ class IoMediator(threading.Thread):
                         modifiers.append(modifier)
                 modifiers.sort()
                 
-                self.service.handle_hotkey(key, modifiers, windowName)
+                #self.service.handle_hotkey(key, modifiers, windowName)
+                for target in self.listeners:
+                    target.handle_hotkey(key, modifiers, windowName)
                 
             else:
                 if self.modifiers[Key.CAPSLOCK] and self.modifiers[Key.SHIFT]:
@@ -199,12 +205,17 @@ class IoMediator(threading.Thread):
                 else:
                     key = self.interface.lookup_string(keyCode, False)
                 
-                self.service.handle_keypress(key, windowName)
+                #self.service.handle_keypress(key, windowName)
+                for target in self.listeners:
+                    target.handle_keypress(key, windowName)
+                
                 
             self.queue.task_done()
             
     def handle_mouse_click(self):
-        self.service.handle_mouseclick()
+        #self.service.handle_mouseclick()
+        for target in self.listeners:
+            target.handle_mouseclick()
         
     # Methods for expansion service ----
         

@@ -1,3 +1,12 @@
+autokey (0.54.1-0~jaunty) jaunty; urgency=low
+
+   Refactor daemon so it starts successfully during boot
+   Fix problem where daemon exits if run on a PC without a touchpad
+   Fix initialisation of global hotkeys
+   Fix inability to configure any hotkeys
+	
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 00:11:05 +1000
+
 autokey (0.54.0-0~jaunty) jaunty; urgency=low
 
    Add new EvDev interface as an alternative where XRecord is not available.

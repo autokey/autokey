@@ -379,7 +379,7 @@ class EvDevInterface(XInterfaceBase):
         try:
             self.socket.connect(DOMAIN_SOCKET_PATH)
         except socket.error, e:
-            raise Exception("Unable to connecto EvDev daemon:\n" + str(e))
+            raise Exception("Unable to connect to EvDev daemon:\n" + str(e))
         
     def cancel(self):
         self.cancelling = True
