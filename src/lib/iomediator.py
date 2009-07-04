@@ -15,8 +15,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-XLIB_INTERFACE = "XLib"
-ATSPI_INTERFACE = "AT-SPI"
+X_RECORD_INTERFACE = "XRecord"
+X_EVDEV_INTERFACE = "XEvDev"
 
 # Key codes enumeration
 class Key:
@@ -62,7 +62,9 @@ class Key:
 
     @classmethod
     def is_key(klass, keyString):
-        return keyString in klass.__dict__.values()
+        # Key strings must be treated as case insensitive - always convert to lowercase
+        # before doing any comparisons
+        return keyString.lower() in klass.__dict__.values()
 
 import time, threading, Queue, re
 
@@ -98,7 +100,7 @@ class IoMediator(threading.Thread):
     """
     
     def __init__(self, service, interface):
-        threading.Thread.__init__(self, name="KeypressHandlerThread")
+        threading.Thread.__init__(self, name="KeypressHandler-thread")
         self.queue = Queue.Queue()
         self.service = service
         self.interfaceType = interface
@@ -117,30 +119,29 @@ class IoMediator(threading.Thread):
         """
         Starts the underlying keystroke interface sending and receiving events.
         """
-        # TODO re-enable if adding interfaces
-        if self.interfaceType == XLIB_INTERFACE:
-            self.interface = XLibInterface(self)
-        #else:
-        #    self.interface = AtSpiInterface(self)
+        self.__createInterface()
         self.interface.start()
         self.start()
+        
+    def __createInterface(self):
+        if self.interfaceType == X_RECORD_INTERFACE:
+            self.interface = XRecordInterface(self)
+        else:
+            self.interface = EvDevInterface(self)        
         
     def shutdown(self):
         self.interface.cancel()
         self.queue.put_nowait((None, None))
-        #self.join()
         
     def switch_interface(self, interface):
         """
-        @deprecated: no longer used
-        Switch the interface being used to receive and send key events to
-        the given interface.
-        
-        Precondition: service must be running
+        Switch the interface being used to receive and send key events to the
+        given interface type.
         """
-        self.pause()
+        self.interface.cancel()
         self.interfaceType = interface
-        self.start()
+        self.__createInterface()
+        self.interface.start()
         
     # Callback methods for Interfaces ----
     

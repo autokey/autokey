@@ -1,10 +1,10 @@
 Metadata-Version: 1.0
 Name: autokey
-Version: 0.53.0
+Version: 0.54.0
 Summary: Text expansion and hotkey utility
 Home-page: http://autokey.sourceforge.net/
 Author: Chris Dekter
 Author-email: cdekter@gmail.com
 License: GPL v3
-Description: AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It receives keyboard events using the Record extension and uses X events to drive the expansions.
+Description: AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It receives keyboard events either via XRecord or EvDev and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks, among other things.
 Platform: UNKNOWN

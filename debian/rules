@@ -8,3 +8,4 @@ include /usr/share/cdbs/1/class/python-distutils.mk
 
 # Add here any variable or target overrides you need.
 DEB_INSTALL_MANPAGES_package = debian/manpage.1
+DEB_DH_INSTALLINIT_ARGS := --no-start

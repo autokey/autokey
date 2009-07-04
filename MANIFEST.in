@@ -1,3 +1,5 @@
 include config/autokeyicon.svg
 include config/autokey.desktop
 include src/lib/data/menus.xml
+include autokeyd
+include INSTALL

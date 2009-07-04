@@ -1,3 +1,14 @@
+autokey (0.54.0-0~jaunty) jaunty; urgency=low
+
+   Add new EvDev interface as an alternative where XRecord is not available.
+   Make EvDev the default (changing to XRecord will require hacking the code, for now).
+   Fix bug where Cut/Copy/Paste entries under Edit menu were not correctly disabled.
+   
+   Includes fix for:
+   2782632 - Capitalization is applied to macros and specialkeys
+	
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 4 Jul 2009 12:11:05 +1000
+
 autokey (0.53.1-2~intrepid) intrepid; urgency=low
 
    Alter cut/copy/paste to release standard key bindings to normal functions

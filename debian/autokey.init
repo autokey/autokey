@@ -1,0 +1,228 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys, os, socket, dbus
+from autokey import evdev, daemon
+from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
+
+PACKET_STRING = "%s,%s,%s"
+
+EVDEV_KEYCODE_TO_PC_KEYCODE = [
+   0,      
+   0,      
+   0,      
+   121,     
+   112,     
+   123,     
+   0,      
+   156,     
+   157,     
+   181,     
+   183,     
+   184,     
+   0,      
+   199,     
+   200,     
+   201,     
+   203,     
+   205,     
+   207,     
+   208,     
+   209,     
+   210,     
+   211,     
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   241,     
+   242,     
+   125,     
+   219,     
+   220,     
+   221,     
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,      
+   0,
+   0,
+   0
+]
+
+class AutoKeyDaemon(daemon.Daemon):
+
+    def __init__(self):
+        logFile = "/var/log/autokey-daemon"
+        daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
+    
+    def run(self):
+        bus = dbus.SystemBus()
+    
+        hal_obj = bus.get_object ("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager")
+        hal = dbus.Interface (hal_obj, "org.freedesktop.Hal.Manager")
+        
+        udis = hal.FindDeviceByCapability ("input.keyboard")
+        if not len(udis):
+            sys.stdout.write("No keyboard device was found!\n")
+            sys.exit(1)
+        elif len(udis) > 1:
+            sys.stdout.write("Found multiple keyboard devices\n")
+        
+        keyboardLocations = []
+        for udisEntry in udis:
+            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
+            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
+            keyboardLocations.append(dev.GetProperty("input.device"))
+        
+        udis = hal.FindDeviceByCapability ("input.mouse")
+        if not len(udis):
+            sys.stdout.write("No mouse device was found!\n")
+            sys.exit(1)
+        elif len(udis) > 1:
+            sys.stdout.write("Found multiple mouse devices\n")
+        
+        mouseLocations = []
+        for udisEntry in udis:
+            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
+            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
+            mouseLocations.append(dev.GetProperty("input.device"))    
+    
+        udis = hal.FindDeviceByCapability ("input.touchpad")
+        if not len(udis):
+            sys.stdout.write("No touchpad device was found!\n")
+            sys.exit(1)
+        elif len(udis) > 1:
+            sys.stdout.write( "Found multiple touchpad devices\n")
+        
+        touchpadLocations = []
+        for udisEntry in udis:
+            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
+            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
+            touchpadLocations.append(dev.GetProperty("input.device"))    
+    
+    
+        sys.stdout.write("Keyboards: %s\nMice: %s\nTouchpads: %s\n" % (repr(keyboardLocations), repr(mouseLocations), repr(touchpadLocations)))
+        
+        if os.path.exists(DOMAIN_SOCKET_PATH):
+            os.remove(DOMAIN_SOCKET_PATH)
+            
+        #while True:
+        #    event = devices.next_event()
+        #    if event is not None:
+        #        if event.type == "EV_KEY" and event.value == 1:
+        #            if event.code.startswith("KEY"):
+        #                print event.scanCode
+        #            elif event.code.startswith("BTN"):
+        #                print event.code
+            
+        s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket = s
+        s.bind(DOMAIN_SOCKET_PATH)
+        os.chmod(DOMAIN_SOCKET_PATH, 0777)
+        
+        while True:
+            s.listen(1)
+            try:
+                conn, addr = s.accept()
+            except: break
+            
+            devices = evdev.DeviceGroup(set(keyboardLocations + mouseLocations + touchpadLocations))
+            
+            while True:
+                #data = conn.recv(512)
+                #if not data: break
+                
+                event = devices.next_event()
+                if event is not None:
+                    if event.type == "EV_KEY" and event.value != 2:
+                        if event.code.startswith("KEY"):
+                            # Keyboard event
+                            code = event.scanCode
+                            button = ''
+                            state = event.value
+                            
+                            try:
+                                self.send_packet(conn, code, button, state)
+                            except:
+                                devices.close()
+                                break
+    
+                        elif event.code.startswith("BTN") and event.value == 1:
+                            # Mouse event - only care about button press, not release
+                            code = ''
+                            button = event.code
+                            state = event.value
+    
+                            try:
+                                self.send_packet(conn, code, button, state)
+                            except:
+                                devices.close()
+                                break
+                       
+    def send_packet(self, conn, code, button, state):
+        code = self.translate_keycode(code)
+        sendData = PACKET_STRING % (code, button, state)
+        sendData += (PACKET_SIZE - len(sendData)) * ' '
+        conn.send(sendData)
+    
+    def translate_keycode(self, keyCode):
+        #if keyCode < 9:
+        #    keyCode = 0
+        #elif keyCode < 97:
+        #    keyCode -= 8
+        if keyCode < 112:
+            keyCode += 8
+        #elif keyCode < 158:
+        #    keyCode = EVDEV_KEYCODE_TO_PC_KEYCODE[keyCode - 97]
+        elif keyCode == 112:
+            keyCode = 208
+        elif keyCode == 115:
+            keyCode = 211
+        else:
+            keyCode = 0
+        return keyCode
+    
+
+if __name__ == "__main__":
+    #daemon = AutoKeyDaemon('/tmp/autokey-daemon.pid', stdout=sys.__stdout__, stderr=sys.__stderr__)
+    daemon = AutoKeyDaemon()
+    if len(sys.argv) == 2:
+        if 'start' == sys.argv[1]:
+            daemon.start()
+        elif 'stop' == sys.argv[1]:
+            daemon.stop()
+        elif 'restart' == sys.argv[1]:
+            daemon.restart()
+        else:
+            print "Unknown command"
+            sys.exit(2)
+        sys.exit(0)
+    else:
+        print "usage: %s start|stop|restart" % sys.argv[0]
+        sys.exit(2)
+    
+    sys.exit(0)
+            
+    

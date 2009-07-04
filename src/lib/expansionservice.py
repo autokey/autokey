@@ -29,7 +29,8 @@ class ExpansionService:
     def __init__(self, app):
         # Read configuration
         self.configManager = app.configManager
-        self.interfaceType = iomediator.XLIB_INTERFACE # permanently set to xlib for the time being
+        #self.interfaceType = iomediator.X_RECORD_INTERFACE
+        self.interfaceType = iomediator.X_EVDEV_INTERFACE # TODO make configurable
         self.mediator = None
         self.app = app
     
@@ -58,9 +59,9 @@ class ExpansionService:
         #    return False
         return self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING]
         
-    def switch_method(self, method):
+    def switch_method(self, interface):
         """
-        @deprecated: 
+        Switch keystore interface to the new type
         """
         if self.is_running():
             self.pause()
@@ -68,10 +69,11 @@ class ExpansionService:
         else:
             restart = False
         
-        self.interfaceType = method
+        self.interfaceType = interface
+        self.mediator.switch_interface(self.interfaceType)
         
         if restart:
-            self.start()
+            self.unpause()
             
     def shutdown(self):
         self.mediator.shutdown()

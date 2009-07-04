@@ -35,6 +35,7 @@ class PluginManager:
         for token in tokens:
             if TOKEN_RE.match(token):
                 # Identify plugin
+                token = token.lower()
                 pluginId = token.split(' ', 1)[0][2:]
                 try:
                     finalString.append(self.plugins[pluginId].get_string(token, buffer))

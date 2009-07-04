@@ -10,7 +10,7 @@ FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
-APPLICATION_VERSION = "0.53.1"
+APPLICATION_VERSION = "0.54.0"
 
 def gthreaded(f):
     
@@ -102,7 +102,6 @@ class ConfigurationWindow(gtk.Window):
         actionGroup.add_toggle_actions(toggleActions)
                 
         self.uiManager.insert_action_group(actionGroup, 0)
-        print os.path.realpath('.')
         self.uiManager.add_ui_from_file(UI_DESCRIPTION_FILE)        
         #vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False)
         alignment = gtk.Alignment(xscale=1.0)
@@ -163,11 +162,11 @@ class ConfigurationWindow(gtk.Window):
             
     def on_show_edit(self, widget, data=None):
         selection = self.__getTreeSelection()
-        self.uiManager.get_widget("/MenuBar/Edit/Cut").set_sensitive(selection is not None)
-        self.uiManager.get_widget("/MenuBar/Edit/Copy").set_sensitive(isinstance(selection, phrase.Phrase))
-        self.uiManager.get_widget("/MenuBar/Edit/Paste").set_sensitive((self.cutCopiedItem is not None)
+        self.uiManager.get_widget("/MenuBar/Edit/Cut Item").set_sensitive(selection is not None)
+        self.uiManager.get_widget("/MenuBar/Edit/Copy Item").set_sensitive(isinstance(selection, phrase.Phrase))
+        self.uiManager.get_widget("/MenuBar/Edit/Paste Item").set_sensitive((self.cutCopiedItem is not None)
                                                                         and canCreatePhrase)
-        self.uiManager.get_widget("/MenuBar/Edit/Delete").set_sensitive(selection is not None)
+        self.uiManager.get_widget("/MenuBar/Edit/Delete Item").set_sensitive(selection is not None)
         
         insertMacroItem = self.uiManager.get_widget("/MenuBar/Edit/Insert Macro") 
         if isinstance(selection, phrase.Phrase):
@@ -486,7 +485,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         hbox.pack_start(self.predictiveLength, False)
         hbox.pack_start(gtk.Label(" characters"), False)
         
-        label = gtk.Label("Enable this option if you experience randomly garbled text output in KDE 4.x")
+        label = gtk.Label("Enable this option only if you experience garbled text output in KDE 4")
         label.set_alignment(0, 0.5)
         #label.set_line_wrap(True)
         self.useWorkAround = gtk.CheckButton("Enable QT4 workaround")
