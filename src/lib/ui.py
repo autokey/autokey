@@ -10,7 +10,7 @@ FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
-APPLICATION_VERSION = "0.54.2"
+APPLICATION_VERSION = "0.54.3"
 
 def gthreaded(f):
     
