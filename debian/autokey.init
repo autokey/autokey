@@ -75,10 +75,12 @@ class AutoKeyDaemon(daemon.Daemon):
 
     def __init__(self):
         logFile = "/var/log/autokey-daemon"
-        daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
+        #os.remove(logFile)
+        #daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
+        daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=sys.__stdout__.fileno(), stderr=sys.__stderr__.fileno())
         
     def get_device_paths(self):
-    	bus = dbus.SystemBus()
+        bus = dbus.SystemBus()
     
         hal_obj = bus.get_object ("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager")
         hal = dbus.Interface (hal_obj, "org.freedesktop.Hal.Manager")
@@ -137,6 +139,8 @@ class AutoKeyDaemon(daemon.Daemon):
             except: break
             
             devices = evdev.DeviceGroup(self.get_device_paths())
+            sys.stdout.flush()
+            sys.stderr.flush()
             
             while True:
                 event = devices.next_event()
@@ -151,11 +155,14 @@ class AutoKeyDaemon(daemon.Daemon):
                             try:
                                 self.send_packet(conn, code, button, state)
                             except:
+                                sys.stdout.flush()
+                                sys.stderr.flush()
                                 devices.close()
                                 break
     
                         elif event.code.startswith("BTN") and event.value == 1:
                             # Mouse event - only care about button press, not release
+                            print "mouse event"
                             code = ''
                             button = event.code
                             state = event.value
@@ -163,14 +170,21 @@ class AutoKeyDaemon(daemon.Daemon):
                             try:
                                 self.send_packet(conn, code, button, state)
                             except:
+                                sys.stdout.flush()
+                                sys.stderr.flush()
                                 devices.close()
                                 break
                        
     def send_packet(self, conn, code, button, state):
-        code = self.translate_keycode(code)
+        if code:
+            code = self.translate_keycode(code)
+            print "translated code"
         sendData = PACKET_STRING % (code, button, state)
+        print "build string"
         sendData += (PACKET_SIZE - len(sendData)) * ' '
+        print "extended string"
         conn.send(sendData)
+        print "after send"
     
     def translate_keycode(self, keyCode):
         if keyCode < 112:
