@@ -64,7 +64,7 @@ class Key:
     def is_key(klass, keyString):
         # Key strings must be treated as case insensitive - always convert to lowercase
         # before doing any comparisons
-        return keyString.lower() in klass.__dict__.values()
+        return keyString.lower() in klass.__dict__.values() or keyString.startswith("<code")
 
 import time, threading, Queue, re
 

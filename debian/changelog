@@ -1,3 +1,11 @@
+autokey (0.54.2-0~jaunty) jaunty; urgency=low
+
+   Fix daemon dropping connection on mouse clicks
+   Add logging and command line option to set level to debug
+   Add LSB info to daemon script
+	
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 18:38:05 +1000
+
 autokey (0.54.1-0~jaunty) jaunty; urgency=low
 
    Refactor daemon so it starts successfully during boot

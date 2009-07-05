@@ -18,11 +18,13 @@
 __all__ = ["XRecordInterface", "EvDevInterface"]
 
 
-import os, threading, re, time, socket, select
+import os, threading, re, time, socket, select, logging
 
 from Xlib import X, XK, display, error
 from Xlib.ext import record, xtest
 from Xlib.protocol import rq, event
+
+logger = logging.getLogger("interface")
 
 # Misc
 DOMAIN_SOCKET_PATH = "/tmp/autokey.daemon"
@@ -90,6 +92,9 @@ class XInterfaceBase(threading.Thread):
         self.testMode = testMode
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         
+        self.__initMappings()
+        
+    def __initMappings(self):
         # Map of keyname to keycode
         self.keyCodes = {}
         # Map of keycode to keyname
@@ -110,48 +115,50 @@ class XInterfaceBase(threading.Thread):
             altGrCode = self.localDisplay.keysym_to_keycode(XK.XK_ISO_Level3_Shift)
             self.keyCodes[Key.ALT_GR] = altGrCode
             self.keyNames[altGrCode] = Key.ALT_GR 
-        #self.keyCodes[Key.ALT_GR] = 113
-        #self.keyNames[113] = Key.ALT_GR
         
-        if self.testMode:
-            print repr(self.keyCodes)
+        
+        logger.debug("Keycodes dict: " + repr(self.keyCodes))
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            self.keymap_test()
         
     def keymap_test(self):
-        print "XK keymap:"
-        for attr in XK.__dict__.iteritems():
-            if attr[0].startswith("XK"):
-                print "%s, %s" % (attr[0], attr[1])        
+        #logger.debug("XK keymap:")
+        #for attr in XK.__dict__.iteritems():
+        #    if attr[0].startswith("XK"):
+        #        logger.info("%s, %s", attr[0], attr[1])        
         
-        print "The following is a printout of how your X server maps each character"
+        logger.debug("X Server Keymap")
         for char in "`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) > 0:
                 #keyCode, offset = keyCodeList[0]
                 #print "[%s], %d, %d" % (char, keyCode, offset)
-                print "[" + char + "] : " + repr(keyCodeList)
+                logger.debug("[%s] : %s", char, repr(keyCodeList))
             else:
-                print "No mapping for [" + char + "]"
+                logger.debug("No mapping for [%s]", char)
                 
-        print "The following is a test for Alt-Gr modifier mapping. Please open a text editing program for this test."
-        print "After 10 seconds, the test will commence. 6 key events will be sent. Please monitor the output and record"
-        print "which of the 6 events produces a '{' (left curly brace)"
-        time.sleep(10)
-        keyCodeList = self.localDisplay.keysym_to_keycodes(ord("{"))
-        keyCode, offset = keyCodeList[0]
-        self.__sendKeyCode(keyCode, X.ShiftMask)
-        time.sleep(0.5)
-        self.__sendKeyCode(keyCode, X.Mod1Mask)
-        time.sleep(0.5)
-        self.__sendKeyCode(keyCode, X.Mod2Mask)
-        time.sleep(0.5)
-        self.__sendKeyCode(keyCode, X.Mod3Mask)
-        time.sleep(0.5)
-        self.__sendKeyCode(keyCode, X.Mod4Mask)
-        time.sleep(0.5)
-        self.__sendKeyCode(keyCode, X.Mod5Mask)
-        print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
+        #print "The following is a test for Alt-Gr modifier mapping. Please open a text editing program for this test."
+        #print "After 10 seconds, the test will commence. 6 key events will be sent. Please monitor the output and record"
+        #print "which of the 6 events produces a '{' (left curly brace)"
+        #time.sleep(10)
+        #keyCodeList = self.localDisplay.keysym_to_keycodes(ord("{"))
+        #keyCode, offset = keyCodeList[0]
+        #self.__sendKeyCode(keyCode, X.ShiftMask)
+        #time.sleep(0.5)
+        #self.__sendKeyCode(keyCode, X.Mod1Mask)
+        #time.sleep(0.5)
+        #self.__sendKeyCode(keyCode, X.Mod2Mask)
+        #time.sleep(0.5)
+        #self.__sendKeyCode(keyCode, X.Mod3Mask)
+        #time.sleep(0.5)
+        #self.__sendKeyCode(keyCode, X.Mod4Mask)
+        #time.sleep(0.5)
+        #self.__sendKeyCode(keyCode, X.Mod5Mask)
+        #print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
     def lookup_string(self, keyCode, shifted):
+        if keyCode == 0:
+            return "<unknown>"
         if self.keyNames.has_key(keyCode):
             return self.keyNames[keyCode]
         else:
@@ -161,12 +168,13 @@ class XInterfaceBase(threading.Thread):
                 else:
                     return unichr(self.localDisplay.keycode_to_keysym(keyCode, 0))
             except ValueError:
-                return "<unknown>"
+                return "<code%d>" % keyCode
     
     def send_string(self, string):
         """
         Send a string of printable characters.
         """
+        logger.debug("Sending string: %s", string)
         for char in string:
             if self.keyCodes.has_key(char):
                 self.send_key(char)
@@ -195,12 +203,14 @@ class XInterfaceBase(threading.Thread):
         """
         Send a specific non-printing key, eg Up, Left, etc
         """
+        logger.debug("Send special key: %s", keyName)
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
         
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
         """
+        logger.debug("Send modified key: modifiers: %s key: %s", repr(modifiers), keyName)
         for modifier in modifiers:
             modifierCode = self.keyCodes[modifier.lower()]
             xtest.fake_input(self.rootWindow, X.KeyPress, modifierCode)
@@ -214,6 +224,7 @@ class XInterfaceBase(threading.Thread):
             xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)
             
     def send_unicode_char(self, char):
+        logger.debug("Send unicode char: %s", char)
         self.send_modified_key('u', [Key.CONTROL, Key.SHIFT])
         
         keyDigits = "%04x" % ord(char)
@@ -249,6 +260,7 @@ class XInterfaceBase(threading.Thread):
             for x in range(self.localDisplay.pending_events()):
                 event = self.localDisplay.next_event()
                 if event.type == X.MappingNotify:
+                    logger.info("Received XMappingNotify")
                     self.__updateMapping(event)
         
         
@@ -281,8 +293,9 @@ class XInterfaceBase(threading.Thread):
         return None
     
     def __updateMapping(self, event):
-        print "update keyboard mapping"
-        self.localDisplay.refresh_keyboard_mapping(event)    
+        logger.info("Got XMappingUpdate - reloading keyboard mapping")
+        self.localDisplay.refresh_keyboard_mapping(event)   
+        self.__initMappings() 
     
     def __sendKeyCode(self, keyCode, modifiers=0):
         if ConfigurationManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
@@ -340,7 +353,11 @@ class XInterfaceBase(threading.Thread):
     def __lookupKeyCode(self, char):
         if self.keyCodes.has_key(char):
             return self.keyCodes[char]
+        elif char.startswith("<code"):
+            code = int(char[5:-1])
+            return code
         else:
+            # TODO I don't think this code is ever reached. Get rid of it at some point
             try:
                 code = self.localDisplay.keysym_to_keycode(ord(char))
                 if code == 94:
@@ -348,8 +365,7 @@ class XInterfaceBase(threading.Thread):
                 else:
                     return code
             except Exception, e:
-                # TODO - improve this
-                print "Unknown key name: " + char
+                logger.error("Unknown key name: %s", char)
                 raise
     
     def __getWindowTitle(self):
@@ -362,8 +378,10 @@ class XInterfaceBase(threading.Thread):
                 windowvar = windowvar.query_tree().parent
                 wmname = windowvar.get_wm_name()
 
+            logger.debug("Window name: %s", str(wmname))
             return str(wmname)
         except:
+            logger.debug("Unable to determine active window name")
             return ""
 
 
@@ -386,8 +404,10 @@ class EvDevInterface(XInterfaceBase):
         #self.join()
         
     def run(self):
+        logger.info("EvDev interface thread starting")
         while True:
             if self.cancelling:
+                logger.info("EvDev interface thread terminated")
                 break
             
             # Request next event
@@ -396,7 +416,11 @@ class EvDevInterface(XInterfaceBase):
             except: continue
             
             data = data.strip()
-            keyCode, button, state = data.split(',')
+            try:
+                keyCode, button, state = data.split(',')
+            except:
+                logger.critical("Connection to EvDev daemon lost - terminating")
+                break
             
             if keyCode:
                 keyCode = int(keyCode)

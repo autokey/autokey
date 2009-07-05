@@ -15,8 +15,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os.path, shutil, configobj, gtk
+import os.path, shutil, configobj, logging
 import cPickle as pickle
+
+_logger = logging.getLogger("config-manager")
 
 CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.bin")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
@@ -36,6 +38,7 @@ ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 
 def get_config_manager(autoKeyApp):
     if os.path.exists(CONFIG_FILE):
+        _logger.info("Loading config from existing file: " + CONFIG_FILE)
         pFile = open(CONFIG_FILE, 'r')
         settings, configManager = pickle.load(pFile)
         pFile.close()
@@ -43,16 +46,22 @@ def get_config_manager(autoKeyApp):
         configManager.app = autoKeyApp
         
         if len(configManager.globalHotkeys) == 2:
+            _logger.info("Upgrading from config file without showPopupHotkey")
             configManager.showPopupHotkey = GlobalHotkey()
             configManager.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
             configManager.showPopupHotkey.enabled = True
             configManager.globalHotkeys.append(configManager.showPopupHotkey)
         autoKeyApp.init_global_hotkeys(configManager)
+        _logger.info("Successfully loaded configuration file")
+        _logger.debug("Global settings: " + repr(ConfigurationManager.SETTINGS))
         return configManager
     else:
+        _logger.info("No configuration file found - creating new one")
+        _logger.debug("Global settings: " + repr(ConfigurationManager.SETTINGS))
         return ConfigurationManager(autoKeyApp)
 
-def save_config(configManager): 
+def save_config(configManager):
+    _logger.info("Persisting configuration") 
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
     configManager.showPopupHotkey.set_closure(None)
@@ -61,17 +70,20 @@ def save_config(configManager):
 
     # Back up configuration if it exists
     if os.path.exists(CONFIG_FILE):
+        _logger.info("Backing up existing config file")
         shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         outFile = open(CONFIG_FILE, "wb")
         pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
     except PickleError, pe:
         shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+        _logger.error("Error while saving configuration. Backup has been restored.")
         raise Exception("Error while saving configuration. Backup has been restored.")
     finally:
         outFile.close()
         autoKeyApp.init_global_hotkeys(configManager)
-        configManager.app = autoKeyApp        
+        configManager.app = autoKeyApp
+        _logger.info("Finished persisting configuration - no errors")
     
 def apply_settings(settings):
     """
@@ -170,6 +182,7 @@ class ConfigurationManager:
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders. 
         """
+        _logger.info("Configuration changed - rebuilding in-memory structures")
         # Rebuild root folder list
         rootFolders = self.folders.values()
         self.folders.clear()
@@ -195,12 +208,13 @@ class ConfigurationManager:
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
         self.globalHotkeys.append(self.showPopupHotkey)
-            
-        #print repr(self.hotKeyFolders)
-        #print repr(self.hotKeyPhrases)
-        #print repr(self.abbrPhrases)
-        #print repr(self.allFolders)
-        #print repr(self.allPhrases)
+        _logger.debug("Global hotkeys: " + repr(self.globalHotkeys))
+        
+        _logger.debug("Hotkey folders: " + repr(self.hotKeyFolders))
+        _logger.debug("Hotkey phrases: " + repr(self.hotKeyPhrases))
+        _logger.debug("Abbreviation phrases: " + repr(self.abbrPhrases))
+        _logger.debug("All folders: " + repr(self.allFolders))
+        _logger.debug("All phrases: " + repr(self.allPhrases))
         
         save_config(self)
                     
@@ -437,6 +451,7 @@ class GlobalHotkey(AbstractHotkey):
         
     def check_hotkey(self, modifiers, key, windowTitle):
         if AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
+            _logger.debug("Triggered global hotkey using modifiers: %s key: %s" % (repr(modifiers), key))
             self.closure()
         return False
 

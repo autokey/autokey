@@ -16,11 +16,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import time
+import time, logging
 import iomediator, ui, configurationmanager
 from iomediator import Key, threaded
 from phrasemenu import *
 from plugin.manager import PluginManager, PluginError
+
+logger = logging.getLogger("phrase-service")
 
 MAX_STACK_LENGTH = 50
 
@@ -35,6 +37,7 @@ class ExpansionService:
         self.app = app
     
     def start(self):
+        logger.info("Starting phrase service")
         self.mediator = iomediator.IoMediator(self, self.interfaceType)
         self.mediator.initialise()
         self.inputStack = []
@@ -44,13 +47,16 @@ class ExpansionService:
         self.clearAfter = 0
         self.pluginManager = PluginManager()
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
+        logger.info("Phrase service now marked as running")
         
     def unpause(self):
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
+        logger.info("Unpausing - phrase service now marked as running")
         
     def pause(self):
         #self.mediator.pause()
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
+        logger.info("Pausing - phrase service now marked as stopped")
         
     def is_running(self):
         #if self.mediator is not None:
@@ -61,7 +67,7 @@ class ExpansionService:
         
     def switch_method(self, interface):
         """
-        Switch keystore interface to the new type
+        Switch keystroke interface to the new type
         """
         if self.is_running():
             self.pause()
@@ -76,16 +82,19 @@ class ExpansionService:
             self.unpause()
             
     def shutdown(self):
+        logger.info("Phrase service shutting down")
         self.mediator.shutdown()
         configurationmanager.save_config(self.configManager)
             
     def handle_mouseclick(self):
         # Initial attempt at handling mouseclicks
         # Since we have no way of knowing where the caret is after the click,
-        # just throw away the input buffer.        
+        # just throw away the input buffer.
+        logger.debug("Received mouse click - resetting buffer")        
         self.inputStack = []
         
     def handle_hotkey(self, key, modifiers, windowName):
+        logger.debug("Phrase service received hotkey")
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
             hotkey.check_hotkey(modifiers, key, windowName)
@@ -105,8 +114,10 @@ class ExpansionService:
 
             if phraseMatch is not None:
                 if not phraseMatch.prompt:
+                    logger.info("Matched hotkey phrase with prompt=False - executing")
                     self.__sendPhrase(phraseMatch)
                 else:
+                    logger.info("Matched hotkey phrase with prompt=True - executing")
                     menu = PhraseMenu(self, [], [phraseMatch])
                     
             else:
@@ -116,6 +127,7 @@ class ExpansionService:
                         break                    
                 
                 if folderMatch is not None:
+                    logger.info("Matched hotkey folder - displaying")
                     menu = PhraseMenu(self, [folderMatch], [])
                 
             if menu is not None:
@@ -161,6 +173,7 @@ class ExpansionService:
             # Check abbreviation phrases first
             for phrase in self.configManager.abbrPhrases:
                 if phrase.check_input(currentInput, windowName) and not phrase.prompt:
+                    logger.debug("Matched abbreviation phrase with prompt=False")
                     if ConfigurationManager.SETTINGS[DETECT_UNWANTED_ABBR]:
                         # send only if not same as last abbreviation to prevent repeated autocorrect
                         if phrase.abbreviation != self.lastAbbr:
@@ -188,11 +201,13 @@ class ExpansionService:
                     phraseMatches.append(phrase)
                         
             if len(phraseMatches) > 0 or len(folderMatches) > 0:
+                logger.debug("Matched abbrevation phrases/folders from full search")
                 if len(phraseMatches) == 1 and not phraseMatches[0].should_prompt(currentInput):
                     # Single phrase match with no prompt
+                    logger.debug("Single phrase match with no prompt - executing")
                     self.__sendPhrase(phraseMatches[0], currentInput)
                 else:
-                    # Multiple matches or match requiring prompt - create menu
+                    logger.debug("Multiple phrase/folder matches or match requiring prompt - creating menu")
                     if self.lastMenu is not None:
                         self.lastMenu.remove_from_desktop()
                     self.lastStackState = currentInput
@@ -202,7 +217,7 @@ class ExpansionService:
         if len(self.inputStack) > MAX_STACK_LENGTH: 
             self.inputStack.pop(0)
             
-        #print self.inputStack
+        logger.debug("Input stack at end of handle_keypress: " + repr(self.inputStack))
     
     @threaded
     def phrase_selected(self, event, phrase):
@@ -214,6 +229,7 @@ class ExpansionService:
         try:
             self.pluginManager.process_expansion(expansion, buffer)
         except PluginError, pe:
+            logger.warn("A plug-in reported an error: " + pe.message)
             self.app.show_notify("A plug-in reported an error.", True, pe.message)
             
         phrase.parsePositionTokens(expansion)

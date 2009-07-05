@@ -1,10 +1,16 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
-import gtk, sys
+import gtk, sys, optparse
 from autokey.autokey import AutoKeyApplication
 
+# This is overkill at the moment, but might be handy to have in the future
+p = optparse.OptionParser()
+p.add_option("-v", "--verbose", help="Enable verbose logging", action="store_true", default=False)
+options, args = p.parse_args()
+
 gtk.gdk.threads_init()
-a = AutoKeyApplication()
+a = AutoKeyApplication(options.verbose)
 try:
     a.main()
 except KeyboardInterrupt:

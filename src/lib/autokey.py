@@ -19,7 +19,7 @@
 
 import pygtk
 pygtk.require("2.0")
-import sys, gtk, traceback, os.path, signal
+import sys, gtk, traceback, os.path, signal, logging
 import expansionservice, ui, configurationmanager
 from configurationmanager import *
 
@@ -32,7 +32,14 @@ class AutoKeyApplication:
     from here, together with some interactions from the tray icon.
     """
 
-    def __init__(self):
+    def __init__(self, verbose):
+        # Initialise logger
+        if verbose:
+            level = logging.DEBUG
+        else:
+            level = logging.INFO
+        logging.basicConfig(level=level)
+        
         try:
             if not os.path.exists(CONFIG_DIR):
                 os.makedirs(CONFIG_DIR)
@@ -41,6 +48,7 @@ class AutoKeyApplication:
                 pid = f.read()
                 f.close()
                 if os.path.exists("/proc/" + pid):
+                    logging.error("AutoKey is already running - exiting")
                     self.show_error_dialog("AutoKey is already running (pid %s)" % pid)
                     sys.exit(1)
                 else:
@@ -52,7 +60,7 @@ class AutoKeyApplication:
             
         except Exception, e:
             self.show_error_dialog("Fatal error starting AutoKey.\n" + str(e))
-            traceback.print_exc()
+            logging.exception("Fatal error starting AutoKey; " + str(e))
             sys.exit(1)
             
     def __createLockFile(self):
@@ -61,6 +69,7 @@ class AutoKeyApplication:
         f.close()
         
     def initialise(self):
+        logging.info("Initialising application")
         self.configManager = configurationmanager.get_config_manager(self)
         self.service = expansionservice.ExpansionService(self)
         self.service.start()
@@ -73,11 +82,12 @@ class AutoKeyApplication:
         self.abbrPopup = None
         
         if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
+            logging.info("First run - showing configuration dialog")
             ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
             self.show_configure()
             
     def init_global_hotkeys(self, configManager):
-        # initialise global hotkeys
+        logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure)
         configManager.showPopupHotkey.set_closure(self.show_abbr_selector)
@@ -107,6 +117,7 @@ class AutoKeyApplication:
         """
         Shut down the entire application.
         """
+        logging.info("Shutting down")
         self.service.shutdown()
         os.remove(LOCK_FILE)
             
@@ -125,6 +136,7 @@ class AutoKeyApplication:
         """
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
+        logging.info("Displaying configuration window")
         if self.configureWindow is None:
             self.configureWindow = ui.ConfigurationWindow(self)
             self.configureWindow.show()
@@ -136,11 +148,13 @@ class AutoKeyApplication:
         Show the abbreviation autocompletion popup.
         """
         if self.abbrPopup is None:
+            logging.info("Displaying abbreviation popup")
             self.abbrPopup = ui.AbbreviationSelectorDialog(self.service)
             self.abbrPopup.present()
                 
     def main(self):
-        gtk.main()        
+        logging.info("Entering main()")
+        gtk.main()
             
     def show_error_dialog(self, message):
         """

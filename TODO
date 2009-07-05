@@ -1,24 +1,14 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Add LSBData to init script, if possible
-
 Daemon to handle multiple connections (e.g. multiple logged-in users)
 
-Cover any remaining exception points in interface.run()
-
-Implement proper logging via logging package, lots of debug needed!
-
-Add ability to do stuff with keyCodes > 112
-
-Implement a 'test keycode' screen where users can see the keycode for a given keyboard button
-
-Implement a startup argument to run the keymap test
+Implement a record keystrokes function
 
 Put at least some basic info into the manpage
 
 ExpansionService to be renamed PhraseService
 
-Hotkey and abbreviation detection code to come out of PhraseService into common base class for
+Hotkey and abbreviation detection code to come out of PhraseService into delegate class for
 PhraseService and ScriptService
 
 Get rid of commented out code
@@ -29,7 +19,7 @@ Add gettext support
 LATER PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
 Option to activate/deactivate above feature
 
-LATER PLUGIN Add spell checker with a hotkey which checks the last word typed
+LATER Add spell checker with a hotkey which checks the last word typed
 This can probably be done with a script once the script interface is implemented
 
 Automatic frequently typed phrase recognition using nltk
