@@ -2,7 +2,8 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=AutoKey
-Comment=Text Replacement and Hotkey Utility
+GenericName=Keyboard Automation
+Comment=Program keyboard shortcuts
 Exec=autokey
 Terminal=false
 Type=Application
