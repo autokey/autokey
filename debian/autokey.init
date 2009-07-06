@@ -11,7 +11,7 @@
 # Description:       Enable AutoKey's EvDev interface daemon.
 ### END INIT INFO
 
-import sys, os, socket, dbus
+import sys, os, socket, glob
 from autokey import evdev, daemon
 from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
 
@@ -24,53 +24,14 @@ class AutoKeyDaemon(daemon.Daemon):
         if os.path.exists(logFile):
             os.remove(logFile)
         daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
-        #daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=sys.__stdout__.fileno(), stderr=sys.__stderr__.fileno())
-        
+
     def get_device_paths(self):
-        bus = dbus.SystemBus()
-    
-        hal_obj = bus.get_object ("org.freedesktop.Hal", "/org/freedesktop/Hal/Manager")
-        hal = dbus.Interface (hal_obj, "org.freedesktop.Hal.Manager")
-        
-        udis = hal.FindDeviceByCapability ("input.keyboard")
-        if not len(udis):
-            sys.stdout.write("WARN: No keyboard device was found!\n")
-        elif len(udis) > 1:
-            sys.stdout.write("Found multiple keyboard devices\n")
-        
-        keyboardLocations = []
-        for udisEntry in udis:
-            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
-            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
-            keyboardLocations.append(dev.GetProperty("input.device"))
-        
-        udis = hal.FindDeviceByCapability ("input.mouse")
-        if not len(udis):
-            sys.stdout.write("WARN: No mouse device was found!\n")
-        elif len(udis) > 1:
-            sys.stdout.write("Found multiple mouse devices\n")
-        
-        mouseLocations = []
-        for udisEntry in udis:
-            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
-            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
-            mouseLocations.append(dev.GetProperty("input.device"))    
-    
-        udis = hal.FindDeviceByCapability ("input.touchpad")
-        if not len(udis):
-            sys.stdout.write("No touchpad device was found\n")
-        elif len(udis) > 1:
-            sys.stdout.write("Found multiple touchpad devices\n")
-        
-        touchpadLocations = []
-        for udisEntry in udis:
-            dev_obj = bus.get_object ("org.freedesktop.Hal", udisEntry)
-            dev = dbus.Interface (dev_obj, "org.freedesktop.Hal.Device")
-            touchpadLocations.append(dev.GetProperty("input.device"))    
-    
+        keyboardLocations = glob.glob("/dev/input/by-path/*-event-kbd")
+        mouseLocations = glob.glob("/dev/input/by-path/*-event-mouse")
+        touchpadLocations = []    
     
         sys.stdout.write("Keyboards: %s\nMice: %s\nTouchpads: %s\n" % (repr(keyboardLocations), repr(mouseLocations), repr(touchpadLocations)))
-        return set(keyboardLocations + mouseLocations + touchpadLocations)	
+        return keyboardLocations + mouseLocations + touchpadLocations
     
     def run(self):
         print "AutoKey daemon starting"

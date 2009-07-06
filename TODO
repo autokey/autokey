@@ -1,6 +1,15 @@
 Update README, INSTALL and ACKNOWLEDGEMENTS
 
-Daemon to handle multiple connections (e.g. multiple logged-in users)
+Review phrase/folder sorting in menu - make alphabetical if not by usage count
+Seems to be broken again as well
+
+Add toolbar with following functions:
+    New folder
+    New phrase
+    Cut/Copy/Paste/Delete
+    Record Keystrokes
+    
+Allow hotkeys to have no modifiers - but modifiers cannot be hotkeys
 
 Implement a record keystrokes function
 
@@ -8,7 +17,7 @@ Put at least some basic info into the manpage
 
 ExpansionService to be renamed PhraseService
 
-Hotkey and abbreviation detection code to come out of PhraseService into delegate class for
+Hotkey and abbreviation detection code to come out of PhraseService into common base class for
 PhraseService and ScriptService
 
 Get rid of commented out code
@@ -16,10 +25,12 @@ Add method comments
 
 Add gettext support
 
-LATER PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
-Option to activate/deactivate above feature
-
-LATER Add spell checker with a hotkey which checks the last word typed
+Add spell checker with a hotkey which checks the last word typed
 This can probably be done with a script once the script interface is implemented
 
-Automatic frequently typed phrase recognition using nltk
+FUTURE: Daemon to handle multiple connections (e.g. multiple logged-in users)
+
+FUTURE: PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
+Option to activate/deactivate above feature
+
+FUTURE: Automatic frequently typed phrase recognition using nltk
