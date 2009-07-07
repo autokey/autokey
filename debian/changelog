@@ -1,8 +1,11 @@
 autokey (0.54.3-0~jaunty) jaunty; urgency=low
 
    Fix daemon sometimes dying when receiving events with integer code
+   Make daemon find devices using by-path entries instead of relying on HAL
+   Update TODO
+   Make Comment in .desktop entry nicer. Add GenericName
 	
- -- Chris Dekter <cdekter@gmail.com>  Mon, 6 Jul 2009 08:38:05 +1000
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 7 Jul 2009 08:38:05 +1000
 
 autokey (0.54.2-0~jaunty) jaunty; urgency=low
 

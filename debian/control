@@ -9,7 +9,7 @@ Homepage: http://autokey.sourceforge.net/
 
 Package: autokey
 Architecture: any
-Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gobject, python-xlib, python-configobj, python-notify, python-dbus, librsvg2-2
+Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gobject, python-xlib, python-configobj, python-notify, librsvg2-2
 XB-Python-Version: ${python:Versions}
 Description: Text expansion and hotkey utility
  AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It receives keyboard events either via XRecord or EvDev and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks, among other things.
