@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH AUTOKEY SECTION "May 12, 2009"
+.TH AUTOKEY "1" "July 9, 2009"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -16,44 +16,35 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" for manpage-specific macros, see man(7)
 .SH NAME
-autokey \- program to do something
+autokey \- keyboard automation utility
 .SH SYNOPSIS
 .B autokey
-.RI [ options ] " files" ...
-.br
-.B bar
-.RI [ options ] " files" ...
+.RI [ -v | --verbose ]
 .SH DESCRIPTION
-This manual page documents briefly the
+This manual page briefly documents the
 .B autokey
-and
-.B bar
-commands.
+command.
 .PP
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
 .\" \fI<whatever>\fP escape sequences to invode bold face and italics,
 .\" respectively.
-\fBautokey\fP is a program that...
+\fBautokey\fP is a text expansion/replacement and hotkey utility for Linux and X11.
+It can receive keyboard events via several methods and uses X events to drive the expansions. 
+It is designed to save time by automating repetitive typing tasks, among other things.
+.br
+For more information refer to the online manual at:
+    http://autokey.wiki.sourceforge.net/
 .SH OPTIONS
-These programs follow the usual GNU command line syntax, with long
+This program follows the usual GNU command line syntax, with long
 options starting with two dashes (`-').
 A summary of options is included below.
-For a complete description, see the Info files.
 .TP
 .B \-h, \-\-help
 Show summary of options.
 .TP
-.B \-v, \-\-version
-Show version of program.
-.SH SEE ALSO
-.BR bar (1),
-.BR baz (1).
-.br
-The programs are documented fully by
-.IR "The Rise and Fall of a Fooish Bar" ,
-available via the Info system.
+.B \-v, \-\-verbose
+Enable verbose (debug) logging.
 .SH AUTHOR
-autokey was written by <upstream author>.
+AutoKey was written by Chris Dekter, loosely based on a script by Sam Peterson.
 .PP
-This manual page was written by Chris Dekter <cdekter@gmail.com>,
-for the Debian project (but may be used by others).
+This manual page was written by Chris Dekter <cdekter@gmail.com>.

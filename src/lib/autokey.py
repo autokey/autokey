@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -60,7 +61,7 @@ class AutoKeyApplication:
             
         except Exception, e:
             self.show_error_dialog("Fatal error starting AutoKey.\n" + str(e))
-            logging.exception("Fatal error starting AutoKey; " + str(e))
+            logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
             
     def __createLockFile(self):
@@ -72,7 +73,15 @@ class AutoKeyApplication:
         logging.info("Initialising application")
         self.configManager = configurationmanager.get_config_manager(self)
         self.service = expansionservice.ExpansionService(self)
-        self.service.start()
+        self.serviceDisabled = False
+        
+        try:
+            self.service.start()
+        except Exception, e:
+            logging.exception("Error starting interface: " + str(e))
+            self.serviceDisabled = True
+            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
+                                    "Check your system/configuration.\n" + str(e))
         
         signal.signal(signal.SIGTERM, self.shutdown)
         
@@ -96,12 +105,14 @@ class AutoKeyApplication:
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
+        self.notifier.set_tooltip(ui.TOOLTIP_RUNNING)
         self.service.unpause()
     
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
+        self.notifier.set_tooltip(ui.TOOLTIP_PAUSED)
         self.service.pause()
         
     def toggle_service(self):

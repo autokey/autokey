@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -15,10 +16,15 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-__all__ = ["XRecordInterface", "EvDevInterface"]
+__all__ = ["XRecordInterface", "EvDevInterface", "AtSpiInterface"]
 
 
 import os, threading, re, time, socket, select, logging
+try:
+    import pyatspi
+    HAS_ATSPI = True
+except ImportError:
+    HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
 from Xlib.ext import record, xtest
@@ -39,6 +45,8 @@ CONTROL_R = 'XK_Control_R'
 ALT = 'XK_Alt_L'
 ALT_GR = 'XK_Alt_R'
 SUPER = 'XK_Super_L'
+SUPER_R = 'XK_Super_R'
+NUMLOCK = 'XK_Num_Lock'
 
 # Misc Keys
 SPACE = 'XK_space'
@@ -49,6 +57,9 @@ UP = 'XK_Up'
 DOWN = 'XK_Down'
 RETURN = 'XK_Return'
 BACKSPACE = 'XK_BackSpace'
+SCROLL_LOCK = 'XK_Scroll_Lock'
+PRINT_SCREEN = 'XK_Print'
+PAUSE = 'XK_Pause'
 
 # Function Keys
 F1 = "XK_F1"
@@ -64,6 +75,24 @@ F10 = "XK_F10"
 F11 = "XK_F11"
 F12 = "XK_F12"
 
+# Keypad
+KP_INSERT = "XK_KP_Insert"
+KP_DELETE = "XK_KP_Delete"
+KP_END = "XK_KP_End"
+KP_DOWN = "XK_KP_Down"
+KP_PAGE_DOWN = "XK_KP_Page_Down"
+KP_LEFT = "XK_KP_Left"
+KP_5 = "XK_KP_5"
+KP_RIGHT = "XK_KP_Right"
+KP_HOME = "XK_KP_Home"
+KP_UP = "XK_KP_Up"
+KP_PAGE_UP = "XK_KP_Page_Up"
+KP_ENTER = "XK_KP_Enter"
+KP_ADD = "XK_KP_Add"
+KP_SUBTRACT = "XK_KP_Subtract"
+KP_MULTIPLY = "XK_KP_Multiply"
+KP_DIVIDE = "XK_KP_Divide"
+
 # Other
 ESCAPE = "XK_Escape"
 INSERT = "XK_Insert"
@@ -72,8 +101,6 @@ HOME = "XK_Home"
 END = "XK_End"
 PAGE_UP = "XK_Page_Up"
 PAGE_DOWN = "XK_Page_Down"
-
-
 
 
 class XInterfaceBase(threading.Thread):
@@ -99,6 +126,8 @@ class XInterfaceBase(threading.Thread):
         self.keyCodes = {}
         # Map of keycode to keyname
         self.keyNames = {}
+        # One-way numpad key map - we only decode them
+        self.numKeyNames = {}
         
         # Load xkb keysyms - related to non-US keyboard mappings
         XK.load_keysym_group('xkb')
@@ -115,9 +144,15 @@ class XInterfaceBase(threading.Thread):
             altGrCode = self.localDisplay.keysym_to_keycode(XK.XK_ISO_Level3_Shift)
             self.keyCodes[Key.ALT_GR] = altGrCode
             self.keyNames[altGrCode] = Key.ALT_GR 
-        
-        
-        logger.debug("Keycodes dict: " + repr(self.keyCodes))
+            
+        # Create map of numpad keycodes, similar to above
+        keyList = NUMPAD_MAP.keys()
+        for xkKeyName in keyList:
+            keyNames = NUMPAD_MAP[xkKeyName]
+            keyCode = self.localDisplay.keysym_to_keycode(getattr(XK, xkKeyName))
+            self.numKeyNames[keyCode] = keyNames
+       
+        logger.debug("Keycodes dict: %s", self.keyCodes)
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             self.keymap_test()
         
@@ -133,7 +168,7 @@ class XInterfaceBase(threading.Thread):
             if len(keyCodeList) > 0:
                 #keyCode, offset = keyCodeList[0]
                 #print "[%s], %d, %d" % (char, keyCode, offset)
-                logger.debug("[%s] : %s", char, repr(keyCodeList))
+                logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
                 
@@ -156,11 +191,20 @@ class XInterfaceBase(threading.Thread):
         #self.__sendKeyCode(keyCode, X.Mod5Mask)
         #print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
-    def lookup_string(self, keyCode, shifted):
+    def lookup_string(self, keyCode, shifted, numlock):
         if keyCode == 0:
             return "<unknown>"
-        if self.keyNames.has_key(keyCode):
+        
+        elif self.keyNames.has_key(keyCode):
             return self.keyNames[keyCode]
+            
+        elif self.numKeyNames.has_key(keyCode):
+            values = self.numKeyNames[keyCode]
+            if numlock:
+                return values[1]
+            else:
+                return values[0]
+                
         else:
             try:
                 if shifted:
@@ -210,7 +254,7 @@ class XInterfaceBase(threading.Thread):
         """
         Send a modified key (e.g. when emulating a hotkey)
         """
-        logger.debug("Send modified key: modifiers: %s key: %s", repr(modifiers), keyName)
+        logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
         for modifier in modifiers:
             modifierCode = self.keyCodes[modifier.lower()]
             xtest.fake_input(self.rootWindow, X.KeyPress, modifierCode)
@@ -260,7 +304,6 @@ class XInterfaceBase(threading.Thread):
             for x in range(self.localDisplay.pending_events()):
                 event = self.localDisplay.next_event()
                 if event.type == X.MappingNotify:
-                    logger.info("Received XMappingNotify")
                     self.__updateMapping(event)
         
         
@@ -268,7 +311,7 @@ class XInterfaceBase(threading.Thread):
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            self.mediator.handle_keypress(keyCode, self.__getWindowTitle())
+            self.mediator.handle_keypress(keyCode, self._getWindowTitle())
             
     def _handleKeyRelease(self, keyCode):
         try:
@@ -293,7 +336,7 @@ class XInterfaceBase(threading.Thread):
         return None
     
     def __updateMapping(self, event):
-        logger.info("Got XMappingUpdate - reloading keyboard mapping")
+        logger.info("Got XMappingNotify - reloading keyboard mapping")
         self.localDisplay.refresh_keyboard_mapping(event)   
         self.__initMappings() 
     
@@ -368,7 +411,7 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
     
-    def __getWindowTitle(self):
+    def _getWindowTitle(self):
         try:
             windowvar = self.localDisplay.get_input_focus().focus
             wmname = windowvar.get_wm_name()
@@ -431,8 +474,8 @@ class EvDevInterface(XInterfaceBase):
                     
             if button:
                 self.mediator.handle_mouse_click()
-        
-    
+
+
 class XRecordInterface(XInterfaceBase):
         
     def __init__(self, mediator, testMode=False):
@@ -462,6 +505,7 @@ class XRecordInterface(XInterfaceBase):
 
         # Enable the context; this only returns after a call to record_disable_context,
         # while calling the callback function in the meantime
+        logger.info("XRecord interface thread starting")
         self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
         # Finally free the context
         self.recordDisplay.record_free_context(self.ctx)
@@ -490,6 +534,45 @@ class XRecordInterface(XInterfaceBase):
                 self._handleKeyRelease(event.detail)
             elif event.type == X.ButtonPress:
                 self.mediator.handle_mouse_click()
+
+class AtSpiInterface(XInterfaceBase):
+    
+    def __init__(self, mediator, testMode=False):
+        XInterfaceBase.__init__(self, mediator, testMode)
+        self.registry = pyatspi.Registry        
+        
+    def start(self):
+        logger.info("AT-SPI interface thread starting")
+        self.registry.registerKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
+        self.registry.registerEventListener(self.__processWindowEvent, 'window:activate')
+        self.registry.registerEventListener(self.__processMouseEvent, 'mouse:button')        
+        
+    def cancel(self):
+        self.registry.deregisterKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
+        self.registry.deregisterEventListener(self.__processWindowEvent, 'window:activate')
+        self.registry.deregisterEventListener(self.__processMouseEvent, 'mouse:button')
+        self.registry.stop()
+        
+    def __processKeyEvent(self, event):
+        if event.type == pyatspi.KEY_PRESSED_EVENT:
+            self._handleKeyPress(event.hw_code)
+        else:
+            self._handleKeyRelease(event.hw_code)
+            
+    def __processMouseEvent(self, event):
+        self.mediator.handle_mouse_click()
+    
+    def __processWindowEvent(self, event):
+        #windowName = event.host_application.name.split('|')[1]
+        self.activeWindow = event.host_application.name
+    
+    def _getWindowTitle(self):
+        logger.debug("Window name: %s", self.activeWindow)
+        return self.activeWindow
+    
+    def __pumpEvents(self):
+        pyatspi.Registry.pumpQueuedEvents()
+        return True
                 
 from iomediator import Key, MODIFIERS
 from configurationmanager import *
@@ -503,6 +586,8 @@ KEY_MAP = {
            ALT : Key.ALT,
            ALT_GR : Key.ALT_GR,
            SUPER : Key.SUPER,
+           SUPER_R : Key.SUPER,
+           NUMLOCK : Key.NUMLOCK,
            SPACE : Key.SPACE,
            TAB : Key.TAB,
            LEFT : Key.LEFT,
@@ -511,6 +596,9 @@ KEY_MAP = {
            DOWN : Key.DOWN,
            RETURN : Key.RETURN,
            BACKSPACE : Key.BACKSPACE,
+           SCROLL_LOCK : Key.SCROLL_LOCK,
+           PRINT_SCREEN : Key.PRINT_SCREEN,
+           PAUSE : Key.PAUSE,
            F1 : Key.F1,
            F2 : Key.F2,
            F3 : Key.F3,
@@ -531,62 +619,25 @@ KEY_MAP = {
            PAGE_UP : Key.PAGE_UP,
            PAGE_DOWN : Key.PAGE_DOWN           
            }
-
-"""import pyatspi, gobject
-
-class AtSpiInterface(AbstractInterface):
-    
-    def __init__(self, mediator, testMode=False):
-        AbstractInterface.__init__(self, mediator, testMode)
-        self.registry = pyatspi.Registry        
-        
-    def start(self):
-        gobject.idle_add(self.__pumpEvents)
-        self.registry.registerKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
-        self.registry.registerEventListener(self.__processWindowEvent, 'window:activate')
-        #self.registry.start(async=True)        
-        
-    def cancel(self):
-        self.registry.deregisterKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
-        self.registry.deregisterEventListener(self.__processWindowEvent, 'window:activate')
-        self.registry.stop()
-        
-    def lookup_string(self, keyCode, shifted):
-        pass
-    
-    def send_modified_key(self, keyName, modifiers):
-        pass
-    
-    def send_string(self, string):
-        for char in string:            
-            self.registry.generateKeyboardEvent(None, ord(char), pyatspi.KEY_SYM)
-    
-    def send_key(self, keyName):
-        pass
-    
-    def press_key(self, keyName):
-        pass
-    
-    def release_key(self, keyName):
-        pass
-        
-    def __processKeyEvent(self, event):
-        if event.type == pyatspi.KEY_PRESSED_EVENT:
-            self._handleKeyPress(event.hw_code)
-        else:
-            self._handleKeyRelease(event.hw_code)
-    
-    def __processWindowEvent(self, event):
-        windowName = event.host_application.split('|')[1]
-        self.activeWindow = windowName.strip()
-    
-    def _getWindowTitle(self):
-        return self.activeWindow
-    
-    def __pumpEvents(self):
-        pyatspi.Registry.pumpQueuedEvents()
-        return True
-"""
+           
+NUMPAD_MAP = {
+           KP_INSERT : (Key.INSERT, "0"),
+           KP_DELETE : (Key.DELETE, "."),
+           KP_END : (Key.END, "1"),
+           KP_DOWN : (Key.DOWN, "2"),
+           KP_PAGE_DOWN : (Key.PAGE_DOWN, "3"),
+           KP_LEFT : (Key.LEFT, "4"),
+           KP_5 : ("<unknown>", "5"),
+           KP_RIGHT : (Key.RIGHT, "6"),
+           KP_HOME : (Key.HOME, "7"),
+           KP_UP: (Key.UP, "8"),
+           KP_PAGE_UP : (Key.PAGE_UP, "9"),
+           KP_DIVIDE : ("/", "/"),
+           KP_MULTIPLY : ("*", "*"),
+           KP_ADD : ("+", "+"),
+           KP_SUBTRACT : ("-", "-"),
+           KP_ENTER : (Key.RETURN, Key.RETURN),
+           }
     
 
 class MockMediator:

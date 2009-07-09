@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -255,11 +256,11 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
         return 0        
         
-    def __cmp__(self, other):
+    """def __cmp__(self, other):
         if self.usageCount != other.usageCount:
             return cmp(self.usageCount, other.usageCount)
         else:
-            return cmp(other.title, self.title)
+            return cmp(other.title, self.title)"""
     
     def __str__(self):
         return self.title
@@ -449,11 +450,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             expansion.string = firstpart + secondpart
             
         
-    def __cmp__(self, other):
+    """def __cmp__(self, other):
         if self.usageCount != other.usageCount:
             return cmp(self.usageCount, other.usageCount)
         else:
-            return cmp(other.description, self.description)
+            return cmp(other.description, self.description)"""
 
     
     def __str__(self):

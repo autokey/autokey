@@ -1,16 +1,20 @@
+# -*- coding: utf-8 -*-
 import gtk, gobject, pynotify, re, time, copy, webbrowser, os.path
-import phrase, phrasemenu, iomediator
+import phrase, phrasemenu, iomediator, interface
 from configurationmanager import *
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
-ICON_FILE = "/usr/share/icons/autokeyicon.svg"
+ICON_FILE = "/usr/share/pixmaps/autokeyicon.svg"
 CONFIG_WINDOW_TITLE = "AutoKey Configuration"
 
 FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
-APPLICATION_VERSION = "0.54.3"
+TOOLTIP_RUNNING = "AutoKey - running"
+TOOLTIP_PAUSED = "AutoKey - paused"
+
+APPLICATION_VERSION = "0.55.0"
 
 def gthreaded(f):
     
@@ -187,6 +191,7 @@ class ConfigurationWindow(gtk.Window):
         
     def on_show_settings(self, widget, data=None):
         self.toggleExpansionsMenuItem.set_active(ConfigurationManager.SETTINGS[SERVICE_RUNNING])
+        self.toggleExpansionsMenuItem.set_sensitive(not self.app.serviceDisabled)
         
     def on_close(self, widget, data=None):
         if self.dirty:
@@ -513,6 +518,50 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.showPopupSettings)
         self.add_page(vbox, "Special Hotkeys")
         
+        # Recently typed page
+        self.useRecentEntries = gtk.CheckButton("Collect recently typed entries")
+        self.predictRecentEntries = gtk.CheckButton("Suggest recent entries using predictive mode")
+        
+        hboxStore = gtk.HBox()
+        hboxStore.pack_start(gtk.Label("Store up to "), False)
+        self.recentEntryCount = gtk.SpinButton(gtk.Adjustment(5, 1, 20, 1))
+        hboxStore.pack_start(self.recentEntryCount, False)
+        hboxStore.pack_start(gtk.Label(" recent entries"), False)        
+        
+        hboxLength = gtk.HBox()
+        hboxLength.pack_start(gtk.Label("Minimum length of entries to collect: "), False)
+        self.recentEntryLength = gtk.SpinButton(gtk.Adjustment(10, 10, 50, 1))
+        hboxLength.pack_start(self.recentEntryLength, False)
+        
+        vbox = gtk.VBox()
+        vbox.pack_start(self.useRecentEntries)
+        vbox.pack_start(gtk.HSeparator(), padding=10)
+        vbox.pack_start(self.predictRecentEntries)
+        vbox.pack_start(hboxStore, False, False, 5)
+        vbox.pack_start(hboxLength, False, False, 5)
+        self.add_page(vbox, "Recently Typed")
+        
+        # Interface settings page
+        label = gtk.Label("Configure the method AutoKey uses to receive keyboard and mouse events.\n" +
+                          "Only change this option if AutoKey is not responding to abbreviations\nand hotkeys.\n\n" +
+                          "You will need to restart AutoKey for changes made here to take effect.")
+        label.set_alignment(0, 0.5)
+        self.xrecordInterface = gtk.RadioButton(None,
+                                "X Record - Preferred option when using X.org server v1.5 or older")
+        self.evdevInterface = gtk.RadioButton(self.xrecordInterface,
+                                "X EvDev - Preferred option when using X.org server v1.6 or newer")
+        self.atspiInterface = gtk.RadioButton(self.xrecordInterface,
+                                "AT-SPI - Fallback option for Gnome users when all other methods fail")
+        self.atspiInterface.set_sensitive(interface.HAS_ATSPI)
+        
+        vbox = gtk.VBox()
+        vbox.pack_start(label)
+        vbox.pack_start(gtk.HSeparator(), padding=10)
+        vbox.pack_start(self.xrecordInterface)
+        vbox.pack_start(self.evdevInterface)
+        vbox.pack_start(self.atspiInterface)
+        self.add_page(vbox, "Device Interface")
+        
         self.show_all()
         
     def load(self, configManager):
@@ -528,6 +577,15 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.toggleServiceSetting.load(configManager.toggleServiceHotkey)
         self.showPopupSettings.load(configManager.showPopupHotkey)
         
+        self.useRecentEntries.set_active(configManager.SETTINGS[TRACK_RECENT_ENTRY])
+        self.predictRecentEntries.set_active(configManager.SETTINGS[RECENT_ENTRY_SUGGEST])
+        self.recentEntryCount.set_value(configManager.SETTINGS[RECENT_ENTRY_COUNT])
+        self.recentEntryLength.set_value(configManager.SETTINGS[RECENT_ENTRY_MINLENGTH])
+
+        self.xrecordInterface.set_active(configManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE)
+        self.evdevInterface.set_active(configManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
+        self.atspiInterface.set_active(configManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
+        
     def save(self, configManager):
         configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
         configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
@@ -541,6 +599,18 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.toggleServiceSetting.save(configManager.toggleServiceHotkey)
         self.showPopupSettings.save(configManager.showPopupHotkey)
         
+        configManager.SETTINGS[TRACK_RECENT_ENTRY] = self.useRecentEntries.get_active()
+        configManager.SETTINGS[RECENT_ENTRY_SUGGEST] = self.predictRecentEntries.get_active()
+        configManager.SETTINGS[RECENT_ENTRY_COUNT] = int(self.recentEntryCount.get_value())
+        configManager.SETTINGS[RECENT_ENTRY_MINLENGTH] = int(self.recentEntryLength.get_value())
+        
+        if self.xrecordInterface.get_active():
+            configManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
+        elif self.evdevInterface.get_active():
+            configManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_EVDEV_INTERFACE
+        else:
+            configManager.SETTINGS[INTERFACE_TYPE] = iomediator.ATSPI_INTERFACE 
+                
     def add_page(self, page, pageTitle):
         alignment = gtk.Alignment(xscale=1.0)
         alignment.set_padding(5, 5, 5, 5)
@@ -1412,7 +1482,10 @@ class Notifier(gobject.GObject):
         
         if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
-            self.icon.set_tooltip("AutoKey")
+            if ConfigurationManager.SETTINGS[SERVICE_RUNNING]:
+                self.icon.set_tooltip(TOOLTIP_RUNNING)
+            else:
+                self.icon.set_tooltip(TOOLTIP_PAUSED)
             self.icon.connect("popup_menu", self.on_popup_menu)
             self.icon.connect("activate", self.on_activate)
             
@@ -1422,7 +1495,10 @@ class Notifier(gobject.GObject):
         if isError:
             self.emit("show-notify", message, details, gtk.STOCK_DIALOG_ERROR)
         else:
-            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)      
+            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)
+            
+    def set_tooltip(self, tooltip):
+        self.icon.set_tooltip(tooltip)
         
     # Signal Handlers ----
     
@@ -1433,6 +1509,7 @@ class Notifier(gobject.GObject):
         # Main Menu items
         enableMenuItem = gtk.CheckMenuItem("Enable Expansions")
         enableMenuItem.set_active(self.app.service.is_running())
+        enableMenuItem.set_sensitive(not self.app.serviceDisabled)
         
         configureMenuItem = gtk.ImageMenuItem("Configure")
         configureMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_PREFERENCES, gtk.ICON_SIZE_MENU))  

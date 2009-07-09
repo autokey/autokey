@@ -27,6 +27,7 @@
 			<menuitem action="FAQ" />
 			<menuitem action="Online Help" />
 			<menuitem action="Donate" />
+            <separator />
 			<menuitem action="About" />
 		</menu>
 	</menubar>

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -19,21 +20,21 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.54.3", 
+      version="0.55.0", 
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.sourceforge.net/",
       license="GPL v3",
       description="Text expansion and hotkey utility",
       long_description="""AutoKey is a text expansion/replacement and hotkey utility for Linux and X11.
-It receives keyboard events either via XRecord or EvDev and uses X events to drive the expansions. 
+It can receive keyboard events via several methods and uses X events to drive the expansions. 
 It is designed to save time by automating repetitive typing tasks, among other things.""",
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},
       packages=["autokey", "autokey.plugin"],
       package_data={"autokey" : ["data/menus.xml"]},
-      data_files=[("/usr/share/icons", ["config/autokeyicon.svg"]),
+      data_files=[("/usr/share/pixmaps", ["config/autokeyicon.svg"]),
                   ("/usr/share/applications", ["config/autokey.desktop"])],
       scripts=['autokey']
       #packages=["plugin"]

@@ -13,8 +13,6 @@ Allow hotkeys to have no modifiers - but modifiers cannot be hotkeys
 
 Implement a record keystrokes function
 
-Put at least some basic info into the manpage
-
 ExpansionService to be renamed PhraseService
 
 Hotkey and abbreviation detection code to come out of PhraseService into common base class for

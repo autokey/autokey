@@ -58,7 +58,7 @@ class AutoKeyDaemon(daemon.Daemon):
             while True:
                 event = devices.next_event()
                 if event is not None:
-                    if event.type == "EV_KEY" and event.value != 2 and isinstance(event.code, str):
+                    if event.type == "EV_KEY" and isinstance(event.code, str):
                         if event.code.startswith("KEY"):
                             # Keyboard event
                             code = event.scanCode

@@ -17,6 +17,9 @@
 
 X_RECORD_INTERFACE = "XRecord"
 X_EVDEV_INTERFACE = "XEvDev"
+ATSPI_INTERFACE = "AT-SPI"
+
+INTERFACES = [X_RECORD_INTERFACE, X_EVDEV_INTERFACE, ATSPI_INTERFACE]
 
 # Key codes enumeration
 class Key:
@@ -29,6 +32,9 @@ class Key:
     TAB = "<tab>"
     RETURN = '\n'
     SPACE = ' '
+    SCROLL_LOCK = "<scroll_lock>"
+    PRINT_SCREEN = "<print_screen>"
+    PAUSE = "<pause>"
     
     # Modifier keys
     CONTROL = "<ctrl>"
@@ -37,6 +43,7 @@ class Key:
     SHIFT = "<shift>"
     SUPER = "<super>"
     CAPSLOCK = "<capslock>"
+    NUMLOCK = "<numlock>"
     
     F1 = "<f1>"
     F2 = "<f2>"
@@ -66,9 +73,11 @@ class Key:
         # before doing any comparisons
         return keyString.lower() in klass.__dict__.values() or keyString.startswith("<code")
 
-import time, threading, Queue, re
+import time, threading, Queue, re, logging
 
-MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK]
+_logger = logging.getLogger("iomediator")
+
+MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK, Key.NUMLOCK]
 NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
@@ -77,18 +86,6 @@ KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
 
 from interface import *
 from configurationmanager import ConfigurationManager
-
-def threaded(f):
-    
-    def wrapper(*args):
-        t = threading.Thread(target=f, args=args, name="KeypressHandlerThread")
-        t.setDaemon(False)
-        t.start()
-        
-    wrapper.__name__ = f.__name__
-    wrapper.__dict__ = f.__dict__
-    wrapper.__doc__ = f.__doc__
-    return wrapper
 
 class IoMediator(threading.Thread):
     """
@@ -105,7 +102,6 @@ class IoMediator(threading.Thread):
     def __init__(self, service, interface):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
         self.queue = Queue.Queue()
-        #self.service = service
         self.listeners.append(service)
         self.interfaceType = interface
         
@@ -116,45 +112,31 @@ class IoMediator(threading.Thread):
                           Key.ALT_GR: False,
                           Key.SHIFT : False,
                           Key.SUPER : False,
-                          Key.CAPSLOCK : False                         
+                          Key.CAPSLOCK : False,
+                          Key.NUMLOCK : True
                           }
         
-    def initialise(self):
-        """
-        Starts the underlying keystroke interface sending and receiving events.
-        """
-        self.__createInterface()
-        self.interface.start()
-        self.start()
-        
-    def __createInterface(self):
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self)
+        elif self.interfaceType == X_EVDEV_INTERFACE:
+            self.interface = EvDevInterface(self)    
         else:
-            self.interface = EvDevInterface(self)        
+            self.interface = AtSpiInterface(self)    
+        self.interface.start()
+        self.start()
         
     def shutdown(self):
         self.interface.cancel()
         self.queue.put_nowait((None, None))
-        
-    def switch_interface(self, interface):
-        """
-        Switch the interface being used to receive and send key events to the
-        given interface type.
-        """
-        self.interface.cancel()
-        self.interfaceType = interface
-        self.__createInterface()
-        self.interface.start()
-        
+
     # Callback methods for Interfaces ----
     
     def handle_modifier_down(self, modifier):
         """
         Updates the state of the given modifier key to 'pressed'
         """
-        #print modifier + " pressed"
-        if modifier == Key.CAPSLOCK:
+        _logger.debug("%s pressed", modifier)
+        if modifier in (Key.CAPSLOCK, Key.NUMLOCK):
             if self.modifiers[modifier]:
                 self.modifiers[modifier] = False
             else:
@@ -166,9 +148,9 @@ class IoMediator(threading.Thread):
         """
         Updates the state of the given modifier key to 'released'.
         """
-        #print modifier + " released"
-        # Caps lock is handled on key down only
-        if not modifier == Key.CAPSLOCK:
+        _logger.debug("%s released", modifier)
+        # Caps and num lock are handled on key down only
+        if not modifier in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
     def handle_keypress(self, keyCode, windowName):
@@ -181,31 +163,23 @@ class IoMediator(threading.Thread):
     def run(self):
         while True:
             keyCode, windowName = self.queue.get()
-            
+            numLock = self.modifiers[Key.NUMLOCK]
             if keyCode is None and windowName is None:
                 break
             
-            if self.__isNonPrintingModifierOn():
-                key = self.interface.lookup_string(keyCode, False)
-                modifiers = []
-                for modifier, isOn in self.modifiers.iteritems():
-                    if isOn:
-                        modifiers.append(modifier)
-                modifiers.sort()
+            modifiers = self.__getNonPrintingModifiersOn()
+            if modifiers:
+                key = self.interface.lookup_string(keyCode, False, numLock)
                 
-                #self.service.handle_hotkey(key, modifiers, windowName)
+                _logger.debug("[%s]", key)
                 for target in self.listeners:
                     target.handle_hotkey(key, modifiers, windowName)
                 
             else:
-                if self.modifiers[Key.CAPSLOCK] and self.modifiers[Key.SHIFT]:
-                    key = self.interface.lookup_string(keyCode, False)
-                elif self.modifiers[Key.CAPSLOCK] or self.modifiers[Key.SHIFT]:
-                    key = self.interface.lookup_string(keyCode, True)
-                else:
-                    key = self.interface.lookup_string(keyCode, False)
+                shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
+                key = self.interface.lookup_string(keyCode, shifted, numLock)
                 
-                #self.service.handle_keypress(key, windowName)
+                _logger.debug("[%s]", key)
                 for target in self.listeners:
                     target.handle_keypress(key, windowName)
                 
@@ -213,7 +187,6 @@ class IoMediator(threading.Thread):
             self.queue.task_done()
             
     def handle_mouse_click(self):
-        #self.service.handle_mouseclick()
         for target in self.listeners:
             target.handle_mouseclick()
         
@@ -317,7 +290,7 @@ class IoMediator(threading.Thread):
         self.releasedModifiers = []
         
         for modifier in self.modifiers.keys():
-            if self.modifiers[modifier] and not modifier == Key.CAPSLOCK:
+            if self.modifiers[modifier] and not modifier in (Key.CAPSLOCK, Key.NUMLOCK):
                 self.releasedModifiers.append(modifier)
                 self.interface.release_key(modifier)
         
@@ -325,12 +298,14 @@ class IoMediator(threading.Thread):
         for modifier in self.releasedModifiers:
             self.interface.press_key(modifier)
             
-    def __isNonPrintingModifierOn(self):
+    def __getNonPrintingModifiersOn(self):
+        modifiers = []
         for modifier in NON_PRINTING_MODIFIERS:
             if self.modifiers[modifier]:
-                return True
+                modifiers.append(modifier)
         
-        return False
+        modifiers.sort()
+        return modifiers
     
 if __name__ == "__main__":
     pass
