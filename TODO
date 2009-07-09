@@ -1,8 +1,3 @@
-Update README, INSTALL and ACKNOWLEDGEMENTS
-
-Review phrase/folder sorting in menu - make alphabetical if not by usage count
-Seems to be broken again as well
-
 Add toolbar with following functions:
     New folder
     New phrase
@@ -10,6 +5,10 @@ Add toolbar with following functions:
     Record Keystrokes
     
 Allow hotkeys to have no modifiers - but modifiers cannot be hotkeys
+UI has been updated to permit it, but refactor of IoMediator and PhraseService required
+Will now have single entry point - handle_keypress (key, modifiers, windowName)
+
+Sentence delimiter for recently typed to be improved - not just full stop. 
 
 Implement a record keystrokes function
 
@@ -30,5 +29,3 @@ FUTURE: Daemon to handle multiple connections (e.g. multiple logged-in users)
 
 FUTURE: PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
 Option to activate/deactivate above feature
-
-FUTURE: Automatic frequently typed phrase recognition using nltk

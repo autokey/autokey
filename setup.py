@@ -20,15 +20,16 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.55.0", 
+      version="0.60.0", 
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.sourceforge.net/",
       license="GPL v3",
-      description="Text expansion and hotkey utility",
-      long_description="""AutoKey is a text expansion/replacement and hotkey utility for Linux and X11.
-It can receive keyboard events via several methods and uses X events to drive the expansions. 
-It is designed to save time by automating repetitive typing tasks, among other things.""",
+      description="Desktop automation utility",
+      long_description="""AutoKey is a desktop automation utility for Linux and X11. It allows
+the automation of virtually any task by responding to typed abbreviations and hotkeys. It 
+offers a full-featured GUI that makes it highly accessible for novices, as well as a scripting 
+interface offering the full flexibility and power of the Python language.""",
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},

@@ -1,10 +1,13 @@
 Metadata-Version: 1.0
 Name: autokey
-Version: 0.55.0
-Summary: Text expansion and hotkey utility
+Version: 0.60.0
+Summary: Desktop automation utility
 Home-page: http://autokey.sourceforge.net/
 Author: Chris Dekter
 Author-email: cdekter@gmail.com
 License: GPL v3
-Description: AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It can receive keyboard events via several methods and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks, among other things.
+Description: AutoKey is a desktop automation utility for Linux and X11. It allows the automation of virtually
+			 any task by responding to typed abbreviations and hotkeys. It offers a full-featured GUI that
+			 makes it highly accessible for novices, as well as a scripting interface offering the
+			 full flexibility and power of the Python language.
 Platform: UNKNOWN

@@ -11,5 +11,5 @@ Package: autokey
 Architecture: any
 Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gobject, python-xlib, python-configobj, python-notify, librsvg2-2
 XB-Python-Version: ${python:Versions}
-Description: Text expansion and hotkey utility
- AutoKey is a text expansion/replacement and hotkey utility for Linux and X11. It can receive keyboard events via several methods and uses X events to drive the expansions. It is designed to save time by automating repetitive typing tasks, among other things.
+Description: Desktop automation utility
+ AutoKey is a desktop automation utility for Linux and X11. It allows the automation of virtually any task by responding to typed abbreviations and hotkeys. It offers a full-featured GUI that makes it highly accessible for novices, as well as a scripting interface offering the full flexibility and power of the Python language.
