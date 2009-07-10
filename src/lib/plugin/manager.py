@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 from plugins import *
 
@@ -35,8 +36,7 @@ class PluginManager:
         for token in tokens:
             if TOKEN_RE.match(token):
                 # Identify plugin
-                token = token.lower()
-                pluginId = token.split(' ', 1)[0][2:]
+                pluginId = token.split(' ', 1)[0][2:].lower()
                 try:
                     finalString.append(self.plugins[pluginId].get_string(token, buffer))
                     expansion.backspaces += self.plugins[pluginId].get_backspace_count() 

@@ -29,7 +29,7 @@ class PhraseMenu(gtk.Menu):
         if len(phraseFolders) == 1 and len(phrases) == 0 and onDesktop:
             # Only one folder - create menu with just its folders and phrases
             for folder in phraseFolders[0].folders:
-                menuItem = gtk.MenuItem(folder.title)
+                menuItem = gtk.MenuItem(folder.title, False)
                 menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
                 self.append(menuItem)
     
@@ -41,7 +41,7 @@ class PhraseMenu(gtk.Menu):
         else:
             # Create phrase folder section
             for folder in phraseFolders:
-                menuItem = gtk.MenuItem(folder.title)
+                menuItem = gtk.MenuItem(folder.title, False)
                 menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
                 self.append(menuItem)
     
@@ -72,9 +72,9 @@ class PhraseMenu(gtk.Menu):
             
         for phrase in phrases:
             if onDesktop:
-                menuItem = gtk.MenuItem(phrase.get_description(expansionService.lastStackState))
+                menuItem = gtk.MenuItem(phrase.get_description(expansionService.lastStackState), False)
             else:
-                menuItem = gtk.MenuItem(phrase.description)
+                menuItem = gtk.MenuItem(phrase.description, False)
             menuItem.connect("activate", expansionService.phrase_selected, phrase)
             self.append(menuItem)        
 

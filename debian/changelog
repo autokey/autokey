@@ -16,10 +16,14 @@ autokey (0.55.0-0~jaunty) jaunty; urgency=low
    Fix hotkeys not working if Capslock or Numlock are on
    Get rid of interface switching code
    Create manpage
-   Implement recently typed phrase/command detection
    Fix bug where the system would sometimes lock up a while after displaying a phrase menu
    Fix bug with EvDev interface where repeated keypress (key being held down) are ignored
    Fix PhraseMenu sorting, and make it sort alphabetically if not by usage count
+   Disable mnemonics in PhraseMenu - or phrases with _ in title not displayed correctly
+   Minor tweak to fix for 2782632, as it broke macros in other ways.
+   Improve logging - log to file if run without -v
+   Add -c | --configure option to forcibly show the configure dialog on startup
+   Fix annoying bug where right-click of treeview doesn't always pick up the right node
     
  -- Chris Dekter <cdekter@gmail.com>  Wed, 8 Jul 2009 20:38:05 +1000
 

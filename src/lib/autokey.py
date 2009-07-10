@@ -20,12 +20,16 @@
 
 import pygtk
 pygtk.require("2.0")
-import sys, gtk, traceback, os.path, signal, logging
+import sys, gtk, traceback, os.path, signal, logging, logging.handlers
 import expansionservice, ui, configurationmanager
 from configurationmanager import *
 
 CONFIG_DIR = os.path.expanduser("~/.config/autokey")
 LOCK_FILE = CONFIG_DIR + "/autokey.pid"
+LOG_FILE = CONFIG_DIR + "/autokey.log"
+MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
+MAX_LOG_COUNT = 3
+LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 
 class AutoKeyApplication:
     """
@@ -33,13 +37,22 @@ class AutoKeyApplication:
     from here, together with some interactions from the tray icon.
     """
 
-    def __init__(self, verbose):
+    def __init__(self, verbose, configure):
         # Initialise logger
+        rootLogger = logging.getLogger()
+        
         if verbose:
-            level = logging.DEBUG
-        else:
-            level = logging.INFO
-        logging.basicConfig(level=level)
+            rootLogger.setLevel(logging.DEBUG)
+            handler = logging.StreamHandler(sys.stdout)
+        else:           
+            rootLogger.setLevel(logging.INFO)
+            handler = logging.handlers.RotatingFileHandler(LOG_FILE, 
+                                    maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
+        
+        handler.setFormatter(logging.Formatter(LOG_FORMAT))
+        rootLogger.addHandler(handler)
+            
+        
         
         try:
             if not os.path.exists(CONFIG_DIR):
@@ -57,7 +70,7 @@ class AutoKeyApplication:
             else:
                 self.__createLockFile()
                 
-            self.initialise()
+            self.initialise(configure)
             
         except Exception, e:
             self.show_error_dialog("Fatal error starting AutoKey.\n" + str(e))
@@ -69,7 +82,7 @@ class AutoKeyApplication:
         f.write(str(os.getpid()))
         f.close()
         
-    def initialise(self):
+    def initialise(self, configure):
         logging.info("Initialising application")
         self.configManager = configurationmanager.get_config_manager(self)
         self.service = expansionservice.ExpansionService(self)
@@ -90,8 +103,7 @@ class AutoKeyApplication:
         self.configureWindow = None
         self.abbrPopup = None
         
-        if ConfigurationManager.SETTINGS[IS_FIRST_RUN]:
-            logging.info("First run - showing configuration dialog")
+        if ConfigurationManager.SETTINGS[IS_FIRST_RUN] or configure:
             ConfigurationManager.SETTINGS[IS_FIRST_RUN] = False
             self.show_configure()
             

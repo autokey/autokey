@@ -11,7 +11,7 @@
 # Description:       Enable AutoKey's EvDev interface daemon.
 ### END INIT INFO
 
-import sys, os, socket, glob
+import sys, os, socket, glob, shutil
 from autokey import evdev, daemon
 from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
 
@@ -20,18 +20,17 @@ PACKET_STRING = "%s,%s,%s"
 class AutoKeyDaemon(daemon.Daemon):
 
     def __init__(self):
-        logFile = "/var/log/autokey-daemon"
+        logFile = "/var/log/autokey-daemon.log"
         if os.path.exists(logFile):
-            os.remove(logFile)
+            shutil.move(logFile, logFile + '.old')
         daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
 
     def get_device_paths(self):
         keyboardLocations = glob.glob("/dev/input/by-path/*-event-kbd")
         mouseLocations = glob.glob("/dev/input/by-path/*-event-mouse")
-        touchpadLocations = []    
     
-        sys.stdout.write("Keyboards: %s\nMice: %s\nTouchpads: %s\n" % (repr(keyboardLocations), repr(mouseLocations), repr(touchpadLocations)))
-        return keyboardLocations + mouseLocations + touchpadLocations
+        sys.stdout.write("Keyboards: %s\nMice: %s\n" % (repr(keyboardLocations), repr(mouseLocations)))
+        return keyboardLocations + mouseLocations
     
     def run(self):
         print "AutoKey daemon starting"
@@ -68,9 +67,6 @@ class AutoKeyDaemon(daemon.Daemon):
                             try:
                                 self.send_packet(conn, code, button, state)
                             except:
-                                sys.stdout.flush()
-                                sys.stderr.flush()
-                                devices.close()
                                 break
     
                         elif event.code.startswith("BTN") and event.value == 1:
@@ -82,13 +78,13 @@ class AutoKeyDaemon(daemon.Daemon):
                             try:
                                 self.send_packet(conn, code, button, state)
                             except:
-                                sys.stdout.flush()
-                                sys.stderr.flush()
-                                devices.close()
                                 break
 
             conn.close()
+            devices.close()
             print "Connection closed"
+            sys.stdout.flush()
+            sys.stderr.flush()
                        
     def send_packet(self, conn, code, button, state):
         if code:

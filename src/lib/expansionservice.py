@@ -82,8 +82,8 @@ class ExpansionService:
         self.inputStack = []
         self.recentEntryStack = []
         
-        # set menu to none. If we had a menu and receive a mouse click, means we already
-        # hid the menu. don't need to do it again
+        # If we had a menu and receive a mouse click, means we already
+        # hid the menu. Don't need to do it again
         self.lastMenu = None
         
     def handle_hotkey(self, key, modifiers, windowName):
@@ -250,6 +250,7 @@ class ExpansionService:
     @threaded
     def phrase_selected(self, event, phrase):
         time.sleep(0.25) # wait for window to be active
+        self.lastMenu = None # if a phrase has been selected, we can be sure the menu has been hidden
         self.__sendPhrase(phrase, self.lastStackState)
         
     def __sendPhrase(self, phrase, buffer=''):

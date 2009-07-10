@@ -7,10 +7,11 @@ from autokey.autokey import AutoKeyApplication
 # This is overkill at the moment, but might be handy to have in the future
 p = optparse.OptionParser()
 p.add_option("-v", "--verbose", help="Enable verbose logging", action="store_true", default=False)
+p.add_option("-c", "--configure", help="Show the configuration window on startup", action="store_true", default=False)
 options, args = p.parse_args()
 
 gtk.gdk.threads_init()
-a = AutoKeyApplication(options.verbose)
+a = AutoKeyApplication(options.verbose, options.configure)
 try:
     a.main()
 except KeyboardInterrupt:

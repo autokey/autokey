@@ -371,7 +371,16 @@ class ConfigurationWindow(gtk.Window):
             return True
         else:
             if event.button == 3:
-                self.__popupMenu(event)
+                x = int(event.x)
+                y = int(event.y)
+                time = event.time
+                pthinfo = widget.get_path_at_pos(x, y)
+                if pthinfo is not None:
+                    path, col, cellx, celly = pthinfo
+                    widget.grab_focus()
+                    widget.set_cursor(path, col, 0)
+                    self.__popupMenu(event)
+                return True
 
     def __popupMenu(self, event):
         selection = self.__getTreeSelection()            

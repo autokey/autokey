@@ -8,6 +8,8 @@ Allow hotkeys to have no modifiers - but modifiers cannot be hotkeys
 UI has been updated to permit it, but refactor of IoMediator and PhraseService required
 Will now have single entry point - handle_keypress (key, modifiers, windowName)
 
+When using predictive mode, make phraseMenu hang around for 5 keypresses rather than immediately closing it
+
 Sentence delimiter for recently typed to be improved - not just full stop. 
 
 Implement a record keystrokes function
