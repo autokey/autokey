@@ -49,7 +49,6 @@ class ExpansionService:
         self.mediator = None
         self.app = app
         self.inputStack = []
-        self.recentEntryStack = []
         self.lastStackState = ''
         self.lastMenu = None
         self.lastAbbr = None
@@ -80,7 +79,6 @@ class ExpansionService:
     def handle_mouseclick(self):
         logger.debug("Received mouse click - resetting buffers")        
         self.inputStack = []
-        self.recentEntryStack = []
         
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
@@ -97,7 +95,6 @@ class ExpansionService:
         # Check other hotkeys if service enabled and not in config window
         if not windowName == ui.CONFIG_WINDOW_TITLE and self.is_running():
             self.inputStack = []
-            self.recentEntryStack = []
             folderMatch = None
             phraseMatch = None
             menu = None
@@ -160,13 +157,11 @@ class ExpansionService:
         if key == Key.BACKSPACE:
             # handle backspace by dropping the last saved character
             self.inputStack = self.inputStack[:-1]
-            self.recentEntryStack = self.recentEntryStack[:-1]
             
         elif len(key) > 1:
             # FIXME exception occurs if key is None
             # non-simple key
             self.inputStack = []
-            self.recentEntryStack = []
             
         else:
             # Key is a character
@@ -216,36 +211,11 @@ class ExpansionService:
                     self.lastStackState = currentInput
                     self.lastMenu = PhraseMenu(self, folderMatches, phraseMatches)
                     self.lastMenu.show_on_desktop()
-            else:
-                # Not an abbreviation, check for recent entry. Only add 'sentences' delimited by \n or .
-                if self.configManager.SETTINGS[configurationmanager.TRACK_RECENT_ENTRY]:
-                    self.recentEntryStack.append(key)
-                    recentEntry = None
-                    currentInput = ''.join(self.recentEntryStack)
-                    
-                    if key == '\n':
-                        # Capture a terminal command
-                        recentEntry = currentInput[:-1].rsplit('\n', 1)[-1]
-                    elif key == '.':
-                        # Capture a sentence, but only if it starts with a capital
-                        recentEntry = currentInput[:-1].rsplit('.', 1)[-1].strip()
-                        if len(recentEntry) > 0:
-                            if not recentEntry[0].isupper():
-                                recentEntry = None
-                 
-                    if recentEntry is not None:
-                        minLength = self.configManager.SETTINGS[configurationmanager.RECENT_ENTRY_MINLENGTH]
-                        if len(recentEntry) > minLength:
-                            self.configManager.add_recent_entry(recentEntry)
-                            self.recentEntryStack = []
                 
         if len(self.inputStack) > MAX_STACK_LENGTH: 
             self.inputStack.pop(0)
-        if len(self.recentEntryStack) > MAX_STACK_LENGTH: 
-            self.recentEntryStack.pop(0)
             
         logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
-        logger.debug("Recent entry stack at end of handle_keypress: %s", self.recentEntryStack)
     
     @threaded
     def phrase_selected(self, event, phrase):
@@ -276,7 +246,6 @@ class ExpansionService:
         
         #self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
         self.inputStack = []
-        self.recentEntryStack = []
         
         self.mediator.send_backspace(expansion.backspaces + extraBs)
         self.mediator.send_string(expansion.string)

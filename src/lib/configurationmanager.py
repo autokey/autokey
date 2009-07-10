@@ -39,10 +39,12 @@ PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 INTERFACE_TYPE = "interfaceType"
-TRACK_RECENT_ENTRY = "trackRecentEntry"
-RECENT_ENTRY_COUNT = "recentEntryCount"
-RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
-RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
+
+# TODO - Future functionality
+#TRACK_RECENT_ENTRY = "trackRecentEntry"
+#RECENT_ENTRY_COUNT = "recentEntryCount"
+#RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
+#RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
 def get_config_manager(autoKeyApp):
     if os.path.exists(CONFIG_FILE):
@@ -150,11 +152,12 @@ class ConfigurationManager:
                 PREDICTIVE_LENGTH : 5,
                 INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : _chooseInterface(),
-                TRACK_RECENT_ENTRY : True,
-                RECENT_ENTRY_COUNT : 5,
-                RECENT_ENTRY_MINLENGTH : 10,
-                RECENT_ENTRY_SUGGEST : True
+                INTERFACE_TYPE : _chooseInterface()
+                # TODO - Future functionality
+                #TRACK_RECENT_ENTRY : True,
+                #RECENT_ENTRY_COUNT : 5,
+                #RECENT_ENTRY_MINLENGTH : 10,
+                #RECENT_ENTRY_SUGGEST : True
                 }
                 
     def __init__(self, app):
@@ -208,6 +211,7 @@ class ConfigurationManager:
         trayPhrases.add_phrase(Phrase("Third phrase", "Test phrase number three!"))
         self.folders[trayPhrases.title] = trayPhrases
         
+        # TODO - future functionality
         self.recentEntries = []
         
         self.config_altered()
@@ -268,6 +272,7 @@ class ConfigurationManager:
                 self.abbrPhrases.append(phrase)
             self.allPhrases.append(phrase)
             
+    # TODO Future functionality
     def add_recent_entry(self, entry):
         if not self.folders.has_key(RECENT_ENTRIES_FOLDER):
             folder = PhraseFolder(RECENT_ENTRIES_FOLDER)

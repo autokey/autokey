@@ -527,8 +527,8 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.showPopupSettings)
         self.add_page(vbox, "Special Hotkeys")
         
-        # Recently typed page
-        self.useRecentEntries = gtk.CheckButton("Collect recently typed entries")
+        # Recently typed page - future functionality
+        """self.useRecentEntries = gtk.CheckButton("Collect recently typed entries")
         self.predictRecentEntries = gtk.CheckButton("Suggest recent entries using predictive mode")
         
         hboxStore = gtk.HBox()
@@ -548,7 +548,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.predictRecentEntries)
         vbox.pack_start(hboxStore, False, False, 5)
         vbox.pack_start(hboxLength, False, False, 5)
-        self.add_page(vbox, "Recently Typed")
+        self.add_page(vbox, "Recently Typed")"""
         
         # Interface settings page
         label = gtk.Label("Configure the method AutoKey uses to receive keyboard and mouse events.\n" +
@@ -586,10 +586,12 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.toggleServiceSetting.load(configManager.toggleServiceHotkey)
         self.showPopupSettings.load(configManager.showPopupHotkey)
         
+        # Recently typed page - future functionality
+        """
         self.useRecentEntries.set_active(configManager.SETTINGS[TRACK_RECENT_ENTRY])
         self.predictRecentEntries.set_active(configManager.SETTINGS[RECENT_ENTRY_SUGGEST])
         self.recentEntryCount.set_value(configManager.SETTINGS[RECENT_ENTRY_COUNT])
-        self.recentEntryLength.set_value(configManager.SETTINGS[RECENT_ENTRY_MINLENGTH])
+        self.recentEntryLength.set_value(configManager.SETTINGS[RECENT_ENTRY_MINLENGTH])"""
 
         self.xrecordInterface.set_active(configManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE)
         self.evdevInterface.set_active(configManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
@@ -608,10 +610,12 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.toggleServiceSetting.save(configManager.toggleServiceHotkey)
         self.showPopupSettings.save(configManager.showPopupHotkey)
         
+        # Recently typed page - future functionality
+        """
         configManager.SETTINGS[TRACK_RECENT_ENTRY] = self.useRecentEntries.get_active()
         configManager.SETTINGS[RECENT_ENTRY_SUGGEST] = self.predictRecentEntries.get_active()
         configManager.SETTINGS[RECENT_ENTRY_COUNT] = int(self.recentEntryCount.get_value())
-        configManager.SETTINGS[RECENT_ENTRY_MINLENGTH] = int(self.recentEntryLength.get_value())
+        configManager.SETTINGS[RECENT_ENTRY_MINLENGTH] = int(self.recentEntryLength.get_value())"""
         
         if self.xrecordInterface.get_active():
             configManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
