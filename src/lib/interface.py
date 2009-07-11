@@ -478,7 +478,10 @@ class EvDevInterface(XInterfaceBase):
             
             if keyCode:
                 keyCode = int(keyCode)
-                if state == '1':
+                if state == '2':
+                    self._handleKeyRelease(keyCode)
+                    self._handleKeyPress(keyCode)
+                elif state == '1':
                     self._handleKeyPress(keyCode)
                 elif state == '0':
                     self._handleKeyRelease(keyCode)

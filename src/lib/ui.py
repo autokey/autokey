@@ -1513,7 +1513,8 @@ class Notifier(gobject.GObject):
             self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)
             
     def set_tooltip(self, tooltip):
-        self.icon.set_tooltip(tooltip)
+        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
+            self.icon.set_tooltip(tooltip)
         
     # Signal Handlers ----
     
