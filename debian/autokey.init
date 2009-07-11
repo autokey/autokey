@@ -112,12 +112,16 @@ if __name__ == "__main__":
             daemon.stop()
         elif 'restart' == sys.argv[1]:
             daemon.restart()
+        elif 'force-reload' == sys.argv[1]:
+            # we don't support on-the-fly reloading,
+            # so just restart the daemon per DPM 9.3.2
+            daemon.restart()            
         else:
             print "Unknown command"
             sys.exit(2)
         sys.exit(0)
     else:
-        print "usage: %s start|stop|restart" % sys.argv[0]
+        print "usage: %s {start|stop|restart|force-reload}" % sys.argv[0]
         sys.exit(2)
     
     sys.exit(0)

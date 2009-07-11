@@ -1,93 +1,104 @@
 autokey (0.60.0-0~jaunty) jaunty; urgency=low
 
-   Implement scripting interface (ScriptService)
-   Add required UI elements for scripting interface
-   Refactor ExpansionService, rename to PhraseService
-   Implement libraries to provide script namespaces
+  * Implement scripting interface (ScriptService)
+  * Add required UI elements for scripting interface
+  * Refactor ExpansionService, rename to PhraseService
+  * Implement libraries to provide script namespaces
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 9 Jul 2009 20:38:05 +1000
 
-autokey (0.55.0-0~jaunty) jaunty; urgency=low
+autokey (0.54.4-0~jaunty) jaunty; urgency=low
 
-   Add support for numpad keys, and a few other standard keys that were not handled
-   Add AT-SPI interface
-   Add configuration screen to choose interface type (requires restart)
-   Make tooltip display 'running' or 'paused' depending on service status
-   Fix hotkeys not working if Capslock or Numlock are on
-   Get rid of interface switching code
-   Create manpage
-   Fix bug where the system would sometimes lock up a while after displaying a phrase menu
-   Fix bug with EvDev interface where repeated keypress (key being held down) are ignored
-   Fix PhraseMenu sorting, and make it sort alphabetically if not by usage count
-   Disable mnemonics in PhraseMenu - or phrases with _ in title not displayed correctly
-   Minor tweak to fix for 2782632, as it broke macros in other ways.
-   Improve logging - log to file if run without -v
-   Add -c | --configure option to forcibly show the configure dialog on startup
-   Fix annoying bug where right-click of treeview doesn't always pick up the right node
-    
+  [ Chris Dekter ]
+  * Add support for numpad keys, and a few other standard keys that were not handled
+  * Add AT-SPI interface
+  * Add configuration screen to choose interface type (requires restart)
+  * Make tooltip display 'running' or 'paused' depending on service status
+  * Fix hotkeys not working if Capslock or Numlock are on
+  * Get rid of interface switching code
+  * Create manpage
+  * Fix bug where the system would sometimes lock up a while after displaying a phrase menu
+  * Fix bug with EvDev interface where repeated keypress (key being held down) are ignored
+  * Fix PhraseMenu sorting, and make it sort alphabetically if not by usage count
+  * Disable mnemonics in PhraseMenu - or phrases with _ in title not displayed correctly
+  * Minor tweak to fix for 2782632, as it broke macros in other ways.
+  * Improve logging - log to file if run without -v
+  * Add -c | --configure option to forcibly show the configure dialog on startup
+  * Fix annoying bug where right-click of treeview doesn't always pick up the right node
+  * Implement proper handling of Unicode/UTF-8 - all internal strings are now unicode instances
+  * Implement yet another (rather hacky) fix for Alt-Gr issues. 
+
+  [ Luke Faraone ]
+  * debian/control: Fixed improper line lengths
+  * debian/copyright: Fix usage of (C) with © (the latter is not valid)
+  * debian/copyright: Credit original author
+  * debian/copyright: Remove dh_make template text
+  * debian/autokey.init: Add required option force-reload 
+  * src/lib/autokey.py: Create configuration directory if it doesn't already exist
+
  -- Chris Dekter <cdekter@gmail.com>  Wed, 8 Jul 2009 20:38:05 +1000
 
 autokey (0.54.3-0~jaunty) jaunty; urgency=low
 
-   Fix daemon sometimes dying when receiving events with integer code
-   Make daemon find devices using by-path entries instead of relying on HAL
-   Update TODO
-   Make Comment in .desktop entry nicer. Add GenericName
-	
+  * Fix daemon sometimes dying when receiving events with integer code
+  * Make daemon find devices using by-path entries instead of relying on HAL
+  * Update TODO
+  * Make Comment in .desktop entry nicer. Add GenericName
+
  -- Chris Dekter <cdekter@gmail.com>  Tue, 7 Jul 2009 08:38:05 +1000
 
 autokey (0.54.2-0~jaunty) jaunty; urgency=low
 
-   Fix daemon dropping connection on mouse clicks
-   Add logging and command line option to set level to debug
-   Add LSB info to daemon script
-	
+  * Fix daemon dropping connection on mouse clicks
+  * Add logging and command line option to set level to debug
+  * Add LSB info to daemon script
+
  -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 18:38:05 +1000
 
 autokey (0.54.1-0~jaunty) jaunty; urgency=low
 
-   Refactor daemon so it starts successfully during boot
-   Fix problem where daemon exits if run on a PC without a touchpad
-   Fix initialisation of global hotkeys
-   Fix inability to configure any hotkeys
-	
+  * Refactor daemon so it starts successfully during boot
+  * Fix problem where daemon exits if run on a PC without a touchpad
+  * Fix initialisation of global hotkeys
+  * Fix inability to configure any hotkeys
+
  -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 00:11:05 +1000
 
 autokey (0.54.0-0~jaunty) jaunty; urgency=low
 
-   Add new EvDev interface as an alternative where XRecord is not available.
-   Make EvDev the default (changing to XRecord will require hacking the code, for now).
-   Fix bug where Cut/Copy/Paste entries under Edit menu were not correctly disabled.
-   
-   Includes fix for:
-   2782632 - Capitalization is applied to macros and specialkeys
-	
+  * Add new EvDev interface as an alternative where XRecord is not available.
+  * Make EvDev the default (changing to XRecord will require hacking the code, for now).
+  * Fix bug where Cut/Copy/Paste entries under Edit menu were not correctly disabled.
+  * 
+  * Includes fix for:
+  * 2782632 - Capitalization is applied to macros and specialkeys
+
  -- Chris Dekter <cdekter@gmail.com>  Sat, 4 Jul 2009 12:11:05 +1000
 
 autokey (0.53.1-2~intrepid) intrepid; urgency=low
 
-   Alter cut/copy/paste to release standard key bindings to normal functions
-   Break sub plugin input at line endings, in addition to spaces
-   Add donate button as per ER 2789380
-	
+  * Alter cut/copy/paste to release standard key bindings to normal functions
+  * Break sub plugin input at line endings, in addition to spaces
+  * Add donate button as per ER 2789380
+
  -- Chris Dekter <cdekter@gmail.com>  Thu, 21 May 2009 19:13:37 +1000
 
 autokey (0.53.0-2) intrepid; urgency=low
 
-   Alter build-depends to allow compatibility with hardy
-   Added a fully functioning distutils-based installer.
-   Added links to the Manual and FAQ in the Help menu.
+  * Alter build-depends to allow compatibility with hardy
+  * Added a fully functioning distutils-based installer.
+  * Added links to the Manual and FAQ in the Help menu.
 
-   Includes fixes for the following defects:
-   2782607 - Issues with '<' sign
-   2783421 - Multiple use of $(sub ) produces superfluous backspace
-   2720487 - $(sub ) problem with parentheses, quotes etc.
-   2783016 - Sub: '~' does not work as split character with DE keyboard
-   2782526 - <alt_gr> not working
-   2710535 - Exception on repeated window switching
-   2710118 - Multiple abbreviation windows opened
-   2697670 - Exception when using predefined hotkeys.
-   2697653 - Can't assign hotkey
+  * Includes fixes for the following defects:
+  * 2782607 - Issues with '<' sign
+  * 2783421 - Multiple use of $(sub ) produces superfluous backspace
+  * 2720487 - $(sub ) problem with parentheses, quotes etc.
+  * 2783016 - Sub: '~' does not work as split character with DE keyboard
+  * 2782526 - <alt_gr> not working
+  * 2710535 - Exception on repeated window switching
+  * 2710118 - Multiple abbreviation windows opened
+  * 2697670 - Exception when using predefined hotkeys.
+  * 2697653 - Can't assign hotkey
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 12 May 2009 19:35:37 +1000
 

@@ -169,7 +169,7 @@ class IoMediator(threading.Thread):
             
             modifiers = self.__getNonPrintingModifiersOn()
             if modifiers:
-                key = self.interface.lookup_string(keyCode, False, numLock)
+                key = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
                 
                 _logger.debug("[%s]", key)
                 for target in self.listeners:
@@ -177,7 +177,7 @@ class IoMediator(threading.Thread):
                 
             else:
                 shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
-                key = self.interface.lookup_string(keyCode, shifted, numLock)
+                key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
                 
                 _logger.debug("[%s]", key)
                 for target in self.listeners:
@@ -202,7 +202,7 @@ class IoMediator(threading.Thread):
         self.__clearModifiers()
         modifiers = []
         
-        for section in KEY_SPLIT_RE.split(string.decode("utf-8")):
+        for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
                 if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
                     # Section is a modifier application (modifier followed by '+')

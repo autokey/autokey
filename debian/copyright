@@ -3,13 +3,14 @@ Tue, 12 May 2009 19:35:37 +1000.
 
 It was downloaded from http://autokey.sourceforge.net/
 
-Upstream Author(s):
+Upstream Authors:
 
     Chris Dekter <cdekter@gmail.com>
+    Sam Peterson <peabodyenator@gmail.com>
 
 Copyright:
 
-    <Copyright (C) 2009 Chris Dekter>
+    Copyright © 2009 Chris Dekter
 
 License:
 
@@ -30,5 +31,8 @@ License:
 On Debian systems, the complete text of the GNU General
 Public License can be found in `/usr/share/common-licenses/GPL'.
 
-The Debian packaging is (C) 2009, Chris Dekter <cdekter@gmail.com> and
-is licensed under the GPL, see above.
+The Debian packaging is 
+
+    Copyright © 2009, Chris Dekter <cdekter@gmail.com> 
+
+and is licensed under the GPL, see above.

@@ -43,7 +43,9 @@ CAPSLOCK = 'XK_Caps_Lock'
 CONTROL = 'XK_Control_L'
 CONTROL_R = 'XK_Control_R'
 ALT = 'XK_Alt_L'
-ALT_GR = 'XK_Alt_R'
+ALT_R = 'XK_Alt_R'
+ALT_GR = 'XK_ISO_Level3_Shift'
+#ALT_GR = 'XK_Alt_R'
 SUPER = 'XK_Super_L'
 SUPER_R = 'XK_Super_R'
 NUMLOCK = 'XK_Num_Lock'
@@ -140,10 +142,10 @@ class XInterfaceBase(threading.Thread):
             self.keyCodes[keyName] = keyCode
             self.keyNames[keyCode] = keyName
 
-        if self.keyCodes[Key.ALT_GR] == 0:
-            altGrCode = self.localDisplay.keysym_to_keycode(XK.XK_ISO_Level3_Shift)
-            self.keyCodes[Key.ALT_GR] = altGrCode
-            self.keyNames[altGrCode] = Key.ALT_GR 
+        altGrTuples = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
+        for keyCode, level in altGrTuples:
+            self.keyCodes[Key.ALT_GR] = keyCode
+            self.keyNames[keyCode] = Key.ALT_GR
             
         # Create map of numpad keycodes, similar to above
         keyList = NUMPAD_MAP.keys()
@@ -158,12 +160,15 @@ class XInterfaceBase(threading.Thread):
         
     def keymap_test(self):
         #logger.debug("XK keymap:")
-        #for attr in XK.__dict__.iteritems():
-        #    if attr[0].startswith("XK"):
-        #        logger.info("%s, %s", attr[0], attr[1])        
+        code = self.localDisplay.keycode_to_keysym(108, 0)
+        for attr in XK.__dict__.iteritems():
+            if attr[0].startswith("XK"):
+                if attr[1] == code:
+                    logger.debug("Alt-Grid: %s, %s", attr[0], attr[1])
+        logger.debug(repr(self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)))
         
         logger.debug("X Server Keymap")
-        for char in "`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
+        for char in "\\|`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) > 0:
                 #keyCode, offset = keyCodeList[0]
@@ -171,6 +176,7 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
+        
                 
         #print "The following is a test for Alt-Gr modifier mapping. Please open a text editing program for this test."
         #print "After 10 seconds, the test will commence. 6 key events will be sent. Please monitor the output and record"
@@ -191,7 +197,7 @@ class XInterfaceBase(threading.Thread):
         #self.__sendKeyCode(keyCode, X.Mod5Mask)
         #print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
-    def lookup_string(self, keyCode, shifted, numlock):
+    def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
             return "<unknown>"
         
@@ -207,10 +213,10 @@ class XInterfaceBase(threading.Thread):
                 
         else:
             try:
-                if shifted:
-                    return unichr(self.localDisplay.keycode_to_keysym(keyCode, 1))
-                else:
-                    return unichr(self.localDisplay.keycode_to_keysym(keyCode, 0))
+                index = 0
+                if shifted: index += 1 
+                if altGrid: index += 4  
+                return unichr(self.localDisplay.keycode_to_keysym(keyCode, index))
             except ValueError:
                 return "<code%d>" % keyCode
     
@@ -222,22 +228,30 @@ class XInterfaceBase(threading.Thread):
         for char in string:
             if self.keyCodes.has_key(char):
                 self.send_key(char)
-            else:
+            else: 
                 keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
                 if len(keyCodeList) > 0:
                     keyCode, offset = keyCodeList[0]
                     if offset == 1:
                         self.__sendKeyCode(keyCode, X.ShiftMask)
-                    elif offset == 2:
-                        self.__sendKeyCode(keyCode, X.Mod1Mask)
-                    elif offset == 3:
-                        self.__sendKeyCode(keyCode, X.Mod2Mask)
                     elif offset == 4:
-                        self.__sendKeyCode(keyCode, X.Mod3Mask)
-                    elif offset == 5:
-                        self.__sendKeyCode(keyCode, X.Mod4Mask)
-                    elif offset == 6:
-                        self.__sendKeyCode(keyCode, X.Mod5Mask)
+                        self.send_modified_key(char, [Key.ALT_GR])
+                    # TODO - I've given up trying to make it work the proper way
+                    #elif offset == X.Mod1MapIndex:
+                    #    print "mod1mask"
+                    #    self.__sendKeyCode(keyCode, X.Mod1Mask)
+                    #elif offset == X.Mod2MapIndex:
+                    #    print "mod2mask"
+                    #    self.__sendKeyCode(keyCode, X.Mod2Mask)
+                    #elif offset == X.Mod3MapIndex:
+                    #    print "mod3mask"
+                    #    self.__sendKeyCode(keyCode, X.Mod3Mask)
+                    #elif offset == X.Mod4MapIndex:
+                    #    print "mod4mask"
+                    #    self.__sendKeyCode(keyCode, X.Mod4Mask)
+                    #elif offset == X.Mod5MapIndex:
+                    #    print "mod5mask"
+                    #    self.__sendKeyCode(keyCode, X.Mod5Mask)
                     else:
                         self.__sendKeyCode(keyCode)                    
                 else:
@@ -403,10 +417,7 @@ class XInterfaceBase(threading.Thread):
             # TODO I don't think this code is ever reached. Get rid of it at some point
             try:
                 code = self.localDisplay.keysym_to_keycode(ord(char))
-                if code == 94:
-                    return 59 # workaround < doesn't seem to get sent properly
-                else:
-                    return code
+                return code
             except Exception, e:
                 logger.error("Unknown key name: %s", char)
                 raise
@@ -584,6 +595,7 @@ KEY_MAP = {
            CONTROL : Key.CONTROL,
            CONTROL_R : Key.CONTROL,
            ALT : Key.ALT,
+           ALT_R : Key.ALT,
            ALT_GR : Key.ALT_GR,
            SUPER : Key.SUPER,
            SUPER_R : Key.SUPER,

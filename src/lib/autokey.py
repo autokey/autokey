@@ -31,6 +31,7 @@ MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
 MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 
+
 class AutoKeyApplication:
     """
     Main application class; starting and stopping of the application is controlled
@@ -38,25 +39,24 @@ class AutoKeyApplication:
     """
 
     def __init__(self, verbose, configure):
-        # Initialise logger
-        rootLogger = logging.getLogger()
-        
-        if verbose:
-            rootLogger.setLevel(logging.DEBUG)
-            handler = logging.StreamHandler(sys.stdout)
-        else:           
-            rootLogger.setLevel(logging.INFO)
-            handler = logging.handlers.RotatingFileHandler(LOG_FILE, 
-                                    maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
-        
-        handler.setFormatter(logging.Formatter(LOG_FORMAT))
-        rootLogger.addHandler(handler)
-            
-        
-        
         try:
+            # Create configuration directory
             if not os.path.exists(CONFIG_DIR):
                 os.makedirs(CONFIG_DIR)
+            # Initialise logger
+            rootLogger = logging.getLogger()
+            
+            if verbose:
+                rootLogger.setLevel(logging.DEBUG)
+                handler = logging.StreamHandler(sys.stdout)
+            else:           
+                rootLogger.setLevel(logging.INFO)
+                handler = logging.handlers.RotatingFileHandler(LOG_FILE, 
+                                        maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
+            
+            handler.setFormatter(logging.Formatter(LOG_FORMAT))
+            rootLogger.addHandler(handler)
+            
             if os.path.exists(LOCK_FILE):
                 f = open(LOCK_FILE, 'r')
                 pid = f.read()
@@ -187,12 +187,3 @@ class AutoKeyApplication:
                                  message_format=message)
         dlg.run()
         dlg.destroy()
-
-if __name__ == "__main__":
-    gtk.gdk.threads_init()
-    a = AutoKeyApplication()
-    try:
-        a.main()
-    except KeyboardInterrupt:
-        a.shutdown()
-    sys.exit(0)
