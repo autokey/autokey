@@ -1231,9 +1231,8 @@ class HotkeySettings(gtk.VBox):
             if not validate(keyText != "None", "You must specify a key for the Hotkey.", None,
                              self.configWindow): return False
             
-            # Commented to allow users to set hotkeys with no modifiers 
-            #if not validate(len(modifiers) > 0, "You must select at least one modifier for the Hotkey", None,
-            #                 self.configWindow): return False
+            if not validate(len(modifiers) > 0, "You must select at least one modifier for the Hotkey", None,
+                             self.configWindow): return False
         
         return True
     

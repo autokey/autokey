@@ -23,7 +23,7 @@ from iomediator import Key
 from phrasemenu import *
 from plugin.manager import PluginManager, PluginError
 
-logger = logging.getLogger("phrase-service")
+logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150
 
@@ -39,40 +39,41 @@ def threaded(f):
     wrapper.__doc__ = f.__doc__
     return wrapper
 
-class ExpansionService:
+class Service:
+    """
+    Handles general functionality and dispatching of results down to the correct
+    execution service (phrase or script).
+    """
     
     def __init__(self, app):
-        logger.info("Starting phrase service")
+        logger.info("Starting service")
         self.configManager = app.configManager
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
-        self.interfaceType = self.configManager.SETTINGS[configurationmanager.INTERFACE_TYPE]
         self.mediator = None
         self.app = app
         self.inputStack = []
-        self.lastStackState = ''
-        self.lastMenu = None
         self.lastAbbr = None
-        self.clearAfter = 0
-        self.pluginManager = PluginManager()
+        self.lastMenu = None
+        self.clearAfter = 0  
         
     def start(self):
-        self.mediator = iomediator.IoMediator(self, self.interfaceType)
+        self.mediator = iomediator.IoMediator(self)
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
-        logger.info("Phrase service now marked as running")
+        logger.info("Service now marked as running")
         
     def unpause(self):
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
-        logger.info("Unpausing - phrase service now marked as running")
+        logger.info("Unpausing - service now marked as running")
         
     def pause(self):
         self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
-        logger.info("Pausing - phrase service now marked as stopped")
+        logger.info("Pausing - service now marked as stopped")
         
     def is_running(self):
         return self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING]
             
     def shutdown(self):
-        logger.info("Phrase service shutting down")
+        logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
         configurationmanager.save_config(self.configManager)
             
@@ -85,55 +86,123 @@ class ExpansionService:
         self.lastMenu = None
         
     def handle_hotkey(self, key, modifiers, windowName):
-        logger.debug("Phrase service received hotkey")
         logger.debug("Key: %s, modifiers: %s", repr(key), modifiers)
         
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
             hotkey.check_hotkey(modifiers, key, windowName)
-        
-        # Check other hotkeys if service enabled and not in config window
-        if not windowName == ui.CONFIG_WINDOW_TITLE and self.is_running():
-            self.inputStack = []
-            folderMatch = None
-            phraseMatch = None
-            menu = None
             
-            # Check for a phrase match first
-            for phrase in self.configManager.hotKeyPhrases:
-                logger.debug("Phrase %s checking hotkey", phrase)
-                if phrase.check_hotkey(modifiers, key, windowName):
-                    phraseMatch = phrase
+        if self.__shouldProcess(windowName):
+            self.inputStack = []
+            itemMatch = None
+            menu = None
+
+            for item in self.configManager.hotKeyItems:
+                if item.check_hotkey(modifiers, key, windowName):
+                    itemMatch = item
                     break
 
-            if phraseMatch is not None:
-                if not phraseMatch.prompt:
-                    logger.info("Matched hotkey phrase with prompt=False - executing")
-                    self.__sendPhrase(phraseMatch)
+            if itemMatch is not None:
+                if not itemMatch.prompt:
+                    logger.info("Matched hotkey phrase/script with prompt=False")
                 else:
-                    logger.info("Matched hotkey phrase with prompt=True - executing")
-                    menu = PhraseMenu(self, [], [phraseMatch])
+                    logger.info("Matched hotkey phrase with prompt=True")
+                    menu = PopupMenu(self, [], [itemMatch])
                     
             else:
-                logger.debug("No phrase matched hotkey")
+                logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
-                    logger.debug("Folder %s checking hotkey", folder)
                     if folder.check_hotkey(modifiers, key, windowName):
-                        folderMatch = folder
-                        break                    
-                
-                if folderMatch is not None:
-                    logger.info("Matched hotkey folder - displaying")
-                    menu = PhraseMenu(self, [folderMatch], [])
-                else:
-                    logger.debug("No folder matched hotkey")
-                
+                        menu = PopupMenu(self, folder, [])
+
+            
             if menu is not None:
                 if self.lastMenu is not None:
                     self.lastMenu.remove_from_desktop()
-                self.lastStackState = ''
+                self.lastStackState = '' # TODO this needs to somehow move to PhraseService!
                 self.lastMenu = menu
                 self.lastMenu.show_on_desktop()
+            
+            else:
+                self.__processItem(itemMatch)
+                     
+        
+        
+    def handle_keypress(self, key, windowName):
+        logger.debug("Key: %s", key)
+        
+        if self.__shouldProcess(windowName):
+            if self.__updateStack(key):
+                # TODO do the work
+             
+            
+
+    def __updateStack(self, key):
+        """
+        Update the input stack in non-hotkey mode, and determine if anything
+        further is needed.
+        
+        @return: True if further action is needed
+        """
+        if key == Key.BACKSPACE:
+            # handle backspace by dropping the last saved character
+            self.inputStack = self.inputStack[:-1]
+            return False
+            
+        elif len(key) > 1:
+            # non-simple key
+            self.inputStack = []
+            return False
+        else:
+            # Key is a character
+            self.inputStack.append(key)
+            if len(self.inputStack) > MAX_STACK_LENGTH:
+                self.inputStack.pop(0)
+            return True
+            
+    def __checkTextMatches(self, folders, items):
+        """
+        Check for an abbreviation/predictive match among the given folder and items 
+        (scripts, phrases).
+        """
+    
+    def __shouldProcess(self, windowName):
+        """
+        Return a boolean indicating whether we should take any action on the keypress
+        """
+        return windowName != ui.CONFIG_WINDOW_TITLE and self.is_running():
+        
+    def __haveMatch(self, data):
+        folderMatch, itemMatches = data
+        if folder is not None:
+            return True
+        if len(items) > 0:
+            return True
+            
+        return False
+        
+    def __menuRequired(self, folder, items):
+        """
+        @return: a boolean indicating whether a menu is needed to allow the user to choose
+        """
+        if folder is not None:
+            # Folders always need a menu
+            return True
+        if len(items) > 1:
+            # More than one 'item' (phrase/script) needs a menu
+            return True
+            
+        return False
+        
+
+class ExpansionService:
+    
+    def __init__(self, app):
+        self.lastStackState = ''
+        self.pluginManager = PluginManager()
+
+
+
     
     def handle_keypress(self, key, windowName=""):
         # TODO - this method is really monolithic - refactor into several smaller ones
@@ -154,18 +223,7 @@ class ExpansionService:
                 
             self.lastMenu = None
        
-        if key == Key.BACKSPACE:
-            # handle backspace by dropping the last saved character
-            self.inputStack = self.inputStack[:-1]
-            
-        elif len(key) > 1:
-            # FIXME exception occurs if key is None
-            # non-simple key
-            self.inputStack = []
-            
-        else:
-            # Key is a character
-            self.inputStack.append(key)
+
             currentInput = ''.join(self.inputStack)
             
             # Check abbreviation phrases first

@@ -4,10 +4,6 @@ Add toolbar with following functions:
     Cut/Copy/Paste/Delete
     Record Keystrokes
     
-Allow hotkeys to have no modifiers - but modifiers cannot be hotkeys
-UI has been updated to permit it, but refactor of IoMediator and PhraseService required
-Will now have single entry point - handle_keypress (key, modifiers, windowName)
-
 When using predictive mode, make phraseMenu hang around for 5 keypresses rather than immediately closing it
 
 Sentence delimiter for recently typed to be improved - not just full stop. 
@@ -18,6 +14,13 @@ ExpansionService to be renamed PhraseService
 
 Hotkey and abbreviation detection code to come out of PhraseService into common base class for
 PhraseService and ScriptService
+
+Scripting framework ideas:
+Namespace for window management (making it useful might be tough)
+Namespace for showing simple dialogs (using the 'dialog' package)
+Namespace for performing shell tasks (mainly aliases for shutil and subprocess)
+Namespace for autokey stuff - create/modify/delete folders/phrases/scripts
+Namespace for persistent values to allow scripts to store stuff between invocations
 
 Get rid of commented out code
 Add method comments
