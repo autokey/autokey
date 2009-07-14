@@ -2,7 +2,7 @@
 import gtk, time, logging
 from configmanager import *
 
-from phrase import PhraseFolder # TODO remove later
+#from model import Folder # TODO remove later
 
 _logger = logging.getLogger("phrase-menu")
 
@@ -75,7 +75,7 @@ class PopupMenu(gtk.Menu):
                 menuItem = gtk.MenuItem(item.get_description(service.lastStackState), False)
             else:
                 menuItem = gtk.MenuItem(item.description, False)
-            menuItem.connect("activate", service.phrase_selected, item) # TODO handle different types of items
+            menuItem.connect("activate", service.item_selected, item)
             self.append(menuItem)        
 
 # TODO Testing stuff - remove later ----

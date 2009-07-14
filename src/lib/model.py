@@ -175,7 +175,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.title = title
         self.folders = []
-        self.phrases = []
+        self.items = []
         self.modes = []
         self.usageCount = 0
         self.showInTrayMenu = showInTrayMenu
@@ -196,20 +196,20 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         #del self.folders[folder.title]
         self.folders.remove(folder)
         
-    def add_phrase(self, phrase):
+    def add_item(self, item):
         """
-        Add a new phrase to the folder.
+        Add a new script or phrase to the folder.
         """
-        phrase.parent = self
+        item.parent = self
         #self.phrases[phrase.description] = phrase
-        self.phrases.append(phrase)
+        self.items.append(item)
         
-    def remove_phrase(self, phrase):
+    def remove_item(self, item):
         """
-        Removes the given phrase from the folder.
+        Removes the given phrase or script from the folder.
         """
         #del self.phrases[phrase.description]
-        self.phrases.remove(phrase)
+        self.items.remove(item)
         
     def set_modes(self, modes):
         self.modes = modes

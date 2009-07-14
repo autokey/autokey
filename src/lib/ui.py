@@ -130,7 +130,7 @@ class ConfigurationWindow(gtk.Window):
         treeViewScrolledWindow.set_shadow_type(gtk.SHADOW_IN)
         treeViewScrolledWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         treeViewVbox.pack_start(treeViewScrolledWindow)
-        self.treeView = _TreeView(autokeyApp.service.configManager.folders)
+        self.treeView = _TreeView(autokeyApp.configManager.folders)
         self.treeView.connect("cursor-changed", self.on_tree_selection_changed)
         self.treeView.connect("button-press-event", self.on_treeview_clicked)
         treeViewScrolledWindow.add(self.treeView)
@@ -151,7 +151,7 @@ class ConfigurationWindow(gtk.Window):
         self.cutCopiedItem = None
         
     def refresh_tree(self, item):
-        self.app.service.configManager.config_altered()
+        self.app.configManager.config_altered()
         theModel, iter = self.treeView.get_selection().get_selected()
         theModel.update_item(iter, item)
     
@@ -301,7 +301,7 @@ class ConfigurationWindow(gtk.Window):
 
     def __removeItem(self, theModel, item):
         theModel.remove_item(item)
-        self.app.service.configManager.config_altered()
+        self.app.configManager.config_altered()
         self.on_tree_selection_changed(self.treeView)            
         
     def on_import_settings(self, widget, data=None):
@@ -318,7 +318,7 @@ class ConfigurationWindow(gtk.Window):
             fileName = dlg.get_filename()
             
             try:
-                folder, phrases = self.app.service.configManager.import_legacy_settings(fileName)
+                folder, phrases = self.app.configManager.import_legacy_settings(fileName)
             except ImportException, ie:
                 self.app.show_error_dialog("Unable to import the configuration file:\n" + str(ie))
             else:
@@ -330,7 +330,7 @@ class ConfigurationWindow(gtk.Window):
                     
         dlg.destroy()
         
-        self.app.service.configManager.config_altered()
+        self.app.configManager.config_altered()
         
     def on_expansions_toggled(self, widget, data=None):
         if self.toggleExpansionsMenuItem.active:
@@ -340,9 +340,9 @@ class ConfigurationWindow(gtk.Window):
             
     def on_show_advanced_settings(self, widget, data=None):
         dlg = AdvancedSettingsDialog(self)
-        dlg.load(self.app.service.configManager)
+        dlg.load(self.app.configManager)
         if dlg.run() == gtk.RESPONSE_ACCEPT:
-            dlg.save(self.app.service.configManager)
+            dlg.save(self.app.configManager)
         dlg.destroy()        
 
     def on_show_faq(self, widget, data=None):
@@ -490,7 +490,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.showInTray = gtk.CheckButton("Show a tray icon (requires restart)")
         self.takesFocus = gtk.CheckButton("Allow keyboard navigation of popup menu")
         self.sortByCount = gtk.CheckButton("Sort popup menu items by highest usage")
-        self.detectUnwanted = gtk.CheckButton("Detect unwanted abbreviation triggers")
+        #self.detectUnwanted = gtk.CheckButton("Detect unwanted abbreviation triggers")
         self.promptSave = gtk.CheckButton("Prompt for unsaved changes")
         
         hbox = gtk.HBox()
@@ -508,7 +508,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         vbox.pack_start(self.showInTray)
         vbox.pack_start(self.takesFocus)
         vbox.pack_start(self.sortByCount)
-        vbox.pack_start(self.detectUnwanted)
+        #vbox.pack_start(self.detectUnwanted)
         vbox.pack_start(self.promptSave)
         vbox.pack_start(hbox, False, False, 5)
         vbox.pack_start(gtk.HSeparator(), padding=10)
@@ -577,7 +577,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         self.showInTray.set_active(configManager.SETTINGS[SHOW_TRAY_ICON])
         self.takesFocus.set_active(configManager.SETTINGS[MENU_TAKES_FOCUS])
         self.sortByCount.set_active(configManager.SETTINGS[SORT_BY_USAGE_COUNT])
-        self.detectUnwanted.set_active(configManager.SETTINGS[DETECT_UNWANTED_ABBR])
+        #self.detectUnwanted.set_active(configManager.SETTINGS[DETECT_UNWANTED_ABBR])
         self.promptSave.set_active(configManager.SETTINGS[PROMPT_TO_SAVE])
         self.predictiveLength.set_value(configManager.SETTINGS[PREDICTIVE_LENGTH])
         self.useWorkAround.set_active(configManager.SETTINGS[ENABLE_QT4_WORKAROUND])
@@ -601,7 +601,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         configManager.SETTINGS[SHOW_TRAY_ICON] = self.showInTray.get_active()
         configManager.SETTINGS[MENU_TAKES_FOCUS] = self.takesFocus.get_active()
         configManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByCount.get_active()
-        configManager.SETTINGS[DETECT_UNWANTED_ABBR] = self.detectUnwanted.get_active()
+        #configManager.SETTINGS[DETECT_UNWANTED_ABBR] = self.detectUnwanted.get_active()
         configManager.SETTINGS[PROMPT_TO_SAVE] = self.promptSave.get_active()
         configManager.SETTINGS[PREDICTIVE_LENGTH] = int(self.predictiveLength.get_value())
         configManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.useWorkAround.get_active()
@@ -1036,7 +1036,7 @@ class AbbreviationSettings(gtk.VBox):
             
     def validate(self, targetPhrase):
         if self.useAbbr.get_active():
-            configManager = self.configWindow.app.service.configManager
+            configManager = self.configWindow.app.configManager
             abbrText = self.abbrText.get_text() 
             if not validate(configManager.check_abbreviation_unique(abbrText, targetPhrase),
                              "The abbreviation is already in use.\nAbbreviations must be unique.", self.abbrText,
@@ -1222,7 +1222,7 @@ class HotkeySettings(gtk.VBox):
         if self.useHotkey.get_active():
             modifiers = self._buildModifiers()
             keyText = self.keyLabel.get_label()
-            configManager = self.configWindow.app.service.configManager
+            configManager = self.configWindow.app.configManager
             
             if not validate(configManager.check_hotkey_unique(modifiers, keyText, targetPhrase),
                              "The hotkey is already in use.\nHotkeys must be unique.", None,
@@ -1405,7 +1405,7 @@ class _TreeModel(gtk.TreeStore):
             iter = self.append(parent, folder.get_tuple())
             self.populate_store(iter, folder)
         
-        for phrase in parentFolder.phrases:
+        for phrase in parentFolder.items:
             self.append(parent, phrase.get_tuple())
             
     def append_item(self, item, parentIter):
@@ -1418,7 +1418,7 @@ class _TreeModel(gtk.TreeStore):
             if isinstance(item, model.Folder):
                 parentFolder.add_folder(item)
             else:
-                parentFolder.add_phrase(item)
+                parentFolder.add_item(item)
             
             return self.append(parentIter, item.get_tuple())
             
@@ -1456,7 +1456,7 @@ class Notifier(gobject.GObject):
         gobject.GObject.__init__(self)
         pynotify.init("AutoKey")
         self.app = autokeyApp
-        self.configManager = autokeyApp.service.configManager
+        self.configManager = autokeyApp.configManager
         
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
@@ -1506,19 +1506,19 @@ class Notifier(gobject.GObject):
         
         # Get phrase folders to add to main menu
         folders = []
-        phrases = []
+        items = []
 
         for folder in self.configManager.allFolders:
             if folder.showInTrayMenu:
                 folders.append(folder)
         
-        for phrase in self.configManager.allPhrases:
-            if phrase.showInTrayMenu:
-                phrases.append(phrase)
+        for item in self.configManager.allItems:
+            if item.showInTrayMenu:
+                items.append(item)
                     
         # Construct main menu
-        menu = phrasemenu.PopupMenu(self.app.service, folders, phrases, False)
-        if len(phrases) > 0:
+        menu = phrasemenu.PopupMenu(self.app.service, folders, items, False)
+        if len(items) > 0:
             menu.append(gtk.SeparatorMenuItem())
         menu.append(enableMenuItem)
         menu.append(configureMenuItem)
@@ -1571,11 +1571,11 @@ SELECTOR_DIALOG_TITLE = "Type an abbreviation"
 
 class AbbreviationSelectorDialog(gtk.Dialog):
     
-    def __init__(self, expansionService):
+    def __init__(self, service):
         gtk.Dialog.__init__(self, SELECTOR_DIALOG_TITLE)
-        self.service = expansionService
-        self.abbreviations = expansionService.configManager.abbrPhrases
-        self.app = expansionService.app
+        self.service = service
+        self.abbreviations = service.configManager.abbreviations
+        self.app = service.app
         
         self.entry = gtk.Entry()
         self.entry.connect("activate", self.on_entry_activated)
@@ -1614,15 +1614,15 @@ class AbbreviationSelectorDialog(gtk.Dialog):
         self.connect("hide", self.on_close)        
         
     def on_match_selected(self, completion, theModel, iter, data=None):
-        thePhrase = theModel.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
-        self.service.phrase_selected(None, thePhrase)
+        item = theModel.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
+        self.service.item_selected(None, item)
         self.hide()
         
     def on_entry_activated(self, widget, data=None):
         entered = self.entry.get_text()
-        for thePhrase in self.abbreviations:
-            if thePhrase.abbreviation == entered:
-                self.service.phrase_selected(None, thePhrase)
+        for item in self.abbreviations:
+            if item.abbreviation == entered:
+                self.service.item_selected(None, item)
         self.hide()
     
     def on_close(self, widget, data=None):

@@ -33,7 +33,7 @@ SERVICE_RUNNING = "serviceRunning"
 MENU_TAKES_FOCUS = "menuTakesFocus"
 SHOW_TRAY_ICON = "showTrayIcon"
 SORT_BY_USAGE_COUNT = "sortByUsageCount"
-DETECT_UNWANTED_ABBR = "detectUnwanted"
+#DETECT_UNWANTED_ABBR = "detectUnwanted"
 PROMPT_TO_SAVE = "promptToSave"
 PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
@@ -147,7 +147,7 @@ class ConfigManager:
                 MENU_TAKES_FOCUS : False,
                 SHOW_TRAY_ICON : True,
                 SORT_BY_USAGE_COUNT : True,
-                DETECT_UNWANTED_ABBR : False,
+                #DETECT_UNWANTED_ABBR : False,
                 PROMPT_TO_SAVE: True,
                 PREDICTIVE_LENGTH : 5,
                 INPUT_SAVINGS : 0,
@@ -178,37 +178,37 @@ class ConfigManager:
         self.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
         self.showPopupHotkey.enabled = True
                 
-        myPhrases = PhraseFolder("My Phrases")
+        myPhrases = Folder(u"My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
-        myPhrases.set_modes([PhraseMode.HOTKEY])
+        myPhrases.set_modes([TriggerMode.HOTKEY])
         
-        f = PhraseFolder("Addresses")
-        adr = Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
-        adr.set_modes([PhraseMode.ABBREVIATION])
-        adr.set_abbreviation("adr")
-        f.add_phrase(adr)
+        f = Folder(u"Addresses")
+        adr = Phrase(u"Home Address", u"22 Avenue Street\nBrisbane\nQLD\n4000")
+        adr.set_modes([TriggerMode.ABBREVIATION])
+        adr.set_abbreviation(u"adr")
+        f.add_item(adr)
         myPhrases.add_folder(f)        
 
-        p = Phrase("First phrase", "Test phrase number one!")
-        p.set_modes([PhraseMode.PREDICTIVE])
+        p = Phrase(u"First phrase", u"Test phrase number one!")
+        p.set_modes([TriggerMode.PREDICTIVE])
         p.set_window_titles(".* - gedit")
-        myPhrases.add_phrase(p)
+        myPhrases.add_item(p)
         
-        p1 = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]\nBlah")
-        p1.set_modes([PhraseMode.ABBREVIATION])
-        p1.set_abbreviation("udc")
+        p1 = Phrase(u"Positioning Phrase", u"[udc]$(cursor )[/udc]\nBlah")
+        p1.set_modes([TriggerMode.ABBREVIATION])
+        p1.set_abbreviation(u"udc")
         p1.showInTrayMenu = True
         p1.immediate = True
-        myPhrases.add_phrase(p1)
+        myPhrases.add_item(p1)
         
-        myPhrases.add_phrase(Phrase("Second phrase", "Test phrase number two!"))
-        myPhrases.add_phrase(Phrase("Third phrase", "Test phrase number three!"))
+        myPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
+        myPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
         self.folders[myPhrases.title] = myPhrases
         
-        trayPhrases = PhraseFolder("Tray Phrases", showInTrayMenu=True)
-        trayPhrases.add_phrase(Phrase("First phrase", "Test phrase number one!"))
-        trayPhrases.add_phrase(Phrase("Second phrase", "Test phrase number two!"))
-        trayPhrases.add_phrase(Phrase("Third phrase", "Test phrase number three!"))
+        trayPhrases = Folder(u"Tray Phrases", showInTrayMenu=True)
+        trayPhrases.add_item(Phrase(u"First phrase", u"Test phrase number one!"))
+        trayPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
+        trayPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
         self.folders[trayPhrases.title] = trayPhrases
         
         # TODO - future functionality
@@ -229,15 +229,15 @@ class ConfigManager:
             self.folders[folder.title] = folder
         
         self.hotKeyFolders = []
-        self.hotKeyPhrases = []
+        self.hotKeys = []
         
-        self.abbrPhrases = []
+        self.abbreviations = []
         
         self.allFolders = []
-        self.allPhrases = []
+        self.allItems = []
         
         for folder in self.folders.values():
-            if PhraseMode.HOTKEY in folder.modes:
+            if TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
             
@@ -250,34 +250,34 @@ class ConfigManager:
         _logger.debug("Global hotkeys: %s", self.globalHotkeys)
         
         _logger.debug("Hotkey folders: %s", self.hotKeyFolders)
-        _logger.debug("Hotkey phrases: %s", self.hotKeyPhrases)
-        _logger.debug("Abbreviation phrases: %s", self.abbrPhrases)
+        _logger.debug("Hotkey phrases: %s", self.hotKeys)
+        _logger.debug("Abbreviation phrases: %s", self.abbreviations)
         _logger.debug("All folders: %s", self.allFolders)
-        _logger.debug("All phrases: %s", self.allPhrases)
+        _logger.debug("All phrases: %s", self.allItems)
         
         save_config(self)
                     
     def __processFolder(self, parentFolder):
         for folder in parentFolder.folders:
-            if PhraseMode.HOTKEY in folder.modes:
+            if TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
             
             self.__processFolder(folder)
             
-        for phrase in parentFolder.phrases:
-            if PhraseMode.HOTKEY in phrase.modes:
-                self.hotKeyPhrases.append(phrase)
-            if PhraseMode.ABBREVIATION in phrase.modes:
-                self.abbrPhrases.append(phrase)
-            self.allPhrases.append(phrase)
+        for item in parentFolder.items:
+            if TriggerMode.HOTKEY in item.modes:
+                self.hotKeys.append(item)
+            if TriggerMode.ABBREVIATION in item.modes:
+                self.abbreviations.append(item)
+            self.allItems.append(item)
             
     # TODO Future functionality
     def add_recent_entry(self, entry):
         if not self.folders.has_key(RECENT_ENTRIES_FOLDER):
-            folder = PhraseFolder(RECENT_ENTRIES_FOLDER)
+            folder = Folder(RECENT_ENTRIES_FOLDER)
             folder.set_hotkey(["<super>"], "<f7>")
-            folder.set_modes([PhraseMode.HOTKEY])
+            folder.set_modes([TriggerMode.HOTKEY])
             self.folders[RECENT_ENTRIES_FOLDER] = folder
             self.recentEntries = []
         
@@ -289,7 +289,7 @@ class ConfigManager:
             while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]:
                 self.recentEntries.pop(0)
 
-            folder.phrases = []
+            folder.items = []
             
             for theEntry in self.recentEntries:
                 if len(theEntry) > 17:
@@ -299,9 +299,9 @@ class ConfigManager:
             
                 p = Phrase(description, theEntry)
                 if self.SETTINGS[RECENT_ENTRY_SUGGEST]:
-                    p.set_modes([PhraseMode.PREDICTIVE])
+                    p.set_modes([TriggerMode.PREDICTIVE])
             
-                folder.add_phrase(p)
+                folder.add_item(p)
                 
             self.config_altered()
         
@@ -313,7 +313,7 @@ class ConfigManager:
         """
         importer = LegacyImporter()
         importer.load_config(configFilePath)        
-        folder = PhraseFolder(DEFAULT_ABBR_FOLDER)
+        folder = Folder(DEFAULT_ABBR_FOLDER)
         
         # Check phrases for unique abbreviations
         for phrase in importer.phrases:
@@ -329,12 +329,12 @@ class ConfigManager:
         @param targetPhrase: the phrase for which the abbreviation to be used 
         """
         for item in self.allFolders:
-            if PhraseMode.ABBREVIATION in item.modes:
+            if TriggerMode.ABBREVIATION in item.modes:
                 if item.abbreviation == abbreviation:
                     return item is targetPhrase
             
-        for item in self.allPhrases:
-            if PhraseMode.ABBREVIATION in item.modes:
+        for item in self.allItems:
+            if TriggerMode.ABBREVIATION in item.modes:
                 if item.abbreviation == abbreviation:
                     return item is targetPhrase
         
@@ -350,12 +350,12 @@ class ConfigManager:
         @param targetPhrase: the phrase for which the abbreviation to be used         
         """
         for item in self.allFolders:
-            if PhraseMode.HOTKEY in item.modes:
+            if TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
                     return item is targetPhrase
             
-        for item in self.allPhrases:
-            if PhraseMode.HOTKEY in item.modes:
+        for item in self.allItems:
+            if TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
                     return item is targetPhrase     
 
@@ -480,7 +480,7 @@ class LegacyImporter:
         phraseDescription = phraseText[:20].replace('\n', ' ')
         result = Phrase(phraseDescription, phraseText)
         result.set_abbreviation(definition)
-        result.set_modes([PhraseMode.ABBREVIATION])
+        result.set_modes([TriggerMode.ABBREVIATION])
         result.wordChars = self.__getDefaultOrCustom(defaults, ownSettings, WORD_CHARS_REGEX_OPTION)
         result.immediate = self.__getDefaultOrCustom(defaults, ownSettings, IMMEDIATE_OPTION)
         result.ignoreCase = self.__getDefaultOrCustom(defaults, ownSettings, IGNORE_CASE_OPTION)
@@ -501,7 +501,7 @@ class LegacyImporter:
             return defaults[optionName]
 
 # This import placed here to prevent circular import conflicts
-from phrase import *
+from model import *
 
 class GlobalHotkey(AbstractHotkey):
     """

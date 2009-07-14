@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -85,7 +86,7 @@ NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOM
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
 
 from interface import *
-from configurationmanager import ConfigurationManager
+from configmanager import *
 
 class IoMediator(threading.Thread):
     """
@@ -99,11 +100,11 @@ class IoMediator(threading.Thread):
     # List of targets interested in receiving keypress, hotkey and mouse events
     listeners = []
     
-    def __init__(self, service, interface):
+    def __init__(self, service):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
         self.queue = Queue.Queue()
         self.listeners.append(service)
-        self.interfaceType = interface
+        self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
         
         # Modifier tracking
         self.modifiers = {
@@ -171,7 +172,6 @@ class IoMediator(threading.Thread):
             if modifiers:
                 key = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
                 
-                _logger.debug("[%s]", key)
                 for target in self.listeners:
                     target.handle_hotkey(key, modifiers, windowName)
                 
@@ -179,7 +179,6 @@ class IoMediator(threading.Thread):
                 shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
                 key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
                 
-                _logger.debug("[%s]", key)
                 for target in self.listeners:
                     target.handle_keypress(key, windowName)
                 

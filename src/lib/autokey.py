@@ -21,7 +21,7 @@
 import pygtk
 pygtk.require("2.0")
 import sys, gtk, traceback, os.path, signal, logging, logging.handlers
-import expansionservice, ui
+import service, ui
 from configmanager import *
 
 CONFIG_DIR = os.path.expanduser("~/.config/autokey")

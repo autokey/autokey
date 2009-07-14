@@ -12,11 +12,6 @@ Sentence delimiter for recently typed to be improved - not just full stop.
 
 Implement a record keystrokes function
 
-ExpansionService to be renamed PhraseService
-
-Hotkey and abbreviation detection code to come out of PhraseService into common base class for
-PhraseService and ScriptService
-
 Scripting framework ideas:
 Namespace for window management (making it useful might be tough)
 Namespace for showing simple dialogs (using the 'dialog' package)
