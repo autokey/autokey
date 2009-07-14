@@ -18,7 +18,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time, logging, threading
-import iomediator, ui, configurationmanager
+import iomediator, ui, configmanager
 from iomediator import Key
 from phrasemenu import *
 from plugin.manager import PluginManager, PluginError
@@ -48,7 +48,7 @@ class Service:
     def __init__(self, app):
         logger.info("Starting service")
         self.configManager = app.configManager
-        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[configmanager.SERVICE_RUNNING] = False
         self.mediator = None
         self.app = app
         self.inputStack = []
@@ -58,27 +58,27 @@ class Service:
         
     def start(self):
         self.mediator = iomediator.IoMediator(self)
-        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[configmanager.SERVICE_RUNNING] = True
         logger.info("Service now marked as running")
         
     def unpause(self):
-        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[configmanager.SERVICE_RUNNING] = True
         logger.info("Unpausing - service now marked as running")
         
     def pause(self):
-        self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[configmanager.SERVICE_RUNNING] = False
         logger.info("Pausing - service now marked as stopped")
         
     def is_running(self):
-        return self.configManager.SETTINGS[configurationmanager.SERVICE_RUNNING]
+        return ConfigManager.SETTINGS[configmanager.SERVICE_RUNNING]
             
     def shutdown(self):
         logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
-        configurationmanager.save_config(self.configManager)
+        configmanager.save_config(self.configManager)
             
     def handle_mouseclick(self):
-        logger.debug("Received mouse click - resetting buffers")        
+        logger.debug("Received mouse click - resetting buffer")        
         self.inputStack = []
         
         # If we had a menu and receive a mouse click, means we already
@@ -113,7 +113,7 @@ class Service:
                 logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
                     if folder.check_hotkey(modifiers, key, windowName):
-                        menu = PopupMenu(self, folder, [])
+                        menu = PopupMenu(self, [folder], [])
 
             
             if menu is not None:
@@ -218,7 +218,7 @@ class ExpansionService:
             return
 
         if self.lastMenu is not None:
-            if not self.configManager.SETTINGS[configurationmanager.MENU_TAKES_FOCUS]:
+            if not ConfigManager.SETTINGS[configmanager.MENU_TAKES_FOCUS]:
                 self.lastMenu.remove_from_desktop()
                 
             self.lastMenu = None
@@ -311,6 +311,6 @@ class ExpansionService:
         self.mediator.send_left(expansion.lefts)
         self.mediator.flush()
     
-        self.configManager.SETTINGS[configurationmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
+        ConfigManager.SETTINGS[configmanager.INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
         self.lastStackState = ''
         return len(expansion.string)

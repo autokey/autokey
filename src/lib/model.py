@@ -17,7 +17,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import re
-from configurationmanager import *
+from configmanager import *
 from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from plugin.plugins import CURSOR_POSITION_TOKEN 
 
@@ -164,7 +164,7 @@ class AbstractHotkey(AbstractWindowFilter):
             return False
     
         
-class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
+class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Manages a collection of phrases, which may be associated with an abbreviation or hotkey.
     """
@@ -215,7 +215,7 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.modes = modes
         
     def check_input(self, buffer, windowName):
-        if PhraseMode.ABBREVIATION in self.modes:
+        if TriggerMode.ABBREVIATION in self.modes:
             return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(windowName)
         else:
             return False
@@ -230,7 +230,7 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         Given the input buffer, calculate how many backspaces are needed to erase the text
         that triggered this folder.
         """
-        if PhraseMode.ABBREVIATION in self.modes and self.backspace:
+        if TriggerMode.ABBREVIATION in self.modes and self.backspace:
             if self._should_trigger_abbreviation(buffer):
                 stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
                 return len(self.abbreviation) + len(stringAfter)
@@ -244,7 +244,7 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         """
         Calculate how many keystrokes were used in triggering this folder (if applicable).
         """
-        if PhraseMode.ABBREVIATION in self.modes and self.backspace:
+        if TriggerMode.ABBREVIATION in self.modes and self.backspace:
             if self._should_trigger_abbreviation(buffer):
                 if self.immediate:
                     return len(self.abbreviation)
@@ -269,7 +269,7 @@ class PhraseFolder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return str(self)
 
 
-class PhraseMode:
+class TriggerMode:
     """
     Enumeration class for phrase match modes.
     
@@ -306,8 +306,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.description = thePhrase.description
         self.phrase = thePhrase.phrase
         #[self.modes.append(mode) for mode in thePhrase.modes]
-        if PhraseMode.PREDICTIVE in thePhrase.modes:
-            self.modes.append(PhraseMode.PREDICTIVE)
+        if TriggerMode.PREDICTIVE in thePhrase.modes:
+            self.modes.append(TriggerMode.PREDICTIVE)
         # self.usageCount = thePhrase.usageCount
         self.prompt = thePhrase.prompt
         self.omitTrigger = thePhrase.omitTrigger
@@ -329,9 +329,9 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             abbr = False
             predict = False
             
-            if PhraseMode.ABBREVIATION in self.modes:
+            if TriggerMode.ABBREVIATION in self.modes:
                 abbr = self._should_trigger_abbreviation(buffer)
-            if PhraseMode.PREDICTIVE in self.modes:
+            if TriggerMode.PREDICTIVE in self.modes:
                 predict = self._should_trigger_predictive(buffer)
             
             return (abbr or predict)
@@ -344,7 +344,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         expansion = Expansion(self.phrase)
         triggerFound = False
         
-        if PhraseMode.ABBREVIATION in self.modes:
+        if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
                 stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
                 triggerFound = True        
@@ -365,9 +365,9 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     elif typedAbbr.islower():
                         expansion.string = expansion.string.lower()
                         
-        if PhraseMode.PREDICTIVE in self.modes:
+        if TriggerMode.PREDICTIVE in self.modes:
             if self._should_trigger_predictive(buffer):
-                expansion.string = expansion.string[ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]:]
+                expansion.string = expansion.string[ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
                 triggerFound = True
             
         if not triggerFound:
@@ -381,18 +381,18 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         """
         Calculate how many keystrokes were used in triggering this phrase.
         """
-        if PhraseMode.ABBREVIATION in self.modes:
+        if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
                 if self.immediate:
                     return len(self.abbreviation)
                 else:
                     return len(self.abbreviation) + 1
 
-        if PhraseMode.PREDICTIVE in self.modes:
+        if TriggerMode.PREDICTIVE in self.modes:
             if self._should_trigger_predictive(buffer):
-                return ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]
+                return ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
             
-        if PhraseMode.HOTKEY in self.modes:
+        if TriggerMode.HOTKEY in self.modes:
             if buffer == '':
                 return len(self.modifiers) + 1
             
@@ -403,7 +403,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         Get a value indicating whether the user should be prompted to select the phrase.
         Always returns true if the phrase has been triggered using predictive mode.
         """
-        if PhraseMode.PREDICTIVE in self.modes:
+        if TriggerMode.PREDICTIVE in self.modes:
             if self._should_trigger_predictive(buffer):
                 return True
         
@@ -411,7 +411,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     
     def get_description(self, buffer):
         if self._should_trigger_predictive(buffer):
-            length = ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]
+            length = ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
             endPoint = length + 30
             if len(self.phrase) > endPoint:
                 description = "... " + self.phrase[length:endPoint] + "..."
@@ -423,8 +423,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return self.description
     
     def _should_trigger_predictive(self, buffer):
-        if len(buffer) >= ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]: 
-            typed = buffer[-ConfigurationManager.SETTINGS[PREDICTIVE_LENGTH]:]
+        if len(buffer) >= ConfigManager.SETTINGS[PREDICTIVE_LENGTH]: 
+            typed = buffer[-ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
             return self.phrase.startswith(typed)
         else:
             return False

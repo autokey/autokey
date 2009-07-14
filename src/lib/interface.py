@@ -355,7 +355,7 @@ class XInterfaceBase(threading.Thread):
         self.__initMappings() 
     
     def __sendKeyCode(self, keyCode, modifiers=0):
-        if ConfigurationManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+        if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers)
         self.__sendKeyReleaseEvent(keyCode, modifiers)        
@@ -589,7 +589,7 @@ class AtSpiInterface(XInterfaceBase):
         return True
                 
 from iomediator import Key, MODIFIERS
-from configurationmanager import *
+from configmanager import *
 
 KEY_MAP = {
            SHIFT : Key.SHIFT,

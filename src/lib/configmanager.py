@@ -64,12 +64,12 @@ def get_config_manager(autoKeyApp):
         autoKeyApp.init_global_hotkeys(configManager)
         
         _logger.info("Successfully loaded configuration file")
-        _logger.debug("Global settings: " + repr(ConfigurationManager.SETTINGS))
+        _logger.debug("Global settings: " + repr(ConfigManager.SETTINGS))
         return configManager
     else:
         _logger.info("No configuration file found - creating new one")
-        _logger.debug("Global settings: " + repr(ConfigurationManager.SETTINGS))
-        return ConfigurationManager(autoKeyApp)
+        _logger.debug("Global settings: " + repr(ConfigManager.SETTINGS))
+        return ConfigManager(autoKeyApp)
 
 def save_config(configManager):
     _logger.info("Persisting configuration") 
@@ -85,7 +85,7 @@ def save_config(configManager):
         shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         outFile = open(CONFIG_FILE, "wb")
-        pickle.dump([ConfigurationManager.SETTINGS, configManager], outFile)
+        pickle.dump([ConfigManager.SETTINGS, configManager], outFile)
     except PickleError, pe:
         shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
         _logger.error("Error while saving configuration. Backup has been restored.")
@@ -101,7 +101,7 @@ def apply_settings(settings):
     Allows new settings to be added without users having to lose all their configuration
     """
     for key, value in settings.iteritems():
-        ConfigurationManager.SETTINGS[key] = value
+        ConfigManager.SETTINGS[key] = value
         
 def _chooseInterface():
     # Choose a sensible default interface type. Get Xorg version to determine this:
@@ -132,7 +132,7 @@ class ImportException(Exception):
     pass
     
 
-class ConfigurationManager:
+class ConfigManager:
     """
     Contains all application configuration, and provides methods for updating and 
     maintaining consistency of the configuration. 

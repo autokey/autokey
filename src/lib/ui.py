@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import gtk, gobject, pynotify, re, time, copy, webbrowser, os.path
-import phrase, phrasemenu, iomediator, interface
-from configurationmanager import *
+import model, phrasemenu, iomediator, interface
+from configmanager import *
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 ICON_FILE = "/usr/share/pixmaps/autokeyicon.svg"
@@ -49,7 +49,7 @@ TREEMODEL_COLUMNS = {
 
 
 WORD_CHAR_OPTIONS = {
-                     "Default (locale dependent)" : phrase.DEFAULT_WORDCHAR_REGEX,
+                     "Default (locale dependent)" : model.DEFAULT_WORDCHAR_REGEX,
                      "All except Space and Enter" : r"[^ \n]"
                      }
 WORD_CHAR_OPTIONS_ORDERED = ["Default (locale dependent)", "All except Space and Enter"]
@@ -61,7 +61,7 @@ class ConfigurationWindow(gtk.Window):
         
         self.app = autokeyApp
         self.phraseSettings = PhraseSettings(self)
-        self.folderSettings = PhraseFolderSettings(self) 
+        self.folderSettings = FolderSettings(self) 
         self.settingsBox = gtk.VBox()
         self.settingsBox.add(gtk.Label(""))
         
@@ -77,10 +77,10 @@ class ConfigurationWindow(gtk.Window):
         actionGroup = gtk.ActionGroup("menu")
         actions = [
                    ("File", None, "_File", None, None, self.on_show_file),
-                   ("New Top-Level Folder", gtk.STOCK_NEW, "New _Top-Level Folder", "", "Create a new top-level phrase folder", self.on_new_folder),
-                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new phrase folder in the current folder", self.on_new_subfolder),
+                   ("New Top-Level Folder", gtk.STOCK_NEW, "New _Top-Level Folder", "", "Create a new top-level folder", self.on_new_folder),
+                   ("New Folder", gtk.STOCK_NEW, "New _Folder", "", "Create a new folder in the current folder", self.on_new_subfolder),
                    ("New Phrase", gtk.STOCK_NEW, "New _Phrase", "", "Create a new phrase in the current folder", self.on_new_phrase),
-                   ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to phrase/folder", self.on_save),
+                   ("Save", gtk.STOCK_SAVE, "_Save", None, "Save changes to item/folder", self.on_save),
                    ("Import Settings", None, "_Import Settings", None, "Import settings from AutoKey 0.40", self.on_import_settings),                   
                    ("Close", gtk.STOCK_CLOSE, "_Close window", None, "Close the configuration window", self.on_close),
                    ("Quit", gtk.STOCK_QUIT, "_Quit AutoKey", None, "Completely exit AutoKey", self.on_destroy_and_exit),
@@ -130,7 +130,7 @@ class ConfigurationWindow(gtk.Window):
         treeViewScrolledWindow.set_shadow_type(gtk.SHADOW_IN)
         treeViewScrolledWindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         treeViewVbox.pack_start(treeViewScrolledWindow)
-        self.treeView = PhraseTreeView(autokeyApp.service.configManager.folders)
+        self.treeView = _TreeView(autokeyApp.service.configManager.folders)
         self.treeView.connect("cursor-changed", self.on_tree_selection_changed)
         self.treeView.connect("button-press-event", self.on_treeview_clicked)
         treeViewScrolledWindow.add(self.treeView)
@@ -152,12 +152,12 @@ class ConfigurationWindow(gtk.Window):
         
     def refresh_tree(self, item):
         self.app.service.configManager.config_altered()
-        model, iter = self.treeView.get_selection().get_selected()
-        model.update_item(iter, item)
+        theModel, iter = self.treeView.get_selection().get_selected()
+        theModel.update_item(iter, item)
     
     def on_show_file(self, widget, data=None):
         selection = self.__getTreeSelection()
-        canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
+        canCreatePhrase = isinstance(selection, model.Folder)
         canCreateSubFolder = canCreatePhrase
         self.uiManager.get_widget("/MenuBar/File/New Top-Level Folder").set_sensitive(True)
         self.uiManager.get_widget("/MenuBar/File/New Folder").set_sensitive(canCreateSubFolder)
@@ -167,13 +167,13 @@ class ConfigurationWindow(gtk.Window):
     def on_show_edit(self, widget, data=None):
         selection = self.__getTreeSelection()
         self.uiManager.get_widget("/MenuBar/Edit/Cut Item").set_sensitive(selection is not None)
-        self.uiManager.get_widget("/MenuBar/Edit/Copy Item").set_sensitive(isinstance(selection, phrase.Phrase))
+        self.uiManager.get_widget("/MenuBar/Edit/Copy Item").set_sensitive(isinstance(selection, model.Phrase))
         self.uiManager.get_widget("/MenuBar/Edit/Paste Item").set_sensitive((self.cutCopiedItem is not None)
                                                                         and canCreatePhrase)
         self.uiManager.get_widget("/MenuBar/Edit/Delete Item").set_sensitive(selection is not None)
         
         insertMacroItem = self.uiManager.get_widget("/MenuBar/Edit/Insert Macro") 
-        if isinstance(selection, phrase.Phrase):
+        if isinstance(selection, model.Phrase):
             insertMacroItem.set_sensitive(True)
             
             # Build submenu
@@ -190,7 +190,7 @@ class ConfigurationWindow(gtk.Window):
             insertMacroItem.set_sensitive(False)
         
     def on_show_settings(self, widget, data=None):
-        self.toggleExpansionsMenuItem.set_active(ConfigurationManager.SETTINGS[SERVICE_RUNNING])
+        self.toggleExpansionsMenuItem.set_active(ConfigManager.SETTINGS[SERVICE_RUNNING])
         self.toggleExpansionsMenuItem.set_sensitive(not self.app.serviceDisabled)
         
     def on_close(self, widget, data=None):
@@ -216,7 +216,7 @@ class ConfigurationWindow(gtk.Window):
         child = self.settingsBox.get_children()[0]
  
         if selectedObject is not None:
-            if isinstance(selectedObject, phrase.Phrase):
+            if isinstance(selectedObject, model.Phrase):
                 if child is not self.phraseSettings:
                     self.settingsBox.remove(child)
                     self.settingsBox.add(self.phraseSettings)
@@ -237,22 +237,22 @@ class ConfigurationWindow(gtk.Window):
         self.__createFolder(None)
         
     def on_new_subfolder(self, widget, data=None):
-        model, parentIter = self.treeView.get_selection().get_selected()
+        theModel, parentIter = self.treeView.get_selection().get_selected()
         self.__createFolder(parentIter)
         
     def __createFolder(self, parentIter):
-        model = self.treeView.get_model()
-        newFolder = phrase.PhraseFolder("New Folder")   
-        newIter = model.append_item(newFolder, parentIter)
-        self.treeView.expand_to_path(model.get_path(newIter))
+        theModel = self.treeView.get_model()
+        newFolder = model.Folder("New Folder")   
+        newIter = theModel.append_item(newFolder, parentIter)
+        self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
         
     def on_new_phrase(self, widget, data=None):
-        model, parentIter = self.treeView.get_selection().get_selected()
-        newPhrase = phrase.Phrase("New Phrase", "Enter phrase contents")
-        newIter = model.append_item(newPhrase, parentIter)
-        self.treeView.expand_to_path(model.get_path(newIter))
+        theModel, parentIter = self.treeView.get_selection().get_selected()
+        newPhrase = model.Phrase("New Phrase", "Enter phrase contents")
+        newIter = theModel.append_item(newPhrase, parentIter)
+        self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
         
@@ -269,38 +269,38 @@ class ConfigurationWindow(gtk.Window):
     def on_cut_item(self, widget, data=None):
         self.cutCopiedItem = self.__getTreeSelection()
         selection = self.treeView.get_selection()
-        model, item = selection.get_selected()
-        self.__removeItem(model, item)
+        theModel, item = selection.get_selected()
+        self.__removeItem(theModel, item)
     
     def on_copy_item(self, widget, data=None):
-        self.cutCopiedItem = phrase.Phrase('', '')
+        self.cutCopiedItem = model.Phrase('', '')
         self.cutCopiedItem.copy(self.__getTreeSelection())
     
     def on_paste_item(self, widget, data=None):
-        model, parentIter = self.treeView.get_selection().get_selected()
-        newIter = model.append_item(self.cutCopiedItem, parentIter)
-        if isinstance(self.cutCopiedItem, phrase.PhraseFolder):
-            model.populate_store(newIter, self.cutCopiedItem)
-        self.treeView.expand_to_path(model.get_path(newIter))  
+        theModel, parentIter = self.treeView.get_selection().get_selected()
+        newIter = theModel.append_item(self.cutCopiedItem, parentIter)
+        if isinstance(self.cutCopiedItem, model.Folder):
+            theModel.populate_store(newIter, self.cutCopiedItem)
+        self.treeView.expand_to_path(theModel.get_path(newIter))  
         self.cutCopiedItem = None
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
-        model, item = selection.get_selected()
+        theModel, item = selection.get_selected()
         
         # Prompt for removal of a folder with phrases
-        if model.iter_n_children(item) > 0:
+        if theModel.iter_n_children(item) > 0:
             dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-                                    "Are you sure you want to delete this folder and all the folders/phrases in it?")
+                                    "Are you sure you want to delete this folder and all the folders/items in it?")
             if dlg.run() == gtk.RESPONSE_YES:
-                self.__removeItem(model, item)
+                self.__removeItem(theModel, item)
             dlg.destroy()
             
         else:
-            self.__removeItem(model, item)
+            self.__removeItem(theModel, item)
 
-    def __removeItem(self, model, item):
-        model.remove_item(item)
+    def __removeItem(self, theModel, item):
+        theModel.remove_item(item)
         self.app.service.configManager.config_altered()
         self.on_tree_selection_changed(self.treeView)            
         
@@ -322,11 +322,11 @@ class ConfigurationWindow(gtk.Window):
             except ImportException, ie:
                 self.app.show_error_dialog("Unable to import the configuration file:\n" + str(ie))
             else:
-                model = self.treeView.get_model()
+                theModel = self.treeView.get_model()
                 
-                iter = model.append_item(folder, None)
+                iter = theModel.append_item(folder, None)
                 for phrase in phrases:
-                    model.append_item(phrase, iter)
+                    theModel.append_item(phrase, iter)
                     
         dlg.destroy()
         
@@ -358,7 +358,7 @@ class ConfigurationWindow(gtk.Window):
         dlg = gtk.AboutDialog()
         dlg.set_name("AutoKey")
         dlg.set_comments("A text expansion and hotkey utility for Linux\nAutoKey has saved you %d keystrokes" % 
-                         ConfigurationManager.SETTINGS[INPUT_SAVINGS])
+                         ConfigManager.SETTINGS[INPUT_SAVINGS])
         dlg.set_version(APPLICATION_VERSION)
         p = gtk.gdk.pixbuf_new_from_file(ICON_FILE)
         dlg.set_logo(p)
@@ -384,7 +384,7 @@ class ConfigurationWindow(gtk.Window):
 
     def __popupMenu(self, event):
         selection = self.__getTreeSelection()            
-        canCreatePhrase = isinstance(selection, phrase.PhraseFolder)
+        canCreatePhrase = isinstance(selection, model.Folder)
         canCreateSubFolder = canCreatePhrase
         
         menu = gtk.Menu()
@@ -408,7 +408,7 @@ class ConfigurationWindow(gtk.Window):
         cutMenuItem.connect("activate", self.on_cut_item)
         
         copyMenuItem = gtk.ImageMenuItem(gtk.STOCK_COPY)
-        copyMenuItem.set_sensitive(isinstance(selection, phrase.Phrase))
+        copyMenuItem.set_sensitive(isinstance(selection, model.Phrase))
         copyMenuItem.connect("activate", self.on_copy_item)
         
         pasteMenuItem = gtk.ImageMenuItem(gtk.STOCK_PASTE)
@@ -432,7 +432,7 @@ class ConfigurationWindow(gtk.Window):
         result = True
  
         if self.dirty:
-            if ConfigurationManager.SETTINGS[PROMPT_TO_SAVE]:
+            if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
                 dlg = gtk.MessageDialog(self, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
                                         "There are unsaved changes. Would you like to save them?")
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
@@ -452,9 +452,9 @@ class ConfigurationWindow(gtk.Window):
         
     def __getTreeSelection(self):
         selection = self.treeView.get_selection()
-        model, item = selection.get_selected()
+        theModel, item = selection.get_selected()
         if item is not None:
-            return model.get_value(item, 3)
+            return theModel.get_value(item, 3)
         else:
             return None    
         
@@ -488,10 +488,10 @@ class AdvancedSettingsDialog(gtk.Dialog):
         
         # General settings page
         self.showInTray = gtk.CheckButton("Show a tray icon (requires restart)")
-        self.takesFocus = gtk.CheckButton("Allow keyboard navigation of phrase menu")
-        self.sortByCount = gtk.CheckButton("Sort phrase menu items by highest usage")
+        self.takesFocus = gtk.CheckButton("Allow keyboard navigation of popup menu")
+        self.sortByCount = gtk.CheckButton("Sort popup menu items by highest usage")
         self.detectUnwanted = gtk.CheckButton("Detect unwanted abbreviation triggers")
-        self.promptSave = gtk.CheckButton("Prompt for unsaved changes to folders or phrases")
+        self.promptSave = gtk.CheckButton("Prompt for unsaved changes")
         
         hbox = gtk.HBox()
         hbox.pack_start(gtk.Label("Suggest phrases after entering "), False)
@@ -634,7 +634,7 @@ class AdvancedSettingsDialog(gtk.Dialog):
         pass
 
 
-class PhraseFolderSettings(gtk.VBox):
+class FolderSettings(gtk.VBox):
     
     def __init__(self, configWindow):
         gtk.VBox.__init__(self)
@@ -787,7 +787,7 @@ class PhraseSettings(gtk.VBox):
         buffer.set_text(thePhrase.phrase.encode("utf-8"))
         buffer.connect("changed", self.on_modified)
         self.phraseContents.set_buffer(buffer)
-        self.predictive.set_active(phrase.PhraseMode.PREDICTIVE in thePhrase.modes)
+        self.predictive.set_active(model.TriggerMode.PREDICTIVE in thePhrase.modes)
         self.promptBefore.set_active(thePhrase.prompt)
         self.showInTray.set_active(thePhrase.showInTrayMenu)
         self.settingsNoteBook.load(thePhrase)
@@ -813,7 +813,7 @@ class PhraseSettings(gtk.VBox):
         
             self.currentPhrase.set_modes([])
             if self.predictive.get_active():
-                self.currentPhrase.modes.append(phrase.PhraseMode.PREDICTIVE)
+                self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
                 
             self.currentPhrase.prompt = self.promptBefore.get_active()
             self.currentPhrase.showInTrayMenu = self.showInTray.get_active()
@@ -946,9 +946,9 @@ class AbbreviationSettings(gtk.VBox):
         self.immediate.connect("toggled", self.on_modified)
         
         self.wordChars = gtk.combo_box_entry_new_text()
-        model = self.wordChars.get_model()
+        theModel = self.wordChars.get_model()
         for key in WORD_CHAR_OPTIONS_ORDERED:
-            model.append([key])
+            theModel.append([key])
         self.wordChars.set_active(0)
         self.wordChars.connect("changed", self.on_modified)
         
@@ -974,11 +974,11 @@ class AbbreviationSettings(gtk.VBox):
         self.immediate.set_active(thePhrase.immediate)
         self._setWordCharRegex(thePhrase.get_word_chars())
         
-        self.useAbbr.set_active(phrase.PhraseMode.ABBREVIATION in thePhrase.modes)
+        self.useAbbr.set_active(model.TriggerMode.ABBREVIATION in thePhrase.modes)
         
     def save(self, thePhrase):
         if self.useAbbr.get_active():
-            thePhrase.modes.append(phrase.PhraseMode.ABBREVIATION) 
+            thePhrase.modes.append(model.TriggerMode.ABBREVIATION) 
             thePhrase.abbreviation = self.abbrText.get_text().decode("utf-8")
             thePhrase.backspace = self.removeTyped.get_active()
             thePhrase.omitTrigger = self.omitTrigger.get_active()
@@ -1080,9 +1080,9 @@ class FolderAbbreviationSettings(AbbreviationSettings):
         self.immediate.connect("toggled", self.on_modified)
         
         self.wordChars = gtk.combo_box_entry_new_text()
-        model = self.wordChars.get_model()
+        theModel = self.wordChars.get_model()
         for key in WORD_CHAR_OPTIONS_ORDERED:
-            model.append([key])
+            theModel.append([key])
         self.wordChars.set_active(0)
         self.wordChars.connect("changed", self.on_modified)
         
@@ -1094,7 +1094,7 @@ class FolderAbbreviationSettings(AbbreviationSettings):
         self.useAbbr.emit("toggled")
         
     def load(self, theFolder):
-        self.useAbbr.set_active(phrase.PhraseMode.ABBREVIATION in theFolder.modes)
+        self.useAbbr.set_active(model.TriggerMode.ABBREVIATION in theFolder.modes)
         if theFolder.abbreviation is not None:
             self.abbrText.set_text(theFolder.abbreviation.encode("utf-8"))
         else:
@@ -1106,7 +1106,7 @@ class FolderAbbreviationSettings(AbbreviationSettings):
         
     def save(self, theFolder):
         if self.useAbbr.get_active():
-            theFolder.modes.append(phrase.PhraseMode.ABBREVIATION) 
+            theFolder.modes.append(model.TriggerMode.ABBREVIATION) 
             theFolder.abbreviation = self.abbrText.get_text().decode("utf-8")
             theFolder.backspace = self.removeTyped.get_active()
             theFolder.triggerInside = self.triggerInside.get_active()
@@ -1166,7 +1166,7 @@ class HotkeySettings(gtk.VBox):
         self.useHotkey.emit("toggled")
 
     def load(self, thePhrase):
-        self.useHotkey.set_active(phrase.PhraseMode.HOTKEY in thePhrase.modes)
+        self.useHotkey.set_active(model.TriggerMode.HOTKEY in thePhrase.modes)
         self.control.set_active(iomediator.Key.CONTROL in thePhrase.modifiers)
         self.alt.set_active(iomediator.Key.ALT in thePhrase.modifiers)
         self.shift.set_active(iomediator.Key.SHIFT in thePhrase.modifiers)
@@ -1182,7 +1182,7 @@ class HotkeySettings(gtk.VBox):
         
     def save(self, thePhrase):
         if self.useHotkey.get_active():
-            thePhrase.modes.append(phrase.PhraseMode.HOTKEY)
+            thePhrase.modes.append(model.TriggerMode.HOTKEY)
             
             # Build modifier list
             modifiers = self._buildModifiers()
@@ -1359,52 +1359,16 @@ class KeyGrabber:
         pass    
 
 
-class KeyCaptureDialog(gtk.Window):
-    """
-    Deprecated!
-    """
-    
-    def __init__(self, parent):
-        gtk.Window.__init__(self)
-        self.set_title("Key selection")
-        self.set_transient_for(parent.get_transient_for())
-        vbox = gtk.VBox()
-        vbox.add(gtk.Label("Press a key to use for the hotkey"))
-        vbox.add(gtk.Entry())
-        self.add(vbox)
-        self.mediator = iomediator.IoMediator(self, iomediator.X_EVDEV_INTERFACE)
-        self.targetParent = parent
-        self.show_all()
-        self.set_size_request(200, 100)
-        self.set_position(gtk.WIN_POS_CENTER_ALWAYS)
-        
-    def start(self):
-        self.mediator.start()
-        self.show()
-                 
-    def handle_keypress(self, key, windowName=""):
-        if not key in iomediator.MODIFIERS:
-            self.mediator.shutdown()
-            self.hide()
-            self.targetParent.set_key(key)
-            
-    def handle_hotkey(self, key, modifiers, windowName):
-        pass
-    
-    def handle_mouseclick(self):
-        pass
-        
-        
-class PhraseTreeView(gtk.TreeView):
+class _TreeView(gtk.TreeView):
     
     def __init__(self, folders):
         gtk.TreeView.__init__(self)
-        self.set_model(PhraseTreeModel(folders))
+        self.set_model(_TreeModel(folders))
         self.set_headers_clickable(True)
         self.set_reorderable(False)
         
         # Treeview columns
-        column = gtk.TreeViewColumn("Folders and Phrases")
+        column = gtk.TreeViewColumn("")
         iconRenderer = gtk.CellRendererPixbuf()
         textRenderer = gtk.CellRendererText()
         column.pack_start(iconRenderer, False)
@@ -1423,7 +1387,7 @@ class PhraseTreeView(gtk.TreeView):
         self.expand_row(path, False)
          
 
-class PhraseTreeModel(gtk.TreeStore):
+class _TreeModel(gtk.TreeStore):
     
     OBJECT_COLUMN = 3
     
@@ -1451,7 +1415,7 @@ class PhraseTreeModel(gtk.TreeStore):
         
         else:
             parentFolder = self.get_value(parentIter, self.OBJECT_COLUMN)
-            if isinstance(item, phrase.PhraseFolder):
+            if isinstance(item, model.Folder):
                 parentFolder.add_folder(item)
             else:
                 parentFolder.add_phrase(item)
@@ -1463,7 +1427,7 @@ class PhraseTreeModel(gtk.TreeStore):
         if item.parent is None:
             del self.folders[item.title]
         else:
-            if isinstance(item, phrase.PhraseFolder):
+            if isinstance(item, model.Folder):
                 item.parent.remove_folder(item)
             else:
                 item.parent.remove_phrase(item)
@@ -1494,9 +1458,9 @@ class Notifier(gobject.GObject):
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
         
-        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
+        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon = gtk.status_icon_new_from_file(ICON_FILE)
-            if ConfigurationManager.SETTINGS[SERVICE_RUNNING]:
+            if ConfigManager.SETTINGS[SERVICE_RUNNING]:
                 self.icon.set_tooltip(TOOLTIP_RUNNING)
             else:
                 self.icon.set_tooltip(TOOLTIP_PAUSED)
@@ -1512,7 +1476,7 @@ class Notifier(gobject.GObject):
             self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)
             
     def set_tooltip(self, tooltip):
-        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
+        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon.set_tooltip(tooltip)
         
     # Signal Handlers ----
@@ -1553,7 +1517,7 @@ class Notifier(gobject.GObject):
                 phrases.append(phrase)
                     
         # Construct main menu
-        menu = phrasemenu.PhraseMenu(self.app.service, folders, phrases, False)
+        menu = phrasemenu.PopupMenu(self.app.service, folders, phrases, False)
         if len(phrases) > 0:
             menu.append(gtk.SeparatorMenuItem())
         menu.append(enableMenuItem)
@@ -1574,7 +1538,7 @@ class Notifier(gobject.GObject):
             
     def on_remove_icon(self, widget, data=None):
         self.icon.set_visible(False)
-        ConfigurationManager.SETTINGS[SHOW_TRAY_ICON] = False
+        ConfigManager.SETTINGS[SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()
@@ -1584,7 +1548,7 @@ class Notifier(gobject.GObject):
     def on_show_notify(self, widget, message, details, iconName):
         n = pynotify.Notification("Autokey", message, iconName)
         n.set_urgency(pynotify.URGENCY_LOW)
-        if ConfigurationManager.SETTINGS[SHOW_TRAY_ICON]:
+        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             n.attach_to_status_icon(self.icon)
         if details != '':
             n.add_action("details", "Details", self.__notifyClicked, details)
@@ -1617,8 +1581,8 @@ class AbbreviationSelectorDialog(gtk.Dialog):
         self.entry.connect("activate", self.on_entry_activated)
         self.completion = gtk.EntryCompletion()
         self.entry.set_completion(self.completion)
-        model = AbbreviationModel(self.abbreviations)
-        self.completion.set_model(model)
+        theModel = AbbreviationModel(self.abbreviations)
+        self.completion.set_model(theModel)
         #self.completion.set_match_func(model.match)
         
         self.completion.set_text_column(0)
@@ -1649,8 +1613,8 @@ class AbbreviationSelectorDialog(gtk.Dialog):
         
         self.connect("hide", self.on_close)        
         
-    def on_match_selected(self, completion, model, iter, data=None):
-        thePhrase = model.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
+    def on_match_selected(self, completion, theModel, iter, data=None):
+        thePhrase = theModel.get_value(iter, AbbreviationModel.OBJECT_COLUMN)
         self.service.phrase_selected(None, thePhrase)
         self.hide()
         

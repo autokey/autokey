@@ -1,54 +1,54 @@
 # -*- coding: utf-8 -*-
 import gtk, time, logging
-from configurationmanager import *
+from configmanager import *
 
-from phrase import PhraseFolder # remove later
+from phrase import PhraseFolder # TODO remove later
 
 _logger = logging.getLogger("phrase-menu")
 
-class PhraseMenu(gtk.Menu):
+class PopupMenu(gtk.Menu):
     """
-    A popup menu that allows the user to select a phrase.
+    A popup menu that allows the user to select a phrase or script.
     """
 
-    def __init__(self, expansionService, phraseFolders=[], phrases=[], onDesktop=True):
+    def __init__(self, service, folders=[], items=[], onDesktop=True):
         gtk.Menu.__init__(self)
-        self.set_take_focus(ConfigurationManager.SETTINGS[MENU_TAKES_FOCUS])
+        self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         
-        if ConfigurationManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
-            phraseFolders.sort(key=lambda obj: obj.usageCount, reverse=True)
-            phrases.sort(key=lambda obj: obj.usageCount, reverse=True)
-            #phraseFolders.sort(reverse=True)
-            #phrases.sort(reverse=True)
+            folders.sort(key=lambda obj: obj.usageCount, reverse=True)
+            items.sort(key=lambda obj: obj.usageCount, reverse=True)
+            #folders.sort(reverse=True)
+            #items.sort(reverse=True)
         else:
             _logger.debug("Sorting phrase menu by item name/title")
-            phraseFolders.sort(key=lambda obj: str(obj))
-            phrases.sort(key=lambda obj: str(obj))      
+            folders.sort(key=lambda obj: str(obj))
+            items.sort(key=lambda obj: str(obj))      
         
-        if len(phraseFolders) == 1 and len(phrases) == 0 and onDesktop:
-            # Only one folder - create menu with just its folders and phrases
-            for folder in phraseFolders[0].folders:
+        if len(folders) == 1 and len(items) == 0 and onDesktop:
+            # Only one folder - create menu with just its folders and items
+            for folder in folders[0].folders:
                 menuItem = gtk.MenuItem(folder.title, False)
-                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
+                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
                 self.append(menuItem)
     
-            if len(phraseFolders[0].folders) > 0:
+            if len(folders[0].folders) > 0:
                 self.append(gtk.SeparatorMenuItem())
             
-            self.__addPhrasesToSelf(phraseFolders[0].phrases, expansionService, onDesktop)
+            self.__addItemsToSelf(folders[0].items, service, onDesktop)
         
         else:
-            # Create phrase folder section
-            for folder in phraseFolders:
+            # Create folder section
+            for folder in folders:
                 menuItem = gtk.MenuItem(folder.title, False)
-                menuItem.set_submenu(PhraseMenu(expansionService, folder.folders, folder.phrases, False))
+                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
                 self.append(menuItem)
     
-            if len(phraseFolders) > 0:
+            if len(folders) > 0:
                 self.append(gtk.SeparatorMenuItem())
     
-            self.__addPhrasesToSelf(phrases, expansionService, onDesktop)
+            self.__addItemsToSelf(items, service, onDesktop)
             
         self.show_all()
 
@@ -63,22 +63,22 @@ class PhraseMenu(gtk.Menu):
         self.popdown()
         gtk.gdk.threads_leave()
         
-    def __addPhrasesToSelf(self, phrases, expansionService, onDesktop):
-        # Create phrase section
-        if ConfigurationManager.SETTINGS[SORT_BY_USAGE_COUNT]:
-            phrases.sort(key=lambda obj: obj.usageCount, reverse=True)
+    def __addItemsToSelf(self, items, service, onDesktop):
+        # Create item (script/phrase) section
+        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+            items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
-            phrases.sort(key=lambda obj: str(obj))
+            items.sort(key=lambda obj: str(obj))
             
-        for phrase in phrases:
+        for item in items:
             if onDesktop:
-                menuItem = gtk.MenuItem(phrase.get_description(expansionService.lastStackState), False)
+                menuItem = gtk.MenuItem(item.get_description(service.lastStackState), False)
             else:
-                menuItem = gtk.MenuItem(phrase.description, False)
-            menuItem.connect("activate", expansionService.phrase_selected, phrase)
+                menuItem = gtk.MenuItem(item.description, False)
+            menuItem.connect("activate", service.phrase_selected, item) # TODO handle different types of items
             self.append(menuItem)        
 
-# Testing stuff - remove later ----
+# TODO Testing stuff - remove later ----
 
 class MockPhrase:
 
@@ -105,7 +105,7 @@ if __name__ == "__main__":
     myPhrases.append(MockPhrase("phrase 2"))
     myPhrases.append(MockPhrase("phrase 3"))
 
-    menu = PhraseMenu(MockExpansionService(), [myFolder], myPhrases)
+    menu = PopupMenu(MockExpansionService(), [myFolder], myPhrases)
     menu.show_on_desktop()
     
     gtk.main()

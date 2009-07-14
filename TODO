@@ -6,6 +6,8 @@ Add toolbar with following functions:
     
 When using predictive mode, make phraseMenu hang around for 5 keypresses rather than immediately closing it
 
+Enable option to paste phrases via clipboard using xclip
+
 Sentence delimiter for recently typed to be improved - not just full stop. 
 
 Implement a record keystrokes function
