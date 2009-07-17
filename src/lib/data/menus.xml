@@ -31,4 +31,13 @@
 			<menuitem action="About" />
 		</menu>
 	</menubar>
+    <toolbar name="ToolBar">
+        <toolitem action="New Folder" />
+        <toolitem action="New Phrase" />
+        <separator />
+        <toolitem action="Copy Item" />
+        <toolitem action="Cut Item" />
+        <toolitem action="Paste Item" />
+        <toolitem action="Delete Item" />
+    </toolbar>
 </ui>

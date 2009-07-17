@@ -110,7 +110,16 @@ class ConfigurationWindow(gtk.Window):
         #vbox.pack_start(self.uiManager.get_widget("/MenuBar"), False, False)
         alignment = gtk.Alignment(xscale=1.0)
         alignment.add(self.uiManager.get_widget("/MenuBar"))
-        vbox.pack_start(alignment, False, False, 5)
+        vbox.pack_start(alignment, False, False)
+        
+        # Toolbar
+        vbox.pack_start(self.uiManager.get_widget("/ToolBar"), False, False, 5)
+        self.uiManager.get_widget("/ToolBar/New Folder").set_sensitive(False)
+        self.uiManager.get_widget("/ToolBar/New Phrase").set_sensitive(False)
+        self.uiManager.get_widget("/ToolBar/Cut Item").set_sensitive(False)
+        self.uiManager.get_widget("/ToolBar/Copy Item").set_sensitive(False)
+        self.uiManager.get_widget("/ToolBar/Paste Item").set_sensitive(False)
+        self.uiManager.get_widget("/ToolBar/Delete Item").set_sensitive(False)
         
         # Get references to toolbar buttons and misc items
         self.toggleExpansionsMenuItem = self.uiManager.get_widget("/MenuBar/Settings/Enable Expansions")
@@ -232,6 +241,15 @@ class ConfigurationWindow(gtk.Window):
         else:    
             self.settingsBox.remove(child)
             self.settingsBox.add(gtk.Label(""))  
+            
+        # Update toolbar items
+        canCreatePhrase = isinstance(selectedObject, model.Folder)
+        canCreateSubFolder = canCreatePhrase
+        self.uiManager.get_widget("/ToolBar/New Folder").set_sensitive(canCreateSubFolder)
+        self.uiManager.get_widget("/ToolBar/New Phrase").set_sensitive(canCreatePhrase)
+        self.uiManager.get_widget("/ToolBar/Cut Item").set_sensitive(selectedObject is not None)
+        self.uiManager.get_widget("/ToolBar/Copy Item").set_sensitive(isinstance(selectedObject, model.Phrase))
+        self.uiManager.get_widget("/ToolBar/Delete Item").set_sensitive(selectedObject is not None)     
     
     def on_new_folder(self, widget, data=None):
         self.__createFolder(None)
@@ -271,10 +289,12 @@ class ConfigurationWindow(gtk.Window):
         selection = self.treeView.get_selection()
         theModel, item = selection.get_selected()
         self.__removeItem(theModel, item)
+        self.uiManager.get_widget("/ToolBar/Paste Item").set_sensitive(True)
     
     def on_copy_item(self, widget, data=None):
         self.cutCopiedItem = model.Phrase('', '')
         self.cutCopiedItem.copy(self.__getTreeSelection())
+        self.uiManager.get_widget("/ToolBar/Paste Item").set_sensitive(True)
     
     def on_paste_item(self, widget, data=None):
         theModel, parentIter = self.treeView.get_selection().get_selected()
@@ -283,6 +303,7 @@ class ConfigurationWindow(gtk.Window):
             theModel.populate_store(newIter, self.cutCopiedItem)
         self.treeView.expand_to_path(theModel.get_path(newIter))  
         self.cutCopiedItem = None
+        self.uiManager.get_widget("/ToolBar/Paste Item").set_sensitive(False)
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
@@ -1430,7 +1451,7 @@ class _TreeModel(gtk.TreeStore):
             if isinstance(item, model.Folder):
                 item.parent.remove_folder(item)
             else:
-                item.parent.remove_phrase(item)
+                item.parent.remove_item(item)
             
         self.remove(iter)
         

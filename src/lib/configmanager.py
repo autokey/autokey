@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os.path, shutil, configobj, logging
+import os.path, shutil, configobj, logging, gtk.gdk
 import cPickle as pickle
 import iomediator
 
@@ -523,6 +523,8 @@ class GlobalHotkey(AbstractHotkey):
     def check_hotkey(self, modifiers, key, windowTitle):
         if AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
             _logger.debug("Triggered global hotkey using modifiers: %s key: %s" % (repr(modifiers), key))
+            gtk.gdk.threads_enter()
             self.closure()
+            gtk.gdk.threads_leave()
         return False
 
