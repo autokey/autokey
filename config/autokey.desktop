@@ -1,6 +1,5 @@
 # $Id: autokey.desktop 22 2008-01-29 11:29:13Z peabody $
 [Desktop Entry]
-Encoding=UTF-8
 Name=AutoKey
 GenericName=Keyboard Automation
 Comment=Program keyboard shortcuts

@@ -6,6 +6,16 @@ autokey (0.60.0-0~jaunty) jaunty; urgency=low
   * Implement libraries to provide script namespaces
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 9 Jul 2009 20:38:05 +1000
+ 
+autokey (0.54.5-0~jaunty) jaunty; urgency=low
+
+  * debian/control: Changed Arch:Any to all since we don't build
+    platform-specific binaries
+  * debian/control: Bump standards version to 3.8.2
+  * Remove redundant encoding in .desktop file which is deprecated in latest
+    Freedesktop.org spec
+
+ -- Luke Faraone <luke@faraone.cc>  Sun, 12 Jul 2009 17:55:46 -0400
 
 autokey (0.54.4-0~jaunty) jaunty; urgency=low
 

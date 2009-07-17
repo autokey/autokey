@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 
 # Copyright (C) 2008 Chris Dekter
 
@@ -36,6 +35,7 @@ class Key:
     SCROLL_LOCK = "<scroll_lock>"
     PRINT_SCREEN = "<print_screen>"
     PAUSE = "<pause>"
+    MENU = "<menu>"
     
     # Modifier keys
     CONTROL = "<ctrl>"
@@ -170,6 +170,9 @@ class IoMediator(threading.Thread):
             
             modifiers = self.__getNonPrintingModifiersOn()
             if modifiers:
+                if self.modifiers[Key.SHIFT]:
+                    modifiers.append(Key.SHIFT)
+                    modifiers.sort()
                 key = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
                 
                 for target in self.listeners:

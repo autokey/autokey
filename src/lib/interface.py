@@ -62,6 +62,7 @@ BACKSPACE = 'XK_BackSpace'
 SCROLL_LOCK = 'XK_Scroll_Lock'
 PRINT_SCREEN = 'XK_Print'
 PAUSE = 'XK_Pause'
+MENU = 'XK_Menu'
 
 # Function Keys
 F1 = "XK_F1"
@@ -171,8 +172,6 @@ class XInterfaceBase(threading.Thread):
         for char in "\\|`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) > 0:
-                #keyCode, offset = keyCodeList[0]
-                #print "[%s], %d, %d" % (char, keyCode, offset)
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
@@ -261,7 +260,7 @@ class XInterfaceBase(threading.Thread):
         """
         Send a specific non-printing key, eg Up, Left, etc
         """
-        logger.debug("Send special key: [%s]", repr(keyName))
+        logger.debug("Send special key: [%s]", keyName)
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
         
     def send_modified_key(self, keyName, modifiers):
@@ -307,9 +306,6 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)  
         
     def _handleKeyPress(self, keyCode):
-        if self.testMode:
-            print repr(keyCode)
-            
         self.lock.acquire()
         
         # Initial attempt at detecting MappingNotify by polling for events
@@ -614,6 +610,7 @@ KEY_MAP = {
            SCROLL_LOCK : Key.SCROLL_LOCK,
            PRINT_SCREEN : Key.PRINT_SCREEN,
            PAUSE : Key.PAUSE,
+           MENU : Key.MENU,
            F1 : Key.F1,
            F2 : Key.F2,
            F3 : Key.F3,
