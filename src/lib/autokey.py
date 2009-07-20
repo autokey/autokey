@@ -57,17 +57,8 @@ class AutoKeyApplication:
             handler.setFormatter(logging.Formatter(LOG_FORMAT))
             rootLogger.addHandler(handler)
             
-            if os.path.exists(LOCK_FILE):
-                f = open(LOCK_FILE, 'r')
-                pid = f.read()
-                f.close()
-                if os.path.exists("/proc/" + pid):
-                    logging.error("AutoKey is already running - exiting")
-                    self.show_error_dialog("AutoKey is already running (pid %s)" % pid)
-                    sys.exit(1)
-                else:
-                    self.__createLockFile()
-            else:
+            
+            if self.__verifyNotRunning():
                 self.__createLockFile()
                 
             self.initialise(configure)
@@ -81,6 +72,25 @@ class AutoKeyApplication:
         f = open(LOCK_FILE, 'w')
         f.write(str(os.getpid()))
         f.close()
+        
+    def __verifyNotRunning(self):
+        if os.path.exists(LOCK_FILE):
+            f = open(LOCK_FILE, 'r')
+            pid = f.read()
+            f.close()
+            
+            # Check that the found PID is running and is autokey
+            p = subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE)
+            p.wait()
+            output = p.stdout.readlines()
+            if len(output) > 1:
+                # process exists
+                if "autokey" in output[1]:
+                    logging.error("AutoKey is already running - exiting")
+                    self.show_error_dialog("AutoKey is already running (pid %s)" % pid)
+                    sys.exit(1)
+         
+        return True
         
     def initialise(self, configure):
         logging.info("Initialising application")
