@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="autokey"
+     version="0.60.0"
+     xmlns="http://www.kde.org/standards/kxmlgui/1.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
+                         http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
+ 
+  <MenuBar>
+    <Menu name="file" >
+      <Menu name="new">
+        <text>New...</text>
+        <Action name="new-top-folder" />
+        <Action name="new-folder" />
+        <Action name="new-phrase" />
+        <Action name="new-script" />
+      </Menu>
+      <Action name="save" />
+      <separator />
+      <Action name="import" />
+      <Action name="close-window" />
+    </Menu>
+    <Menu name="edit" >
+      <Action name="cut-item" />
+      <Action name="copy-item" />
+      <Action name="paste-item" />
+      <Action name="delete-item" />
+      <separator />
+      <Action name="insert-macro" />
+      <Action name="record-keystrokes" />
+    </Menu>
+    <Menu name="settings" >
+      <Action name="enable-monitoring" />
+      <Action name="advanced-settings" />
+    </Menu>
+    <Menu name="help">
+      <Action name="donate" />
+    </Menu>
+  </MenuBar>
+  
+  <Menu name="Context">
+    <Action name="new-folder" />
+    <Action name="new-phrase" />
+    <Action name="new-script" />
+    <separator />
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />
+    <Action name="delete-item" />    
+  </Menu>
+ 
+  <ToolBar name="ToolBar" >
+    <text>Toolbar</text>
+      <Menu name="new">
+        <text>New...</text>
+        <Action name="new-folder" />
+        <Action name="new-phrase" />
+        <Action name="new-script" />
+      </Menu>
+    <separator />
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />
+    <Action name="delete-item" />
+    <separator />
+    <Action name="record-keystrokes" />
+  </ToolBar>
+ 
+</gui>

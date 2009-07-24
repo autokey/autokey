@@ -18,7 +18,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time, logging, threading
-import iomediator, ui, model
+import iomediator, ui.configwindow, model
 from iomediator import Key
 from configmanager import *
 from phrasemenu import *
@@ -153,7 +153,7 @@ class Service:
                 
                 
     @threaded
-    def item_selected(self, event, item):
+    def item_selected(self, item):
         time.sleep(0.25) # wait for window to be active
         self.lastMenu = None # if an item has been selected, the menu has been hidden
         self.__processItem(item, self.lastStackState)
@@ -234,7 +234,7 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return windowName not in (ui.CONFIG_WINDOW_TITLE, ui.SELECTOR_DIALOG_TITLE) and self.is_running()
+        return windowName not in (ui.configwindow.CONFIG_WINDOW_TITLE) and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):

@@ -55,7 +55,12 @@ class AutoKeyDaemon(daemon.Daemon):
             sys.stderr.flush()
             
             while True:
-                event = devices.next_event()
+                try:
+                    event = devices.next_event()
+                except OSError:
+                    print "Unable to read from device(s). Connection will be closed and restarted"
+                    break
+                    
                 if event is not None:
                     if event.type == "EV_KEY" and isinstance(event.code, str):
                         if event.code.startswith("KEY"):

@@ -55,12 +55,6 @@ def get_config_manager(autoKeyApp):
         apply_settings(settings)
         configManager.app = autoKeyApp
         
-        if len(configManager.globalHotkeys) == 2:
-            _logger.info("Upgrading from config file without showPopupHotkey")
-            configManager.showPopupHotkey = GlobalHotkey()
-            configManager.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
-            configManager.showPopupHotkey.enabled = True
-            configManager.globalHotkeys.append(configManager.showPopupHotkey)
         autoKeyApp.init_global_hotkeys(configManager)
         
         _logger.info("Successfully loaded configuration file")
@@ -75,7 +69,7 @@ def save_config(configManager):
     _logger.info("Persisting configuration") 
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
-    configManager.showPopupHotkey.set_closure(None)
+
     autoKeyApp = configManager.app
     configManager.app = None
 
@@ -174,10 +168,6 @@ class ConfigManager:
         self.toggleServiceHotkey.set_hotkey(["<ctrl>", "<shift>"], "k")
         self.toggleServiceHotkey.enabled = True    
         
-        self.showPopupHotkey = GlobalHotkey()
-        self.showPopupHotkey.set_hotkey(["<ctrl>", "<shift>"], " ")
-        self.showPopupHotkey.enabled = True
-                
         myPhrases = Folder(u"My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
         myPhrases.set_modes([TriggerMode.HOTKEY])

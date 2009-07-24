@@ -1,5 +1,4 @@
-include config/autokeyicon.svg
+include config/akicon.png
 include config/autokey.desktop
-include src/lib/data/menus.xml
-include autokeyd
+include src/lib/ui/data/gui.xml
 include INSTALL

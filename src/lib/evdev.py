@@ -164,7 +164,11 @@ class DeviceGroup:
             
     def close(self):
         for fd in self.fds:
-            os.close(fd)
+            try:
+                os.close(fd)
+            except:
+                print "Warning - failed to close on or more device file descriptors"
+                pass
             
 
 class EnumDict:

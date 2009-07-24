@@ -18,10 +18,11 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-import pygtk
-pygtk.require("2.0")
-import sys, gtk, traceback, os.path, signal, logging, logging.handlers
-import service, ui
+import sys, traceback, os.path, signal, logging, logging.handlers, subprocess
+from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
+from PyKDE4.kdeui import KMessageBox, KApplication
+
+import service, ui.notifier
 from configmanager import *
 
 CONFIG_DIR = os.path.expanduser("~/.config/autokey")
@@ -31,14 +32,44 @@ MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
 MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 
+APP_NAME = "AutoKey"
+CATALOG = ""
+PROGRAM_NAME = ki18n("AutoKey")
+VERSION = "0.60.0"
+DESCRIPTION = ki18n("Desktop automation utility")
+LICENSE = KAboutData.License_GPL_V3
+COPYRIGHT = ki18n("(c) 2009 Chris Dekter")
+TEXT = ki18n("")
+HOMEPAGE  = "http://autokey.sourceforge.net/"
+BUG_EMAIL = "cdekter@gmail.com"
 
-class AutoKeyApplication:
+
+
+class Application:
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
     """
+    
+    def __init__(self):
+        
+        aboutData = KAboutData(APP_NAME, CATALOG, PROGRAM_NAME, VERSION, DESCRIPTION,
+                                    LICENSE, COPYRIGHT, TEXT, HOMEPAGE, BUG_EMAIL)
 
-    def __init__(self, verbose, configure):
+        aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
+        aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
+        aboutData.setProgramIconName(ui.notifier.ICON_FILE)
+        
+        KCmdLineArgs.init(sys.argv, aboutData)
+        options = KCmdLineOptions()
+        options.add("l").add("verbose", ki18n("Enable verbose logging"))
+        options.add("c").add("configure", ki18n("Show the configuration window on startup"))
+        KCmdLineArgs.addCmdLineOptions(options)
+        args = KCmdLineArgs.parsedArgs()
+        
+        
+        self.app = KApplication()
+        
         try:
             # Create configuration directory
             if not os.path.exists(CONFIG_DIR):
@@ -46,7 +77,7 @@ class AutoKeyApplication:
             # Initialise logger
             rootLogger = logging.getLogger()
             
-            if verbose:
+            if args.isSet("verbose"):
                 rootLogger.setLevel(logging.DEBUG)
                 handler = logging.StreamHandler(sys.stdout)
             else:           
@@ -61,12 +92,13 @@ class AutoKeyApplication:
             if self.__verifyNotRunning():
                 self.__createLockFile()
                 
-            self.initialise(configure)
+            self.initialise(args.isSet("configure"))
             
         except Exception, e:
-            self.show_error_dialog("Fatal error starting AutoKey.\n" + str(e))
+            self.show_error_dialog(i18n("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
+            
             
     def __createLockFile(self):
         f = open(LOCK_FILE, 'w')
@@ -87,11 +119,14 @@ class AutoKeyApplication:
                 # process exists
                 if "autokey" in output[1]:
                     logging.error("AutoKey is already running - exiting")
-                    self.show_error_dialog("AutoKey is already running (pid %s)" % pid)
+                    self.show_error_dialog(i18n("AutoKey is already running (pid %s)") % pid)
                     sys.exit(1)
          
         return True
-        
+
+    def main(self):
+        self.app.exec_()
+
     def initialise(self, configure):
         logging.info("Initialising application")
         self.configManager = get_config_manager(self)
@@ -103,39 +138,36 @@ class AutoKeyApplication:
         except Exception, e:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration.\n" + str(e))
+            self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
+                                    "Check your system/configuration.\n") + str(e))
         
         signal.signal(signal.SIGTERM, self.shutdown)
         
-        #self.init_global_hotkeys()
-        self.notifier = ui.Notifier(self)
-        self.configureWindow = None
-        self.abbrPopup = None
+        self.notifier = ui.notifier.Notifier(self)
+        self.configWindow = None
         
         if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
             ConfigManager.SETTINGS[IS_FIRST_RUN] = False
-            self.show_configure()
+            #self.show_configure()
             
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure)
-        configManager.showPopupHotkey.set_closure(self.show_abbr_selector)
         
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
-        self.notifier.set_tooltip(ui.TOOLTIP_RUNNING)
         self.service.unpause()
+        self.notifier.update_tool_tip()
     
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
-        self.notifier.set_tooltip(ui.TOOLTIP_PAUSED)
         self.service.pause()
+        self.notifier.update_tool_tip()
         
     def toggle_service(self):
         """
@@ -152,11 +184,12 @@ class AutoKeyApplication:
         """
         logging.info("Shutting down")
         self.service.shutdown()
+        self.app.quit()
         os.remove(LOCK_FILE)
             
     def show_notify(self, message, isError=False, details=''):
         """
-        Show a libnotify popup.
+        Show a notification popup.
         
         @param message: Message to show in the popup
         @param isError: Whether the message is an error (shows with an error icon)
@@ -170,30 +203,15 @@ class AutoKeyApplication:
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logging.info("Displaying configuration window")
-        if self.configureWindow is None:
-            self.configureWindow = ui.ConfigurationWindow(self)
-            self.configureWindow.show()
+        if self.configWindow is None:
+            self.configWindow = ui.configwindow.ConfigWindow(self)
+            self.configWindow.show()
         else:    
-            self.configureWindow.deiconify()
-            
-    def show_abbr_selector(self):
-        """
-        Show the abbreviation autocompletion popup.
-        """
-        if self.abbrPopup is None:
-            logging.info("Displaying abbreviation popup")
-            self.abbrPopup = ui.AbbreviationSelectorDialog(self.service)
-            self.abbrPopup.present()
-                
-    def main(self):
-        logging.info("Entering main()")
-        gtk.main()
-            
+            self.configWindow.showNormal()
+
     def show_error_dialog(self, message):
         """
         Convenience method for showing an error dialog.
         """
-        dlg = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
-                                 message_format=message)
-        dlg.run()
-        dlg.destroy()
+        KMessageBox.error(None, message)
+        

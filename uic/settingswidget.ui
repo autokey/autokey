@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsWidget</class>
+ <widget class="QWidget" name="SettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>316</width>
+    <height>91</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Abbreviation:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="abbrLabel">
+     <property name="text">
+      <string>$abbr</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="KPushButton" name="setAbbrButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="KPushButton" name="clearAbbrButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Hotkey:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="hotkeyLabel">
+     <property name="text">
+      <string>$hotkey</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="KPushButton" name="setHotkeyButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="KPushButton" name="clearHotkeyButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Window Filter:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="windowFilterLabel">
+     <property name="text">
+      <string>$filter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="KPushButton" name="setFilterButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="KPushButton" name="clearFilterButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>KPushButton</class>
+   <extends>QPushButton</extends>
+   <header>kpushbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

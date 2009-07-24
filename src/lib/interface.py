@@ -440,14 +440,7 @@ class EvDevInterface(XInterfaceBase):
     def __init__(self, mediator, testMode=False):
         XInterfaceBase.__init__(self, mediator, testMode)
         self.cancelling = False
-        
-        # Connect to event daemon
-        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-        self.socket.settimeout(1)
-        try:
-            self.socket.connect(DOMAIN_SOCKET_PATH)
-        except socket.error, e:
-            raise Exception("Unable to connect to EvDev daemon:\n" + str(e))
+        self.__connect()
         
     def cancel(self):
         self.cancelling = True
@@ -463,14 +456,21 @@ class EvDevInterface(XInterfaceBase):
             # Request next event
             try:
                 data = self.socket.recv(PACKET_SIZE)
-            except: continue
+            except socket.timeout:
+                continue # Timeout means no data to received
+            except:
+                logger.exception("Connection to EvDev daemon lost")
+                self.__connLost()
+                continue
+                
             
             data = data.strip()
             try:
                 keyCode, button, state = data.split(',')
             except:
-                logger.critical("Connection to EvDev daemon lost - terminating")
-                break
+                logger.exception("Connection to EvDev daemon lost")
+                self.__connLost()
+                continue
             
             if keyCode:
                 keyCode = int(keyCode)
@@ -484,6 +484,39 @@ class EvDevInterface(XInterfaceBase):
                     
             if button:
                 self.mediator.handle_mouse_click()
+                
+                
+    def __connect(self):
+        # Connect to event daemon
+        self.connected = False
+        logger.info("Attempting to establish connection to EvDev daemon")
+        self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
+        self.socket.settimeout(1)
+        try:
+            self.socket.connect(DOMAIN_SOCKET_PATH)
+            logger.info("EvDev daemon connected")
+            self.connected = True
+        except socket.error, e:
+            raise Exception("Unable to connect to EvDev daemon:\n" + str(e))
+        
+    def __connLost(self):
+        # Called when the connection is lost - try to re-establish
+        # Loops every 10 seconds trying to establish a connection.
+        self.socket.close()
+        self.connected = False
+        
+        while not self.connected:
+            try:
+                self.__connect()
+            except:
+                pass # don't care if something went wrong - keep retrying
+                
+            if self.cancelling:
+                break
+                
+            if not self.connected:
+                time.sleep(10)
+        
 
 
 class XRecordInterface(XInterfaceBase):

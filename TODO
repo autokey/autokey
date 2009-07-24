@@ -1,12 +1,12 @@
-Add toolbar with following functions:
-    New folder
-    New phrase
-    Cut/Copy/Paste/Delete
-    Record Keystrokes
-    
+Global hotkeys should be grabbed
+Option to grab hotkeys that are not filtered
+Filter on window title or binary name
+
+Enable abbr expansion undo using backspace
+
 When using predictive mode, make phraseMenu hang around for 5 keypresses rather than immediately closing it
 
-Enable option to paste phrases via clipboard using xclip
+Add option to paste phrases via clipboard using xclip
 
 Sentence delimiter for recently typed to be improved - not just full stop. 
 
@@ -18,11 +18,12 @@ Namespace for showing simple dialogs (using the 'dialog' package)
 Namespace for performing shell tasks (mainly aliases for shutil and subprocess)
 Namespace for autokey stuff - create/modify/delete folders/phrases/scripts
 Namespace for persistent values to allow scripts to store stuff between invocations
+Namespace for dialogs using kdialog
 
 Get rid of commented out code
 Add method comments
 
-Add gettext support
+Full i18n support throughout
 
 Add spell checker with a hotkey which checks the last word typed
 This can probably be done with a script once the script interface is implemented
