@@ -208,6 +208,7 @@ class Application:
             self.configWindow.show()
         else:    
             self.configWindow.showNormal()
+            self.configWindow.activateWindow()
 
     def show_error_dialog(self, message):
         """

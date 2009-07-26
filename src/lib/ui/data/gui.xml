@@ -34,6 +34,8 @@
       <Action name="advanced-settings" />
     </Menu>
     <Menu name="help">
+      <Action name="online-help" />
+      <Action name="online-faq" />
       <Action name="donate" />
     </Menu>
   </MenuBar>

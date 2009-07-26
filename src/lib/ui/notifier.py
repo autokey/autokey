@@ -84,7 +84,7 @@ class Notifier:
         self.app.shutdown()
 
     def on_configure(self):
-        print "configure"
+        self.app.show_configure()
         
     def on_enable_toggled(self):
         if self.toggleAction.isChecked():
