@@ -18,11 +18,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess
+import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, Queue
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
 from PyKDE4.kdeui import KMessageBox, KApplication
+from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
+from PyQt4.QtGui import QCursor
 
-import service, ui.notifier
+import service, ui.notifier, ui.popupmenu
 from configmanager import *
 
 CONFIG_DIR = os.path.expanduser("~/.config/autokey")
@@ -148,12 +150,14 @@ class Application:
         
         if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
             ConfigManager.SETTINGS[IS_FIRST_RUN] = False
-            #self.show_configure()
+            self.show_configure()
+            
+        self.handler = CallbackEventHandler()
             
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
-        configManager.configHotkey.set_closure(self.show_configure)
+        configManager.configHotkey.set_closure(self.show_configure_async)
         
     def unpause_service(self):
         """
@@ -209,6 +213,9 @@ class Application:
         else:    
             self.configWindow.showNormal()
             self.configWindow.activateWindow()
+            
+    def show_configure_async(self):
+        self.exec_in_main(self.show_configure)
 
     def show_error_dialog(self, message):
         """
@@ -216,3 +223,38 @@ class Application:
         """
         KMessageBox.error(None, message)
         
+    def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
+        self.exec_in_main(self.__createMenu, folders, items, onDesktop, title)
+        
+    def hide_menu(self):
+        self.exec_in_main(self.menu.hide)
+        
+    def __createMenu(self, folders, items, onDesktop, title):
+        self.menu = ui.popupmenu.PopupMenu(self.service, folders, items, onDesktop, title)
+        self.menu.popup(QCursor.pos())
+        
+    def exec_in_main(self, callback, *args):
+        self.handler.postEventWithCallback(callback, *args)
+        
+        
+class CallbackEventHandler(QObject):
+
+    def __init__(self):
+        QObject.__init__(self)
+        self.queue = Queue.Queue()
+
+    def customEvent(self, event):
+        while True:
+            try:
+                callback, args = self.queue.get_nowait()
+            except Queue.Empty:
+                break
+            try:
+                callback(*args)
+            except Exception:
+                logging.warn("callback event failed: %r %r", callback, args, exc_info=True)
+
+    def postEventWithCallback(self, callback, *args):
+        self.queue.put((callback, args))
+        app = KApplication.kApplication()
+        app.postEvent(self, QEvent(QEvent.User))

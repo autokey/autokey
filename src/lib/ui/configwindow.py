@@ -20,7 +20,7 @@ import logging, sys, os, webbrowser
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, SLOT
+from PyQt4.QtCore import SIGNAL, QVariant, Qt
 
 
 CONFIG_WINDOW_TITLE = i18n("Configuration")
@@ -33,6 +33,9 @@ ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)
 
 from dialogs import *
 from .. configmanager import *
+from .. import model
+
+# ---- Internal widgets
 
 import settingswidget
 
@@ -115,13 +118,14 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             print "Restore"
     """
 
-
+# ---- Configuration window
     
 class ConfigWindow(KXmlGuiWindow):
 
     def __init__(self, app):
         KXmlGuiWindow.__init__(self)
-        self.setCentralWidget(CentralWidget(self))
+        self.centralWidget = CentralWidget(self)
+        self.setCentralWidget(self.centralWidget)
         self.app = app
         
         # File Menu
@@ -162,6 +166,8 @@ class ConfigWindow(KXmlGuiWindow):
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
+        
+        self.__popupateTreeWidget()
 
     def new_folder(self):
         print "new folder"
@@ -189,6 +195,12 @@ class ConfigWindow(KXmlGuiWindow):
         self.actionCollection().addAction(actionName, action)
         return action
         
+        
+    def __popupateTreeWidget(self):
+        factory = WidgetItemFactory(self.app.configManager.folders)
+        
+        for item in factory.get_root_folder_list():
+            self.centralWidget.treeWidget.addTopLevelItem(item)
         
     # ---- Signal handlers ----
     
@@ -226,4 +238,68 @@ class ConfigWindow(KXmlGuiWindow):
         
     def on_donate(self):
         webbrowser.open(DONATE_URL, False, True)
+        
 
+# ---- TreeWidget and helper functions
+
+class WidgetItemFactory:
+    
+    def __init__(self, rootFolders):
+        self.folders = rootFolders
+    
+    def get_root_folder_list(self):
+        rootItems = []
+        
+        for folder in self.folders.values():
+            item = self.__buildItem(None, folder)
+            rootItems.append(item)
+            self.__processFolder(item, folder)
+            
+        return rootItems
+        
+    def __processFolder(self, parentItem, parentFolder):
+        for folder in parentFolder.folders:
+            item = self.__buildItem(parentItem, folder)
+            self.__processFolder(item, folder)
+        
+        for childModelItem in parentFolder.items:
+            self.__buildItem(parentItem, childModelItem)
+    
+    def __buildItem(self, parent, item):
+        if isinstance(item, model.Folder):
+            return self.__buildFolderWidgetItem(parent, item)
+        elif isinstance(item, model.Phrase):
+            return self.__buildPhraseWidgetItem(parent, item)
+        elif isinstance(item, model.Script):
+            return self.__buildScriptWidgetItem(parent, item)
+
+
+    def __buildFolderWidgetItem(self, parent, folder):
+        item = QTreeWidgetItem()
+        item.setIcon(0, KIcon("folder"))
+        item.setText(0, folder.title)
+        item.setData(1, Qt.UserRole, QVariant(folder))
+        if parent is not None:
+            parent.addChild(item)
+            
+        return item
+
+    def __buildPhraseWidgetItem(self, parent, phrase):
+        item = QTreeWidgetItem()
+        item.setIcon(0, KIcon("edit-paste"))
+        item.setText(0, phrase.description)
+        item.setData(1, Qt.UserRole, QVariant(phrase))
+        if parent is not None:
+            parent.addChild(item)
+            
+        return item
+
+    def __buildScriptWidgetItem(self, parent, script):
+        item = QTreeWidgetItem()
+        item.setIcon(0, KIcon("text-x-script"))
+        item.setText(0, script.description)
+        item.setData(1, Qt.UserRole, QVariant(script))
+        if parent is not None:
+            parent.addChild(item)
+            
+        return item

@@ -18,10 +18,10 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time, logging, threading
-import iomediator, ui.configwindow, model
-from iomediator import Key
+from iomediator import Key, IoMediator
+import ui.configwindow, model
 from configmanager import *
-from phrasemenu import *
+from ui.popupmenu import *
 from plugin.manager import PluginManager, PluginError
 
 logger = logging.getLogger("service")
@@ -58,7 +58,7 @@ class Service:
         self.phraseRunner = PhraseRunner(self)
         
     def start(self):
-        self.mediator = iomediator.IoMediator(self)
+        self.mediator = IoMediator(self)
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
         logger.info("Service now marked as running")
         
@@ -108,22 +108,26 @@ class Service:
                     logger.info("Matched hotkey phrase/script with prompt=False")
                 else:
                     logger.info("Matched hotkey phrase/script with prompt=True")
-                    menu = PopupMenu(self, [], [itemMatch])
+                    #menu = PopupMenu(self, [], [itemMatch])
+                    menu = ([], [itemMatch])
                     
             else:
                 logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
                     if folder.check_hotkey(modifiers, key, windowName):
-                        menu = PopupMenu(self, [folder], [])
+                        #menu = PopupMenu(self, [folder], [])
+                        menu = ([folder], [])
 
             
             if menu is not None:
                 logger.debug("Folder matched hotkey - showing menu")
                 if self.lastMenu is not None:
-                    self.lastMenu.remove_from_desktop()
+                    #self.lastMenu.remove_from_desktop()
+                    self.app.hide_menu()
                 self.lastStackState = ''
                 self.lastMenu = menu
-                self.lastMenu.show_on_desktop()
+                #self.lastMenu.show_on_desktop()
+                self.app.show_popup_menu(*menu)
             
             if itemMatch is not None:
                 self.__processItem(itemMatch)
@@ -145,9 +149,11 @@ class Service:
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
-                        self.lastMenu.remove_from_desktop()
+                        #self.lastMenu.remove_from_desktop()
+                        self.app.hide_menu()
                     self.lastMenu = menu
-                    self.lastMenu.show_on_desktop()
+                    #self.lastMenu.show_on_desktop()
+                    self.app.show_popup_menu(*menu)
                 
                 logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
                 
@@ -179,7 +185,8 @@ class Service:
         """
         if self.lastMenu is not None:
             if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-                self.lastMenu.remove_from_desktop()
+                #self.lastMenu.remove_from_desktop()
+                self.app.hide_menu()
                 
             self.lastMenu = None
             
@@ -223,7 +230,8 @@ class Service:
         
         if self.__menuRequired(folderMatches, itemMatches, buffer):
             self.lastStackState = buffer
-            return (None, PopupMenu(self, folderMatches, itemMatches))
+            #return (None, PopupMenu(self, folderMatches, itemMatches))
+            return (None, (folderMatches, itemMatches))
         elif len(itemMatches) == 1:
             return (itemMatches[0], None)
         else:

@@ -18,7 +18,7 @@
 
 
 import logging, sys
-from PyKDE4.kdeui import KMenu, KAction, KActionMenu
+from PyKDE4.kdeui import KMenu, KAction, KActionMenu, KApplication
 #from PyKDE4.kdecore import ki18n, KAboutData, KCmdLineArgs
 from PyQt4.QtGui import QCursor
 from PyQt4.QtCore import SIGNAL, Qt
@@ -92,9 +92,6 @@ class PopupMenu(KMenu, MenuBase):
 
         if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
             self.setFocusPolicy(Qt.ClickFocus)
-
-    def show(self):
-        self.popup(QCursor.pos())
 
 class SubMenu(KActionMenu, MenuBase):
     
