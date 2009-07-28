@@ -41,6 +41,23 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
+       <widget class="QCheckBox" name="promptCheckbox">
+        <property name="text">
+         <string>Always prompt before running this script</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="showInTrayCheckbox">
+        <property name="text">
+         <string>Show in tray menu</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="KSeparator" name="kseparator"/>
+      </item>
+      <item>
        <widget class="SettingsWidget" name="settingsWidget" native="true"/>
       </item>
      </layout>
@@ -55,6 +72,11 @@
    <header>klineedit.h</header>
   </customwidget>
   <customwidget>
+   <class>KSeparator</class>
+   <extends>QFrame</extends>
+   <header>kseparator.h</header>
+  </customwidget>
+  <customwidget>
    <class>QsciScintilla</class>
    <extends>QFrame</extends>
    <header>Qsci/qsciscintilla.h</header>
@@ -62,7 +84,7 @@
   <customwidget>
    <class>SettingsWidget</class>
    <extends>QWidget</extends>
-   <header>ui.configwindow.h</header>
+   <header>configwindow.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

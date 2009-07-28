@@ -25,7 +25,17 @@
     <widget class="KLineEdit" name="descriptionLineEdit"/>
    </item>
    <item>
-    <widget class="KTextEdit" name="phraseText"/>
+    <widget class="KTextEdit" name="phraseText">
+     <property name="tabChangesFocus">
+      <bool>true</bool>
+     </property>
+     <property name="lineWrapMode">
+      <enum>QTextEdit::NoWrap</enum>
+     </property>
+     <property name="acceptRichText">
+      <bool>false</bool>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="settingsGroupBox">
@@ -34,7 +44,31 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="SettingsWidget" name="widget" native="true"/>
+       <widget class="QCheckBox" name="predictCheckbox">
+        <property name="text">
+         <string>Suggest this phrase using predictive mode</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="promptCheckbox">
+        <property name="text">
+         <string>Always prompt before pasting this phrase</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="showInTrayCheckbox">
+        <property name="text">
+         <string>Show in tray menu</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="KSeparator" name="kseparator"/>
+      </item>
+      <item>
+       <widget class="SettingsWidget" name="settingsWidget" native="true"/>
       </item>
      </layout>
     </widget>
@@ -48,6 +82,11 @@
    <header>klineedit.h</header>
   </customwidget>
   <customwidget>
+   <class>KSeparator</class>
+   <extends>QFrame</extends>
+   <header>kseparator.h</header>
+  </customwidget>
+  <customwidget>
    <class>KTextEdit</class>
    <extends>QTextEdit</extends>
    <header>ktextedit.h</header>
@@ -55,7 +94,7 @@
   <customwidget>
    <class>SettingsWidget</class>
    <extends>QWidget</extends>
-   <header>ui.configwindow.h</header>
+   <header>configwindow.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

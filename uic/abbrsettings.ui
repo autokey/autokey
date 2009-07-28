@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item>
-      <widget class="KComboBox" name="kcombobox"/>
+      <widget class="KComboBox" name="wordCharCombo"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">

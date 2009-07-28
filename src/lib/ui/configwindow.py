@@ -40,23 +40,82 @@ from .. import model
 import settingswidget
 
 class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
+    
+    KEY_MAP = {
+               ' ' : "<space>",
+               '\t' : "<tab>",
+               '\b' : "<backspace>",
+               '\n' : "<enter>" 
+               }
+    
+    REVERSE_KEY_MAP = {}    
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         settingswidget.Ui_SettingsWidget.__init__(self)
         self.setupUi(self)
+            
+        self.abbrDialog = AbbrSettingsDialog(self)
+        self.hotkeyDialog = HotkeySettingsDialog(self)
+        self.filterDialog = WindowFilterSettingsDialog(self)
+        
+        for key, value in self.KEY_MAP.iteritems():
+            self.REVERSE_KEY_MAP[value] = key
+            
+        self.hotkeyDialog.KEY_MAP = self.KEY_MAP
+        self.hotkeyDialog.REVERSE_KEY_MAP = self.REVERSE_KEY_MAP
+    
+    def load(self, item):
+        self.currentItem = item
+        
+        if model.TriggerMode.ABBREVIATION in item.modes:
+            self.abbrLabel.setText(item.abbreviation.encode("utf-8"))
+            self.clearAbbrButton.setEnabled(True)
+        else:
+            self.abbrLabel.setText("(None configured)")
+            self.clearAbbrButton.setEnabled(False)
+            
+        if model.TriggerMode.HOTKEY in item.modes:
+            hotkey = ""
+
+            for modifier in item.modifiers:
+                hotkey += modifier
+                hotkey += "+"
+
+            key = str(item.hotKey.encode("utf-8"))
+            if key in self.KEY_MAP:
+                keyText = self.KEY_MAP[key]
+            else:
+                keyText = key
+            hotkey += keyText
+                
+            self.hotkeyLabel.setText(hotkey)
+            self.clearHotkeyButton.setEnabled(True)
+            
+        else:
+            self.hotkeyLabel.setText("(None configured)")
+            self.clearHotkeyButton.setEnabled(False)
+        
+        if item.uses_default_filter():
+            self.windowFilterLabel.setText("Trigger in all windows")
+            self.clearFilterButton.setEnabled(False)
+        else:
+            self.windowFilterLabel.setText(item.get_filter_regex())   
+            self.clearFilterButton.setEnabled(True)
+        
+    # ---- Signal handlers
         
     def on_setAbbrButton_pressed(self):
-        dlg = AbbrSettingsDialog(self)
-        dlg.show()
+        self.abbrDialog.load(self.currentItem)
+        self.abbrDialog.show()
         
     def on_setHotkeyButton_pressed(self):
-        dlg = HotkeySettingsDialog(self)
-        dlg.show()
+        self.hotkeyDialog.load(self.currentItem)
+        self.hotkeyDialog.show()
         
     def on_setFilterButton_pressed(self):
-        dlg = WindowFilterSettingsDialog(self)
-        dlg.show()
+        self.filterDialog.load(self.currentItem)
+        self.filterDialog.show()
 
 
 
@@ -68,6 +127,9 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         QWidget.__init__(self)
         scriptpage.Ui_ScriptPage.__init__(self)
         self.setupUi(self)
+        
+    def load(self, item):
+        pass        
 
 import phrasepage
 
@@ -77,6 +139,14 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         QWidget.__init__(self)
         phrasepage.Ui_PhrasePage.__init__(self)
         self.setupUi(self)
+        
+    def load(self, phrase):
+        self.descriptionLineEdit.setText(phrase.description)
+        self.phraseText.setText(phrase.phrase)
+        self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
+        self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
+        self.promptCheckbox.setChecked(phrase.prompt)
+        self.settingsWidget.load(phrase)
 
 import folderpage
 
@@ -86,6 +156,11 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         QWidget.__init__(self)
         folderpage.Ui_FolderPage.__init__(self)
         self.setupUi(self)
+        
+    def load(self, folder):
+        self.titleLineEdit.setText(folder.title)
+        self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
+        self.settingsWidget.load(folder)
 
 import centralwidget
 
@@ -99,9 +174,35 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                         QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_button)
         self.buttonBox.addButton(KStandardGuiItem.reset(), 
                         QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_button)
+                        
+    def populate_tree(self, config):
+        factory = WidgetItemFactory(config.folders)
+        
+        rootFolders = factory.get_root_folder_list()
+        for item in rootFolders:
+            self.treeWidget.addTopLevelItem(item)
+            
+        self.treeWidget.setCurrentItem(rootFolders[0])
+        self.on_treeWidget_itemClicked(rootFolders[0], 0)
     
-    def on_treeView_customContextMenuRequested(self, position):
+    def on_treeWidget_customContextMenuRequested(self, position):
         print "blah"
+        
+    def on_treeWidget_itemClicked(self, item, column):
+        variant = item.data(1, Qt.UserRole)
+        modelItem = variant.toPyObject()
+        
+        if isinstance(modelItem, model.Folder):
+            self.stack.setCurrentIndex(0)
+            self.folderPage.load(modelItem)
+            
+        elif isinstance(modelItem, model.Phrase):
+            self.stack.setCurrentIndex(1)
+            self.phrasePage.load(modelItem)
+            
+        elif isinstance(modelItem, model.Script):
+            self.stack.setCurrentIndex(2)
+            self.scriptPage.load(modelItem)
         
     def on_button(self):
         print "blah"
@@ -167,7 +268,7 @@ class ConfigWindow(KXmlGuiWindow):
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
         
-        self.__popupateTreeWidget()
+        self.centralWidget.populate_tree(self.app.configManager)
 
     def new_folder(self):
         print "new folder"
@@ -196,11 +297,7 @@ class ConfigWindow(KXmlGuiWindow):
         return action
         
         
-    def __popupateTreeWidget(self):
-        factory = WidgetItemFactory(self.app.configManager.folders)
-        
-        for item in factory.get_root_folder_list():
-            self.centralWidget.treeWidget.addTopLevelItem(item)
+
         
     # ---- Signal handlers ----
     
