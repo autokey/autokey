@@ -121,7 +121,7 @@ class Application:
                 # process exists
                 if "autokey" in output[1]:
                     logging.error("AutoKey is already running - exiting")
-                    self.show_error_dialog(i18n("AutoKey is already running (pid %s)") % pid)
+                    self.show_error_dialog(i18n("AutoKey is already running as pid: ") + pid)
                     sys.exit(1)
          
         return True
@@ -158,6 +158,10 @@ class Application:
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_async)
+        
+    def config_altered(self):
+        self.configManager.config_altered()
+        self.notifier.build_menu()
         
     def unpause_service(self):
         """
@@ -207,12 +211,12 @@ class Application:
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logging.info("Displaying configuration window")
-        if self.configWindow is None:
+        try:
+            self.configWindow.showNormal()
+            self.configWindow.activateWindow()            
+        except:
             self.configWindow = ui.configwindow.ConfigWindow(self)
             self.configWindow.show()
-        else:    
-            self.configWindow.showNormal()
-            self.configWindow.activateWindow()
             
     def show_configure_async(self):
         self.exec_in_main(self.show_configure)

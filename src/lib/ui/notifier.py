@@ -74,7 +74,7 @@ class Notifier:
             
             menu.addAction(self.toggleAction)
             menu.addAction(KIcon("edit-clear"), i18n("&Hide Icon"), self.on_hide_icon)
-            menu.addAction(KIcon("configure"), i18n("&Configure"), self.on_configure)
+            menu.addAction(KIcon("configure"), i18n("&Configure..."), self.on_configure)
             menu.addAction(KStandardAction.quit(self.on_quit, menu))
             self.icon.setContextMenu(menu)
 

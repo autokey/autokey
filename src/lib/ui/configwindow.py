@@ -68,55 +68,125 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
     def load(self, item):
         self.currentItem = item
         
+        self.abbrDialog.load(self.currentItem)
         if model.TriggerMode.ABBREVIATION in item.modes:
             self.abbrLabel.setText(item.abbreviation.encode("utf-8"))
             self.clearAbbrButton.setEnabled(True)
+            self.abbrEnabled = True
         else:
-            self.abbrLabel.setText("(None configured)")
+            self.abbrLabel.setText(i18n("(None configured)"))
             self.clearAbbrButton.setEnabled(False)
-            
-        if model.TriggerMode.HOTKEY in item.modes:
-            hotkey = ""
-
-            for modifier in item.modifiers:
-                hotkey += modifier
-                hotkey += "+"
-
-            key = str(item.hotKey.encode("utf-8"))
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            hotkey += keyText
-                
-            self.hotkeyLabel.setText(hotkey)
-            self.clearHotkeyButton.setEnabled(True)
-            
-        else:
-            self.hotkeyLabel.setText("(None configured)")
-            self.clearHotkeyButton.setEnabled(False)
+            self.abbrEnabled = False
         
+        self.hotkeyDialog.load(self.currentItem)
+        if model.TriggerMode.HOTKEY in item.modes:
+            key = str(item.hotKey.encode("utf-8"))
+            self.hotkeyLabel.setText(self.__buildHotkeyString(key, item.modifiers))
+            self.clearHotkeyButton.setEnabled(True)
+            self.hotkeyEnabled = True            
+        else:
+            self.hotkeyLabel.setText(i18n("(None configured)"))
+            self.clearHotkeyButton.setEnabled(False)
+            self.hotkeyEnabled = False
+        
+        self.filterDialog.load(self.currentItem)
         if item.uses_default_filter():
-            self.windowFilterLabel.setText("Trigger in all windows")
+            self.windowFilterLabel.setText(i18n("(None configured)"))
             self.clearFilterButton.setEnabled(False)
+            self.filterEnabled = False
         else:
             self.windowFilterLabel.setText(item.get_filter_regex())   
             self.clearFilterButton.setEnabled(True)
+            self.filterEnabled = True
+            
+    def save(self):
+        self.currentItem.set_modes([])
+        if self.abbrEnabled:
+            self.abbrDialog.save(self.currentItem)
+        if self.hotkeyEnabled:
+            self.hotkeyDialog.save(self.currentItem)
+        if self.filterEnabled:
+            self.filterDialog.save(self.currentItem)
+        else:
+            self.currentItem.set_window_titles(None)            
+            
+    def set_dirty(self):
+        self.topLevelWidget().set_dirty()
         
     # ---- Signal handlers
         
     def on_setAbbrButton_pressed(self):
-        self.abbrDialog.load(self.currentItem)
-        self.abbrDialog.show()
+        self.abbrDialog.exec_()
+        
+        if self.abbrDialog.result() == QDialog.Accepted:
+            self.set_dirty()
+            self.abbrEnabled = True
+            self.abbrLabel.setText(self.abbrDialog.get_abbr())
+            self.clearAbbrButton.setEnabled(True)
+            
+    def on_clearAbbrButton_pressed(self):
+        self.set_dirty()
+        self.abbrEnabled = False
+        self.clearAbbrButton.setEnabled(False)
+        self.abbrLabel.setText(i18n("(None configured)"))
+        self.abbrDialog.reset()
         
     def on_setHotkeyButton_pressed(self):
-        self.hotkeyDialog.load(self.currentItem)
-        self.hotkeyDialog.show()
+        self.hotkeyDialog.exec_()
         
-    def on_setFilterButton_pressed(self):
-        self.filterDialog.load(self.currentItem)
-        self.filterDialog.show()
+        if self.hotkeyDialog.result() == QDialog.Accepted:
+            self.set_dirty()
+            self.hotkeyEnabled = True
+            key = self.hotkeyDialog.key
+            modifiers = self.hotkeyDialog.build_modifiers()
+            self.hotkeyLabel.setText(self.__buildHotkeyString(key, modifiers))
+            self.clearHotkeyButton.setEnabled(True)
+            
+    def on_clearHotkeyButton_pressed(self):
+        self.set_dirty()
+        self.hotkeyEnabled = False
+        self.clearHotkeyButton.setEnabled(False)
+        self.hotkeyLabel.setText(i18n("(None configured)"))
+        self.hotkeyDialog.reset()
 
+    def on_setFilterButton_pressed(self):
+        self.filterDialog.exec_()
+        
+        if self.filterDialog.result() == QDialog.Accepted:
+            self.set_dirty()
+            filterText = self.filterDialog.get_filter_text()
+            if filterText != "":
+                self.filterEnabled = True
+                self.clearFilterButton.setEnabled(True)
+                self.windowFilterLabel.setText(filterText)
+            else:
+                self.filterEnabled = False
+                self.clearFilterButton.setEnabled(False)
+                self.windowFilterLabel.setText(i18n("(None configured)"))
+
+    def on_clearFilterButton_pressed(self):
+        self.set_dirty()
+        self.filterEnabled = False
+        self.clearFilterButton.setEnabled(False)
+        self.windowFilterLabel.setText(i18n("(None configured)"))
+        self.filterDialog.reset()
+
+    # ---- Private methods
+    
+    def __buildHotkeyString(self, key, modifiers):
+        hotkey = ""
+
+        for modifier in modifiers:
+            hotkey += modifier
+            hotkey += "+"
+
+        if key in self.KEY_MAP:
+            keyText = self.KEY_MAP[key]
+        else:
+            keyText = key
+        hotkey += keyText     
+        
+        return hotkey
 
 
 import scriptpage
@@ -128,8 +198,27 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         scriptpage.Ui_ScriptPage.__init__(self)
         self.setupUi(self)
         
-    def load(self, item):
-        pass        
+    def load(self, script):
+        self.currentScript = script
+        pass
+    
+    def save(self):
+        pass
+    
+    def reset(self):
+        self.load(self.currentScript)
+    
+    def set_dirty(self):
+        self.topLevelWidget().set_dirty()  
+        
+    # --- Signal handlers
+    
+    def on_promptCheckbox_stateChanged(self, state):
+        self.set_dirty()
+
+    def on_showInTrayCheckbox_stateChanged(self, state):
+        self.set_dirty()        
+
 
 import phrasepage
 
@@ -141,12 +230,46 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.setupUi(self)
         
     def load(self, phrase):
-        self.descriptionLineEdit.setText(phrase.description)
-        self.phraseText.setText(phrase.phrase)
+        self.currentPhrase = phrase
+        self.descriptionLineEdit.setText(phrase.description.encode("utf-8"))
+        self.phraseText.setText(phrase.phrase.encode("utf-8"))
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
         self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
         self.promptCheckbox.setChecked(phrase.prompt)
         self.settingsWidget.load(phrase)
+        
+    def save(self):
+        self.settingsWidget.save()
+        self.currentPhrase.description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        self.currentPhrase.phrase = str(self.phraseText.toPlainText()).decode("utf-8")
+        self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        if self.predictCheckbox.isChecked():
+            self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
+        self.currentPhrase.prompt = self.promptCheckbox.isChecked()
+        
+    def reset(self):
+        self.load(self.currentPhrase)        
+        
+    def set_dirty(self):
+        self.topLevelWidget().set_dirty()        
+        
+    # --- Signal handlers
+    
+    def on_descriptionLineEdit_textChanged(self):
+        self.set_dirty()
+        
+    def on_phraseText_textChanged(self):
+        self.set_dirty()
+    
+    def on_predictCheckbox_stateChanged(self, state):
+        self.set_dirty()
+        
+    def on_promptCheckbox_stateChanged(self, state):
+        self.set_dirty()
+
+    def on_showInTrayCheckbox_stateChanged(self, state):
+        self.set_dirty()
+
 
 import folderpage
 
@@ -158,9 +281,55 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         self.setupUi(self)
         
     def load(self, folder):
-        self.titleLineEdit.setText(folder.title)
+        self.currentFolder = folder
+        self.titleLineEdit.setText(folder.title.encode("utf-8"))
         self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
         self.settingsWidget.load(folder)
+        
+    def save(self):
+        self.currentFolder.title = str(self.titleLineEdit.text()).decode("utf-8")
+        self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        self.settingsWidget.save()
+        
+    def reset(self):
+        self.load(self.currentFolder)        
+        
+    def set_dirty(self):
+        self.topLevelWidget().set_dirty()  
+        
+    # --- Signal handlers
+    
+    def on_titleLineEdit_textChanged(self):
+        self.set_dirty()
+    
+    def on_showInTrayCheckbox_stateChanged(self, state):
+        self.set_dirty()        
+
+
+class AkTreeWidget(QTreeWidget):
+    
+    def keyPressEvent(self, event):
+        if self.topLevelWidget().is_dirty() and \
+            (event.matches(QKeySequence.MoveToNextLine) or event.matches(QKeySequence.MoveToPreviousLine)):
+            veto = self.parentWidget().parentWidget().promptToSave()
+            if not veto:
+                QTreeWidget.keyPressEvent(self, event)
+            else:
+                event.ignore()
+        else:
+            QTreeWidget.keyPressEvent(self, event)        
+    
+    def mousePressEvent(self, event):
+        if self.topLevelWidget().is_dirty():
+            veto = self.parentWidget().parentWidget().promptToSave()
+            if not veto:
+                QTreeWidget.mousePressEvent(self, event)
+                QTreeWidget.mouseReleaseEvent(self, event)
+            else:
+                event.ignore()
+        else:
+            QTreeWidget.mousePressEvent(self, event)
+        
 
 import centralwidget
 
@@ -170,27 +339,54 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         QWidget.__init__(self, parent)
         centralwidget.Ui_CentralWidget.__init__(self)
         self.setupUi(self)
-        self.buttonBox.addButton(KStandardGuiItem.save(),
-                        QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_button)
-        self.buttonBox.addButton(KStandardGuiItem.reset(), 
-                        QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_button)
+        self.saveButton = self.buttonBox.addButton(KStandardGuiItem.save(),
+                        QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_save)
+        self.resetButton = self.buttonBox.addButton(KStandardGuiItem.reset(), 
+                        QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_reset)
                         
+        self.set_dirty(False)
+                                
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
         
         rootFolders = factory.get_root_folder_list()
         for item in rootFolders:
             self.treeWidget.addTopLevelItem(item)
+        
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0))
+        self.on_treeWidget_itemSelectionChanged()
+        
+    def set_dirty(self, dirty):
+        self.dirty = dirty
+        self.saveButton.setEnabled(dirty)
+        self.resetButton.setEnabled(dirty)
+        
+    def promptToSave(self):
+        result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
+                i18n("There are unsaved changes. Would you like to save them?"))
+        
+        if result == KMessageBox.Yes:
+            self.on_save()
+            return False
+        elif result == KMessageBox.Cancel:
+            return True
             
-        self.treeWidget.setCurrentItem(rootFolders[0])
-        self.on_treeWidget_itemClicked(rootFolders[0], 0)
+        return False
+        
+    # ---- Signal handlers
     
     def on_treeWidget_customContextMenuRequested(self, position):
-        print "blah"
+        factory = self.topLevelWidget().guiFactory()
+        menu = factory.container("Context", self.topLevelWidget())
+        menu.popup(QCursor.pos())
         
-    def on_treeWidget_itemClicked(self, item, column):
+    def on_treeWidget_itemSelectionChanged(self):
+        item = self.treeWidget.selectedItems()[0]
         variant = item.data(1, Qt.UserRole)
         modelItem = variant.toPyObject()
+        
+        self.topLevelWidget().update_actions(modelItem)
         
         if isinstance(modelItem, model.Folder):
             self.stack.setCurrentIndex(0)
@@ -203,21 +399,24 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         elif isinstance(modelItem, model.Script):
             self.stack.setCurrentIndex(2)
             self.scriptPage.load(modelItem)
+            
+        self.set_dirty(False)
         
-    def on_button(self):
-        print "blah"
-    
+    def on_save(self):
+        # TODO check validation
+        self.stack.currentWidget().save()
+        self.topLevelWidget().save_completed()
+        self.set_dirty(False)
         
-    """def on_buttonBox_clicked(self, button):
-        sb = self.buttonBox.standardButton(button)
+        item = self.treeWidget.selectedItems()[0]
+        item.update()
+        self.treeWidget.update()
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
         
-        if sb == QDialogButtonBox.Save:
-            print "Save"
-        elif sb == QDialogButtonBox.Discard:
-            print "Discard"
-        elif sb == QDialogButtonBox.RestoreDefaults:
-            print "Restore"
-    """
+    def on_reset(self):
+        self.stack.currentWidget().reset()
+        self.set_dirty(False)
+
 
 # ---- Configuration window
     
@@ -234,14 +433,14 @@ class ConfigWindow(KXmlGuiWindow):
         self.newFolder = self.__createAction("new-folder", i18n("Folder"), "folder-new", self.new_folder)
         self.newPhrase = self.__createAction("new-phrase", i18n("Phrase"), "document-new", self.new_folder)
         self.newScript = self.__createAction("new-script", i18n("Script"), "document-new", self.new_folder)
-        self.save = self.__createAction("save", i18n("Save"), "document-new", self.new_folder, KStandardShortcut.Save)
+        self.save = self.__createAction("save", i18n("Save"), "document-new", self.centralWidget.on_save, KStandardShortcut.Save)
 
         self.importSettings = self.__createAction("import", i18n("Import Settings"), target=self.new_folder)
 
         self.close = self.__createAction("close-window", i18n("Close Window"), "window-close", self.on_close, KStandardShortcut.Close)
         KStandardAction.quit(self.on_quit, self.actionCollection())
 
-        # Edit Menu
+        # Edit Menu 
         self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
         self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
         self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
@@ -267,12 +466,36 @@ class ConfigWindow(KXmlGuiWindow):
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
+        # TODO more init here
+        
+        self.cutCopiedItem = None
         
         self.centralWidget.populate_tree(self.app.configManager)
-
-    def new_folder(self):
-        print "new folder"
-
+        
+    def set_dirty(self):
+        self.centralWidget.set_dirty(True)
+        self.save.setEnabled(True)
+        
+    def is_dirty(self):
+        return self.centralWidget.dirty
+        
+    def update_actions(self, item):
+        canCreate = isinstance(item, model.Folder)
+        
+        self.newFolder.setEnabled(canCreate)
+        self.newPhrase.setEnabled(canCreate)
+        self.newScript.setEnabled(canCreate)
+        self.save.setEnabled(False)
+        
+        self.copy.setEnabled(not canCreate)
+        self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
+        self.insert.setEnabled(isinstance(item, model.Phrase))
+        self.record.setEnabled(isinstance(item, model.Phrase))
+        
+    def save_completed(self):
+        self.save.setEnabled(False)
+        self.app.config_altered()
+        
     def __createAction(self, actionName, name, iconName=None, target=None, shortcut=None):
         if iconName is not None:
             action = KAction(KIcon(iconName), name, self.actionCollection())
@@ -296,26 +519,27 @@ class ConfigWindow(KXmlGuiWindow):
         self.actionCollection().addAction(actionName, action)
         return action
         
-        
-
-        
     # ---- Signal handlers ----
     
-    # File Menu
-    
-    def on_close(self):
-        #if self.dirty:
-        #    selectedObject = self.__getTreeSelection()
-        #    child = self.settingsBox.get_children()[0]
-        #    child.on_save(None)           
-        # TODO - prompt to save
-        
+    def queryClose(self):
+        if self.is_dirty():
+            if self.centralWidget.promptToSave():
+                return False
+
         self.hide()
-        self.destroy()
-        self.app.configureWindow = None
+        return True
+    
+    # File Menu
+
+    def new_folder(self):
+        print "new folder"
+        
+    def on_close(self):
+        self.queryClose()
         
     def on_quit(self):
-        self.app.shutdown()
+        if self.queryClose():
+            self.app.shutdown()
         
     # Settings Menu
         
@@ -338,6 +562,8 @@ class ConfigWindow(KXmlGuiWindow):
         
 
 # ---- TreeWidget and helper functions
+
+
 
 class WidgetItemFactory:
     
@@ -364,39 +590,89 @@ class WidgetItemFactory:
     
     def __buildItem(self, parent, item):
         if isinstance(item, model.Folder):
-            return self.__buildFolderWidgetItem(parent, item)
+            return FolderWidgetItem(parent, item)
         elif isinstance(item, model.Phrase):
-            return self.__buildPhraseWidgetItem(parent, item)
+            return PhraseWidgetItem(parent, item)
         elif isinstance(item, model.Script):
-            return self.__buildScriptWidgetItem(parent, item)
+            return ScriptWidgetItem(parent, item)
 
 
-    def __buildFolderWidgetItem(self, parent, folder):
-        item = QTreeWidgetItem()
-        item.setIcon(0, KIcon("folder"))
-        item.setText(0, folder.title)
-        item.setData(1, Qt.UserRole, QVariant(folder))
+class FolderWidgetItem(QTreeWidgetItem):
+    
+    def __init__(self, parent, folder):
+        QTreeWidgetItem.__init__(self)
+        self.folder = folder
+        self.setIcon(0, KIcon("folder"))
+        self.setText(0, folder.title)
+        self.setData(1, Qt.UserRole, QVariant(folder))
         if parent is not None:
-            parent.addChild(item)
+            parent.addChild(self)   
             
-        return item
+    def update(self):
+        self.setText(0, self.folder.title)            
+        
+    def __ge__(self, other):
+        if isinstance(other, ScriptWidgetItem):
+            return QTreeWidgetItem.__ge__(self, other)
+        else:
+            return False
+            
+    def __lt__(self, other):
+        if isinstance(other, FolderWidgetItem):
+            return QTreeWidgetItem.__lt__(self, other)
+        else:
+            return True
+            
 
-    def __buildPhraseWidgetItem(self, parent, phrase):
-        item = QTreeWidgetItem()
-        item.setIcon(0, KIcon("edit-paste"))
-        item.setText(0, phrase.description)
-        item.setData(1, Qt.UserRole, QVariant(phrase))
+class PhraseWidgetItem(QTreeWidgetItem):
+    
+    def __init__(self, parent, phrase):
+        QTreeWidgetItem.__init__(self)
+        self.phrase = phrase
+        self.setIcon(0, KIcon("edit-paste"))
+        self.setText(0, phrase.description)
+        self.setData(1, Qt.UserRole, QVariant(phrase))
         if parent is not None:
-            parent.addChild(item)
+            parent.addChild(self)      
             
-        return item
+    def update(self):
+        self.setText(0, self.phrase.description)
+        
+    def __ge__(self, other):
+        if isinstance(other, ScriptWidgetItem):
+            return QTreeWidgetItem.__ge__(self, other)
+        else:
+            return True
+            
+    def __lt__(self, other):
+        if isinstance(other, PhraseWidgetItem):
+            return QTreeWidgetItem.__lt__(self, other)
+        else:
+            return False
+            
 
-    def __buildScriptWidgetItem(self, parent, script):
-        item = QTreeWidgetItem()
-        item.setIcon(0, KIcon("text-x-script"))
-        item.setText(0, script.description)
-        item.setData(1, Qt.UserRole, QVariant(script))
+class ScriptWidgetItem(QTreeWidgetItem):
+    
+    def __init__(self, parent, script):
+        QTreeWidgetItem.__init__(self)
+        self.script = script
+        self.setIcon(0, KIcon("text-x-script"))
+        self.setText(0, script.description)
+        self.setData(1, Qt.UserRole, QVariant(script))
         if parent is not None:
-            parent.addChild(item)
+            parent.addChild(self)
             
-        return item
+    def update(self):
+        self.setText(0, self.script.description)
+        
+    def __ge__(self, other):
+        if isinstance(other, ScriptWidgetItem):
+            return QTreeWidgetItem.__ge__(self, other)
+        else:
+            return True
+            
+    def __lt__(self, other):
+        if isinstance(other, ScriptWidgetItem):
+            return QTreeWidgetItem.__lt__(self, other)
+        else:
+            return False

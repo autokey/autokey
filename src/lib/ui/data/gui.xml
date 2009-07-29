@@ -41,9 +41,12 @@
   </MenuBar>
   
   <Menu name="Context">
-    <Action name="new-folder" />
-    <Action name="new-phrase" />
-    <Action name="new-script" />
+      <Menu name="new">
+        <text>New...</text>
+        <Action name="new-folder" />
+        <Action name="new-phrase" />
+        <Action name="new-script" />
+      </Menu>
     <separator />
     <Action name="cut-item" />
     <Action name="copy-item" />
@@ -55,6 +58,7 @@
     <text>Toolbar</text>
       <Menu name="new">
         <text>New...</text>
+        <Action name="new-top-folder" />        
         <Action name="new-folder" />
         <Action name="new-phrase" />
         <Action name="new-script" />

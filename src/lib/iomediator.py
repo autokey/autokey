@@ -309,6 +309,30 @@ class IoMediator(threading.Thread):
         
         modifiers.sort()
         return modifiers
+        
+        
+        
+class KeyGrabber:
+    """
+    Keygrabber used by the hotkey settings dialog to grab the key pressed
+    """
+    
+    def __init__(self, parent):
+        self.targetParent = parent
+    
+    def start(self):
+        IoMediator.listeners.append(self)
+                 
+    def handle_keypress(self, key, windowName=""):
+        if not key in MODIFIERS:
+            IoMediator.listeners.remove(self)
+            self.targetParent.set_key(key)
+            
+    def handle_hotkey(self, key, modifiers, windowName):
+        pass
+    
+    def handle_mouseclick(self):
+        pass
     
 if __name__ == "__main__":
     pass

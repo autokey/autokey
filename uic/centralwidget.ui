@@ -19,12 +19,15 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="QTreeWidget" name="treeWidget">
+     <widget class="AkTreeWidget" name="treeWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>1</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="contextMenuPolicy">
+       <enum>Qt::CustomContextMenu</enum>
       </property>
       <property name="dragEnabled">
        <bool>true</bool>
@@ -114,6 +117,11 @@
    <extends>QWidget</extends>
    <header>configwindow.h</header>
    <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>AkTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>configwindow.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

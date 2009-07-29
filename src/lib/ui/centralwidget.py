@@ -17,7 +17,8 @@ class Ui_CentralWidget(object):
         self.splitter = QtGui.QSplitter(CentralWidget)
         self.splitter.setOrientation(QtCore.Qt.Horizontal)
         self.splitter.setObjectName("splitter")
-        self.treeWidget = QtGui.QTreeWidget(self.splitter)
+        #self.treeWidget = QtGui.QTreeWidget(self.splitter)
+        self.treeWidget = AkTreeWidget(self.splitter)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(1)
         sizePolicy.setVerticalStretch(0)
@@ -26,6 +27,7 @@ class Ui_CentralWidget(object):
         self.treeWidget.setDragEnabled(True)
         self.treeWidget.setDragDropMode(QtGui.QAbstractItemView.InternalMove)
         self.treeWidget.setAnimated(True)
+        self.treeWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.treeWidget.setHeaderHidden(True)
         self.treeWidget.setObjectName("treeWidget")
         self.treeWidget.headerItem().setText(0, "1")
@@ -73,5 +75,5 @@ class Ui_CentralWidget(object):
     def retranslateUi(self, CentralWidget):
         CentralWidget.setWindowTitle(kdecore.i18n("Form"))
 
-from configwindow import PhrasePage, ScriptPage, FolderPage
+from configwindow import PhrasePage, ScriptPage, FolderPage, AkTreeWidget
 from PyKDE4.kdeui import KDialogButtonBox
