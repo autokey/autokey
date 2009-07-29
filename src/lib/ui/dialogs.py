@@ -85,6 +85,8 @@ class AbbrSettingsDialog(KDialog):
         
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
+        item.abbreviation = str(self.widget.abbrLineEdit.text()).decode("utf-8")
+        
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
         
         option = str(self.widget.wordCharCombo.currentText())

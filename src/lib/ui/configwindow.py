@@ -335,7 +335,7 @@ import centralwidget
 
 class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
 
-    def __init__(self, parent):
+    def __init__(self, parent, app):
         QWidget.__init__(self, parent)
         centralwidget.Ui_CentralWidget.__init__(self)
         self.setupUi(self)
@@ -345,6 +345,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                         QDialogButtonBox.ButtonRole(QDialogButtonBox.NoRole), self.on_reset)
                         
         self.set_dirty(False)
+        self.configManager = app.configManager
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -382,10 +383,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         menu.popup(QCursor.pos())
         
     def on_treeWidget_itemSelectionChanged(self):
-        item = self.treeWidget.selectedItems()[0]
-        variant = item.data(1, Qt.UserRole)
-        modelItem = variant.toPyObject()
-        
+        modelItem = self.__getSelection()
         self.topLevelWidget().update_actions(modelItem)
         
         if isinstance(modelItem, model.Folder):
@@ -402,6 +400,37 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             
         self.set_dirty(False)
         
+    def on_new_topfolder(self):
+        self.__createFolder(None)
+        
+    def on_new_folder(self):
+        parent = self.treeWidget.selectedItems()[0]
+        self.__createFolder(parent)
+        
+    def on_new_phrase(self):
+        parentItem = self.treeWidget.selectedItems()[0]
+        parent = self.__getSelection()
+        
+        phrase = model.Phrase("New Phrase", "Enter phrase contents")
+        newItem = PhraseWidgetItem(parentItem, phrase)
+        parent.add_item(phrase)
+        
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(newItem)
+        self.on_treeWidget_itemSelectionChanged()        
+        
+    def on_delete(self):
+        widgetItem = self.treeWidget.selectedItems()[0]
+        
+        if widgetItem.childCount() > 0:
+            result = KMessageBox.questionYesNo(self.topLevelWidget(), 
+                        i18n("Are you sure you want to delete this folder and all the folders/items in it?"))
+            if result == KMessageBox.Yes:
+                self.__removeItem()
+                
+        else:
+            self.__removeItem()
+        
     def on_save(self):
         # TODO check validation
         self.stack.currentWidget().save()
@@ -416,7 +445,48 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
     def on_reset(self):
         self.stack.currentWidget().reset()
         self.set_dirty(False)
-
+        
+    # ---- Private methods
+    
+    def __getSelection(self):
+        item = self.treeWidget.selectedItems()[0]
+        variant = item.data(1, Qt.UserRole)
+        return variant.toPyObject()
+        
+    def __createFolder(self, parentItem):
+        folder = model.Folder("New Folder")
+        newItem = FolderWidgetItem(parentItem, folder)
+        
+        if parentItem is not None:
+            parentFolder = self.__getSelection()
+            parentFolder.add_folder(folder)
+        else:
+            self.treeWidget.addTopLevelItem(newItem)
+            self.configManager.folders[folder.title] = folder
+            
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(newItem)
+        self.on_treeWidget_itemSelectionChanged()
+        
+    def __removeItem(self):
+        widgetItem = self.treeWidget.selectedItems()[0]
+        item = self.__getSelection()
+        parent = widgetItem.parent()
+        
+        if parent is None:
+            self.treeWidget.removeItemWidget(widgetItem, 0)
+            del self.configManager.folders[item.title]
+        else:
+            parent.removeChild(widgetItem)
+        
+            if isinstance(item, model.Folder):
+                item.parent.remove_folder(item)
+            else:
+                item.parent.remove_item(item)
+        
+        self.configManager.config_altered()
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        
 
 # ---- Configuration window
     
@@ -424,14 +494,14 @@ class ConfigWindow(KXmlGuiWindow):
 
     def __init__(self, app):
         KXmlGuiWindow.__init__(self)
-        self.centralWidget = CentralWidget(self)
+        self.centralWidget = CentralWidget(self, app)
         self.setCentralWidget(self.centralWidget)
         self.app = app
         
         # File Menu
-        self.newTopFolder = self.__createAction("new-top-folder", i18n("Top-level Folder"), "folder-new", self.new_folder)
-        self.newFolder = self.__createAction("new-folder", i18n("Folder"), "folder-new", self.new_folder)
-        self.newPhrase = self.__createAction("new-phrase", i18n("Phrase"), "document-new", self.new_folder)
+        self.newTopFolder = self.__createAction("new-top-folder", i18n("Top-level Folder"), "folder-new", self.centralWidget.on_new_topfolder)
+        self.newFolder = self.__createAction("new-folder", i18n("Folder"), "folder-new", self.centralWidget.on_new_folder)
+        self.newPhrase = self.__createAction("new-phrase", i18n("Phrase"), "document-new", self.centralWidget.on_new_phrase)
         self.newScript = self.__createAction("new-script", i18n("Script"), "document-new", self.new_folder)
         self.save = self.__createAction("save", i18n("Save"), "document-new", self.centralWidget.on_save, KStandardShortcut.Save)
 
@@ -444,7 +514,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
         self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
         self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
-        self.delete = self.__createAction("delete-item", i18n("Delete Item"), "edit-delete", self.new_folder)
+        self.delete = self.__createAction("delete-item", i18n("Delete Item"), "edit-delete", self.centralWidget.on_delete)
         self.insert = self.__createAction("insert-macro", i18n("Insert Macro"), "insert-text", self.new_folder)
         self.record = self.__createAction("record-keystrokes", i18n("Record Keystrokes"), "media-record", self.new_folder)
         
@@ -533,7 +603,7 @@ class ConfigWindow(KXmlGuiWindow):
 
     def new_folder(self):
         print "new folder"
-        
+                
     def on_close(self):
         self.queryClose()
         
