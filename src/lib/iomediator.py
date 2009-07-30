@@ -334,6 +334,16 @@ class KeyGrabber:
     def handle_mouseclick(self):
         pass
     
-if __name__ == "__main__":
-    pass
+
+class KeyRecorder(KeyGrabber):
+    
+    def stop(self):
+        IoMediator.listeners.remove(self)
         
+    def handle_keypress(self, key, windowName=""):
+        if not key in MODIFIERS:
+            self.targetParent.append_key(key)
+            
+    def handle_hotkey(self, key, modifiers, windowName):
+        self.targetParent.append_hotkey(key, modifiers)
+    

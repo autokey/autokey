@@ -8,8 +8,8 @@
  
   <MenuBar>
     <Menu name="file" >
-      <Menu name="new">
-        <text>New...</text>
+      <Menu name="create">
+        <text>Create...</text>
         <Action name="new-top-folder" />
         <Action name="new-folder" />
         <Action name="new-phrase" />
@@ -21,9 +21,9 @@
       <Action name="close-window" />
     </Menu>
     <Menu name="edit" >
-      <Action name="cut-item" />
+      <!--<Action name="cut-item" />
       <Action name="copy-item" />
-      <Action name="paste-item" />
+      <Action name="paste-item" />-->
       <Action name="delete-item" />
       <separator />
       <Action name="insert-macro" />
@@ -41,32 +41,22 @@
   </MenuBar>
   
   <Menu name="Context">
-      <Menu name="new">
-        <text>New...</text>
-        <Action name="new-folder" />
-        <Action name="new-phrase" />
-        <Action name="new-script" />
-      </Menu>
+    <Action name="new-folder" />
+    <Action name="new-phrase" />
+    <Action name="new-script" />
     <separator />
-    <Action name="cut-item" />
-    <Action name="copy-item" />
-    <Action name="paste-item" />
-    <Action name="delete-item" />    
+    <Action name="delete-item" />
   </Menu>
  
   <ToolBar name="ToolBar" >
     <text>Toolbar</text>
-      <Menu name="new">
-        <text>New...</text>
+      <Menu name="create">
+        <text>Create...</text>
         <Action name="new-top-folder" />        
         <Action name="new-folder" />
         <Action name="new-phrase" />
         <Action name="new-script" />
       </Menu>
-    <separator />
-    <Action name="cut-item" />
-    <Action name="copy-item" />
-    <Action name="paste-item" />
     <Action name="delete-item" />
     <separator />
     <Action name="record-keystrokes" />

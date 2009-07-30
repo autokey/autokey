@@ -33,6 +33,7 @@ ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)
 
 from dialogs import *
 from .. configmanager import *
+from .. iomediator import KeyRecorder
 from .. import model
 
 # ---- Internal widgets
@@ -81,7 +82,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         self.hotkeyDialog.load(self.currentItem)
         if model.TriggerMode.HOTKEY in item.modes:
             key = str(item.hotKey.encode("utf-8"))
-            self.hotkeyLabel.setText(self.__buildHotkeyString(key, item.modifiers))
+            self.hotkeyLabel.setText(self.build_hotkey_string(key, item.modifiers))
             self.clearHotkeyButton.setEnabled(True)
             self.hotkeyEnabled = True            
         else:
@@ -139,7 +140,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
             self.hotkeyEnabled = True
             key = self.hotkeyDialog.key
             modifiers = self.hotkeyDialog.build_modifiers()
-            self.hotkeyLabel.setText(self.__buildHotkeyString(key, modifiers))
+            self.hotkeyLabel.setText(self.build_hotkey_string(key, modifiers))
             self.clearHotkeyButton.setEnabled(True)
             
     def on_clearHotkeyButton_pressed(self):
@@ -173,7 +174,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
 
     # ---- Private methods
     
-    def __buildHotkeyString(self, key, modifiers):
+    def build_hotkey_string(self, key, modifiers):
         hotkey = ""
 
         for modifier in modifiers:
@@ -262,7 +263,14 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         return True
         
     def set_dirty(self):
-        self.topLevelWidget().set_dirty()        
+        self.topLevelWidget().set_dirty()
+        
+    def append_key(self, key):
+        self.phraseText.insertPlainText(key)
+        
+    def append_hotkey(self, key, modifiers):
+        keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
+        self.phraseText.insertPlainText(keyString)
         
     # --- Signal handlers
     
@@ -348,6 +356,19 @@ class AkTreeWidget(QTreeWidget):
                 event.ignore()
         else:
             QTreeWidget.mousePressEvent(self, event)
+            
+            
+    def dragMoveEvent(self, event):
+        target = self.itemAt(event.pos())
+        if isinstance(target, FolderWidgetItem):
+            QTreeWidget.dragMoveEvent(self, event)
+        else:
+            event.ignore()
+            
+    def dropEvent(self, event):
+        target = self.itemAt(event.pos())
+        source = self.selectedItems()[0]
+        self.parentWidget().parentWidget().move_item(source, target)
         
 
 import centralwidget
@@ -365,6 +386,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                         
         self.set_dirty(False)
         self.configManager = app.configManager
+        self.recorder = KeyRecorder(self.phrasePage)
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -418,6 +440,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             self.scriptPage.load(modelItem)
             
         self.set_dirty(False)
+        self.parentWidget().cancel_record()
         
     def on_new_topfolder(self):
         self.__createFolder(None)
@@ -464,11 +487,30 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
     def on_reset(self):
         self.stack.currentWidget().reset()
         self.set_dirty(False)
+        self.parentWidget().cancel_record()
+        
+    def move_item(self, source, target):
+        sourceModelItem = self.__extractData(source)
+        targetModelItem = self.__extractData(target)
+        
+        self.__removeItem()
+        
+        if isinstance(sourceModelItem, model.Folder):
+            targetModelItem.add_folder(sourceModelItem)
+        else:
+            targetModelItem.add_item(sourceModelItem)
+            
+        target.addChild(source)
+        self.parentWidget().app.config_altered()
+        
         
     # ---- Private methods
     
     def __getSelection(self):
         item = self.treeWidget.selectedItems()[0]
+        return self.__extractData(item)
+        
+    def __extractData(self, item):
         variant = item.data(1, Qt.UserRole)
         return variant.toPyObject()
         
@@ -503,7 +545,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             else:
                 item.parent.remove_item(item)
         
-        self.configManager.config_altered()
+        self.parentWidget().app.config_altered()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         
 
@@ -518,10 +560,11 @@ class ConfigWindow(KXmlGuiWindow):
         self.app = app
         
         # File Menu
-        self.newTopFolder = self.__createAction("new-top-folder", i18n("Top-level Folder"), "folder-new", self.centralWidget.on_new_topfolder)
-        self.newFolder = self.__createAction("new-folder", i18n("Folder"), "folder-new", self.centralWidget.on_new_folder)
-        self.newPhrase = self.__createAction("new-phrase", i18n("Phrase"), "document-new", self.centralWidget.on_new_phrase)
-        self.newScript = self.__createAction("new-script", i18n("Script"), "document-new", self.new_folder)
+        #self.actionCollection().addAction("create", KActionMenu(i18n("asdf..."), self))
+        self.newTopFolder = self.__createAction("new-top-folder", i18n("New Top-level Folder"), "folder-new", self.centralWidget.on_new_topfolder)
+        self.newFolder = self.__createAction("new-folder", i18n("New Folder"), "folder-new", self.centralWidget.on_new_folder)
+        self.newPhrase = self.__createAction("new-phrase", i18n("New Phrase"), "document-new", self.centralWidget.on_new_phrase)
+        self.newScript = self.__createAction("new-script", i18n("New Script"), "document-new", self.new_folder)
         self.save = self.__createAction("save", i18n("Save"), "document-new", self.centralWidget.on_save, KStandardShortcut.Save)
 
         self.importSettings = self.__createAction("import", i18n("Import Settings"), target=self.new_folder)
@@ -530,12 +573,12 @@ class ConfigWindow(KXmlGuiWindow):
         KStandardAction.quit(self.on_quit, self.actionCollection())
 
         # Edit Menu 
-        self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
-        self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
-        self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
-        self.delete = self.__createAction("delete-item", i18n("Delete Item"), "edit-delete", self.centralWidget.on_delete)
+        #self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
+        #self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
+        #self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
+        self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
         self.insert = self.__createAction("insert-macro", i18n("Insert Macro"), "insert-text", self.new_folder)
-        self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.new_folder, "media-record")
+        self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.on_record_keystrokes, "media-record")
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
@@ -555,7 +598,6 @@ class ConfigWindow(KXmlGuiWindow):
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
-        # TODO more init here
         
         self.cutCopiedItem = None
         
@@ -576,8 +618,8 @@ class ConfigWindow(KXmlGuiWindow):
         self.newScript.setEnabled(canCreate)
         self.save.setEnabled(False)
         
-        self.copy.setEnabled(not canCreate)
-        self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
+        #self.copy.setEnabled(not canCreate)
+        #self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
         self.insert.setEnabled(isinstance(item, model.Phrase))
         self.record.setEnabled(isinstance(item, model.Phrase))
         
@@ -612,6 +654,11 @@ class ConfigWindow(KXmlGuiWindow):
         self.actionCollection().addAction(actionName, action)
         return action
         
+    def cancel_record(self):
+        if self.record.isChecked():
+            self.record.setChecked(False)
+            self.centralWidget.recorder.stop()
+        
     # ---- Signal handlers ----
     
     def queryClose(self):
@@ -628,12 +675,21 @@ class ConfigWindow(KXmlGuiWindow):
         print "new folder"
                 
     def on_close(self):
+        self.cancel_record()
         self.queryClose()
         
     def on_quit(self):
         if self.queryClose():
             self.app.shutdown()
-        
+            
+    # Edit Menu
+    
+    def on_record_keystrokes(self):
+        if self.record.isChecked():
+            self.centralWidget.recorder.start()
+        else:
+            self.centralWidget.recorder.stop()
+    
     # Settings Menu
         
     def on_enable_toggled(self):
