@@ -89,9 +89,11 @@ class PopupMenu(KMenu, MenuBase):
     def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
         KMenu.__init__(self)
         MenuBase.__init__(self, service, folders, items, onDesktop, title)
-
+        
         if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-            self.setFocusPolicy(Qt.ClickFocus)
+            self.setFocusPolicy(Qt.NoFocus)
+        # TODO - this doesn't always work - do something about this
+            
 
 class SubMenu(KActionMenu, MenuBase):
     
@@ -110,6 +112,7 @@ class ItemAction(KAction):
 
     def on_triggered(self):
         self.emit(SIGNAL("actionSig"), self.item)
+
         
 # ---- TODO Testing stuff - remove later  
 

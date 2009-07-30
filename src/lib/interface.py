@@ -260,7 +260,7 @@ class XInterfaceBase(threading.Thread):
         """
         Send a specific non-printing key, eg Up, Left, etc
         """
-        logger.debug("Send special key: [%s]", keyName)
+        logger.debug("Send special key: [%r]", keyName)
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
         
     def send_modified_key(self, keyName, modifiers):

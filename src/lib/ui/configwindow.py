@@ -248,7 +248,18 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.currentPhrase.prompt = self.promptCheckbox.isChecked()
         
     def reset(self):
-        self.load(self.currentPhrase)        
+        self.load(self.currentPhrase)   
+        
+    def validate(self):
+        description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The phrase description can't be empty."),
+                    self.descriptionLineEdit, self.topLevelWidget()): return False
+                
+        phrase = str(self.phraseText.toPlainText()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(phrase), i18n("The phrase content can't be empty."),
+                    self.phraseText, self.topLevelWidget()): return False
+                    
+        return True
         
     def set_dirty(self):
         self.topLevelWidget().set_dirty()        
@@ -294,6 +305,13 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
     def reset(self):
         self.load(self.currentFolder)        
         
+    def validate(self):
+        title = str(self.titleLineEdit.text()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(title), i18n("The folder title can't be empty."),
+                    self.titleLineEdit, self.topLevelWidget()): return False
+                    
+        return True
+        
     def set_dirty(self):
         self.topLevelWidget().set_dirty()  
         
@@ -303,7 +321,8 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         self.set_dirty()
     
     def on_showInTrayCheckbox_stateChanged(self, state):
-        self.set_dirty()        
+        self.set_dirty()
+        
 
 
 class AkTreeWidget(QTreeWidget):
@@ -424,7 +443,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         if widgetItem.childCount() > 0:
             result = KMessageBox.questionYesNo(self.topLevelWidget(), 
-                        i18n("Are you sure you want to delete this folder and all the folders/items in it?"))
+                        i18n("Are you sure you want to delete this folder and all the items in it?"))
             if result == KMessageBox.Yes:
                 self.__removeItem()
                 
@@ -432,15 +451,15 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             self.__removeItem()
         
     def on_save(self):
-        # TODO check validation
-        self.stack.currentWidget().save()
-        self.topLevelWidget().save_completed()
-        self.set_dirty(False)
-        
-        item = self.treeWidget.selectedItems()[0]
-        item.update()
-        self.treeWidget.update()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        if self.stack.currentWidget().validate():
+            self.stack.currentWidget().save()
+            self.topLevelWidget().save_completed()
+            self.set_dirty(False)
+            
+            item = self.treeWidget.selectedItems()[0]
+            item.update()
+            self.treeWidget.update()
+            self.treeWidget.sortItems(0, Qt.AscendingOrder)
         
     def on_reset(self):
         self.stack.currentWidget().reset()
@@ -516,7 +535,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
         self.delete = self.__createAction("delete-item", i18n("Delete Item"), "edit-delete", self.centralWidget.on_delete)
         self.insert = self.__createAction("insert-macro", i18n("Insert Macro"), "insert-text", self.new_folder)
-        self.record = self.__createAction("record-keystrokes", i18n("Record Keystrokes"), "media-record", self.new_folder)
+        self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.new_folder, "media-record")
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
@@ -582,8 +601,12 @@ class ConfigWindow(KXmlGuiWindow):
         return action
 
 
-    def __createToggleAction(self, actionName, name, target):
-        action = KToggleAction(name, self.actionCollection())
+    def __createToggleAction(self, actionName, name, target, iconName=None):
+        if iconName is not None:
+            action = KToggleAction(KIcon(iconName), name, self.actionCollection())
+        else:
+            action = KToggleAction(name, self.actionCollection())
+            
         if target is not None:
             self.connect(action, SIGNAL("triggered()"), target)
         self.actionCollection().addAction(actionName, action)

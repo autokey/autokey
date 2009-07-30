@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import logging, sys, os
+import logging, sys, os, re
 #from PyKDE4.kdeui import KApplication, KXmlGuiWindow, KStandardAction, KIcon, KTextEdit, KAction, KStandardShortcut
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, Qt
+from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 
-__all__ = ["AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog"]
+__all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog"]
 
 import abbrsettings, hotkeysettings, windowfiltersettings
 from .. import model, iomediator
@@ -18,6 +18,14 @@ WORD_CHAR_OPTIONS = {
                      }
 WORD_CHAR_OPTIONS_ORDERED = ["Default", "Space and Enter"]
 
+EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
+
+def validate(expression, message, widget, parent):
+    if not expression:
+        KMessageBox.error(parent, message)
+        if widget is not None:
+            widget.setFocus()
+    return expression
 
 class AbbrSettings(QWidget, abbrsettings.Ui_Form):
     
@@ -25,6 +33,9 @@ class AbbrSettings(QWidget, abbrsettings.Ui_Form):
         QWidget.__init__(self, parent)
         abbrsettings.Ui_Form.__init__(self)
         self.setupUi(self)
+        
+        for item in WORD_CHAR_OPTIONS_ORDERED:
+            self.wordCharCombo.addItem(item)        
         
     def on_ignoreCaseCheckbox_stateChanged(self, state):
         if not self.ignoreCaseCheckbox.isChecked():
@@ -41,6 +52,7 @@ class AbbrSettings(QWidget, abbrsettings.Ui_Form):
         else:
             self.omitTriggerCheckbox.setEnabled(True)        
 
+
 class AbbrSettingsDialog(KDialog):
 
     def __init__(self, parent):
@@ -48,14 +60,13 @@ class AbbrSettingsDialog(KDialog):
         self.widget = AbbrSettings(self)
         self.setMainWidget(self.widget)
         self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
-        self.setPlainCaption(i18n("Set Abbreviation"))
-        
-        for item in WORD_CHAR_OPTIONS_ORDERED:
-            self.widget.wordCharCombo.addItem(item)
-            
+        self.setPlainCaption(i18n("Set Abbreviation"))    
         self.setModal(True)
+        #self.connect(self, SIGNAL("okClicked()"), self.on_okClicked)
         
     def load(self, item):
+        self.targetItem = item
+        
         if model.TriggerMode.ABBREVIATION in item.modes:
             self.widget.abbrLineEdit.setText(item.abbreviation.encode("utf-8"))        
         else:
@@ -85,7 +96,7 @@ class AbbrSettingsDialog(KDialog):
         
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
-        item.abbreviation = str(self.widget.abbrLineEdit.text()).decode("utf-8")
+        item.abbreviation = self.get_abbr().decode("utf-8")
         
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
         
@@ -113,7 +124,25 @@ class AbbrSettingsDialog(KDialog):
         self.widget.immediateCheckbox.setChecked(False)
         
     def get_abbr(self):
-        return self.widget.abbrLineEdit.text()
+        return str(self.widget.abbrLineEdit.text())
+        
+    def slotButtonClicked(self, button):
+        if button == KDialog.Ok:
+            if self.__valid():
+                KDialog.slotButtonClicked(self, button)
+        else:
+            KDialog.slotButtonClicked(self, button)
+            
+    def __valid(self):
+        configManager = self.parentWidget().topLevelWidget().app.configManager
+        if not validate(configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem),
+                             i18n("The abbreviation is already in use.\nAbbreviations must be unique."),
+                             self.widget.abbrLineEdit, self): return False        
+        
+        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), i18n("Abbreviation can't be empty."),
+                            self.widget.abbrLineEdit, self): return False
+                            
+        return True
 
 
 class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
@@ -143,6 +172,7 @@ class HotkeySettingsDialog(KDialog):
         self.key = None
 
     def load(self, item):
+        self.targetItem = item
         if model.TriggerMode.HOTKEY in item.modes:
             self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
             self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
@@ -180,7 +210,8 @@ class HotkeySettingsDialog(KDialog):
         self.widget.shiftButton.setChecked(False)
         self.widget.superButton.setChecked(False)
 
-        self.__setKeyLabel(i18n("(None)"))        
+        self.__setKeyLabel(i18n("(None)"))
+        self.key = None
             
     def set_key(self, key):
         if self.KEY_MAP.has_key(key):
@@ -201,11 +232,34 @@ class HotkeySettingsDialog(KDialog):
             modifiers.append(iomediator.Key.SUPER)
         
         modifiers.sort()
-        return modifiers        
+        return modifiers
+        
+                
+    def slotButtonClicked(self, button):
+        if button == KDialog.Ok:
+            if self.__valid():
+                KDialog.slotButtonClicked(self, button)
+        else:
+            KDialog.slotButtonClicked(self, button)
             
     def __setKeyLabel(self, key):
         self.widget.keyLabel.setText(i18n("Key: ") + key)
+        
+    def __valid(self):
+        configManager = self.parentWidget().topLevelWidget().app.configManager
+        modifiers = self.build_modifiers()
+        
+        if not validate(configManager.check_hotkey_unique(modifiers, self.key, self.targetItem),
+                            i18n("The hotkey is already in use.\nHotkeys must be unique."), None,
+                            self): return False
 
+        if not validate(self.key is not None, i18n("You must specify a key for the Hotkey."),
+                            None, self): return False
+        
+        if not validate(len(modifiers) > 0, i18n("You must select at least one modifier for the Hotkey"),
+                            None, self): return False
+        
+        return True
         
         
 class WindowFilterSettings(QWidget, windowfiltersettings.Ui_Form):

@@ -185,7 +185,6 @@ class Service:
         """
         if self.lastMenu is not None:
             if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-                #self.lastMenu.remove_from_desktop()
                 self.app.hide_menu()
                 
             self.lastMenu = None
