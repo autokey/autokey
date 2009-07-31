@@ -27,6 +27,7 @@ from plugin.manager import PluginManager, PluginError
 logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150
+CONFIG_WINDOW_TITLE = str(ui.configwindow.CONFIG_WINDOW_TITLE)
 
 def threaded(f):
     
@@ -189,17 +190,27 @@ class Service:
                 
             self.lastMenu = None
             
+        if key == Key.ENTER:
+            # Special case - map Enter to \n
+            key = '\n'
+            
         if key == Key.BACKSPACE:
-            # handle backspace by dropping the last saved character
-            self.inputStack = self.inputStack[:-1]
+            if ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
+                self.phraseRunner.undo_expansion()
+            else:
+                # handle backspace by dropping the last saved character
+                self.inputStack = self.inputStack[:-1]
+            
             return False
             
         elif len(key) > 1:
             # non-simple key
             self.inputStack = []
+            self.phraseRunner.clear_last()
             return False
         else:
             # Key is a character
+            self.phraseRunner.clear_last()
             self.inputStack.append(key)
             if len(self.inputStack) > MAX_STACK_LENGTH:
                 self.inputStack.pop(0)
@@ -232,6 +243,7 @@ class Service:
             #return (None, PopupMenu(self, folderMatches, itemMatches))
             return (None, (folderMatches, itemMatches))
         elif len(itemMatches) == 1:
+            self.lastStackState = buffer
             return (itemMatches[0], None)
         else:
             return (None, None)
@@ -241,7 +253,7 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return windowName not in (ui.configwindow.CONFIG_WINDOW_TITLE) and self.is_running()
+        return CONFIG_WINDOW_TITLE not in windowName and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):
@@ -282,6 +294,9 @@ class PhraseRunner:
     def __init__(self, service):
         self.service = service
         self.pluginManager = PluginManager()
+        self.lastExpansion = None
+        self.lastPhrase = None  
+        self.lastBuffer = None
         
     def execute(self, phrase, buffer):
         mediator = self.service.mediator
@@ -308,4 +323,29 @@ class PhraseRunner:
         mediator.flush()
     
         ConfigManager.SETTINGS[INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
+        self.lastExpansion = expansion
+        self.lastPhrase = phrase
+        self.lastBuffer = buffer
         #return len(expansion.string)
+        
+    def can_undo(self):
+        if self.lastExpansion is not None:
+            return model.TriggerMode.ABBREVIATION in self.lastPhrase.modes
+            
+    def clear_last(self):
+        self.lastExpansion = None
+        self.lastPhrase = None 
+        
+    def undo_expansion(self):
+        logger.info("Undoing last abbreviation expansion")
+        replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)
+        logger.debug("Replay string: %s", replay)
+        logger.debug("Erase string: %r", self.lastExpansion.string)
+        mediator = self.service.mediator
+        
+        mediator.send_right(self.lastExpansion.lefts)
+        mediator.remove_string(self.lastExpansion.string)
+        mediator.send_string(replay, False)
+        #mediator.send_right(1)
+        self.clear_last()
+    

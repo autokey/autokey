@@ -44,13 +44,6 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QCheckBox" name="predictCheckbox">
-        <property name="text">
-         <string>Suggest this phrase using predictive mode</string>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="promptCheckbox">
         <property name="text">
          <string>Always prompt before pasting this phrase</string>

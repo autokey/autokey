@@ -166,7 +166,8 @@ class AbstractHotkey(AbstractWindowFilter):
         
 class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
-    Manages a collection of phrases, which may be associated with an abbreviation or hotkey.
+    Manages a collection of subfolders/phrases/scripts, which may be associated 
+    with an abbreviation or hotkey.
     """
     
     def __init__(self, title, showInTrayMenu=False):
@@ -305,10 +306,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def copy(self, thePhrase):
         self.description = thePhrase.description
         self.phrase = thePhrase.phrase
-        #[self.modes.append(mode) for mode in thePhrase.modes]
-        if TriggerMode.PREDICTIVE in thePhrase.modes:
-            self.modes.append(TriggerMode.PREDICTIVE)
-        # self.usageCount = thePhrase.usageCount
+        
+        # TODO - re-enable me if restoring predictive functionality
+        #if TriggerMode.PREDICTIVE in thePhrase.modes:
+        #    self.modes.append(TriggerMode.PREDICTIVE)
+        
         self.prompt = thePhrase.prompt
         self.omitTrigger = thePhrase.omitTrigger
         self.matchCase = thePhrase.matchCase 
@@ -331,8 +333,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             
             if TriggerMode.ABBREVIATION in self.modes:
                 abbr = self._should_trigger_abbreviation(buffer)
-            if TriggerMode.PREDICTIVE in self.modes:
-                predict = self._should_trigger_predictive(buffer)
+            
+            # TODO - re-enable me if restoring predictive functionality
+            #if TriggerMode.PREDICTIVE in self.modes:
+            #    predict = self._should_trigger_predictive(buffer)
             
             return (abbr or predict)
             
@@ -365,10 +369,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     elif typedAbbr.islower():
                         expansion.string = expansion.string.lower()
                         
-        if TriggerMode.PREDICTIVE in self.modes:
-            if self._should_trigger_predictive(buffer):
-                expansion.string = expansion.string[ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
-                triggerFound = True
+        # TODO - re-enable me if restoring predictive functionality
+        #if TriggerMode.PREDICTIVE in self.modes:
+        #    if self._should_trigger_predictive(buffer):
+        #        expansion.string = expansion.string[ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
+        #        triggerFound = True
             
         if not triggerFound:
             # Phrase could have been triggered from menu - check parents for backspace count
@@ -387,47 +392,56 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     return len(self.abbreviation)
                 else:
                     return len(self.abbreviation) + 1
-
-        if TriggerMode.PREDICTIVE in self.modes:
-            if self._should_trigger_predictive(buffer):
-                return ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
+        
+        # TODO - re-enable me if restoring predictive functionality
+        #if TriggerMode.PREDICTIVE in self.modes:
+        #    if self._should_trigger_predictive(buffer):
+        #        return ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
             
         if TriggerMode.HOTKEY in self.modes:
             if buffer == '':
                 return len(self.modifiers) + 1
             
         return self.parent.calculate_input(buffer)
+        
+        
+    def get_trigger_chars(self, buffer):
+        stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+        return typedAbbr + stringAfter
     
     def should_prompt(self, buffer):
         """
         Get a value indicating whether the user should be prompted to select the phrase.
         Always returns true if the phrase has been triggered using predictive mode.
         """
-        if TriggerMode.PREDICTIVE in self.modes:
-            if self._should_trigger_predictive(buffer):
-                return True
+        # TODO - re-enable me if restoring predictive functionality
+        #if TriggerMode.PREDICTIVE in self.modes:
+        #    if self._should_trigger_predictive(buffer):
+        #        return True
         
         return self.prompt
     
     def get_description(self, buffer):
-        if self._should_trigger_predictive(buffer):
-            length = ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
-            endPoint = length + 30
-            if len(self.phrase) > endPoint:
-                description = "... " + self.phrase[length:endPoint] + "..."
-            else:
-                description = "... " + self.phrase[length:]
-            description = description.replace('\n', ' ')
-            return description
-        else:
-            return self.description
+        # TODO - re-enable me if restoring predictive functionality
+        #if self._should_trigger_predictive(buffer):
+        #    length = ConfigManager.SETTINGS[PREDICTIVE_LENGTH]
+        #    endPoint = length + 30
+        #    if len(self.phrase) > endPoint:
+        #        description = "... " + self.phrase[length:endPoint] + "..."
+        #    else:
+        #        description = "... " + self.phrase[length:]
+        #    description = description.replace('\n', ' ')
+        #    return description
+        #else:
+        return self.description
     
-    def _should_trigger_predictive(self, buffer):
+    # TODO - re-enable me if restoring predictive functionality
+    """def _should_trigger_predictive(self, buffer):
         if len(buffer) >= ConfigManager.SETTINGS[PREDICTIVE_LENGTH]: 
             typed = buffer[-ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
             return self.phrase.startswith(typed)
         else:
-            return False
+            return False"""
         
     def parsePositionTokens(self, expansion):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
@@ -449,14 +463,6 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             
             expansion.string = firstpart + secondpart
             
-        
-    """def __cmp__(self, other):
-        if self.usageCount != other.usageCount:
-            return cmp(self.usageCount, other.usageCount)
-        else:
-            return cmp(other.description, self.description)"""
-
-    
     def __str__(self):
         return self.description
     

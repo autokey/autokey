@@ -31,7 +31,8 @@ class Key:
     DOWN = "<down>"
     BACKSPACE = "<backspace>"
     TAB = "<tab>"
-    RETURN = '\n'
+    #RETURN = '\n'
+    ENTER = "<enter>"
     SPACE = ' '
     SCROLL_LOCK = "<scroll_lock>"
     PRINT_SCREEN = "<print_screen>"
@@ -119,17 +120,18 @@ class IoMediator(threading.Thread):
                           }
         
         if self.interfaceType == X_RECORD_INTERFACE:
-            self.interface = XRecordInterface(self)
+            self.interface = XRecordInterface(self, service.app)
         elif self.interfaceType == X_EVDEV_INTERFACE:
-            self.interface = EvDevInterface(self)    
+            self.interface = EvDevInterface(self, service.app)    
         else:
-            self.interface = AtSpiInterface(self)    
+            self.interface = AtSpiInterface(self, service.app)    
         self.interface.start()
         self.start()
         
     def shutdown(self):
         self.interface.cancel()
         self.queue.put_nowait((None, None))
+        self.join()
 
     # Callback methods for Interfaces ----
     
@@ -195,82 +197,112 @@ class IoMediator(threading.Thread):
         
     # Methods for expansion service ----
         
-    def send_string(self, string):
+    def send_string(self, string, clipboard=True):
         """
         Sends the given string for output.
         """
+        if len(string) == 0:
+            return
+            
         self.acquire_lock()
         k = Key()
         
-        self.__clearModifiers()
-        modifiers = []
+
         
-        for section in KEY_SPLIT_RE.split(string):
-            if len(section) > 0:
-                if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
-                    # Section is a modifier application (modifier followed by '+')
-                    modifiers.append(section[:-1])
-                    
-                else:
-                    if len(modifiers) > 0:
-                        # Modifiers ready for application - send modified key
-                        if k.is_key(section):
-                            self.interface.send_modified_key(section, modifiers)
-                        else:
-                            self.interface.send_modified_key(section[0], modifiers)
-                            if len(section) > 1:
-                                self.interface.send_string(section[1:])
-                            modifiers = []
-                    else:
-                        # Normal string/key operation                    
-                        if k.is_key(section):
-                            self.interface.send_key(section)
-                        else:
-                            self.interface.send_string(section)
+        sections = KEY_SPLIT_RE.split(string)
+        if len(sections) > 1 or not clipboard:
+            _logger.debug("Send via event interface")
+            self.__clearModifiers()
+            modifiers = []            
+            for section in sections:
+                if len(section) > 0:
+                    if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                        # Section is a modifier application (modifier followed by '+')
+                        modifiers.append(section[:-1])
                         
-        self.__reapplyModifiers()
+                    else:
+                        if len(modifiers) > 0:
+                            # Modifiers ready for application - send modified key
+                            if k.is_key(section):
+                                self.interface.send_modified_key(section, modifiers)
+                            else:
+                                self.interface.send_modified_key(section[0], modifiers)
+                                if len(section) > 1:
+                                    self.interface.send_string(section[1:])
+                                modifiers = []
+                        else:
+                            # Normal string/key operation                    
+                            if k.is_key(section):
+                                self.interface.send_key(section)
+                            else:
+                                self.interface.send_string(section)
+                            
+            self.__reapplyModifiers()
+        else:
+            _logger.debug("Send via clipboard")
+            self.interface.send_string_clipboard(string)
         
         self.release_lock()
         
+    def remove_string(self, string):
+        backspaces = -1 # Start from -1 to discount the backspace already pressed by the user
+        k = Key()
+        
+        for section in KEY_SPLIT_RE.split(string):
+            if k.is_key(section):
+                backspaces += 1
+            else:
+                backspaces += len(section)
+                
+        self.send_backspace(backspaces)
+        
     def send_key(self, keyName):
-        self.acquire_lock()
+        #self.acquire_lock()
             
         self.interface.send_key(keyName)
         
-        self.release_lock()
+        #self.release_lock()
         
     def send_left(self, count):
         """
         Sends the given number of left key presses.
         """
-        self.acquire_lock()
+        #self.acquire_lock()
         
         for i in range(count):
             self.interface.send_key(Key.LEFT)
             
-        self.release_lock()
+        #self.release_lock()
+        
+    def send_right(self, count):
+        #self.acquire_lock()
+        
+        for i in range(count):
+            self.interface.send_key(Key.RIGHT)
+            
+        #self.release_lock()        
     
     def send_up(self, count):
         """
         Sends the given number of up key presses.
         """        
-        self.acquire_lock()
+        #self.acquire_lock()
         
         for i in range(count):
             self.interface.send_key(Key.UP)
             
-        self.release_lock()
+        #self.release_lock()
         
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
-        self.acquire_lock()
+        #self.acquire_lock()
         
         for i in range(count):
             self.interface.send_key(Key.BACKSPACE)
             
-        self.release_lock()
+        #self.release_lock()
             
     def flush(self):
         self.interface.flush()

@@ -30,6 +30,8 @@ from Xlib import X, XK, display, error
 from Xlib.ext import record, xtest
 from Xlib.protocol import rq, event
 
+from PyQt4.QtGui import QClipboard, QApplication
+
 logger = logging.getLogger("interface")
 
 # Misc
@@ -111,16 +113,17 @@ class XInterfaceBase(threading.Thread):
     Encapsulates the common functionality for the two X interface classes.
     """
     
-    def __init__(self, mediator, testMode):
+    def __init__(self, mediator, app):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.setName("XInterface-thread")
         self.mediator = mediator
+        self.app = app
         self.localDisplay = display.Display()
         self.rootWindow = self.localDisplay.screen().root
         self.lock = threading.RLock()
-        self.testMode = testMode
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
+        self.clipBoard = QApplication.clipboard()
         
         self.__initMappings()
         
@@ -218,13 +221,61 @@ class XInterfaceBase(threading.Thread):
                 return unichr(self.localDisplay.keycode_to_keysym(keyCode, index))
             except ValueError:
                 return "<code%d>" % keyCode
+                
+    def send_string_clipboard(self, string):
+        logger.debug("Sending string: %r", string)
+        self.sem = threading.Semaphore(0)
+        self.app.exec_in_main(self.__fillSelection, string)
+        self.sem.acquire()
+        
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonPress, X.Button2)
+        xtest.fake_input(focus, X.ButtonRelease, X.Button2)
+        logger.debug("Send via clipboard done")
+        """focus = self.localDisplay.get_input_focus().focus
+        buttonEvent = event.ButtonPress(
+                                  detail=X.Button2,
+                                  time=X.CurrentTime,
+                                  root=self.rootWindow,
+                                  window=focus,
+                                  child=X.NONE,
+                                  root_x=1,
+                                  root_y=1,
+                                  event_x=1,
+                                  event_y=1,
+                                  state=0,
+                                  same_screen=1
+                                  )
+        focus.send_event(buttonEvent) 
+        buttonEvent = event.ButtonRelease(
+                                  detail=X.Button2,
+                                  time=X.CurrentTime,
+                                  root=self.rootWindow,
+                                  window=focus,
+                                  child=X.NONE,
+                                  root_x=1,
+                                  root_y=1,
+                                  event_x=1,
+                                  event_y=1,
+                                  state=0,
+                                  same_screen=1
+                                  )
+        focus.send_event(buttonEvent)"""
+        
+    def __fillSelection(self, string):
+        self.clipBoard.setText(string, QClipboard.Selection)
+        self.sem.release()
     
     def send_string(self, string):
         """
         Send a string of printable characters.
         """
-        logger.debug("Sending string: %s", string)
+        logger.debug("Sending string: %r", string)
         for char in string:
+            # Special case - replace \n chars with <enter>
+            if char == '\n':
+                char = Key.ENTER
+                
             if self.keyCodes.has_key(char):
                 self.send_key(char)
             else: 
@@ -437,14 +488,14 @@ class XInterfaceBase(threading.Thread):
 
 class EvDevInterface(XInterfaceBase):
     
-    def __init__(self, mediator, testMode=False):
-        XInterfaceBase.__init__(self, mediator, testMode)
+    def __init__(self, mediator, app):
+        XInterfaceBase.__init__(self, mediator, app)
         self.cancelling = False
         self.__connect()
         
     def cancel(self):
         self.cancelling = True
-        #self.join()
+        self.join(1.0)
         
     def run(self):
         logger.info("EvDev interface thread starting")
@@ -521,8 +572,8 @@ class EvDevInterface(XInterfaceBase):
 
 class XRecordInterface(XInterfaceBase):
         
-    def __init__(self, mediator, testMode=False):
-        XInterfaceBase.__init__(self, mediator, testMode)
+    def __init__(self, mediator, app):
+        XInterfaceBase.__init__(self, mediator, app)
         self.recordDisplay = display.Display()
 
         # Check for record extension 
@@ -556,7 +607,7 @@ class XRecordInterface(XInterfaceBase):
     def cancel(self):
         self.localDisplay.record_disable_context(self.ctx)
         self.localDisplay.flush()
-        #self.join()
+        self.join(1.0)
 
     def __processEvent(self, reply):
         if reply.category != record.FromServer:
@@ -580,8 +631,8 @@ class XRecordInterface(XInterfaceBase):
 
 class AtSpiInterface(XInterfaceBase):
     
-    def __init__(self, mediator, testMode=False):
-        XInterfaceBase.__init__(self, mediator, testMode)
+    def __init__(self, mediator, app):
+        XInterfaceBase.__init__(self, mediator, app)
         self.registry = pyatspi.Registry        
         
     def start(self):
@@ -638,7 +689,8 @@ KEY_MAP = {
            RIGHT : Key.RIGHT,
            UP : Key.UP,
            DOWN : Key.DOWN,
-           RETURN : Key.RETURN,
+           #RETURN : Key.RETURN,
+           RETURN : Key.ENTER,
            BACKSPACE : Key.BACKSPACE,
            SCROLL_LOCK : Key.SCROLL_LOCK,
            PRINT_SCREEN : Key.PRINT_SCREEN,
@@ -681,7 +733,7 @@ NUMPAD_MAP = {
            KP_MULTIPLY : ("*", "*"),
            KP_ADD : ("+", "+"),
            KP_SUBTRACT : ("-", "-"),
-           KP_ENTER : (Key.RETURN, Key.RETURN),
+           KP_ENTER : (Key.ENTER, Key.ENTER),
            }
     
 

@@ -35,10 +35,11 @@ SHOW_TRAY_ICON = "showTrayIcon"
 SORT_BY_USAGE_COUNT = "sortByUsageCount"
 #DETECT_UNWANTED_ABBR = "detectUnwanted"
 PROMPT_TO_SAVE = "promptToSave"
-PREDICTIVE_LENGTH = "predictiveLength"
+#PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 INTERFACE_TYPE = "interfaceType"
+UNDO_USING_BACKSPACE = "undoUsingBackspace"
 
 # TODO - Future functionality
 #TRACK_RECENT_ENTRY = "trackRecentEntry"
@@ -143,10 +144,11 @@ class ConfigManager:
                 SORT_BY_USAGE_COUNT : True,
                 #DETECT_UNWANTED_ABBR : False,
                 PROMPT_TO_SAVE: True,
-                PREDICTIVE_LENGTH : 5,
+                #PREDICTIVE_LENGTH : 5,
                 INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : _chooseInterface()
+                INTERFACE_TYPE : _chooseInterface(),
+                UNDO_USING_BACKSPACE : True
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,

@@ -235,7 +235,10 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.descriptionLineEdit.setText(phrase.description.encode("utf-8"))
         self.phraseText.setText(phrase.phrase.encode("utf-8"))
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
-        self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
+        
+        # TODO - re-enable me if restoring predictive functionality
+        #self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
+        
         self.promptCheckbox.setChecked(phrase.prompt)
         self.settingsWidget.load(phrase)
         
@@ -244,8 +247,11 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.currentPhrase.description = str(self.descriptionLineEdit.text()).decode("utf-8")
         self.currentPhrase.phrase = str(self.phraseText.toPlainText()).decode("utf-8")
         self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
-        if self.predictCheckbox.isChecked():
-            self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
+        
+        # TODO - re-enable me if restoring predictive functionality
+        #if self.predictCheckbox.isChecked():
+        #    self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
+        
         self.currentPhrase.prompt = self.promptCheckbox.isChecked()
         
     def reset(self):

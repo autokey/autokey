@@ -191,6 +191,7 @@ class Application:
         Shut down the entire application.
         """
         logging.info("Shutting down")
+        self.app.closeAllWindows()
         self.service.shutdown()
         self.app.quit()
         os.remove(LOCK_FILE)
