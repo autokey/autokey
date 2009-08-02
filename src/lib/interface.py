@@ -160,7 +160,7 @@ class XInterfaceBase(threading.Thread):
        
         logger.debug("Keycodes dict: %s", self.keyCodes)
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            self.keymap_test()
+            self.keymap_test()        
         
     def keymap_test(self):
         #logger.debug("XK keymap:")
@@ -232,35 +232,6 @@ class XInterfaceBase(threading.Thread):
         xtest.fake_input(focus, X.ButtonPress, X.Button2)
         xtest.fake_input(focus, X.ButtonRelease, X.Button2)
         logger.debug("Send via clipboard done")
-        """focus = self.localDisplay.get_input_focus().focus
-        buttonEvent = event.ButtonPress(
-                                  detail=X.Button2,
-                                  time=X.CurrentTime,
-                                  root=self.rootWindow,
-                                  window=focus,
-                                  child=X.NONE,
-                                  root_x=1,
-                                  root_y=1,
-                                  event_x=1,
-                                  event_y=1,
-                                  state=0,
-                                  same_screen=1
-                                  )
-        focus.send_event(buttonEvent) 
-        buttonEvent = event.ButtonRelease(
-                                  detail=X.Button2,
-                                  time=X.CurrentTime,
-                                  root=self.rootWindow,
-                                  window=focus,
-                                  child=X.NONE,
-                                  root_x=1,
-                                  root_y=1,
-                                  event_x=1,
-                                  event_y=1,
-                                  state=0,
-                                  same_screen=1
-                                  )
-        focus.send_event(buttonEvent)"""
         
     def __fillSelection(self, string):
         self.clipBoard.setText(string, QClipboard.Selection)
@@ -272,10 +243,6 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         for char in string:
-            # Special case - replace \n chars with <enter>
-            if char == '\n':
-                char = Key.ENTER
-                
             if self.keyCodes.has_key(char):
                 self.send_key(char)
             else: 

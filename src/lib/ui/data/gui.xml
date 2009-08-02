@@ -8,25 +8,24 @@
  
   <MenuBar>
     <Menu name="file" >
-      <Menu name="create">
-        <text>Create...</text>
-        <Action name="new-top-folder" />
-        <Action name="new-folder" />
-        <Action name="new-phrase" />
-        <Action name="new-script" />
-      </Menu>
+      <Action name="create" />
       <Action name="save" />
       <separator />
-      <Action name="import" />
       <Action name="close-window" />
     </Menu>
     <Menu name="edit" >
       <!--<Action name="cut-item" />
       <Action name="copy-item" />
       <Action name="paste-item" />-->
+      <Action name="undo" />
+      <Action name="redo" />
+      <separator />
       <Action name="delete-item" />
       <separator />
-      <Action name="insert-macro" />
+      <!--<Menu name="insert-macro">
+        <text>Insert Macro</text>
+        <ActionList name="macro-list" />
+      </Menu>-->
       <Action name="record-keystrokes" />
     </Menu>
     <Menu name="settings" >
@@ -48,16 +47,13 @@
     <Action name="delete-item" />
   </Menu>
  
-  <ToolBar name="ToolBar" >
+  <ToolBar name="ToolBar" noMerge="1" >
     <text>Toolbar</text>
-      <Menu name="create">
-        <text>Create...</text>
-        <Action name="new-top-folder" />        
-        <Action name="new-folder" />
-        <Action name="new-phrase" />
-        <Action name="new-script" />
-      </Menu>
+    <Action name="create" />
     <Action name="delete-item" />
+    <separator />
+    <Action name="undo" />
+    <Action name="redo" />
     <separator />
     <Action name="record-keystrokes" />
   </ToolBar>

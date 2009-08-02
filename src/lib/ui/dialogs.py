@@ -161,6 +161,17 @@ class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
         self.grabber.start()  
 
 class HotkeySettingsDialog(KDialog):
+    
+    KEY_MAP = {
+               ' ' : "<space>",
+               '\t' : "<tab>",
+               '\b' : "<backspace>",
+               '\n' : "<enter>" 
+               }
+    
+    REVERSE_KEY_MAP = {}
+    for key, value in KEY_MAP.iteritems():
+        REVERSE_KEY_MAP[value] = key
 
     def __init__(self, parent):
         KDialog.__init__(self, parent)
@@ -184,7 +195,7 @@ class HotkeySettingsDialog(KDialog):
                 keyText = self.KEY_MAP[key]
             else:
                 keyText = key
-            self.__setKeyLabel(keyText)
+            self._setKeyLabel(keyText)
             self.key = keyText
             
         else:
@@ -210,13 +221,13 @@ class HotkeySettingsDialog(KDialog):
         self.widget.shiftButton.setChecked(False)
         self.widget.superButton.setChecked(False)
 
-        self.__setKeyLabel(i18n("(None)"))
+        self._setKeyLabel(i18n("(None)"))
         self.key = None
             
     def set_key(self, key):
         if self.KEY_MAP.has_key(key):
             key = self.KEY_MAP[key]
-        self.__setKeyLabel(key)
+        self._setKeyLabel(key)
         self.key = key
         self.widget.setButton.setEnabled(True)
         
@@ -240,9 +251,10 @@ class HotkeySettingsDialog(KDialog):
             if self.__valid():
                 KDialog.slotButtonClicked(self, button)
         else:
+            self.load(self.targetItem)
             KDialog.slotButtonClicked(self, button)
             
-    def __setKeyLabel(self, key):
+    def _setKeyLabel(self, key):
         self.widget.keyLabel.setText(i18n("Key: ") + key)
         
     def __valid(self):
@@ -260,6 +272,41 @@ class HotkeySettingsDialog(KDialog):
                             None, self): return False
         
         return True
+        
+        
+class GlobalHotkeyDialog(HotkeySettingsDialog):
+    
+    def load(self, item):
+        self.targetItem = item
+        if item.enabled:
+            self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
+            self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
+            self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
+            self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
+
+            key = str(item.hotKey)
+            if key in self.KEY_MAP:
+                keyText = self.KEY_MAP[key]
+            else:
+                keyText = key
+            self._setKeyLabel(keyText)
+            self.key = keyText
+            
+        else:
+            self.reset()
+        
+        
+    def save(self, item):
+        # Build modifier list
+        modifiers = self.build_modifiers()
+            
+        keyText = self.key
+        if keyText in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[keyText]
+        else:
+            key = keyText
+            
+        item.set_hotkey(modifiers, key)        
         
         
 class WindowFilterSettings(QWidget, windowfiltersettings.Ui_Form):

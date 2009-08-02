@@ -21,7 +21,7 @@ from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QVariant, Qt
-
+from PyQt4 import Qsci
 
 CONFIG_WINDOW_TITLE = i18n("Configuration")
 
@@ -32,6 +32,7 @@ DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 
 from dialogs import *
+from settingsdialog import SettingsDialog
 from .. configmanager import *
 from .. iomediator import KeyRecorder
 from .. import model
@@ -42,14 +43,8 @@ import settingswidget
 
 class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
     
-    KEY_MAP = {
-               ' ' : "<space>",
-               '\t' : "<tab>",
-               '\b' : "<backspace>",
-               '\n' : "<enter>" 
-               }
-    
-    REVERSE_KEY_MAP = {}    
+    KEY_MAP = HotkeySettingsDialog.KEY_MAP
+    REVERSE_KEY_MAP = HotkeySettingsDialog.REVERSE_KEY_MAP
 
     def __init__(self, parent):
         QWidget.__init__(self, parent)
@@ -60,12 +55,6 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         self.hotkeyDialog = HotkeySettingsDialog(self)
         self.filterDialog = WindowFilterSettingsDialog(self)
         
-        for key, value in self.KEY_MAP.iteritems():
-            self.REVERSE_KEY_MAP[value] = key
-            
-        self.hotkeyDialog.KEY_MAP = self.KEY_MAP
-        self.hotkeyDialog.REVERSE_KEY_MAP = self.REVERSE_KEY_MAP
-    
     def load(self, item):
         self.currentItem = item
         
@@ -172,8 +161,6 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         self.windowFilterLabel.setText(i18n("(None configured)"))
         self.filterDialog.reset()
 
-    # ---- Private methods
-    
     def build_hotkey_string(self, key, modifiers):
         hotkey = ""
 
@@ -199,21 +186,90 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         scriptpage.Ui_ScriptPage.__init__(self)
         self.setupUi(self)
         
+        self.scriptCodeEditor.setUtf8(1)
+
+        lex = Qsci.QsciLexerPython(self)
+        api = Qsci.QsciAPIs(lex)
+        # TODO load api from file
+        api.add("keyboard.send_keys(keys) Send keys")
+        api.add("keyboard.send_foo()")
+        api.prepare()
+
+        self.scriptCodeEditor.setLexer(lex)
+
+        self.scriptCodeEditor.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
+        self.scriptCodeEditor.setAutoIndent(True)
+        self.scriptCodeEditor.setIndentationWidth(4)
+        self.scriptCodeEditor.setIndentationGuides(True)
+        self.scriptCodeEditor.setIndentationsUseTabs(False)
+        self.scriptCodeEditor.setAutoCompletionThreshold(2)
+        self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
+        
+        
+        
     def load(self, script):
         self.currentScript = script
-        pass
-    
+        self.descriptionLineEdit.setText(script.description.encode("utf-8"))
+        self.scriptCodeEditor.clear()
+        self.scriptCodeEditor.append(script.code)
+        self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
+        self.promptCheckbox.setChecked(script.prompt)
+        self.settingsWidget.load(script)
+        self.topLevelWidget().set_undo_available(False)
+        self.topLevelWidget().set_redo_available(False)
+
     def save(self):
-        pass
+        self.settingsWidget.save()
+        self.currentScript.description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        self.currentScript.code = str(self.scriptCodeEditor.text()).decode("utf-8")
+        self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+
     
     def reset(self):
         self.load(self.currentScript)
+        self.topLevelWidget().set_undo_available(False)
+        self.topLevelWidget().set_redo_available(False)
     
     def set_dirty(self):
         self.topLevelWidget().set_dirty()  
         
+    def append_key(self, key):
+        line, pos = self.scriptCodeEditor.getCursorPosition()
+        self.scriptCodeEditor.insert(key)
+        self.scriptCodeEditor.setCursorPosition(line, pos + len(key))
+        
+    def append_hotkey(self, key, modifiers):
+        line, pos = self.scriptCodeEditor.getCursorPosition()
+        keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
+        self.scriptCodeEditor.insert(keyString)
+        self.scriptCodeEditor.setCursorPosition(line, pos + len(keyString))
+        
+    def undo(self):
+        self.scriptCodeEditor.undo()
+        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
+        
+    def redo(self):
+        self.scriptCodeEditor.redo()
+        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
+        
+    def validate(self):
+        description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The script description can't be empty."),
+                    self.descriptionLineEdit, self.topLevelWidget()): return False
+                
+        code = str(self.scriptCodeEditor.text()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(code), i18n("The script code can't be empty."),
+                    self.scriptCodeEditor, self.topLevelWidget()): return False
+                    
+        return True
+        
     # --- Signal handlers
-    
+
+    def on_scriptCodeEditor_textChanged(self):
+        self.set_dirty()
+        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
+        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
+
     def on_promptCheckbox_stateChanged(self, state):
         self.set_dirty()
 
@@ -271,20 +327,28 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
     def set_dirty(self):
         self.topLevelWidget().set_dirty()
         
-    def append_key(self, key):
-        self.phraseText.insertPlainText(key)
+    def undo(self):
+        self.phraseText.undo()
         
-    def append_hotkey(self, key, modifiers):
-        keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
-        self.phraseText.insertPlainText(keyString)
+    def redo(self):
+        self.phraseText.redo()
+        
+    """def insert_token(self, token):
+        self.phraseText.insertPlainText(token)"""
         
     # --- Signal handlers
     
-    def on_descriptionLineEdit_textChanged(self):
+    def on_descriptionLineEdit_textEdited(self):
         self.set_dirty()
         
     def on_phraseText_textChanged(self):
         self.set_dirty()
+        
+    def on_phraseText_undoAvailable(self, state):
+        self.topLevelWidget().set_undo_available(state)
+        
+    def on_phraseText_redoAvailable(self, state):
+        self.topLevelWidget().set_redo_available(state)
     
     def on_predictCheckbox_stateChanged(self, state):
         self.set_dirty()
@@ -392,7 +456,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                         
         self.set_dirty(False)
         self.configManager = app.configManager
-        self.recorder = KeyRecorder(self.phrasePage)
+        self.recorder = KeyRecorder(self.scriptPage)
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -411,14 +475,17 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.resetButton.setEnabled(dirty)
         
     def promptToSave(self):
-        result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
-                i18n("There are unsaved changes. Would you like to save them?"))
+        if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
+            result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
+                        i18n("There are unsaved changes. Would you like to save them?"))
         
-        if result == KMessageBox.Yes:
+            if result == KMessageBox.Yes:
+                self.on_save()
+            elif result == KMessageBox.Cancel:
+                return True
+        else:
+            # don't prompt, just save
             self.on_save()
-            return False
-        elif result == KMessageBox.Cancel:
-            return True
             
         return False
         
@@ -467,6 +534,24 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.setCurrentItem(newItem)
         self.on_treeWidget_itemSelectionChanged()        
         
+    def on_new_script(self):
+        parentItem = self.treeWidget.selectedItems()[0]
+        parent = self.__getSelection()
+        
+        script = model.Script("New Script", "#Enter script code")
+        newItem = ScriptWidgetItem(parentItem, script)
+        parent.add_item(script)
+        
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(newItem)
+        self.on_treeWidget_itemSelectionChanged()        
+        
+    def on_undo(self):
+        self.stack.currentWidget().undo()
+
+    def on_redo(self):
+        self.stack.currentWidget().redo()
+
     def on_delete(self):
         widgetItem = self.treeWidget.selectedItems()[0]
         
@@ -566,14 +651,21 @@ class ConfigWindow(KXmlGuiWindow):
         self.app = app
         
         # File Menu
-        #self.actionCollection().addAction("create", KActionMenu(i18n("asdf..."), self))
+        self.create = self.__createMenuAction("create", i18n("Create"))
+        self.create.setDelayed(False)
+        
         self.newTopFolder = self.__createAction("new-top-folder", i18n("New Top-level Folder"), "folder-new", self.centralWidget.on_new_topfolder)
         self.newFolder = self.__createAction("new-folder", i18n("New Folder"), "folder-new", self.centralWidget.on_new_folder)
         self.newPhrase = self.__createAction("new-phrase", i18n("New Phrase"), "document-new", self.centralWidget.on_new_phrase)
-        self.newScript = self.__createAction("new-script", i18n("New Script"), "document-new", self.new_folder)
-        self.save = self.__createAction("save", i18n("Save"), "document-new", self.centralWidget.on_save, KStandardShortcut.Save)
+        self.newScript = self.__createAction("new-script", i18n("New Script"), "document-new", self.centralWidget.on_new_script)
+        self.save = self.__createAction("save", i18n("Save"), "document-save", self.centralWidget.on_save, KStandardShortcut.Save)
+        
+        self.create.addAction(self.newTopFolder)
+        self.create.addAction(self.newFolder)
+        self.create.addAction(self.newPhrase)
+        self.create.addAction(self.newScript)
 
-        self.importSettings = self.__createAction("import", i18n("Import Settings"), target=self.new_folder)
+        #self.importSettings = self.__createAction("import", i18n("Import Settings"), target=self.new_folder)
 
         self.close = self.__createAction("close-window", i18n("Close Window"), "window-close", self.on_close, KStandardShortcut.Close)
         KStandardAction.quit(self.on_quit, self.actionCollection())
@@ -582,14 +674,17 @@ class ConfigWindow(KXmlGuiWindow):
         #self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
         #self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
         #self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
+        
+        self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
+        self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
+        
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
-        self.insert = self.__createAction("insert-macro", i18n("Insert Macro"), "insert-text", self.new_folder)
         self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.on_record_keystrokes, "media-record")
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
-        self.advancedSettings = self.__createAction("advanced-settings", i18n("Advanced Settings"), "configure", self.new_folder)
-        KStandardAction.configureToolbars(self.configureToolbars, self.actionCollection())
+        self.advancedSettings = self.__createAction("advanced-settings", i18n("Advanced Settings"), "configure", self.on_advanced_settings)
+        #KStandardAction.configureToolbars(self.configureToolbars, self.actionCollection())
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
@@ -597,13 +692,15 @@ class ConfigWindow(KXmlGuiWindow):
         self.__createAction("donate", i18n("Donate"), "face-smile", self.on_donate)
 
         self.createGUI(ACTION_DESCRIPTION_FILE)
-        self.setStandardToolBarMenuEnabled(True)
+        #self.setStandardToolBarMenuEnabled(True)
 
         self.setCaption(CONFIG_WINDOW_TITLE)
         self.resize(700, 550)
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
+        self.undo.setEnabled(False)
+        self.redo.setEnabled(False)
         
         self.cutCopiedItem = None
         
@@ -619,16 +716,22 @@ class ConfigWindow(KXmlGuiWindow):
     def update_actions(self, item):
         canCreate = isinstance(item, model.Folder)
         
-        self.newFolder.setEnabled(canCreate)
-        self.newPhrase.setEnabled(canCreate)
-        self.newScript.setEnabled(canCreate)
+        self.create.setEnabled(canCreate)
         self.save.setEnabled(False)
         
         #self.copy.setEnabled(not canCreate)
         #self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
-        self.insert.setEnabled(isinstance(item, model.Phrase))
-        self.record.setEnabled(isinstance(item, model.Phrase))
+        #self.insert.setEnabled(isinstance(item, model.Phrase))
+        self.record.setEnabled(isinstance(item, model.Script))
+        self.undo.setEnabled(False)
+        self.redo.setEnabled(False)
         
+    def set_undo_available(self, state):
+        self.undo.setEnabled(state)
+        
+    def set_redo_available(self, state):
+        self.redo.setEnabled(state)
+
     def save_completed(self):
         self.save.setEnabled(False)
         self.app.config_altered()
@@ -654,6 +757,17 @@ class ConfigWindow(KXmlGuiWindow):
             action = KToggleAction(KIcon(iconName), name, self.actionCollection())
         else:
             action = KToggleAction(name, self.actionCollection())
+            
+        if target is not None:
+            self.connect(action, SIGNAL("triggered()"), target)
+        self.actionCollection().addAction(actionName, action)
+        return action
+        
+    def __createMenuAction(self, actionName, name, target=None, iconName=None):
+        if iconName is not None:
+            action = KActionMenu(KIcon(iconName), name, self.actionCollection())
+        else:
+            action = KActionMenu(name, self.actionCollection())
             
         if target is not None:
             self.connect(action, SIGNAL("triggered()"), target)
@@ -690,6 +804,11 @@ class ConfigWindow(KXmlGuiWindow):
             
     # Edit Menu
     
+    """def on_insert_macro(self, macroName):
+        token = self.app.service.phraseRunner.pluginManager.get_token(macroName, self)
+        if token is not None:
+            self.centralWidget.phrasePage.insert_token(token)"""
+            
     def on_record_keystrokes(self):
         if self.record.isChecked():
             self.centralWidget.recorder.start()
@@ -704,6 +823,10 @@ class ConfigWindow(KXmlGuiWindow):
         else:
             self.app.pause_service()
             
+    def on_advanced_settings(self):
+        s = SettingsDialog(self)
+        s.show()
+            
     # Help Menu
             
     def on_show_faq(self):
@@ -715,6 +838,17 @@ class ConfigWindow(KXmlGuiWindow):
     def on_donate(self):
         webbrowser.open(DONATE_URL, False, True)
         
+
+class MacroAction(KAction):
+    
+    def __init__(self, parent, description, target):
+        KAction.__init__(self, description, parent)
+        self.description = description
+        self.connect(self, SIGNAL("triggered()"), self.on_triggered)
+        self.connect(self, SIGNAL("actionSig"), target)
+
+    def on_triggered(self):
+        self.emit(SIGNAL("actionSig"), self.description)
 
 # ---- TreeWidget and helper functions
 

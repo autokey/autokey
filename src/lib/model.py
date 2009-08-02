@@ -475,3 +475,71 @@ class Expansion:
         self.string = string
         self.lefts = 0
         self.backspaces = 0
+
+class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
+    """
+    Encapsulates all data and behaviour for a script.
+    """
+    
+    def __init__(self, description, code):
+        AbstractAbbreviation.__init__(self)
+        AbstractHotkey.__init__(self)
+        AbstractWindowFilter.__init__(self)
+        self.description = description
+        self.code = code
+        self.modes = []
+        self.usageCount = 0
+        self.prompt = False
+        self.omitTrigger = False
+        self.parent = None
+        self.showInTrayMenu = False
+
+    def set_modes(self, modes):
+        self.modes = modes
+
+    def check_input(self, buffer, windowName):
+        if self._should_trigger_window_title(windowName):            
+            if TriggerMode.ABBREVIATION in self.modes:
+                return self._should_trigger_abbreviation(buffer)
+            
+        return False
+        
+    def process_buffer(self, buffer):
+        self.usageCount += 1
+        self.parent.increment_usage_count()
+        triggerFound = False
+        backspaces = 0
+        string = ""
+        
+        if TriggerMode.ABBREVIATION in self.modes:
+            if self._should_trigger_abbreviation(buffer):
+                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+                triggerFound = True        
+                if self.backspace:
+                    # determine how many backspaces to send
+                    backspaces = len(self.abbreviation) + len(stringAfter)
+                else:
+                    backspaces = len(stringAfter)
+                    
+                if not self.omitTrigger:
+                    string += stringAfter
+
+                
+        if not triggerFound:
+            # Phrase could have been triggered from menu - check parents for backspace count
+            backspaces = self.parent.get_backspace_count(buffer)
+            
+        return backspaces, string
+        
+
+    def should_prompt(self, buffer):
+        return self.prompt
+    
+    def get_description(self, buffer):
+        return self.description
+
+    def __str__(self):
+        return self.description
+    
+    def __repr__(self):
+        return "Script('" + self.description + "')"

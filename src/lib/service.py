@@ -22,7 +22,8 @@ from iomediator import Key, IoMediator
 import ui.configwindow, model
 from configmanager import *
 from ui.popupmenu import *
-from plugin.manager import PluginManager, PluginError
+#from plugin.manager import PluginManager, PluginError
+import scripting
 
 logger = logging.getLogger("service")
 
@@ -56,11 +57,12 @@ class Service:
         self.inputStack = []
         self.lastStackState = ''
         self.lastMenu = None
-        self.phraseRunner = PhraseRunner(self)
         
     def start(self):
         self.mediator = IoMediator(self)
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
+        self.phraseRunner = PhraseRunner(self)
+        self.scriptRunner = ScriptRunner(self.mediator)
         logger.info("Service now marked as running")
         
     def unpause(self):
@@ -293,7 +295,7 @@ class PhraseRunner:
     
     def __init__(self, service):
         self.service = service
-        self.pluginManager = PluginManager()
+        #self.pluginManager = PluginManager()
         self.lastExpansion = None
         self.lastPhrase = None  
         self.lastBuffer = None
@@ -301,13 +303,13 @@ class PhraseRunner:
     def execute(self, phrase, buffer):
         mediator = self.service.mediator
         expansion = phrase.build_phrase(buffer)
-        try:
-            self.pluginManager.process_expansion(expansion, buffer)
-        except PluginError, pe:
-            logger.warn("A plug-in reported an error: " + pe.message)
-            self.app.show_notify("A plug-in reported an error.", True, pe.message)
+        #try:
+        #    self.pluginManager.process_expansion(expansion, buffer)
+        #except PluginError, pe:
+        #    logger.warn("A plug-in reported an error: " + pe.message)
+        #    self.app.show_notify("A plug-in reported an error.", True, pe.message)
             
-        phrase.parsePositionTokens(expansion)
+        #phrase.parsePositionTokens(expansion)
 
         # Check for extra keys that have been typed since this invocation started
         mediator.acquire_lock()
@@ -317,9 +319,9 @@ class PhraseRunner:
         #self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
         
         mediator.send_backspace(expansion.backspaces + extraBs)
-        mediator.send_string(expansion.string)
-        mediator.send_string(extraKeys)
-        mediator.send_left(expansion.lefts)
+        mediator.paste_string(expansion.string)
+        mediator.paste_string(extraKeys)
+        #mediator.send_left(expansion.lefts)
         mediator.flush()
     
         ConfigManager.SETTINGS[INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
@@ -343,9 +345,25 @@ class PhraseRunner:
         logger.debug("Erase string: %r", self.lastExpansion.string)
         mediator = self.service.mediator
         
-        mediator.send_right(self.lastExpansion.lefts)
+        #mediator.send_right(self.lastExpansion.lefts)
         mediator.remove_string(self.lastExpansion.string)
         mediator.send_string(replay, False)
+        mediator.flush()
         #mediator.send_right(1)
         self.clear_last()
     
+    
+class ScriptRunner:
+    
+    def __init__(self, mediator):
+        self.mediator = mediator
+        self.scope = globals()
+        self.scope["keyboard"]= scripting.Keyboard(mediator)
+        
+    def execute(self, script, buffer):
+        logger.debug("Script runner executing: %r", script)
+        backspaces, stringAfter = script.process_buffer(buffer)
+        self.mediator.send_backspace(backspaces)
+        exec script.code in self.scope
+        self.mediator.send_string(stringAfter)
+        

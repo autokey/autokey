@@ -197,7 +197,7 @@ class IoMediator(threading.Thread):
         
     # Methods for expansion service ----
         
-    def send_string(self, string, clipboard=True):
+    def send_string(self, string):
         """
         Sends the given string for output.
         """
@@ -207,42 +207,42 @@ class IoMediator(threading.Thread):
         self.acquire_lock()
         k = Key()
         
-
-        
-        sections = KEY_SPLIT_RE.split(string)
-        if len(sections) > 1 or not clipboard:
-            _logger.debug("Send via event interface")
-            self.__clearModifiers()
-            modifiers = []            
-            for section in sections:
-                if len(section) > 0:
-                    if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
-                        # Section is a modifier application (modifier followed by '+')
-                        modifiers.append(section[:-1])
-                        
-                    else:
-                        if len(modifiers) > 0:
-                            # Modifiers ready for application - send modified key
-                            if k.is_key(section):
-                                self.interface.send_modified_key(section, modifiers)
-                            else:
-                                self.interface.send_modified_key(section[0], modifiers)
-                                if len(section) > 1:
-                                    self.interface.send_string(section[1:])
-                                modifiers = []
+        _logger.debug("Send via event interface")
+        self.__clearModifiers()
+        modifiers = []            
+        for section in KEY_SPLIT_RE.split(string):
+            if len(section) > 0:
+                if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                    # Section is a modifier application (modifier followed by '+')
+                    modifiers.append(section[:-1])
+                    
+                else:
+                    if len(modifiers) > 0:
+                        # Modifiers ready for application - send modified key
+                        if k.is_key(section):
+                            self.interface.send_modified_key(section, modifiers)
                         else:
-                            # Normal string/key operation                    
-                            if k.is_key(section):
-                                self.interface.send_key(section)
-                            else:
-                                self.interface.send_string(section)
+                            self.interface.send_modified_key(section[0], modifiers)
+                            if len(section) > 1:
+                                self.interface.send_string(section[1:])
+                            modifiers = []
+                    else:
+                        # Normal string/key operation                    
+                        if k.is_key(section):
+                            self.interface.send_key(section)
+                        else:
+                            self.interface.send_string(section)
                             
             self.__reapplyModifiers()
-        else:
-            _logger.debug("Send via clipboard")
-            self.interface.send_string_clipboard(string)
         
         self.release_lock()
+        
+    def paste_string(self, string):
+        if len(string) > 0:        
+            self.acquire_lock()
+            _logger.debug("Send via clipboard")
+            self.interface.send_string_clipboard(string)
+            self.release_lock()
         
     def remove_string(self, string):
         backspaces = -1 # Start from -1 to discount the backspace already pressed by the user

@@ -143,8 +143,6 @@ class Application:
             self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                     "Check your system/configuration.\n") + str(e))
         
-        signal.signal(signal.SIGTERM, self.shutdown)
-        
         self.notifier = ui.notifier.Notifier(self)
         self.configWindow = None
         
@@ -185,7 +183,7 @@ class Application:
             self.pause_service()
         else:
             self.unpause_service()
-        
+            
     def shutdown(self):
         """
         Shut down the entire application.
