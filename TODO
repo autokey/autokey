@@ -1,11 +1,14 @@
-Config page for script editor
 Create API files from scripting module using docstrings
 
 Scripting framework ideas:
 Namespace for window management (making it useful might be tough)
-Namespace for showing simple dialogs (using the 'kdialog' package)
 Namespace for performing shell tasks (mainly aliases for shutil and subprocess)
 Namespace for autokey stuff - create/modify/delete folders/phrases/scripts, show popup menu
+Namespace for clipboard interaction
+    - put text in selection
+    - put text in buffer
+    - load image into buffer from file
+    - paste from selection
 
 Get rid of commented out code
 Add method comments
@@ -14,6 +17,3 @@ Add spell checker with a hotkey which checks the last word typed
 This can probably be done with a script once the script interface is implemented
 
 FUTURE: Daemon to handle multiple connections (e.g. multiple logged-in users)
-
-FUTURE: PLUGIN Capitalisation autocorrect feature (track last correction and don't re-correct if it's repeated)
-Option to activate/deactivate above feature

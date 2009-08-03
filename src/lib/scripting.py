@@ -177,4 +177,62 @@ class Dialog:
         for index in results:
             choices.append(options[int(index)])
         
-        return retCode, choices         
+        return retCode, choices
+        
+    def open_file(self, title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None):
+        """
+        Show an Open File dialog
+        
+        Usage: dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None)
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the file dialog
+        @param fileTypes: file type filter expression
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
+        else:
+            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes])
+        
+    def save_file(self, title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None):
+        """
+        Show an Save As dialog
+        
+        Usage: dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None)
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the file dialog
+        @param fileTypes: file type filter expression
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
+        else:
+            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes])
+
+    def choose_directory(self, title="Select Directory", initialDir="~", rememberAs=None):
+        """
+        Show a Directory Chooser dialog
+        
+        Usage: dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None)
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the directory chooser dialog
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
+        else:
+            return self.__runKdialog(title, ["--getexistingdirectory", initialDir])
+        
+    def choose_colour(self, title="Select Colour"):
+        """
+        Show a Colour Chooser dialog
+        
+        Usage: dialog.choose_colour(title="Select Colour")
+        
+        @param title: window title for the dialog
+        """
+        return self.__runKdialog(title, ["--getcolor"])
+        

@@ -192,21 +192,19 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         api = Qsci.QsciAPIs(lex)
         # TODO load api from file
         api.add("keyboard.send_keys(keys) Send keys")
-        api.add("keyboard.send_foo()")
         api.prepare()
 
         self.scriptCodeEditor.setLexer(lex)
 
         self.scriptCodeEditor.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
         self.scriptCodeEditor.setAutoIndent(True)
+        self.scriptCodeEditor.setBackspaceUnindents(True)
         self.scriptCodeEditor.setIndentationWidth(4)
         self.scriptCodeEditor.setIndentationGuides(True)
         self.scriptCodeEditor.setIndentationsUseTabs(False)
         self.scriptCodeEditor.setAutoCompletionThreshold(2)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
         self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
-        
-        
         
     def load(self, script):
         self.currentScript = script
