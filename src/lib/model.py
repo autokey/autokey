@@ -19,7 +19,7 @@
 import re
 from configmanager import *
 from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
-from plugin.plugins import CURSOR_POSITION_TOKEN 
+from scripting import Store
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
@@ -487,6 +487,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.code = code
+        self.store = Store()
         self.modes = []
         self.usageCount = 0
         self.prompt = False

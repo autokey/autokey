@@ -16,10 +16,165 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import subprocess
+
 class Keyboard:
     
     def __init__(self, mediator):
         self.mediator = mediator
         
     def send_keys(self, keyString):
+        """
+        Send a sequence of keys via keyboard event
+        
+        Usage: keyboard.send_keys(keyString)
+        
+        @param keyString: string of keys (including special keys) to send
+        """
         self.mediator.send_string(keyString)
+        
+    def send_key(self, key, repeat=1):
+        """
+        Send a keyboard event
+        
+        Usage: keyboard.send_key(key, repeat=1)
+        
+        @param key: they key to be sent (e.g. "s" or "<enter>")
+        @param repeat: number of times to repeat the key event
+        """        
+        for x in range(repeat):
+            self.mediator.send_key(key)
+            
+            
+class Store(dict):
+    """
+    Allows persistent storage of values between invocations of the script.
+    """
+    
+    def set_value(self, key, value):
+        """
+        Store a value
+        
+        Usage: store.set_value(key, value)
+        """
+        self[key] = value
+        
+    def get_value(self, key):
+        """
+        Get a value
+        
+        Usage: store.get_value(key)
+        """
+        return self[key]        
+        
+    def remove_value(self, key):
+        """
+        Remove a value
+        
+        Usage: store.remove_value(key)
+        """
+        del self[key]
+        
+class Dialog:
+    
+    def __runKdialog(self, title, args):
+        p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read()[:-1] # Drop trailing newline
+        
+        return (retCode, output)
+        
+    def input_dialog(self, title="Enter a value", message="Enter a value", default=""):
+        """
+        Show an input dialog
+        
+        Usage: dialog.input_dialog(title="Enter a value", message="Enter a value", default="")
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the input box
+        @param default: default value for the input box
+        """
+        return self.__runKdialog(title, ["--inputbox", message, default])
+        
+    def password_dialog(self, title="Enter password", message="Enter password"):
+        """
+        Show a password input dialog
+        
+        Usage: dialog.password_dialog(title="Enter password", message="Enter password")
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the password input box
+        """
+        return self.__runKdialog(title, ["--password", message])        
+        
+    def combo_menu(self, options, title="Choose an option", message="Choose an option"):
+        """
+        Show a combobox menu
+        
+        Usage: dialog.combo_menu(options, title="Choose an option", message="Choose an option")
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the combobox      
+        """
+        return self.__runKdialog(title, ["--combobox", message] + options)
+        
+    def list_menu(self, options, title="Choose a value", message="Choose a value", default=None):
+        """
+        Show a single-selection list menu
+        
+        Usage: dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None)
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param default: default value to be selected
+        """
+        
+        choices = []
+        optionNum = 0
+        for option in options:
+            choices.append(str(optionNum))
+            choices.append(option)
+            if option == default:
+                choices.append("on")
+            else:
+                choices.append("off")
+            optionNum += 1
+            
+        retCode, result = self.__runKdialog(title, ["--radiolist", message] + choices)
+        choice = options[int(result)]
+        
+        return retCode, choice        
+        
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[]):
+        """
+        Show a multiple-selection list menu
+        
+        Usage: dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[])
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param defaults: list of default values to be selected
+        """
+        
+        choices = []
+        optionNum = 0
+        for option in options:
+            choices.append(str(optionNum))
+            choices.append(option)
+            if option in defaults:
+                choices.append("on")
+            else:
+                choices.append("off")
+            optionNum += 1
+            
+        retCode, output = self.__runKdialog(title, ["--separate-output", "--checklist", message] + choices)
+        results = output.split()
+    
+        choices = []
+        for index in results:
+            choices.append(options[int(index)])
+        
+        return retCode, choices         

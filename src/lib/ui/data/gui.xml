@@ -20,6 +20,7 @@
       <Action name="undo" />
       <Action name="redo" />
       <separator />
+      <Action name="convert" />
       <Action name="delete-item" />
       <separator />
       <!--<Menu name="insert-macro">
@@ -44,6 +45,7 @@
     <Action name="new-phrase" />
     <Action name="new-script" />
     <separator />
+    <Action name="convert" />
     <Action name="delete-item" />
   </Menu>
  

@@ -204,6 +204,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.setIndentationsUseTabs(False)
         self.scriptCodeEditor.setAutoCompletionThreshold(2)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
+        self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
         
         
         
@@ -264,6 +265,9 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         return True
         
     # --- Signal handlers
+    
+    def on_descriptionLineEdit_textEdited(self):
+        self.set_dirty()
 
     def on_scriptCodeEditor_textChanged(self):
         self.set_dirty()
@@ -498,7 +502,6 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
     def on_treeWidget_itemSelectionChanged(self):
         modelItem = self.__getSelection()
-        self.topLevelWidget().update_actions(modelItem)
         
         if isinstance(modelItem, model.Folder):
             self.stack.setCurrentIndex(0)
@@ -512,6 +515,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             self.stack.setCurrentIndex(2)
             self.scriptPage.load(modelItem)
             
+        self.topLevelWidget().update_actions(modelItem)
         self.set_dirty(False)
         self.parentWidget().cancel_record()
         
@@ -551,6 +555,26 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
 
     def on_redo(self):
         self.stack.currentWidget().redo()
+        
+    def on_convert(self):
+        sourceItem = self.treeWidget.selectedItems()[0]
+        parentItem = sourceItem.parent()
+        source = self.__getSelection()
+        self.__removeItem()
+        
+        # Replace \n and quotes
+        string = source.phrase.replace('\n', "<enter>")
+        string = string.replace('"', '\\"')
+        
+        code = "keyboard.send_keys(\"%s\")" % string
+        script = model.Script(source.description, code)
+        newItem = ScriptWidgetItem(parentItem, script)
+        source.parent.add_item(script)
+        
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(newItem)
+        self.on_treeWidget_itemSelectionChanged()        
+        self.parentWidget().app.config_altered()
 
     def on_delete(self):
         widgetItem = self.treeWidget.selectedItems()[0]
@@ -678,6 +702,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
         self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
         
+        self.convert = self.__createAction("convert", i18n("Convert to Script"), None, self.centralWidget.on_convert)
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
         self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.on_record_keystrokes, "media-record")
         
@@ -717,11 +742,15 @@ class ConfigWindow(KXmlGuiWindow):
         canCreate = isinstance(item, model.Folder)
         
         self.create.setEnabled(canCreate)
+        self.newTopFolder.setEnabled(canCreate)
+        self.newFolder.setEnabled(canCreate)
+        self.newPhrase.setEnabled(canCreate)
+        self.newScript.setEnabled(canCreate)
         self.save.setEnabled(False)
         
         #self.copy.setEnabled(not canCreate)
         #self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
-        #self.insert.setEnabled(isinstance(item, model.Phrase))
+        self.convert.setEnabled(isinstance(item, model.Phrase))
         self.record.setEnabled(isinstance(item, model.Script))
         self.undo.setEnabled(False)
         self.redo.setEnabled(False)
@@ -839,20 +868,7 @@ class ConfigWindow(KXmlGuiWindow):
         webbrowser.open(DONATE_URL, False, True)
         
 
-class MacroAction(KAction):
-    
-    def __init__(self, parent, description, target):
-        KAction.__init__(self, description, parent)
-        self.description = description
-        self.connect(self, SIGNAL("triggered()"), self.on_triggered)
-        self.connect(self, SIGNAL("actionSig"), target)
-
-    def on_triggered(self):
-        self.emit(SIGNAL("actionSig"), self.description)
-
 # ---- TreeWidget and helper functions
-
-
 
 class WidgetItemFactory:
     

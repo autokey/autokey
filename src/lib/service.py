@@ -359,11 +359,25 @@ class ScriptRunner:
         self.mediator = mediator
         self.scope = globals()
         self.scope["keyboard"]= scripting.Keyboard(mediator)
+        self.scope["dialog"] = scripting.Dialog()
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)
+        
+        # TODO temporary code - remove ASAP
+        if not hasattr(script, "store"):
+            script.store = scripting.Store()
+            
+        self.scope["store"] = script.store
+        
         backspaces, stringAfter = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
-        exec script.code in self.scope
+
+        try:
+            exec script.code in self.scope
+        except Exception, e:
+            logger.exception("Script error")
+            pass # TODO report via notification
+            
         self.mediator.send_string(stringAfter)
         
