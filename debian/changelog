@@ -1,9 +1,10 @@
 autokey (0.60.0-0~jaunty) jaunty; urgency=low
 
-  * Implement scripting interface (ScriptService)
-  * Add required UI elements for scripting interface
-  * Refactor ExpansionService, rename to PhraseService
+  * Implement scripting interface (ScriptRunner)
+  * Rebuild UI using PyKDE/PyQT
+  * Refactor ExpansionService, split into PhraseRunner and ScriptRunner
   * Implement libraries to provide script namespaces
+  * Add option to undo abbreviation expansion using backspace
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 9 Jul 2009 20:38:05 +1000
  

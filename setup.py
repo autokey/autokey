@@ -34,7 +34,7 @@ interface offering the full flexibility and power of the Python language.""",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},
       packages=["autokey", "autokey.plugin", "autokey.ui"],
-      package_data={"autokey.ui" : ["data/gui.xml"]},
+      package_data={"autokey.ui" : ["data/gui.xml", "data/api.txt"]},
       data_files=[("/usr/share/pixmaps", ["config/akicon.png"]),
                   ("/usr/share/applications", ["config/autokey.desktop"])],
       scripts=['autokey']

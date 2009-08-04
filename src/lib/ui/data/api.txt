@@ -1,0 +1,14 @@
+dialog.choose_colour(title="Select Colour") Show a Colour Chooser dialog
+dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None) Show a Directory Chooser dialog
+dialog.combo_menu(options, title="Choose an option", message="Choose an option") Show a combobox menu
+dialog.input_dialog(title="Enter a value", message="Enter a value", default="") Show an input dialog
+dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None) Show a single-selection list menu
+dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[]) Show a multiple-selection list menu
+dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None) Show an Open File dialog
+dialog.password_dialog(title="Enter password", message="Enter password") Show a password input dialog
+dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None) Show an Save As dialog
+keyboard.send_key(key, repeat=1) Send a keyboard event
+keyboard.send_keys(keyString) Send a sequence of keys via keyboard event
+store.get_value(key) Get a value
+store.remove_value(key) Remove a value
+store.set_value(key, value) Store a value

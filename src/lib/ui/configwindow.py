@@ -30,6 +30,7 @@ HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
+API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
 
 from dialogs import *
 from settingsdialog import SettingsDialog
@@ -191,7 +192,8 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         lex = Qsci.QsciLexerPython(self)
         api = Qsci.QsciAPIs(lex)
         # TODO load api from file
-        api.add("keyboard.send_keys(keys) Send keys")
+        api.load(API_FILE)
+        #api.add("keyboard.send_keys(keys) Send keys")
         api.prepare()
 
         self.scriptCodeEditor.setLexer(lex)
@@ -204,7 +206,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.setIndentationsUseTabs(False)
         self.scriptCodeEditor.setAutoCompletionThreshold(2)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
-        self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
+        #self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
         
     def load(self, script):
         self.currentScript = script
