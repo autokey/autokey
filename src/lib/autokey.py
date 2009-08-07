@@ -141,7 +141,7 @@ class Application:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration.\n") + str(e))
+                                    "Check your system/configuration."), str(e))
         
         self.notifier = ui.notifier.Notifier(self)
         self.configWindow = None
@@ -220,11 +220,14 @@ class Application:
     def show_configure_async(self):
         self.exec_in_main(self.show_configure)
 
-    def show_error_dialog(self, message):
+    def show_error_dialog(self, message, details=None):
         """
         Convenience method for showing an error dialog.
         """
-        KMessageBox.error(None, message)
+        if details is None:
+            KMessageBox.error(None, message)
+        else:
+            KMessageBox.detailedError(None, message, details)
         
     def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
         self.exec_in_main(self.__createMenu, folders, items, onDesktop, title)

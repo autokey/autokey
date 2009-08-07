@@ -1,5 +1,3 @@
-Create API files from scripting module using docstrings
-
 Scripting framework ideas:
 Namespace for window management (making it useful might be tough)
 Namespace for performing shell tasks (mainly aliases for shutil and subprocess)
