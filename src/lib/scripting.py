@@ -19,6 +19,9 @@
 import subprocess
 
 class Keyboard:
+    """
+    Provides access to the keyboard for event generation.
+    """
     
     def __init__(self, mediator):
         self.mediator = mediator
@@ -27,7 +30,7 @@ class Keyboard:
         """
         Send a sequence of keys via keyboard event
         
-        Usage: keyboard.send_keys(keyString)
+        Usage: C{keyboard.send_keys(keyString)}
         
         @param keyString: string of keys (including special keys) to send
         """
@@ -37,7 +40,7 @@ class Keyboard:
         """
         Send a keyboard event
         
-        Usage: keyboard.send_key(key, repeat=1)
+        Usage: C{keyboard.send_key(key, repeat=1)}
         
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
@@ -55,7 +58,7 @@ class Store(dict):
         """
         Store a value
         
-        Usage: store.set_value(key, value)
+        Usage: C{store.set_value(key, value)}
         """
         self[key] = value
         
@@ -63,7 +66,7 @@ class Store(dict):
         """
         Get a value
         
-        Usage: store.get_value(key)
+        Usage: C{store.get_value(key)}
         """
         return self[key]        
         
@@ -71,11 +74,14 @@ class Store(dict):
         """
         Remove a value
         
-        Usage: store.remove_value(key)
+        Usage: C{store.remove_value(key)}
         """
         del self[key]
         
 class Dialog:
+    """
+    Provides a simple interface for the display of some basic dialogs to collect information from the user.
+    """
     
     def __runKdialog(self, title, args):
         p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
@@ -88,7 +94,7 @@ class Dialog:
         """
         Show an input dialog
         
-        Usage: dialog.input_dialog(title="Enter a value", message="Enter a value", default="")
+        Usage: C{dialog.input_dialog(title="Enter a value", message="Enter a value", default="")}
         
         @param title: window title for the dialog
         @param message: message displayed above the input box
@@ -100,7 +106,7 @@ class Dialog:
         """
         Show a password input dialog
         
-        Usage: dialog.password_dialog(title="Enter password", message="Enter password")
+        Usage: C{dialog.password_dialog(title="Enter password", message="Enter password")}
         
         @param title: window title for the dialog
         @param message: message displayed above the password input box
@@ -111,7 +117,7 @@ class Dialog:
         """
         Show a combobox menu
         
-        Usage: dialog.combo_menu(options, title="Choose an option", message="Choose an option")
+        Usage: C{dialog.combo_menu(options, title="Choose an option", message="Choose an option")}
         
         @param options: list of options (strings) for the dialog
         @param title: window title for the dialog
@@ -123,7 +129,7 @@ class Dialog:
         """
         Show a single-selection list menu
         
-        Usage: dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None)
+        Usage: C{dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None)}
         
         @param options: list of options (strings) for the dialog
         @param title: window title for the dialog
@@ -151,7 +157,7 @@ class Dialog:
         """
         Show a multiple-selection list menu
         
-        Usage: dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[])
+        Usage: C{dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[])}
         
         @param options: list of options (strings) for the dialog
         @param title: window title for the dialog
@@ -183,7 +189,7 @@ class Dialog:
         """
         Show an Open File dialog
         
-        Usage: dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None)
+        Usage: C{dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None)}
         
         @param title: window title for the dialog
         @param initialDir: starting directory for the file dialog
@@ -199,7 +205,7 @@ class Dialog:
         """
         Show an Save As dialog
         
-        Usage: dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None)
+        Usage: C{dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None)}
         
         @param title: window title for the dialog
         @param initialDir: starting directory for the file dialog
@@ -215,7 +221,7 @@ class Dialog:
         """
         Show a Directory Chooser dialog
         
-        Usage: dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None)
+        Usage: C{dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None)}
         
         @param title: window title for the dialog
         @param initialDir: starting directory for the directory chooser dialog
@@ -230,7 +236,7 @@ class Dialog:
         """
         Show a Colour Chooser dialog
         
-        Usage: dialog.choose_colour(title="Select Colour")
+        Usage: C{dialog.choose_colour(title="Select Colour")}
         
         @param title: window title for the dialog
         """
