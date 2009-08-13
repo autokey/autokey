@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>lib.scripting.Keyboard</title>
+  <title>lib.scripting.System</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -39,7 +39,7 @@
       <span class="breadcrumbs">
         Package&nbsp;lib ::
         <a href="lib.scripting-module.html">Module&nbsp;scripting</a> ::
-        Class&nbsp;Keyboard
+        Class&nbsp;System
       </span>
     </td>
     <td>
@@ -49,15 +49,15 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="lib.scripting.Keyboard-class.html"
+            >]&nbsp;|&nbsp;<a href="lib.scripting.System-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class Keyboard</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard">source&nbsp;code</a></span></p>
-<p>Provides access to the keyboard for event generation.</p>
+<h1 class="epydoc">Class System</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#System">source&nbsp;code</a></span></p>
+<p>Simplified access to some system commands.</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -82,10 +82,11 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="__init__"></a><span class="summary-sig-name">__init__</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">mediator</span>)</span></td>
+          <td><span class="summary-sig"><a href="lib.scripting.System-class.html#exec_command" class="summary-sig-name">exec_command</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">command</span>)</span><br />
+      Execute a shell command</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#System.exec_command">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -99,30 +100,12 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Keyboard-class.html#send_keys" class="summary-sig-name">send_keys</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">keyString</span>)</span><br />
-      Send a sequence of keys via keyboard events</td>
+          <td><span class="summary-sig"><a href="lib.scripting.System-class.html#create_file" class="summary-sig-name">create_file</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">fileName</span>,
+        <span class="summary-sig-arg">contents</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
+      Create a file with contents</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard.send_keys">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Keyboard-class.html#send_key" class="summary-sig-name">send_key</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">key</span>,
-        <span class="summary-sig-arg">repeat</span>=<span class="summary-sig-default">1</span>)</span><br />
-      Send a keyboard event</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard.send_key">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#System.create_file">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -149,55 +132,60 @@
   </td>
 </tr>
 </table>
-<a name="send_keys"></a>
+<a name="exec_command"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_keys</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">keyString</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">exec_command</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">command</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard.send_keys">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#System.exec_command">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Send a sequence of keys via keyboard events</p>
-  <p>Usage: <code>keyboard.send_keys(keyString)</code></p>
+  <p>Execute a shell command</p>
+  <p>Usage: <code>system.exec_command(command)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>keyString</code></strong> - string of keys (including special keys) to send</li>
+        <li><strong class="pname"><code>command</code></strong> - command to be executed (including any arguments) - e.g. &quot;ls 
+          -l&quot;</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>subprocess.CalledProcessError</strong></code> - if the command returns a non-zero exit code</li>
     </ul></dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="send_key"></a>
+<a name="create_file"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">send_key</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">key</span>,
-        <span class="sig-arg">repeat</span>=<span class="sig-default">1</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">create_file</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">fileName</span>,
+        <span class="sig-arg">contents</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Keyboard.send_key">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#System.create_file">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Send a keyboard event</p>
-  <p>Usage: <code>keyboard.send_key(key, repeat=1)</code></p>
+  <p>Create a file with contents</p>
+  <p>Usage: <code>system.create_file(fileName, 
+  contents=&quot;&quot;)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>key</code></strong> - they key to be sent (e.g. &quot;s&quot; or 
-          &quot;&lt;enter&gt;&quot;)</li>
-        <li><strong class="pname"><code>repeat</code></strong> - number of times to repeat the key event</li>
+        <li><strong class="pname"><code>fileName</code></strong> - full path to the file to be created</li>
+        <li><strong class="pname"><code>contents</code></strong> - contents to insert into the file</li>
     </ul></dd>
   </dl>
 </td></tr></table>

@@ -1,3 +1,7 @@
+clipboard.fill_clipboard(contents) Copy text into the clipboard
+clipboard.fill_selection(contents) Copy text into the X selection
+clipboard.get_clipboard() Read text from the clipboard
+clipboard.get_selection() Read text from the X selection
 dialog.choose_colour(title="Select Colour") Show a Colour Chooser dialog
 dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None) Show a Directory Chooser dialog
 dialog.combo_menu(options, title="Choose an option", message="Choose an option") Show a combobox menu
@@ -6,9 +10,11 @@ dialog.list_menu(options, title="Choose a value", message="Choose a value", defa
 dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[]) Show a multiple-selection list menu
 dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None) Show an Open File dialog
 dialog.password_dialog(title="Enter password", message="Enter password") Show a password input dialog
-dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None) Show an Save As dialog
+dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None) Show a Save As dialog
 keyboard.send_key(key, repeat=1) Send a keyboard event
-keyboard.send_keys(keyString) Send a sequence of keys via keyboard event
+keyboard.send_keys(keyString) Send a sequence of keys via keyboard events
 store.get_value(key) Get a value
 store.remove_value(key) Remove a value
 store.set_value(key, value) Store a value
+system.create_file(fileName, contents="") Create a file with contents
+system.exec_command(command) Execute a shell command

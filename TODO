@@ -1,12 +1,6 @@
 Scripting framework ideas:
 Namespace for window management (making it useful might be tough)
-Namespace for performing shell tasks (mainly aliases for shutil and subprocess)
 Namespace for autokey stuff - create/modify/delete folders/phrases/scripts, show popup menu
-Namespace for clipboard interaction
-    - put text in selection
-    - put text in buffer
-    - load image into buffer from file
-    - paste from selection
 
 Get rid of commented out code
 Add method comments

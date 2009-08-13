@@ -34,6 +34,6 @@ if __name__ == "__main__":
                     lines = doc.split('\n')
                     apiLine = lines[3].strip()
                     docLine = lines[1].strip()
-                    outFile.write(apiLine[7:] + " " + docLine +  '\n')
+                    outFile.write(apiLine[9:-1] + " " + docLine +  '\n')
             
     outFile.close()

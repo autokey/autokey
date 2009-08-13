@@ -16,7 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import subprocess
+import subprocess, threading
+from PyQt4.QtGui import QClipboard, QApplication
 
 class Keyboard:
     """
@@ -28,7 +29,7 @@ class Keyboard:
         
     def send_keys(self, keyString):
         """
-        Send a sequence of keys via keyboard event
+        Send a sequence of keys via keyboard events
         
         Usage: C{keyboard.send_keys(keyString)}
         
@@ -203,7 +204,7 @@ class Dialog:
         
     def save_file(self, title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None):
         """
-        Show an Save As dialog
+        Show a Save As dialog
         
         Usage: C{dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None)}
         
@@ -241,4 +242,109 @@ class Dialog:
         @param title: window title for the dialog
         """
         return self.__runKdialog(title, ["--getcolor"])
+        
+        
+class System:
+    """
+    Simplified access to some system commands.
+    """    
+    
+    def exec_command(self, command):
+        """
+        Execute a shell command
+        
+        Usage: C{system.exec_command(command)}
+        
+        @param command: command to be executed (including any arguments) - e.g. "ls -l"
+        @raises subprocess.CalledProcessError: if the command returns a non-zero exit code
+        """
+        p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read()[:-1]
+        if retCode != 0:
+            raise subprocess.CalledProcessError(retCode, output)
+        else:
+            return output
+    
+    def create_file(self, fileName, contents=""):
+        """
+        Create a file with contents
+        
+        Usage: C{system.create_file(fileName, contents="")}
+        
+        @param fileName: full path to the file to be created
+        @param contents: contents to insert into the file
+        """
+        f = open(fileName, "w")
+        f.write(contents)
+        f.close()
+        
+    
+class Clipboard:
+    """
+    Read/write access to the X selection and clipboard
+    """
+    
+    def __init__(self, app):
+        self.clipBoard = QApplication.clipboard()
+        self.app = app
+        
+    def fill_selection(self, contents):
+        """
+        Copy text into the X selection
+        
+        Usage: C{clipboard.fill_selection(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        self.__execAsync(self.__fillSelection, contents)
+        
+    def __fillSelection(self, string):
+        self.clipBoard.setText(string, QClipboard.Selection)
+        self.sem.release()
+        
+    def get_selection(self):
+        """
+        Read text from the X selection
+        
+        Usage: C{clipboard.get_selection()}
+        """
+        self.__execAsync(self.__getSelection)
+        return self.text
+        
+    def __getSelection(self):
+        self.text = self.clipBoard.text(QClipboard.Selection)
+        self.sem.release()
+        
+    def fill_clipboard(self, contents):
+        """
+        Copy text into the clipboard
+        
+        Usage: C{clipboard.fill_clipboard(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        self.__execAsync(self.__fillClipboard, contents)
+        
+    def __fillClipboard(self, contents):
+        self.clipBoard.setText(string, QClipboard.Clipboard)
+        self.sem.release()        
+        
+    def get_clipboard(self):
+        """
+        Read text from the clipboard
+        
+        Usage: C{clipboard.get_clipboard()}
+        """
+        self.__execAsync(self.__getClipboard)
+        return self.text
+        
+    def __getClipboard(self):
+        self.text = self.clipBoard.text(QClipboard.Clipboard)
+        self.sem.release()
+        
+    def __execAsync(self, callback, *args):
+        self.sem = threading.Semaphore(0)
+        self.app.exec_in_main(callback, *args)
+        self.sem.acquire()        
         
