@@ -310,7 +310,7 @@ class Clipboard:
         Usage: C{clipboard.get_selection()}
         """
         self.__execAsync(self.__getSelection)
-        return self.text
+        return str(self.text)
         
     def __getSelection(self):
         self.text = self.clipBoard.text(QClipboard.Selection)
@@ -337,7 +337,7 @@ class Clipboard:
         Usage: C{clipboard.get_clipboard()}
         """
         self.__execAsync(self.__getClipboard)
-        return self.text
+        return str(self.text)
         
     def __getClipboard(self):
         self.text = self.clipBoard.text(QClipboard.Clipboard)
