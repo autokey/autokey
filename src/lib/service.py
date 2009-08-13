@@ -62,7 +62,7 @@ class Service:
         self.mediator = IoMediator(self)
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
         self.phraseRunner = PhraseRunner(self)
-        self.scriptRunner = ScriptRunner(self.mediator)
+        self.scriptRunner = ScriptRunner(self.mediator, self.app)
         logger.info("Service now marked as running")
         
     def unpause(self):
@@ -355,11 +355,13 @@ class PhraseRunner:
     
 class ScriptRunner:
     
-    def __init__(self, mediator):
+    def __init__(self, mediator, app):
         self.mediator = mediator
         self.scope = globals()
         self.scope["keyboard"]= scripting.Keyboard(mediator)
         self.scope["dialog"] = scripting.Dialog()
+        self.scope["clipboard"] = scripting.Clipboard(app)
+        self.scope["system"] = scripting.System()
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)

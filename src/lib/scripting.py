@@ -326,7 +326,7 @@ class Clipboard:
         """
         self.__execAsync(self.__fillClipboard, contents)
         
-    def __fillClipboard(self, contents):
+    def __fillClipboard(self, string):
         self.clipBoard.setText(string, QClipboard.Clipboard)
         self.sem.release()        
         

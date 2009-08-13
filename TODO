@@ -2,6 +2,8 @@ Scripting framework ideas:
 Namespace for window management (making it useful might be tough)
 Namespace for autokey stuff - create/modify/delete folders/phrases/scripts, show popup menu
 
+Notify on script failure, rather than just logging the error
+
 Get rid of commented out code
 Add method comments
 

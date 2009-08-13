@@ -206,7 +206,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.setIndentationsUseTabs(False)
         self.scriptCodeEditor.setAutoCompletionThreshold(2)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
-        #self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
+        self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNone) # TODO disabled due to crashing!
         
     def load(self, script):
         self.currentScript = script
