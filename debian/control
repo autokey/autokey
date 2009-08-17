@@ -10,7 +10,7 @@ Homepage: http://autokey.sourceforge.net/
 
 Package: autokey
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qscintilla2, python-xlib, python-configobj
+Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qscintilla2, python-xlib
 XB-Python-Version: ${python:Versions}
 Description: Desktop automation utility
  AutoKey is a desktop automation utility for Linux and X11. It allows the 
