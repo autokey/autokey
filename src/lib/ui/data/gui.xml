@@ -20,13 +20,9 @@
       <Action name="undo" />
       <Action name="redo" />
       <separator />
-      <Action name="convert" />
       <Action name="delete-item" />
       <separator />
-      <!--<Menu name="insert-macro">
-        <text>Insert Macro</text>
-        <ActionList name="macro-list" />
-      </Menu>-->
+      <Action name="convert" />
       <Action name="record-keystrokes" />
     </Menu>
     <Menu name="settings" >
@@ -44,13 +40,14 @@
     <Action name="new-folder" />
     <Action name="new-phrase" />
     <Action name="new-script" />
-    <separator />
-    <Action name="convert" />
+    <separator />    
     <Action name="delete-item" />
+    <separator />    
+    <Action name="convert" />
   </Menu>
  
   <ToolBar name="ToolBar" noMerge="1" >
-    <text>Toolbar</text>
+    <text>ToolBar</text>
     <Action name="create" />
     <Action name="delete-item" />
     <separator />

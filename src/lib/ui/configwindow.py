@@ -709,18 +709,16 @@ class ConfigWindow(KXmlGuiWindow):
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
         self.advancedSettings = self.__createAction("advanced-settings", i18n("Advanced Settings"), "configure", self.on_advanced_settings)
-        #KStandardAction.configureToolbars(self.configureToolbars, self.actionCollection())
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
         self.__createAction("online-faq", i18n("F.A.Q."), "help-faq", self.on_show_faq)
         self.__createAction("donate", i18n("Donate"), "face-smile", self.on_donate)
 
-        self.createGUI(ACTION_DESCRIPTION_FILE)
-        #self.setStandardToolBarMenuEnabled(True)
+        options = KXmlGuiWindow.Default ^ KXmlGuiWindow.StandardWindowOptions(KXmlGuiWindow.StatusBar)
+        self.setupGUI(options, ACTION_DESCRIPTION_FILE)
 
         self.setCaption(CONFIG_WINDOW_TITLE)
-        self.resize(700, 550)
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())
@@ -730,6 +728,8 @@ class ConfigWindow(KXmlGuiWindow):
         self.cutCopiedItem = None
         
         self.centralWidget.populate_tree(self.app.configManager)
+        
+        self.setAutoSaveSettings()
         
     def set_dirty(self):
         self.centralWidget.set_dirty(True)

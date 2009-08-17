@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os.path, shutil, configobj, logging
+import os, os.path, shutil, configobj, logging
 import cPickle as pickle
 import iomediator
 
@@ -47,23 +47,48 @@ UNDO_USING_BACKSPACE = "undoUsingBackspace"
 #RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
 #RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
-def get_config_manager(autoKeyApp):
+REPLACE_STRINGS = [("iautokey.configurationmanager", "iautokey.configmanager"),
+                  ("ConfigurationManager", "ConfigManager"),
+                  ("iautokey.phrase", "iautokey.model"),
+                  ("PhraseFolder", "Folder"),
+                  ("S'phrases'", "S'items'"),
+                  ("S'allPhrases'", "S'allItems'"),
+                  ("S'hotKeyPhrases'", "S'hotKeys'"),
+                  ("S'abbrPhrases'", "S'abbreviations'")]
+
+def get_config_manager(autoKeyApp, hadError=False):
     if os.path.exists(CONFIG_FILE):
         _logger.info("Loading config from existing file: " + CONFIG_FILE)
         pFile = open(CONFIG_FILE, 'rb')
-        settings, configManager = pickle.load(pFile)
-        pFile.close()
+        
+        try:
+            settings, configManager = pickle.load(pFile)
+        except EOFError:
+            if hadError:
+                _logger.error("Error while loading configuration. Cannot recover.")
+                raise
+            
+            _logger.error("Error while loading configuration. Backup has been restored.")
+            os.remove(CONFIG_FILE)
+            shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+            return get_config_manager(autoKeyApp, True)
+        except ImportError:
+            pFile.close()
+            upgrade_config_file()
+            return get_config_manager(autoKeyApp)
+        
+        pFile.close()    
         apply_settings(settings)
         configManager.app = autoKeyApp
         
         autoKeyApp.init_global_hotkeys(configManager)
         
         _logger.info("Successfully loaded configuration file")
-        _logger.debug("Global settings: " + repr(ConfigManager.SETTINGS))
+        _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
         return configManager
     else:
         _logger.info("No configuration file found - creating new one")
-        _logger.debug("Global settings: " + repr(ConfigManager.SETTINGS))
+        _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
         return ConfigManager(autoKeyApp)
 
 def save_config(configManager):
@@ -90,6 +115,25 @@ def save_config(configManager):
         autoKeyApp.init_global_hotkeys(configManager)
         configManager.app = autoKeyApp
         _logger.info("Finished persisting configuration - no errors")
+        
+def upgrade_config_file():
+    """
+    Upgrade a v0.5x config file to v0.6x
+    """
+    _logger.info("Upgrading v0.5x config file to v0.6x")
+    shutil.move(CONFIG_FILE, CONFIG_FILE + "-0.5x")
+    infile = open(CONFIG_FILE + "-0.5x", 'rb')
+    outfile = open(CONFIG_FILE, 'wb')
+    
+    for line in infile:
+        if len(line) > 5:
+            for s, t in REPLACE_STRINGS:
+                line = line.replace(s, t)
+        outfile.write(line)
+        
+    infile.close()
+    outfile.close()
+    
     
 def apply_settings(settings):
     """
