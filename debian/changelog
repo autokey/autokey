@@ -1,3 +1,10 @@
+autokey (0.60.1-0~jaunty) UNRELEASED; urgency=low
+
+  * Change over most of the URLs from sourceforge to the new project hosting
+    at Google Code 
+
+ -- Luke Faraone <luke@faraone.cc>  Mon, 17 Aug 2009 09:01:31 -0400
+
 autokey (0.60.0-0~jaunty) jaunty; urgency=low
 
   * Implement scripting interface (ScriptRunner)

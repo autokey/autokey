@@ -7,7 +7,7 @@ UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 ICON_FILE = "/usr/share/pixmaps/autokeyicon.svg"
 CONFIG_WINDOW_TITLE = "AutoKey Configuration"
 
-FAQ_URL = "http://autokey.wiki.sourceforge.net/FAQ"
+FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 

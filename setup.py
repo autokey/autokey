@@ -23,7 +23,7 @@ setup(
       version="0.60.0", 
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
-      url="http://autokey.sourceforge.net/",
+      url="http://autokey.googlecode.com/",
       license="GPL v3",
       description="Desktop automation utility",
       long_description="""AutoKey is a desktop automation utility for Linux and X11. It allows
