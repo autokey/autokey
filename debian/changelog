@@ -1,9 +1,16 @@
-autokey (0.60.1-0~jaunty) UNRELEASED; urgency=low
+autokey (0.60.1-0~jaunty) jaunty; urgency=low
 
+  [ Chris Dekter ]
+  * Point Manual link in Help menu at Wiki index
+  * Get rid of default phrases that no longer work
+  * Add some default scripts
+  * Remove reference to showPopupHotkey in ConfigManager
+
+  [ Luke Faraone ]
   * Change over most of the URLs from sourceforge to the new project hosting
     at Google Code 
 
- -- Luke Faraone <luke@faraone.cc>  Mon, 17 Aug 2009 09:01:31 -0400
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 18 Aug 2009 17:38:05 +1000
 
 autokey (0.60.0-0~jaunty) jaunty; urgency=low
 
