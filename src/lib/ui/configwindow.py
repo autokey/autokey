@@ -26,7 +26,7 @@ from PyQt4 import Qsci
 CONFIG_WINDOW_TITLE = i18n("Configuration")
 
 FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
-HELP_URL = "http://autokey.wiki.sourceforge.net/manual"
+HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")

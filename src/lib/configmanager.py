@@ -230,22 +230,31 @@ class ConfigManager:
         p.set_window_titles(".* - gedit")
         myPhrases.add_item(p)
         
-        p1 = Phrase(u"Positioning Phrase", u"[udc]$(cursor )[/udc]\nBlah")
-        p1.set_modes([TriggerMode.ABBREVIATION])
-        p1.set_abbreviation(u"udc")
-        p1.showInTrayMenu = True
-        p1.immediate = True
-        myPhrases.add_item(p1)
-        
         myPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
         myPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
         self.folders[myPhrases.title] = myPhrases
         
-        trayPhrases = Folder(u"Tray Phrases", showInTrayMenu=True)
-        trayPhrases.add_item(Phrase(u"First phrase", u"Test phrase number one!"))
-        trayPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
-        trayPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
-        self.folders[trayPhrases.title] = trayPhrases
+        sampleScripts = Folder(u"Sample Scripts")
+        dte = Script("Insert Date", "")
+        dte.code = """output = system.exec_command("date")
+keyboard.send_keys(output)"""
+        sampleScripts.add_item(dte)
+        
+        lMenu = Script("List Menu", "")
+        lMenu.code = """choices = ["something", "something else", "a third thing"]
+
+retCode, choice = dialog.combo_menu(choices)
+if retCode == 0:
+    keyboard.send_keys("You chose " + choice)"""
+        sampleScripts.add_item(lMenu)
+        
+        sel = Script("Selection Test", "")
+        sel.code = """text = clipboard.get_selection()
+keyboard.send_key("<delete>")
+keyboard.send_keys("The text %s was here previously" % text)"""
+        sampleScripts.add_item(sel)
+        
+        self.folders[sampleScripts.title] = sampleScripts
         
         # TODO - future functionality
         self.recentEntries = []
@@ -282,7 +291,6 @@ class ConfigManager:
         self.globalHotkeys = []
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
-        self.globalHotkeys.append(self.showPopupHotkey)
         _logger.debug("Global hotkeys: %s", self.globalHotkeys)
         
         _logger.debug("Hotkey folders: %s", self.hotKeyFolders)
