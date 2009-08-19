@@ -222,9 +222,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
     def save(self):
         self.settingsWidget.save()
         self.currentScript.description = unicode(self.descriptionLineEdit.text())
-        print repr(self.currentScript.code)
         self.currentScript.code = unicode(self.scriptCodeEditor.text())
-        print repr(self.currentScript.code)
         self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
 
     
@@ -294,8 +292,8 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         
     def load(self, phrase):
         self.currentPhrase = phrase
-        self.descriptionLineEdit.setText(phrase.description.encode("utf-8"))
-        self.phraseText.setText(phrase.phrase.encode("utf-8"))
+        self.descriptionLineEdit.setText(phrase.description)
+        self.phraseText.setText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
         
         # TODO - re-enable me if restoring predictive functionality
