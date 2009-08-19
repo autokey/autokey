@@ -1,3 +1,11 @@
+autokey (0.60.2-0~jaunty) jaunty; urgency=low
+
+  * Fix unicode issues when saving and sending keys
+  * Fix QT4 workaround current value not being loaded in the settings dialog
+  * Remove relative imports as Python 2.5 can't handle them properly
+
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 18 Aug 2009 17:38:05 +1000
+
 autokey (0.60.1-0~jaunty) jaunty; urgency=low
 
   [ Chris Dekter ]
