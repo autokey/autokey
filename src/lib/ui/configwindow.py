@@ -34,9 +34,9 @@ API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.tx
 
 from dialogs import *
 from settingsdialog import SettingsDialog
-from .. configmanager import *
-from .. iomediator import KeyRecorder
-from .. import model
+from autokey.configmanager import *
+from autokey.iomediator import KeyRecorder
+from autokey import model
 
 # ---- Internal widgets
 
@@ -221,8 +221,10 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
 
     def save(self):
         self.settingsWidget.save()
-        self.currentScript.description = str(self.descriptionLineEdit.text()).decode("utf-8")
-        self.currentScript.code = str(self.scriptCodeEditor.text()).decode("utf-8")
+        self.currentScript.description = unicode(self.descriptionLineEdit.text())
+        print repr(self.currentScript.code)
+        self.currentScript.code = unicode(self.scriptCodeEditor.text())
+        print repr(self.currentScript.code)
         self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
 
     
@@ -254,11 +256,11 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
         
     def validate(self):
-        description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        description = unicode(self.descriptionLineEdit.text())
         if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The script description can't be empty."),
                     self.descriptionLineEdit, self.topLevelWidget()): return False
                 
-        code = str(self.scriptCodeEditor.text()).decode("utf-8")
+        code = unicode(self.scriptCodeEditor.text())
         if not validate(not EMPTY_FIELD_REGEX.match(code), i18n("The script code can't be empty."),
                     self.scriptCodeEditor, self.topLevelWidget()): return False
                     
@@ -304,8 +306,8 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         
     def save(self):
         self.settingsWidget.save()
-        self.currentPhrase.description = str(self.descriptionLineEdit.text()).decode("utf-8")
-        self.currentPhrase.phrase = str(self.phraseText.toPlainText()).decode("utf-8")
+        self.currentPhrase.description = unicode(self.descriptionLineEdit.text())
+        self.currentPhrase.phrase = unicode(self.phraseText.toPlainText())
         self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         
         # TODO - re-enable me if restoring predictive functionality
@@ -318,11 +320,11 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.load(self.currentPhrase)   
         
     def validate(self):
-        description = str(self.descriptionLineEdit.text()).decode("utf-8")
+        description = unicode(self.descriptionLineEdit.text())
         if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The phrase description can't be empty."),
                     self.descriptionLineEdit, self.topLevelWidget()): return False
                 
-        phrase = str(self.phraseText.toPlainText()).decode("utf-8")
+        phrase = unicode(self.phraseText.toPlainText())
         if not validate(not EMPTY_FIELD_REGEX.match(phrase), i18n("The phrase content can't be empty."),
                     self.phraseText, self.topLevelWidget()): return False
                     
@@ -380,7 +382,7 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         self.settingsWidget.load(folder)
         
     def save(self):
-        self.currentFolder.title = str(self.titleLineEdit.text()).decode("utf-8")
+        self.currentFolder.title = unicode(self.titleLineEdit.text())
         self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         self.settingsWidget.save()
         
@@ -388,7 +390,7 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         self.load(self.currentFolder)        
         
     def validate(self):
-        title = str(self.titleLineEdit.text()).decode("utf-8")
+        title = unicode(self.titleLineEdit.text())
         if not validate(not EMPTY_FIELD_REGEX.match(title), i18n("The folder title can't be empty."),
                     self.titleLineEdit, self.topLevelWidget()): return False
                     

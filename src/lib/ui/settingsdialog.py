@@ -21,8 +21,8 @@ from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, Qt
 
-from .. configmanager import *
-from .. import iomediator, interface, model
+from autokey.configmanager import *
+from autokey import iomediator, interface, model
 from dialogs import GlobalHotkeyDialog
 
 import generalsettings, specialhotkeysettings, interfacesettings
@@ -152,6 +152,8 @@ class InterfaceSettings(QWidget, interfacesettings.Ui_Form):
         self.xEvdevButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
         self.atspiButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
         self.atspiButton.setEnabled(interface.HAS_ATSPI)
+        
+        self.checkBox.setChecked(ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND])
         
     def save(self):
         if self.xRecordButton.isChecked():

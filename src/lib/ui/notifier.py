@@ -21,7 +21,7 @@ from PyKDE4.kdecore import i18n
 from PyQt4.QtCore import SIGNAL
 
 import popupmenu
-from .. configmanager import *
+from autokey.configmanager import *
 
 ICON_FILE = "/usr/share/pixmaps/akicon.png"
 

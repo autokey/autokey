@@ -35,7 +35,7 @@ class Keyboard:
         
         @param keyString: string of keys (including special keys) to send
         """
-        self.mediator.send_string(keyString)
+        self.mediator.send_string(keyString.decode("utf-8"))
         
     def send_key(self, key, repeat=1):
         """
@@ -47,7 +47,7 @@ class Keyboard:
         @param repeat: number of times to repeat the key event
         """        
         for x in range(repeat):
-            self.mediator.send_key(key)
+            self.mediator.send_key(key.decode("utf-8"))
             
             
 class Store(dict):

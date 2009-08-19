@@ -23,7 +23,7 @@ from PyKDE4.kdeui import KMenu, KAction, KActionMenu, KApplication
 from PyQt4.QtGui import QCursor
 from PyQt4.QtCore import SIGNAL, Qt
 
-from .. configmanager import *
+from autokey.configmanager import *
 
 _logger = logging.getLogger("phrase-menu")
 

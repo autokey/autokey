@@ -10,7 +10,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog"]
 
 import abbrsettings, hotkeysettings, windowfiltersettings
-from .. import model, iomediator
+from autokey import model, iomediator
 
 WORD_CHAR_OPTIONS = {
                      "Default" : model.DEFAULT_WORDCHAR_REGEX,
