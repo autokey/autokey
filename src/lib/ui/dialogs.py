@@ -68,7 +68,7 @@ class AbbrSettingsDialog(KDialog):
         self.targetItem = item
         
         if model.TriggerMode.ABBREVIATION in item.modes:
-            self.widget.abbrLineEdit.setText(item.abbreviation.encode("utf-8"))        
+            self.widget.abbrLineEdit.setText(item.abbreviation)        
         else:
             self.widget.abbrLineEdit.setText("")
         self.widget.removeTypedCheckbox.setChecked(item.backspace)
@@ -96,7 +96,7 @@ class AbbrSettingsDialog(KDialog):
         
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
-        item.abbreviation = self.get_abbr().decode("utf-8")
+        item.abbreviation = self.get_abbr()
         
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
         
@@ -124,7 +124,7 @@ class AbbrSettingsDialog(KDialog):
         self.widget.immediateCheckbox.setChecked(False)
         
     def get_abbr(self):
-        return str(self.widget.abbrLineEdit.text())
+        return unicode(self.widget.abbrLineEdit.text())
         
     def slotButtonClicked(self, button):
         if button == KDialog.Ok:
@@ -190,7 +190,7 @@ class HotkeySettingsDialog(KDialog):
             self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
             self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
 
-            key = str(item.hotKey)
+            key = item.hotKey
             if key in self.KEY_MAP:
                 keyText = self.KEY_MAP[key]
             else:
@@ -284,7 +284,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
             self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
 
-            key = str(item.hotKey)
+            key = item.hotKey
             if key in self.KEY_MAP:
                 keyText = self.KEY_MAP[key]
             else:
@@ -331,13 +331,13 @@ class WindowFilterSettingsDialog(KDialog):
         if item.uses_default_filter():
             self.reset()
         else:
-            self.widget.triggerRegexLineEdit.setText(item.get_filter_regex().encode("utf-8"))
+            self.widget.triggerRegexLineEdit.setText(item.get_filter_regex())
             
     def save(self, item):
-        item.set_window_titles(self.get_filter_text().decode("utf-8"))
+        item.set_window_titles(self.get_filter_text())
             
     def reset(self):
         self.widget.triggerRegexLineEdit.setText("")
         
     def get_filter_text(self):
-        return str(self.widget.triggerRegexLineEdit.text())
+        return unicode(self.widget.triggerRegexLineEdit.text())

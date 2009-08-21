@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os, os.path, shutil, configobj, logging
+import os, os.path, shutil, logging
 import cPickle as pickle
 import iomediator
 

@@ -61,7 +61,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         
         self.abbrDialog.load(self.currentItem)
         if model.TriggerMode.ABBREVIATION in item.modes:
-            self.abbrLabel.setText(item.abbreviation.encode("utf-8"))
+            self.abbrLabel.setText(item.abbreviation)
             self.clearAbbrButton.setEnabled(True)
             self.abbrEnabled = True
         else:
@@ -71,7 +71,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         
         self.hotkeyDialog.load(self.currentItem)
         if model.TriggerMode.HOTKEY in item.modes:
-            key = str(item.hotKey.encode("utf-8"))
+            key = item.hotKey
             self.hotkeyLabel.setText(self.build_hotkey_string(key, item.modifiers))
             self.clearHotkeyButton.setEnabled(True)
             self.hotkeyEnabled = True            
@@ -210,7 +210,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         
     def load(self, script):
         self.currentScript = script
-        self.descriptionLineEdit.setText(script.description.encode("utf-8"))
+        self.descriptionLineEdit.setText(script.description)
         self.scriptCodeEditor.clear()
         self.scriptCodeEditor.append(script.code)
         self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
@@ -375,7 +375,7 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         
     def load(self, folder):
         self.currentFolder = folder
-        self.titleLineEdit.setText(folder.title.encode("utf-8"))
+        self.titleLineEdit.setText(folder.title)
         self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
         self.settingsWidget.load(folder)
         

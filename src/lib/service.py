@@ -76,10 +76,10 @@ class Service:
     def is_running(self):
         return ConfigManager.SETTINGS[SERVICE_RUNNING]
             
-    def shutdown(self):
+    def shutdown(self, save=True):
         logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
-        save_config(self.configManager)
+        if save: save_config(self.configManager)
             
     def handle_mouseclick(self):
         logger.debug("Received mouse click - resetting buffer")        

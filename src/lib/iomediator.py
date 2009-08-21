@@ -131,7 +131,7 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         self.interface.cancel()
         self.queue.put_nowait((None, None))
-        self.join()
+        #self.join()
 
     # Callback methods for Interfaces ----
     
