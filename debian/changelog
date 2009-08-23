@@ -1,3 +1,9 @@
+autokey (0.60.4-0~jaunty) jaunty; urgency=low
+
+  * Revert to sending phrases via keyboard rather than X selection
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 23 Aug 2009 12:38:05 +1000
+
 autokey (0.60.3-0~jaunty) jaunty; urgency=low
 
   * Initial version of nogui API
