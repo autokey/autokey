@@ -319,8 +319,8 @@ class PhraseRunner:
         #self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
         
         mediator.send_backspace(expansion.backspaces + extraBs)
-        mediator.paste_string(expansion.string)
-        mediator.paste_string(extraKeys)
+        mediator.send_string(expansion.string.replace('\n', '<enter>'))
+        mediator.send_string(extraKeys.replace('\n', '<enter>'))
         #mediator.send_left(expansion.lefts)
         mediator.flush()
     
