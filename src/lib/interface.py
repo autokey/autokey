@@ -309,7 +309,7 @@ class XInterfaceBase(threading.Thread):
             xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
             xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
             
-        keyCode = self.__lookupKeyCode('\n')
+        keyCode = self.__lookupKeyCode('<enter>')
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
         
