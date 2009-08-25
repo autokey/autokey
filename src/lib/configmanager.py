@@ -390,8 +390,8 @@ keyboard.send_keys("The text %s was here previously" % text)"""
         special hotkeys configured from the advanced settings dialog.
         
         @param modifiers: modifiers for the hotkey
-        @param abbreviation: the hotkey to check
-        @param targetPhrase: the phrase for which the abbreviation to be used         
+        @param hotKey: the hotkey to check
+        @param targetPhrase: the phrase for which the hotKey to be used        
         """
         for item in self.allFolders:
             if TriggerMode.HOTKEY in item.modes:

@@ -347,7 +347,7 @@ class PhraseRunner:
         
         #mediator.send_right(self.lastExpansion.lefts)
         mediator.remove_string(self.lastExpansion.string)
-        mediator.send_string(replay, False)
+        mediator.send_string(replay)
         mediator.flush()
         #mediator.send_right(1)
         self.clear_last()

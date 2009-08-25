@@ -34,29 +34,86 @@ MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 
 def create_abbreviation(abbr, contents):
-    code = "keyboard.send_keys(\"%s\")" % contents
-    s = Script(contents[:15], code)
+    """
+    Create a text abbreviation.
+    
+    When the given abbreviation is typed, it will be replaced with the given
+    text.
+    
+    @param abbr: the abbreviation that will trigger the expansion
+    @param contents: the expansion text
+    @return: the created Phrase instance
+    """
+    if not CONFIG.check_abbreviation_unique(abbr, None):
+        raise Exception("The specified abbreviation is already in use")
+    
+    s = Phrase(contents[:15], contents)
     set_abbreviation(s, abbr)   
     CONFIG.add_item(s)
     return s
     
 def create_hotkey(modifiers, key, contents):
-    code = "keyboard.send_keys(\"%s\")" % contents
-    s = Script(contents[:15], code)
+    """
+    Create a text hotkey.
+    
+    When the given hotkey is pressed, it will be replaced with the given
+    text. Modifiers must be given as a list of strings, with the following
+    values permitted:
+    
+    <control>
+    <alt>
+    <super>
+    <shift>
+    
+    The key must be an unshifted character (i.e. lowercase)
+    
+    @param modifiers: modifiers to use with the hotkey (as a list)
+    @param key: the hotkey
+    @param contents: the expansion text
+    @return: the created Phrase instance
+    """
+    modifiers.sort()
+    if not CONFIG.check_hotkey_unique(modifiers, key, None):
+        raise Exception("The specified hotkey and modifier combination is already in use")
+    
+    s = Phrase(contents[:15], contents)
     set_hotkey(s, modifiers, key)
     CONFIG.add_item(s)
     return s    
     
 def create_script(tagName):
+    """
+    Create a script from a loaded script file.
+    
+    The code attached to the given tag name is taken from any script that
+    has previously been loaded using load_script_file() and a Script instance
+    is created.
+    
+    @param tagName: tag to which the desired code is attached
+    @return: the created Script instance
+    """
     code = CONFIG.scripts[tagName]
     s = Script(tagName, code)
     CONFIG.add_item(s)
     return s
     
 def load_script_file(fileName):
+    """
+    Load a script file.
+    
+    @param fileName: full or relative path to the script file
+    """
     CONFIG.load_script_file(fileName)
 
 def start(debug=False):
+    """
+    Start the AutoKey back end.
+    
+    This function must be called last. Any configuration functions called
+    after this function will have no effect.
+    
+    @param debug: enable debug logging to the console
+    """
     CONFIG.prepare()
     a = AppStandAlone(debug)
     CONFIG.shutdownHotkey.set_closure(a.exit)
@@ -67,13 +124,41 @@ def start(debug=False):
         a.exit()
         
 def set_option(name, value):
+    """
+    Set a global option.
+    
+    The following options are available:
+    ENABLE_QT4_WORKAROUND (True or False)
+    INTERFACE_TYPE (iomediator.X_RECORD_INTERFACE, iomediator.X_EVDEV_INTERFACE, iomediator.ATSPI_INTERFACE)
+    UNDO_USING_BACKSPACE (True or False)
+    
+    @param name: name of the option (e.g. INTERFACE_TYPE)
+    @param value: value to set for the option
+    """
     CONFIG.SETTINGS[name] = value
     
 def set_abbreviation(item, abbr):
+    """
+    Set an abbreviation.
+    
+    This function sets the abbreviation for a Script or Phrase instance.
+    
+    @param item: the Script or Phrase instance to be modified
+    @param abbr: the abbreviation to be used
+    """
     item.modes.append(TriggerMode.ABBREVIATION)
     item.abbreviation = abbr
     
 def set_hotkey(item, modifiers, key):
+    """
+    Set a hotkey.
+    
+    This function sets the hotkey for a Script or Phrase instance. @see create_hotkey()
+    
+    @param item: the Script or Phrase instance to be modified
+    @param modifiers: modifiers to use with the hotkey (as a list)
+    @param key: the hotkey
+    """    
     item.modes.append(TriggerMode.HOTKEY)
     item.set_hotkey(modifiers, key)
     
@@ -228,6 +313,41 @@ class ConfigStandAlone:
         
     def __finaliseBlock(self, tagName, lines):
         self.scripts[tagName] = ''.join(lines)
+        
+    def check_abbreviation_unique(self, abbreviation, targetPhrase):
+        """
+        Checks that the given abbreviation is not already in use.
+        
+        @param abbreviation: the abbreviation to check
+        @param targetPhrase: the phrase for which the abbreviation to be used 
+        """
+        for item in self.allItems:
+            if TriggerMode.ABBREVIATION in item.modes:
+                if item.abbreviation == abbreviation:
+                    return item is targetPhrase
+        
+        return True
+            
+    def check_hotkey_unique(self, modifiers, hotKey, targetPhrase):
+        """
+        Checks that the given hotkey is not already in use. Also checks the 
+        special hotkeys configured from the advanced settings dialog.
+        
+        @param modifiers: modifiers for the hotkey
+        @param hotKey: the hotkey to check
+        @param targetPhrase: the phrase for which the hotKey to be used         
+        """
+        for item in self.allItems:
+            if TriggerMode.HOTKEY in item.modes:
+                if item.modifiers == modifiers and item.hotKey == hotKey:
+                    return item is targetPhrase     
+
+        for item in self.globalHotkeys:
+            if item.enabled:
+                if item.modifiers == modifiers and item.hotKey == hotKey:
+                    return False
+
+        return True
         
     def prepare(self):
         self.shutdownHotkey = GlobalHotkey()
