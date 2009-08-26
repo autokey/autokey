@@ -12,7 +12,7 @@ Package: autokey
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qscintilla2, python-xlib
 XB-Python-Version: ${python:Versions}
-Description: Desktop automation utility
+Description: desktop automation utility
  AutoKey is a desktop automation utility for Linux and X11. It allows the 
  automation of virtually any task by responding to typed abbreviations and 
  hotkeys. It offers a full-featured GUI that makes it highly accessible for 

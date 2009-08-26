@@ -1,7 +1,7 @@
 This package was debianized by Chris Dekter <cdekter@gmail.com> on
 Tue, 12 May 2009 19:35:37 +1000.
 
-It was downloaded from http://autokey.sourceforge.net/
+It was downloaded from http://autokey.googlecode.com/
 
 Upstream Authors:
 
@@ -34,5 +34,6 @@ Public License can be found in `/usr/share/common-licenses/GPL-2'.
 The Debian packaging is 
 
     Copyright © 2009, Chris Dekter <cdekter@gmail.com> 
+    Copyright © 2009, Luke Faraone <luke@faraone.cc>
 
 and is licensed under the GPL, see above.
