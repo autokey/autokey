@@ -1,3 +1,14 @@
+autokey (0.60.5-0~jaunty) jaunty; urgency=low
+
+  * Change to using pickle instead of cPickle due to a bug in the latter
+  * Bring in changes to common modules needed for GTK version
+  * Fix design flaw in pickle error trapping code
+  * Fix <enter> not being sent at the end of unicode char entry
+  * Fix service crashing when undoing an expansion with backspace
+  * Use Phrase instead of Script in some nogui functions
+
+ -- Chris Dekter <cdekter@gmail.com>  Mon, 31 Aug 2009 12:38:05 +1000
+
 autokey (0.60.4-0~jaunty) jaunty; urgency=low
 
   * Revert to sending phrases via keyboard rather than X selection

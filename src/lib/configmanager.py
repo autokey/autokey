@@ -16,8 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os, os.path, shutil, logging
-import cPickle as pickle
+import os, os.path, shutil, logging, pickle
 import iomediator
 
 _logger = logging.getLogger("config-manager")
@@ -106,15 +105,17 @@ def save_config(configManager):
     try:
         outFile = open(CONFIG_FILE, "wb")
         pickle.dump([ConfigManager.SETTINGS, configManager], outFile)
-    except PickleError, pe:
-        shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
-        _logger.error("Error while saving configuration. Backup has been restored.")
-        raise Exception("Error while saving configuration. Backup has been restored.")
-    finally:
-        outFile.close()
+    except pickle.PickleError, pe:
+        if os.path.exists(CONFIG_FILE_BACKUP):
+            shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+        _logger.exception("Error while saving configuration. Backup has been restored (if found).")
+        raise Exception("Error while saving configuration. Backup has been restored (if found).")
+    else:
         autoKeyApp.init_global_hotkeys(configManager)
         configManager.app = autoKeyApp
         _logger.info("Finished persisting configuration - no errors")
+    finally:
+        outFile.close()
         
 def upgrade_config_file():
     """

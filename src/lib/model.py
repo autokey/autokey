@@ -183,7 +183,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = None
         
     def get_tuple(self):
-        return ("folder", self.title, "", self)
+        return ("folder", self.title, self)
     
     def set_modes(self, modes):
         self.modes = modes
@@ -321,7 +321,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("gtk-paste", self.description, self.abbreviation, self)
+        return ("edit-paste", self.description, self)
         
     def set_modes(self, modes):
         self.modes = modes
@@ -494,6 +494,9 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.omitTrigger = False
         self.parent = None
         self.showInTrayMenu = False
+
+    def get_tuple(self):
+        return ("text-x-script", self.description, self)
 
     def set_modes(self, modes):
         self.modes = modes
