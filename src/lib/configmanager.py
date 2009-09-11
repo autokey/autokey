@@ -39,6 +39,9 @@ INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
 INTERFACE_TYPE = "interfaceType"
 UNDO_USING_BACKSPACE = "undoUsingBackspace"
+WINDOW_DEFAULT_SIZE = "windowDefaultSize"
+HPANE_POSITION = "hPanePosition"
+SHOW_TOOLBAR = "showToolbar"
 
 # TODO - Future functionality
 #TRACK_RECENT_ENTRY = "trackRecentEntry"
@@ -193,7 +196,10 @@ class ConfigManager:
                 INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False,
                 INTERFACE_TYPE : _chooseInterface(),
-                UNDO_USING_BACKSPACE : True
+                UNDO_USING_BACKSPACE : True,
+                WINDOW_DEFAULT_SIZE : (600, 400),
+                HPANE_POSITION : 150,
+                SHOW_TOOLBAR : True
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,
