@@ -293,7 +293,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
     def load(self, phrase):
         self.currentPhrase = phrase
         self.descriptionLineEdit.setText(phrase.description)
-        self.phraseText.setText(phrase.phrase)
+        self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
         
         # TODO - re-enable me if restoring predictive functionality
