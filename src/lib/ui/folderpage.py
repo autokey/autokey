@@ -42,7 +42,7 @@ class Ui_FolderPage(object):
 
     def retranslateUi(self, FolderPage):
         FolderPage.setWindowTitle(kdecore.i18n("Form"))
-        self.titleLabel.setText(kdecore.i18n("Title"))
+        self.titleLabel.setText(kdecore.i18n("Folder"))
         self.settingsGroupBox.setTitle(kdecore.i18n("Settings"))
         self.showInTrayCheckbox.setText(kdecore.i18n("Show in tray menu"))
 

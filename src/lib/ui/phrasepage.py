@@ -49,7 +49,7 @@ class Ui_PhrasePage(object):
 
     def retranslateUi(self, PhrasePage):
         PhrasePage.setWindowTitle(kdecore.i18n("Form"))
-        self.descriptionLabel.setText(kdecore.i18n("Description"))
+        self.descriptionLabel.setText(kdecore.i18n("Phrase"))
         self.settingsGroupBox.setTitle(kdecore.i18n("Settings"))
         self.promptCheckbox.setText(kdecore.i18n("Always prompt before pasting this phrase"))
         self.showInTrayCheckbox.setText(kdecore.i18n("Show in tray menu"))

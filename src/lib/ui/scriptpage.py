@@ -46,7 +46,7 @@ class Ui_ScriptPage(object):
 
     def retranslateUi(self, ScriptPage):
         ScriptPage.setWindowTitle(kdecore.i18n("Form"))
-        self.descriptionLabel.setText(kdecore.i18n("Description"))
+        self.descriptionLabel.setText(kdecore.i18n("Script"))
         self.settingsGroupbox.setTitle(kdecore.i18n("Settings"))
         self.promptCheckbox.setText(kdecore.i18n("Always prompt before running this script"))
         self.showInTrayCheckbox.setText(kdecore.i18n("Show in tray menu"))
