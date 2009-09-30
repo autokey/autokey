@@ -19,6 +19,8 @@
 import os, os.path, shutil, logging, pickle
 import iomediator
 
+APP_VERSION = "0.60.6"
+
 _logger = logging.getLogger("config-manager")
 
 CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.bin")
@@ -83,6 +85,12 @@ def get_config_manager(autoKeyApp, hadError=False):
         apply_settings(settings)
         configManager.app = autoKeyApp
         
+        if not hasattr(configManager, 'VERSION'):
+            configManager.VERSION = "0.60.0"
+            
+        if configManager.VERSION < ConfigManager.CLASS_VERSION:
+            configManager.upgrade()
+        
         autoKeyApp.init_global_hotkeys(configManager)
         
         _logger.info("Successfully loaded configuration file")
@@ -97,6 +105,7 @@ def save_config(configManager):
     _logger.info("Persisting configuration") 
     configManager.configHotkey.set_closure(None)
     configManager.toggleServiceHotkey.set_closure(None)
+    configManager.showPopupHotkey.set_closure(None)
 
     autoKeyApp = configManager.app
     configManager.app = None
@@ -184,6 +193,9 @@ class ConfigManager:
     """
     Static member for global application settings.
     """
+    
+    CLASS_VERSION = APP_VERSION
+    
     SETTINGS = {
                 IS_FIRST_RUN : True,
                 SERVICE_RUNNING : True,
@@ -211,6 +223,8 @@ class ConfigManager:
         """
         Create initial default configuration
         """ 
+        self.VERSION = self.__class__.CLASS_VERSION
+        
         self.app = app
         self.folders = {}
         self.configHotkey = GlobalHotkey()
@@ -220,6 +234,10 @@ class ConfigManager:
         self.toggleServiceHotkey = GlobalHotkey()
         self.toggleServiceHotkey.set_hotkey(["<ctrl>", "<shift>"], "k")
         self.toggleServiceHotkey.enabled = True    
+        
+        self.showPopupHotkey = GlobalHotkey()
+        self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
+        self.showPopupHotkey.enabled = True
         
         myPhrases = Folder(u"My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
@@ -267,6 +285,22 @@ keyboard.send_keys("The text %s was here previously" % text)"""
         self.recentEntries = []
         
         self.config_altered()
+        
+    def upgrade(self):
+        upgradeDone = False
+        
+        if self.VERSION < '0.60.6':
+            if not hasattr(self, "showPopupHotkey"):
+                self.showPopupHotkey = GlobalHotkey()
+                self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
+                self.showPopupHotkey.enabled = True
+                upgradeDone = True
+            
+        if upgradeDone:
+            self.config_altered()
+            
+        self.VERSION = APP_VERSION
+        
             
     def config_altered(self):
         """
@@ -298,6 +332,7 @@ keyboard.send_keys("The text %s was here previously" % text)"""
         self.globalHotkeys = []
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
+        self.globalHotkeys.append(self.showPopupHotkey)        
         _logger.debug("Global hotkeys: %s", self.globalHotkeys)
         
         _logger.debug("Hotkey folders: %s", self.hotKeyFolders)
