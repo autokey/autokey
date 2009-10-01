@@ -680,8 +680,9 @@ class ConfigWindow(KXmlGuiWindow):
         
         self.newTopFolder = self.__createAction("new-top-folder", i18n("New Top-level Folder"), "folder-new", self.centralWidget.on_new_topfolder)
         self.newFolder = self.__createAction("new-folder", i18n("New Folder"), "folder-new", self.centralWidget.on_new_folder)
-        self.newPhrase = self.__createAction("new-phrase", i18n("New Phrase"), "document-new", self.centralWidget.on_new_phrase)
+        self.newPhrase = self.__createAction("new-phrase", i18n("New Phrase"), "document-new", self.centralWidget.on_new_phrase, KStandardShortcut.New)
         self.newScript = self.__createAction("new-script", i18n("New Script"), "document-new", self.centralWidget.on_new_script)
+        self.newScript.setShortcut(KShortCut(QKeySequence("Control+Shift+n"))
         self.save = self.__createAction("save", i18n("Save"), "document-save", self.centralWidget.on_save, KStandardShortcut.Save)
         
         self.create.addAction(self.newTopFolder)
@@ -742,7 +743,7 @@ class ConfigWindow(KXmlGuiWindow):
         canCreate = isinstance(item, model.Folder)
         
         self.create.setEnabled(canCreate)
-        self.newTopFolder.setEnabled(canCreate)
+        self.newTopFolder.setEnabled(True)
         self.newFolder.setEnabled(canCreate)
         self.newPhrase.setEnabled(canCreate)
         self.newScript.setEnabled(canCreate)
