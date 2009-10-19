@@ -1,3 +1,10 @@
+autokey (0.60.7a-0~jaunty) jaunty; urgency=low
+
+  * Fix syntax error in configwindow.py
+  * Fix a few issues with scripting window management library
+
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 20 Oct 2009 10:38:05 +1000
+
 autokey (0.60.7-0~jaunty) jaunty; urgency=low
 
   * Add window management capabilities to scripting API

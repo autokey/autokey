@@ -377,13 +377,13 @@ class Window:
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
         """
-        regex = re.compile(title, timeOut=5)
+        regex = re.compile(title)
         waited = 0
         while waited < timeOut:
             if regex.match(self.mediator.interface.get_window_title()):
                 return True
-            time.sleep(1)
-            waited += 1
+            time.sleep(0.3)
+            waited += 0.3
             
         return False
         
@@ -394,7 +394,7 @@ class Window:
         Usage: C{window.wait_for_exist(title, timeOut=5)}
 
         If the window is in existence, returns True. Otherwise, returns False if
-        the window has not been craeted by the time the timeout has elapsed.
+        the window has not been created by the time the timeout has elapsed.
         
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
@@ -404,11 +404,11 @@ class Window:
         while waited < timeOut:
             retCode, output = self.__runWmctrl(["-l"])
             for line in output.split('\n'):
-                if regex.match(line):
+                if regex.match(line.split(' ', 4)[-1]):
                     return True
 
-            time.sleep(1)
-            waited += 1
+            time.sleep(0.3)
+            waited += 0.3
             
         return False
         
