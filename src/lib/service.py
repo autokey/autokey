@@ -362,6 +362,7 @@ class ScriptRunner:
         self.scope["dialog"] = scripting.Dialog()
         self.scope["clipboard"] = scripting.Clipboard(app)
         self.scope["system"] = scripting.System()
+        self.scope["window"] = scripting.Window(mediator)
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)

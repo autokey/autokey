@@ -11,7 +11,7 @@
 # Description:       Enable AutoKey's EvDev interface daemon.
 ### END INIT INFO
 
-import sys, os, socket, glob, shutil
+import sys, os, socket, glob, shutil, time
 from autokey import evdev, daemon
 from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
 
@@ -42,6 +42,7 @@ class AutoKeyDaemon(daemon.Daemon):
         print "Created domain socket"
 
         while True:
+            time.sleep(5) # sleep 5 seconds, waiting for devices to appear after resume from S3
             s.listen(1)
             try:
                 conn, addr = s.accept()

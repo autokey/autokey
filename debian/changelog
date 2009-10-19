@@ -1,8 +1,11 @@
 autokey (0.60.7-0~jaunty) jaunty; urgency=low
 
+  * Add window management capabilities to scripting API
   * Minor GUI tweaks to bring into line with GTK version
+  * Fix bug where keyboard was sometimes lost after resume from S3
+  * Flush event buffer after executing keyboard events from a script  
 
- -- Chris Dekter <cdekter@gmail.com>  Thu, 1 Oct 2009 12:38:05 +1000
+ -- Chris Dekter <cdekter@gmail.com>  Mon, 19 Oct 2009 12:38:05 +1000
 
 autokey (0.60.6-0~jaunty) jaunty; urgency=low
 

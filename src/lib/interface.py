@@ -339,7 +339,7 @@ class XInterfaceBase(threading.Thread):
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            self.mediator.handle_keypress(keyCode, self._getWindowTitle())
+            self.mediator.handle_keypress(keyCode, self.get_window_title())
             
     def _handleKeyRelease(self, keyCode):
         try:
@@ -436,7 +436,7 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
     
-    def _getWindowTitle(self):
+    def get_window_title(self):
         try:
             windowvar = self.localDisplay.get_input_focus().focus
             wmname = windowvar.get_wm_name()
@@ -627,7 +627,7 @@ class AtSpiInterface(XInterfaceBase):
         #windowName = event.host_application.name.split('|')[1]
         self.activeWindow = event.host_application.name
     
-    def _getWindowTitle(self):
+    def get_window_title(self):
         logger.debug("Window name: %s", self.activeWindow)
         return self.activeWindow
     

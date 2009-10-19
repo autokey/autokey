@@ -16,7 +16,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import subprocess, threading
+import subprocess, threading, time, re
 from PyQt4.QtGui import QClipboard, QApplication
 
 class Keyboard:
@@ -36,6 +36,7 @@ class Keyboard:
         @param keyString: string of keys (including special keys) to send
         """
         self.mediator.send_string(keyString.decode("utf-8"))
+        self.mediator.flush()
         
     def send_key(self, key, repeat=1):
         """
@@ -48,6 +49,7 @@ class Keyboard:
         """        
         for x in range(repeat):
             self.mediator.send_key(key.decode("utf-8"))
+        self.mediator.flush()
             
             
 class Store(dict):
@@ -348,3 +350,156 @@ class Clipboard:
         self.app.exec_in_main(callback, *args)
         self.sem.acquire()        
         
+        
+class Window:
+    """
+    Basic window management using wmctrl
+    
+    Note: in all cases where a window title is required (with the exception of wait_for_focus()), 
+    two special values of window title are permitted:
+    
+    :ACTIVE: - select the currently active window
+    :SELECT: - select the desired window by clicking on it
+    """
+    
+    def __init__(self, mediator):
+        self.mediator = mediator
+        
+    def wait_for_focus(self, title, timeOut=5):
+        """
+        Wait for window with the given title to have focus
+        
+        Usage: C{window.wait_for_focus(title, timeOut=5)}
+        
+        If the window becomes active, returns True. Otherwise, returns False if
+        the window has not become active by the time the timeout has elapsed.
+        
+        @param title: title to match against (as a regular expression)
+        @param timeOut: period (seconds) to wait before giving up
+        """
+        regex = re.compile(title, timeOut=5)
+        waited = 0
+        while waited < timeOut:
+            if regex.match(self.mediator.interface.get_window_title()):
+                return True
+            time.sleep(1)
+            waited += 1
+            
+        return False
+        
+    def wait_for_exist(self, title, timeOut=5):
+        """
+        Wait for window with the given title to be created
+        
+        Usage: C{window.wait_for_exist(title, timeOut=5)}
+
+        If the window is in existence, returns True. Otherwise, returns False if
+        the window has not been craeted by the time the timeout has elapsed.
+        
+        @param title: title to match against (as a regular expression)
+        @param timeOut: period (seconds) to wait before giving up
+        """
+        regex = re.compile(title)
+        waited = 0
+        while waited < timeOut:
+            retCode, output = self.__runWmctrl(["-l"])
+            for line in output.split('\n'):
+                if regex.match(line):
+                    return True
+
+            time.sleep(1)
+            waited += 1
+            
+        return False
+        
+    def activate(self, title, switchDesktop=False):
+        """
+        Activate the specified window, giving it input focus
+
+        Usage: C{window.activate(title, switchDesktop=False)}
+        
+        If switchDesktop is False (default), the window will be moved to the current desktop
+        and activated. Otherwise, switch to the window's current desktop and activate it there.
+        
+        @param title: window title to match against (as case-insensitive substring match)
+        @param switchDesktop: whether or not to switch to the window's current desktop
+        """
+        if switchDesktop:
+            args = ["-a", title]
+        else:
+            args = ["-R", title]
+        self.__runWmctrl(args)
+        
+    def close(self, title):
+        """
+        Close the specified window gracefully
+        
+        Usage: C{window.close(title)}
+        
+        @param title: window title to match against (as case-insensitive substring match)
+        """
+        self.__runWmctrl(["-c", title])
+        
+    def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1):
+        """
+        Resize and/or move the specified window
+        
+        Usage: C{window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1)}
+
+        Leaving and of the position/dimension values as the default (-1) will cause that
+        value to be left unmodified.
+        
+        @param title: window title to match against (as case-insensitive substring match)
+        @param xOrigin: new x origin of the window (upper left corner)
+        @param yOrigin: new y origin of the window (upper left corner)
+        @param width: new width of the window
+        @param height: new height of the window
+        """
+        mvArgs = ["0", str(xOrigin), str(yOrigin), str(width), str(height)]
+        self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)])
+        
+        
+    def move_to_desktop(self, title, deskNum):
+        """
+        Move the specified window to the given desktop
+        
+        Usage: C{window.move_to_desktop(title, deskNum)}
+        
+        @param title: window title to match against (as case-insensitive substring match)
+        @param deskNum: desktop to move the window to (note: zero based)
+        """
+        self.__runWmctrl(["-r", title, "-t", str(deskNum)])
+        
+        
+    def switch_desktop(self, deskNum):
+        """
+        Switch to the specified desktop
+        
+        Usage: C{window.switch_desktop(deskNum)}
+        
+        @param deskNum: desktop to switch to (note: zero based)
+        """
+        self.__runWmctrl(["-s", str(deskNum)])
+        
+    def set_property(self, title, action, prop):
+        """
+        Set a property on the given window using the specified action
+
+        Usage: C{window.set_property(title, title, action, prop)}
+        
+        Allowable actions: C{add, remove, toggle}
+        Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
+        skip_pager, hidden, fullscreen, above}
+       
+        @param title: window title to match against (as case-insensitive substring match)
+        @param action: one of the actions listed above
+        @param prop: one of the properties listed above
+        """
+        self.__runWmctrl(["-r", title, "-b" + action + ',' + prop])
+        
+    def __runWmctrl(self, args):
+        p = subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read()[:-1] # Drop trailing newline
+        
+        return (retCode, output)
