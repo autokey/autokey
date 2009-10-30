@@ -37,7 +37,7 @@ LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 APP_NAME = "AutoKey"
 CATALOG = ""
 PROGRAM_NAME = ki18n("AutoKey")
-VERSION = "0.60.7a"
+VERSION = "0.61.0"
 DESCRIPTION = ki18n("Desktop automation utility")
 LICENSE = KAboutData.License_GPL_V3
 COPYRIGHT = ki18n("(c) 2009 Chris Dekter")
@@ -228,6 +228,16 @@ class Application:
             KMessageBox.error(None, message)
         else:
             KMessageBox.detailedError(None, message, details)
+            
+    def show_script_error(self):
+        """
+        Show the last script error (if any)
+        """
+        if self.service.scriptRunner.error != '':
+            KMessageBox.information(None, self.service.scriptRunner.error, i18n("View Script Error Details"))
+            self.service.scriptRunner.error = ''
+        else:
+            KMessageBox.information(None, i18n("No error information available"), i18n("View Script Error Details"))
         
     def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
         self.exec_in_main(self.__createMenu, folders, items, onDesktop, title)

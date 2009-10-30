@@ -17,7 +17,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import time, logging, threading
+import time, logging, threading, traceback
 from iomediator import Key, IoMediator
 import ui.configwindow, model
 from configmanager import *
@@ -81,13 +81,16 @@ class Service:
         if self.mediator is not None: self.mediator.shutdown()
         if save: save_config(self.configManager)
             
-    def handle_mouseclick(self):
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button):
         logger.debug("Received mouse click - resetting buffer")        
         self.inputStack = []
         
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
         self.lastMenu = None
+        
+        # Clear last to prevent undo of previous phrase in unexpected places
+        self.phraseRunner.clear_last() 
         
     def handle_hotkey(self, key, modifiers, windowName):
         logger.debug("Key: %s, modifiers: %s", repr(key), modifiers)
@@ -357,8 +360,10 @@ class ScriptRunner:
     
     def __init__(self, mediator, app):
         self.mediator = mediator
+        self.error = ''
         self.scope = globals()
         self.scope["keyboard"]= scripting.Keyboard(mediator)
+        self.scope["mouse"]= scripting.Mouse(mediator)        
         self.scope["dialog"] = scripting.Dialog()
         self.scope["clipboard"] = scripting.Clipboard(app)
         self.scope["system"] = scripting.System()
@@ -380,7 +385,7 @@ class ScriptRunner:
             exec script.code in self.scope
         except Exception, e:
             logger.exception("Script error")
-            pass # TODO report via notification
+            self.error = traceback.format_exc()
             
         self.mediator.send_string(stringAfter)
         

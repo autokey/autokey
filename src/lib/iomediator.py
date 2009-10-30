@@ -76,7 +76,7 @@ class Key:
         # before doing any comparisons
         return keyString.lower() in klass.__dict__.values() or keyString.startswith("<code")
 
-import time, threading, Queue, re, logging
+import datetime, time, threading, Queue, re, logging
 
 _logger = logging.getLogger("iomediator")
 
@@ -191,9 +191,9 @@ class IoMediator(threading.Thread):
                 
             self.queue.task_done()
             
-    def handle_mouse_click(self):
+    def handle_mouse_click(self, rootX, rootY, relX, relY, button):
         for target in self.listeners:
-            target.handle_mouseclick()
+            target.handle_mouseclick(rootX, rootY, relX, relY, button, self.interface.get_window_title())
         
     # Methods for expansion service ----
         
@@ -303,6 +303,9 @@ class IoMediator(threading.Thread):
             self.interface.send_key(Key.BACKSPACE)
             
         #self.release_lock()
+        
+    def send_mouse_click(self, x, y, button, relative):
+        self.interface.send_mouse_click(x, y, button, relative)
             
     def flush(self):
         self.interface.flush()
@@ -363,19 +366,69 @@ class KeyGrabber:
     def handle_hotkey(self, key, modifiers, windowName):
         pass
     
-    def handle_mouseclick(self):
+    def handle_mouseclick(self, rootX, rootY, relX, relY):
         pass
     
 
-class KeyRecorder(KeyGrabber):
+class Recorder(KeyGrabber):
+    """
+    Recorder used by the record macro functionality
+    """
+    
+    def __init__(self, parent):
+        KeyGrabber.__init__(self, parent)
+        self.insideKeys = False
+        
+    def start(self, delay):
+        KeyGrabber.start(self)
+        self.targetParent.start_record()
+        self.startTime = time.time()
+        self.delay = delay
+        self.delayFinished = False
     
     def stop(self):
-        IoMediator.listeners.remove(self)
+        if self in IoMediator.listeners:
+            IoMediator.listeners.remove(self)
+            if self.insideKeys:
+                self.targetParent.end_key_sequence()
+            self.insideKeys = False
         
+    def set_record_keyboard(self, doIt):
+        self.recordKeyboard = doIt
+
+    def set_record_mouse(self, doIt):
+        self.recordMouse = doIt
+        
+    def __delayPassed(self):
+        if not self.delayFinished:
+            now = time.time()
+            delta = datetime.datetime.utcfromtimestamp(now - self.startTime)
+            self.delayFinished = (delta.second > self.delay)
+            
+        return self.delayFinished
+                
     def handle_keypress(self, key, windowName=""):
-        if not key in MODIFIERS:
-            self.targetParent.append_key(key)
+        if self.recordKeyboard and self.__delayPassed():
+            if not self.insideKeys:
+                self.insideKeys = True
+                self.targetParent.start_key_sequence()
+                
+            if not key in MODIFIERS:
+                self.targetParent.append_key(key)
             
     def handle_hotkey(self, key, modifiers, windowName):
-        self.targetParent.append_hotkey(key, modifiers)
-    
+        if self.recordKeyboard and self.__delayPassed():
+            if not self.insideKeys:
+                self.insideKeys = True
+                self.targetParent.start_key_sequence()
+                
+            self.targetParent.append_hotkey(key, modifiers)
+        
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
+        if self.recordMouse and self.__delayPassed():
+            if self.insideKeys:
+                self.insideKeys = False
+                self.targetParent.end_key_sequence()
+                
+            self.targetParent.append_mouseclick(relX, relY, button, windowTitle)
+            

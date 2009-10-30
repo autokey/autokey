@@ -17,9 +17,9 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import os, os.path, shutil, logging, pickle
-import iomediator
+import iomediator, interface
 
-APP_VERSION = "0.60.6"
+APP_VERSION = "0.61.0"
 
 _logger = logging.getLogger("config-manager")
 
@@ -172,7 +172,7 @@ def _chooseInterface():
         
     if minorVersion is None:
         return iomediator.X_EVDEV_INTERFACE
-    elif minorVersion < 6:
+    elif minorVersion < 6 and interface.HAS_RECORD:
         return iomediator.X_RECORD_INTERFACE
     else:
         return iomediator.X_EVDEV_INTERFACE
@@ -268,7 +268,7 @@ keyboard.send_keys(output)"""
         lMenu = Script("List Menu", "")
         lMenu.code = """choices = ["something", "something else", "a third thing"]
 
-retCode, choice = dialog.combo_menu(choices)
+retCode, choice = dialog.list_menu(choices)
 if retCode == 0:
     keyboard.send_keys("You chose " + choice)"""
         sampleScripts.add_item(lMenu)

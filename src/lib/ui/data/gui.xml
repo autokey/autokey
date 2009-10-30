@@ -29,6 +29,9 @@
       <Action name="enable-monitoring" />
       <Action name="advanced-settings" />
     </Menu>
+    <Menu name="tools" >
+      <Action name="script-error" />
+    </Menu>   
     <Menu name="help">
       <Action name="online-help" />
       <Action name="online-faq" />

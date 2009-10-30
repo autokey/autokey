@@ -149,6 +149,7 @@ class InterfaceSettings(QWidget, interfacesettings.Ui_Form):
         self.setupUi(self)
         
         self.xRecordButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE)
+        self.xRecordButton.setEnabled(interface.HAS_RECORD)
         self.xEvdevButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
         self.atspiButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
         self.atspiButton.setEnabled(interface.HAS_ATSPI)

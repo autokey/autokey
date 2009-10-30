@@ -50,6 +50,38 @@ class Keyboard:
         for x in range(repeat):
             self.mediator.send_key(key.decode("utf-8"))
         self.mediator.flush()
+        
+
+class Mouse:
+    """
+    Provides access to send mouse clicks
+    """
+    def __init__(self, mediator):
+        self.mediator = mediator    
+    
+    def click_relative(self, x, y, button):
+        """
+        Send a mouse click relative to the active window
+        
+        Usage: C{mouse.click_relative(x, y, button)}
+        
+        @param x: x-coordinate in pixels, relative to upper left corner of window
+        @param y: y-coordinate in pixels, relative to upper left corner of window
+        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        """
+        self.mediator.send_mouse_click(x, y, button, True)
+        
+    def click_absolute(self, x, y, button):
+        """
+        Send a mouse click relative to the screen (absolute)
+        
+        Usage: C{mouse.click_absolute(x, y, button)}
+        
+        @param x: x-coordinate in pixels, relative to upper left corner of window
+        @param y: y-coordinate in pixels, relative to upper left corner of window
+        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        """
+        self.mediator.send_mouse_click(x, y, button, False)
             
             
 class Store(dict):
@@ -404,7 +436,7 @@ class Window:
         while waited < timeOut:
             retCode, output = self.__runWmctrl(["-l"])
             for line in output.split('\n'):
-                if regex.match(line.split(' ', 4)[-1]):
+                if regex.match(line[14:].split(' ', 1)[-1]):
                     return True
 
             time.sleep(0.3)

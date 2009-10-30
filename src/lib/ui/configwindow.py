@@ -35,7 +35,7 @@ API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.tx
 from dialogs import *
 from settingsdialog import SettingsDialog
 from autokey.configmanager import *
-from autokey.iomediator import KeyRecorder
+from autokey.iomediator import Recorder
 from autokey import model
 
 # ---- Internal widgets
@@ -234,16 +234,24 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
     def set_dirty(self):
         self.topLevelWidget().set_dirty()  
         
+    def start_record(self):
+        self.scriptCodeEditor.append("\n")
+        
+    def start_key_sequence(self):
+        self.scriptCodeEditor.append("keyboard.send_keys(\"")
+        
+    def end_key_sequence(self):
+        self.scriptCodeEditor.append("\")\n")        
+    
     def append_key(self, key):
-        line, pos = self.scriptCodeEditor.getCursorPosition()
-        self.scriptCodeEditor.insert(key)
-        self.scriptCodeEditor.setCursorPosition(line, pos + len(key))
+        self.scriptCodeEditor.append(key)
         
     def append_hotkey(self, key, modifiers):
-        line, pos = self.scriptCodeEditor.getCursorPosition()
         keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
-        self.scriptCodeEditor.insert(keyString)
-        self.scriptCodeEditor.setCursorPosition(line, pos + len(keyString))
+        self.scriptCodeEditor.append(keyString)
+        
+    def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
+        self.scriptCodeEditor.append("mouse.click_relative(%d, %d, %d) # %s\n" % (xCoord, yCoord, button, windowTitle))
         
     def undo(self):
         self.scriptCodeEditor.undo()
@@ -460,7 +468,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                         
         self.set_dirty(False)
         self.configManager = app.configManager
-        self.recorder = KeyRecorder(self.scriptPage)
+        self.recorder = Recorder(self.scriptPage)
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -710,6 +718,7 @@ class ConfigWindow(KXmlGuiWindow):
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
         self.advancedSettings = self.__createAction("advanced-settings", i18n("Advanced Settings"), "configure", self.on_advanced_settings)
+        self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)        
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
@@ -856,6 +865,9 @@ class ConfigWindow(KXmlGuiWindow):
     def on_advanced_settings(self):
         s = SettingsDialog(self)
         s.show()
+        
+    def self.on_show_error(self):
+        self.app.show_script_error()
             
     # Help Menu
             
