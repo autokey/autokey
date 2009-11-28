@@ -81,7 +81,7 @@ class Service:
         if self.mediator is not None: self.mediator.shutdown()
         if save: save_config(self.configManager)
             
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button):
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         logger.debug("Received mouse click - resetting buffer")        
         self.inputStack = []
         

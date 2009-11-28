@@ -7,9 +7,9 @@ from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 
-__all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog"]
+__all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-import abbrsettings, hotkeysettings, windowfiltersettings
+import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog
 from autokey import model, iomediator
 
 WORD_CHAR_OPTIONS = {
@@ -341,3 +341,39 @@ class WindowFilterSettingsDialog(KDialog):
         
     def get_filter_text(self):
         return unicode(self.widget.triggerRegexLineEdit.text())
+        
+class RecordSettings(QWidget, recorddialog.Ui_Form):
+    
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        recorddialog.Ui_Form.__init__(self)
+        self.setupUi(self)
+        
+class RecordDialog(KDialog):
+
+    def __init__(self, parent, closure):
+        KDialog.__init__(self, parent)
+        self.widget = RecordSettings(self)
+        self.setMainWidget(self.widget)
+        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
+        self.setPlainCaption(i18n("Record Macro"))
+        self.setModal(True)
+        self.closure = closure
+        
+    def get_record_keyboard(self):
+        return self.widget.recKeyboardButton.isChecked()
+        
+    def get_record_mouse(self):
+        return self.widget.recMouseButton.isChecked()
+
+    def get_delay(self):
+        return self.widget.secondsSpinBox.value()
+        
+    def slotButtonClicked(self, button):
+        if button == KDialog.Ok:
+            KDialog.slotButtonClicked(self, button)
+            self.closure(True, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
+        else:
+            self.closure(False, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
+            KDialog.slotButtonClicked(self, button)
+

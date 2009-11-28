@@ -23,7 +23,7 @@
       <Action name="delete-item" />
       <separator />
       <Action name="convert" />
-      <Action name="record-keystrokes" />
+      <Action name="record" />
     </Menu>
     <Menu name="settings" >
       <Action name="enable-monitoring" />
@@ -57,7 +57,7 @@
     <Action name="undo" />
     <Action name="redo" />
     <separator />
-    <Action name="record-keystrokes" />
+    <Action name="record" />
   </ToolBar>
  
 </gui>

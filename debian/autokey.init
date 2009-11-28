@@ -17,6 +17,12 @@ from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
 
 PACKET_STRING = "%s,%s,%s"
 
+BUTTON_MAP = {
+              "BTN_LEFT" : '1',
+              "BTN_MIDDLE ": '2',
+              "BTN_RIGHT" : '3'
+             }
+
 class AutoKeyDaemon(daemon.Daemon):
 
     def __init__(self):
@@ -78,7 +84,7 @@ class AutoKeyDaemon(daemon.Daemon):
                         elif event.code.startswith("BTN") and event.value == 1:
                             # Mouse event - only care about button press, not release
                             code = ''
-                            button = event.code
+                            button = BUTTON_MAP[event.code]
                             state = event.value
     
                             try:

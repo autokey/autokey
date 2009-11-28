@@ -251,7 +251,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.append(keyString)
         
     def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
-        self.scriptCodeEditor.append("mouse.click_relative(%d, %d, %d) # %s\n" % (xCoord, yCoord, button, windowTitle))
+        self.scriptCodeEditor.append("mouse.click_relative(%d, %d, %d) # %s\n" % (xCoord, yCoord, int(button), windowTitle))
         
     def undo(self):
         self.scriptCodeEditor.undo()
@@ -713,7 +713,7 @@ class ConfigWindow(KXmlGuiWindow):
         
         self.convert = self.__createAction("convert", i18n("Convert to Script"), None, self.centralWidget.on_convert)
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
-        self.record = self.__createToggleAction("record-keystrokes", i18n("Record Keystrokes"), self.on_record_keystrokes, "media-record")
+        self.record = self.__createToggleAction("record", i18n("Record Macro"), self.on_record, "media-record")
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
@@ -830,9 +830,6 @@ class ConfigWindow(KXmlGuiWindow):
     
     # File Menu
 
-    def new_folder(self):
-        print "new folder"
-                
     def on_close(self):
         self.cancel_record()
         self.queryClose()
@@ -848,11 +845,20 @@ class ConfigWindow(KXmlGuiWindow):
         if token is not None:
             self.centralWidget.phrasePage.insert_token(token)"""
             
-    def on_record_keystrokes(self):
+    def on_record(self):
         if self.record.isChecked():
-            self.centralWidget.recorder.start()
+            dlg = RecordDialog(self, self.__doRecord)
+            dlg.show()
         else:
             self.centralWidget.recorder.stop()
+            
+    def __doRecord(self, ok, recKb, recMouse, delay):
+        if ok:
+            self.centralWidget.recorder.set_record_keyboard(recKb)
+            self.centralWidget.recorder.set_record_mouse(recMouse)
+            self.centralWidget.recorder.start(delay)
+        else:
+            self.record.setChecked(False)
     
     # Settings Menu
         
@@ -866,7 +872,7 @@ class ConfigWindow(KXmlGuiWindow):
         s = SettingsDialog(self)
         s.show()
         
-    def self.on_show_error(self):
+    def on_show_error(self):
         self.app.show_script_error()
             
     # Help Menu
