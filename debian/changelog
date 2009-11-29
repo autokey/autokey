@@ -1,3 +1,9 @@
+autokey (0.61.0a-0~jaunty) jaunty; urgency=low
+
+  * Fix/improve mouse button conversion in EvDev daemon
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 29 Nov 2009 10:38:05 +1000
+
 autokey (0.61.0-0~jaunty) jaunty; urgency=low
 
   * Add mouse click recording and playback capabilities

@@ -22,6 +22,10 @@ lib.scripting.Keyboard	lib.scripting.Keyboard-class.html
 lib.scripting.Keyboard.send_keys	lib.scripting.Keyboard-class.html#send_keys
 lib.scripting.Keyboard.send_key	lib.scripting.Keyboard-class.html#send_key
 lib.scripting.Keyboard.__init__	lib.scripting.Keyboard-class.html#__init__
+lib.scripting.Mouse	lib.scripting.Mouse-class.html
+lib.scripting.Mouse.click_relative	lib.scripting.Mouse-class.html#click_relative
+lib.scripting.Mouse.click_absolute	lib.scripting.Mouse-class.html#click_absolute
+lib.scripting.Mouse.__init__	lib.scripting.Mouse-class.html#__init__
 lib.scripting.Store	lib.scripting.Store-class.html
 lib.scripting.Store.get_value	lib.scripting.Store-class.html#get_value
 lib.scripting.Store.set_value	lib.scripting.Store-class.html#set_value

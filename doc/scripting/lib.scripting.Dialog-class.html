@@ -83,11 +83,11 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a name="__runKdialog"></a><span class="summary-sig-name">__runKdialog</span>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a name="__runZenity"></a><span class="summary-sig-name">__runZenity</span>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
         <span class="summary-sig-arg">args</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.__runKdialog">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.__runZenity">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -102,9 +102,9 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#input_dialog" class="summary-sig-name">input_dialog</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Enter a value&quot;</span>,
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">&quot;Enter a value&quot;</span>,
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">&quot;&quot;</span>)</span><br />
       Show an input dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.input_dialog">source&nbsp;code</a></span>
@@ -122,8 +122,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#password_dialog" class="summary-sig-name">password_dialog</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Enter password&quot;</span>,
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">&quot;Enter password&quot;</span>)</span><br />
       Show a password input dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.password_dialog">source&nbsp;code</a></span>
@@ -140,30 +140,10 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#combo_menu" class="summary-sig-name">combo_menu</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">options</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>)</span><br />
-      Show a combobox menu</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.combo_menu">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#list_menu" class="summary-sig-name">list_menu</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">options</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Choose a value&quot;</span>,
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">&quot;Choose a value&quot;</span>,
         <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>)</span><br />
       Show a single-selection list menu</td>
           <td align="right" valign="top">
@@ -183,9 +163,9 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#list_menu_multi" class="summary-sig-name">list_menu_multi</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">options</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">defaults</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Choose one or more values&quot;</span>,
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default">&quot;Choose one or more values&quot;</span>,
+        <span class="summary-sig-arg">defaults</span>=<span class="summary-sig-default">[]</span>)</span><br />
       Show a multiple-selection list menu</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.list_menu_multi">source&nbsp;code</a></span>
@@ -203,10 +183,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#open_file" class="summary-sig-name">open_file</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Open File</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">fileTypes</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Open File&quot;</span>)</span><br />
       Show an Open File dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.open_file">source&nbsp;code</a></span>
@@ -224,10 +201,7 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#save_file" class="summary-sig-name">save_file</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Save As</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">fileTypes</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Save As&quot;</span>)</span><br />
       Show a Save As dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.save_file">source&nbsp;code</a></span>
@@ -245,30 +219,11 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#choose_directory" class="summary-sig-name">choose_directory</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Directory</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default">&quot;Select Directory&quot;</span>,
+        <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default">&quot;~&quot;</span>)</span><br />
       Show a Directory Chooser dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.choose_directory">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Dialog-class.html#choose_colour" class="summary-sig-name">choose_colour</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>)</span><br />
-      Show a Colour Chooser dialog</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.choose_colour">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -303,9 +258,9 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">input_dialog</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">default</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Enter a value&quot;</span>,
+        <span class="sig-arg">message</span>=<span class="sig-default">&quot;Enter a value&quot;</span>,
+        <span class="sig-arg">default</span>=<span class="sig-default">&quot;&quot;</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.input_dialog">source&nbsp;code</a></span>&nbsp;
@@ -333,8 +288,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">password_dialog</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Enter password&quot;</span>,
+        <span class="sig-arg">message</span>=<span class="sig-default">&quot;Enter password&quot;</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.password_dialog">source&nbsp;code</a></span>&nbsp;
@@ -353,36 +308,6 @@
   </dl>
 </td></tr></table>
 </div>
-<a name="combo_menu"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">combo_menu</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">options</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.combo_menu">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Show a combobox menu</p>
-  <p>Usage: <code>dialog.combo_menu(options, title=&quot;Choose an 
-  option&quot;, message=&quot;Choose an option&quot;)</code></p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>options</code></strong> - list of options (strings) for the dialog</li>
-        <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
-        <li><strong class="pname"><code>message</code></strong> - message displayed above the combobox</li>
-    </ul></dd>
-  </dl>
-</td></tr></table>
-</div>
 <a name="list_menu"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
@@ -392,8 +317,8 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">list_menu</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">options</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Choose a value&quot;</span>,
+        <span class="sig-arg">message</span>=<span class="sig-default">&quot;Choose a value&quot;</span>,
         <span class="sig-arg">default</span>=<span class="sig-default">None</span>)</span>
   </h3>
   </td><td align="right" valign="top"
@@ -424,9 +349,9 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">list_menu_multi</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">options</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">defaults</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Choose one or more values&quot;</span>,
+        <span class="sig-arg">message</span>=<span class="sig-default">&quot;Choose one or more values&quot;</span>,
+        <span class="sig-arg">defaults</span>=<span class="sig-default">[]</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.list_menu_multi">source&nbsp;code</a></span>&nbsp;
@@ -456,10 +381,7 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">open_file</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Open File</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">fileTypes</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Open File&quot;</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.open_file">source&nbsp;code</a></span>&nbsp;
@@ -467,17 +389,12 @@
   </tr></table>
   
   <p>Show an Open File dialog</p>
-  <p>Usage: <code>dialog.open_file(title=&quot;Open File&quot;, 
-  initialDir=&quot;~&quot;, fileTypes=&quot;*|All Files&quot;, 
-  rememberAs=None)</code></p>
+  <p>Usage: <code>dialog.open_file(title=&quot;Open File&quot;)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
         <li><strong class="pname"><code>initialDir</code></strong> - starting directory for the file dialog</li>
-        <li><strong class="pname"><code>fileTypes</code></strong> - file type filter expression</li>
-        <li><strong class="pname"><code>rememberAs</code></strong> - gives an ID to this file dialog, allowing it to open at the last 
-          used path next time</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -490,10 +407,7 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">save_file</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Save As</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">fileTypes</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Save As&quot;</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.save_file">source&nbsp;code</a></span>&nbsp;
@@ -501,17 +415,11 @@
   </tr></table>
   
   <p>Show a Save As dialog</p>
-  <p>Usage: <code>dialog.save_file(title=&quot;Save As&quot;, 
-  initialDir=&quot;~&quot;, fileTypes=&quot;*|All Files&quot;, 
-  rememberAs=None)</code></p>
+  <p>Usage: <code>dialog.save_file(title=&quot;Save As&quot;)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
-        <li><strong class="pname"><code>initialDir</code></strong> - starting directory for the file dialog</li>
-        <li><strong class="pname"><code>fileTypes</code></strong> - file type filter expression</li>
-        <li><strong class="pname"><code>rememberAs</code></strong> - gives an ID to this file dialog, allowing it to open at the last 
-          used path next time</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -524,9 +432,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">choose_directory</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Directory</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default">&quot;Select Directory&quot;</span>,
+        <span class="sig-arg">initialDir</span>=<span class="sig-default">&quot;~&quot;</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.choose_directory">source&nbsp;code</a></span>&nbsp;
@@ -535,36 +442,7 @@
   
   <p>Show a Directory Chooser dialog</p>
   <p>Usage: <code>dialog.choose_directory(title=&quot;Select 
-  Directory&quot;, initialDir=&quot;~&quot;, rememberAs=None)</code></p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
-        <li><strong class="pname"><code>initialDir</code></strong> - starting directory for the directory chooser dialog</li>
-        <li><strong class="pname"><code>rememberAs</code></strong> - gives an ID to this file dialog, allowing it to open at the last 
-          used path next time</li>
-    </ul></dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="choose_colour"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">choose_colour</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Dialog.choose_colour">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Show a Colour Chooser dialog</p>
-  <p>Usage: <code>dialog.choose_colour(title=&quot;Select 
-  Colour&quot;)</code></p>
+  Directory&quot;)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -600,7 +478,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Thu Aug 13 13:17:08 2009
+    Generated by Epydoc 3.0.1 on Sat Nov 28 12:25:36 2009
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
