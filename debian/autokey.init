@@ -53,8 +53,9 @@ class AutoKeyDaemon(daemon.Daemon):
             try:
                 conn, addr = s.accept()
                 print "Accepted connection"
-            except:
+            except Exception, e:
                 print "Fatal error while accepting connections - daemon shutting down"
+                print str(e)
                 break
             
             devices = evdev.DeviceGroup(self.get_device_paths())
@@ -84,7 +85,7 @@ class AutoKeyDaemon(daemon.Daemon):
                         elif event.code.startswith("BTN") and event.value == 1:
                             # Mouse event - only care about button press, not release
                             code = ''
-                            if button in BUTTON_MAP:
+                            if event.code in BUTTON_MAP:
                                 button = BUTTON_MAP[event.code]
                             else:
                                 button = -1

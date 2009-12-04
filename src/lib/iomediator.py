@@ -207,6 +207,8 @@ class IoMediator(threading.Thread):
         self.acquire_lock()
         k = Key()
         
+        string = string.replace('\n', "<enter>")
+        
         _logger.debug("Send via event interface")
         self.__clearModifiers()
         modifiers = []            
@@ -258,7 +260,8 @@ class IoMediator(threading.Thread):
         
     def send_key(self, keyName):
         #self.acquire_lock()
-            
+        
+        keyName = keyName.replace('\n', "<enter>")
         self.interface.send_key(keyName)
         
         #self.release_lock()
