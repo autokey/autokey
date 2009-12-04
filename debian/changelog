@@ -2,6 +2,8 @@ autokey (0.61.0b-0~jaunty) jaunty; urgency=low
 
   * Fix bug with sending newlines from scripts
   * Fix another crash in the EvDev daemon related to button conversions
+  
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 4 Dec 2009 10:38:05 +1000
 
 autokey (0.61.0a-0~jaunty) jaunty; urgency=low
 
