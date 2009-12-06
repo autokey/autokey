@@ -107,7 +107,6 @@ class Daemon:
 				os.kill(pid, SIGTERM)
 				time.sleep(0.1)
 		except OSError, err:
-			err = str(err)
 			if err.errno == 3: # "No such process"
 				if os.path.exists(self.pidfile):
 					os.remove(self.pidfile)
