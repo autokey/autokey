@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>lib.scripting.Clipboard</title>
+  <title>lib.scripting.Engine</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -39,7 +39,7 @@
       <span class="breadcrumbs">
         Package&nbsp;lib ::
         <a href="lib.scripting-module.html">Module&nbsp;scripting</a> ::
-        Class&nbsp;Clipboard
+        Class&nbsp;Engine
       </span>
     </td>
     <td>
@@ -49,15 +49,15 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="lib.scripting.Clipboard-class.html"
+            >]&nbsp;|&nbsp;<a href="lib.scripting.Engine-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class Clipboard</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard">source&nbsp;code</a></span></p>
-<p>Read/write access to the X selection and clipboard</p>
+<h1 class="epydoc">Class Engine</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#Engine">source&nbsp;code</a></span></p>
+<p>Provides access to the internals of AutoKey</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -83,9 +83,10 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="__init__"></a><span class="summary-sig-name">__init__</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">app</span>)</span></td>
+        <span class="summary-sig-arg">configManager</span>,
+        <span class="summary-sig-arg">runner</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -99,28 +100,32 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Clipboard-class.html#fill_selection" class="summary-sig-name">fill_selection</a>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#get_folder" class="summary-sig-name">get_folder</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">title</span>)</span><br />
+      Retrieve a folder by its title</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.get_folder">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#create_abbreviation" class="summary-sig-name">create_abbreviation</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">folder</span>,
+        <span class="summary-sig-arg">description</span>,
+        <span class="summary-sig-arg">abbr</span>,
         <span class="summary-sig-arg">contents</span>)</span><br />
-      Copy text into the X selection</td>
+      Create a text abbreviation.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.fill_selection">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__fillSelection"></a><span class="summary-sig-name">__fillSelection</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">string</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__fillSelection">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.create_abbreviation">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -134,61 +139,15 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Clipboard-class.html#get_selection" class="summary-sig-name">get_selection</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Read text from the X selection</td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.get_selection">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__getSelection"></a><span class="summary-sig-name">__getSelection</span>(<span class="summary-sig-arg">self</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__getSelection">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr>
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Clipboard-class.html#fill_clipboard" class="summary-sig-name">fill_clipboard</a>(<span class="summary-sig-arg">self</span>,
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#create_hotkey" class="summary-sig-name">create_hotkey</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">folder</span>,
+        <span class="summary-sig-arg">description</span>,
+        <span class="summary-sig-arg">modifiers</span>,
+        <span class="summary-sig-arg">key</span>,
         <span class="summary-sig-arg">contents</span>)</span><br />
-      Copy text into the clipboard</td>
+      Create a text hotkey.</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.fill_clipboard">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__fillClipboard"></a><span class="summary-sig-name">__fillClipboard</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">string</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__fillClipboard">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.create_hotkey">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -202,44 +161,11 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Clipboard-class.html#get_clipboard" class="summary-sig-name">get_clipboard</a>(<span class="summary-sig-arg">self</span>)</span><br />
-      Read text from the clipboard</td>
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#run_script" class="summary-sig-name">run_script</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">description</span>)</span><br />
+      Run an existing script using its description to look it up</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.get_clipboard">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__getClipboard"></a><span class="summary-sig-name">__getClipboard</span>(<span class="summary-sig-arg">self</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__getClipboard">source&nbsp;code</a></span>
-            
-          </td>
-        </tr>
-      </table>
-      
-    </td>
-  </tr>
-<tr class="private">
-    <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
-    </td><td class="summary">
-      <table width="100%" cellpadding="0" cellspacing="0" border="0">
-        <tr>
-          <td><span class="summary-sig"><a name="__execAsync"></a><span class="summary-sig-name">__execAsync</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">callback</span>,
-        <span class="summary-sig-arg">*args</span>)</span></td>
-          <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.__execAsync">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.run_script">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -266,93 +192,138 @@
   </td>
 </tr>
 </table>
-<a name="fill_selection"></a>
+<a name="get_folder"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">fill_selection</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">contents</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_folder</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">title</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.fill_selection">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.get_folder">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Copy text into the X selection</p>
-  <p>Usage: <code>clipboard.fill_selection(contents)</code></p>
+  <p>Retrieve a folder by its title</p>
+  <p>Usage: <code>engine.get_folder(title)</code></p>
+  <p>Note that if more than one folder has the same title, only the first 
+  match will be returned.</p>
+  <dl class="fields">
+  </dl>
+</td></tr></table>
+</div>
+<a name="create_abbreviation"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">create_abbreviation</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">folder</span>,
+        <span class="sig-arg">description</span>,
+        <span class="sig-arg">abbr</span>,
+        <span class="sig-arg">contents</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.create_abbreviation">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Create a text abbreviation.</p>
+  <p>Usage: <code>engine.create_abbreviation(folder, description, abbr, 
+  contents)</code></p>
+  <p>When the given abbreviation is typed, it will be replaced with the 
+  given text.</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>contents</code></strong> - string to be placed in the selection</li>
+        <li><strong class="pname"><code>folder</code></strong> - folder to place the abbreviation in, retrieved using 
+          <code>engine.get_folder()</code></li>
+        <li><strong class="pname"><code>description</code></strong> - description for the phrase</li>
+        <li><strong class="pname"><code>abbr</code></strong> - the abbreviation that will trigger the expansion</li>
+        <li><strong class="pname"><code>contents</code></strong> - the expansion text</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>Exception</strong></code> - if the specified abbreviation is not unique</li>
     </ul></dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="get_selection"></a>
+<a name="create_hotkey"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_selection</span>(<span class="sig-arg">self</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.get_selection">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Read text from the X selection</p>
-  <p>Usage: <code>clipboard.get_selection()</code></p>
-  <dl class="fields">
-  </dl>
-</td></tr></table>
-</div>
-<a name="fill_clipboard"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">fill_clipboard</span>(<span class="sig-arg">self</span>,
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">create_hotkey</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">folder</span>,
+        <span class="sig-arg">description</span>,
+        <span class="sig-arg">modifiers</span>,
+        <span class="sig-arg">key</span>,
         <span class="sig-arg">contents</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.fill_clipboard">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.create_hotkey">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Copy text into the clipboard</p>
-  <p>Usage: <code>clipboard.fill_clipboard(contents)</code></p>
+  <p>Create a text hotkey.</p>
+  <p>Usage: <code>engine.create_hotkey(folder, description, modifiers, key,
+  contents)</code></p>
+  <p>When the given hotkey is pressed, it will be replaced with the given 
+  text. Modifiers must be given as a list of strings, with the following 
+  values permitted:</p>
+  <p>&lt;control&gt; &lt;alt&gt; &lt;super&gt; &lt;shift&gt;</p>
+  <p>The key must be an unshifted character (i.e. lowercase)</p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>contents</code></strong> - string to be placed in the selection</li>
+        <li><strong class="pname"><code>folder</code></strong> - folder to place the abbreviation in, retrieved using 
+          <code>engine.get_folder()</code></li>
+        <li><strong class="pname"><code>description</code></strong> - description for the phrase</li>
+        <li><strong class="pname"><code>modifiers</code></strong> - modifiers to use with the hotkey (as a list)</li>
+        <li><strong class="pname"><code>key</code></strong> - the hotkey</li>
+        <li><strong class="pname"><code>contents</code></strong> - the expansion text</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>Exception</strong></code> - if the specified hotkey is not unique</li>
     </ul></dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="get_clipboard"></a>
+<a name="run_script"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_clipboard</span>(<span class="sig-arg">self</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">run_script</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">description</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Clipboard.get_clipboard">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.run_script">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Read text from the clipboard</p>
-  <p>Usage: <code>clipboard.get_clipboard()</code></p>
+  <p>Run an existing script using its description to look it up</p>
+  <p>Usage: <code>engine.run_script(description)</code></p>
   <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>description</code></strong> - description of the script to run</li>
+    </ul></dd>
+    <dt>Raises:</dt>
+    <dd><ul class="nomargin-top">
+        <li><code><strong class='fraise'>Exception</strong></code> - if the specified script does not exist</li>
+    </ul></dd>
   </dl>
 </td></tr></table>
 </div>

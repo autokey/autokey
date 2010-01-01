@@ -14,13 +14,13 @@
       <Action name="close-window" />
     </Menu>
     <Menu name="edit" >
-      <!--<Action name="cut-item" />
+      <Action name="cut-item" />
       <Action name="copy-item" />
-      <Action name="paste-item" />-->
+      <Action name="paste-item" />
+      <Action name="delete-item" />
+      <separator />      
       <Action name="undo" />
       <Action name="redo" />
-      <separator />
-      <Action name="delete-item" />
       <separator />
       <Action name="convert" />
       <Action name="record" />
@@ -44,6 +44,9 @@
     <Action name="new-phrase" />
     <Action name="new-script" />
     <separator />    
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />  
     <Action name="delete-item" />
     <separator />    
     <Action name="convert" />

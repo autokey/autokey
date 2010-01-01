@@ -495,6 +495,18 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = None
         self.showInTrayMenu = False
 
+    def copy(self, theScript):
+        self.description = theScript.description
+        self.code = theScript.code
+        
+        self.prompt = theScript.prompt
+        self.omitTrigger = theScript.omitTrigger
+        self.parent = theScript.parent
+        self.showInTrayMenu = theScript.showInTrayMenu
+        self.copy_abbreviation(theScript)
+        self.copy_hotkey(theScript)
+        self.copy_window_filter(theScript)
+
     def get_tuple(self):
         return ("text-x-script", self.description, self)
 

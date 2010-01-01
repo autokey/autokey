@@ -19,7 +19,7 @@
 import os, os.path, shutil, logging, pickle
 import iomediator, interface
 
-APP_VERSION = "0.61.0"
+APP_VERSION = "0.61.2"
 
 _logger = logging.getLogger("config-manager")
 
@@ -295,6 +295,8 @@ keyboard.send_keys("The text %s was here previously" % text)"""
                 self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
                 self.showPopupHotkey.enabled = True
                 upgradeDone = True
+        if self.VERSION < '0.61.2':
+            self.userCodeDir = None
             
         if upgradeDone:
             self.config_altered()

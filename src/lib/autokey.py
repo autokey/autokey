@@ -37,7 +37,7 @@ LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 APP_NAME = "AutoKey"
 CATALOG = ""
 PROGRAM_NAME = ki18n("AutoKey")
-VERSION = "0.61.0b"
+VERSION = "0.61.2"
 DESCRIPTION = ki18n("Desktop automation utility")
 LICENSE = KAboutData.License_GPL_V3
 COPYRIGHT = ki18n("(c) 2009 Chris Dekter")
@@ -134,6 +134,10 @@ class Application:
         self.configManager = get_config_manager(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
+        
+        # Initialise user code dir
+        if self.configManager.userCodeDir is not None:
+            sys.path.append(self.configManager.userCodeDir)
         
         try:
             self.service.start()

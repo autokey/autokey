@@ -16,6 +16,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import sys
+
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
@@ -25,7 +27,7 @@ from autokey.configmanager import *
 from autokey import iomediator, interface, model
 from dialogs import GlobalHotkeyDialog
 
-import generalsettings, specialhotkeysettings, interfacesettings
+import generalsettings, specialhotkeysettings, interfacesettings, enginesettings
 
 class GeneralSettings(QWidget, generalsettings.Ui_Form):
     
@@ -140,6 +142,32 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
         self.monitorKeyLabel.setText(i18n("(None configured)"))
         self.toggleMonitorDlg.reset()
 
+class EngineSettings(QWidget, enginesettings.Ui_Form):
+
+    def __init__(self, parent, configManager):
+        QWidget.__init__(self, parent)
+        enginesettings.Ui_Form.__init__(self)
+        self.setupUi(self)
+        self.configManager = configManager
+        
+        if configManager.userCodeDir is not None:
+            self.folderLabel.setText(configManager.userCodeDir)
+            if configManager.userCodeDir in sys.path:
+                sys.path.remove(configManager.userCodeDir)
+        
+        self.path = configManager.userCodeDir
+                
+    def save(self):
+        if self.path is not None:
+            self.configManager.userCodeDir = self.path
+            sys.path.append(self.path)
+        
+    def on_browseButton_pressed(self):
+        path = KFileDialog.getExistingDirectory(self.parentWidget(), i18n("Choose Directory"))
+        if path != '':
+            self.path = path
+            self.folderLabel.setText(self.path)
+        
 
 class InterfaceSettings(QWidget, interfacesettings.Ui_Form):
 
@@ -178,6 +206,9 @@ class SettingsDialog(KPageDialog):
         self.hkPage = self.addPage(SpecialHotkeySettings(self, parent.app.configManager), i18n("Special Hotkeys"))
         self.hkPage.setIcon(KIcon("preferences-desktop-keyboard"))
         
+        self.ePage = self.addPage(EngineSettings(self, parent.app.configManager), i18n("Script Engine"))
+        self.ePage.setIcon(KIcon("text-x-script"))
+        
         self.iPage = self.addPage(InterfaceSettings(self), i18n("Interface"))
         self.iPage.setIcon(KIcon("preferences-system"))
         
@@ -187,5 +218,7 @@ class SettingsDialog(KPageDialog):
         if button == KDialog.Ok:
             self.genPage.widget().save()
             self.hkPage.widget().save()
+            self.ePage.widget().save()
             self.iPage.widget().save()
         KDialog.slotButtonClicked(self, button)
+        

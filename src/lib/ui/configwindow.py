@@ -469,6 +469,8 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.set_dirty(False)
         self.configManager = app.configManager
         self.recorder = Recorder(self.scriptPage)
+        
+        self.cutCopiedItem = None
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -583,6 +585,39 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.setCurrentItem(newItem)
         self.on_treeWidget_itemSelectionChanged()        
         self.parentWidget().app.config_altered()
+        
+    def on_copy(self):
+        source = self.__getSelection()
+        if isinstance(source, model.Phrase):
+            self.cutCopiedItem = model.Phrase('', '')
+        else:
+            self.cutCopiedItem = model.Script('', '')
+        self.cutCopiedItem.copy(source)
+        
+    def on_cut(self):
+        self.cutCopiedItem = self.__getSelection()
+        self.__removeItem()
+        
+    def on_paste(self):
+        parentItem = self.treeWidget.selectedItems()[0]
+        parent = self.__getSelection()
+        
+        if isinstance(self.cutCopiedItem, model.Folder):
+            f = WidgetItemFactory(None)
+            newItem = FolderWidgetItem(parentItem, self.cutCopiedItem)
+            f.processFolder(newItem, self.cutCopiedItem)
+            parent.add_folder(self.cutCopiedItem)
+        elif isinstance(self.cutCopiedItem, model.Phrase):
+            newItem = PhraseWidgetItem(parentItem, self.cutCopiedItem)
+            parent.add_item(self.cutCopiedItem)
+        else:
+            newItem = ScriptWidgetItem(parentItem, self.cutCopiedItem)
+            parent.add_item(self.cutCopiedItem)        
+
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(newItem)
+        self.on_treeWidget_itemSelectionChanged()
+        self.cutCopiedItem = None        
 
     def on_delete(self):
         widgetItem = self.treeWidget.selectedItems()[0]
@@ -704,9 +739,9 @@ class ConfigWindow(KXmlGuiWindow):
         KStandardAction.quit(self.on_quit, self.actionCollection())
 
         # Edit Menu 
-        #self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.new_folder)
-        #self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.new_folder)
-        #self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.new_folder)
+        self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.centralWidget.on_cut)
+        self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.centralWidget.on_copy)
+        self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.centralWidget.on_paste)
         
         self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
         self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
@@ -735,8 +770,6 @@ class ConfigWindow(KXmlGuiWindow):
         self.undo.setEnabled(False)
         self.redo.setEnabled(False)
         
-        self.cutCopiedItem = None
-        
         self.centralWidget.populate_tree(self.app.configManager)
         
         self.setAutoSaveSettings()
@@ -758,8 +791,8 @@ class ConfigWindow(KXmlGuiWindow):
         self.newScript.setEnabled(canCreate)
         self.save.setEnabled(False)
         
-        #self.copy.setEnabled(not canCreate)
-        #self.paste.setEnabled(canCreate and self.cutCopiedItem is not None)
+        self.copy.setEnabled(not canCreate)
+        self.paste.setEnabled(canCreate and self.centralWidget.cutCopiedItem is not None)
         self.convert.setEnabled(isinstance(item, model.Phrase))
         self.record.setEnabled(isinstance(item, model.Script))
         self.undo.setEnabled(False)
@@ -900,14 +933,14 @@ class WidgetItemFactory:
         for folder in self.folders.values():
             item = self.__buildItem(None, folder)
             rootItems.append(item)
-            self.__processFolder(item, folder)
+            self.processFolder(item, folder)
             
         return rootItems
         
-    def __processFolder(self, parentItem, parentFolder):
+    def processFolder(self, parentItem, parentFolder):
         for folder in parentFolder.folders:
             item = self.__buildItem(parentItem, folder)
-            self.__processFolder(item, folder)
+            self.processFolder(item, folder)
         
         for childModelItem in parentFolder.items:
             self.__buildItem(parentItem, childModelItem)
@@ -930,7 +963,7 @@ class FolderWidgetItem(QTreeWidgetItem):
         self.setText(0, folder.title)
         self.setData(1, Qt.UserRole, QVariant(folder))
         if parent is not None:
-            parent.addChild(self)   
+            parent.addChild(self)
             
     def update(self):
         self.setText(0, self.folder.title)            

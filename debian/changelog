@@ -1,3 +1,12 @@
+autokey (0.61.2-0~karmic) karmic; urgency=low
+
+  * Bring back cut/copy/paste item menu options
+  * Add 'engine' class to scripting framework to enable access to 
+    AutoKey internals
+  * Add a configurable user module folder for import into scripts
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 1 Jan 2010 10:38:05 +1000
+
 autokey (0.61.0b-0~karmic) karmic; urgency=low
 
   [ Chris Dekter ]

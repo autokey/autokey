@@ -18,6 +18,7 @@
 
 import subprocess, threading, time, re
 from PyQt4.QtGui import QClipboard, QApplication
+import model
 
 class Keyboard:
     """
@@ -529,9 +530,133 @@ class Window:
         """
         self.__runWmctrl(["-r", title, "-b" + action + ',' + prop])
         
+    def get_active_geometry(self):
+        """
+        Get the geometry of the currently active window
+        
+        Usage: C{window.get_active_geometry()}
+        
+        Returns a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)
+        """
+        active = self.mediator.interface.get_window_title()
+        result, output = self.__runWmctrl(["-l", "-G"])
+        matchingLine = None
+        for line in output.split('\n'):
+            if active in line[34:].split(' ', 1)[-1]:
+                matchingLine = line
+                
+        if matchingLine is not None:
+            output = matchingLine[14:].split(' ')[0:3]
+            return map(int, output)
+        else:
+            return None
+        
     def __runWmctrl(self, args):
         p = subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE)
         retCode = p.wait()
         output = p.stdout.read()[:-1] # Drop trailing newline
         
         return (retCode, output)
+        
+        
+class Engine:
+    """
+    Provides access to the internals of AutoKey
+    """
+    
+    def __init__(self, configManager, runner):
+        self.configManager = configManager
+        self.runner = runner
+        
+    def get_folder(self, title):
+        """
+        Retrieve a folder by its title
+        
+        Usage: C{engine.get_folder(title)}
+        
+        Note that if more than one folder has the same title, only the first match will be
+        returned.
+        """
+        for folder in self.configManager.allFolders:
+            if folder.title == title:
+                return folder
+        return None
+        
+    def create_abbreviation(self, folder, description, abbr, contents):
+        """
+        Create a text abbreviation.
+        
+        Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}
+        
+        When the given abbreviation is typed, it will be replaced with the given
+        text.
+        
+        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        @param description: description for the phrase
+        @param abbr: the abbreviation that will trigger the expansion
+        @param contents: the expansion text
+        @raises Exception: if the specified abbreviation is not unique
+        """
+        if not self.configManager.check_abbreviation_unique(abbr, None):
+            raise Exception("The specified abbreviation is already in use")
+        
+        p = model.Phrase(description, contents)
+        p.modes.append(model.TriggerMode.ABBREVIATION)
+        p.abbreviation = abbr
+        folder.add_item(p)
+        self.configManager.config_altered()
+        
+    def create_hotkey(self, folder, description, modifiers, key, contents):
+        """
+        Create a text hotkey.
+        
+        Usage: C{engine.create_hotkey(folder, description, modifiers, key, contents)}
+        
+        When the given hotkey is pressed, it will be replaced with the given
+        text. Modifiers must be given as a list of strings, with the following
+        values permitted:
+        
+        <control>
+        <alt>
+        <super>
+        <shift>
+        
+        The key must be an unshifted character (i.e. lowercase)
+        
+        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        @param description: description for the phrase
+        @param modifiers: modifiers to use with the hotkey (as a list)
+        @param key: the hotkey
+        @param contents: the expansion text
+        @raises Exception: if the specified hotkey is not unique
+        """
+        modifiers.sort()
+        if not self.configManager.check_hotkey_unique(modifiers, key, None):
+            raise Exception("The specified hotkey and modifier combination is already in use")
+        
+        p = model.Phrase(description, contents)
+        p.modes.append(model.TriggerMode.HOTKEY)
+        p.set_hotkey(modifiers, key)
+        folder.add_item(p)
+        self.configManager.config_altered()
+
+    def run_script(self, description):
+        """
+        Run an existing script using its description to look it up
+        
+        Usage: C{engine.run_script(description)}
+        
+        @param description: description of the script to run
+        @raises Exception: if the specified script does not exist
+        """
+        targetScript = None
+        for item in self.configManager.allItems:
+            if item.description == description and isinstance(item, Script):
+                targetScript = item
+
+        if targetScript is not None:
+            self.runner.execute(targetScript, "")
+        else:
+            raise Exception("No script with description '%s' found" % description)
+            
+            
