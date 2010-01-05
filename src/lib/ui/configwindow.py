@@ -617,7 +617,8 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
         self.on_treeWidget_itemSelectionChanged()
-        self.cutCopiedItem = None        
+        self.cutCopiedItem = None
+        self.parentWidget().app.config_altered()
 
     def on_delete(self):
         widgetItem = self.treeWidget.selectedItems()[0]

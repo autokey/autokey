@@ -279,6 +279,32 @@ keyboard.send_key("<delete>")
 keyboard.send_keys("The text %s was here previously" % text)"""
         sampleScripts.add_item(sel)
         
+        abbrc = Script("Abbreviation from selection", "")
+        abbrc.code = """import time
+time.sleep(0.25)
+contents = clipboard.get_selection()
+retCode, abbr = dialog.input_dialog("New Abbreviation", "Choose an abbreviation for the new phrase")
+if retCode == 0:
+    if len(contents) > 20:
+        title = contents[0:17] + "..."
+    else:
+        title = contents
+    folder = engine.get_folder("My Phrases")
+    engine.create_abbreviation(folder, title, abbr, contents)"""
+        sampleScripts.add_item(abbrc)
+        
+        phrasec = Script("Phrase from selection", "")
+        phrasec.code = """import time
+time.sleep(0.25)
+contents = clipboard.get_selection()
+if len(contents) > 20:
+    title = contents[0:17] + "..."
+else:
+    title = contents
+folder = engine.get_folder("My Phrases")
+engine.create_phrase(folder, title, contents)"""
+        sampleScripts.add_item(phrasec)
+        
         self.folders[sampleScripts.title] = sampleScripts
         
         # TODO - future functionality

@@ -561,7 +561,10 @@ class Window:
         
 class Engine:
     """
-    Provides access to the internals of AutoKey
+    Provides access to the internals of AutoKey.
+    
+    Note that any configuration changes made using this API while the configuration window
+    is open will not appear until it is closed and re-opened.
     """
     
     def __init__(self, configManager, runner):
@@ -582,9 +585,25 @@ class Engine:
                 return folder
         return None
         
+    def create_phrase(self, folder, description, contents):
+        """
+        Create a text phrase
+        
+        Usage: C{engine.create_phrase(folder, description, contents)}
+        
+        A new phrase with no abbreviation or hotkey is created in the specified folder
+        
+        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        @param description: description for the phrase
+        @param contents: the expansion text
+        """
+        p = model.Phrase(description, contents)
+        folder.add_item(p)
+        self.configManager.config_altered()            
+        
     def create_abbreviation(self, folder, description, abbr, contents):
         """
-        Create a text abbreviation.
+        Create a text abbreviation
         
         Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}
         
