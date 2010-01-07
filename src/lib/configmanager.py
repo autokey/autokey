@@ -227,6 +227,8 @@ class ConfigManager:
         
         self.app = app
         self.folders = {}
+        self.userCodeDir = None
+        
         self.configHotkey = GlobalHotkey()
         self.configHotkey.set_hotkey(["<ctrl>"], "k")
         self.configHotkey.enabled = True
@@ -323,6 +325,7 @@ engine.create_phrase(folder, title, contents)"""
                 upgradeDone = True
         if self.VERSION < '0.61.2':
             self.userCodeDir = None
+            upgradeDone = True            
             
         if upgradeDone:
             self.config_altered()

@@ -15,19 +15,9 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="titleLabel">
-     <property name="text">
-      <string>Folder</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="KLineEdit" name="titleLineEdit"/>
-   </item>
-   <item>
     <widget class="QGroupBox" name="settingsGroupBox">
      <property name="title">
-      <string>Settings</string>
+      <string>Folder Settings</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -62,11 +52,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
   <customwidget>
    <class>KSeparator</class>
    <extends>QFrame</extends>

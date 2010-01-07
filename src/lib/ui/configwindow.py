@@ -191,9 +191,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
 
         lex = Qsci.QsciLexerPython(self)
         api = Qsci.QsciAPIs(lex)
-        # TODO load api from file
         api.load(API_FILE)
-        #api.add("keyboard.send_keys(keys) Send keys")
         api.prepare()
 
         self.scriptCodeEditor.setLexer(lex)
@@ -210,7 +208,6 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         
     def load(self, script):
         self.currentScript = script
-        self.descriptionLineEdit.setText(script.description)
         self.scriptCodeEditor.clear()
         self.scriptCodeEditor.append(script.code)
         self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
@@ -221,10 +218,11 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
 
     def save(self):
         self.settingsWidget.save()
-        self.currentScript.description = unicode(self.descriptionLineEdit.text())
         self.currentScript.code = unicode(self.scriptCodeEditor.text())
         self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
 
+    def set_item_title(self, title):
+        self.currentScript.description = title
     
     def reset(self):
         self.load(self.currentScript)
@@ -262,10 +260,6 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
         
     def validate(self):
-        description = unicode(self.descriptionLineEdit.text())
-        if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The script description can't be empty."),
-                    self.descriptionLineEdit, self.topLevelWidget()): return False
-                
         code = unicode(self.scriptCodeEditor.text())
         if not validate(not EMPTY_FIELD_REGEX.match(code), i18n("The script code can't be empty."),
                     self.scriptCodeEditor, self.topLevelWidget()): return False
@@ -273,9 +267,6 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         return True
         
     # --- Signal handlers
-    
-    def on_descriptionLineEdit_textEdited(self):
-        self.set_dirty()
 
     def on_scriptCodeEditor_textChanged(self):
         self.set_dirty()
@@ -300,7 +291,6 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         
     def load(self, phrase):
         self.currentPhrase = phrase
-        self.descriptionLineEdit.setText(phrase.description)
         self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
         
@@ -312,7 +302,6 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         
     def save(self):
         self.settingsWidget.save()
-        self.currentPhrase.description = unicode(self.descriptionLineEdit.text())
         self.currentPhrase.phrase = unicode(self.phraseText.toPlainText())
         self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         
@@ -321,15 +310,14 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         #    self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
         
         self.currentPhrase.prompt = self.promptCheckbox.isChecked()
+
+    def set_item_title(self, title):
+        self.currentPhrase.description = title
         
     def reset(self):
         self.load(self.currentPhrase)   
         
-    def validate(self):
-        description = unicode(self.descriptionLineEdit.text())
-        if not validate(not EMPTY_FIELD_REGEX.match(description), i18n("The phrase description can't be empty."),
-                    self.descriptionLineEdit, self.topLevelWidget()): return False
-                
+    def validate(self):                
         phrase = unicode(self.phraseText.toPlainText())
         if not validate(not EMPTY_FIELD_REGEX.match(phrase), i18n("The phrase content can't be empty."),
                     self.phraseText, self.topLevelWidget()): return False
@@ -348,11 +336,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
     """def insert_token(self, token):
         self.phraseText.insertPlainText(token)"""
         
-    # --- Signal handlers
-    
-    def on_descriptionLineEdit_textEdited(self):
-        self.set_dirty()
-        
+    # --- Signal handlers       
     def on_phraseText_textChanged(self):
         self.set_dirty()
         
@@ -383,36 +367,28 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
         
     def load(self, folder):
         self.currentFolder = folder
-        self.titleLineEdit.setText(folder.title)
         self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
         self.settingsWidget.load(folder)
         
     def save(self):
-        self.currentFolder.title = unicode(self.titleLineEdit.text())
         self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         self.settingsWidget.save()
+        
+    def set_item_title(self, title):
+        self.currentFolder.title = title
         
     def reset(self):
         self.load(self.currentFolder)        
         
     def validate(self):
-        title = unicode(self.titleLineEdit.text())
-        if not validate(not EMPTY_FIELD_REGEX.match(title), i18n("The folder title can't be empty."),
-                    self.titleLineEdit, self.topLevelWidget()): return False
-                    
         return True
         
     def set_dirty(self):
         self.topLevelWidget().set_dirty()  
         
     # --- Signal handlers
-    
-    def on_titleLineEdit_textChanged(self):
-        self.set_dirty()
-    
     def on_showInTrayCheckbox_stateChanged(self, state):
         self.set_dirty()
-        
 
 
 class AkTreeWidget(QTreeWidget):
@@ -449,9 +425,9 @@ class AkTreeWidget(QTreeWidget):
             
     def dropEvent(self, event):
         target = self.itemAt(event.pos())
-        source = self.selectedItems()[0]
-        self.parentWidget().parentWidget().move_item(source, target)
-        
+        sources = self.selectedItems()
+        self.parentWidget().parentWidget().move_items(sources, target)
+                
 
 import centralwidget
 
@@ -470,7 +446,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.configManager = app.configManager
         self.recorder = Recorder(self.scriptPage)
         
-        self.cutCopiedItem = None
+        self.cutCopiedItems = []
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -510,24 +486,40 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         menu = factory.container("Context", self.topLevelWidget())
         menu.popup(QCursor.pos())
         
-    def on_treeWidget_itemSelectionChanged(self):
-        modelItem = self.__getSelection()
+    def on_treeWidget_itemChanged(self, item, column):
+        if item is self.treeWidget.selectedItems()[0]:
+            newText = unicode(item.text(0))
+            if validate(not EMPTY_FIELD_REGEX.match(newText), i18n("The name can't be empty."),
+                        None, self.topLevelWidget()):   
         
-        if isinstance(modelItem, model.Folder):
-            self.stack.setCurrentIndex(0)
-            self.folderPage.load(modelItem)
+                self.stack.currentWidget().set_item_title(newText)
+                self.parentWidget().app.config_altered()
+            else:
+                item.update()
+        
+    def on_treeWidget_itemSelectionChanged(self):
+        modelItems = self.__getSelection()
+        
+        if len(modelItems) == 1:
+            modelItem = modelItems[0]
+            if isinstance(modelItem, model.Folder):
+                self.stack.setCurrentIndex(0)
+                self.folderPage.load(modelItem)
+                
+            elif isinstance(modelItem, model.Phrase):
+                self.stack.setCurrentIndex(1)
+                self.phrasePage.load(modelItem)
+                
+            elif isinstance(modelItem, model.Script):
+                self.stack.setCurrentIndex(2)
+                self.scriptPage.load(modelItem)
+                
+            self.topLevelWidget().update_actions(modelItems, True)
+            self.set_dirty(False)
+            self.parentWidget().cancel_record()
             
-        elif isinstance(modelItem, model.Phrase):
-            self.stack.setCurrentIndex(1)
-            self.phrasePage.load(modelItem)
-            
-        elif isinstance(modelItem, model.Script):
-            self.stack.setCurrentIndex(2)
-            self.scriptPage.load(modelItem)
-            
-        self.topLevelWidget().update_actions(modelItem)
-        self.set_dirty(False)
-        self.parentWidget().cancel_record()
+        else:
+            self.topLevelWidget().update_actions(modelItems, False)
         
     def on_new_topfolder(self):
         self.__createFolder(None)
@@ -538,7 +530,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
     def on_new_phrase(self):
         parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__getSelection()
+        parent = self.__extractData(parentItem)
         
         phrase = model.Phrase("New Phrase", "Enter phrase contents")
         newItem = PhraseWidgetItem(parentItem, phrase)
@@ -546,11 +538,12 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
-        self.on_treeWidget_itemSelectionChanged()        
+        self.on_treeWidget_itemSelectionChanged()
+        self.on_rename()      
         
     def on_new_script(self):
         parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__getSelection()
+        parent = self.__extractData(parentItem)
         
         script = model.Script("New Script", "#Enter script code")
         newItem = ScriptWidgetItem(parentItem, script)
@@ -558,7 +551,8 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
-        self.on_treeWidget_itemSelectionChanged()        
+        self.on_treeWidget_itemSelectionChanged()     
+        self.on_rename()           
         
     def on_undo(self):
         self.stack.currentWidget().undo()
@@ -567,6 +561,9 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.stack.currentWidget().redo()
         
     def on_convert(self):
+        """
+        @deprecated
+        """
         sourceItem = self.treeWidget.selectedItems()[0]
         parentItem = sourceItem.parent()
         source = self.__getSelection()
@@ -587,50 +584,70 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.parentWidget().app.config_altered()
         
     def on_copy(self):
-        source = self.__getSelection()
-        if isinstance(source, model.Phrase):
-            self.cutCopiedItem = model.Phrase('', '')
-        else:
-            self.cutCopiedItem = model.Script('', '')
-        self.cutCopiedItem.copy(source)
+        sourceObjects = self.__getSelection()
+        
+        for source in sourceObjects:        
+            if isinstance(source, model.Phrase):
+                newObj = model.Phrase('', '')
+            else:
+                newObj = model.Script('', '')
+            newObj.copy(source)
+            self.cutCopiedItems.append(newObj)
         
     def on_cut(self):
-        self.cutCopiedItem = self.__getSelection()
-        self.__removeItem()
+        self.cutCopiedItems = self.__getSelection()
+        for item in self.treeWidget.selectedItems():
+            self.__removeItem(item)
+        self.parentWidget().app.config_altered()
+        print repr(self.cutCopiedItems)
         
     def on_paste(self):
         parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__getSelection()
+        parent = self.__extractData(parentItem)
         
-        if isinstance(self.cutCopiedItem, model.Folder):
-            f = WidgetItemFactory(None)
-            newItem = FolderWidgetItem(parentItem, self.cutCopiedItem)
-            f.processFolder(newItem, self.cutCopiedItem)
-            parent.add_folder(self.cutCopiedItem)
-        elif isinstance(self.cutCopiedItem, model.Phrase):
-            newItem = PhraseWidgetItem(parentItem, self.cutCopiedItem)
-            parent.add_item(self.cutCopiedItem)
-        else:
-            newItem = ScriptWidgetItem(parentItem, self.cutCopiedItem)
-            parent.add_item(self.cutCopiedItem)        
+        newItems = []
+        for item in self.cutCopiedItems:
+            if isinstance(item, model.Folder):
+                f = WidgetItemFactory(None)
+                newItem = FolderWidgetItem(parentItem, item)
+                f.processFolder(newItem, item)
+                parent.add_folder(item)
+            elif isinstance(item, model.Phrase):
+                newItem = PhraseWidgetItem(parentItem, item)
+                parent.add_item(item)
+            else:
+                newItem = ScriptWidgetItem(parentItem, item)
+                parent.add_item(item)
+                
+            newItems.append(newItem)        
 
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
+        self.treeWidget.setCurrentItem(newItems[-1])
         self.on_treeWidget_itemSelectionChanged()
-        self.cutCopiedItem = None
+        self.cutCopiedItems = []
+        for item in newItems:
+            self.treeWidget.setItemSelected(item, True)
         self.parentWidget().app.config_altered()
 
     def on_delete(self):
-        widgetItem = self.treeWidget.selectedItems()[0]
+        widgetItems = self.treeWidget.selectedItems()
         
-        if widgetItem.childCount() > 0:
-            result = KMessageBox.questionYesNo(self.topLevelWidget(), 
-                        i18n("Are you sure you want to delete this folder and all the items in it?"))
-            if result == KMessageBox.Yes:
-                self.__removeItem()
+        for widgetItem in widgetItems:
+            if widgetItem.childCount() > 0:
+                folder = self.__extractData(widgetItem)
+                result = KMessageBox.questionYesNo(self.topLevelWidget(), 
+                            "Are you sure you want to delete the %s folder and all the items in it?" % folder.title)
+                if result == KMessageBox.Yes:
+                    self.__removeItem(widgetItem)
+                    
+            else:
+                self.__removeItem(widgetItem)
                 
-        else:
-            self.__removeItem()
+        self.parentWidget().app.config_altered()
+            
+    def on_rename(self):
+        widgetItem = self.treeWidget.selectedItems()[0]
+        self.treeWidget.editItem(widgetItem)
         
     def on_save(self):
         if self.stack.currentWidget().validate():
@@ -648,26 +665,34 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.set_dirty(False)
         self.parentWidget().cancel_record()
         
-    def move_item(self, source, target):
-        sourceModelItem = self.__extractData(source)
+    def move_items(self, sourceItems, target):
         targetModelItem = self.__extractData(target)
         
-        self.__removeItem()
-        
-        if isinstance(sourceModelItem, model.Folder):
-            targetModelItem.add_folder(sourceModelItem)
-        else:
-            targetModelItem.add_item(sourceModelItem)
+        for source in sourceItems:
+            self.__removeItem(source)
+            sourceModelItem = self.__extractData(source)
             
-        target.addChild(source)
-        self.parentWidget().app.config_altered()
+            if isinstance(sourceModelItem, model.Folder):
+                targetModelItem.add_folder(sourceModelItem)
+            else:
+                targetModelItem.add_item(sourceModelItem)
+                
+            target.addChild(source)
+            
+        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.parentWidget().app.config_altered()  
         
         
     # ---- Private methods
     
     def __getSelection(self):
-        item = self.treeWidget.selectedItems()[0]
-        return self.__extractData(item)
+        items = self.treeWidget.selectedItems()
+        ret = []
+        for item in items:
+            value = self.__extractData(item)
+            if value.parent not in ret: # Filter out any child objects that belong to a parent already in the list
+                ret.append(value)
+        return ret
         
     def __extractData(self, item):
         variant = item.data(1, Qt.UserRole)
@@ -675,10 +700,10 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
     def __createFolder(self, parentItem):
         folder = model.Folder("New Folder")
-        newItem = FolderWidgetItem(parentItem, folder)
-        
+        newItem = FolderWidgetItem(parentItem, folder)        
+                
         if parentItem is not None:
-            parentFolder = self.__getSelection()
+            parentFolder = self.__extractData(parentItem)
             parentFolder.add_folder(folder)
         else:
             self.treeWidget.addTopLevelItem(newItem)
@@ -687,11 +712,11 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
         self.on_treeWidget_itemSelectionChanged()
+        self.on_rename()
         
-    def __removeItem(self):
-        widgetItem = self.treeWidget.selectedItems()[0]
-        item = self.__getSelection()
+    def __removeItem(self, widgetItem):
         parent = widgetItem.parent()
+        item = self.__extractData(widgetItem)
         
         if parent is None:
             self.treeWidget.removeItemWidget(widgetItem, 0)
@@ -704,7 +729,6 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             else:
                 item.parent.remove_item(item)
         
-        self.parentWidget().app.config_altered()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         
 
@@ -747,7 +771,9 @@ class ConfigWindow(KXmlGuiWindow):
         self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
         self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
         
-        self.convert = self.__createAction("convert", i18n("Convert to Script"), None, self.centralWidget.on_convert)
+        self.__createAction("rename", i18n("Rename"), None, self.centralWidget.on_rename)        
+        
+        #self.convert = self.__createAction("convert", i18n("Convert to Script"), None, self.centralWidget.on_convert)
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
         self.record = self.__createToggleAction("record", i18n("Record Macro"), self.on_record, "media-record")
         
@@ -782,22 +808,29 @@ class ConfigWindow(KXmlGuiWindow):
     def is_dirty(self):
         return self.centralWidget.dirty
         
-    def update_actions(self, item):
-        canCreate = isinstance(item, model.Folder)
+    def update_actions(self, items, changed):
+        canCreate = isinstance(items[0], model.Folder) and len(items) == 1
+        canCopy = True
+        for item in items:
+            if isinstance(item, model.Folder):
+                canCopy = False
+                break        
         
-        self.create.setEnabled(canCreate)
+        self.create.setEnabled(True)
         self.newTopFolder.setEnabled(True)
         self.newFolder.setEnabled(canCreate)
         self.newPhrase.setEnabled(canCreate)
         self.newScript.setEnabled(canCreate)
-        self.save.setEnabled(False)
         
-        self.copy.setEnabled(not canCreate)
-        self.paste.setEnabled(canCreate and self.centralWidget.cutCopiedItem is not None)
-        self.convert.setEnabled(isinstance(item, model.Phrase))
-        self.record.setEnabled(isinstance(item, model.Script))
-        self.undo.setEnabled(False)
-        self.redo.setEnabled(False)
+        self.copy.setEnabled(canCopy)
+        self.paste.setEnabled(canCreate and len(self.centralWidget.cutCopiedItems) > 0)
+        #self.convert.setEnabled(isinstance(item, model.Phrase))
+        self.record.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
+
+        if changed:
+            self.save.setEnabled(False)
+            self.undo.setEnabled(False)
+            self.redo.setEnabled(False)
         
     def set_undo_available(self, state):
         self.undo.setEnabled(state)
@@ -966,6 +999,8 @@ class FolderWidgetItem(QTreeWidgetItem):
         if parent is not None:
             parent.addChild(self)
             
+        self.setFlags(self.flags() | Qt.ItemIsEditable)
+            
     def update(self):
         self.setText(0, self.folder.title)            
         
@@ -993,6 +1028,8 @@ class PhraseWidgetItem(QTreeWidgetItem):
         if parent is not None:
             parent.addChild(self)      
             
+        self.setFlags(self.flags() | Qt.ItemIsEditable)
+            
     def update(self):
         self.setText(0, self.phrase.description)
         
@@ -1019,6 +1056,8 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.setData(1, Qt.UserRole, QVariant(script))
         if parent is not None:
             parent.addChild(self)
+            
+        self.setFlags(self.flags() | Qt.ItemIsEditable)
             
     def update(self):
         self.setText(0, self.script.description)

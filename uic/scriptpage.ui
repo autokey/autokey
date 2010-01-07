@@ -15,16 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="descriptionLabel">
-     <property name="text">
-      <string>Script</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="KLineEdit" name="descriptionLineEdit"/>
-   </item>
-   <item>
     <widget class="QsciScintilla" name="scriptCodeEditor">
      <property name="toolTip">
       <string/>
@@ -37,7 +27,7 @@
    <item>
     <widget class="QGroupBox" name="settingsGroupbox">
      <property name="title">
-      <string>Settings</string>
+      <string>Script Settings</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -67,24 +57,20 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>KSeparator</class>
    <extends>QFrame</extends>
    <header>kseparator.h</header>
   </customwidget>
   <customwidget>
-   <class>QsciScintilla</class>
-   <extends>QFrame</extends>
-   <header>Qsci/qsciscintilla.h</header>
-  </customwidget>
-  <customwidget>
    <class>SettingsWidget</class>
    <extends>QWidget</extends>
    <header>configwindow.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QsciScintilla</class>
+   <extends>QFrame</extends>
+   <header>Qsci/qsciscintilla.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

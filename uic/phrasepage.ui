@@ -15,16 +15,6 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="QLabel" name="descriptionLabel">
-     <property name="text">
-      <string>Phrase</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="KLineEdit" name="descriptionLineEdit"/>
-   </item>
-   <item>
     <widget class="KTextEdit" name="phraseText">
      <property name="tabChangesFocus">
       <bool>true</bool>
@@ -40,7 +30,7 @@
    <item>
     <widget class="QGroupBox" name="settingsGroupBox">
      <property name="title">
-      <string>Settings</string>
+      <string>Phrase Settings</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
@@ -69,11 +59,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>KLineEdit</class>
-   <extends>QLineEdit</extends>
-   <header>klineedit.h</header>
-  </customwidget>
   <customwidget>
    <class>KSeparator</class>
    <extends>QFrame</extends>

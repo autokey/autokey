@@ -4,8 +4,12 @@ autokey (0.61.2-0~karmic) karmic; urgency=low
   * Add 'engine' class to scripting framework to enable access to 
     AutoKey internals
   * Add a configurable user module folder for import into scripts
+  * Enable multiple selection mode in treeview and update all necessary
+    interactions to work correctly  
+  * Enable inline renaming of items in treeview, get rid of title and
+    description fields from the various pages  
 
- -- Chris Dekter <cdekter@gmail.com>  Fri, 1 Jan 2010 10:38:05 +1000
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 6 Jan 2010 10:38:05 +1000
 
 autokey (0.61.0b-0~karmic) karmic; urgency=low
 

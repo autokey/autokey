@@ -14,15 +14,16 @@
       <Action name="close-window" />
     </Menu>
     <Menu name="edit" >
+      <Action name="undo" />
+      <Action name="redo" />
+      <separator />
       <Action name="cut-item" />
       <Action name="copy-item" />
       <Action name="paste-item" />
       <Action name="delete-item" />
-      <separator />      
-      <Action name="undo" />
-      <Action name="redo" />
-      <separator />
-      <Action name="convert" />
+      <separator /> 
+      <Action name="rename" />
+      <separator /> 
       <Action name="record" />
     </Menu>
     <Menu name="settings" >
@@ -49,12 +50,16 @@
     <Action name="paste-item" />  
     <Action name="delete-item" />
     <separator />    
-    <Action name="convert" />
+    <Action name="rename" />
   </Menu>
  
   <ToolBar name="ToolBar" noMerge="1" >
     <text>ToolBar</text>
     <Action name="create" />
+    <separator />
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />      
     <Action name="delete-item" />
     <separator />
     <Action name="undo" />
