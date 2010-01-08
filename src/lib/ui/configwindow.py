@@ -596,10 +596,12 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
     def on_cut(self):
         self.cutCopiedItems = self.__getSelection()
-        for item in self.treeWidget.selectedItems():
+        
+        sourceItems = self.treeWidget.selectedItems()
+        result = filter(lambda f: f.parent() not in sourceItems, sourceItems)
+        for item in result:
             self.__removeItem(item)
         self.parentWidget().app.config_altered()
-        print repr(self.cutCopiedItems)
         
     def on_paste(self):
         parentItem = self.treeWidget.selectedItems()[0]
@@ -668,7 +670,10 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
     def move_items(self, sourceItems, target):
         targetModelItem = self.__extractData(target)
         
-        for source in sourceItems:
+        # Filter out any child objects that belong to a parent already in the list
+        result = filter(lambda f: f.parent() not in sourceItems, sourceItems)
+        
+        for source in result:
             self.__removeItem(source)
             sourceModelItem = self.__extractData(source)
             
@@ -689,10 +694,11 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         items = self.treeWidget.selectedItems()
         ret = []
         for item in items:
-            value = self.__extractData(item)
-            if value.parent not in ret: # Filter out any child objects that belong to a parent already in the list
-                ret.append(value)
-        return ret
+            ret.append(self.__extractData(item))
+            
+        # Filter out any child objects that belong to a parent already in the list
+        result = filter(lambda f: f.parent not in ret, ret)
+        return result
         
     def __extractData(self, item):
         variant = item.data(1, Qt.UserRole)
@@ -767,6 +773,9 @@ class ConfigWindow(KXmlGuiWindow):
         self.cut = self.__createAction("cut-item", i18n("Cut Item"), "edit-cut", self.centralWidget.on_cut)
         self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.centralWidget.on_copy)
         self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.centralWidget.on_paste)
+        self.cut.setShortcut(QKeySequence("Ctrl+Shift+x"))
+        self.copy.setShortcut(QKeySequence("Ctrl+Shift+c"))
+        self.paste.setShortcut(QKeySequence("Ctrl+Shift+v"))
         
         self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
         self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
@@ -775,6 +784,7 @@ class ConfigWindow(KXmlGuiWindow):
         
         #self.convert = self.__createAction("convert", i18n("Convert to Script"), None, self.centralWidget.on_convert)
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
+        self.delete.setShortcut(QKeySequence("Ctrl+d"))
         self.record = self.__createToggleAction("record", i18n("Record Macro"), self.on_record, "media-record")
         
         # Settings Menu
@@ -809,28 +819,29 @@ class ConfigWindow(KXmlGuiWindow):
         return self.centralWidget.dirty
         
     def update_actions(self, items, changed):
-        canCreate = isinstance(items[0], model.Folder) and len(items) == 1
-        canCopy = True
-        for item in items:
-            if isinstance(item, model.Folder):
-                canCopy = False
-                break        
-        
-        self.create.setEnabled(True)
-        self.newTopFolder.setEnabled(True)
-        self.newFolder.setEnabled(canCreate)
-        self.newPhrase.setEnabled(canCreate)
-        self.newScript.setEnabled(canCreate)
-        
-        self.copy.setEnabled(canCopy)
-        self.paste.setEnabled(canCreate and len(self.centralWidget.cutCopiedItems) > 0)
-        #self.convert.setEnabled(isinstance(item, model.Phrase))
-        self.record.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
+        if len(items) > 0:
+            canCreate = isinstance(items[0], model.Folder) and len(items) == 1
+            canCopy = True
+            for item in items:
+                if isinstance(item, model.Folder):
+                    canCopy = False
+                    break        
+            
+            self.create.setEnabled(True)
+            self.newTopFolder.setEnabled(True)
+            self.newFolder.setEnabled(canCreate)
+            self.newPhrase.setEnabled(canCreate)
+            self.newScript.setEnabled(canCreate)
+            
+            self.copy.setEnabled(canCopy)
+            self.paste.setEnabled(canCreate and len(self.centralWidget.cutCopiedItems) > 0)
+            #self.convert.setEnabled(isinstance(item, model.Phrase))
+            self.record.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
 
-        if changed:
-            self.save.setEnabled(False)
-            self.undo.setEnabled(False)
-            self.redo.setEnabled(False)
+            if changed:
+                self.save.setEnabled(False)
+                self.undo.setEnabled(False)
+                self.redo.setEnabled(False)
         
     def set_undo_available(self, state):
         self.undo.setEnabled(state)

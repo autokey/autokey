@@ -17,7 +17,7 @@
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Main Window</string>
+      <string>Application</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>

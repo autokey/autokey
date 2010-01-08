@@ -23,10 +23,11 @@ lib.scripting.Dialog.__runKdialog	lib.scripting.Dialog-class.html#__runKdialog
 lib.scripting.Dialog.choose_directory	lib.scripting.Dialog-class.html#choose_directory
 lib.scripting.Dialog.choose_colour	lib.scripting.Dialog-class.html#choose_colour
 lib.scripting.Engine	lib.scripting.Engine-class.html
-lib.scripting.Engine.create_hotkey	lib.scripting.Engine-class.html#create_hotkey
-lib.scripting.Engine.get_folder	lib.scripting.Engine-class.html#get_folder
-lib.scripting.Engine.create_abbreviation	lib.scripting.Engine-class.html#create_abbreviation
 lib.scripting.Engine.run_script	lib.scripting.Engine-class.html#run_script
+lib.scripting.Engine.get_folder	lib.scripting.Engine-class.html#get_folder
+lib.scripting.Engine.create_hotkey	lib.scripting.Engine-class.html#create_hotkey
+lib.scripting.Engine.create_abbreviation	lib.scripting.Engine-class.html#create_abbreviation
+lib.scripting.Engine.create_phrase	lib.scripting.Engine-class.html#create_phrase
 lib.scripting.Engine.__init__	lib.scripting.Engine-class.html#__init__
 lib.scripting.Keyboard	lib.scripting.Keyboard-class.html
 lib.scripting.Keyboard.send_keys	lib.scripting.Keyboard-class.html#send_keys
