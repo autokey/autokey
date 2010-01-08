@@ -35,9 +35,7 @@ class GeneralSettings(QWidget, generalsettings.Ui_Form):
         QWidget.__init__(self, parent)
         generalsettings.Ui_Form.__init__(self)
         self.setupUi(self)
-        self.autoStart = KAutostart()
-        
-        self.autoStartCheckbox.setChecked(self.autoStart.autostarts())
+
         self.promptToSaveCheckbox.setChecked(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
         self.showTrayCheckbox.setChecked(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
         self.allowKbNavCheckbox.setChecked(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
@@ -45,10 +43,6 @@ class GeneralSettings(QWidget, generalsettings.Ui_Form):
         self.enableUndoCheckbox.setChecked(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
         
     def save(self):
-        if self.autoStartCheckbox.isChecked():
-            self.autoStart.setStartPhase(KAutostart.StartPhase(KAutostart.Applications))
-        #self.autoStart.setAutostarts(self.autoStartCheckbox.isChecked())
-        
         ConfigManager.SETTINGS[PROMPT_TO_SAVE] = self.promptToSaveCheckbox.isChecked()
         ConfigManager.SETTINGS[SHOW_TRAY_ICON] = self.showTrayCheckbox.isChecked()
         ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.isChecked()
