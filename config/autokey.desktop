@@ -7,4 +7,4 @@ Exec=autokey
 Terminal=false
 Type=Application
 Icon=/usr/share/pixmaps/akicon.png
-Categories=GNOME;KDE;Utility
+Categories=GNOME;KDE;Utility;
