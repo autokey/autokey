@@ -62,18 +62,27 @@ class Daemon:
 	
 	def delpid(self):
 		os.remove(self.pidfile)
-
-	def start(self):
-		"""
-		Start the daemon
-		"""
-		# Check for a pidfile to see if the daemon already runs
+	def checkpid(self):
+		"""Check for a pidfile to see if the daemon already runs
+		
+		@references self.pidfile
+		@returns pid, an int representing the running daemon or None"""
 		try:
 			pf = file(self.pidfile,'r')
 			pid = int(pf.read().strip())
 			pf.close()
 		except IOError:
 			pid = None
+		except ValueError: 
+			# the pidfile doesn't match our syntax, ignore it
+			pid = None
+		return pid
+	
+	def start(self):
+		"""
+		Start the daemon
+		"""
+		pid = self.checkpid()
 	
 		if pid:
 			message = "pidfile %s already exist. Daemon already running?\n"
@@ -89,13 +98,8 @@ class Daemon:
 		Stop the daemon
 		"""
 		# Get the pid from the pidfile
-		try:
-			pf = file(self.pidfile,'r')
-			pid = int(pf.read().strip())
-			pf.close()
-		except IOError:
-			pid = None
-	
+		pid = self.checkpid()
+		
 		if not pid:
 			message = "pidfile %s does not exist. Daemon not running?\n"
 			sys.stderr.write(message % self.pidfile)

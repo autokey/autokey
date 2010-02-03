@@ -1,3 +1,10 @@
+autokey (0.61.3-0~karmic) UNRELEASED; urgency=low
+
+  * Handle invalid or empty pidfiles in src/daemon.py. 
+  * Lower build-depends requirements to minimum Python versions. 
+
+ -- Luke Faraone <luke@faraone.cc>  Wed, 03 Feb 2010 08:49:52 -0500
+
 autokey (0.61.2-0~karmic) karmic; urgency=low
 
   * Bring back cut/copy/paste item menu options
