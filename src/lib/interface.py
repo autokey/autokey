@@ -498,38 +498,36 @@ class EvDevInterface(XInterfaceBase):
                 logger.info("EvDev interface thread terminated")
                 break
             
-            # Request next event
             try:
-                data = self.socket.recv(PACKET_SIZE)
-            except socket.timeout:
-                continue # Timeout means no data to received
-            except:
-                logger.exception("Connection to EvDev daemon lost")
-                self.__connLost()
-                continue
-                
-            
-            data = data.strip()
-            try:
-                keyCode, button, state = data.split(',')
-            except:
-                logger.exception("Connection to EvDev daemon lost")
-                self.__connLost()
-                continue
-            
-            if keyCode:
-                keyCode = int(keyCode)
-                if state == '2':
-                    self._handleKeyRelease(keyCode)
-                    self._handleKeyPress(keyCode)
-                elif state == '1':
-                    self._handleKeyPress(keyCode)
-                elif state == '0':
-                    self._handleKeyRelease(keyCode)
+                # Request next event
+                try:
+                    data = self.socket.recv(PACKET_SIZE)
+                except socket.timeout:
+                    continue # Timeout means no data to received
                     
-            if button:
-                ret = self.localDisplay.get_input_focus().focus.query_pointer()
-                self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button)
+                
+                data = data.strip()
+                keyCode, button, state = data.split(',')
+
+                
+                if keyCode:
+                    keyCode = int(keyCode)
+                    if state == '2':
+                        self._handleKeyRelease(keyCode)
+                        self._handleKeyPress(keyCode)
+                    elif state == '1':
+                        self._handleKeyPress(keyCode)
+                    elif state == '0':
+                        self._handleKeyRelease(keyCode)
+                        
+                if button:
+                    ret = self.localDisplay.get_input_focus().focus.query_pointer()
+                    self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button)
+                
+            except:
+                logger.exception("Connection to EvDev daemon lost")
+                self.__connLost()
+                continue
                 
                 
     def __connect(self):

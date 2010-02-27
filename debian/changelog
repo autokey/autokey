@@ -1,9 +1,14 @@
 autokey (0.61.3-0~karmic) UNRELEASED; urgency=low
 
+  [ Luke Faraone ]
   * Handle invalid or empty pidfiles in src/daemon.py. 
-  * Lower build-depends requirements to minimum Python versions. 
+  * Lower build-depends requirements to minimum Python versions.
 
- -- Luke Faraone <luke@faraone.cc>  Wed, 03 Feb 2010 08:49:52 -0500
+  [ Chris Dekter ]
+  * Add --error-handler to debian/rules
+  * Merge changes to interface.py from GTK branch that were missed
+
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 27 Feb 2010 08:49:52 +1000
 
 autokey (0.61.2-0~karmic) karmic; urgency=low
 
