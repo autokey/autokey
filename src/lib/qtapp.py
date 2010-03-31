@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+import common
+common.USING_QT = True
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, Queue
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
@@ -24,27 +26,18 @@ from PyKDE4.kdeui import KMessageBox, KApplication
 from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
 from PyQt4.QtGui import QCursor
 
-import service, ui.notifier, ui.popupmenu
+import service
+from qtui.notifier import Notifier
+from qtui.popupmenu import PopupMenu
+from qtui.configwindow import ConfigWindow
 from configmanager import *
+from common import *
 
-CONFIG_DIR = os.path.expanduser("~/.config/autokey")
-LOCK_FILE = CONFIG_DIR + "/autokey.pid"
-LOG_FILE = CONFIG_DIR + "/autokey.log"
-MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
-MAX_LOG_COUNT = 3
-LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
-
-APP_NAME = "AutoKey"
-CATALOG = ""
 PROGRAM_NAME = ki18n("AutoKey")
-VERSION = "0.61.3"
 DESCRIPTION = ki18n("Desktop automation utility")
 LICENSE = KAboutData.License_GPL_V3
 COPYRIGHT = ki18n("(c) 2009 Chris Dekter")
 TEXT = ki18n("")
-HOMEPAGE  = "http://autokey.sourceforge.net/"
-BUG_EMAIL = "cdekter@gmail.com"
-
 
 
 class Application:
@@ -60,7 +53,7 @@ class Application:
 
         aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
         aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
-        aboutData.setProgramIconName(ui.notifier.ICON_FILE)
+        aboutData.setProgramIconName(common.ICON_FILE)
         
         KCmdLineArgs.init(sys.argv, aboutData)
         options = KCmdLineOptions()
@@ -147,7 +140,7 @@ class Application:
             self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                     "Check your system/configuration."), str(e))
         
-        self.notifier = ui.notifier.Notifier(self)
+        self.notifier = Notifier(self)
         self.configWindow = None
         
         if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
@@ -218,7 +211,7 @@ class Application:
             self.configWindow.showNormal()
             self.configWindow.activateWindow()            
         except:
-            self.configWindow = ui.configwindow.ConfigWindow(self)
+            self.configWindow = ConfigWindow(self)
             self.configWindow.show()
             
     def show_configure_async(self):
@@ -250,7 +243,7 @@ class Application:
         self.exec_in_main(self.menu.hide)
         
     def __createMenu(self, folders, items, onDesktop, title):
-        self.menu = ui.popupmenu.PopupMenu(self.service, folders, items, onDesktop, title)
+        self.menu = PopupMenu(self.service, folders, items, onDesktop, title)
         self.menu.popup(QCursor.pos())
         
     def exec_in_main(self, callback, *args):

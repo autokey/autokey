@@ -5,4 +5,5 @@ the setup.py script:
 
 dpkg-buildpackage -us -uc
 cd ../
-sudo dpkg -i <buildpackagename>
+For GNOME: sudo dpkg -i autokey-gtk_<version>.deb autokey-common_<version>.deb
+For KDE: sudo dpkg -i autokey-qt_<version>.deb autokey-common_<version>.deb

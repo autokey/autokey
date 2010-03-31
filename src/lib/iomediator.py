@@ -369,7 +369,7 @@ class KeyGrabber:
     def handle_hotkey(self, key, modifiers, windowName):
         pass
     
-    def handle_mouseclick(self, rootX, rootY, relX, relY):
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         pass
     
 

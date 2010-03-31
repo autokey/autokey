@@ -184,6 +184,7 @@ class HotkeySettingsDialog(KDialog):
 
     def load(self, item):
         self.targetItem = item
+        self.widget.setButton.setEnabled(True)
         if model.TriggerMode.HOTKEY in item.modes:
             self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
             self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
@@ -223,6 +224,7 @@ class HotkeySettingsDialog(KDialog):
 
         self._setKeyLabel(i18n("(None)"))
         self.key = None
+        self.widget.setButton.setEnabled(True)
             
     def set_key(self, key):
         if self.KEY_MAP.has_key(key):

@@ -1,0 +1,208 @@
+<?xml version="1.0"?>
+<!--Generated with glade3 3.4.5 on Fri Oct  2 11:21:20 2009 -->
+<interface>
+  <object class="GtkListStore" id="model1">
+    <columns>
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">Default</col>
+      </row>
+      <row>
+        <col id="0">Space and Enter</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkDialog" id="abbrsettings">
+    <property name="border_width">5</property>
+    <property name="title" translatable="yes">Set Abbreviation</property>
+    <property name="resizable">False</property>
+    <property name="modal">True</property>
+    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <signal handler="on_response" name="response"/>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkVBox" id="vbox1">
+            <property name="visible">True</property>
+            <child>
+              <object class="GtkHBox" id="hbox1">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkLabel" id="label1">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Abbreviation:</property>
+                  </object>
+                  <packing>
+                    <property name="padding">5</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="abbrEntry">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="is_focus">True</property>
+                    <property name="activates_default">True</property>
+                  </object>
+                  <packing>
+                    <property name="padding">5</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="label2">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Trigger on:</property>
+                  </object>
+                  <packing>
+                    <property name="padding">5</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkComboBox" id="wordCharCombo">
+                    <property name="visible">True</property>
+                    <property name="active">1</property>
+                    <property name="model">model1</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="renderer1"/>
+                      <attributes>
+                        <attribute name="text">0</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="fill">False</property>
+                    <property name="padding">5</property>
+                    <property name="position">3</property>
+                  </packing>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="removeTypedCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Remove typed abbreviation</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="omitTriggerCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Omit trigger character</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="matchCaseCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Match phrase case to typed abbreviation</property>
+                <property name="draw_indicator">True</property>
+                <signal handler="on_matchCaseCheckbox_stateChanged" name="toggled"/>
+              </object>
+              <packing>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="ignoreCaseCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Ignore case of typed abbreviation</property>
+                <property name="draw_indicator">True</property>
+                <signal handler="on_ignoreCaseCheckbox_stateChanged" name="toggled"/>
+              </object>
+              <packing>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="triggerInsideCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Trigger when typed as part of a word</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="position">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="immediateCheckbox">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="label" translatable="yes">Trigger immediately (don't require a trigger character)</property>
+                <property name="draw_indicator">True</property>
+                <signal handler="on_immediateCheckbox_stateChanged" name="toggled"/>
+              </object>
+              <packing>
+                <property name="position">6</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="position">2</property>
+          </packing>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <child>
+              <object class="GtkButton" id="cancelButton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="use_stock">True</property>
+                <signal handler="on_cancel" name="clicked"/>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="okButton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="can_default">True</property>
+                <property name="has_default">True</property>
+                <property name="receives_default">True</property>
+                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="use_stock">True</property>
+                <signal handler="on_ok" name="clicked"/>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">GTK_PACK_END</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">removeTypedCheckbox</action-widget>
+      <action-widget response="0">omitTriggerCheckbox</action-widget>
+      <action-widget response="0">matchCaseCheckbox</action-widget>
+      <action-widget response="0">ignoreCaseCheckbox</action-widget>
+      <action-widget response="0">triggerInsideCheckbox</action-widget>
+      <action-widget response="0">immediateCheckbox</action-widget>
+      <action-widget response="0">cancelButton</action-widget>
+      <action-widget response="0">okButton</action-widget>
+    </action-widgets>
+  </object>
+</interface>

@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+from autokey.qtapp import Application
+
+a = Application()
+try:
+    a.main()
+except KeyboardInterrupt:
+    a.shutdown()
+sys.exit(0)
+

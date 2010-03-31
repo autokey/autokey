@@ -20,7 +20,7 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.61.3", 
+      version="0.61.7", 
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.googlecode.com/",
@@ -33,10 +33,12 @@ interface offering the full flexibility and power of the Python language.""",
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},
-      packages=["autokey", "autokey.ui"],
-      package_data={"autokey.ui" : ["data/gui.xml", "data/api.txt"]},
-      data_files=[("/usr/share/pixmaps", ["config/akicon.png"]),
-                  ("/usr/share/applications", ["config/autokey.desktop"])],
-      scripts=['autokey']
+      packages=["autokey", "autokey.gtkui", "autokey.qtui"],
+      package_data={"autokey.qtui" : ["data/*"],
+                    "autokey.gtkui" : ["data/*"]},
+      data_files=[("/usr/share/pixmaps", ["config/akicon.png", "config/akicon-status.png"]),
+                  ("/usr/share/applications", ["config/autokey-qt.desktop", "config/autokey-gtk.desktop"]),
+                  ('share/man/man1/', ['doc/man/autokey-qt.1', 'doc/man/autokey-gtk.1'])],
+      scripts=['autokey-qt', 'autokey-gtk']
       #packages=["plugin"]
       )

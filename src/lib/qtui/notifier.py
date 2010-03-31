@@ -22,8 +22,7 @@ from PyQt4.QtCore import SIGNAL
 
 import popupmenu
 from autokey.configmanager import *
-
-ICON_FILE = "/usr/share/pixmaps/akicon.png"
+from autokey.common import ICON_FILE
 
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"

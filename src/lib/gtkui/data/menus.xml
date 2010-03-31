@@ -1,0 +1,71 @@
+<ui>
+	<menubar name="MenuBar">
+		<menu action="File">
+                    <menu action="create">
+			<menuitem action="new-top-folder" />
+			<menuitem action="new-folder" />
+			<menuitem action="new-phrase" />
+                        <menuitem action="new-script" />
+                    </menu>
+			<menuitem action="save" />
+			<separator />
+			<menuitem action="close-window" />
+                        <separator />
+			<menuitem action="quit" />
+		</menu>
+		<menu action="Edit">
+            <menuitem action="undo" />
+            <menuitem action="redo" />
+            <separator />
+			<menuitem action="cut-item" />
+			<menuitem action="copy-item" />
+			<menuitem action="paste-item" />
+			<menuitem action="delete-item" />
+			<separator />
+            <menuitem action="rename" />
+            <separator />
+            <menuitem action="record" />
+            <separator />
+            <menuitem action="preferences" />
+		</menu>
+                <menu action="View">
+                    <menuitem action="toolbar" />
+                    <menuitem action="script-error" />
+                </menu>
+<!--		<menu action="Settings">
+			<menuitem action="enable-monitoring" />
+			<menuitem action="advanced" />
+		</menu>	-->	
+		<menu action="Help">
+			<menuitem action="faq" />
+			<menuitem action="help" />
+			<menuitem action="donate" />
+                        <separator />
+			<menuitem action="about" />
+		</menu>
+	</menubar>
+        <toolbar name="Toolbar">
+            <toolitem action="cut-item" />
+            <toolitem action="copy-item" />
+            <toolitem action="paste-item" />
+            <toolitem action="delete-item" />
+            <separator />
+            <toolitem action="undo" />
+            <toolitem action="redo" />
+            <separator />
+            <toolitem action="record" />
+        </toolbar>
+        <popup name="Context">
+<!--            <menuitem action="new-top-folder" /> -->
+            <menuitem action="new-folder" />
+            <menuitem action="new-phrase" />
+            <menuitem action="new-script" />
+            <separator />
+            <menuitem action="cut-item" />
+            <menuitem action="copy-item" />
+            <menuitem action="paste-item" />
+            <menuitem action="delete-item" />
+            <separator />
+            <menuitem action="rename" />
+        </popup>
+</ui>

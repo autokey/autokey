@@ -1,0 +1,13 @@
+usr/lib/python*/*-packages/autokey/common.py
+usr/lib/python*/*-packages/autokey/configmanager.py
+usr/lib/python*/*-packages/autokey/daemon.py 
+usr/lib/python*/*-packages/autokey/evdev.py
+usr/lib/python*/*-packages/autokey/__init__.py
+usr/lib/python*/*-packages/autokey/interface.py
+usr/lib/python*/*-packages/autokey/iomediator.py
+usr/lib/python*/*-packages/autokey/model.py
+usr/lib/python*/*-packages/autokey/nogui.py
+usr/lib/python*/*-packages/autokey/scripting.py
+usr/lib/python*/*-packages/autokey/service.py
+usr/lib/python*/*-packages/autokey-*.egg-info
+usr/share/pixmaps/akicon.png

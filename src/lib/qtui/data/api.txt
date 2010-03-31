@@ -24,7 +24,7 @@ store.get_value(key) Get a value
 store.remove_value(key) Remove a value
 store.set_value(key, value) Store a value
 system.create_file(fileName, contents="") Create a file with contents
-system.exec_command(command) Execute a shell command
+system.exec_command(command, getOutput=True) Execute a shell command
 window.activate(title, switchDesktop=False) Activate the specified window, giving it input focus
 window.close(title) Close the specified window gracefully
 window.get_active_geometry() Get the geometry of the currently active window

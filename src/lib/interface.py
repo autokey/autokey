@@ -35,13 +35,13 @@ except ImportError:
     
 from Xlib.protocol import rq, event
 
-from PyQt4.QtGui import QClipboard, QApplication
+import common
+if common.USING_QT:
+    from PyQt4.QtGui import QClipboard, QApplication
+else:
+    import gtk
 
 logger = logging.getLogger("interface")
-
-# Misc
-DOMAIN_SOCKET_PATH = "/tmp/autokey.daemon"
-PACKET_SIZE = 32
 
 # Modifiers
 SHIFT = 'XK_Shift_L'
@@ -129,7 +129,12 @@ class XInterfaceBase(threading.Thread):
         self.lock = threading.RLock()
         self.dpyLock = threading.Lock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
-        self.clipBoard = QApplication.clipboard()
+        
+        if common.USING_QT:
+            self.clipBoard = QApplication.clipboard()
+        else:
+            self.clipBoard = gtk.Clipboard()
+            self.selection = gtk.Clipboard(selection="PRIMARY")
         
         self.__initMappings()
         
@@ -230,9 +235,13 @@ class XInterfaceBase(threading.Thread):
                 
     def send_string_clipboard(self, string):
         logger.debug("Sending string: %r", string)
-        self.sem = threading.Semaphore(0)
-        self.app.exec_in_main(self.__fillSelection, string)
-        self.sem.acquire()
+        
+        if common.USING_QT:
+            self.sem = threading.Semaphore(0)
+            self.app.exec_in_main(self.__fillSelection, string)
+            self.sem.acquire()
+        else:
+            self.__fillSelection(string)
         
         focus = self.localDisplay.get_input_focus().focus
         xtest.fake_input(focus, X.ButtonPress, X.Button2)
@@ -240,8 +249,11 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Send via clipboard done")
         
     def __fillSelection(self, string):
-        self.clipBoard.setText(string, QClipboard.Selection)
-        self.sem.release()
+        if common.USING_QT:
+            self.clipBoard.setText(string, QClipboard.Selection)
+            self.sem.release()
+        else:
+            self.selection.set_text(string.encode("utf-8"))            
     
     def send_string(self, string):
         """
@@ -501,7 +513,7 @@ class EvDevInterface(XInterfaceBase):
             try:
                 # Request next event
                 try:
-                    data = self.socket.recv(PACKET_SIZE)
+                    data = self.socket.recv(common.PACKET_SIZE)
                 except socket.timeout:
                     continue # Timeout means no data to received
                     
@@ -537,7 +549,7 @@ class EvDevInterface(XInterfaceBase):
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.settimeout(1)
         try:
-            self.socket.connect(DOMAIN_SOCKET_PATH)
+            self.socket.connect(common.DOMAIN_SOCKET_PATH)
             logger.info("EvDev daemon connected")
             self.connected = True
         except socket.error, e:

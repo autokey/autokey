@@ -12,8 +12,13 @@
 ### END INIT INFO
 
 import sys, os, socket, glob, shutil, time
-from autokey import evdev, daemon
-from autokey.interface import DOMAIN_SOCKET_PATH, PACKET_SIZE
+try:
+    from autokey import evdev, daemon
+    from autokey.common import DOMAIN_SOCKET_PATH, PACKET_SIZE
+except ImportError:
+    # Per DPM § 9.3.2 script should fail gracefully if not installed.
+    print "It does not seem Autokey is installed. Exiting..."
+    sys.exit(0)
 
 PACKET_STRING = "%s,%s,%s"
 
@@ -29,7 +34,7 @@ class AutoKeyDaemon(daemon.Daemon):
         logFile = "/var/log/autokey-daemon.log"
         if os.path.exists(logFile):
             shutil.move(logFile, logFile + '.old')
-        daemon.Daemon.__init__(self, '/tmp/autokey-daemon.pid', stdout=logFile, stderr=logFile)
+        daemon.Daemon.__init__(self, '/var/run/autokey-daemon.pid', stdout=logFile, stderr=logFile)
 
     def get_device_paths(self):
         keyboardLocations = glob.glob("/dev/input/by-path/*-event-kbd")

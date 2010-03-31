@@ -18,17 +18,18 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import time, logging, threading, traceback
+import common
 from iomediator import Key, IoMediator
-import ui.configwindow, model
 from configmanager import *
-from ui.popupmenu import *
-#from plugin.manager import PluginManager, PluginError
-import scripting
+if common.USING_QT:
+    from qtui.popupmenu import *
+else:
+    from gtkui.popupmenu import *
+import scripting, model
 
 logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150
-CONFIG_WINDOW_TITLE = str(ui.configwindow.CONFIG_WINDOW_TITLE)
 
 def threaded(f):
     
@@ -258,7 +259,7 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return CONFIG_WINDOW_TITLE not in windowName and self.is_running()
+        return common.CONFIG_WINDOW_TITLE not in windowName and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):
@@ -363,12 +364,17 @@ class ScriptRunner:
         self.error = ''
         self.scope = globals()
         self.scope["keyboard"]= scripting.Keyboard(mediator)
-        self.scope["mouse"]= scripting.Mouse(mediator)        
-        self.scope["dialog"] = scripting.Dialog()
-        self.scope["clipboard"] = scripting.Clipboard(app)
+        self.scope["mouse"]= scripting.Mouse(mediator)
         self.scope["system"] = scripting.System()
         self.scope["window"] = scripting.Window(mediator)
         self.scope["engine"] = scripting.Engine(app.configManager, self)
+
+        if common.USING_QT:
+            self.scope["dialog"] = scripting.QtDialog()
+            self.scope["clipboard"] = scripting.QtClipboard(app)
+        else:
+            self.scope["dialog"] = scripting.GtkDialog()
+            self.scope["clipboard"] = scripting.GtkClipboard(app)
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)

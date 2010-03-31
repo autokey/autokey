@@ -1,12 +1,55 @@
-autokey (0.61.3-0~karmic) UNRELEASED; urgency=low
+autokey (0.61.7-0~karmic) karmic; urgency=low
+
+  * Fix incorrect reference to instance variable in KDE version
+  * Fix incorrect method signature in KeyGrabber class
+  * ConfigManager uses version from common.py now
+
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 30 Mar 2010 21:30:52 +1000
+
+autokey (0.61.6-0~karmic) karmic; urgency=low
+
+  * Fix problem with autostart in GTK version - issue #27
+  * Allow system.exec_command to be used with long-running processes
+  * Fix - hotkey dialog does not re-enable the "Press to set" button after
+    cancelling - issue #23
+  * Slight improvement to installation instructions
+  * Fix - special hotkeys - cannot assign previously cleared hotkey - issue #9
+  * Revert status icon for GTK version - it only looked good on one version of
+    one distro
+  * Patch holes in gettext support for GTK version (patch contribued by
+    mail@paddy-net.com)
+  
+ -- Chris Dekter <cdekter@gmail.com>  Thu, 25 Mar 2010 21:30:52 +1000
+
+autokey (0.61.5-0~karmic) karmic; urgency=high
+
+  * SECURITY UPDATE: arbitrary file overwriting via symlinks (LP: #538471)
+    - Store files for the EvDev daemon in FHS-specified locations
+    - debian/autokey-common.init: Set pidfile path to "/var/run/autokey-daemon.pid"
+    - src/lib/common.py: Set DOMAIN_SOCKET_PATH to "/var/run/autokey-daemon"
+    - CVE-2010-0398
+    
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 20 Mar 2010 21:30:52 +1000
+
+autokey (0.61.4-0~karmic) karmic; urgency=low
+
+  [Chris Dekter]
+  * Combine GTK and QT versions into single source tree
+
+  [Luke Faraone]
+  * Update package build to build autokey-gtk, autokey-qt and
+    autokey-common packages
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 28 Feb 2010 08:49:52 +1000
+
+autokey (0.61.3-0~karmic) karmic; urgency=low
 
   [ Luke Faraone ]
-  * Handle invalid or empty pidfiles in src/daemon.py. 
+  * Handle invalid or empty pidfiles in src/daemon.py.
   * Lower build-depends requirements to minimum Python versions.
 
   [ Chris Dekter ]
   * Add --error-handler to debian/rules
-  * Merge changes to interface.py from GTK branch that were missed
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 27 Feb 2010 08:49:52 +1000
 

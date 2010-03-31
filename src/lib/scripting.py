@@ -17,7 +17,12 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import subprocess, threading, time, re
-from PyQt4.QtGui import QClipboard, QApplication
+
+import common
+if common.USING_QT:
+    from PyQt4.QtGui import QClipboard, QApplication
+else:
+    import gtk
 import model
 
 class Keyboard:
@@ -114,9 +119,11 @@ class Store(dict):
         """
         del self[key]
         
-class Dialog:
+class QtDialog:
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
+    
+    This version uses KDialog to integrate well with KDE.
     """
     
     def __runKdialog(self, title, args):
@@ -284,22 +291,30 @@ class System:
     Simplified access to some system commands.
     """    
     
-    def exec_command(self, command):
+    def exec_command(self, command, getOutput=True):
         """
         Execute a shell command
+
+        Set getOutput to False if the command does not exit and return immediately. Otherwise
+        AutoKey will not respond to any hotkeys/abbreviations etc until the process started
+        by the command exits.
         
-        Usage: C{system.exec_command(command)}
+        Usage: C{system.exec_command(command, getOutput=True)}
         
         @param command: command to be executed (including any arguments) - e.g. "ls -l"
+        @param getOutput: whether to capture the (stdout) output of the command
         @raises subprocess.CalledProcessError: if the command returns a non-zero exit code
         """
-        p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read()[:-1]
-        if retCode != 0:
-            raise subprocess.CalledProcessError(retCode, output)
+        if getOutput:
+            p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
+            retCode = p.wait()
+            output = p.stdout.read()[:-1]
+            if retCode != 0:
+                raise subprocess.CalledProcessError(retCode, output)
+            else:
+                return output
         else:
-            return output
+            subprocess.Popen(command, shell=True, bufsize=-1)
     
     def create_file(self, fileName, contents=""):
         """
@@ -314,10 +329,192 @@ class System:
         f.write(contents)
         f.close()
         
-    
-class Clipboard:
+        
+class GtkDialog:
     """
-    Read/write access to the X selection and clipboard
+    Provides a simple interface for the display of some basic dialogs to collect information from the user.
+    
+    This version uses Zenity to integrate well with GNOME.
+    """
+    
+    def __runZenity(self, title, args):
+        p = subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read()[:-1] # Drop trailing newline
+        
+        return (retCode, output)
+        
+    def input_dialog(self, title="Enter a value", message="Enter a value", default=""):
+        """
+        Show an input dialog
+        
+        Usage: C{dialog.input_dialog(title="Enter a value", message="Enter a value", default="")}
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the input box
+        @param default: default value for the input box
+        """
+        return self.__runZenity(title, ["--entry", "--text", message, "--entry-text", default])
+        
+    def password_dialog(self, title="Enter password", message="Enter password"):
+        """
+        Show a password input dialog
+        
+        Usage: C{dialog.password_dialog(title="Enter password", message="Enter password")}
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the password input box
+        """
+        return self.__runZenity(title, ["--entry", "--text", message, "--hide-text"])
+        
+    #def combo_menu(self, options, title="Choose an option", message="Choose an option"):
+        """
+        Show a combobox menu - not supported by zenity
+        
+        Usage: C{dialog.combo_menu(options, title="Choose an option", message="Choose an option")}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the combobox      
+        """
+        #return self.__runZenity(title, ["--combobox", message] + options)
+        
+    def list_menu(self, options, title="Choose a value", message="Choose a value", default=None):
+        """
+        Show a single-selection list menu
+        
+        Usage: C{dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None)}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param default: default value to be selected
+        """
+        
+        choices = []
+        #optionNum = 0
+        for option in options:
+            if option == default:
+                choices.append("TRUE")
+            else:
+                choices.append("FALSE")
+                
+            #choices.append(str(optionNum))
+            choices.append(option)
+            #optionNum += 1
+            
+        return self.__runZenity(title, ["--list", "--radiolist", "--text", message, "--column", " ", "--column", "Options"] + choices)
+        
+        #return retCode, choice    
+        
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[]):
+        """
+        Show a multiple-selection list menu
+        
+        Usage: C{dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[])}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param defaults: list of default values to be selected
+        """
+        
+        choices = []
+        #optionNum = 0
+        for option in options:
+            if option in defaults:
+                choices.append("TRUE")
+            else:
+                choices.append("FALSE")
+                
+            #choices.append(str(optionNum))
+            choices.append(option)
+            #optionNum += 1
+            
+        retCode, output = self.__runZenity(title, ["--list", "--checklist", "--text", message, "--column", " ", "--column", "Options"] + choices)
+        results = output.split('|')
+    
+        #choices = []
+        #for choice in results:
+        #    choices.append(choice)
+        
+        return retCode, results
+        
+    def open_file(self, title="Open File"):
+        """
+        Show an Open File dialog
+        
+        Usage: C{dialog.open_file(title="Open File")}
+        
+        @param title: window title for the dialog
+        """
+        #if rememberAs is not None:
+        #    return self.__runZenity(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
+        #else:
+        return self.__runZenity(title, ["--file-selection"])
+        
+    def save_file(self, title="Save As"):
+        """
+        Show a Save As dialog
+        
+        Usage: C{dialog.save_file(title="Save As")}
+        
+        @param title: window title for the dialog
+        """
+        #if rememberAs is not None:
+        #    return self.__runZenity(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
+        #else:
+        return self.__runZenity(title, ["--file-selection", "--save"])
+        
+    def choose_directory(self, title="Select Directory", initialDir="~"):
+        """
+        Show a Directory Chooser dialog
+        
+        Usage: C{dialog.choose_directory(title="Select Directory")}
+        
+        @param title: window title for the dialog
+        """
+        #if rememberAs is not None:
+        #    return self.__runZenity(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
+        #else:
+        return self.__runZenity(title, ["--file-selection", "--directory"])
+        
+    #def choose_colour(self, title="Select Colour"):
+        """
+        Show a Colour Chooser dialog - not supported by zenity
+        
+        Usage: C{dialog.choose_colour(title="Select Colour")}
+        
+        @param title: window title for the dialog
+        """
+        #return self.__runZenity(title, ["--getcolor"])
+        
+    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today"):
+        """
+        Show a calendar dialog
+        
+        Usage: C{dialog.calendar_dialog(title="Choose a date", format="%Y-%m-%d", date="YYYY-MM-DD")}
+        
+        @param title: window title for the dialog
+        @param format: format of date to be returned
+        @param date: initial date as YYYY-MM-DD, otherwise today
+        
+        Use the dialog's OK button.
+        AutoKey has trouble if you double-click the date.
+        """
+        if re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date):
+            year = date[0:4]
+            month = date[5:7]
+            day = date[8:10]
+            date_args = ["--year=" + year, "--month=" + month, "--day=" + day]
+        else:
+            date_args = []
+        return self.__runZenity(title, ["--calendar", "--date-format=" + format] + date_args)
+
+    
+class QtClipboard:
+    """
+    Read/write access to the X selection and clipboard - QT version
     """
     
     def __init__(self, app):
@@ -383,6 +580,73 @@ class Clipboard:
         self.app.exec_in_main(callback, *args)
         self.sem.acquire()        
         
+        
+class GtkClipboard:
+    """
+    Read/write access to the X selection and clipboard - GTK version
+    """
+    
+    def __init__(self, app):
+        self.clipBoard = gtk.Clipboard()
+        self.selection = gtk.Clipboard(selection="PRIMARY")
+        self.app = app
+        
+    def fill_selection(self, contents):
+        """
+        Copy text into the X selection
+        
+        Usage: C{clipboard.fill_selection(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        #self.__execAsync(self.__fillSelection, contents)
+        self.__fillSelection(contents)
+        
+    def __fillSelection(self, string):
+        self.selection.set_text(string.encode("utf-8"))
+        #self.sem.release()
+        
+    def get_selection(self):
+        """
+        Read text from the X selection
+        
+        Usage: C{clipboard.get_selection()}
+        """
+        self.__execAsync(self.selection.request_text, self.__receive)
+        return self.text.decode("utf-8")
+        
+    def __receive(self, cb, text, data=None):
+        self.text = text
+        self.sem.release()
+        
+    def fill_clipboard(self, contents):
+        """
+        Copy text into the clipboard
+        
+        Usage: C{clipboard.fill_clipboard(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        self.__fillClipboard(contents)
+        
+    def __fillClipboard(self, string):
+        self.clipBoard.set_text(string.encode("utf-8"))
+        #self.sem.release()        
+        
+    def get_clipboard(self):
+        """
+        Read text from the clipboard
+        
+        Usage: C{clipboard.get_clipboard()}
+        """
+        self.__execAsync(self.clipBoard.request_text, self.__receive)
+        return self.text.decode("utf-8")
+        
+    def __execAsync(self, callback, *args):
+        self.sem = threading.Semaphore(0)
+        callback(*args)
+        self.sem.acquire()
+
         
 class Window:
     """

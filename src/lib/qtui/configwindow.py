@@ -22,12 +22,9 @@ from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, QVariant, Qt
 from PyQt4 import Qsci
+from autokey import common
 
-CONFIG_WINDOW_TITLE = i18n("Configuration")
-
-FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
-HELP_URL = "http://code.google.com/p/autokey/w/list"
-DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
+CONFIG_WINDOW_TITLE = i18n(common.CONFIG_WINDOW_TITLE)
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
@@ -956,13 +953,13 @@ class ConfigWindow(KXmlGuiWindow):
     # Help Menu
             
     def on_show_faq(self):
-        webbrowser.open(FAQ_URL, False, True)
+        webbrowser.open(common.FAQ_URL, False, True)
         
     def on_show_help(self):
-        webbrowser.open(HELP_URL, False, True)
+        webbrowser.open(common.HELP_URL, False, True)
         
     def on_donate(self):
-        webbrowser.open(DONATE_URL, False, True)
+        webbrowser.open(common.DONATE_URL, False, True)
         
 
 # ---- TreeWidget and helper functions
