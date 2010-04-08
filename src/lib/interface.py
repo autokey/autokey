@@ -112,6 +112,15 @@ END = "XK_End"
 PAGE_UP = "XK_Page_Up"
 PAGE_DOWN = "XK_Page_Down"
 
+MASK_INDEXES = [
+               (X.ShiftMapIndex, X.ShiftMask),
+               (X.ControlMapIndex, X.ControlMask),
+               (X.Mod1MapIndex, X.Mod1Mask),
+               (X.Mod2MapIndex, X.Mod2Mask),
+               (X.Mod3MapIndex, X.Mod3Mask),
+               (X.Mod4MapIndex, X.Mod4Mask),
+               (X.Mod5MapIndex, X.Mod5Mask),
+               ]
 
 class XInterfaceBase(threading.Thread):
     """
@@ -168,8 +177,18 @@ class XInterfaceBase(threading.Thread):
             keyNames = NUMPAD_MAP[xkKeyName]
             keyCode = self.localDisplay.keysym_to_keycode(getattr(XK, xkKeyName))
             self.numKeyNames[keyCode] = keyNames
+
+        # Build modifier mask mapping
+        self.modMasks = {}
+        mapping = self.localDisplay.get_modifier_mapping()
+        for index, mask in MASK_INDEXES:
+            
+            for mod in MODIFIERS:
+                if self.keyCodes[mod] in mapping[index]:
+                    self.modMasks[mod] = mask
        
         logger.debug("Keycodes dict: %s", self.keyCodes)
+        logger.debug("Modifier masks: %r", self.modMasks)
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             self.keymap_test()        
         
@@ -189,26 +208,6 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
-        
-                
-        #print "The following is a test for Alt-Gr modifier mapping. Please open a text editing program for this test."
-        #print "After 10 seconds, the test will commence. 6 key events will be sent. Please monitor the output and record"
-        #print "which of the 6 events produces a '{' (left curly brace)"
-        #time.sleep(10)
-        #keyCodeList = self.localDisplay.keysym_to_keycodes(ord("{"))
-        #keyCode, offset = keyCodeList[0]
-        #self.__sendKeyCode(keyCode, X.ShiftMask)
-        #time.sleep(0.5)
-        #self.__sendKeyCode(keyCode, X.Mod1Mask)
-        #time.sleep(0.5)
-        #self.__sendKeyCode(keyCode, X.Mod2Mask)
-        #time.sleep(0.5)
-        #self.__sendKeyCode(keyCode, X.Mod3Mask)
-        #time.sleep(0.5)
-        #self.__sendKeyCode(keyCode, X.Mod4Mask)
-        #time.sleep(0.5)
-        #self.__sendKeyCode(keyCode, X.Mod5Mask)
-        #print "Test complete. Now, please press the Alt-Gr key a few times (on its own)"
         
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
@@ -267,28 +266,12 @@ class XInterfaceBase(threading.Thread):
                 keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
                 if len(keyCodeList) > 0:
                     keyCode, offset = keyCodeList[0]
+                    if offset == 0:
+                        self.__sendKeyCode(keyCode)
                     if offset == 1:
-                        self.__sendKeyCode(keyCode, X.ShiftMask)
-                    elif offset == 4:
-                        self.send_modified_key(char, [Key.ALT_GR])
-                    # TODO - I've given up trying to make it work the proper way
-                    #elif offset == X.Mod1MapIndex:
-                    #    print "mod1mask"
-                    #    self.__sendKeyCode(keyCode, X.Mod1Mask)
-                    #elif offset == X.Mod2MapIndex:
-                    #    print "mod2mask"
-                    #    self.__sendKeyCode(keyCode, X.Mod2Mask)
-                    #elif offset == X.Mod3MapIndex:
-                    #    print "mod3mask"
-                    #    self.__sendKeyCode(keyCode, X.Mod3Mask)
-                    #elif offset == X.Mod4MapIndex:
-                    #    print "mod4mask"
-                    #    self.__sendKeyCode(keyCode, X.Mod4Mask)
-                    #elif offset == X.Mod5MapIndex:
-                    #    print "mod5mask"
-                    #    self.__sendKeyCode(keyCode, X.Mod5Mask)
-                    else:
-                        self.__sendKeyCode(keyCode)                    
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
+                    if offset == 4:
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
                 else:
                     self.send_unicode_char(char)
                     
@@ -304,7 +287,7 @@ class XInterfaceBase(threading.Thread):
         Send a modified key (e.g. when emulating a hotkey)
         """
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
-        for modifier in modifiers:
+        """for modifier in modifiers:
             modifierCode = self.keyCodes[modifier.lower()]
             xtest.fake_input(self.rootWindow, X.KeyPress, modifierCode)
             
@@ -314,7 +297,12 @@ class XInterfaceBase(threading.Thread):
         
         for modifier in modifiers:
             modifierCode = self.keyCodes[modifier.lower()]
-            xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)
+            xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)"""
+        mask = 0
+        for mod in modifiers:
+            mask |= self.modMasks[mod]
+        keyCode = self.__lookupKeyCode(keyName)
+        self.__sendKeyCode(keyCode, mask)
             
     def send_unicode_char(self, char):
         logger.debug("Send unicode char: %s", char)
