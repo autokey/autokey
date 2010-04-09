@@ -249,15 +249,15 @@ class ConfigManager:
         self.userCodeDir = None
         
         self.configHotkey = GlobalHotkey()
-        self.configHotkey.set_hotkey(["<ctrl>"], "k")
+        self.configHotkey.set_hotkey(["<super>"], "k")
         self.configHotkey.enabled = True
         
         self.toggleServiceHotkey = GlobalHotkey()
-        self.toggleServiceHotkey.set_hotkey(["<ctrl>", "<shift>"], "k")
+        self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
         self.toggleServiceHotkey.enabled = True    
         
         self.showPopupHotkey = GlobalHotkey()
-        self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
+        self.showPopupHotkey.set_hotkey(["<super>"], "b")
         self.showPopupHotkey.enabled = True
 
         if configData is not None:
