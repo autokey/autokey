@@ -307,32 +307,15 @@ class PhraseRunner:
     def execute(self, phrase, buffer):
         mediator = self.service.mediator
         expansion = phrase.build_phrase(buffer)
-        #try:
-        #    self.pluginManager.process_expansion(expansion, buffer)
-        #except PluginError, pe:
-        #    logger.warn("A plug-in reported an error: " + pe.message)
-        #    self.app.show_notify("A plug-in reported an error.", True, pe.message)
-            
-        #phrase.parsePositionTokens(expansion)
 
-        # Check for extra keys that have been typed since this invocation started
-        mediator.acquire_lock()
-        extraBs, extraKeys = self.service.calculate_extra_keys(buffer)
-        mediator.release_lock()
-        
-        #self.ignoreCount = len(expansion.string) + expansion.backspaces + extraBs + len(extraKeys) + expansion.lefts
-        
-        mediator.send_backspace(expansion.backspaces + extraBs)
+        mediator.interface.begin_send()
+        mediator.send_backspace(expansion.backspaces)
         mediator.send_string(expansion.string)
-        mediator.send_string(extraKeys)
-        #mediator.send_left(expansion.lefts)
-        mediator.flush()
-    
-        ConfigManager.SETTINGS[INPUT_SAVINGS] += (len(expansion.string) - phrase.calculate_input(buffer))
+        mediator.interface.finish_send()
+
         self.lastExpansion = expansion
         self.lastPhrase = phrase
         self.lastBuffer = buffer
-        #return len(expansion.string)
         
     def can_undo(self):
         if self.lastExpansion is not None:
@@ -350,10 +333,10 @@ class PhraseRunner:
         mediator = self.service.mediator
         
         #mediator.send_right(self.lastExpansion.lefts)
+        mediator.interface.begin_send()
         mediator.remove_string(self.lastExpansion.string)
         mediator.send_string(replay)
-        mediator.flush()
-        #mediator.send_right(1)
+        mediator.interface.finish_send()
         self.clear_last()
     
     

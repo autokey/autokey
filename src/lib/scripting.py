@@ -41,8 +41,9 @@ class Keyboard:
         
         @param keyString: string of keys (including special keys) to send
         """
+        self.mediator.interface.begin_send()
         self.mediator.send_string(keyString.decode("utf-8"))
-        self.mediator.flush()
+        self.mediator.interface.finish_send()
         
     def send_key(self, key, repeat=1):
         """

@@ -106,6 +106,10 @@ class SettingsWidget:
             self.filterEnabled = True
             
     def save(self):
+        # Perform hotkey ungrab
+        if model.TriggerMode.HOTKEY in self.currentItem.modes:
+            self.parentWindow.app.hotkey_removed(self.currentItem)
+        
         self.currentItem.set_modes([])
         if self.abbrEnabled:
             self.abbrDialog.save(self.currentItem)
@@ -115,6 +119,9 @@ class SettingsWidget:
             self.filterDialog.save(self.currentItem)
         else:
             self.currentItem.set_window_titles(None)
+
+        if self.hotkeyEnabled:
+            self.parentWindow.app.hotkey_created(self.currentItem)
             
     def set_dirty(self):
         self.parentWindow.set_dirty(True)
@@ -787,10 +794,25 @@ class ConfigWindow:
         newSelectionIter = model.iter_parent(model[selectedPaths[0]].iter)
         if newSelectionIter is None:
             newSelectionIter = model.get_iter_root()
-        
+
+        data = model.get_value(item, AkTreeModel.OBJECT_COLUMN)
+        self.__deleteHotkeys(data)
+
         model.remove_item(item)
         self.treeView.get_selection().select_iter(newSelectionIter)
         self.on_tree_selection_changed(self.treeView)
+
+    def __deleteHotkeys(self, theItem):
+        if model.TriggerMode.HOTKEY in theItem.modes:
+            self.app.hotkey_removed(theItem)
+
+        if isinstance(theItem, model.Folder):
+            for subFolder in theItem.folders:
+                self.__deleteHotkeys(subFolder)
+
+            for item in theItem.items:
+                if model.TriggerMode.HOTKEY in item.modes:
+                    self.app.hotkey_removed(item)
         
     def on_undo(self, widget, data=None):
         self.__getCurrentPage().undo()

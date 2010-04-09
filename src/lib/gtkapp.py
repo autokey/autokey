@@ -146,6 +146,14 @@ class Application:
     def config_altered(self):
         self.configManager.config_altered()
         #self.notifier.build_menu()
+
+    def hotkey_created(self, item):
+        logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
+        self.service.mediator.interface.grab_hotkey(item)
+
+    def hotkey_removed(self, item):
+        logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
+        self.service.mediator.interface.ungrab_hotkey(item)
         
     def unpause_service(self):
         """

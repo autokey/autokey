@@ -118,16 +118,32 @@ class SettingsDialog:
             
         #ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.checkBox.get_active()
         
-        
-        self.showConfigDlg.save(self.configManager.configHotkey)
-        self.configManager.configHotkey.enabled = self.useConfigHotkey
-        
-        self.toggleMonitorDlg.save(self.configManager.toggleServiceHotkey)
-        self.configManager.toggleServiceHotkey.enabled = self.useServiceHotkey
-        
-        self.showPopupDlg.save(self.configManager.showPopupHotkey)
-        self.configManager.showPopupHotkey.enabled = self.usePopupHotkey
-        
+        configHotkey = self.configManager.configHotkey
+        toggleHotkey = self.configManager.toggleServiceHotkey
+        popupHotkey = self.configManager.showPopupHotkey
+        app = self.configManager.app
+
+        if configHotkey.enabled:
+            app.hotkey_removed(configHotkey)
+        self.showConfigDlg.save(configHotkey)
+        configHotkey.enabled = self.useConfigHotkey
+        if self.useConfigHotkey:
+            app.hotkey_created(configHotkey)
+
+        if toggleHotkey.enabled:
+            app.hotkey_removed(toggleHotkey)
+        self.toggleMonitorDlg.save(toggleHotkey)
+        toggleHotkey.enabled = self.useServiceHotkey
+        if self.useServiceHotkey:
+            app.hotkey_created(toggleHotkey)
+            
+        if popupHotkey.enabled:
+            app.hotkey_removed(popupHotkey)
+        self.showPopupDlg.save(popupHotkey)
+        popupHotkey.enabled = self.usePopupHotkey
+        if self.usePopupHotkey:
+            app.hotkey_created(popupHotkey)
+            
         self.configManager.config_altered()
         
         self.hide()

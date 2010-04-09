@@ -88,6 +88,10 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
             self.filterEnabled = True
             
     def save(self):
+        # Perform hotkey ungrab
+        if model.TriggerMode.HOTKEY in self.currentItem.modes:
+            self.topLevelWidget().app.hotkey_removed(self.currentItem)
+        
         self.currentItem.set_modes([])
         if self.abbrEnabled:
             self.abbrDialog.save(self.currentItem)
@@ -96,7 +100,10 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         if self.filterEnabled:
             self.filterDialog.save(self.currentItem)
         else:
-            self.currentItem.set_window_titles(None)            
+            self.currentItem.set_window_titles(None)
+
+        if self.hotkeyEnabled:
+            self.topLevelWidget().app.hotkey_created(self.currentItem)
             
     def set_dirty(self):
         self.topLevelWidget().set_dirty()
@@ -720,6 +727,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
     def __removeItem(self, widgetItem):
         parent = widgetItem.parent()
         item = self.__extractData(widgetItem)
+        self.__deleteHotkeys(item)
         
         if parent is None:
             self.treeWidget.removeItemWidget(widgetItem, 0)
@@ -733,6 +741,20 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                 item.parent.remove_item(item)
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
+
+            
+    def __deleteHotkeys(self, theItem):
+        if model.TriggerMode.HOTKEY in theItem.modes:
+            self.topLevelWidget().app.hotkey_removed(theItem)
+
+        if isinstance(theItem, model.Folder):
+            for subFolder in theItem.folders:
+                self.__deleteHotkeys(subFolder)
+
+            for item in theItem.items:
+                if model.TriggerMode.HOTKEY in item.modes:
+                    self.topLevelWidget().app.hotkey_removed(item)
+        
         
 
 # ---- Configuration window

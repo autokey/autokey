@@ -115,6 +115,7 @@ PAGE_DOWN = "XK_Page_Down"
 MASK_INDEXES = [
                (X.ShiftMapIndex, X.ShiftMask),
                (X.ControlMapIndex, X.ControlMask),
+               (X.LockMapIndex, X.LockMask),
                (X.Mod1MapIndex, X.Mod1Mask),
                (X.Mod2MapIndex, X.Mod2Mask),
                (X.Mod3MapIndex, X.Mod3Mask),
@@ -136,8 +137,9 @@ class XInterfaceBase(threading.Thread):
         self.localDisplay = display.Display()
         self.rootWindow = self.localDisplay.screen().root
         self.lock = threading.RLock()
-        self.dpyLock = threading.Lock()
+        self.dpyLock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
+        self.sendInProgress = False
         
         if common.USING_QT:
             self.clipBoard = QApplication.clipboard()
@@ -146,6 +148,7 @@ class XInterfaceBase(threading.Thread):
             self.selection = gtk.Clipboard(selection="PRIMARY")
         
         self.__initMappings()
+        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
         
     def __initMappings(self):
         # Map of keyname to keycode
@@ -186,6 +189,8 @@ class XInterfaceBase(threading.Thread):
             for mod in MODIFIERS:
                 if self.keyCodes[mod] in mapping[index]:
                     self.modMasks[mod] = mask
+
+        self.__grabHotkeys()
        
         logger.debug("Keycodes dict: %s", self.keyCodes)
         logger.debug("Modifier masks: %r", self.modMasks)
@@ -208,6 +213,121 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
+
+    def __grabHotkeys(self):
+        """
+        Run during startup to grab global and specific hotkeys in all open windows
+        """
+        c = self.app.configManager
+        hotkeys = c.hotKeys + c.hotKeyFolders
+
+        # Grab global hotkeys in root window
+        for item in c.globalHotkeys:
+            if item.enabled:
+                self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+
+        # Grab hotkeys without a filter in root window
+        for item in hotkeys:
+            if item.windowTitleRegex is None:
+                self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+
+        self.__recurseTree(self.rootWindow, hotkeys)
+
+    def __recurseTree(self, parent, hotkeys):
+        # Grab matching hotkeys in all open child windows
+        for window in parent.query_tree().children:
+            title = self.get_window_title(window)
+            if title != "" and title != "None":
+                for item in hotkeys:
+                    if item.windowTitleRegex is not None and item._should_trigger_window_title(title):
+                        self.__grabHotkey(item.hotKey, item.modifiers, window)
+
+            self.__recurseTree(window, hotkeys)
+
+
+    def __grabHotkeysForWindow(self, window):
+        """
+        Grab all hotkeys relevant to the window
+
+        Used when a new windows is mapped
+        """
+        c = self.app.configManager
+        hotkeys = c.hotKeys + c.hotKeyFolders
+        title = self.get_window_title(window)
+        if title != "" and title != "None":
+            for item in hotkeys:
+                if item._should_trigger_window_title(title):
+                    self.__grabHotkey(item.hotKey, item.modifiers, window)
+
+    def __grabHotkey(self, key, modifiers, window):
+        """
+        Grab a specific hotkey in the given window
+        """
+        logger.debug("Grabbing hotkey: %r %r", modifiers, key)
+        keycode = self.__lookupKeyCode(key)
+        mask = 0
+        for mod in modifiers:
+            mask |= self.modMasks[mod]
+                
+        window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+        window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+        window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+        window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+
+    def grab_hotkey(self, item):
+        """
+        Grab a hotkey.
+
+        If the hotkey has no filter regex, it is global and need only be grabbed from the root window
+        If it has a filter regex, iterate over all children of the root and grab from matching windows
+        """
+        if item.windowTitleRegex is None:
+            self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+        else:
+            self.__grabRecurse(item, self.rootWindow)
+
+    def __grabRecurse(self, item, parent):
+        for window in parent.query_tree().children:
+            title = self.get_window_title(window)
+            if title != "" and title != "None" and item._should_trigger_window_title(title):
+                self.__grabHotkey(item.hotKey, item.modifiers, window)
+
+            self.__grabRecurse(item, window)
+
+    def ungrab_hotkey(self, item):
+        """
+        Ungrab a hotkey.
+
+        If the hotkey has no filter regex, it is global and need only be ungrabbed from the root window
+        If it has a filter regex, iterate over all children of the root and ungrab from matching windows
+        """
+        if item.windowTitleRegex is None:
+            self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+        else:
+            self.__ungrabRecurse(item, self.rootWindow)
+
+    def __ungrabRecurse(self, item, parent):
+        for window in parent.query_tree().children:
+            title = self.get_window_title(window)
+            if title != "" and title != "None" and item._should_trigger_window_title(title):
+                self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+
+            self.__ungrabRecurse(item, window)
+
+    def __ungrabHotkey(self, key, modifiers, window):
+        """
+        Ungrab a specific hotkey in the given window
+        """
+        logger.debug("Ungrabbing hotkey: %r %r", modifiers, key)
+        keycode = self.__lookupKeyCode(key)
+        mask = 0
+        for mod in modifiers:
+            mask |= self.modMasks[mod]
+
+        window.ungrab_key(keycode, mask)
+        window.ungrab_key(keycode, mask|self.modMasks[Key.NUMLOCK])
+        window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK])
+        window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
         
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
@@ -252,7 +372,24 @@ class XInterfaceBase(threading.Thread):
             self.clipBoard.setText(string, QClipboard.Selection)
             self.sem.release()
         else:
-            self.selection.set_text(string.encode("utf-8"))            
+            self.selection.set_text(string.encode("utf-8"))
+
+    def begin_send(self):
+        self.queuedEvents = []
+        self.sendInProgress = True
+        focus = self.localDisplay.get_input_focus().focus
+        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        self.localDisplay.flush()
+
+    def finish_send(self):
+        self.localDisplay.ungrab_keyboard(X.CurrentTime)
+        self.sendInProgress = False
+        for event in self.queuedEvents:
+            if event.type == X.KeyPress:
+                self.__sendKeyPressEvent(event.detail, event.state)
+            elif event.type == X.KeyRelease:
+                self.__sendKeyReleaseEvent(event.detail, event.state)
+        self.localDisplay.flush()
     
     def send_string(self, string):
         """
@@ -345,19 +482,29 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
         
     def release_key(self, keyName):
-        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)  
-        
-    def _handleKeyPress(self, keyCode):
-        self.lock.acquire()
-        
-        # Initial attempt at detecting MappingNotify by polling for events
+        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
+
+    def __flushEvents(self):
         r, w, x = select.select([self.localDisplay], [], [], 0)
         if self.localDisplay in r:
             for x in range(self.localDisplay.pending_events()):
                 event = self.localDisplay.next_event()
                 if event.type == X.MappingNotify:
                     self.__updateMapping(event)
+                elif event.type == X.MapNotify:
+                    logger.debug("New window mapped, grabbing hotkeys")
+                    try:
+                        self.__grabHotkeysForWindow(event.window)
+                    except:
+                        logging.exception("Window destroyed during hotkey grab")
+
+                elif event.type in (X.KeyPress, X.KeyRelease) and self.sendInProgress:
+                    self.queuedEvents.append(event)
         
+    def _handleKeyPress(self, keyCode):
+        self.lock.acquire()
+
+        self.__flushEvents()
         
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
@@ -460,24 +607,28 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
     
-    def get_window_title(self):
+    def get_window_title(self, window=None):
         self.dpyLock.acquire()
         try:
-            windowvar = self.localDisplay.get_input_focus().focus
+            if window is None:
+                windowvar = self.localDisplay.get_input_focus().focus
+            else:
+                windowvar = window
             wmname = windowvar.get_wm_name()
             wmclass = windowvar.get_wm_class()
             
             if (wmname == None) and (wmclass == None):
-                windowvar = windowvar.query_tree().parent
-                wmname = windowvar.get_wm_name()
+                #self.dpyLock.release()
+                return self.get_window_title(windowvar.query_tree().parent)
+            elif wmname == "":
+                #self.dpyLock.release()
+                return self.get_window_title(windowvar.query_tree().parent)
 
-            logger.debug("Window name: %s", str(wmname))
-            self.dpyLock.release()
             return str(wmname)
         except:
-            logger.debug("Unable to determine active window name")
-            self.dpyLock.release()
             return ""
+        finally:
+            self.dpyLock.release()
 
 
 class EvDevInterface(XInterfaceBase):
@@ -490,6 +641,7 @@ class EvDevInterface(XInterfaceBase):
     def cancel(self):
         self.cancelling = True
         self.join(1.0)
+        self.localDisplay.close()
         
     def run(self):
         logger.info("EvDev interface thread starting")
@@ -595,10 +747,12 @@ class XRecordInterface(XInterfaceBase):
         self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
         # Finally free the context
         self.recordDisplay.record_free_context(self.ctx)
+        self.recordDisplay.close()
         
     def cancel(self):
         self.localDisplay.record_disable_context(self.ctx)
         self.localDisplay.flush()
+        self.localDisplay.close()
         self.join(1.0)
 
     def __processEvent(self, reply):
@@ -645,6 +799,7 @@ class AtSpiInterface(XInterfaceBase):
         self.registry.deregisterEventListener(self.__processWindowEvent, 'window:activate')
         self.registry.deregisterEventListener(self.__processMouseEvent, 'mouse:button')
         self.registry.stop()
+        self.localDisplay.close()
         
     def __processKeyEvent(self, event):
         if event.type == pyatspi.KEY_PRESSED_EVENT:

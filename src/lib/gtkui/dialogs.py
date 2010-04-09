@@ -174,9 +174,6 @@ class HotkeySettingsDialog(DialogBase):
     
     KEY_MAP = {
                ' ' : "<space>",
-               '\t' : "<tab>",
-               '\b' : "<backspace>",
-               '\n' : "<enter>" 
                }
     
     REVERSE_KEY_MAP = {}

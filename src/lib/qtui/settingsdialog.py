@@ -84,12 +84,23 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
 
         
     def save(self):
-        self.showConfigDlg.save(self.configManager.configHotkey)
-        self.configManager.configHotkey.enabled = self.useConfigHotkey
+        configHotkey = self.configManager.configHotkey
+        toggleHotkey = self.configManager.toggleServiceHotkey
         
-        self.toggleMonitorDlg.save(self.configManager.toggleServiceHotkey)
-        self.configManager.toggleServiceHotkey.enabled = self.useServiceHotkey
-        
+        if configHotkey.enabled:
+            self.configManager.app.hotkey_removed(configHotkey)            
+        self.showConfigDlg.save(configHotkey)
+        configHotkey.enabled = self.useConfigHotkey
+        if self.useConfigHotkey:
+            self.configManager.app.hotkey_created(configHotkey)
+
+        if toggleHotkey.enabled:
+            self.configManager.app.hotkey_removed(toggleHotkey)                
+        self.toggleMonitorDlg.save(toggleHotkey)
+        toggleHotkey.enabled = self.useServiceHotkey
+        if self.useServiceHotkey:
+            self.configManager.app.hotkey_created(toggleHotkey)
+
         self.configManager.config_altered()
     
     def build_hotkey_string(self, key, modifiers):
