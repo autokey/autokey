@@ -16,14 +16,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os, os.path, shutil, logging, pickle
+import os, os.path, shutil, logging, pickle, json
 import iomediator, interface, common
-
-APP_VERSION = common.VERSION
 
 _logger = logging.getLogger("config-manager")
 
-CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.bin")
+CONFIG_FILE_OLD = os.path.expanduser("~/.config/autokey/autokey.bin")
+CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.json")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
@@ -60,39 +59,69 @@ REPLACE_STRINGS = [("iautokey.configurationmanager", "iautokey.configmanager"),
                   ("S'hotKeyPhrases'", "S'hotKeys'"),
                   ("S'abbrPhrases'", "S'abbreviations'")]
 
+def load_legacy_config(autoKeyApp, hadError=False):
+    _logger.info("Loading config from legacy file: " + CONFIG_FILE_OLD)
+    pFile = open(CONFIG_FILE_OLD, 'rb')
+
+    try:
+        settings, configManager = pickle.load(pFile)
+    except EOFError:
+        if hadError:
+            _logger.error("Error while loading configuration. Cannot recover.")
+            raise
+
+        _logger.error("Error while loading configuration. Backup has been restored.")
+        os.remove(CONFIG_FILE_OLD)
+        shutil.copy(CONFIG_FILE_OLD + '~', CONFIG_FILE_OLD)
+        return load_legacy_config(autoKeyApp, True)
+    except ImportError:
+        pFile.close()
+        upgrade_config_file()
+        return load_legacy_config(autoKeyApp)
+
+    pFile.close()
+    apply_settings(settings)
+    configManager.app = autoKeyApp
+
+    if not hasattr(configManager, 'VERSION'):
+        configManager.VERSION = "0.60.0"
+
+    if configManager.VERSION < ConfigManager.CLASS_VERSION:
+        configManager.upgrade()
+
+    autoKeyApp.init_global_hotkeys(configManager)
+
+    _logger.info("Successfully loaded configuration file")
+    _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
+    return configManager
+
 def get_config_manager(autoKeyApp, hadError=False):
-    if os.path.exists(CONFIG_FILE):
+    if os.path.exists(CONFIG_FILE_OLD) and not os.path.exists(CONFIG_FILE):
+        return load_legacy_config(autoKeyApp)
+    elif os.path.exists(CONFIG_FILE):
         _logger.info("Loading config from existing file: " + CONFIG_FILE)
-        pFile = open(CONFIG_FILE, 'rb')
-        
+        pFile = open(CONFIG_FILE, 'r')
+
         try:
-            settings, configManager = pickle.load(pFile)
-        except EOFError:
-            if hadError:
+            configData = json.load(pFile)
+            configManager = ConfigManager(autoKeyApp, configData)
+        except Exception, e:
+            if hadError or not os.path.exists(CONFIG_FILE_BACKUP):
                 _logger.error("Error while loading configuration. Cannot recover.")
                 raise
-            
-            _logger.error("Error while loading configuration. Backup has been restored.")
+
+            _logger.exception("Error while loading configuration. Backup has been restored.")
             os.remove(CONFIG_FILE)
             shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
             return get_config_manager(autoKeyApp, True)
-        except ImportError:
-            pFile.close()
-            upgrade_config_file()
-            return get_config_manager(autoKeyApp)
+
+        pFile.close()
         
-        pFile.close()    
-        apply_settings(settings)
-        configManager.app = autoKeyApp
-        
-        if not hasattr(configManager, 'VERSION'):
-            configManager.VERSION = "0.60.0"
-            
         if configManager.VERSION < ConfigManager.CLASS_VERSION:
             configManager.upgrade()
-        
+
         autoKeyApp.init_global_hotkeys(configManager)
-        
+
         _logger.info("Successfully loaded configuration file")
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
         return configManager
@@ -101,31 +130,22 @@ def get_config_manager(autoKeyApp, hadError=False):
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
         return ConfigManager(autoKeyApp)
 
+
 def save_config(configManager):
     _logger.info("Persisting configuration") 
-    configManager.configHotkey.set_closure(None)
-    configManager.toggleServiceHotkey.set_closure(None)
-    configManager.showPopupHotkey.set_closure(None)
-
-    autoKeyApp = configManager.app
-    configManager.app = None
-
     # Back up configuration if it exists
     if os.path.exists(CONFIG_FILE):
         _logger.info("Backing up existing config file")
         shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
-        outFile = open(CONFIG_FILE, "wb")
-        pickle.dump([ConfigManager.SETTINGS, configManager], outFile)
-    except pickle.PickleError, pe:
+        outFile = open(CONFIG_FILE, "w")
+        json.dump(configManager.get_serializable(), outFile, indent=4)
+        _logger.info("Finished persisting configuration - no errors")
+    except Exception, e:
         if os.path.exists(CONFIG_FILE_BACKUP):
             shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
         _logger.exception("Error while saving configuration. Backup has been restored (if found).")
         raise Exception("Error while saving configuration. Backup has been restored (if found).")
-    else:
-        autoKeyApp.init_global_hotkeys(configManager)
-        configManager.app = autoKeyApp
-        _logger.info("Finished persisting configuration - no errors")
     finally:
         outFile.close()
         
@@ -182,7 +202,7 @@ class ImportException(Exception):
     Exception raised when an error occurs during the import of an abbreviations file.
     """
     pass
-    
+
 
 class ConfigManager:
     """
@@ -194,7 +214,7 @@ class ConfigManager:
     Static member for global application settings.
     """
     
-    CLASS_VERSION = APP_VERSION
+    CLASS_VERSION = common.VERSION
     
     SETTINGS = {
                 IS_FIRST_RUN : True,
@@ -205,7 +225,6 @@ class ConfigManager:
                 #DETECT_UNWANTED_ABBR : False,
                 PROMPT_TO_SAVE: True,
                 #PREDICTIVE_LENGTH : 5,
-                INPUT_SAVINGS : 0,
                 ENABLE_QT4_WORKAROUND : False,
                 INTERFACE_TYPE : _chooseInterface(),
                 UNDO_USING_BACKSPACE : True,
@@ -219,7 +238,7 @@ class ConfigManager:
                 #RECENT_ENTRY_SUGGEST : True
                 }
                 
-    def __init__(self, app):
+    def __init__(self, app, configData=None):
         """
         Create initial default configuration
         """ 
@@ -240,6 +259,12 @@ class ConfigManager:
         self.showPopupHotkey = GlobalHotkey()
         self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
         self.showPopupHotkey.enabled = True
+
+        if configData is not None:
+            self.load_from_serialized(configData)
+            return
+
+        # --- Code below here only executed if no persisted config data provided
         
         myPhrases = Folder(u"My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
@@ -313,6 +338,35 @@ engine.create_phrase(folder, title, contents)"""
         self.recentEntries = []
         
         self.config_altered()
+
+    def get_serializable(self):
+        d = {
+            "version": self.VERSION,
+            "userCodeDir": self.userCodeDir,
+            "settings": ConfigManager.SETTINGS,
+            "folders": [folder.get_serializable() for folder in self.folders.values()],
+            "showPopupHotkey": self.showPopupHotkey.get_serializable(),
+            "toggleServiceHotkey": self.toggleServiceHotkey.get_serializable(),
+            "configHotkey": self.configHotkey.get_serializable()
+            }
+        return d
+
+    def load_from_serialized(self, data):
+        self.VERSION = data["version"]
+        self.userCodeDir = data["userCodeDir"]
+        apply_settings(data["settings"])
+
+        self.folders.clear()
+        for folderData in data["folders"]:
+            f = Folder("")
+            f.load_from_serialized(folderData, None)
+            self.folders[f.title] = f
+
+        self.showPopupHotkey.load_from_serialized(data["showPopupHotkey"])
+        self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
+        self.configHotkey.load_from_serialized(data["configHotkey"])
+
+        self.config_altered()
         
     def upgrade(self):
         upgradeDone = False
@@ -330,7 +384,7 @@ engine.create_phrase(folder, title, contents)"""
         if upgradeDone:
             self.config_altered()
             
-        self.VERSION = APP_VERSION
+        self.VERSION = common.VERSION
         
             
     def config_altered(self):
@@ -630,6 +684,17 @@ class GlobalHotkey(AbstractHotkey):
         AbstractHotkey.__init__(self)
         self.enabled = False
         self.windowTitleRegex = None
+
+    def get_serializable(self):
+        d = {
+            "enabled": self.enabled
+            }
+        d.update(AbstractHotkey.get_serializable(self))
+        return d
+
+    def load_from_serialized(self, data):
+        AbstractHotkey.load_from_serialized(self, data)
+        self.enabled = data["enabled"]
     
     def set_closure(self, closure):
         """

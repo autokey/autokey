@@ -1,3 +1,17 @@
+autokey (0.70.0-0~karmic) karmic; urgency=low
+
+  * Persist configuration using json instead of pickle
+  * Make hotkeys exclusive - prevent other applications from receiving them
+  * Hotkeys are grabbed globally if they have no filter
+  * Hotkeys are grabbed only in matching windows if they have a filter
+  * Grab keyboard while sending strings to prevent user-typed input mixing with output
+  * Fix problem where hotkeys with backspace, tab and enter would not work
+  * Improve window name determination
+  * Build a map of modifier masks
+  * Use modifier masks to correctly emit modified keys instead of using Xtest
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 9 Apr 2010 20:26:12 +1000
+
 autokey (0.61.7-0~karmic) karmic; urgency=low
 
   * Fix incorrect reference to instance variable in KDE version

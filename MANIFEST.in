@@ -1,5 +1,1 @@
-include config/akicon.png
-include config/autokey.desktop
-include src/lib/ui/data/gui.xml
-include src/lib/ui/data/api.txt
 include INSTALL

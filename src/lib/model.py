@@ -35,6 +35,25 @@ class AbstractAbbreviation:
         self.immediate = False
         self.triggerInside = False
         self.wordChars = re.compile(DEFAULT_WORDCHAR_REGEX, re.UNICODE)
+
+    def get_serializable(self):
+        d = {
+            "abbreviation": self.abbreviation,
+            "backspace": self.backspace,
+            "ignoreCase": self.ignoreCase,
+            "immediate": self.immediate,
+            "triggerInside": self.triggerInside,
+            "wordChars": self.wordChars.pattern
+            }
+        return d
+
+    def load_from_serialized(self, data):
+        self.abbreviation = data["abbreviation"]
+        self.backspace = data["backspace"]
+        self.ignoreCase = data["ignoreCase"]
+        self.immediate = data["immediate"]
+        self.triggerInside = data["triggerInside"]
+        self.wordChars = re.compile(data["wordChars"])        
         
     def copy_abbreviation(self, abbr):
         self.abbreviation = abbr.abbreviation
@@ -116,6 +135,15 @@ class AbstractWindowFilter:
     
     def __init__(self):
         self.windowTitleRegex = None
+
+    def get_serializable(self):
+        if self.windowTitleRegex is not None:
+            return self.windowTitleRegex.pattern
+        else:
+            return None
+
+    def load_from_serialized(self, pattern):
+        self.set_window_titles(pattern)
         
     def copy_window_filter(self, filter):
         self.windowTitleRegex = filter.windowTitleRegex
@@ -147,6 +175,16 @@ class AbstractHotkey(AbstractWindowFilter):
     def __init__(self):
         self.modifiers = []
         self.hotKey = None
+
+    def get_serializable(self):
+        d = {
+            "modifiers": self.modifiers,
+            "hotKey": self.hotKey
+            }
+        return d
+
+    def load_from_serialized(self, data):
+        self.set_hotkey(data["modifiers"], data["hotKey"])
         
     def copy_hotkey(self, theHotkey):
         [self.modifiers.append(modifier) for modifier in theHotkey.modifiers]
@@ -181,6 +219,48 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.usageCount = 0
         self.showInTrayMenu = showInTrayMenu
         self.parent = None
+
+    def get_serializable(self):
+        d = {
+            "type": "folder",
+            "title": self.title,
+            "folders": [folder.get_serializable() for folder in self.folders],
+            "items": [item.get_serializable() for item in self.items],
+            "modes": self.modes,
+            "usageCount": self.usageCount,
+            "showInTrayMenu": self.showInTrayMenu,
+            "abbreviation": AbstractAbbreviation.get_serializable(self),
+            "hotkey": AbstractHotkey.get_serializable(self),
+            "filter": AbstractWindowFilter.get_serializable(self)
+            }
+        return d
+
+    def load_from_serialized(self, data, parent):
+        self.title = data["title"]
+        self.folders = []
+        for folderData in data["folders"]:
+            f = Folder("")
+            f.load_from_serialized(folderData, self)
+            self.folders.append(f)
+            
+        self.items = []
+        for itemData in data["items"]:
+            if itemData["type"] == "phrase":
+                i = Phrase("", "")
+            else:
+                i = Script("", "")
+
+            i.load_from_serialized(itemData, self)
+            self.items.append(i)
+        
+        self.modes = data["modes"]
+        self.usageCount = data["usageCount"]
+        self.showInTrayMenu = data["showInTrayMenu"]
+        self.parent = parent
+
+        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
+        AbstractHotkey.load_from_serialized(self, data["hotkey"])
+        AbstractWindowFilter.load_from_serialized(self, data["filter"])
         
     def get_tuple(self):
         return ("folder", self.title, self)
@@ -302,6 +382,38 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = False
         self.parent = None
         self.showInTrayMenu = False
+
+    def get_serializable(self):
+        d = {
+            "type": "phrase",
+            "description": self.description,
+            "phrase": self.phrase,
+            "modes": self.modes,
+            "usageCount": self.usageCount,
+            "prompt": self.prompt,
+            "omitTrigger": self.omitTrigger,
+            "matchCase": self.matchCase,
+            "showInTrayMenu": self.showInTrayMenu,
+            "abbreviation": AbstractAbbreviation.get_serializable(self),
+            "hotkey": AbstractHotkey.get_serializable(self),
+            "filter": AbstractWindowFilter.get_serializable(self)            
+            }
+        return d
+        
+
+    def load_from_serialized(self, data, parent):
+        self.description = data["description"]
+        self.phrase = data["phrase"]
+        self.modes = data["modes"]
+        self.usageCount = data["usageCount"]
+        self.prompt = data["prompt"]
+        self.omitTrigger = data["omitTrigger"]
+        self.matchCase = data["matchCase"]
+        self.parent = parent
+        self.showInTrayMenu = data["showInTrayMenu"]
+        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
+        AbstractHotkey.load_from_serialized(self, data["hotkey"])
+        AbstractWindowFilter.load_from_serialized(self, data["filter"])
         
     def copy(self, thePhrase):
         self.description = thePhrase.description
@@ -494,6 +606,38 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.omitTrigger = False
         self.parent = None
         self.showInTrayMenu = False
+
+    def get_serializable(self):
+        d = {
+            "type": "script",
+            "description": self.description,
+            "code": self.code,
+            "store": self.store,
+            "modes": self.modes,
+            "usageCount": self.usageCount,
+            "prompt": self.prompt,
+            "omitTrigger": self.omitTrigger,
+            "showInTrayMenu": self.showInTrayMenu,
+            "abbreviation": AbstractAbbreviation.get_serializable(self),
+            "hotkey": AbstractHotkey.get_serializable(self),
+            "filter": AbstractWindowFilter.get_serializable(self)
+            }
+        return d
+
+
+    def load_from_serialized(self, data, parent):
+        self.description = data["description"]
+        self.code = data["code"]
+        self.store = Store(data["store"])
+        self.modes = data["modes"]
+        self.usageCount = data["usageCount"]
+        self.prompt = data["prompt"]
+        self.omitTrigger = data["omitTrigger"]
+        self.parent = parent
+        self.showInTrayMenu = data["showInTrayMenu"]
+        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
+        AbstractHotkey.load_from_serialized(self, data["hotkey"])
+        AbstractWindowFilter.load_from_serialized(self, data["filter"])
 
     def copy(self, theScript):
         self.description = theScript.description

@@ -27,7 +27,7 @@ LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "AutoKey"
 CATALOG = ""
-VERSION = "0.61.7"
+VERSION = "0.70.0"
 HOMEPAGE  = "http://autokey.sourceforge.net/"
 BUG_EMAIL = "cdekter@gmail.com"
 
