@@ -382,6 +382,7 @@ class XInterfaceBase(threading.Thread):
         self.localDisplay.flush()
 
     def finish_send(self):
+        self.localDisplay.flush()
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
         self.sendInProgress = False
         for event in self.queuedEvents:
