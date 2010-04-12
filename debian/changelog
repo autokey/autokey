@@ -1,3 +1,15 @@
+autokey (0.70.1-0~karmic) karmic; urgency=low
+
+  * Extensive rewrite of keyboard mapping code.
+  * Prevent spurious hotkey grabs on window create
+  * Add a fake_keypress() to scripting keyboard class to send events using xtest
+  * Fix bug where word characters were not detected correctly in non-English locales
+  * Always prompt before deleting anything
+  * [kde] Improve treewidget behaviour when creating phrases/scripts
+  * Flush generated keyboard events before ungrabbing the keyboard
+
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 13 Apr 2010 20:26:12 +1000
+
 autokey (0.70.0-0~karmic) karmic; urgency=low
 
   * Persist configuration using json instead of pickle

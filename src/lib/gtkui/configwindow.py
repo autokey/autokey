@@ -760,18 +760,18 @@ class ConfigWindow:
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
-        model, selectedPaths = selection.get_selected_rows()
+        theModel, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(gtk.TreeRowReference(model, path))
+            refs.append(gtk.TreeRowReference(theModel, path))
 
         modified = False
             
         for ref in refs:
             if ref.valid():
                 # Prompt for removal of a folder with phrases
-                item = model[ref.get_path()].iter
-                modelItem = model.get_value(item, AkTreeModel.OBJECT_COLUMN)
+                item = theModel[ref.get_path()].iter
+                modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
                 
                 if isinstance(modelItem, model.Folder):
                     msg = _("Are you sure you want to delete the %s folder and all the items in it?") % modelItem.title
@@ -780,14 +780,14 @@ class ConfigWindow:
                     
                 dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
                 if dlg.run() == gtk.RESPONSE_YES:
-                    self.__removeItem(model, item)
+                    self.__removeItem(theModel, item)
                     modified = True
                 dlg.destroy()
         
         if modified: 
             if len(selectedPaths) > 1:
                 self.treeView.get_selection().unselect_all()
-                self.treeView.get_selection().select_iter(model.get_iter_root())
+                self.treeView.get_selection().select_iter(theModel.get_iter_root())
                 self.on_tree_selection_changed(self.treeView)
             
             self.app.config_altered()
