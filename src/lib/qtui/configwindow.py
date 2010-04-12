@@ -498,6 +498,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
                 self.stack.currentWidget().set_item_title(newText)
                 self.parentWidget().app.config_altered()
+                self.treeWidget.sortItems(0, Qt.AscendingOrder)
             else:
                 item.update()
         
@@ -542,6 +543,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
+        self.treeWidget.setItemSelected(parentItem, False)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()      
         
@@ -555,6 +557,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(newItem)
+        self.treeWidget.setItemSelected(parentItem, False)
         self.on_treeWidget_itemSelectionChanged()     
         self.on_rename()           
         
@@ -637,19 +640,22 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
 
     def on_delete(self):
         widgetItems = self.treeWidget.selectedItems()
+        modified = False
         
         for widgetItem in widgetItems:
-            if widgetItem.childCount() > 0:
-                folder = self.__extractData(widgetItem)
-                result = KMessageBox.questionYesNo(self.topLevelWidget(), 
-                            "Are you sure you want to delete the %s folder and all the items in it?" % folder.title)
-                if result == KMessageBox.Yes:
-                    self.__removeItem(widgetItem)
-                    
+            data = self.__extractData(widgetItem)
+            if isinstance(data, model.Folder):
+                msg = "Are you sure you want to delete the '%s' folder and all the items in it?" % data.title
             else:
-                self.__removeItem(widgetItem)
+                msg = "Are you sure you want to delete '%s'?" % data.description
                 
-        self.parentWidget().app.config_altered()
+            result = KMessageBox.questionYesNo(self.topLevelWidget(), msg)
+            if result == KMessageBox.Yes:
+                self.__removeItem(widgetItem)
+                modified = True
+
+        if modified:
+            self.parentWidget().app.config_altered()
             
     def on_rename(self):
         widgetItem = self.treeWidget.selectedItems()[0]
@@ -741,6 +747,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                 item.parent.remove_item(item)
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.treeWidget.setCurrentItem(parent)
 
             
     def __deleteHotkeys(self, theItem):

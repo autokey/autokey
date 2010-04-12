@@ -764,29 +764,33 @@ class ConfigWindow:
         refs = []
         for path in selectedPaths:
             refs.append(gtk.TreeRowReference(model, path))
+
+        modified = False
             
         for ref in refs:
             if ref.valid():
                 # Prompt for removal of a folder with phrases
                 item = model[ref.get_path()].iter
-                    
-                if model.iter_n_children(item) > 0:
-                    title = model.get_value(item, AkTreeModel.OBJECT_COLUMN).title
-                    dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
-                                            _("Are you sure you want to delete the %s folder and all the items in it?") % title)
-                    if dlg.run() == gtk.RESPONSE_YES:
-                        self.__removeItem(model, item)
-                    dlg.destroy()
-                    
+                modelItem = model.get_value(item, AkTreeModel.OBJECT_COLUMN)
+                
+                if isinstance(modelItem, model.Folder):
+                    msg = _("Are you sure you want to delete the %s folder and all the items in it?") % modelItem.title
                 else:
+                    msg = _("Are you sure you want to delete '%s'?") % modelItem.description
+                    
+                dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+                if dlg.run() == gtk.RESPONSE_YES:
                     self.__removeItem(model, item)
+                    modified = True
+                dlg.destroy()
         
-        if len(selectedPaths) > 1:
-            self.treeView.get_selection().unselect_all()        
-            self.treeView.get_selection().select_iter(model.get_iter_root())
-            self.on_tree_selection_changed(self.treeView)        
+        if modified: 
+            if len(selectedPaths) > 1:
+                self.treeView.get_selection().unselect_all()
+                self.treeView.get_selection().select_iter(model.get_iter_root())
+                self.on_tree_selection_changed(self.treeView)
             
-        self.app.config_altered()
+            self.app.config_altered()
             
     def __removeItem(self, model, item):
         selection = self.treeView.get_selection()
