@@ -54,9 +54,25 @@ class Keyboard:
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
         """        
-        for x in range(repeat):
+        for x in xrange(repeat):
             self.mediator.send_key(key.decode("utf-8"))
         self.mediator.flush()
+
+    def fake_keypress(self, key, repeat=1):
+        """
+        Fake a keypress
+
+        Usage: C{keyboard.fake_keypress(key, repeat=1)}
+
+        Uses XTest to 'fake' a keypress. This is useful to send keypresses to some
+        applications which won't respond to keyboard.send_key()
+
+        @param key: they key to be sent (e.g. "s" or "<enter>")
+        @param repeat: number of times to repeat the key event
+        """
+        for x in xrange(repeat):
+            self.mediator.fake_keypress(key.decode("utf-8"))
+        
         
 
 class Mouse:

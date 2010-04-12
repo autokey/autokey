@@ -329,6 +329,11 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Send special key: [%r]", keyName)
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
+
+    def fake_keypress(self, keyName):
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)        
         
     def send_modified_key(self, keyName, modifiers):
         """

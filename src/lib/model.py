@@ -34,7 +34,7 @@ class AbstractAbbreviation:
         self.ignoreCase = False
         self.immediate = False
         self.triggerInside = False
-        self.wordChars = re.compile(DEFAULT_WORDCHAR_REGEX, re.UNICODE)
+        self.set_word_chars(DEFAULT_WORDCHAR_REGEX)
 
     def get_serializable(self):
         d = {
@@ -43,7 +43,7 @@ class AbstractAbbreviation:
             "ignoreCase": self.ignoreCase,
             "immediate": self.immediate,
             "triggerInside": self.triggerInside,
-            "wordChars": self.wordChars.pattern
+            "wordChars": self.get_word_chars()
             }
         return d
 
@@ -53,7 +53,7 @@ class AbstractAbbreviation:
         self.ignoreCase = data["ignoreCase"]
         self.immediate = data["immediate"]
         self.triggerInside = data["triggerInside"]
-        self.wordChars = re.compile(data["wordChars"])        
+        self.set_word_chars(data["wordChars"])
         
     def copy_abbreviation(self, abbr):
         self.abbreviation = abbr.abbreviation

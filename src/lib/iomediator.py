@@ -265,7 +265,11 @@ class IoMediator(threading.Thread):
         self.interface.send_key(keyName)
         
         #self.release_lock()
-        
+
+    def fake_keypress(self, key):
+        keyName = keyName.replace('\n', "<enter>")
+        self.interface.fake_keypress(keyName)
+
     def send_left(self, count):
         """
         Sends the given number of left key presses.
