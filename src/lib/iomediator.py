@@ -33,7 +33,7 @@ class Key:
     TAB = "<tab>"
     #RETURN = '\n'
     ENTER = "<enter>"
-    SPACE = ' '
+    #SPACE = ' '
     SCROLL_LOCK = "<scroll_lock>"
     PRINT_SCREEN = "<print_screen>"
     PAUSE = "<pause>"

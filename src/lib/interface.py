@@ -43,75 +43,6 @@ else:
 
 logger = logging.getLogger("interface")
 
-# Modifiers
-SHIFT = 'XK_Shift_L'
-SHIFT_R = 'XK_Shift_R'
-CAPSLOCK = 'XK_Caps_Lock'
-CONTROL = 'XK_Control_L'
-CONTROL_R = 'XK_Control_R'
-ALT = 'XK_Alt_L'
-ALT_R = 'XK_Alt_R'
-ALT_GR = 'XK_ISO_Level3_Shift'
-#ALT_GR = 'XK_Alt_R'
-SUPER = 'XK_Super_L'
-SUPER_R = 'XK_Super_R'
-NUMLOCK = 'XK_Num_Lock'
-
-# Misc Keys
-SPACE = 'XK_space'
-TAB = 'XK_Tab'
-LEFT = 'XK_Left'
-RIGHT = 'XK_Right'
-UP = 'XK_Up'
-DOWN = 'XK_Down'
-RETURN = 'XK_Return'
-BACKSPACE = 'XK_BackSpace'
-SCROLL_LOCK = 'XK_Scroll_Lock'
-PRINT_SCREEN = 'XK_Print'
-PAUSE = 'XK_Pause'
-MENU = 'XK_Menu'
-
-# Function Keys
-F1 = "XK_F1"
-F2 = "XK_F2"
-F3 = "XK_F3"
-F4 = "XK_F4"
-F5 = "XK_F5"
-F6 = "XK_F6"
-F7 = "XK_F7"
-F8 = "XK_F8"
-F9 = "XK_F9"
-F10 = "XK_F10"
-F11 = "XK_F11"
-F12 = "XK_F12"
-
-# Keypad
-KP_INSERT = "XK_KP_Insert"
-KP_DELETE = "XK_KP_Delete"
-KP_END = "XK_KP_End"
-KP_DOWN = "XK_KP_Down"
-KP_PAGE_DOWN = "XK_KP_Page_Down"
-KP_LEFT = "XK_KP_Left"
-KP_5 = "XK_KP_5"
-KP_RIGHT = "XK_KP_Right"
-KP_HOME = "XK_KP_Home"
-KP_UP = "XK_KP_Up"
-KP_PAGE_UP = "XK_KP_Page_Up"
-KP_ENTER = "XK_KP_Enter"
-KP_ADD = "XK_KP_Add"
-KP_SUBTRACT = "XK_KP_Subtract"
-KP_MULTIPLY = "XK_KP_Multiply"
-KP_DIVIDE = "XK_KP_Divide"
-
-# Other
-ESCAPE = "XK_Escape"
-INSERT = "XK_Insert"
-DELETE = "XK_Delete"
-HOME = "XK_Home"
-END = "XK_End"
-PAGE_UP = "XK_Page_Up"
-PAGE_DOWN = "XK_Page_Down"
-
 MASK_INDEXES = [
                (X.ShiftMapIndex, X.ShiftMask),
                (X.ControlMapIndex, X.ControlMask),
@@ -151,51 +82,36 @@ class XInterfaceBase(threading.Thread):
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
         
     def __initMappings(self):
-        # Map of keyname to keycode
-        self.keyCodes = {}
-        # Map of keycode to keyname
-        self.keyNames = {}
-        # One-way numpad key map - we only decode them
-        self.numKeyNames = {}
-        
-        # Load xkb keysyms - related to non-US keyboard mappings
-        XK.load_keysym_group('xkb')
-        
-        # Create map of iomediator key codes to X key codes
-        keyList = KEY_MAP.keys()
-        for xkKeyName in keyList:
-            keyName = KEY_MAP[xkKeyName]
-            keyCode = self.localDisplay.keysym_to_keycode(getattr(XK, xkKeyName))
-            self.keyCodes[keyName] = keyCode
-            self.keyNames[keyCode] = keyName
-
-        altGrTuples = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
-        for keyCode, level in altGrTuples:
-            self.keyCodes[Key.ALT_GR] = keyCode
-            self.keyNames[keyCode] = Key.ALT_GR
-            
-        # Create map of numpad keycodes, similar to above
-        keyList = NUMPAD_MAP.keys()
-        for xkKeyName in keyList:
-            keyNames = NUMPAD_MAP[xkKeyName]
-            keyCode = self.localDisplay.keysym_to_keycode(getattr(XK, xkKeyName))
-            self.numKeyNames[keyCode] = keyNames
+        # TODO - this is a hack - do we need to reimplement it the new way?
+        #altGrTuples = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
+        #for keyCode, level in altGrTuples:
+        #    self.keyCodes[Key.ALT_GR] = keyCode
+        #    self.keyNames[keyCode] = Key.ALT_GR
 
         # Build modifier mask mapping
         self.modMasks = {}
         mapping = self.localDisplay.get_modifier_mapping()
-        for index, mask in MASK_INDEXES:
-            
-            for mod in MODIFIERS:
-                if self.keyCodes[mod] in mapping[index]:
-                    self.modMasks[mod] = mask
+
+        for keySym, ak in XK_TO_AK_MAP.iteritems():
+            if ak in MODIFIERS:
+                keyCodeList = self.localDisplay.keysym_to_keycodes(keySym)
+                found = False
+                
+                for keyCode, lvl in keyCodeList:                    
+                    for index, mask in MASK_INDEXES:
+                        if keyCode in mapping[index]:
+                            self.modMasks[ak] = mask
+                            found = True
+                            break
+
+                    if found: break
+
+        logger.debug("Modifier masks: %r", self.modMasks)
 
         self.__grabHotkeys()
-       
-        logger.debug("Keycodes dict: %s", self.keyCodes)
-        logger.debug("Modifier masks: %r", self.modMasks)
+        
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            self.keymap_test()        
+            self.keymap_test()
         
     def keymap_test(self):
         #logger.debug("XK keymap:")
@@ -256,7 +172,7 @@ class XInterfaceBase(threading.Thread):
         title = self.get_window_title(window)
         if title != "" and title != "None":
             for item in hotkeys:
-                if item._should_trigger_window_title(title):
+                if item.windowTitleRegex is not None and item._should_trigger_window_title(title):
                     self.__grabHotkey(item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
@@ -332,17 +248,14 @@ class XInterfaceBase(threading.Thread):
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
             return "<unknown>"
+
+        keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
+
+        if keySym in XK_TO_AK_NUMLOCKED and numlock:
+            return XK_TO_AK_NUMLOCKED[keySym]
         
-        elif self.keyNames.has_key(keyCode):
-            return self.keyNames[keyCode]
-            
-        elif self.numKeyNames.has_key(keyCode):
-            values = self.numKeyNames[keyCode]
-            if numlock:
-                return values[1]
-            else:
-                return values[0]
-                
+        elif keySym in XK_TO_AK_MAP:
+            return XK_TO_AK_MAP[keySym]
         else:
             try:
                 index = 0
@@ -528,10 +441,9 @@ class XInterfaceBase(threading.Thread):
         Checks if the given keyCode is a modifier key. If it is, returns the modifier name
         constant as defined in the iomediator module. If not, returns C{None}
         """
-        if self.keyNames.has_key(keyCode):
-            keyName = self.keyNames[keyCode]
-            if keyName in MODIFIERS:
-                return keyName
+        keyName = self.lookup_string(keyCode, False, False, False)
+        if keyName in MODIFIERS:
+            return keyName
         
         return None
     
@@ -594,16 +506,13 @@ class XInterfaceBase(threading.Thread):
         focus.send_event(keyEvent)
         
     def __lookupKeyCode(self, char):
-        if self.keyCodes.has_key(char):
-            return self.keyCodes[char]
+        if char in AK_TO_XK_MAP:
+            return self.localDisplay.keysym_to_keycode(AK_TO_XK_MAP[char])
         elif char.startswith("<code"):
-            code = int(char[5:-1])
-            return code
+            return int(char[5:-1])
         else:
-            # TODO I don't think this code is ever reached. Get rid of it at some point
             try:
-                code = self.localDisplay.keysym_to_keycode(ord(char))
-                return code
+                return self.localDisplay.keysym_to_keycode(ord(char))
             except Exception, e:
                 logger.error("Unknown key name: %s", char)
                 raise
@@ -838,69 +747,88 @@ class AtSpiInterface(XInterfaceBase):
 from iomediator import Key, MODIFIERS
 from configmanager import *
 
-KEY_MAP = {
-           SHIFT : Key.SHIFT,
-           SHIFT_R : Key.SHIFT,
-           CAPSLOCK : Key.CAPSLOCK,
-           CONTROL : Key.CONTROL,
-           CONTROL_R : Key.CONTROL,
-           ALT : Key.ALT,
-           ALT_R : Key.ALT,
-           ALT_GR : Key.ALT_GR,
-           SUPER : Key.SUPER,
-           SUPER_R : Key.SUPER,
-           NUMLOCK : Key.NUMLOCK,
-           SPACE : Key.SPACE,
-           TAB : Key.TAB,
-           LEFT : Key.LEFT,
-           RIGHT : Key.RIGHT,
-           UP : Key.UP,
-           DOWN : Key.DOWN,
-           #RETURN : Key.RETURN,
-           RETURN : Key.ENTER,
-           BACKSPACE : Key.BACKSPACE,
-           SCROLL_LOCK : Key.SCROLL_LOCK,
-           PRINT_SCREEN : Key.PRINT_SCREEN,
-           PAUSE : Key.PAUSE,
-           MENU : Key.MENU,
-           F1 : Key.F1,
-           F2 : Key.F2,
-           F3 : Key.F3,
-           F4 : Key.F4,
-           F5 : Key.F5,
-           F6 : Key.F6,
-           F7 : Key.F7,
-           F8 : Key.F8,
-           F9 : Key.F9,
-           F10 : Key.F10,
-           F11 : Key.F11,
-           F12 : Key.F12,
-           ESCAPE : Key.ESCAPE,
-           INSERT : Key.INSERT,
-           DELETE : Key.DELETE,
-           HOME : Key.HOME,
-           END : Key.END,
-           PAGE_UP : Key.PAGE_UP,
-           PAGE_DOWN : Key.PAGE_DOWN           
+XK.load_keysym_group('xkb')
+
+XK_TO_AK_MAP = {
+           XK.XK_Shift_L : Key.SHIFT,
+           XK.XK_Shift_R : Key.SHIFT,
+           XK.XK_Caps_Lock : Key.CAPSLOCK,
+           XK.XK_Control_L : Key.CONTROL,
+           XK.XK_Control_R : Key.CONTROL,
+           XK.XK_Alt_L : Key.ALT,
+           XK.XK_Alt_R : Key.ALT,
+           XK.XK_ISO_Level3_Shift : Key.ALT_GR,
+           XK.XK_Super_L : Key.SUPER,
+           XK.XK_Super_R : Key.SUPER,
+           XK.XK_Num_Lock : Key.NUMLOCK,
+           #SPACE : Key.SPACE,
+           XK.XK_Tab : Key.TAB,
+           XK.XK_Left : Key.LEFT,
+           XK.XK_Right : Key.RIGHT,
+           XK.XK_Up : Key.UP,
+           XK.XK_Down : Key.DOWN,
+           XK.XK_Return : Key.ENTER,
+           XK.XK_BackSpace : Key.BACKSPACE,
+           XK.XK_Scroll_Lock : Key.SCROLL_LOCK,
+           XK.XK_Print : Key.PRINT_SCREEN,
+           XK.XK_Pause : Key.PAUSE,
+           XK.XK_Menu : Key.MENU,
+           XK.XK_F1 : Key.F1,
+           XK.XK_F2 : Key.F2,
+           XK.XK_F3 : Key.F3,
+           XK.XK_F4 : Key.F4,
+           XK.XK_F5 : Key.F5,
+           XK.XK_F6 : Key.F6,
+           XK.XK_F7 : Key.F7,
+           XK.XK_F8 : Key.F8,
+           XK.XK_F9 : Key.F9,
+           XK.XK_F10 : Key.F10,
+           XK.XK_F11 : Key.F11,
+           XK.XK_F12 : Key.F12,
+           XK.XK_Escape : Key.ESCAPE,
+           XK.XK_Insert : Key.INSERT,
+           XK.XK_Delete : Key.DELETE,
+           XK.XK_Home : Key.HOME,
+           XK.XK_End : Key.END,
+           XK.XK_Page_Up : Key.PAGE_UP,
+           XK.XK_Page_Down : Key.PAGE_DOWN,
+           XK.XK_KP_Insert : Key.INSERT,
+           XK.XK_KP_Delete : Key.DELETE,
+           XK.XK_KP_End : Key.END,
+           XK.XK_KP_Down : Key.DOWN,
+           XK.XK_KP_Page_Down : Key.PAGE_DOWN,
+           XK.XK_KP_Left : Key.LEFT,
+           XK.XK_KP_5 : "<unknown>",
+           XK.XK_KP_Right : Key.RIGHT,
+           XK.XK_KP_Home : Key.HOME,
+           XK.XK_KP_Up: Key.UP,
+           XK.XK_KP_Page_Up : Key.PAGE_UP,
+           XK.XK_KP_Divide : "/",
+           XK.XK_KP_Multiply : "*",
+           XK.XK_KP_Add : "+",
+           XK.XK_KP_Subtract : "-",
+           XK.XK_KP_Enter : Key.ENTER,
            }
+
+AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.iteritems())
            
-NUMPAD_MAP = {
-           KP_INSERT : (Key.INSERT, "0"),
-           KP_DELETE : (Key.DELETE, "."),
-           KP_END : (Key.END, "1"),
-           KP_DOWN : (Key.DOWN, "2"),
-           KP_PAGE_DOWN : (Key.PAGE_DOWN, "3"),
-           KP_LEFT : (Key.LEFT, "4"),
-           KP_5 : ("<unknown>", "5"),
-           KP_RIGHT : (Key.RIGHT, "6"),
-           KP_HOME : (Key.HOME, "7"),
-           KP_UP: (Key.UP, "8"),
-           KP_PAGE_UP : (Key.PAGE_UP, "9"),
-           KP_DIVIDE : ("/", "/"),
-           KP_MULTIPLY : ("*", "*"),
-           KP_ADD : ("+", "+"),
-           KP_SUBTRACT : ("-", "-"),
-           KP_ENTER : (Key.ENTER, Key.ENTER),
+XK_TO_AK_NUMLOCKED = {
+           XK.XK_KP_Insert : "0",
+           XK.XK_KP_Delete : ".",
+           XK.XK_KP_End : "1",
+           XK.XK_KP_Down : "2",
+           XK.XK_KP_Page_Down : "3",
+           XK.XK_KP_Left : "4",
+           XK.XK_KP_5 : "5",
+           XK.XK_KP_Right : "6",
+           XK.XK_KP_Home : "7",
+           XK.XK_KP_Up: "8",
+           XK.XK_KP_Page_Up : "9",
+           XK.XK_KP_Divide : "/",
+           XK.XK_KP_Multiply : "*",
+           XK.XK_KP_Add : "+",
+           XK.XK_KP_Subtract : "-",
+           XK.XK_KP_Enter : Key.ENTER
            }
     
 
