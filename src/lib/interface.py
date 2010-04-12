@@ -311,20 +311,17 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         for char in string:
-            if self.keyCodes.has_key(char):
-                self.send_key(char)
-            else: 
-                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-                if len(keyCodeList) > 0:
-                    keyCode, offset = keyCodeList[0]
-                    if offset == 0:
-                        self.__sendKeyCode(keyCode)
-                    if offset == 1:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
-                    if offset == 4:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
-                else:
-                    self.send_unicode_char(char)
+            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+            if len(keyCodeList) > 0:
+                keyCode, offset = keyCodeList[0]
+                if offset == 0:
+                    self.__sendKeyCode(keyCode)
+                if offset == 1:
+                    self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
+                if offset == 4:
+                    self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
+            else:
+                self.send_unicode_char(char)
                     
     def send_key(self, keyName):
         """
