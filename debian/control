@@ -19,7 +19,7 @@ Description: dummy transitional package for autokey-qt
 
 Package: autokey-common
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-xlib, wmctrl
+Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, wmctrl
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
 XB-Python-Version: ${python:Versions}

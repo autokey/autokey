@@ -16,8 +16,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
-import os, os.path, shutil, logging, pickle, json
+import os, os.path, shutil, logging, pickle
 import iomediator, interface, common
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
 
 _logger = logging.getLogger("config-manager")
 
