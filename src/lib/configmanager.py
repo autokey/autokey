@@ -72,7 +72,7 @@ def load_legacy_config(autoKeyApp, hadError=False):
 
         _logger.error("Error while loading configuration. Backup has been restored.")
         os.remove(CONFIG_FILE_OLD)
-        shutil.copy(CONFIG_FILE_OLD + '~', CONFIG_FILE_OLD)
+        shutil.copy2(CONFIG_FILE_OLD + '~', CONFIG_FILE_OLD)
         return load_legacy_config(autoKeyApp, True)
     except ImportError:
         pFile.close()
@@ -112,7 +112,7 @@ def get_config_manager(autoKeyApp, hadError=False):
 
             _logger.exception("Error while loading configuration. Backup has been restored.")
             os.remove(CONFIG_FILE)
-            shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+            shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
             return get_config_manager(autoKeyApp, True)
 
         pFile.close()
@@ -136,14 +136,14 @@ def save_config(configManager):
     # Back up configuration if it exists
     if os.path.exists(CONFIG_FILE):
         _logger.info("Backing up existing config file")
-        shutil.copy(CONFIG_FILE, CONFIG_FILE_BACKUP)
+        shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         outFile = open(CONFIG_FILE, "w")
         json.dump(configManager.get_serializable(), outFile, indent=4)
         _logger.info("Finished persisting configuration - no errors")
     except Exception, e:
         if os.path.exists(CONFIG_FILE_BACKUP):
-            shutil.copy(CONFIG_FILE_BACKUP, CONFIG_FILE)
+            shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
         _logger.exception("Error while saving configuration. Backup has been restored (if found).")
         raise Exception("Error while saving configuration. Backup has been restored (if found).")
     finally:

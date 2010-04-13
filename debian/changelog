@@ -7,6 +7,7 @@ autokey (0.70.1-0~karmic) karmic; urgency=low
   * Always prompt before deleting anything
   * [kde] Improve treewidget behaviour when creating phrases/scripts
   * Flush generated keyboard events before ungrabbing the keyboard
+  * Use shutil.copy2 to preserve config backup file's timestamp
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 13 Apr 2010 20:26:12 +1000
 
