@@ -74,7 +74,7 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
         dialog.load(item)
         if item.enabled:
             key = str(item.hotKey.encode("utf-8"))
-            label.setText(self.build_hotkey_string(key, item.modifiers))
+            label.setText(item.get_hotkey_string(key, item.modifiers))
             clearButton.setEnabled(True)
             return True
         else:
@@ -102,21 +102,6 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
             self.configManager.app.hotkey_created(toggleHotkey)
 
         self.configManager.config_altered()
-    
-    def build_hotkey_string(self, key, modifiers):
-        hotkey = ""
-
-        for modifier in modifiers:
-            hotkey += modifier
-            hotkey += "+"
-
-        if key in self.KEY_MAP:
-            keyText = self.KEY_MAP[key]
-        else:
-            keyText = key
-        hotkey += keyText     
-        
-        return hotkey
         
     # ---- Signal handlers
     
@@ -127,7 +112,7 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
             self.useConfigHotkey = True
             key = self.showConfigDlg.key
             modifiers = self.showConfigDlg.build_modifiers()
-            self.configKeyLabel.setText(self.build_hotkey_string(key, modifiers))
+            self.configKeyLabel.setText(self.showConfigDlg.targetItem.get_hotkey_string(key, modifiers))
             self.clearConfigButton.setEnabled(True)
             
     def on_clearConfigButton_pressed(self):
@@ -144,7 +129,7 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
             self.useServiceHotkey = True
             key = self.toggleMonitorDlg.key
             modifiers = self.toggleMonitorDlg.build_modifiers()
-            self.monitorKeyLabel.setText(self.build_hotkey_string(key, modifiers))
+            self.monitorKeyLabel.setText(self.toggleMonitorDlg.targetItem.get_hotkey_string(key, modifiers))
             self.clearMonitorButton.setEnabled(True)
             
     def on_clearMonitorButton_pressed(self):

@@ -37,6 +37,8 @@
       <Action name="online-help" />
       <Action name="online-faq" />
       <Action name="donate" />
+      <separator />
+      <Action name="about" />
     </Menu>
   </MenuBar>
   

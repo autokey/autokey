@@ -86,8 +86,7 @@ class SettingsWidget:
         
         self.hotkeyDialog.load(self.currentItem)
         if model.TriggerMode.HOTKEY in item.modes:
-            key = item.hotKey
-            self.hotkeyLabel.set_text(self.build_hotkey_string(key, item.modifiers))
+            self.hotkeyLabel.set_text(item.get_hotkey_string())
             self.clearHotkeyButton.set_sensitive(True)
             self.hotkeyEnabled = True
         else:
@@ -154,7 +153,7 @@ class SettingsWidget:
             self.hotkeyEnabled = True
             key = self.hotkeyDialog.key
             modifiers = self.hotkeyDialog.build_modifiers()
-            self.hotkeyLabel.set_text(self.build_hotkey_string(key, modifiers))
+            self.hotkeyLabel.set_text(self.currentItem.get_hotkey_string(key, modifiers))
             self.clearHotkeyButton.set_sensitive(True)
             
     def on_clearHotkeyButton_clicked(self, widget, data=None):
@@ -183,21 +182,6 @@ class SettingsWidget:
         self.clearFilterButton.set_sensitive(False)
         self.windowFilterLabel.set_text(_("(None configured)"))
         self.filterDialog.reset()
-
-    def build_hotkey_string(self, key, modifiers):
-        hotkey = ""
-
-        for modifier in modifiers:
-            hotkey += modifier
-            hotkey += "+"
-
-        if key in self.KEY_MAP:
-            keyText = self.KEY_MAP[key]
-        else:
-            keyText = key
-        hotkey += keyText
-        
-        return hotkey
 
     def __getattr__(self, attr):
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
@@ -393,7 +377,7 @@ class ScriptPage:
         
     def append_hotkey(self, key, modifiers):
         #line, pos = self.scriptCodeEditor.getCursorPosition()
-        keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
+        keyString = self.currentItem.get_hotkey_string(key, modifiers)
         self.buffer.insert(self.buffer.get_end_iter(), keyString)
         #self.scriptCodeEditor.setCursorPosition(line, pos + len(keyString))
         
@@ -793,17 +777,25 @@ class ConfigWindow:
             self.app.config_altered()
             
     def __removeItem(self, model, item):
-        selection = self.treeView.get_selection()
-        model, selectedPaths = selection.get_selected_rows()
-        newSelectionIter = model.iter_parent(model[selectedPaths[0]].iter)
-        if newSelectionIter is None:
-            newSelectionIter = model.get_iter_root()
+        #selection = self.treeView.get_selection()
+        #model, selectedPaths = selection.get_selected_rows()
+        #parentIter = model.iter_parent(model[selectedPaths[0]].iter)
+        parentIter = model.iter_parent(item)
+        nextIter = model.iter_next(item)
 
         data = model.get_value(item, AkTreeModel.OBJECT_COLUMN)
         self.__deleteHotkeys(data)
 
         model.remove_item(item)
-        self.treeView.get_selection().select_iter(newSelectionIter)
+
+        if nextIter is not None:
+            self.treeView.get_selection().select_iter(nextIter)
+        elif parentIter is not None:
+            self.treeView.get_selection().select_iter(parentIter)
+        else:
+            selectIter = model.iter_nth_child(None, model.iter_n_children(None) - 1)
+            self.treeView.get_selection().select_iter(selectIter)
+        
         self.on_tree_selection_changed(self.treeView)
 
     def __deleteHotkeys(self, theItem):
@@ -914,7 +906,7 @@ class ConfigWindow:
             if pthinfo is not None:
                 path, col, cellx, celly = pthinfo
                 currentPath, currentCol = widget.get_cursor()
-                if currentPath != path and currentCol != col:
+                if currentPath != path:
                     widget.set_cursor(path, col, 0)
                 if event.button == 3:
                     self.__popupMenu(event)
@@ -1003,7 +995,7 @@ class ConfigWindow:
             
     def __initTreeWidget(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
-        self.treeView.set_headers_visible(False)
+        self.treeView.set_headers_visible(True)
         self.treeView.set_reorderable(False)
         self.treeView.set_rubber_banding(True)
         targets = [('MY_TREE_MODEL_ROW', gtk.TARGET_SAME_WIDGET, 0)]
@@ -1012,16 +1004,33 @@ class ConfigWindow:
         self.treeView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         
         # Treeview columns
-        column = gtk.TreeViewColumn("stuff")
+        column1 = gtk.TreeViewColumn(_("Name"))
         iconRenderer = gtk.CellRendererPixbuf()
         textRenderer = gtk.CellRendererText()
         textRenderer.set_property("editable", True)
         textRenderer.connect("edited", self.on_cell_modified)
-        column.pack_start(iconRenderer, False)
-        column.pack_end(textRenderer, True)
-        column.add_attribute(iconRenderer, "icon-name", 0)
-        column.add_attribute(textRenderer, "text", 1)
-        self.treeView.append_column(column)
+        column1.pack_start(iconRenderer, False)
+        column1.pack_end(textRenderer, True)
+        column1.add_attribute(iconRenderer, "icon-name", 0)
+        column1.add_attribute(textRenderer, "text", 1)
+        column1.set_min_width(150)
+        self.treeView.append_column(column1)
+
+        column2 = gtk.TreeViewColumn(_("Abbr."))
+        textRenderer = gtk.CellRendererText()
+        textRenderer.set_property("editable", False)
+        column2.pack_start(textRenderer, True)
+        column2.add_attribute(textRenderer, "text", 2)
+        column2.set_min_width(50)
+        self.treeView.append_column(column2)
+        
+        column3 = gtk.TreeViewColumn(_("Hotkey"))
+        textRenderer = gtk.CellRendererText()
+        textRenderer.set_property("editable", False)
+        column3.pack_start(textRenderer, True)
+        column3.add_attribute(textRenderer, "text", 3)
+        column3.set_min_width(100)
+        self.treeView.append_column(column3)
         
     def __popupMenu(self, event):
         menu = self.uiManager.get_widget("/Context")
@@ -1066,14 +1075,15 @@ class ConfigWindow:
                 response = dlg.run()
                  
                 if response == gtk.RESPONSE_YES:
-                    current.save()
+                    self.on_save(None)
+                    
                 elif response == gtk.RESPONSE_CANCEL:
                     result = True
                 
                 dlg.destroy()
             else:
-                current.save()
-        
+                self.on_save(None)
+
         return result
             
     def __getCurrentPage(self):
@@ -1089,10 +1099,10 @@ class ConfigWindow:
 
 class AkTreeModel(gtk.TreeStore):
     
-    OBJECT_COLUMN = 2
+    OBJECT_COLUMN = 4
     
     def __init__(self, folders):
-        gtk.TreeStore.__init__(self, str, str, object)
+        gtk.TreeStore.__init__(self, str, str, str, str, object)
         
         for folder in folders.values():
             iter = self.append(None, folder.get_tuple())

@@ -1,13 +1,18 @@
 autokey (0.70.1-0~karmic) karmic; urgency=low
 
-  * Extensive rewrite of keyboard mapping code.
+  * Add extra columns to treewidget to display abbreviation and/or hotkey
+  * Always prompt before deleting anything
+  * Much nicer determination of new selection after deleting an item
+  * [kde] Improve treewidget behaviour when creating phrases/scripts
+  * [kde] Get rid of unused help menu entries
+  * Fix a number of bugs around prompting to save and autosaving
+  * [gtk] Fix for issue 29 - Clicking "Yes" for saving a phrase doesn't save the phrase
+  * Use shutil.copy2 to preserve config file's timestamp
+  * Extensive rewrite of keyboard mapping code
   * Prevent spurious hotkey grabs on window create
+  * Flush generated keyboard events before ungrabbing the keyboard
   * Add a fake_keypress() to scripting keyboard class to send events using xtest
   * Fix bug where word characters were not detected correctly in non-English locales
-  * Always prompt before deleting anything
-  * [kde] Improve treewidget behaviour when creating phrases/scripts
-  * Flush generated keyboard events before ungrabbing the keyboard
-  * Use shutil.copy2 to preserve config backup file's timestamp
   * Add dependency and import handling for differing JSON libraries in Python 2.5
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 13 Apr 2010 20:26:12 +1000

@@ -71,6 +71,12 @@ class AbstractAbbreviation:
         
     def set_abbreviation(self, abbr):
         self.abbreviation = abbr
+
+    def get_abbreviation(self):
+        if TriggerMode.ABBREVIATION not in self.modes:
+            return ""
+        else:
+            return self.abbreviation
         
     def _should_trigger_abbreviation(self, buffer):
         """
@@ -200,6 +206,27 @@ class AbstractHotkey(AbstractWindowFilter):
             return (self.modifiers == modifiers) and (self.hotKey == key)
         else:
             return False
+
+    def get_hotkey_string(self, key=None, modifiers=None):
+        if key is None and modifiers is None:
+            if self.hotKey is None:
+                return ""
+                
+            key = self.hotKey
+            modifiers = self.modifiers
+            
+        ret = ""
+
+        for modifier in modifiers:
+            ret += modifier
+            ret += "+"
+
+        if key == ' ':
+            ret += "<space>"
+        else:
+            ret += key
+
+        return ret
     
         
 class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
@@ -263,7 +290,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
         
     def get_tuple(self):
-        return ("folder", self.title, self)
+        return ("folder", self.title, self.get_abbreviation(), self.get_hotkey_string(), self)
     
     def set_modes(self, modes):
         self.modes = modes
@@ -433,7 +460,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("edit-paste", self.description, self)
+        return ("edit-paste", self.description, self.get_abbreviation(), self.get_hotkey_string(), self)
         
     def set_modes(self, modes):
         self.modes = modes
@@ -652,7 +679,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(theScript)
 
     def get_tuple(self):
-        return ("text-x-script", self.description, self)
+        return ("text-x-script", self.description, self.get_abbreviation(), self.get_hotkey_string(), self)
 
     def set_modes(self, modes):
         self.modes = modes

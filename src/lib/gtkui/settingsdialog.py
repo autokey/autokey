@@ -161,28 +161,13 @@ class SettingsDialog:
         dialog.load(item)
         if item.enabled:
             key = item.hotKey.encode("utf-8")
-            label.set_text(self.build_hotkey_string(key, item.modifiers))
+            label.set_text(item.get_hotkey_string())
             clearButton.set_sensitive(True)
             return True
         else:
             label.set_text(_("(None configured)"))
             clearButton.set_sensitive(False)
             return False
-        
-    def build_hotkey_string(self, key, modifiers):
-        hotkey = ""
-
-        for modifier in modifiers:
-            hotkey += modifier
-            hotkey += "+"
-
-        if key in self.KEY_MAP:
-            keyText = self.KEY_MAP[key]
-        else:
-            keyText = key
-        hotkey += keyText     
-        
-        return hotkey
         
     # ---- Signal handlers
     

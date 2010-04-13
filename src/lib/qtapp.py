@@ -54,6 +54,7 @@ class Application:
         aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
         aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
         aboutData.setProgramIconName(common.ICON_FILE)
+        self.aboutData = aboutData
         
         KCmdLineArgs.init(sys.argv, aboutData)
         options = KCmdLineOptions()

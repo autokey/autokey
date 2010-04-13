@@ -68,8 +68,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         
         self.hotkeyDialog.load(self.currentItem)
         if model.TriggerMode.HOTKEY in item.modes:
-            key = item.hotKey
-            self.hotkeyLabel.setText(self.build_hotkey_string(key, item.modifiers))
+            self.hotkeyLabel.setText(item.get_hotkey_string())
             self.clearHotkeyButton.setEnabled(True)
             self.hotkeyEnabled = True            
         else:
@@ -134,7 +133,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
             self.hotkeyEnabled = True
             key = self.hotkeyDialog.key
             modifiers = self.hotkeyDialog.build_modifiers()
-            self.hotkeyLabel.setText(self.build_hotkey_string(key, modifiers))
+            self.hotkeyLabel.setText(self.currentItem.get_hotkey_string(key, modifiers))
             self.clearHotkeyButton.setEnabled(True)
             
     def on_clearHotkeyButton_pressed(self):
@@ -165,22 +164,6 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         self.clearFilterButton.setEnabled(False)
         self.windowFilterLabel.setText(i18n("(None configured)"))
         self.filterDialog.reset()
-
-    def build_hotkey_string(self, key, modifiers):
-        hotkey = ""
-
-        for modifier in modifiers:
-            hotkey += modifier
-            hotkey += "+"
-
-        if key in self.KEY_MAP:
-            keyText = self.KEY_MAP[key]
-        else:
-            keyText = key
-        hotkey += keyText     
-        
-        return hotkey
-
 
 import scriptpage
 
@@ -249,7 +232,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.append(key)
         
     def append_hotkey(self, key, modifiers):
-        keyString = self.settingsWidget.build_hotkey_string(key, modifiers)
+        keyString = self.currentScript.get_hotkey_string(key, modifiers)
         self.scriptCodeEditor.append(keyString)
         
     def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
@@ -396,6 +379,11 @@ class FolderPage(QWidget, folderpage.Ui_FolderPage):
 
 
 class AkTreeWidget(QTreeWidget):
+
+    def edit(self, index, trigger, event):
+        if index.column() == 0:
+            return QTreeWidget.edit(self, index, trigger, event)
+        return False
     
     def keyPressEvent(self, event):
         if self.topLevelWidget().is_dirty() and \
@@ -451,6 +439,10 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.recorder = Recorder(self.scriptPage)
         
         self.cutCopiedItems = []
+
+        self.treeWidget.setColumnWidth(0, 150)
+        self.treeWidget.setColumnWidth(1, 50)
+        self.treeWidget.setColumnWidth(2, 100)
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -659,7 +651,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             
     def on_rename(self):
         widgetItem = self.treeWidget.selectedItems()[0]
-        self.treeWidget.editItem(widgetItem)
+        self.treeWidget.editItem(widgetItem, 0)
         
     def on_save(self):
         if self.stack.currentWidget().validate():
@@ -711,7 +703,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         return result
         
     def __extractData(self, item):
-        variant = item.data(1, Qt.UserRole)
+        variant = item.data(3, Qt.UserRole)
         return variant.toPyObject()
         
     def __createFolder(self, parentItem):
@@ -736,9 +728,11 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.__deleteHotkeys(item)
         
         if parent is None:
-            self.treeWidget.removeItemWidget(widgetItem, 0)
+            removedIndex = self.treeWidget.indexOfTopLevelItem(widgetItem)
+            self.treeWidget.takeTopLevelItem(removedIndex)
             del self.configManager.folders[item.title]
         else:
+            removedIndex = parent.indexOfChild(widgetItem)
             parent.removeChild(widgetItem)
         
             if isinstance(item, model.Folder):
@@ -747,8 +741,16 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                 item.parent.remove_item(item)
         
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(parent)
 
+        if parent is not None:
+            if parent.childCount() > 0:
+                newIndex = min([removedIndex, parent.childCount() - 1])
+                self.treeWidget.setCurrentItem(parent.child(newIndex))
+            else:
+                self.treeWidget.setCurrentItem(parent)
+        else:
+            newIndex = min([removedIndex, self.treeWidget.topLevelItemCount() - 1])
+            self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(newIndex))
             
     def __deleteHotkeys(self, theItem):
         if model.TriggerMode.HOTKEY in theItem.modes:
@@ -815,13 +817,16 @@ class ConfigWindow(KXmlGuiWindow):
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
-        self.advancedSettings = self.__createAction("advanced-settings", i18n("Advanced Settings"), "configure", self.on_advanced_settings)
+        self.advancedSettings = self.__createAction("advanced-settings", i18n("Configure AutoKey"), "configure", self.on_advanced_settings)
         self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)        
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
         self.__createAction("online-faq", i18n("F.A.Q."), "help-faq", self.on_show_faq)
         self.__createAction("donate", i18n("Donate"), "face-smile", self.on_donate)
+        self.__createAction("about", i18n("About AutoKey"), "help-about", self.on_about)
+
+        self.setHelpMenuEnabled(False)
 
         options = KXmlGuiWindow.Default ^ KXmlGuiWindow.StandardWindowOptions(KXmlGuiWindow.StatusBar)
         self.setupGUI(options, ACTION_DESCRIPTION_FILE)
@@ -989,7 +994,10 @@ class ConfigWindow(KXmlGuiWindow):
         
     def on_donate(self):
         webbrowser.open(common.DONATE_URL, False, True)
-        
+
+    def on_about(self):
+        dlg = KAboutApplicationDialog(self.app.aboutData, self)
+        dlg.show()
 
 # ---- TreeWidget and helper functions
 
@@ -1032,14 +1040,18 @@ class FolderWidgetItem(QTreeWidgetItem):
         self.folder = folder
         self.setIcon(0, KIcon("folder"))
         self.setText(0, folder.title)
-        self.setData(1, Qt.UserRole, QVariant(folder))
+        self.setText(1, folder.get_abbreviation())
+        self.setText(2, folder.get_hotkey_string())
+        self.setData(3, Qt.UserRole, QVariant(folder))
         if parent is not None:
             parent.addChild(self)
             
         self.setFlags(self.flags() | Qt.ItemIsEditable)
             
     def update(self):
-        self.setText(0, self.folder.title)            
+        self.setText(0, self.folder.title)
+        self.setText(1, self.folder.get_abbreviation())
+        self.setText(2, self.folder.get_hotkey_string())        
         
     def __ge__(self, other):
         if isinstance(other, ScriptWidgetItem):
@@ -1061,7 +1073,9 @@ class PhraseWidgetItem(QTreeWidgetItem):
         self.phrase = phrase
         self.setIcon(0, KIcon("edit-paste"))
         self.setText(0, phrase.description)
-        self.setData(1, Qt.UserRole, QVariant(phrase))
+        self.setText(1, phrase.get_abbreviation())
+        self.setText(2, phrase.get_hotkey_string())
+        self.setData(3, Qt.UserRole, QVariant(phrase))
         if parent is not None:
             parent.addChild(self)      
             
@@ -1069,6 +1083,8 @@ class PhraseWidgetItem(QTreeWidgetItem):
             
     def update(self):
         self.setText(0, self.phrase.description)
+        self.setText(1, self.phrase.get_abbreviation())
+        self.setText(2, self.phrase.get_hotkey_string())
         
     def __ge__(self, other):
         if isinstance(other, ScriptWidgetItem):
@@ -1090,7 +1106,9 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.script = script
         self.setIcon(0, KIcon("text-x-script"))
         self.setText(0, script.description)
-        self.setData(1, Qt.UserRole, QVariant(script))
+        self.setText(1, script.get_abbreviation())
+        self.setText(2, script.get_hotkey_string())
+        self.setData(3, Qt.UserRole, QVariant(script))
         if parent is not None:
             parent.addChild(self)
             
@@ -1098,6 +1116,8 @@ class ScriptWidgetItem(QTreeWidgetItem):
             
     def update(self):
         self.setText(0, self.script.description)
+        self.setText(1, self.script.get_abbreviation())
+        self.setText(2, self.script.get_hotkey_string())
         
     def __ge__(self, other):
         if isinstance(other, ScriptWidgetItem):

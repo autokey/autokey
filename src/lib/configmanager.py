@@ -21,7 +21,8 @@ import iomediator, interface, common
 
 try:
     import json
-except ImportError:
+    l = json.load
+except:
     import simplejson as json
 
 _logger = logging.getLogger("config-manager")
