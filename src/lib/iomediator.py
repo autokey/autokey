@@ -239,11 +239,11 @@ class IoMediator(threading.Thread):
         
         self.release_lock()
         
-    def paste_string(self, string):
+    def paste_string(self, string, pasteCommand):
         if len(string) > 0:        
             self.acquire_lock()
             _logger.debug("Send via clipboard")
-            self.interface.send_string_clipboard(string)
+            self.interface.send_string_clipboard(string, pasteCommand)
             self.release_lock()
         
     def remove_string(self, string):

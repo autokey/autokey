@@ -263,7 +263,7 @@ class XInterfaceBase(threading.Thread):
                 window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
         except Exception, e:
             logger.warn("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
-        
+
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
             return "<unknown>"
@@ -284,19 +284,31 @@ class XInterfaceBase(threading.Thread):
             except ValueError:
                 return "<code%d>" % keyCode
                 
-    def send_string_clipboard(self, string):
+    def send_string_clipboard(self, string, pasteCommand):
         logger.debug("Sending string: %r", string)
-        
-        if common.USING_QT:
-            self.sem = threading.Semaphore(0)
-            self.app.exec_in_main(self.__fillSelection, string)
-            self.sem.acquire()
+
+        if pasteCommand is None:
+            if common.USING_QT:
+                self.sem = threading.Semaphore(0)
+                self.app.exec_in_main(self.__fillSelection, string)
+                self.sem.acquire()
+            else:
+                self.__fillSelection(string)
+
+            focus = self.localDisplay.get_input_focus().focus
+            xtest.fake_input(focus, X.ButtonPress, X.Button2)
+            xtest.fake_input(focus, X.ButtonRelease, X.Button2)
+
         else:
-            self.__fillSelection(string)
-        
-        focus = self.localDisplay.get_input_focus().focus
-        xtest.fake_input(focus, X.ButtonPress, X.Button2)
-        xtest.fake_input(focus, X.ButtonRelease, X.Button2)
+            if common.USING_QT:
+                self.sem = threading.Semaphore(0)
+                self.app.exec_in_main(self.__fillClipboard, string)
+                self.sem.acquire()
+            else:
+                self.__fillClipboard(string)
+
+            self.mediator.send_string(pasteCommand)
+                
         logger.debug("Send via clipboard done")
         
     def __fillSelection(self, string):
@@ -305,6 +317,13 @@ class XInterfaceBase(threading.Thread):
             self.sem.release()
         else:
             self.selection.set_text(string.encode("utf-8"))
+
+    def __fillClipboard(self, string):
+        if common.USING_QT:
+            self.clipBoard.setText(string, QClipboard.Clipboard)
+            self.sem.release()
+        else:
+            self.clipBoard.set_text(string.encode("utf-8"))
 
     def begin_send(self):
         self.queuedEvents = []
@@ -323,6 +342,16 @@ class XInterfaceBase(threading.Thread):
             elif event.type == X.KeyRelease:
                 self.__sendKeyReleaseEvent(event.detail, event.state)
         self.localDisplay.flush()
+
+    def can_send_string(self, string):
+        canSend = True
+        for char in string:
+            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+            if len(keyCodeList) == 0:
+                canSend = False
+                break
+
+        return canSend        
     
     def send_string(self, string):
         """

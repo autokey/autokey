@@ -310,7 +310,10 @@ class PhraseRunner:
 
         mediator.interface.begin_send()
         mediator.send_backspace(expansion.backspaces)
-        mediator.send_string(expansion.string)
+        if phrase.sendMode == model.SendMode.KEYBOARD:
+            mediator.send_string(expansion.string)
+        else:
+            mediator.paste_string(expansion.string, phrase.sendMode)
         mediator.interface.finish_send()
 
         self.lastExpansion = expansion

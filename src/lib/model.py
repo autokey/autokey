@@ -23,6 +23,12 @@ from scripting import Store
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
+def get_value_or_default(jsonData, key, default):
+    if key in jsonData:
+        return jsonData[key]
+    else:
+        return default
+
 class AbstractAbbreviation:
     """
     Abstract class encapsulating the common functionality of an abbreviation
@@ -390,6 +396,26 @@ class TriggerMode:
     PREDICTIVE = 2
     HOTKEY = 3
 
+class SendMode:
+    """
+    Enumeration class for phrase send modes
+
+    KEYBOARD: Send using key events
+    CB_CTRL_V: Send via clipboard and paste with Ctrl+v
+    CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
+    SELECTION: Send via X selection and paste with middle mouse button  
+    """
+    KEYBOARD = "kb"
+    CB_CTRL_V = Key.CONTROL + "+v"
+    CB_CTRL_SHIFT_V = Key.CONTROL + '+' + Key.SHIFT + "+v"
+    SELECTION = None
+
+SEND_MODES = {
+             "Keyboard" : SendMode.KEYBOARD,
+             "Clipboard (Ctrl+V)" : SendMode.CB_CTRL_V,
+             "Clipboard (Ctrl+Shift+V)" : SendMode.CB_CTRL_SHIFT_V,
+             "Mouse Selection" : SendMode.SELECTION
+             }
 
 class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
@@ -409,6 +435,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = False
         self.parent = None
         self.showInTrayMenu = False
+        self.sendMode = SendMode.KEYBOARD
 
     def get_serializable(self):
         d = {
@@ -423,7 +450,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "showInTrayMenu": self.showInTrayMenu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
-            "filter": AbstractWindowFilter.get_serializable(self)            
+            "filter": AbstractWindowFilter.get_serializable(self),
+            "sendMode" : self.sendMode
             }
         return d
         
@@ -438,6 +466,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = data["matchCase"]
         self.parent = parent
         self.showInTrayMenu = data["showInTrayMenu"]
+        self.sendMode = get_value_or_default(data, "sendMode", SendMode.KEYBOARD)
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
