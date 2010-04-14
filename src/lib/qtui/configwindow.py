@@ -440,9 +440,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
         self.cutCopiedItems = []
 
-        self.treeWidget.setColumnWidth(0, 150)
-        self.treeWidget.setColumnWidth(1, 50)
-        self.treeWidget.setColumnWidth(2, 100)
+        [self.treeWidget.setColumnWidth(x, ConfigManager.SETTINGS[COLUMN_WIDTHS][x]) for x in range(3)]
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -454,6 +452,10 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0))
         self.on_treeWidget_itemSelectionChanged()
+
+    def set_splitter(self, winSize):
+        pos = ConfigManager.SETTINGS[HPANE_POSITION]
+        self.splitter.setSizes([pos, winSize.width() - pos])
         
     def set_dirty(self, dirty):
         self.dirty = dirty
@@ -839,6 +841,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.redo.setEnabled(False)
         
         self.centralWidget.populate_tree(self.app.configManager)
+        self.centralWidget.set_splitter(self.size())
         
         self.setAutoSaveSettings()
         
@@ -930,6 +933,12 @@ class ConfigWindow(KXmlGuiWindow):
     # ---- Signal handlers ----
     
     def queryClose(self):
+        ConfigManager.SETTINGS[HPANE_POSITION] = self.centralWidget.splitter.sizes()[0] + 4
+        l = []
+        for x in xrange(3):
+            l.append(self.centralWidget.treeWidget.columnWidth(x))
+        ConfigManager.SETTINGS[COLUMN_WIDTHS] = l
+        
         if self.is_dirty():
             if self.centralWidget.promptToSave():
                 return False

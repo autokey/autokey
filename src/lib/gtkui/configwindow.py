@@ -546,6 +546,7 @@ class ConfigWindow:
         rootIter = self.treeView.get_model().get_iter_root()
         self.treeView.get_selection().select_iter(rootIter)
         self.on_tree_selection_changed(self.treeView)
+        self.treeView.columns_autosize()
         
         width, height = ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE]
         self.set_default_size(width, height)
@@ -1013,6 +1014,7 @@ class ConfigWindow:
         column1.pack_end(textRenderer, True)
         column1.add_attribute(iconRenderer, "icon-name", 0)
         column1.add_attribute(textRenderer, "text", 1)
+        column1.set_expand(True)
         column1.set_min_width(150)
         self.treeView.append_column(column1)
 
@@ -1021,6 +1023,7 @@ class ConfigWindow:
         textRenderer.set_property("editable", False)
         column2.pack_start(textRenderer, True)
         column2.add_attribute(textRenderer, "text", 2)
+        column2.set_expand(False)
         column2.set_min_width(50)
         self.treeView.append_column(column2)
         
@@ -1029,6 +1032,7 @@ class ConfigWindow:
         textRenderer.set_property("editable", False)
         column3.pack_start(textRenderer, True)
         column3.add_attribute(textRenderer, "text", 3)
+        column3.set_expand(False)
         column3.set_min_width(100)
         self.treeView.append_column(column3)
         

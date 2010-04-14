@@ -48,6 +48,7 @@ INTERFACE_TYPE = "interfaceType"
 UNDO_USING_BACKSPACE = "undoUsingBackspace"
 WINDOW_DEFAULT_SIZE = "windowDefaultSize"
 HPANE_POSITION = "hPanePosition"
+COLUMN_WIDTHS = "columnWidths"
 SHOW_TOOLBAR = "showToolbar"
 
 # TODO - Future functionality
@@ -236,6 +237,7 @@ class ConfigManager:
                 UNDO_USING_BACKSPACE : True,
                 WINDOW_DEFAULT_SIZE : (600, 400),
                 HPANE_POSITION : 150,
+                COLUMN_WIDTHS : [150, 50, 100],
                 SHOW_TOOLBAR : True
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
@@ -710,7 +712,27 @@ class GlobalHotkey(AbstractHotkey):
         
     def check_hotkey(self, modifiers, key, windowTitle):
         if AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
-            _logger.debug("Triggered global hotkey using modifiers: %s key: %s" % (repr(modifiers), key))
+            _logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
             self.closure()
         return False
 
+    def get_hotkey_string(self, key=None, modifiers=None):
+        if key is None and modifiers is None:
+            if not self.enabled:
+                return ""
+
+            key = self.hotKey
+            modifiers = self.modifiers
+
+        ret = ""
+
+        for modifier in modifiers:
+            ret += modifier
+            ret += "+"
+
+        if key == ' ':
+            ret += "<space>"
+        else:
+            ret += key
+
+        return ret

@@ -180,15 +180,25 @@ class XInterfaceBase(threading.Thread):
         Grab a specific hotkey in the given window
         """
         logger.debug("Grabbing hotkey: %r %r", modifiers, key)
-        keycode = self.__lookupKeyCode(key)
-        mask = 0
-        for mod in modifiers:
-            mask |= self.modMasks[mod]
-                
-        window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
-        window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
-        window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
-        window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+        try:
+            keycode = self.__lookupKeyCode(key)
+            mask = 0
+            for mod in modifiers:
+                mask |= self.modMasks[mod]
+
+            window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+
+            if Key.NUMLOCK in self.modMasks:
+                window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+
+            if Key.CAPSLOCK in self.modMasks:
+                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+
+            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
+                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+
+        except Exception, e:
+            logger.warn("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
 
     def grab_hotkey(self, item):
         """
@@ -235,15 +245,24 @@ class XInterfaceBase(threading.Thread):
         Ungrab a specific hotkey in the given window
         """
         logger.debug("Ungrabbing hotkey: %r %r", modifiers, key)
-        keycode = self.__lookupKeyCode(key)
-        mask = 0
-        for mod in modifiers:
-            mask |= self.modMasks[mod]
+        try:
+            keycode = self.__lookupKeyCode(key)
+            mask = 0
+            for mod in modifiers:
+                mask |= self.modMasks[mod]
 
-        window.ungrab_key(keycode, mask)
-        window.ungrab_key(keycode, mask|self.modMasks[Key.NUMLOCK])
-        window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK])
-        window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
+            window.ungrab_key(keycode, mask)
+
+            if Key.NUMLOCK in self.modMasks:
+                window.ungrab_key(keycode, mask|self.modMasks[Key.NUMLOCK])
+
+            if Key.CAPSLOCK in self.modMasks:
+                window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK])
+
+            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
+                window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
+        except Exception, e:
+            logger.warn("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
         
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
@@ -311,17 +330,20 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         for char in string:
-            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-            if len(keyCodeList) > 0:
-                keyCode, offset = keyCodeList[0]
-                if offset == 0:
-                    self.__sendKeyCode(keyCode)
-                if offset == 1:
-                    self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
-                if offset == 4:
-                    self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
-            else:
-                self.send_unicode_char(char)
+            try:
+                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+                if len(keyCodeList) > 0:
+                    keyCode, offset = keyCodeList[0]
+                    if offset == 0:
+                        self.__sendKeyCode(keyCode)
+                    if offset == 1:
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
+                    if offset == 4:
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
+                else:
+                    logger.warn("Char %r not in keymap - not sending", char)
+            except Exception, e:
+                logger.warn("Error sending char %r: %s", char, str(e))
                     
     def send_key(self, keyName):
         """
@@ -340,37 +362,14 @@ class XInterfaceBase(threading.Thread):
         Send a modified key (e.g. when emulating a hotkey)
         """
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
-        """for modifier in modifiers:
-            modifierCode = self.keyCodes[modifier.lower()]
-            xtest.fake_input(self.rootWindow, X.KeyPress, modifierCode)
-            
-        keyCode = self.__lookupKeyCode(keyName)
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-        
-        for modifier in modifiers:
-            modifierCode = self.keyCodes[modifier.lower()]
-            xtest.fake_input(self.rootWindow, X.KeyRelease, modifierCode)"""
-        mask = 0
-        for mod in modifiers:
-            mask |= self.modMasks[mod]
-        keyCode = self.__lookupKeyCode(keyName)
-        self.__sendKeyCode(keyCode, mask)
-            
-    def send_unicode_char(self, char):
-        logger.debug("Send unicode char: %s", char)
-        self.send_modified_key('u', [Key.CONTROL, Key.SHIFT])
-        
-        keyDigits = "%04x" % ord(char)
-        
-        for digit in keyDigits:
-            keyCode = self.__lookupKeyCode(digit)
-            xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-            xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-            
-        keyCode = self.__lookupKeyCode('<enter>')
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        try:
+            mask = 0
+            for mod in modifiers:
+                mask |= self.modMasks[mod]
+            keyCode = self.__lookupKeyCode(keyName)
+            self.__sendKeyCode(keyCode, mask)
+        except Exception, e:
+            logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
         
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         # Get current pointer position so we can return it there

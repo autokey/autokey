@@ -209,7 +209,7 @@ class AbstractHotkey(AbstractWindowFilter):
 
     def get_hotkey_string(self, key=None, modifiers=None):
         if key is None and modifiers is None:
-            if self.hotKey is None:
+            if TriggerMode.HOTKEY not in self.modes:
                 return ""
                 
             key = self.hotKey
