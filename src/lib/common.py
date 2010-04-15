@@ -28,12 +28,12 @@ LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
 APP_NAME = "AutoKey"
 CATALOG = ""
 VERSION = "0.70.1"
-HOMEPAGE  = "http://autokey.sourceforge.net/"
+HOMEPAGE  = "http://autokey.googlecode.com/"
 BUG_EMAIL = "cdekter@gmail.com"
 
 FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
-DONATE_URL = "https://sourceforge.net/donate/index.php?group_id=216191"
+DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
 
 CONFIG_WINDOW_TITLE = "Configuration"
 

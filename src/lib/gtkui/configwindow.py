@@ -38,9 +38,6 @@ from autokey import model, common
 
 CONFIG_WINDOW_TITLE = _(common.CONFIG_WINDOW_TITLE + " - AutoKey")
 
-
-WEBSITE = "http://code.google.com/p/autokey"
-
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
 def get_ui(fileName):
@@ -876,7 +873,7 @@ class ConfigWindow:
         p = gtk.gdk.pixbuf_new_from_file(common.ICON_FILE)
         p = p.scale_simple(100, 100, gtk.gdk.INTERP_BILINEAR)
         dlg.set_logo(p)
-        dlg.set_website(WEBSITE)
+        dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
         dlg.run()
