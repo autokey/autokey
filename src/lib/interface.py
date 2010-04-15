@@ -316,14 +316,18 @@ class XInterfaceBase(threading.Thread):
             self.clipBoard.setText(string, QClipboard.Selection)
             self.sem.release()
         else:
+            gtk.gdk.threads_enter()
             self.selection.set_text(string.encode("utf-8"))
+            gtk.gdk.threads_leave()
 
     def __fillClipboard(self, string):
         if common.USING_QT:
             self.clipBoard.setText(string, QClipboard.Clipboard)
             self.sem.release()
         else:
+            gtk.gdk.threads_enter()
             self.clipBoard.set_text(string.encode("utf-8"))
+            gtk.gdk.threads_leave()
 
     def begin_send(self):
         self.queuedEvents = []

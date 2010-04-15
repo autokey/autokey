@@ -620,7 +620,9 @@ class GtkClipboard:
         self.__fillSelection(contents)
         
     def __fillSelection(self, string):
+        gtk.gdk.threads_enter()
         self.selection.set_text(string.encode("utf-8"))
+        gtk.gdk.threads_leave()
         #self.sem.release()
         
     def get_selection(self):
@@ -647,7 +649,9 @@ class GtkClipboard:
         self.__fillClipboard(contents)
         
     def __fillClipboard(self, string):
+        gtk.gdk.threads_enter()
         self.clipBoard.set_text(string.encode("utf-8"))
+        gtk.gdk.threads_leave()
         #self.sem.release()        
         
     def get_clipboard(self):
