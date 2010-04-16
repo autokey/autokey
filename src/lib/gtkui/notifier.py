@@ -58,7 +58,7 @@ class Notifier(gobject.GObject):
             self.icon = gtk.status_icon_new_from_file(STATUS_ICON_FILE)
             self.update_tool_tip()
             self.icon.connect("popup_menu", self.on_popup_menu)
-            self.icon.connect("activate", self.on_activate)
+            self.icon.connect("activate", self.on_show_configure)
             
             self.connect("show-notify", self.on_show_notify)  
             
@@ -79,8 +79,8 @@ class Notifier(gobject.GObject):
         
     # Signal Handlers ----
     
-    def on_activate(self, widget, data=None):
-        self.app.show_abbr_selector()
+    #def on_activate(self, widget, data=None):
+    #    self.app.show_abbr_selector()
         
     def on_popup_menu(self, status_icon, button, activate_time, data=None):
         # Main Menu items

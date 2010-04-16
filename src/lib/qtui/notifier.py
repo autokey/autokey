@@ -19,6 +19,7 @@
 from PyKDE4.kdeui import KNotification, KSystemTrayIcon, KIcon, KStandardAction, KToggleAction
 from PyKDE4.kdecore import i18n
 from PyQt4.QtCore import SIGNAL
+from PyQt4.QtGui import QSystemTrayIcon
 
 import popupmenu
 from autokey.configmanager import *
@@ -35,6 +36,8 @@ class Notifier:
         
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             self.icon = KSystemTrayIcon(ICON_FILE)
+            self.icon.connect(self.icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.on_activate)
+            
             self.build_menu()
             self.update_tool_tip()
             self.icon.show()
@@ -81,6 +84,10 @@ class Notifier:
 
     def on_quit(self):
         self.app.shutdown()
+
+    def on_activate(self, reason):
+        if reason == QSystemTrayIcon.ActivationReason(QSystemTrayIcon.Trigger):
+            self.on_configure()
 
     def on_configure(self):
         self.app.show_configure()
