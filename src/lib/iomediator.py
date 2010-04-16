@@ -31,9 +31,7 @@ class Key:
     DOWN = "<down>"
     BACKSPACE = "<backspace>"
     TAB = "<tab>"
-    #RETURN = '\n'
     ENTER = "<enter>"
-    #SPACE = ' '
     SCROLL_LOCK = "<scroll_lock>"
     PRINT_SCREEN = "<print_screen>"
     PAUSE = "<pause>"
@@ -69,6 +67,22 @@ class Key:
     END = "<end>"
     PAGE_UP = "<page_up>"
     PAGE_DOWN = "<page_down>"
+
+    # Numpad
+    NP_INSERT = "<np_insert>"
+    NP_DELETE = "<np_delete>"
+    NP_HOME = "<np_home>"
+    NP_END = "<np_end>"
+    NP_PAGE_UP = "<np_page_up>"
+    NP_PAGE_DOWN = "<np_page_down>"
+    NP_LEFT = "<np_left>"
+    NP_RIGHT = "<np_right>"
+    NP_UP = "<np_up>"
+    NP_DOWN = "<np_down>"
+    NP_DIVIDE = "<np_divide>"
+    NP_MULTIPLY = "<np_multiply>"
+    NP_ADD = "<np_add>"
+    NP_SUBTRACT = "<np_subtract>"
 
     @classmethod
     def is_key(klass, keyString):
@@ -134,6 +148,10 @@ class IoMediator(threading.Thread):
         #self.join()
 
     # Callback methods for Interfaces ----
+
+    def set_modifier_state(self, modifier, state):
+        _logger.debug("Set modifier %s to %r", modifier, state)
+        self.modifiers[modifier] = state
     
     def handle_modifier_down(self, modifier):
         """
@@ -196,6 +214,9 @@ class IoMediator(threading.Thread):
             target.handle_mouseclick(rootX, rootY, relX, relY, button, self.interface.get_window_title())
         
     # Methods for expansion service ----
+
+    def check_string_mapping(self, string):
+        return self.interface.check_string_mapping(string)
         
     def send_string(self, string):
         """

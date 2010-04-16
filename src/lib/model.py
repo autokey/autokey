@@ -408,12 +408,14 @@ class SendMode:
     KEYBOARD = "kb"
     CB_CTRL_V = Key.CONTROL + "+v"
     CB_CTRL_SHIFT_V = Key.CONTROL + '+' + Key.SHIFT + "+v"
+    CB_SHIFT_INSERT = Key.SHIFT + '+' + Key.INSERT
     SELECTION = None
 
 SEND_MODES = {
              "Keyboard" : SendMode.KEYBOARD,
              "Clipboard (Ctrl+V)" : SendMode.CB_CTRL_V,
              "Clipboard (Ctrl+Shift+V)" : SendMode.CB_CTRL_SHIFT_V,
+             "Clipboard (Shift+Insert)" : SendMode.CB_SHIFT_INSERT,
              "Mouse Selection" : SendMode.SELECTION
              }
 

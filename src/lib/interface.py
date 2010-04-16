@@ -270,7 +270,7 @@ class XInterfaceBase(threading.Thread):
 
         keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
 
-        if keySym in XK_TO_AK_NUMLOCKED and numlock:
+        if keySym in XK_TO_AK_NUMLOCKED and (numlock ^ shifted):
             return XK_TO_AK_NUMLOCKED[keySym]
         
         elif keySym in XK_TO_AK_MAP:
@@ -347,15 +347,14 @@ class XInterfaceBase(threading.Thread):
                 self.__sendKeyReleaseEvent(event.detail, event.state)
         self.localDisplay.flush()
 
-    def can_send_string(self, string):
-        canSend = True
+    def check_string_mapping(self, string):
+        badChars = []
         for char in string:
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) == 0:
-                canSend = False
-                break
+                badChars.append(char)
 
-        return canSend        
+        return badChars
     
     def send_string(self, string):
         """
@@ -663,6 +662,7 @@ class XRecordInterface(XInterfaceBase):
     def __init__(self, mediator, app):
         XInterfaceBase.__init__(self, mediator, app)
         self.recordDisplay = display.Display()
+        self.__locksChecked = False
 
         # Check for record extension 
         if not self.recordDisplay.has_extension("RECORD"):
@@ -703,7 +703,6 @@ class XRecordInterface(XInterfaceBase):
         if reply.category != record.FromServer:
             return
         if reply.client_swapped:
-            print "* received swapped protocol data, cowardly ignored"
             return
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
@@ -713,6 +712,17 @@ class XRecordInterface(XInterfaceBase):
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(data, self.recordDisplay.display, None, None)
             if event.type == X.KeyPress:
+
+                # On first keypress, check initial state of the locks
+                if not self.__locksChecked:
+                    if Key.NUMLOCK in self.modMasks:
+                        state = (event.state & self.modMasks[Key.NUMLOCK]) != 0
+                        self.mediator.set_modifier_state(Key.NUMLOCK, state)
+                    if Key.CAPSLOCK in self.modMasks:
+                        state = (event.state & self.modMasks[Key.CAPSLOCK]) != 0
+                        self.mediator.set_modifier_state(Key.CAPSLOCK, state)
+                    self.__locksChecked = True
+                    
                 self._handleKeyPress(event.detail)
             elif event.type == X.KeyRelease:
                 self._handleKeyRelease(event.detail)
@@ -826,21 +836,21 @@ XK_TO_AK_MAP = {
            XK.XK_End : Key.END,
            XK.XK_Page_Up : Key.PAGE_UP,
            XK.XK_Page_Down : Key.PAGE_DOWN,
-           XK.XK_KP_Insert : Key.INSERT,
-           XK.XK_KP_Delete : Key.DELETE,
-           XK.XK_KP_End : Key.END,
-           XK.XK_KP_Down : Key.DOWN,
-           XK.XK_KP_Page_Down : Key.PAGE_DOWN,
-           XK.XK_KP_Left : Key.LEFT,
+           XK.XK_KP_Insert : Key.NP_INSERT,
+           XK.XK_KP_Delete : Key.NP_DELETE,
+           XK.XK_KP_End : Key.NP_END,
+           XK.XK_KP_Down : Key.NP_DOWN,
+           XK.XK_KP_Page_Down : Key.NP_PAGE_DOWN,
+           XK.XK_KP_Left : Key.NP_LEFT,
            XK.XK_KP_5 : "<unknown>",
-           XK.XK_KP_Right : Key.RIGHT,
-           XK.XK_KP_Home : Key.HOME,
-           XK.XK_KP_Up: Key.UP,
-           XK.XK_KP_Page_Up : Key.PAGE_UP,
-           XK.XK_KP_Divide : "/",
-           XK.XK_KP_Multiply : "*",
-           XK.XK_KP_Add : "+",
-           XK.XK_KP_Subtract : "-",
+           XK.XK_KP_Right : Key.NP_RIGHT,
+           XK.XK_KP_Home : Key.NP_HOME,
+           XK.XK_KP_Up: Key.NP_UP,
+           XK.XK_KP_Page_Up : Key.NP_PAGE_UP,
+           XK.XK_KP_Divide : NP_DIVIDE,
+           XK.XK_KP_Multiply : NP_MULTIPLY,
+           XK.XK_KP_Add : NP_ADD,
+           XK.XK_KP_Subtract : NP_SUBTRACT,
            XK.XK_KP_Enter : Key.ENTER,
            }
 
