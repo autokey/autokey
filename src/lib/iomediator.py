@@ -21,6 +21,7 @@ X_EVDEV_INTERFACE = "XEvDev"
 ATSPI_INTERFACE = "AT-SPI"
 
 INTERFACES = [X_RECORD_INTERFACE, X_EVDEV_INTERFACE, ATSPI_INTERFACE]
+CURRENT_INTERFACE = None
 
 # Key codes enumeration
 class Key:
@@ -83,6 +84,7 @@ class Key:
     NP_MULTIPLY = "<np_multiply>"
     NP_ADD = "<np_add>"
     NP_SUBTRACT = "<np_subtract>"
+    NP_5 = "<np_5>"
 
     @classmethod
     def is_key(klass, keyString):
@@ -138,7 +140,10 @@ class IoMediator(threading.Thread):
         elif self.interfaceType == X_EVDEV_INTERFACE:
             self.interface = EvDevInterface(self, service.app)    
         else:
-            self.interface = AtSpiInterface(self, service.app)    
+            self.interface = AtSpiInterface(self, service.app)
+
+        global CURRENT_INTERFACE
+        CURRENT_INTERFACE = self.interface
         self.interface.start()
         self.start()
         
@@ -384,18 +389,25 @@ class KeyGrabber:
         self.targetParent = parent
     
     def start(self):
+        # In QT version, sometimes the mouseclick event arrives before we finish initialising
+        # sleep slightly to prevent this
+        time.sleep(0.1)
         IoMediator.listeners.append(self)
+        CURRENT_INTERFACE.grab_keyboard()
                  
     def handle_keypress(self, key, windowName=""):
         if not key in MODIFIERS:
             IoMediator.listeners.remove(self)
             self.targetParent.set_key(key)
+            CURRENT_INTERFACE.ungrab_keyboard()
             
     def handle_hotkey(self, key, modifiers, windowName):
         pass
     
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
-        pass
+        IoMediator.listeners.remove(self)
+        CURRENT_INTERFACE.ungrab_keyboard()
+        self.targetParent.cancel_grab()
     
 
 class Recorder(KeyGrabber):

@@ -270,7 +270,7 @@ class XInterfaceBase(threading.Thread):
 
         keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
 
-        if keySym in XK_TO_AK_NUMLOCKED and (numlock ^ shifted):
+        if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
             return XK_TO_AK_NUMLOCKED[keySym]
         
         elif keySym in XK_TO_AK_MAP:
@@ -347,6 +347,22 @@ class XInterfaceBase(threading.Thread):
                 self.__sendKeyReleaseEvent(event.detail, event.state)
         self.localDisplay.flush()
 
+    def grab_keyboard(self):
+        t = threading.Thread(target=self.__grab_keyboard)
+        t.start()
+
+    def __grab_keyboard(self):
+        self.dpyLock.acquire()
+        self.rootWindow.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        self.localDisplay.flush()
+        self.dpyLock.release()
+
+    def ungrab_keyboard(self):
+        self.dpyLock.acquire()
+        self.localDisplay.ungrab_keyboard(X.CurrentTime)
+        self.localDisplay.flush()
+        self.dpyLock.release()
+        
     def check_string_mapping(self, string):
         badChars = []
         for char in string:
@@ -842,15 +858,15 @@ XK_TO_AK_MAP = {
            XK.XK_KP_Down : Key.NP_DOWN,
            XK.XK_KP_Page_Down : Key.NP_PAGE_DOWN,
            XK.XK_KP_Left : Key.NP_LEFT,
-           XK.XK_KP_5 : "<unknown>",
+           XK.XK_KP_Begin : Key.NP_5,
            XK.XK_KP_Right : Key.NP_RIGHT,
            XK.XK_KP_Home : Key.NP_HOME,
            XK.XK_KP_Up: Key.NP_UP,
            XK.XK_KP_Page_Up : Key.NP_PAGE_UP,
-           XK.XK_KP_Divide : NP_DIVIDE,
-           XK.XK_KP_Multiply : NP_MULTIPLY,
-           XK.XK_KP_Add : NP_ADD,
-           XK.XK_KP_Subtract : NP_SUBTRACT,
+           XK.XK_KP_Divide : Key.NP_DIVIDE,
+           XK.XK_KP_Multiply : Key.NP_MULTIPLY,
+           XK.XK_KP_Add : Key.NP_ADD,
+           XK.XK_KP_Subtract : Key.NP_SUBTRACT,
            XK.XK_KP_Enter : Key.ENTER,
            }
 
@@ -863,7 +879,7 @@ XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Down : "2",
            XK.XK_KP_Page_Down : "3",
            XK.XK_KP_Left : "4",
-           XK.XK_KP_5 : "5",
+           XK.XK_KP_Begin : "5",
            XK.XK_KP_Right : "6",
            XK.XK_KP_Home : "7",
            XK.XK_KP_Up: "8",

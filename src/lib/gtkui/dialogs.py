@@ -246,6 +246,10 @@ class HotkeySettingsDialog(DialogBase):
         self._setKeyLabel(key)
         self.key = key
         self.setButton.set_sensitive(True)
+
+    def cancel_grab(self):
+        self.setButton.set_sensitive(True)
+        self._setKeyLabel(self.key)
         
     def build_modifiers(self):
         modifiers = []

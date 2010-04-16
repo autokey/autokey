@@ -229,6 +229,10 @@ class HotkeySettingsDialog(KDialog):
         self._setKeyLabel(key)
         self.key = key
         self.widget.setButton.setEnabled(True)
+
+    def cancel_grab(self):
+        self.widget.setButton.setEnabled(True)
+        self._setKeyLabel(self.key)        
         
     def build_modifiers(self):
         modifiers = []
