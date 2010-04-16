@@ -275,11 +275,23 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         QWidget.__init__(self)
         phrasepage.Ui_PhrasePage.__init__(self)
         self.setupUi(self)
+
+        self.initialising = True
+        l = model.SEND_MODES.keys()
+        l.sort()
+        for val in l:
+            self.sendModeCombo.addItem(val)
+        self.initialising = False
         
     def load(self, phrase):
         self.currentPhrase = phrase
         self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
+
+        for k, v in model.SEND_MODES.iteritems():
+            if v == phrase.sendMode:
+                self.sendModeCombo.setCurrentIndex(self.sendModeCombo.findText(k))
+                break
         
         # TODO - re-enable me if restoring predictive functionality
         #self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
@@ -291,6 +303,8 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.settingsWidget.save()
         self.currentPhrase.phrase = unicode(self.phraseText.toPlainText())
         self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+
+        self.currentPhrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
         
         # TODO - re-enable me if restoring predictive functionality
         #if self.predictCheckbox.isChecked():
@@ -308,7 +322,23 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         phrase = unicode(self.phraseText.toPlainText())
         if not validate(not EMPTY_FIELD_REGEX.match(phrase), i18n("The phrase content can't be empty."),
                     self.phraseText, self.topLevelWidget()): return False
-                    
+
+        badChars = self.topLevelWidget().app.service.mediator.check_string_mapping(phrase)
+        
+        if len(badChars) > 0 and model.SEND_MODES[str(self.sendModeCombo.currentText())] == model.SendMode.KEYBOARD:
+            badCharPrint = u'[ '
+            for char in badChars:
+                badCharPrint += u"'"
+                badCharPrint += unicode(char)
+                badCharPrint += u"'"
+                badCharPrint += u', '
+            badCharPrint = badCharPrint[:-2]
+            badCharPrint += u' ]'
+            
+            KMessageBox.information(self.topLevelWidget(),
+                                    "The phrase text contains characters that are not in your current keyboard map: \n%s\n" % badCharPrint +
+                                    "If you don't choose a different paste mode, these characters won't be pasted.")
+
         return True
         
     def set_dirty(self):
@@ -341,6 +371,10 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
 
     def on_showInTrayCheckbox_stateChanged(self, state):
         self.set_dirty()
+
+    def on_sendModeCombo_currentIndexChanged(self, index):
+        if not self.initialising:
+            self.set_dirty()
 
 
 import folderpage

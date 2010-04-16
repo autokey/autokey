@@ -415,10 +415,20 @@ class PhrasePage(ScriptPage):
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
+        self.sendModeCombo = gtk.combo_box_new_text()
+        self.sendModeCombo.connect("changed", self.on_modified)
+        sendModeHbox = builder.get_object("sendModeHbox")
+        sendModeHbox.pack_start(self.sendModeCombo, False, False)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
         vbox.pack_start(self.settingsWidget.ui)
+
+        # Populate combo
+        l = model.SEND_MODES.keys()
+        l.sort()
+        for val in l:
+            self.sendModeCombo.append_text(val)
         
         # Configure script editor
         #self.__m = gtksourceview2.LanguageManager()
@@ -444,6 +454,14 @@ class PhrasePage(ScriptPage):
         self.promptCheckbox.set_active(thePhrase.prompt)
         self.showInTrayCheckbox.set_active(thePhrase.showInTrayMenu)
         self.settingsWidget.load(thePhrase)
+
+        l = model.SEND_MODES.keys()
+        l.sort()
+        for k, v in model.SEND_MODES.iteritems():
+            if v == thePhrase.sendMode:
+                self.sendModeCombo.set_active(l.index(k))
+                break
+        
     
     def save(self):
         self.currentItem.phrase = self.buffer.get_text(self.buffer.get_start_iter(),
@@ -451,8 +469,40 @@ class PhrasePage(ScriptPage):
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
+        self.currentItem.sendMode = model.SEND_MODES[self.sendModeCombo.get_active_text()]
         
         self.settingsWidget.save()
+
+    def validate(self):
+        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).decode("utf-8")
+        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The script code can't be empty"), self.editor,
+                         self.parentWindow.ui):
+            return False
+
+        badChars = self.parentWindow.app.service.mediator.check_string_mapping(text)
+
+        if len(badChars) > 0 and model.SEND_MODES[self.sendModeCombo.get_active_text()] == model.SendMode.KEYBOARD:
+            badCharPrint = u'[ '
+            for char in badChars:
+                badCharPrint += u"'"
+                badCharPrint += unicode(char)
+                badCharPrint += u"'"
+                badCharPrint += u', '
+            badCharPrint = badCharPrint[:-2]
+            badCharPrint += u' ]'
+            badCharPrint = badCharPrint.encode("utf-8")
+
+            msg = _("The phrase text contains characters that are not in your current keyboard map: \n%s\n") % badCharPrint
+            msg += _("If you don't choose a different paste mode, these characters won't be pasted.")
+
+            dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                                    message_format=msg)
+            dlg.run()
+            dlg.destroy()
+
+        return True
+
+        
 
 class ConfigWindow:
     
