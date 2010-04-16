@@ -141,6 +141,8 @@ class QtDialog:
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
     
     This version uses KDialog to integrate well with KDE.
+
+    A note on exit codes: an exit code of 0 indicates that the user clicked OK.
     """
     
     def __runKdialog(self, title, args):
@@ -159,6 +161,8 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed above the input box
         @param default: default value for the input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
         """
         return self.__runKdialog(title, ["--inputbox", message, default])
         
@@ -170,6 +174,8 @@ class QtDialog:
         
         @param title: window title for the dialog
         @param message: message displayed above the password input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
         """
         return self.__runKdialog(title, ["--password", message])        
         
@@ -181,7 +187,9 @@ class QtDialog:
         
         @param options: list of options (strings) for the dialog
         @param title: window title for the dialog
-        @param message: message displayed above the combobox      
+        @param message: message displayed above the combobox
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
         """
         return self.__runKdialog(title, ["--combobox", message] + options)
         
@@ -195,6 +203,8 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed above the list
         @param default: default value to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
         """
         
         choices = []
@@ -223,6 +233,8 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed above the list
         @param defaults: list of default values to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
         """
         
         choices = []
@@ -255,6 +267,8 @@ class QtDialog:
         @param initialDir: starting directory for the file dialog
         @param fileTypes: file type filter expression
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
         """
         if rememberAs is not None:
             return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
@@ -271,6 +285,8 @@ class QtDialog:
         @param initialDir: starting directory for the file dialog
         @param fileTypes: file type filter expression
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
         """
         if rememberAs is not None:
             return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
@@ -286,6 +302,8 @@ class QtDialog:
         @param title: window title for the dialog
         @param initialDir: starting directory for the directory chooser dialog
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and chosen path
+        @rtype: C{tuple(int, str)}
         """
         if rememberAs is not None:
             return self.__runKdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
@@ -299,6 +317,8 @@ class QtDialog:
         Usage: C{dialog.choose_colour(title="Select Colour")}
         
         @param title: window title for the dialog
+        @return: a tuple containing the exit code and colour
+        @rtype: C{tuple(int, str)}
         """
         return self.__runKdialog(title, ["--getcolor"])
         
@@ -320,7 +340,7 @@ class System:
         
         @param command: command to be executed (including any arguments) - e.g. "ls -l"
         @param getOutput: whether to capture the (stdout) output of the command
-        @raises subprocess.CalledProcessError: if the command returns a non-zero exit code
+        @raise subprocess.CalledProcessError: if the command returns a non-zero exit code
         """
         if getOutput:
             p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
@@ -352,6 +372,8 @@ class GtkDialog:
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
     
     This version uses Zenity to integrate well with GNOME.
+
+    A note on exit codes: an exit code of 0 indicates that the user clicked OK.
     """
     
     def __runZenity(self, title, args):
@@ -370,6 +392,8 @@ class GtkDialog:
         @param title: window title for the dialog
         @param message: message displayed above the input box
         @param default: default value for the input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
         """
         return self.__runZenity(title, ["--entry", "--text", message, "--entry-text", default])
         
@@ -381,6 +405,8 @@ class GtkDialog:
         
         @param title: window title for the dialog
         @param message: message displayed above the password input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
         """
         return self.__runZenity(title, ["--entry", "--text", message, "--hide-text"])
         
@@ -406,6 +432,8 @@ class GtkDialog:
         @param title: window title for the dialog
         @param message: message displayed above the list
         @param default: default value to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
         """
         
         choices = []
@@ -434,6 +462,8 @@ class GtkDialog:
         @param title: window title for the dialog
         @param message: message displayed above the list
         @param defaults: list of default values to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
         """
         
         choices = []
@@ -464,6 +494,8 @@ class GtkDialog:
         Usage: C{dialog.open_file(title="Open File")}
         
         @param title: window title for the dialog
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
         """
         #if rememberAs is not None:
         #    return self.__runZenity(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
@@ -477,6 +509,8 @@ class GtkDialog:
         Usage: C{dialog.save_file(title="Save As")}
         
         @param title: window title for the dialog
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
         """
         #if rememberAs is not None:
         #    return self.__runZenity(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
@@ -490,6 +524,8 @@ class GtkDialog:
         Usage: C{dialog.choose_directory(title="Select Directory")}
         
         @param title: window title for the dialog
+        @return: a tuple containing the exit code and path
+        @rtype: C{tuple(int, str)}
         """
         #if rememberAs is not None:
         #    return self.__runZenity(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
@@ -515,9 +551,8 @@ class GtkDialog:
         @param title: window title for the dialog
         @param format: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
-        
-        Use the dialog's OK button.
-        AutoKey has trouble if you double-click the date.
+        @return: a tuple containing the exit code and date
+        @rtype: C{tuple(int, str)}
         """
         if re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date):
             year = date[0:4]
@@ -557,6 +592,9 @@ class QtClipboard:
         Read text from the X selection
         
         Usage: C{clipboard.get_selection()}
+
+        @return: text contents of the mouse selection
+        @rtype: C{str}
         """
         self.__execAsync(self.__getSelection)
         return str(self.text)
@@ -584,6 +622,9 @@ class QtClipboard:
         Read text from the clipboard
         
         Usage: C{clipboard.get_clipboard()}
+
+        @return: text contents of the clipboard
+        @rtype: C{str}
         """
         self.__execAsync(self.__getClipboard)
         return str(self.text)
@@ -630,6 +671,9 @@ class GtkClipboard:
         Read text from the X selection
         
         Usage: C{clipboard.get_selection()}
+
+        @return: text contents of the mouse selection
+        @rtype: C{str}
         """
         self.__execAsync(self.selection.request_text, self.__receive)
         return self.text.decode("utf-8")
@@ -659,6 +703,9 @@ class GtkClipboard:
         Read text from the clipboard
         
         Usage: C{clipboard.get_clipboard()}
+
+        @return: text contents of the clipboard
+        @rtype: C{str}
         """
         self.__execAsync(self.clipBoard.request_text, self.__receive)
         return self.text.decode("utf-8")
@@ -694,6 +741,7 @@ class Window:
         
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
+        @rtype: boolean
         """
         regex = re.compile(title)
         waited = 0
@@ -716,6 +764,7 @@ class Window:
         
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
+        @rtype: boolean
         """
         regex = re.compile(title)
         waited = 0
@@ -821,7 +870,8 @@ class Window:
         
         Usage: C{window.get_active_geometry()}
         
-        Returns a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)
+        @return: a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)
+        @rtype: C{tuple(int, int, int, int)}
         """
         active = self.mediator.interface.get_window_title()
         result, output = self.__runWmctrl(["-l", "-G"])
@@ -899,7 +949,7 @@ class Engine:
         @param description: description for the phrase
         @param abbr: the abbreviation that will trigger the expansion
         @param contents: the expansion text
-        @raises Exception: if the specified abbreviation is not unique
+        @raise Exception: if the specified abbreviation is not unique
         """
         if not self.configManager.check_abbreviation_unique(abbr, None):
             raise Exception("The specified abbreviation is already in use")
@@ -920,7 +970,7 @@ class Engine:
         text. Modifiers must be given as a list of strings, with the following
         values permitted:
         
-        <control>
+        <ctrl>
         <alt>
         <super>
         <shift>
@@ -932,7 +982,7 @@ class Engine:
         @param modifiers: modifiers to use with the hotkey (as a list)
         @param key: the hotkey
         @param contents: the expansion text
-        @raises Exception: if the specified hotkey is not unique
+        @raise Exception: if the specified hotkey is not unique
         """
         modifiers.sort()
         if not self.configManager.check_hotkey_unique(modifiers, key, None):
@@ -951,7 +1001,7 @@ class Engine:
         Usage: C{engine.run_script(description)}
         
         @param description: description of the script to run
-        @raises Exception: if the specified script does not exist
+        @raise Exception: if the specified script does not exist
         """
         targetScript = None
         for item in self.configManager.allItems:

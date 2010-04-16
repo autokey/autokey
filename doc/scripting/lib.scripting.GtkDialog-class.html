@@ -60,6 +60,8 @@
 <p>Provides a simple interface for the display of some basic dialogs to 
   collect information from the user.</p>
   <p>This version uses Zenity to integrate well with GNOME.</p>
+  <p>A note on exit codes: an exit code of 0 indicates that the user 
+  clicked OK.</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -98,7 +100,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -118,7 +120,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -137,7 +139,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -158,7 +160,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -179,7 +181,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -197,7 +199,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -215,7 +217,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -234,7 +236,7 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>tuple(int, str)</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
@@ -298,6 +300,8 @@
         <li><strong class="pname"><code>message</code></strong> - message displayed above the input box</li>
         <li><strong class="pname"><code>default</code></strong> - default value for the input box</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and user input</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -326,6 +330,8 @@
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
         <li><strong class="pname"><code>message</code></strong> - message displayed above the password input box</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and user input</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -358,6 +364,8 @@
         <li><strong class="pname"><code>message</code></strong> - message displayed above the list</li>
         <li><strong class="pname"><code>default</code></strong> - default value to be selected</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and user choice</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -391,6 +399,8 @@
         <li><strong class="pname"><code>message</code></strong> - message displayed above the list</li>
         <li><strong class="pname"><code>defaults</code></strong> - list of default values to be selected</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and user choice</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -416,6 +426,8 @@
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and file path</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -441,6 +453,8 @@
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and file path</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -468,6 +482,8 @@
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and path</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -496,10 +512,10 @@
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title for the dialog</li>
         <li><strong class="pname"><code>format</code></strong> - format of date to be returned</li>
-        <li><strong class="pname"><code>date</code></strong> - initial date as YYYY-MM-DD, otherwise today
-          <p>Use the dialog's OK button. AutoKey has trouble if you 
-          double-click the date.</p></li>
+        <li><strong class="pname"><code>date</code></strong> - initial date as YYYY-MM-DD, otherwise today</li>
     </ul></dd>
+    <dt>Returns: <code>tuple(int, str)</code></dt>
+        <dd>a tuple containing the exit code and date</dd>
   </dl>
 </td></tr></table>
 </div>
@@ -530,7 +546,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Mon Apr 12 22:11:24 2010
+    Generated by Epydoc 3.0.1 on Fri Apr 16 22:13:19 2010
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"
