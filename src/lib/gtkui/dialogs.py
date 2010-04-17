@@ -143,12 +143,20 @@ class AbbrSettingsDialog(DialogBase):
             
     def valid(self):
         configManager = self.configManager
-        if not validate(configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem),
-                             _("The abbreviation is already in use.\nAbbreviations must be unique."),
+
+        unique, itemName  = configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem)
+        if not validate(unique, _("The abbreviation is already in use by '%s'.") % itemName,
                              self.abbrEntry, self.ui): return False
         
-        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), _("Abbreviation can't be empty."),
+        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), _("The abbreviation can't be empty."),
                             self.abbrEntry, self.ui): return False
+
+        substrUnique, itemName  = configManager.check_abbreviation_substring(self.get_abbr(), self.targetItem)
+        if not substrUnique:
+            dlg = gtk.MessageDialog(type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK,
+                                    message_format=_("The abbreviation may conflict with the one defined for '%s'.") % itemName)
+            dlg.run()
+            dlg.destroy()
 
         return True
         
@@ -271,15 +279,15 @@ class HotkeySettingsDialog(DialogBase):
     def valid(self):
         configManager = self.configManager
         modifiers = self.build_modifiers()
-        
-        if not validate(configManager.check_hotkey_unique(modifiers, self.key, self.targetItem),
-                            _("The hotkey is already in use.\nHotkeys must be unique."), None,
+
+        unique, itemName = configManager.check_hotkey_unique(modifiers, self.key, self.targetItem)
+        if not validate(unique, _("The hotkey is already in use by '%s'.") % itemName, None,
                             self.ui): return False
 
-        if not validate(self.key is not None, _("You must specify a key for the Hotkey."),
+        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
                             None, self.ui): return False
         
-        if not validate(len(modifiers) > 0, _("You must select at least one modifier for the Hotkey"),
+        if not validate(len(modifiers) > 0, _("You must select at least one modifier for the hotkey"),
                             None, self.ui): return False
         
         return True

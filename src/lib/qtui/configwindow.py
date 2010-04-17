@@ -335,9 +335,8 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
             badCharPrint = badCharPrint[:-2]
             badCharPrint += u' ]'
             
-            KMessageBox.information(self.topLevelWidget(),
-                                    "The phrase text contains characters that are not in your current keyboard map: \n%s\n" % badCharPrint +
-                                    "If you don't choose a different paste mode, these characters won't be pasted.")
+            KMessageBox.information(self.topLevelWidget(), i18n("The phrase text contains characters that are not in your current keyboard map:\n" ) + badCharPrint +
+                                    i18n("\nIf you don't choose a different paste mode, these characters won't be pasted."))
 
         return True
         

@@ -1,3 +1,28 @@
+autokey (0.70.2-0~karmic) karmic; urgency=low
+
+  * Fix for issue 35 - Cleared hotkeys show in column
+  * Remove send_unicode_char() as it no longer works
+  * Handle missing modifier masks by warning (and not crashing)
+  * Don't grab hotkey combinations for Caps and Num if they aren't mapped
+  * [gtk] Autosize treeview columns
+  * [kde] Remember column and splitter positions
+  * [gtk] Fix hang when filling the clipboard/mouse selection
+  * Exorcise all remaining traces of SourceForge site
+  * Change left click action of notification icon to show the configuration window
+  * When using XRecord interface, get initial state of lock keys
+  * Distinguish between numpad and ordinary keys
+  * Fix numpad key decoding when both numlock and shift are active
+  * Grab the keyboard while grabbing the key for a hotkey in hotkey settings dialog
+  * Implement configuration option to send phrase via different modes
+  * Implement validation to check for untypable characters in a phrase
+  * Improve documentation for scripting interface (issue 37)
+  * Don't log list of phrases/scripts in debug mode as it can be a security risk
+  * Disable abbreviation popup hotkey by default
+  * Make hotkey and abbreviation validation messages more informative
+  * Detect substring abbreviation conflicts when validating
+
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 17 Apr 2010 10:23:02 +1000
+
 autokey (0.70.1-0~karmic) karmic; urgency=low
 
   * Add extra columns to treewidget to display abbreviation and/or hotkey

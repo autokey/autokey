@@ -495,7 +495,7 @@ class PhrasePage(ScriptPage):
             msg = _("The phrase text contains characters that are not in your current keyboard map: \n%s\n") % badCharPrint
             msg += _("If you don't choose a different paste mode, these characters won't be pasted.")
 
-            dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            dlg = gtk.MessageDialog(type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK,
                                     message_format=msg)
             dlg.run()
             dlg.destroy()

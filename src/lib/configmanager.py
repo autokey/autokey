@@ -265,8 +265,7 @@ class ConfigManager:
         self.toggleServiceHotkey.enabled = True    
         
         self.showPopupHotkey = GlobalHotkey()
-        self.showPopupHotkey.set_hotkey(["<super>"], "b")
-        self.showPopupHotkey.enabled = True
+        self.showPopupHotkey.enabled = False
 
         if configData is not None:
             self.load_from_serialized(configData)
@@ -426,13 +425,13 @@ engine.create_phrase(folder, title, contents)"""
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
         self.globalHotkeys.append(self.showPopupHotkey)        
-        _logger.debug("Global hotkeys: %s", self.globalHotkeys)
+        #_logger.debug("Global hotkeys: %s", self.globalHotkeys)
         
-        _logger.debug("Hotkey folders: %s", self.hotKeyFolders)
-        _logger.debug("Hotkey phrases: %s", self.hotKeys)
-        _logger.debug("Abbreviation phrases: %s", self.abbreviations)
-        _logger.debug("All folders: %s", self.allFolders)
-        _logger.debug("All phrases: %s", self.allItems)
+        #_logger.debug("Hotkey folders: %s", self.hotKeyFolders)
+        #_logger.debug("Hotkey phrases: %s", self.hotKeys)
+        #_logger.debug("Abbreviation phrases: %s", self.abbreviations)
+        #_logger.debug("All folders: %s", self.allFolders)
+        #_logger.debug("All phrases: %s", self.allItems)
         
         save_config(self)
                     
@@ -500,7 +499,7 @@ engine.create_phrase(folder, title, contents)"""
                 raise ImportException("The abbreviation '" + phrase.abbreviation + "' is already in use.")
         return (folder, importer.phrases)
     
-    def check_abbreviation_unique(self, abbreviation, targetPhrase):
+    def check_abbreviation_unique(self, abbreviation, targetItem):
         """
         Checks that the given abbreviation is not already in use.
         
@@ -510,14 +509,53 @@ engine.create_phrase(folder, title, contents)"""
         for item in self.allFolders:
             if TriggerMode.ABBREVIATION in item.modes:
                 if item.abbreviation == abbreviation:
-                    return item is targetPhrase
+                    return item is targetItem, item.title
             
         for item in self.allItems:
             if TriggerMode.ABBREVIATION in item.modes:
                 if item.abbreviation == abbreviation:
-                    return item is targetPhrase
-        
-        return True
+                    return item is targetItem, item.description
+
+        return True, ""
+
+    def check_abbreviation_substring(self, abbreviation, targetItem):
+        for item in self.allFolders:
+            if TriggerMode.ABBREVIATION in item.modes:
+                if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
+                    return item is targetItem, item.title       
+
+        for item in self.allItems:
+            if TriggerMode.ABBREVIATION in item.modes:
+                if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
+                    return item is targetItem, item.description
+
+        return True, ""
+
+    """def __checkSubstringAbbr(self, item1, item2, abbr):
+        # Check if the given abbreviation is a substring match for the given item
+        # If it is, check a few other rules to see if it matters
+        print "substring check %s against %s" % (item.abbreviation, abbr)
+        try:
+            index = item.abbreviation.index(abbr)
+            print index
+            if index == 0 and len(abbr) < len(item.abbreviation):
+                return item.immediate
+            elif (index + len(abbr)) == len(item.abbreviation):
+                return item.triggerInside
+            elif len(abbr) != len(item.abbreviation):
+                return item.triggerInside and item.immediate
+            else:
+                return False
+        except ValueError:
+            return False"""
+
+    """def __buildErrorMsg(self, conflictItem, msg):
+        if isinstance(conflictItem, Folder):
+            return msg % ("folder", conflictItem.title)
+        elif isinstance(conflictItem, Phrase):
+            return msg % ("phrase", conflictItem.description)
+        else:
+            return msg % ("script", conflictItem.description)"""
             
     def check_hotkey_unique(self, modifiers, hotKey, targetPhrase):
         """
@@ -531,19 +569,19 @@ engine.create_phrase(folder, title, contents)"""
         for item in self.allFolders:
             if TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase
+                    return item is targetPhrase, item.title
             
         for item in self.allItems:
             if TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase     
+                    return item is targetPhrase, item.description
 
         for item in self.globalHotkeys:
             if item.enabled:
                 if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase
+                    return item is targetPhrase, "a global hotkey"
 
-        return True
+        return True, ""
     
 # Legacy Importer ----
 

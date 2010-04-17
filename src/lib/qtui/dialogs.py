@@ -135,13 +135,18 @@ class AbbrSettingsDialog(KDialog):
             
     def __valid(self):
         configManager = self.parentWidget().topLevelWidget().app.configManager
-        if not validate(configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem),
-                             i18n("The abbreviation is already in use.\nAbbreviations must be unique."),
-                             self.widget.abbrLineEdit, self): return False        
-        
-        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), i18n("Abbreviation can't be empty."),
+
+        unique, itemName = configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem)        
+        if not validate(unique, i18n("The abbreviation is already in use by '") + itemName + "'.",
+                        self.widget.abbrLineEdit, self): return False
+
+        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), i18n("The abbreviation can't be empty."),
                             self.widget.abbrLineEdit, self): return False
-                            
+
+        substrUnique, itemName = configManager.check_abbreviation_substring(self.get_abbr(), self.targetItem)
+        if not substrUnique:
+            KMessageBox.information(self, i18n("The abbreviation may conflict with the one defined for '") + itemName + "'.")
+
         return True
 
 
@@ -263,15 +268,15 @@ class HotkeySettingsDialog(KDialog):
     def __valid(self):
         configManager = self.parentWidget().topLevelWidget().app.configManager
         modifiers = self.build_modifiers()
-        
-        if not validate(configManager.check_hotkey_unique(modifiers, self.key, self.targetItem),
-                            i18n("The hotkey is already in use.\nHotkeys must be unique."), None,
+
+        unique, itemName = configManager.check_hotkey_unique(modifiers, self.key, self.targetItem)
+        if not validate(unique, i18n("The hotkey is already in use by '") + itemName + "'.", None,
                             self): return False
 
-        if not validate(self.key is not None, i18n("You must specify a key for the Hotkey."),
+        if not validate(self.key is not None, i18n("You must specify a key for the hotkey."),
                             None, self): return False
         
-        if not validate(len(modifiers) > 0, i18n("You must select at least one modifier for the Hotkey"),
+        if not validate(len(modifiers) > 0, i18n("You must select at least one modifier for the hotkey"),
                             None, self): return False
         
         return True
