@@ -259,7 +259,7 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return common.CONFIG_WINDOW_TITLE not in windowName and self.is_running()
+        return windowName != "Set Abbreviation" and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):

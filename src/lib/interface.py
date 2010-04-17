@@ -158,7 +158,10 @@ class XInterfaceBase(threading.Thread):
                     if item.windowTitleRegex is not None and item._should_trigger_window_title(title):
                         self.__grabHotkey(item.hotKey, item.modifiers, window)
 
-            self.__recurseTree(window, hotkeys)
+            try:
+                self.__recurseTree(window, hotkeys)
+            except:
+                logger.exception("__recurseTree failed")
 
 
     def __grabHotkeysForWindow(self, window):
@@ -577,10 +580,8 @@ class XInterfaceBase(threading.Thread):
             wmclass = windowvar.get_wm_class()
             
             if (wmname == None) and (wmclass == None):
-                #self.dpyLock.release()
                 return self.get_window_title(windowvar.query_tree().parent)
             elif wmname == "":
-                #self.dpyLock.release()
                 return self.get_window_title(windowvar.query_tree().parent)
 
             return str(wmname)
