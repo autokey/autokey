@@ -474,6 +474,8 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.cutCopiedItems = []
 
         [self.treeWidget.setColumnWidth(x, ConfigManager.SETTINGS[COLUMN_WIDTHS][x]) for x in range(3)]
+        hView = self.treeWidget.header()
+        hView.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive|QHeaderView.ResizeToContents))
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
