@@ -369,6 +369,8 @@ class XInterfaceBase(threading.Thread):
     def check_string_mapping(self, string):
         badChars = []
         for char in string:
+            if char == '\n': continue # ignore newlines, we know they are handled
+            
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) == 0:
                 badChars.append(char)
