@@ -475,7 +475,7 @@ class PhrasePage(ScriptPage):
 
     def validate(self):
         text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).decode("utf-8")
-        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The script code can't be empty"), self.editor,
+        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The phrase content can't be empty"), self.editor,
                          self.parentWindow.ui):
             return False
 
