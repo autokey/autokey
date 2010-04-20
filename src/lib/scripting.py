@@ -674,9 +674,13 @@ class GtkClipboard:
 
         @return: text contents of the mouse selection
         @rtype: C{str}
+        @raise Exception: if no text was found in the selection
         """
         self.__execAsync(self.selection.request_text, self.__receive)
-        return self.text.decode("utf-8")
+        if self.text is not None:
+            return self.text.decode("utf-8")
+        else:
+            raise Exception("No text found in X selection")
         
     def __receive(self, cb, text, data=None):
         self.text = text
@@ -706,13 +710,19 @@ class GtkClipboard:
 
         @return: text contents of the clipboard
         @rtype: C{str}
+        @raise Exception: if no text was found on the clipboard
         """
         self.__execAsync(self.clipBoard.request_text, self.__receive)
-        return self.text.decode("utf-8")
+        if self.text is not None:
+            return self.text.decode("utf-8")
+        else:
+            raise Exception("No text found on clipboard")
         
     def __execAsync(self, callback, *args):
         self.sem = threading.Semaphore(0)
+        gtk.gdk.threads_enter()
         callback(*args)
+        gtk.gdk.threads_leave()
         self.sem.acquire()
 
         
