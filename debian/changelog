@@ -1,3 +1,20 @@
+autokey (0.70.3-0~karmic) karmic; urgency=low
+
+  * Automatically adjust keyboard mapping to allow sending of non-mapped
+    characters in phrases
+  * Remove untypable character validation as it's no longer needed
+  * Catch BadWindow errors during initial hotkey grabs
+  * Prevent abbreviations triggering in the abbreviation settings dialog
+  * [kde] Enable auto-sizing of treeview columns
+  * [gtk] Wrap clipboard calls in gtk.gdk.threads_enter() and leave()
+  * [gtk] Raise a nicer exception if no text was returned from selection
+    or clipboard
+  * [gtk] Fix incorrect validation message in phrase page
+  * Enable config file upgrade from 0.6x.x to to 0.70.0
+  * Add some logging around config upgrades
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 21 Apr 2010 19:28:02 +1000
+
 autokey (0.70.2-0~karmic) karmic; urgency=low
 
   * Fix for issue 35 - Cleared hotkeys show in column
