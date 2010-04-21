@@ -220,9 +220,6 @@ class IoMediator(threading.Thread):
         
     # Methods for expansion service ----
 
-    def check_string_mapping(self, string):
-        return self.interface.check_string_mapping(string)
-        
     def send_string(self, string):
         """
         Sends the given string for output.

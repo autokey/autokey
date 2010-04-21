@@ -323,21 +323,6 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         if not validate(not EMPTY_FIELD_REGEX.match(phrase), i18n("The phrase content can't be empty."),
                     self.phraseText, self.topLevelWidget()): return False
 
-        badChars = self.topLevelWidget().app.service.mediator.check_string_mapping(phrase)
-        
-        if len(badChars) > 0 and model.SEND_MODES[str(self.sendModeCombo.currentText())] == model.SendMode.KEYBOARD:
-            badCharPrint = u'[ '
-            for char in badChars:
-                badCharPrint += u"'"
-                badCharPrint += unicode(char)
-                badCharPrint += u"'"
-                badCharPrint += u', '
-            badCharPrint = badCharPrint[:-2]
-            badCharPrint += u' ]'
-            
-            KMessageBox.information(self.topLevelWidget(), i18n("The phrase text contains characters that are not in your current keyboard map:\n" ) + badCharPrint +
-                                    i18n("\nIf you don't choose a different paste mode, these characters won't be pasted."))
-
         return True
         
     def set_dirty(self):

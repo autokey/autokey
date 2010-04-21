@@ -334,12 +334,27 @@ class XInterfaceBase(threading.Thread):
 
     def begin_send(self):
         self.queuedEvents = []
+        self.unmapCodes = []
+        self.remappedChars = {}
         self.sendInProgress = True
         focus = self.localDisplay.get_input_focus().focus
         focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
 
     def finish_send(self):
+        if self.mapChanged:
+            unmapCodes = self.unmapCodes
+            mapping = self.localDisplay.get_keyboard_mapping(min(unmapCodes), max(unmapCodes) - min(unmapCodes) + 1)
+            firstCode = min(unmapCodes)
+
+            for code in unmapCodes:
+                mapping[code - firstCode][0] = 0
+                mapping[code - firstCode][1] = 0
+
+            mapping = [tuple(l) for l in mapping]
+            self.localDisplay.change_keyboard_mapping(firstCode, mapping)
+            time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
+
         self.localDisplay.flush()
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
         self.sendInProgress = False
@@ -365,23 +380,69 @@ class XInterfaceBase(threading.Thread):
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
         self.localDisplay.flush()
         self.dpyLock.release()
-        
-    def check_string_mapping(self, string):
-        badChars = []
-        for char in string:
-            if char == '\n': continue # ignore newlines, we know they are handled
-            
-            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-            if len(keyCodeList) == 0:
-                badChars.append(char)
 
-        return badChars
+    def __getAvailableKeycodes(self):
+        keyCode = 9
+        avail = []
+        for keyCodeMapping in self.localDisplay.get_keyboard_mapping(keyCode, 150):
+            codeAvail = True
+            for offset in keyCodeMapping:
+                if offset != 0:
+                    codeAvail = False
+                    break
+
+            if codeAvail:
+                avail.append(keyCode)
+            
+            keyCode += 1
+
+        return avail
     
     def send_string(self, string):
         """
         Send a string of printable characters.
         """
         logger.debug("Sending string: %r", string)
+        mapChanged = False
+        remapChars = []
+
+        # First find out if any chars need remapping
+        for char in string:
+            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+            if len(keyCodeList) == 0 and char not in self.remappedChars:
+                remapChars.append(char)
+
+        # Now we know which chars need remapping, do it
+        if len(remapChars) > 0:
+            availCodes = self.__getAvailableKeycodes()
+            mapping = self.localDisplay.get_keyboard_mapping(min(availCodes), max(availCodes) - min(availCodes) + 1)
+            firstCode = min(availCodes)            
+
+            for i in xrange(len(availCodes) - 1):
+                code = availCodes[i]
+                sym1 = 0
+                sym2 = 0
+                
+                if len(remapChars) > 0:
+                    char = remapChars.pop(0)
+                    self.remappedChars[char] = (code, 0)
+                    sym1 = ord(char)
+                if len(remapChars) > 0:
+                    char = remapChars.pop(0)
+                    self.remappedChars[char] = (code, 1)
+                    sym2 = ord(char)
+
+                if sym1 != 0:
+                    mapping[code - firstCode][0] = sym1
+                    mapping[code - firstCode][1] = sym2
+                    self.unmapCodes.append(code)
+                    self.mapChanged = True
+
+            mapping = [tuple(l) for l in mapping]
+            self.localDisplay.change_keyboard_mapping(firstCode, mapping)
+            self.localDisplay.flush()
+            #time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
+
         for char in string:
             try:
                 keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
@@ -393,10 +454,26 @@ class XInterfaceBase(threading.Thread):
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
                     if offset == 4:
                         self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
+
+                elif char in self.remappedChars:
+                    keyCode, offset = self.remappedChars[char]
+                    if offset == 0:
+                        self.__sendKeyCode(keyCode)
+                    if offset == 1:
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])                    
+
+                elif len(availCodes) > 0:
+                    # Remap available keycode and send
+                    self.localDisplay.change_keyboard_mapping(availCodes[-1], [(ord(char),)])
+                    self.localDisplay.sync()
+                    time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
+                    self.__sendKeyCode(availCodes[-1])
+                    self.mapChanged = True
                 else:
-                    logger.warn("Char %r not in keymap - not sending", char)
+                    logger.warn("Unable to send character %r", char)
             except Exception, e:
-                logger.warn("Error sending char %r: %s", char, str(e))
+                logger.exception("Error sending char %r: %s", char, str(e))
+                
                     
     def send_key(self, keyName):
         """

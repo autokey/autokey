@@ -479,27 +479,6 @@ class PhrasePage(ScriptPage):
                          self.parentWindow.ui):
             return False
 
-        badChars = self.parentWindow.app.service.mediator.check_string_mapping(text)
-
-        if len(badChars) > 0 and model.SEND_MODES[self.sendModeCombo.get_active_text()] == model.SendMode.KEYBOARD:
-            badCharPrint = u'[ '
-            for char in badChars:
-                badCharPrint += u"'"
-                badCharPrint += unicode(char)
-                badCharPrint += u"'"
-                badCharPrint += u', '
-            badCharPrint = badCharPrint[:-2]
-            badCharPrint += u' ]'
-            badCharPrint = badCharPrint.encode("utf-8")
-
-            msg = _("The phrase text contains characters that are not in your current keyboard map: \n%s\n") % badCharPrint
-            msg += _("If you don't choose a different paste mode, these characters won't be pasted.")
-
-            dlg = gtk.MessageDialog(type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK,
-                                    message_format=msg)
-            dlg.run()
-            dlg.destroy()
-
         return True
 
         
