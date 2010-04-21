@@ -71,6 +71,7 @@ class XInterfaceBase(threading.Thread):
         self.dpyLock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         self.sendInProgress = False
+        self.mapChanged = False
         
         if common.USING_QT:
             self.clipBoard = QApplication.clipboard()
