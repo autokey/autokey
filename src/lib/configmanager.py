@@ -376,17 +376,25 @@ engine.create_phrase(folder, title, contents)"""
         self.config_altered()
         
     def upgrade(self):
+        _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
         upgradeDone = False
         
         if self.VERSION < '0.60.6':
+            _logger.info("Doing upgrade to 0.60.6")
             if not hasattr(self, "showPopupHotkey"):
                 self.showPopupHotkey = GlobalHotkey()
                 self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
                 self.showPopupHotkey.enabled = True
                 upgradeDone = True
         if self.VERSION < '0.61.2':
+            _logger.info("Doing upgrade to 0.61.2")
             self.userCodeDir = None
-            upgradeDone = True            
+            upgradeDone = True
+        if self.VERSION < '0.70.0':
+            _logger.info("Doing upgrade to 0.70.0")
+            for item in self.allItems:
+                if isinstance(item, Phrase):
+                    item.sendMode = SendMode.KEYBOARD
             
         if upgradeDone:
             self.config_altered()
