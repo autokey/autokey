@@ -612,7 +612,7 @@ it to take effect.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkRadioButton" id="xRecordButton">
-                                    <property name="label" translatable="yes">X Record - Preferred option when using X.org server v1.5 or older</property>
+                                    <property name="label" translatable="yes">X Record - for X.org server v1.5 or v1.7.6 and above</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -626,7 +626,7 @@ it to take effect.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkRadioButton" id="xEvdevButton">
-                                    <property name="label" translatable="yes">X EvDev - Preferred option when using X.org server v1.6 or newer</property>
+                                    <property name="label" translatable="yes">X EvDev - for X.org server from v1.6 to v1.7.5</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -639,7 +639,7 @@ it to take effect.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkRadioButton" id="atspiButton">
-                                    <property name="label" translatable="yes">AT-SPI - Fallback option for Gnome users when other methods fail</property>
+                                    <property name="label" translatable="yes">AT-SPI - fallback option for Gnome users</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>

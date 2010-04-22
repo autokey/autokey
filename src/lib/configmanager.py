@@ -193,16 +193,23 @@ def _chooseInterface():
         f.close()
         versionLine = versionLine.strip()
         version = versionLine.split(" ")[-1]
-        minorVersion = version.split(".")[1]
+        majorVersion, minorVersion, release = [int(i) for i in version.split(".")]
     except:
         minorVersion = None
+        release = None
         
     if minorVersion is None:
         return iomediator.X_EVDEV_INTERFACE
-    elif minorVersion < 6 and interface.HAS_RECORD:
-        return iomediator.X_RECORD_INTERFACE
-    else:
-        return iomediator.X_EVDEV_INTERFACE
+    elif interface.HAS_RECORD:
+        if minorVersion < 6:
+            return iomediator.X_RECORD_INTERFACE
+        elif minorVersion == 7 and release > 5:
+            return iomediator.X_RECORD_INTERFACE
+        elif minorVersion > 7:
+            return iomediator.X_RECORD_INTERFACE
+        
+    
+    return iomediator.X_EVDEV_INTERFACE
 
 class ImportException(Exception):
     """

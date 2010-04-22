@@ -36,21 +36,21 @@ After changing this option, you will need to restart AutoKey for it to take effe
       <item>
        <widget class="QRadioButton" name="xRecordButton">
         <property name="text">
-         <string>X Record - Preferred option when using X.org server v1.5 or older</string>
+         <string>X Record - for X.org server v1.5 or v1.7.6 and above</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="xEvdevButton">
         <property name="text">
-         <string>X EvDev - Preferred option when using X.org server v1.6 or newer</string>
+         <string>X EvDev - for X.org server from v1.6 to v1.7.5</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="atspiButton">
         <property name="text">
-         <string>AT-SPI - Fallback option for Gnome users when other methods fail</string>
+         <string>AT-SPI - fallback option for Gnome users</string>
         </property>
        </widget>
       </item>
