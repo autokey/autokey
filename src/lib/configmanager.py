@@ -533,7 +533,7 @@ engine.create_phrase(folder, title, contents)"""
 
         return True, ""
 
-    def check_abbreviation_substring(self, abbreviation, targetItem):
+    """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
             if TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
@@ -546,7 +546,7 @@ engine.create_phrase(folder, title, contents)"""
 
         return True, ""
 
-    """def __checkSubstringAbbr(self, item1, item2, abbr):
+    def __checkSubstringAbbr(self, item1, item2, abbr):
         # Check if the given abbreviation is a substring match for the given item
         # If it is, check a few other rules to see if it matters
         print "substring check %s against %s" % (item.abbreviation, abbr)
@@ -562,9 +562,9 @@ engine.create_phrase(folder, title, contents)"""
             else:
                 return False
         except ValueError:
-            return False"""
+            return False
 
-    """def __buildErrorMsg(self, conflictItem, msg):
+    def __buildErrorMsg(self, conflictItem, msg):
         if isinstance(conflictItem, Folder):
             return msg % ("folder", conflictItem.title)
         elif isinstance(conflictItem, Phrase):

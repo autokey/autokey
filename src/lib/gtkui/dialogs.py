@@ -151,13 +151,6 @@ class AbbrSettingsDialog(DialogBase):
         if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), _("The abbreviation can't be empty."),
                             self.abbrEntry, self.ui): return False
 
-        substrUnique, itemName  = configManager.check_abbreviation_substring(self.get_abbr(), self.targetItem)
-        if not substrUnique:
-            dlg = gtk.MessageDialog(type=gtk.MESSAGE_WARNING, buttons=gtk.BUTTONS_OK,
-                                    message_format=_("The abbreviation may conflict with the one defined for '%s'.") % itemName)
-            dlg.run()
-            dlg.destroy()
-
         return True
         
     # Signal handlers

@@ -143,10 +143,6 @@ class AbbrSettingsDialog(KDialog):
         if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), i18n("The abbreviation can't be empty."),
                             self.widget.abbrLineEdit, self): return False
 
-        substrUnique, itemName = configManager.check_abbreviation_substring(self.get_abbr(), self.targetItem)
-        if not substrUnique:
-            KMessageBox.information(self, i18n("The abbreviation may conflict with the one defined for '") + itemName + "'.")
-
         return True
 
 
