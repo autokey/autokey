@@ -132,7 +132,7 @@ class IoMediator(threading.Thread):
                           Key.SHIFT : False,
                           Key.SUPER : False,
                           Key.CAPSLOCK : False,
-                          Key.NUMLOCK : True
+                          Key.NUMLOCK : False
                           }
         
         if self.interfaceType == X_RECORD_INTERFACE:

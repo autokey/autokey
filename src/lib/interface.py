@@ -54,6 +54,9 @@ MASK_INDEXES = [
                (X.Mod5MapIndex, X.Mod5Mask),
                ]
 
+CAPSLOCK_LEDMASK = 1<<0
+NUMLOCK_LEDMASK = 1<<1
+
 class XInterfaceBase(threading.Thread):
     """
     Encapsulates the common functionality for the two X interface classes.
@@ -80,6 +83,11 @@ class XInterfaceBase(threading.Thread):
         
         self.__initMappings()
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
+
+        # Set initial lock state
+        ledMask = self.localDisplay.get_keyboard_control().led_mask
+        mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
+        mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
         
     def __initMappings(self):
         # TODO - this is a hack - do we need to reimplement it the new way?
@@ -809,17 +817,6 @@ class XRecordInterface(XInterfaceBase):
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(data, self.recordDisplay.display, None, None)
             if event.type == X.KeyPress:
-
-                # On first keypress, check initial state of the locks
-                if not self.__locksChecked:
-                    if Key.NUMLOCK in self.modMasks:
-                        state = (event.state & self.modMasks[Key.NUMLOCK]) != 0
-                        self.mediator.set_modifier_state(Key.NUMLOCK, state)
-                    if Key.CAPSLOCK in self.modMasks:
-                        state = (event.state & self.modMasks[Key.CAPSLOCK]) != 0
-                        self.mediator.set_modifier_state(Key.CAPSLOCK, state)
-                    self.__locksChecked = True
-                    
                 self._handleKeyPress(event.detail)
             elif event.type == X.KeyRelease:
                 self._handleKeyRelease(event.detail)
