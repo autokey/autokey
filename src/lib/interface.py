@@ -659,7 +659,10 @@ class XInterfaceBase(threading.Thread):
             if (wmname == None) and (wmclass == None):
                 return self.get_window_title(windowvar.query_tree().parent)
             elif wmname == "":
-                return self.get_window_title(windowvar.query_tree().parent)
+                if wmclass == "":
+                   return self.get_window_title(windowvar.query_tree().parent)
+                else:
+                   return wmclass[0]
 
             return str(wmname)
         except:
