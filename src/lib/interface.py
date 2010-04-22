@@ -71,7 +71,6 @@ class XInterfaceBase(threading.Thread):
         self.dpyLock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         self.sendInProgress = False
-        self.mapChanged = False
         
         if common.USING_QT:
             self.clipBoard = QApplication.clipboard()
@@ -343,7 +342,7 @@ class XInterfaceBase(threading.Thread):
         self.localDisplay.flush()
 
     def finish_send(self):
-        if self.mapChanged:
+        if len(self.unmapCodes) > 0:
             unmapCodes = self.unmapCodes
             mapping = self.localDisplay.get_keyboard_mapping(min(unmapCodes), max(unmapCodes) - min(unmapCodes) + 1)
             firstCode = min(unmapCodes)
@@ -383,9 +382,9 @@ class XInterfaceBase(threading.Thread):
         self.dpyLock.release()
 
     def __getAvailableKeycodes(self):
-        keyCode = 9
+        keyCode = 8
         avail = []
-        for keyCodeMapping in self.localDisplay.get_keyboard_mapping(keyCode, 150):
+        for keyCodeMapping in self.localDisplay.get_keyboard_mapping(keyCode, 200):
             codeAvail = True
             for offset in keyCodeMapping:
                 if offset != 0:
@@ -404,10 +403,9 @@ class XInterfaceBase(threading.Thread):
         Send a string of printable characters.
         """
         logger.debug("Sending string: %r", string)
-        mapChanged = False
-        remapChars = []
 
         # First find out if any chars need remapping
+        remapChars = []
         for char in string:
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             if len(keyCodeList) == 0 and char not in self.remappedChars:
@@ -437,12 +435,10 @@ class XInterfaceBase(threading.Thread):
                     mapping[code - firstCode][0] = sym1
                     mapping[code - firstCode][1] = sym2
                     self.unmapCodes.append(code)
-                    self.mapChanged = True
 
             mapping = [tuple(l) for l in mapping]
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
-            #time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
 
         for char in string:
             try:
@@ -469,7 +465,8 @@ class XInterfaceBase(threading.Thread):
                     self.localDisplay.sync()
                     time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
                     self.__sendKeyCode(availCodes[-1])
-                    self.mapChanged = True
+                    if availCodes[-1] not in self.unmapCodes:
+                        self.unmapCodes.append(availCodes[-1])
                 else:
                     logger.warn("Unable to send character %r", char)
             except Exception, e:
