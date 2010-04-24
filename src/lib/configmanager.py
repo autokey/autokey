@@ -135,7 +135,9 @@ def get_config_manager(autoKeyApp, hadError=False):
     else:
         _logger.info("No configuration file found - creating new one")
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
-        return ConfigManager(autoKeyApp)
+        c = ConfigManager(autoKeyApp)
+        autoKeyApp.init_global_hotkeys(c)
+        return c
 
 
 def save_config(configManager):
