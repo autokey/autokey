@@ -73,7 +73,6 @@ class XInterfaceBase(threading.Thread):
         self.lock = threading.RLock()
         self.dpyLock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
-        self.sendInProgress = False
         
         if common.USING_QT:
             self.clipBoard = QApplication.clipboard()
@@ -341,10 +340,8 @@ class XInterfaceBase(threading.Thread):
             gtk.gdk.threads_leave()
 
     def begin_send(self):
-        self.queuedEvents = []
         self.unmapCodes = []
         self.remappedChars = {}
-        self.sendInProgress = True
         focus = self.localDisplay.get_input_focus().focus
         focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
@@ -363,14 +360,7 @@ class XInterfaceBase(threading.Thread):
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
 
-        self.localDisplay.flush()
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
-        self.sendInProgress = False
-        for event in self.queuedEvents:
-            if event.type == X.KeyPress:
-                self.__sendKeyPressEvent(event.detail, event.state)
-            elif event.type == X.KeyRelease:
-                self.__sendKeyReleaseEvent(event.detail, event.state)
         self.localDisplay.flush()
 
     def grab_keyboard(self):
@@ -448,31 +438,35 @@ class XInterfaceBase(threading.Thread):
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
 
+        self.dpyLock.acquire()
+        focus = self.localDisplay.get_input_focus().focus
+        self.dpyLock.release()
+        
         for char in string:
             try:
                 keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
                 if len(keyCodeList) > 0:
                     keyCode, offset = keyCodeList[0]
                     if offset == 0:
-                        self.__sendKeyCode(keyCode)
+                        self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
                     if offset == 4:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR])
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR], focus)
 
                 elif char in self.remappedChars:
                     keyCode, offset = self.remappedChars[char]
                     if offset == 0:
-                        self.__sendKeyCode(keyCode)
+                        self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT])                    
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)                    
 
                 elif len(availCodes) > 0:
                     # Remap available keycode and send
                     self.localDisplay.change_keyboard_mapping(availCodes[-1], [(ord(char),)])
                     self.localDisplay.sync()
                     time.sleep(0.15) # sleep needed for other x clients to get the MappingNotify
-                    self.__sendKeyCode(availCodes[-1])
+                    self.__sendKeyCode(availCodes[-1], theWindow=focus)
                     if availCodes[-1] not in self.unmapCodes:
                         self.unmapCodes.append(availCodes[-1])
                 else:
@@ -548,9 +542,6 @@ class XInterfaceBase(threading.Thread):
                         self.__grabHotkeysForWindow(event.window)
                     except:
                         logging.exception("Window destroyed during hotkey grab")
-
-                elif event.type in (X.KeyPress, X.KeyRelease) and self.sendInProgress:
-                    self.queuedEvents.append(event)
         
     def _handleKeyPress(self, keyCode):
         self.lock.acquire()
@@ -589,11 +580,11 @@ class XInterfaceBase(threading.Thread):
         self.localDisplay.refresh_keyboard_mapping(event)   
         self.__initMappings() 
     
-    def __sendKeyCode(self, keyCode, modifiers=0):
+    def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
         if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
             self.__doQT4Workaround(keyCode)
-        self.__sendKeyPressEvent(keyCode, modifiers)
-        self.__sendKeyReleaseEvent(keyCode, modifiers)        
+        self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
+        self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)        
         
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
@@ -608,8 +599,11 @@ class XInterfaceBase(threading.Thread):
         
         #print self.lastChars
         
-    def __sendKeyPressEvent(self, keyCode, modifiers):
-        focus = self.localDisplay.get_input_focus().focus
+    def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
+        if theWindow is None:
+            focus = self.localDisplay.get_input_focus().focus
+        else:
+            focus = theWindow
         keyEvent = event.KeyPress(
                                   detail=keyCode,
                                   time=X.CurrentTime,
@@ -625,8 +619,11 @@ class XInterfaceBase(threading.Thread):
                                   )
         focus.send_event(keyEvent)
         
-    def __sendKeyReleaseEvent(self, keyCode, modifiers):
-        focus = self.localDisplay.get_input_focus().focus
+    def __sendKeyReleaseEvent(self, keyCode, modifiers, theWindow=None):
+        if theWindow is None:
+            focus = self.localDisplay.get_input_focus().focus
+        else:
+            focus = theWindow
         keyEvent = event.KeyRelease(
                                   detail=keyCode,
                                   time=X.CurrentTime,
@@ -946,6 +943,7 @@ XK_TO_AK_MAP = {
            XK.XK_KP_Add : Key.NP_ADD,
            XK.XK_KP_Subtract : Key.NP_SUBTRACT,
            XK.XK_KP_Enter : Key.ENTER,
+           XK.XK_space : ' '
            }
 
 AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.iteritems())

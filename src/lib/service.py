@@ -43,6 +43,20 @@ def threaded(f):
     wrapper.__doc__ = f.__doc__
     return wrapper
 
+def synchronized(lock):
+    """ Synchronization decorator. """
+
+    def wrap(f):
+        def new_function(*args, **kw):
+            lock.acquire()
+            try:
+                return f(*args, **kw)
+            finally:
+                lock.release()
+        return new_function
+    return wrap
+
+
 class Service:
     """
     Handles general functionality and dispatching of results down to the correct
@@ -303,12 +317,14 @@ class PhraseRunner:
         self.lastExpansion = None
         self.lastPhrase = None  
         self.lastBuffer = None
-        
+
+    @synchronized(iomediator.SEND_LOCK)
     def execute(self, phrase, buffer):
         mediator = self.service.mediator
-        expansion = phrase.build_phrase(buffer)
-
         mediator.interface.begin_send()
+        
+        expansion = phrase.build_phrase(buffer)
+        
         mediator.send_backspace(expansion.backspaces)
         if phrase.sendMode == model.SendMode.KEYBOARD:
             mediator.send_string(expansion.string)
@@ -327,7 +343,8 @@ class PhraseRunner:
     def clear_last(self):
         self.lastExpansion = None
         self.lastPhrase = None 
-        
+
+    @synchronized(iomediator.SEND_LOCK)
     def undo_expansion(self):
         logger.info("Undoing last abbreviation expansion")
         replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)

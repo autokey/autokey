@@ -102,6 +102,7 @@ NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOM
 
 #KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
+SEND_LOCK = threading.Lock()
 
 from interface import *
 from configmanager import *
@@ -226,8 +227,7 @@ class IoMediator(threading.Thread):
         """
         if len(string) == 0:
             return
-            
-        self.acquire_lock()
+
         k = Key()
         
         string = string.replace('\n', "<enter>")
@@ -258,16 +258,12 @@ class IoMediator(threading.Thread):
                         else:
                             self.interface.send_string(section)
                             
-            self.__reapplyModifiers()
-        
-        self.release_lock()
+        self.__reapplyModifiers()
         
     def paste_string(self, string, pasteCommand):
-        if len(string) > 0:        
-            self.acquire_lock()
+        if len(string) > 0:
             _logger.debug("Send via clipboard")
             self.interface.send_string_clipboard(string, pasteCommand)
-            self.release_lock()
         
     def remove_string(self, string):
         backspaces = -1 # Start from -1 to discount the backspace already pressed by the user
@@ -282,12 +278,8 @@ class IoMediator(threading.Thread):
         self.send_backspace(backspaces)
         
     def send_key(self, keyName):
-        #self.acquire_lock()
-        
         keyName = keyName.replace('\n', "<enter>")
         self.interface.send_key(keyName)
-        
-        #self.release_lock()
 
     def fake_keypress(self, key):
         keyName = keyName.replace('\n', "<enter>")
@@ -297,42 +289,26 @@ class IoMediator(threading.Thread):
         """
         Sends the given number of left key presses.
         """
-        #self.acquire_lock()
-        
         for i in range(count):
             self.interface.send_key(Key.LEFT)
-            
-        #self.release_lock()
         
     def send_right(self, count):
-        #self.acquire_lock()
-        
         for i in range(count):
             self.interface.send_key(Key.RIGHT)
-            
-        #self.release_lock()        
     
     def send_up(self, count):
         """
         Sends the given number of up key presses.
         """        
-        #self.acquire_lock()
-        
         for i in range(count):
             self.interface.send_key(Key.UP)
-            
-        #self.release_lock()
         
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
-        #self.acquire_lock()
-        
         for i in range(count):
             self.interface.send_key(Key.BACKSPACE)
-            
-        #self.release_lock()
         
     def send_mouse_click(self, x, y, button, relative):
         self.interface.send_mouse_click(x, y, button, relative)
@@ -340,18 +316,6 @@ class IoMediator(threading.Thread):
     def flush(self):
         self.interface.flush()
         
-    def acquire_lock(self):
-        """
-        Acquires the lock that is engaged while a key is pressed. 
-        """
-        self.interface.lock.acquire()
-        
-    def release_lock(self):
-        """
-        Releases the lock that is engaged while a key is pressed. 
-        """
-        self.interface.lock.release()
-            
     # Utility methods ----
     
     def __clearModifiers(self):

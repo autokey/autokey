@@ -1,10 +1,5 @@
-Scripting framework ideas:
-Namespace for autokey stuff - create/modify/delete folders/phrases/scripts, show popup menu
-
 Get rid of commented out code
 Add method comments
 
 Add spell checker with a hotkey which checks the last word typed
 This can probably be done with a script once the script interface is implemented
-
-FUTURE: Daemon to handle multiple connections (e.g. multiple logged-in users)

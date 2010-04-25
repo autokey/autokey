@@ -1,8 +1,8 @@
 $Id$
 
-Read INSTALL for installation instructions, and see the end of this
-document for known problems.
+Read INSTALL for installation instructions.
 
-Autokey is a text replacement tool anologous to the Mac and Windows
-utilities Textpander, Texter and AutoHotKey, but for X11
-on Linux.
+AutoKey is a desktop automation utility for Linux and X11. It allows the automation of virtually
+any task by responding to typed abbreviations and hotkeys. It offers a full-featured GUI that
+makes it highly accessible for novices, as well as a scripting interface offering the
+full flexibility and power of the Python language.

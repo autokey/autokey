@@ -1,3 +1,23 @@
+autokey (0.70.4-0~karmic) karmic; urgency=low
+
+  * Make sending text via keyboard dramatically faster by eliminating 2 RTT per character
+  * Remove event replaying code as it is no longer needed and too unreliable
+  * Make phrase execution sequential using a lock, to prevent phrases stomping on each
+    other's output when multiple phrases are triggered one after the other
+  * Only reapply modifiers when entire string has been typed
+  * Remove locks from iomediator as they were made redundant by keyboard grabbing
+  * Fix handling of space by adding it to the XK/AK map
+  * Tweak get_window_title() courtesy of patch by Joseph Reagle
+  * Change text on interface settings page to reflect Record being fixed in x.org v1.7.6
+  * Fix _chooseInterface() and update it to reflect Record being fixed in x.org v1.7.6
+  * Disable substring abbreviation crosscheck - too many spurious warnings
+  * Set initial state of Caps and Numlock using the keyboard LED mask
+  * Get rid of lock state setting in Record interface, wasn't working anyway
+  * Initialise global hotkeys after creating fresh config on first run
+  * Fix for issue 42: Set showPopupHotkey to be a no-op closure in KDE version
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 25 Apr 2010 15:31:15 +1000
+
 autokey (0.70.3-1~karmic) karmic; urgency=low
 
   * Fix tiny oops in interface.py

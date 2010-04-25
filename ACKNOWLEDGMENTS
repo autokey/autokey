@@ -4,7 +4,10 @@ when I more or less took it over. :)
 
 I'd like to pass my gratitude to all who have made donations to the 
 AutoKey project: theoa, jschall, mfseeker, jflevi, keycombat, rkcallahan,
-bkudria
+bkudria, riffian
+
+Many thanks to the developers of xdotool, from which I copied the idea
+of dynamically modifying the keyboard map to send non-mapped characters.
 
 I also want to thank the developers of Phrase Express. Their 
 application's UI was the inspiration for AutoKey's configuration window.
