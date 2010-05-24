@@ -87,6 +87,10 @@ class XInterfaceBase(threading.Thread):
         ledMask = self.localDisplay.get_keyboard_control().led_mask
         mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
         mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
+
+        # Window name atoms
+        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
+        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
         
     def __initMappings(self):
         # TODO - this is a hack - do we need to reimplement it the new way?
@@ -650,31 +654,43 @@ class XInterfaceBase(threading.Thread):
             except Exception, e:
                 logger.error("Unknown key name: %s", char)
                 raise
-    
+
     def get_window_title(self, window=None):
         self.dpyLock.acquire()
+
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
-            wmname = windowvar.get_wm_name()
-            wmclass = windowvar.get_wm_class()
-            
-            if (wmname == None) and (wmclass == None):
-                return self.get_window_title(windowvar.query_tree().parent)
-            elif wmname == "":
-                if wmclass == "":
-                   return self.get_window_title(windowvar.query_tree().parent)
-                else:
-                   return wmclass[0]
 
-            return str(wmname)
+            atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
+            atom = atom or windowvar.get_property(self.__NameAtom, 0, 0, 255)
+
+            if atom:
+                return atom.value
+            else:
+                return self.__getAppName(windowvar)
+
         except:
             return ""
         finally:
             self.dpyLock.release()
+        
+    
+    def __getAppName(self, windowvar):
+        wmname = windowvar.get_wm_name()
+        wmclass = windowvar.get_wm_class()
 
+        if (wmname == None) and (wmclass == None):
+            return self.__getAppName(windowvar.query_tree().parent)
+        elif wmname == "":
+            if wmclass == "":
+                return self.__getAppName(windowvar.query_tree().parent)
+            else:
+                return wmclass[0]
+
+        return str(wmname)
 
 class EvDevInterface(XInterfaceBase):
     
