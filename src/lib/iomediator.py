@@ -231,6 +231,7 @@ class IoMediator(threading.Thread):
         k = Key()
         
         string = string.replace('\n', "<enter>")
+        string = string.replace('\t', "<tab>")
         
         _logger.debug("Send via event interface")
         self.__clearModifiers()

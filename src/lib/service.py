@@ -213,6 +213,9 @@ class Service:
         if key == Key.ENTER:
             # Special case - map Enter to \n
             key = '\n'
+        if key == Key.TAB:
+            # Special case - map Tab to \t
+            key = '\t'
             
         if key == Key.BACKSPACE:
             if ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
