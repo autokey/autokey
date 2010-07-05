@@ -538,15 +538,13 @@ class XInterfaceBase(threading.Thread):
         if self.localDisplay in r:
             for x in range(self.localDisplay.pending_events()):
                 event = self.localDisplay.next_event()
-                if event.type == X.MappingNotify:
-                    self.__updateMapping(event)
-                elif event.type == X.MapNotify:
+                if event.type == X.MapNotify:
                     logger.debug("New window mapped, grabbing hotkeys")
                     try:
                         self.__grabHotkeysForWindow(event.window)
                     except:
                         logging.exception("Window destroyed during hotkey grab")
-        
+
     def _handleKeyPress(self, keyCode):
         self.lock.acquire()
 
