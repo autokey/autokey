@@ -282,7 +282,7 @@ class IoMediator(threading.Thread):
         keyName = keyName.replace('\n', "<enter>")
         self.interface.send_key(keyName)
 
-    def fake_keypress(self, key):
+    def fake_keypress(self, keyName):
         keyName = keyName.replace('\n', "<enter>")
         self.interface.fake_keypress(keyName)
 
