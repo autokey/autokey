@@ -12,7 +12,6 @@
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <widget class="GtkNotebook" id="notebook1">
@@ -30,7 +29,6 @@
                 <child>
                   <widget class="GtkVBox" id="vbox1">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <widget class="GtkFrame" id="frame8">
@@ -44,7 +42,6 @@
                             <child>
                               <widget class="GtkVBox" id="vbox7">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <widget class="GtkCheckButton" id="autoStartCheckbox">
                                     <property name="label" translatable="yes">Automatically start AutoKey at login</property>
@@ -76,9 +73,32 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_showTrayCheckbox_toggled"/>
                                   </widget>
                                   <packing>
                                     <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkHBox" id="hbox4">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkLabel" id="label18">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Notification icon style:</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </widget>
@@ -112,7 +132,6 @@
                             <child>
                               <widget class="GtkVBox" id="vbox3">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <widget class="GtkCheckButton" id="allowKbNavCheckbox">
                                     <property name="label" translatable="yes">Allow keyboard navigation of popup menu</property>
@@ -217,7 +236,6 @@
                 <child>
                   <widget class="GtkVBox" id="vbox4">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <widget class="GtkFrame" id="frame4">
@@ -508,7 +526,6 @@
                         <child>
                           <widget class="GtkVBox" id="vbox2">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <widget class="GtkLabel" id="label17">
                                 <property name="visible">True</property>
@@ -577,7 +594,6 @@ import by scripts.</property>
                 <child>
                   <widget class="GtkVBox" id="vbox5">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <widget class="GtkFrame" id="frame7">
@@ -593,7 +609,6 @@ import by scripts.</property>
                             <child>
                               <widget class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <widget class="GtkLabel" id="label15">

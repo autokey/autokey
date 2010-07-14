@@ -12,7 +12,6 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child>
           <object class="GtkNotebook" id="notebook1">
@@ -30,7 +29,6 @@
                 <child>
                   <object class="GtkVBox" id="vbox1">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkFrame" id="frame8">
@@ -44,7 +42,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox7">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkCheckButton" id="autoStartCheckbox">
                                     <property name="label" translatable="yes">Automatically start AutoKey at login</property>
@@ -76,9 +73,32 @@
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
+                                    <signal handler="on_showTrayCheckbox_toggled" name="toggled"/>
                                   </object>
                                   <packing>
                                     <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="hbox4">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <object class="GtkLabel" id="label18">
+                                        <property name="visible">True</property>
+                                        <property name="label" translatable="yes">Notification icon style:</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="padding">5</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="position">3</property>
                                   </packing>
                                 </child>
                               </object>
@@ -109,7 +129,6 @@
                             <child>
                               <object class="GtkVBox" id="vbox3">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkCheckButton" id="allowKbNavCheckbox">
                                     <property name="label" translatable="yes">Allow keyboard navigation of popup menu</property>
@@ -207,7 +226,6 @@
                 <child>
                   <object class="GtkVBox" id="vbox4">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">10</property>
                     <child>
                       <object class="GtkFrame" id="frame4">
@@ -485,7 +503,6 @@
                         <child>
                           <object class="GtkVBox" id="vbox2">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <object class="GtkLabel" id="label17">
                                 <property name="visible">True</property>
@@ -547,7 +564,6 @@ import by scripts.</property>
                 <child>
                   <object class="GtkVBox" id="vbox5">
                     <property name="visible">True</property>
-                    <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkFrame" id="frame7">
@@ -563,7 +579,6 @@ import by scripts.</property>
                             <child>
                               <object class="GtkVBox" id="vbox6">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkLabel" id="label15">

@@ -11,3 +11,4 @@ usr/lib/python*/*-packages/autokey/scripting.py
 usr/lib/python*/*-packages/autokey/service.py
 usr/lib/python*/*-packages/autokey-*.egg-info
 usr/share/pixmaps/akicon.png
+usr/share/pixmaps/akicon-status.png

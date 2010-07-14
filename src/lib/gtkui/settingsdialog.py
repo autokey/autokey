@@ -19,12 +19,19 @@
 import gtk, shutil, os, sys
 
 from autokey.configmanager import *
-from autokey import iomediator, interface, model
+from autokey import iomediator, interface, model, common
 from dialogs import GlobalHotkeyDialog
 import configwindow
 
 DESKTOP_FILE = "/usr/share/applications/autokey-gtk.desktop"
 AUTOSTART_FILE = os.path.expanduser("~/.config/autostart/autokey-gtk.desktop")
+
+ICON_NAME_MAP = {
+                _("Default") : common.ICON_FILE,
+                _("Grayscale") : common.ICON_FILE_GRAYSCALE
+                }
+
+ICON_NAME_LIST = []
 
 class SettingsDialog:
     
@@ -46,6 +53,17 @@ class SettingsDialog:
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
         
+        self.notifyIconCombo = gtk.combo_box_new_text()
+        hbox = builder.get_object("hbox4")
+        hbox.pack_start(self.notifyIconCombo, False)
+        hbox.show_all()
+        
+        for key, value in ICON_NAME_MAP.items():
+            self.notifyIconCombo.append_text(key)
+            ICON_NAME_LIST.append(value)
+        self.notifyIconCombo.set_sensitive(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
+        self.notifyIconCombo.set_active(ICON_NAME_LIST.index(ConfigManager.SETTINGS[NOTIFICATION_ICON]))
+        
         self.autoStartCheckbox.set_active(os.path.exists(AUTOSTART_FILE))
         self.promptToSaveCheckbox.set_active(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
@@ -53,6 +71,9 @@ class SettingsDialog:
         self.sortByUsageCheckbox.set_active(ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT])
         self.enableUndoCheckbox.set_active(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
         
+
+
+
         # Hotkeys
         self.showConfigDlg = GlobalHotkeyDialog(parent, configManager, self.on_config_response)
         self.toggleMonitorDlg = GlobalHotkeyDialog(parent, configManager, self.on_monitor_response)
@@ -105,6 +126,7 @@ class SettingsDialog:
         ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
         ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
+        ConfigManager.SETTINGS[NOTIFICATION_ICON] = ICON_NAME_MAP[self.notifyIconCombo.get_active_text()]
         
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)
@@ -170,6 +192,9 @@ class SettingsDialog:
             return False
         
     # ---- Signal handlers
+
+    def on_showTrayCheckbox_toggled(self, widget, data=None):
+        self.notifyIconCombo.set_sensitive(widget.get_active())
     
     def on_setConfigButton_pressed(self, widget, data=None):
         self.showConfigDlg.run()

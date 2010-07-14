@@ -1,3 +1,16 @@
+autokey (0.70.5-0~lucid) lucid; urgency=low
+
+  * Improve window name determination by using the FreeDesktop specified atom names
+  * Fix handling of Tab key in service and iomediator
+  * Disable detection of keymap changes, as this seems to cause weird interaction
+    with dynamic key remapping
+  * Fix misnamed argument in fake_keypress()
+  * [gtk] Implement option to configure tray icon style (issue 51)
+  * Fix naming convention of main window (too many uses of "Configure")
+  * [kde] Make notification tooltip translatable
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 14 Jul 2010 15:11:15 +1000
+
 autokey (0.70.4-0~karmic) karmic; urgency=low
 
   * Make sending text via keyboard dramatically faster by eliminating 2 RTT per character

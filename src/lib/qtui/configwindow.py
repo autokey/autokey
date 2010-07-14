@@ -24,7 +24,7 @@ from PyQt4.QtCore import SIGNAL, QVariant, Qt
 from PyQt4 import Qsci
 from autokey import common
 
-CONFIG_WINDOW_TITLE = i18n(common.CONFIG_WINDOW_TITLE)
+#CONFIG_WINDOW_TITLE = i18n(common.CONFIG_WINDOW_TITLE)
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
@@ -840,7 +840,7 @@ class ConfigWindow(KXmlGuiWindow):
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
         self.advancedSettings = self.__createAction("advanced-settings", i18n("Configure AutoKey"), "configure", self.on_advanced_settings)
-        self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)        
+        self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
@@ -853,7 +853,7 @@ class ConfigWindow(KXmlGuiWindow):
         options = KXmlGuiWindow.Default ^ KXmlGuiWindow.StandardWindowOptions(KXmlGuiWindow.StatusBar)
         self.setupGUI(options, ACTION_DESCRIPTION_FILE)
 
-        self.setCaption(CONFIG_WINDOW_TITLE)
+        #self.setCaption(CONFIG_WINDOW_TITLE)
         
         # Initialise action states
         self.enable.setChecked(self.app.service.is_running())

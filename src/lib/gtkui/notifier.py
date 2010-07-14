@@ -26,8 +26,6 @@ gettext.install("autokey")
 TOOLTIP_RUNNING = _("AutoKey - running")
 TOOLTIP_PAUSED = _("AutoKey - paused")
 
-STATUS_ICON_FILE = "/usr/share/pixmaps/akicon.png"
-
 def gthreaded(f):
     
     def wrapper(*args):
@@ -55,7 +53,7 @@ class Notifier(gobject.GObject):
         self.configManager = autokeyApp.service.configManager
         
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
-            self.icon = gtk.status_icon_new_from_file(STATUS_ICON_FILE)
+            self.icon = gtk.status_icon_new_from_file(ConfigManager.SETTINGS[NOTIFICATION_ICON])
             self.update_tool_tip()
             self.icon.connect("popup_menu", self.on_popup_menu)
             self.icon.connect("activate", self.on_show_configure)
@@ -88,7 +86,7 @@ class Notifier(gobject.GObject):
         enableMenuItem.set_active(self.app.service.is_running())
         enableMenuItem.set_sensitive(not self.app.serviceDisabled)
         
-        configureMenuItem = gtk.ImageMenuItem(_("Configure"))
+        configureMenuItem = gtk.ImageMenuItem(_("Show Main Window"))
         configureMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_PREFERENCES, gtk.ICON_SIZE_MENU))
         
         removeMenuItem = gtk.ImageMenuItem(_("Remove icon"))

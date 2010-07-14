@@ -50,6 +50,7 @@ WINDOW_DEFAULT_SIZE = "windowDefaultSize"
 HPANE_POSITION = "hPanePosition"
 COLUMN_WIDTHS = "columnWidths"
 SHOW_TOOLBAR = "showToolbar"
+NOTIFICATION_ICON = "notificationIcon"
 
 # TODO - Future functionality
 #TRACK_RECENT_ENTRY = "trackRecentEntry"
@@ -247,7 +248,8 @@ class ConfigManager:
                 WINDOW_DEFAULT_SIZE : (600, 400),
                 HPANE_POSITION : 150,
                 COLUMN_WIDTHS : [150, 50, 100],
-                SHOW_TOOLBAR : True
+                SHOW_TOOLBAR : True,
+                NOTIFICATION_ICON : common.ICON_FILE
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,

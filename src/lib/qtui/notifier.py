@@ -23,10 +23,9 @@ from PyQt4.QtGui import QSystemTrayIcon
 
 import popupmenu
 from autokey.configmanager import *
-from autokey.common import ICON_FILE
 
-TOOLTIP_RUNNING = "AutoKey - running"
-TOOLTIP_PAUSED = "AutoKey - paused"
+TOOLTIP_RUNNING = i18n("AutoKey - running")
+TOOLTIP_PAUSED = i18n("AutoKey - paused")
 
 class Notifier:
     
@@ -35,7 +34,7 @@ class Notifier:
         self.configManager = app.configManager
         
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
-            self.icon = KSystemTrayIcon(ICON_FILE)
+            self.icon = KSystemTrayIcon(ConfigManager.SETTINGS[NOTIFICATION_ICON])
             self.icon.connect(self.icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.on_activate)
             
             self.build_menu()
@@ -76,7 +75,7 @@ class Notifier:
             
             menu.addAction(self.toggleAction)
             menu.addAction(KIcon("edit-clear"), i18n("&Hide Icon"), self.on_hide_icon)
-            menu.addAction(KIcon("configure"), i18n("&Configure..."), self.on_configure)
+            menu.addAction(KIcon("configure"), i18n("&Show Main Window"), self.on_configure)
             menu.addAction(KStandardAction.quit(self.on_quit, menu))
             self.icon.setContextMenu(menu)
 

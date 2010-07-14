@@ -3,4 +3,3 @@ usr/lib/python*/*-packages/autokey/gtkapp.py
 usr/bin/autokey-gtk
 usr/share/applications/autokey-gtk.desktop
 usr/share/man/man1/autokey-gtk.1
-usr/share/pixmaps/akicon-status.png
