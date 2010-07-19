@@ -1,3 +1,10 @@
+autokey (0.70.5-1~lucid) lucid; urgency=low
+
+  * Packaging fix only - prevent errors with akicon-status.png by specifiying
+    replaces and breaks in autokey-common
+
+ -- Chris Dekter <cdekter@gmail.com>  Mon, 19 Jul 2010 10:57:23 +1000
+
 autokey (0.70.5-0~lucid) lucid; urgency=low
 
   * Improve window name determination by using the FreeDesktop specified atom names

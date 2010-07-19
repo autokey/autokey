@@ -20,8 +20,8 @@ Description: dummy transitional package for autokey-qt
 Package: autokey-common
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, wmctrl
-Replaces: autokey (<<0.61.4-0~0)
-Breaks: autokey (<<0.61.4-0~0)
+Replaces: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
+Breaks: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
 XB-Python-Version: ${python:Versions}
 Section: utils
 Description: desktop automation utility - common data
