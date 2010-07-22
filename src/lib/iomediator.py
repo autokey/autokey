@@ -382,7 +382,8 @@ class Recorder(KeyGrabber):
         self.insideKeys = False
         
     def start(self, delay):
-        KeyGrabber.start(self)
+        time.sleep(0.1)
+        IoMediator.listeners.append(self)
         self.targetParent.start_record()
         self.startTime = time.time()
         self.delay = delay
