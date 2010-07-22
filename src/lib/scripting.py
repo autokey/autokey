@@ -57,6 +57,25 @@ class Keyboard:
         for x in xrange(repeat):
             self.mediator.send_key(key.decode("utf-8"))
         self.mediator.flush()
+        
+    def press_key(self, key):
+        """
+        Send a key down event
+        
+        The key will be treated as down until a matching release_key() is sent.
+        @param key: they key to be pressed (e.g. "s" or "<enter>")
+        """
+        self.mediator.press_key(key.decode("utf-8"))
+        
+    def release_key(self, key):
+        """
+        Send a key up event
+        
+        If the specified key was not made down using press_key(), the event will be 
+        ignored.
+        @param key: they key to be released (e.g. "s" or "<enter>")
+        """
+        self.mediator.release_key(key.decode("utf-8"))        
 
     def fake_keypress(self, key, repeat=1):
         """

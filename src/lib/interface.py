@@ -491,6 +491,14 @@ class XInterfaceBase(threading.Thread):
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)        
         
+    def fake_keydown(self, keyName):
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        
+    def fake_keyup(self, keyName):
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)               
+        
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
