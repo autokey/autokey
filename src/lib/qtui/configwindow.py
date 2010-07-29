@@ -17,6 +17,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 import logging, sys, os, webbrowser
+from PyKDE4.kio import *
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
@@ -34,6 +35,8 @@ from settingsdialog import SettingsDialog
 from autokey.configmanager import *
 from autokey.iomediator import Recorder
 from autokey import model
+
+_logger = logging.getLogger("configwindow")
 
 # ---- Internal widgets
 
@@ -573,7 +576,65 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.treeWidget.setCurrentItem(newItem)
         self.treeWidget.setItemSelected(parentItem, False)
         self.on_treeWidget_itemSelectionChanged()     
-        self.on_rename()           
+        self.on_rename()  
+        
+    def on_import(self):
+        paths = KFileDialog.getOpenFileNames()
+        
+        if paths:
+            parentItem = self.treeWidget.selectedItems()[0]
+            parentFolder = self.__extractData(parentItem)
+            newItems = []
+            imported = False
+            
+            for path in paths:
+                try:
+                    items = load_items(path, self.configManager)
+
+                    for item in items:
+                        if isinstance(item, model.Folder):
+                            f = WidgetItemFactory(None)
+                            newItem = FolderWidgetItem(parentItem, item)
+                            f.processFolder(newItem, item)
+                            parentFolder.add_folder(item)
+                        elif isinstance(item, model.Phrase):
+                            newItem = PhraseWidgetItem(parentItem, item)
+                            parentFolder.add_item(item)
+                        else:
+                            newItem = ScriptWidgetItem(parentItem, item)
+                            parentFolder.add_item(item)
+                            
+                        newItems.append(newItem)    
+                        
+                    imported = True
+                    
+                except Exception, e:
+                    _logger.exception("Error while importing data from %s", path)
+                    KMessageBox.error(self.topLevelWidget(), i18n("Error while importing data from %s.\n%s", path, str(e)))
+                        
+            if imported:
+                self.treeWidget.sortItems(0, Qt.AscendingOrder)
+                self.treeWidget.setCurrentItem(newItems[-1])
+                self.on_treeWidget_itemSelectionChanged()
+                for item in newItems:
+                    self.treeWidget.setItemSelected(item, True)
+                self.parentWidget().app.config_altered()                        
+                KMessageBox.information(self.topLevelWidget(), i18n("The files were imported successfully."), i18n("Import"))
+            
+        
+        
+    def on_export(self):
+        path = KFileDialog.getSaveFileName()
+        
+        if path:
+            sourceObjects = self.__getSelection()
+            
+            try:
+                export_items(sourceObjects, path)
+                KMessageBox.information(self.topLevelWidget(), i18n("The items were exported successfully."), i18n("Export"))
+            except Exception, e:
+                _logger.exception("Error while exporting data.")            
+                KMessageBox.error(self.topLevelWidget(), i18n("Error while exporting data:\n%s", str(e)))
         
     def on_undo(self):
         self.stack.currentWidget().undo()
@@ -809,6 +870,9 @@ class ConfigWindow(KXmlGuiWindow):
         self.newScript.setShortcut(QKeySequence("Ctrl+Shift+n"))
         self.save = self.__createAction("save", i18n("Save"), "document-save", self.centralWidget.on_save, KStandardShortcut.Save)
         
+        self.importAction = self.__createAction("import", i18n("Import"), None, self.centralWidget.on_import)
+        self.exportAction = self.__createAction("export", i18n("Export"), None, self.centralWidget.on_export)
+        
         self.create.addAction(self.newTopFolder)
         self.create.addAction(self.newFolder)
         self.create.addAction(self.newPhrase)
@@ -886,6 +950,9 @@ class ConfigWindow(KXmlGuiWindow):
             self.newFolder.setEnabled(canCreate)
             self.newPhrase.setEnabled(canCreate)
             self.newScript.setEnabled(canCreate)
+            
+            self.importAction.setEnabled(canCreate)
+            self.exportAction.setEnabled(True)
             
             self.copy.setEnabled(canCopy)
             self.paste.setEnabled(canCreate and len(self.centralWidget.cutCopiedItems) > 0)

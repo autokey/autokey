@@ -66,6 +66,63 @@ REPLACE_STRINGS = [("iautokey.configurationmanager", "iautokey.configmanager"),
                   ("S'allPhrases'", "S'allItems'"),
                   ("S'hotKeyPhrases'", "S'hotKeys'"),
                   ("S'abbrPhrases'", "S'abbreviations'")]
+                  
+                  
+def export_items(items, path):
+    """
+    Export the given list of items (phrases, folders, scripts) to the specified path
+    """
+    outFile = open(path, "w")
+    outList = [item.get_serializable() for item in items]
+    json.dump(outList, outFile, indent=4)
+    outFile.close()
+    _logger.debug("Finished persisting items to file at %s - no errors", path)
+    
+def load_items(path, configManager):
+    """
+    Deserialize a list of items (phrases, folders, scripts) from the specified file
+    """
+    pFile = open(path, 'r')
+    data = json.load(pFile)
+    pFile.close()
+    result = []
+    
+    for item in data:
+        if item["type"] == "folder":
+            i = Folder("")
+            i.load_from_serialized(item, None)
+            check_folder(i, configManager)
+        elif item["type"] == "phrase":
+            i = Phrase("", "")
+            i.load_from_serialized(item, None)
+            check_item(i, configManager)
+        else:
+            i = Script("", "")
+            i.load_from_serialized(item, None)
+            check_item(i, configManager)
+        
+        result.append(i)
+    
+    return result
+    
+def check_folder(folder, configManager):
+    check_item(folder, configManager)
+    for subFolder in folder.folders:
+        check_folder(folder, configManager)
+        
+    for item in folder.items:
+        check_item(item, configManager)
+        
+def check_item(item, configManager):
+    if TriggerMode.ABBREVIATION in item.modes:
+        unique, msg = configManager.check_abbreviation_unique(item.abbreviation, item)
+        if not unique:
+            item.modes.remove(TriggerMode.ABBREVIATION)
+    if TriggerMode.HOTKEY in item.modes:
+        unique, msg = configManager.check_hotkey_unique(item.modifiers, item.hotKey, item)
+        if not unique:
+            item.modes.remove(TriggerMode.HOTKEY)
+            
 
 def load_legacy_config(autoKeyApp, hadError=False):
     _logger.info("Loading config from legacy file: " + CONFIG_FILE_OLD)

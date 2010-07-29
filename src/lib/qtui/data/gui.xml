@@ -11,6 +11,9 @@
       <Action name="create" />
       <Action name="save" />
       <separator />
+      <Action name="import" />
+      <Action name="export" />
+      <separator />      
       <Action name="close-window" />
     </Menu>
     <Menu name="edit" >
@@ -53,6 +56,8 @@
     <Action name="delete-item" />
     <separator />    
     <Action name="rename" />
+    <separator />
+    <Action name="export" />
   </Menu>
  
   <ToolBar name="ToolBar" noMerge="1" >

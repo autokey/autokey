@@ -57,7 +57,6 @@ class PopupMenu(gtk.Menu):
 
 
     def show_on_desktop(self):
-        time.sleep(0.2)
         gtk.gdk.threads_enter()
         self.popup(None, None, None, 1, 0)
         gtk.gdk.threads_leave()

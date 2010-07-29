@@ -9,6 +9,9 @@
                     </menu>
 			<menuitem action="save" />
 			<separator />
+			<menuitem action="import" />
+			<menuitem action="export" />
+			<separator />			
 			<menuitem action="close-window" />
                         <separator />
 			<menuitem action="quit" />
@@ -67,5 +70,7 @@
             <menuitem action="delete-item" />
             <separator />
             <menuitem action="rename" />
+            <separator />
+			<menuitem action="export" />
         </popup>
 </ui>

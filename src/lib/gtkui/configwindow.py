@@ -40,6 +40,8 @@ CONFIG_WINDOW_TITLE = _(common.CONFIG_WINDOW_TITLE + " - AutoKey")
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
+_logger = logging.getLogger("configwindow")
+
 def get_ui(fileName):
     builder = gtk.Builder()
     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
@@ -507,6 +509,8 @@ class ConfigWindow:
                 ("new-phrase", gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
                 ("new-script", gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
                 ("save", gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
+                ("import", None, _("_Import"), None, _("Import into selected folder"), self.on_import),
+                ("export", None, _("_Export"), None, _("Export selected items"), self.on_export),                                
                 ("close-window", gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
                 ("quit", gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
                 ("Edit", None, _("_Edit")),
@@ -614,6 +618,8 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
+        self.uiManager.get_action("/MenuBar/File/import").set_sensitive(canCreate)
+        self.uiManager.get_action("/MenuBar/File/export").set_sensitive(True)
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(canCreate and len(self.cutCopiedItems) > 0)
@@ -715,7 +721,83 @@ class ConfigWindow:
         self.treeView.get_selection().unselect_all()
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
-        self.on_rename(self.treeView)        
+        self.on_rename(self.treeView)
+
+    def on_import(self, widget, data=None):
+        dlg = gtk.FileChooserDialog(_("Import items"), self.ui, gtk.FILE_CHOOSER_ACTION_OPEN,
+                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
+        dlg.set_default_response(gtk.RESPONSE_OK)
+        if dlg.run() == gtk.RESPONSE_OK:
+            paths = dlg.get_filenames()    
+            dlg.destroy()
+            targetFolder = self.__getTreeSelection()[0]
+            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+            parentIter = theModel[selectedPaths[0]].iter
+            newIters = []                    
+            imported = False
+
+            
+            for path in paths:
+                try:
+                    items = load_items(path, self.app.configManager)
+
+                    for item in items:
+                        newIter = theModel.append_item(item, parentIter)
+                        if isinstance(item, model.Folder):
+                            theModel.populate_store(newIter, item)    
+                        newIters.append(newIter)                    
+                    
+                    imported = True
+                except Exception, e:
+                    _logger.exception("Error while importing data from %s", path)
+                    errDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK)
+                    errDlg.set_markup(_("Error while importing data from %s.") % path)
+                    errDlg.format_secondary_text(str(e))
+                    errDlg.run()
+                    errDlg.destroy()
+                    
+            if imported:
+                self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
+                self.treeView.get_selection().unselect_all()
+                self.treeView.get_selection().select_iter(newIters[0])
+                self.cutCopiedItems = []
+                self.on_tree_selection_changed(self.treeView)        
+                for iter in newIters:
+                    self.treeView.get_selection().select_iter(iter)
+                self.app.config_altered()
+                infoDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+                infoDlg.set_markup(_("The files were imported successfully."))
+                infoDlg.run()
+                infoDlg.destroy()
+        else:
+            dlg.destroy()
+        
+    def on_export(self, widget, data=None):
+        dlg = gtk.FileChooserDialog(_("Export items"), self.ui, gtk.FILE_CHOOSER_ACTION_SAVE,
+                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))  
+        dlg.set_default_response(gtk.RESPONSE_OK)      
+        if dlg.run() == gtk.RESPONSE_OK:
+            path = dlg.get_filename()    
+            dlg.destroy()
+            sourceObjects = self.__getTreeSelection()
+            
+            try:
+                export_items(sourceObjects, path)
+                infoDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
+                infoDlg.set_markup(_("The items were exported successfully."))
+                infoDlg.run()
+                infoDlg.destroy()                
+            except Exception, e:
+                _logger.exception("Error while exporting data.")            
+                errDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK)
+                errDlg.set_markup(_("Error while exporting data."))
+                errDlg.format_secondary_text(str(e))
+                errDlg.run()
+                errDlg.destroy()
+    
+        else:
+            dlg.destroy()             
+           
         
     # Edit Menu
 

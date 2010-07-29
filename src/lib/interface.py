@@ -415,7 +415,9 @@ class XInterfaceBase(threading.Thread):
 
         # Now we know which chars need remapping, do it
         if len(remapChars) > 0:
+            logger.debug("Characters requiring remapping: %r", remapChars)
             availCodes = self.__getAvailableKeycodes()
+            logger.debug("Remapping with keycodes in the range: %r", availCodes)
             mapping = self.localDisplay.get_keyboard_mapping(min(availCodes), max(availCodes) - min(availCodes) + 1)
             firstCode = min(availCodes)            
 
