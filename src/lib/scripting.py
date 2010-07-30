@@ -62,6 +62,8 @@ class Keyboard:
         """
         Send a key down event
         
+        Usage: C{keyboard.press_key(key)}
+        
         The key will be treated as down until a matching release_key() is sent.
         @param key: they key to be pressed (e.g. "s" or "<enter>")
         """
@@ -70,6 +72,8 @@ class Keyboard:
     def release_key(self, key):
         """
         Send a key up event
+        
+        Usage: C{keyboard.release_key(key)}
         
         If the specified key was not made down using press_key(), the event will be 
         ignored.

@@ -19,6 +19,8 @@ engine.run_script(description) Run an existing script using its description to l
 keyboard.send_key(key, repeat=1) Send a keyboard event
 keyboard.send_keys(keyString) Send a sequence of keys via keyboard events
 keyboard.fake_keypress(key, repeat=1) Fake a keypress
+keyboard.press_key(key) Send a key down event
+keyboard.release_key(key) Send a key up event
 mouse.click_absolute(x, y, button) Send a mouse click relative to the screen (absolute)
 mouse.click_relative(x, y, button) Send a mouse click relative to the active window
 store.get_value(key) Get a value

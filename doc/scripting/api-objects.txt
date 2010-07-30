@@ -28,10 +28,12 @@ lib.scripting.GtkDialog.save_file	lib.scripting.GtkDialog-class.html#save_file
 lib.scripting.GtkDialog.calendar	lib.scripting.GtkDialog-class.html#calendar
 lib.scripting.GtkDialog.choose_directory	lib.scripting.GtkDialog-class.html#choose_directory
 lib.scripting.Keyboard	lib.scripting.Keyboard-class.html
-lib.scripting.Keyboard.send_keys	lib.scripting.Keyboard-class.html#send_keys
-lib.scripting.Keyboard.__init__	lib.scripting.Keyboard-class.html#__init__
+lib.scripting.Keyboard.press_key	lib.scripting.Keyboard-class.html#press_key
 lib.scripting.Keyboard.fake_keypress	lib.scripting.Keyboard-class.html#fake_keypress
 lib.scripting.Keyboard.send_key	lib.scripting.Keyboard-class.html#send_key
+lib.scripting.Keyboard.send_keys	lib.scripting.Keyboard-class.html#send_keys
+lib.scripting.Keyboard.release_key	lib.scripting.Keyboard-class.html#release_key
+lib.scripting.Keyboard.__init__	lib.scripting.Keyboard-class.html#__init__
 lib.scripting.Mouse	lib.scripting.Mouse-class.html
 lib.scripting.Mouse.click_relative	lib.scripting.Mouse-class.html#click_relative
 lib.scripting.Mouse.click_absolute	lib.scripting.Mouse-class.html#click_absolute
