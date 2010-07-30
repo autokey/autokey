@@ -107,15 +107,14 @@ class Service:
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last() 
         
-    def handle_hotkey(self, key, modifiers, windowName):
-        logger.debug("Key: %s, modifiers: %s", repr(key), modifiers)
+    def handle_keypress(self, rawKey, modifiers, key, windowName):
+        logger.debug("Raw key: %r, modifiers: %r, Key: %r", rawKey, modifiers, key)
         
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
-            hotkey.check_hotkey(modifiers, key, windowName)
-            
+            hotkey.check_hotkey(modifiers, rawKey, windowName)
+        
         if self.__shouldProcess(windowName):
-            self.inputStack = []
             itemMatch = None
             menu = None
 
@@ -152,11 +151,18 @@ class Service:
             
             if itemMatch is not None:
                 self.__processItem(itemMatch)
+                
+                
+            ### --- end of hotkey processing --- ###
+            
+            modifierCount = len(modifiers)
+            
+            if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
+                self.inputStack = []
+                return
+                
+            ### --- end of processing if non-printing modifiers are on --- ###
         
-    def handle_keypress(self, key, windowName):
-        logger.debug("Key: %s", key)
-        
-        if self.__shouldProcess(windowName):
             if self.__updateStack(key):
                 currentInput = ''.join(self.inputStack)
                 item, menu = self.__checkTextMatches([], self.configManager.abbreviations,
@@ -204,11 +210,11 @@ class Service:
         
         @return: True if further action is needed
         """
-        if self.lastMenu is not None:
-            if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-                self.app.hide_menu()
-                
-            self.lastMenu = None
+        #if self.lastMenu is not None:
+        #    if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
+        #        self.app.hide_menu()
+        #        
+        #    self.lastMenu = None
             
         if key == Key.ENTER:
             # Special case - map Enter to \n

@@ -13,7 +13,7 @@ class PopupMenu(gtk.Menu):
 
     def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
         gtk.Menu.__init__(self)
-        self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        #self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         self.service = service
         
         if title is not None:

@@ -211,7 +211,8 @@ class HotkeySettingsDialog(KDialog):
             key = self.REVERSE_KEY_MAP[keyText]
         else:
             key = keyText
-            
+
+        assert key != None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
     def reset(self):
@@ -272,9 +273,6 @@ class HotkeySettingsDialog(KDialog):
         if not validate(self.key is not None, i18n("You must specify a key for the hotkey."),
                             None, self): return False
         
-        if not validate(len(modifiers) > 0, i18n("You must select at least one modifier for the hotkey"),
-                            None, self): return False
-        
         return True
         
         
@@ -309,8 +307,9 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             key = self.REVERSE_KEY_MAP[keyText]
         else:
             key = keyText
-            
-        item.set_hotkey(modifiers, key)        
+
+        assert key != None, "Attempt to set hotkey with no key"
+        item.set_hotkey(modifiers, key)
         
         
 class WindowFilterSettings(QWidget, windowfiltersettings.Ui_Form):

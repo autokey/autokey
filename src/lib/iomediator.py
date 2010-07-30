@@ -97,7 +97,7 @@ import datetime, time, threading, Queue, re, logging
 _logger = logging.getLogger("iomediator")
 
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK, Key.NUMLOCK]
-NON_PRINTING_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER]
+HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT]
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
 #KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
@@ -191,27 +191,17 @@ class IoMediator(threading.Thread):
     def run(self):
         while True:
             keyCode, windowName = self.queue.get()
-            numLock = self.modifiers[Key.NUMLOCK]
             if keyCode is None and windowName is None:
                 break
             
-            modifiers = self.__getNonPrintingModifiersOn()
-            if modifiers:
-                if self.modifiers[Key.SHIFT]:
-                    modifiers.append(Key.SHIFT)
-                    modifiers.sort()
-                key = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
-                
-                for target in self.listeners:
-                    target.handle_hotkey(key, modifiers, windowName)
-                
-            else:
-                shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
-                key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
-                
-                for target in self.listeners:
-                    target.handle_keypress(key, windowName)
-                
+            numLock = self.modifiers[Key.NUMLOCK]
+            modifiers = self.__getModifiersOn()
+            shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
+            key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
+            rawKey = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
+            
+            for target in self.listeners:
+                target.handle_keypress(rawKey, modifiers, key, windowName)                
                 
             self.queue.task_done()
             
@@ -339,9 +329,9 @@ class IoMediator(threading.Thread):
         for modifier in self.releasedModifiers:
             self.interface.press_key(modifier)
             
-    def __getNonPrintingModifiersOn(self):
+    def __getModifiersOn(self):
         modifiers = []
-        for modifier in NON_PRINTING_MODIFIERS:
+        for modifier in HELD_MODIFIERS:
             if self.modifiers[modifier]:
                 modifiers.append(modifier)
         
@@ -365,14 +355,11 @@ class KeyGrabber:
         IoMediator.listeners.append(self)
         CURRENT_INTERFACE.grab_keyboard()
                  
-    def handle_keypress(self, key, windowName=""):
-        if not key in MODIFIERS:
+    def handle_keypress(self, rawKey, modifiers, key, windowName=""):
+        if not rawKey in MODIFIERS:
             IoMediator.listeners.remove(self)
-            self.targetParent.set_key(key)
+            self.targetParent.set_key(rawKey)
             CURRENT_INTERFACE.ungrab_keyboard()
-            
-    def handle_hotkey(self, key, modifiers, windowName):
-        pass
     
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         IoMediator.listeners.remove(self)
@@ -418,22 +405,20 @@ class Recorder(KeyGrabber):
             
         return self.delayFinished
                 
-    def handle_keypress(self, key, windowName=""):
+    def handle_keypress(self, rawKey, modifiers, key, windowName=""):
         if self.recordKeyboard and self.__delayPassed():
             if not self.insideKeys:
                 self.insideKeys = True
                 self.targetParent.start_key_sequence()
                 
-            if not key in MODIFIERS:
-                self.targetParent.append_key(key)
+            modifierCount = len(modifiers)
             
-    def handle_hotkey(self, key, modifiers, windowName):
-        if self.recordKeyboard and self.__delayPassed():
-            if not self.insideKeys:
-                self.insideKeys = True
-                self.targetParent.start_key_sequence()
+            if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers) or \
+                    (Key.SHIFT in modifiers and len(rawKey) > 1):
+                self.targetParent.append_hotkey(rawKey, modifiers)
                 
-            self.targetParent.append_hotkey(key, modifiers)
+            elif not key in MODIFIERS:
+                self.targetParent.append_key(key)
         
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         if self.recordMouse and self.__delayPassed():

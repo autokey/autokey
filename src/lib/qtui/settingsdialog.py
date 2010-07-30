@@ -38,14 +38,15 @@ class GeneralSettings(QWidget, generalsettings.Ui_Form):
 
         self.promptToSaveCheckbox.setChecked(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
         self.showTrayCheckbox.setChecked(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
-        self.allowKbNavCheckbox.setChecked(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        #self.allowKbNavCheckbox.setChecked(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        self.allowKbNavCheckbox.setVisible(False)
         self.sortByUsageCheckbox.setChecked(ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT])
         self.enableUndoCheckbox.setChecked(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
         
     def save(self):
         ConfigManager.SETTINGS[PROMPT_TO_SAVE] = self.promptToSaveCheckbox.isChecked()
         ConfigManager.SETTINGS[SHOW_TRAY_ICON] = self.showTrayCheckbox.isChecked()
-        ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.isChecked()
+        #ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.isChecked()
         ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.isChecked()
         ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.isChecked()
 
@@ -89,16 +90,16 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
         
         if configHotkey.enabled:
             self.configManager.app.hotkey_removed(configHotkey)            
-        self.showConfigDlg.save(configHotkey)
         configHotkey.enabled = self.useConfigHotkey
         if self.useConfigHotkey:
+            self.showConfigDlg.save(configHotkey)        
             self.configManager.app.hotkey_created(configHotkey)
 
         if toggleHotkey.enabled:
             self.configManager.app.hotkey_removed(toggleHotkey)                
-        self.toggleMonitorDlg.save(toggleHotkey)
         toggleHotkey.enabled = self.useServiceHotkey
         if self.useServiceHotkey:
+            self.toggleMonitorDlg.save(toggleHotkey)        
             self.configManager.app.hotkey_created(toggleHotkey)
 
         self.configManager.config_altered()

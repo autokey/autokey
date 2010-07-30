@@ -49,7 +49,8 @@ class SettingsDialog:
         self.autoStartCheckbox = builder.get_object("autoStartCheckbox")
         self.promptToSaveCheckbox = builder.get_object("promptToSaveCheckbox")
         self.showTrayCheckbox = builder.get_object("showTrayCheckbox")
-        self.allowKbNavCheckbox= builder.get_object("allowKbNavCheckbox")
+        self.allowKbNavCheckbox = builder.get_object("allowKbNavCheckbox")
+        self.allowKbNavCheckbox.hide()
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
         
@@ -67,7 +68,7 @@ class SettingsDialog:
         self.autoStartCheckbox.set_active(os.path.exists(AUTOSTART_FILE))
         self.promptToSaveCheckbox.set_active(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
-        self.allowKbNavCheckbox.set_active(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        #self.allowKbNavCheckbox.set_active(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         self.sortByUsageCheckbox.set_active(ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT])
         self.enableUndoCheckbox.set_active(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
         
@@ -123,7 +124,7 @@ class SettingsDialog:
     
         ConfigManager.SETTINGS[PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
         ConfigManager.SETTINGS[SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
-        ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
+        #ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
         ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
         ConfigManager.SETTINGS[NOTIFICATION_ICON] = ICON_NAME_MAP[self.notifyIconCombo.get_active_text()]
@@ -147,23 +148,23 @@ class SettingsDialog:
 
         if configHotkey.enabled:
             app.hotkey_removed(configHotkey)
-        self.showConfigDlg.save(configHotkey)
         configHotkey.enabled = self.useConfigHotkey
         if self.useConfigHotkey:
+            self.showConfigDlg.save(configHotkey)
             app.hotkey_created(configHotkey)
 
         if toggleHotkey.enabled:
             app.hotkey_removed(toggleHotkey)
-        self.toggleMonitorDlg.save(toggleHotkey)
         toggleHotkey.enabled = self.useServiceHotkey
         if self.useServiceHotkey:
+            self.toggleMonitorDlg.save(toggleHotkey)
             app.hotkey_created(toggleHotkey)
             
         if popupHotkey.enabled:
             app.hotkey_removed(popupHotkey)
-        self.showPopupDlg.save(popupHotkey)
         popupHotkey.enabled = self.usePopupHotkey
         if self.usePopupHotkey:
+            self.showPopupDlg.save(popupHotkey)
             app.hotkey_created(popupHotkey)
             
         self.configManager.config_altered()

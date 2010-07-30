@@ -228,7 +228,8 @@ class HotkeySettingsDialog(DialogBase):
             key = self.REVERSE_KEY_MAP[keyText]
         else:
             key = keyText
-            
+
+        assert key != None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
     def reset(self):
@@ -280,9 +281,6 @@ class HotkeySettingsDialog(DialogBase):
         if not validate(self.key is not None, _("You must specify a key for the hotkey."),
                             None, self.ui): return False
         
-        if not validate(len(modifiers) > 0, _("You must select at least one modifier for the hotkey"),
-                            None, self.ui): return False
-        
         return True
         
     def on_setButton_pressed(self, widget, data=None):
@@ -323,7 +321,8 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             key = self.REVERSE_KEY_MAP[keyText]
         else:
             key = keyText
-            
+
+        assert key != None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
 
 

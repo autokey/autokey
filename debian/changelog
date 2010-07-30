@@ -1,3 +1,18 @@
+autokey (0.71.0-0~lucid) lucid; urgency=low
+
+  * Add an import/export facility (issue 58)
+  * Add support for hotkeys with no modifiers (issue 53)
+  * Fix shift unable to be used as a standalone modifier for a hotkey (issue 59)
+  * Add ability to separately press and release keys using scripting API (issue 52)
+  * Add some debug info around keyboard remap operation
+  * Disable configuration of popup menu focus behaviour for now as it's causing
+    too many hard-to-diagnose bugs
+  * Don't grab keyboard when recording a macro
+  * Don't save changes to a global hotkey if the hotkey is disabled
+  * Add assertions to detect invalid hotkeys being created
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 30 Jul 2010 12:33:10 +1000
+
 autokey (0.70.5-1~lucid) lucid; urgency=low
 
   * Packaging fix only - prevent errors with akicon-status.png by specifiying
