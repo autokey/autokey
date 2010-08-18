@@ -119,7 +119,7 @@ class Service:
             menu = None
 
             for item in self.configManager.hotKeys:
-                if item.check_hotkey(modifiers, key, windowName):
+                if item.check_hotkey(modifiers, rawKey, windowName):
                     itemMatch = item
                     break
 
@@ -134,7 +134,7 @@ class Service:
             else:
                 logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey(modifiers, key, windowName):
+                    if folder.check_hotkey(modifiers, rawKey, windowName):
                         #menu = PopupMenu(self, [folder], [])
                         menu = ([folder], [])
 
