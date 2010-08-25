@@ -778,9 +778,13 @@ class Window:
         """
         regex = re.compile(title)
         waited = 0
-        while waited < timeOut:
+        while waited <= timeOut:
             if regex.match(self.mediator.interface.get_window_title()):
                 return True
+            
+            if timeOut == 0:
+                break # zero length timeout, if not matched go straight to end
+                
             time.sleep(0.3)
             waited += 0.3
             
@@ -801,11 +805,14 @@ class Window:
         """
         regex = re.compile(title)
         waited = 0
-        while waited < timeOut:
+        while waited <= timeOut:
             retCode, output = self.__runWmctrl(["-l"])
             for line in output.split('\n'):
                 if regex.match(line[14:].split(' ', 1)[-1]):
                     return True
+                    
+            if timeOut == 0:
+                break # zero length timeout, if not matched go straight to end
 
             time.sleep(0.3)
             waited += 0.3
