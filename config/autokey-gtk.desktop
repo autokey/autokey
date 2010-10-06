@@ -7,4 +7,4 @@ Exec=autokey-gtk
 Terminal=false
 Type=Application
 Icon=/usr/share/pixmaps/akicon.png
-Categories=GNOME;Utility;
+Categories=GNOME;GTK;Utility;

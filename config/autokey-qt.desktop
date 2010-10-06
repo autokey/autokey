@@ -7,4 +7,4 @@ Exec=autokey-qt
 Terminal=false
 Type=Application
 Icon=/usr/share/pixmaps/akicon.png
-Categories=KDE;Utility;
+Categories=KDE;Qt;Utility;
