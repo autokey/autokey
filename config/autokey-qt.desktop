@@ -6,5 +6,5 @@ Comment=Program keyboard shortcuts
 Exec=autokey-qt
 Terminal=false
 Type=Application
-Icon=/usr/share/pixmaps/akicon.png
+Icon=akicon.png
 Categories=KDE;Qt;Utility;
