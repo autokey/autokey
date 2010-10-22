@@ -32,8 +32,6 @@ class AutoKeyDaemon(daemon.Daemon):
 
     def __init__(self):
         logFile = "/var/log/autokey-daemon.log"
-        if os.path.exists(logFile):
-            shutil.move(logFile, logFile + '.old')
         daemon.Daemon.__init__(self, '/var/run/autokey-daemon.pid', stdout=logFile, stderr=logFile)
 
     def get_device_paths(self):
@@ -45,6 +43,10 @@ class AutoKeyDaemon(daemon.Daemon):
     
     def run(self):
         print "AutoKey daemon starting"
+
+        if os.path.exists(self.stdout):
+            shutil.move(self.stdout, self.stdout + '.old')
+
         if os.path.exists(DOMAIN_SOCKET_PATH):
             os.remove(DOMAIN_SOCKET_PATH)
         s = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
@@ -136,13 +138,19 @@ if __name__ == "__main__":
         elif 'force-reload' == sys.argv[1]:
             # we don't support on-the-fly reloading,
             # so just restart the daemon per DPM 9.3.2
-            daemon.restart()            
+            daemon.restart()
+        elif 'status' == sys.argv[1]:
+            if daemon.checkpid():
+                print "AutoKey daemon is running"
+            else:
+                print "AutoKey daemon is stopped"
+                sys.exit(3)
         else:
             print "Unknown command"
             sys.exit(2)
         sys.exit(0)
     else:
-        print "usage: %s {start|stop|restart|force-reload}" % sys.argv[0]
+        print "usage: %s {status|start|stop|restart|force-reload}" % sys.argv[0]
         sys.exit(2)
     
     sys.exit(0)

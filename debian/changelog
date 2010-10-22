@@ -1,3 +1,13 @@
+autokey (0.71.1-0~maverick) maverick; urgency=low
+
+  * [gtk] Handle situation where no folders exist (issue 62)
+  * Remove KeyboardInterrupt handling as it didn't work anyway (issue 3)
+  * Fix window.get_active_geometry() (issue 77)
+  * Don't use absolute path name to application icon
+  * Add 'status' function to init script to meet Redhat sysv init specs
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 22 Oct 2010 13:21:11 +1100
+
 autokey (0.71.0-0~lucid) lucid; urgency=low
 
   * Add an import/export facility (issue 58)

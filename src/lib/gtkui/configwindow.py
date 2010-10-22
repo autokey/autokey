@@ -186,6 +186,33 @@ class SettingsWidget:
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
         return getattr(self.ui, attr)
 
+class BlankPage:
+    
+    def __init__(self, parentWindow):
+        self.parentWindow = parentWindow
+        builder = get_ui("blankpage.xml")
+        self.ui = builder.get_object("blankpage")
+        
+    def load(self, theFolder):
+        pass
+            
+    def save(self):
+        pass
+        
+    def set_item_title(self, newTitle):
+        pass
+    
+    def reset(self):
+        pass
+        
+    def validate(self):
+        return True
+        
+    def on_modified(self, widget, data=None):
+        pass
+    
+    def set_dirty(self):
+        self.parentWindow.set_dirty(True)
 
 class FolderPage:
     
@@ -573,9 +600,12 @@ class ConfigWindow:
         #self.uiManager.get_action("/MenuBar/Settings/enable-monitoring").set_active(app.service.is_running())
         #self.uiManager.get_action("/MenuBar/Settings/enable-monitoring").set_sensitive(not app.serviceDisabled)
         
-        rootIter = self.treeView.get_model().get_iter_root()
-        self.treeView.get_selection().select_iter(rootIter)
+        rootIter = self.treeView.get_model().get_iter_root()        
+        if rootIter is not None:
+            self.treeView.get_selection().select_iter(rootIter)
+
         self.on_tree_selection_changed(self.treeView)
+
         self.treeView.columns_autosize()
         
         width, height = ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE]
@@ -606,24 +636,35 @@ class ConfigWindow:
         self.revertButton.set_sensitive(dirty)
         
     def update_actions(self, items, changed):
-        canCreate = isinstance(items[0], model.Folder) and len(items) == 1
-        canCopy = True
-        for item in items:
-            if isinstance(item, model.Folder):
-                canCopy = False
-                break
+        if len(items) == 0:
+            canCreate = False
+            canCopy = False
+            canRecord = False
+            enableAny = False
+        else:
+            canCreate = isinstance(items[0], model.Folder) and len(items) == 1
+            canCopy = True
+            canRecord = isinstance(items[0], model.Script) and len(items) == 1
+            enableAny = True
+            for item in items:
+                if isinstance(item, model.Folder):
+                    canCopy = False
+                    break
         
-        self.uiManager.get_action("/MenuBar/File/create").set_sensitive(True)
+        self.uiManager.get_action("/MenuBar/File/create").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/File/create/new-top-folder").set_sensitive(True)
         self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/import").set_sensitive(canCreate)
-        self.uiManager.get_action("/MenuBar/File/export").set_sensitive(True)
+        self.uiManager.get_action("/MenuBar/File/export").set_sensitive(enableAny)
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
+        self.uiManager.get_action("/MenuBar/Edit/cut-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(canCreate and len(self.cutCopiedItems) > 0)
-        self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(isinstance(items[0], model.Script) and len(items) == 1)
+        self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
+        self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
+        self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(canRecord)
         
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
@@ -901,7 +942,7 @@ class ConfigWindow:
             self.treeView.get_selection().select_iter(nextIter)
         elif parentIter is not None:
             self.treeView.get_selection().select_iter(parentIter)
-        else:
+        elif model.iter_n_children(None) > 0:
             selectIter = model.iter_nth_child(None, model.iter_n_children(None) - 1)
             self.treeView.get_selection().select_iter(selectIter)
         
@@ -1023,17 +1064,25 @@ class ConfigWindow:
         
     def on_tree_selection_changed(self, widget, data=None):
         selectedObjects = self.__getTreeSelection()
-        if len(selectedObjects) == 1:
+        
+        if len(selectedObjects) == 0:
+            self.stack.set_current_page(0)
+            self.set_dirty(False)
+            self.cancel_record()
+            self.update_actions(selectedObjects, True)
+            self.selectedObject = None
+        
+        elif len(selectedObjects) == 1:
             selectedObject = selectedObjects[0]
  
             if isinstance(selectedObject, model.Folder):
-                self.stack.set_current_page(0)
+                self.stack.set_current_page(1)
                 self.folderPage.load(selectedObject)
             elif isinstance(selectedObject, model.Phrase):
-                self.stack.set_current_page(1)
+                self.stack.set_current_page(2)
                 self.phrasePage.load(selectedObject)
             else:
-                self.stack.set_current_page(2)
+                self.stack.set_current_page(3)
                 self.scriptPage.load(selectedObject)
 
             self.set_dirty(False)
@@ -1155,20 +1204,22 @@ class ConfigWindow:
     def __getTreeSelection(self):
         selection = self.treeView.get_selection()
         model, items = selection.get_selected_rows()
+        ret = []
+
         if items:
-            ret = []
             for item in items:
                 value = model.get_value(model[item].iter, AkTreeModel.OBJECT_COLUMN)
                 if value.parent not in ret: # Filter out any child objects that belong to a parent already in the list
                     ret.append(value)
-            return ret
-        else:
-            return None
+
+        return ret
         
     def __initStack(self):
+        self.blankPage = BlankPage(self)
         self.folderPage = FolderPage(self)
         self.phrasePage = PhrasePage(self)
         self.scriptPage = ScriptPage(self)
+        self.stack.append_page(self.blankPage.ui)
         self.stack.append_page(self.folderPage.ui)
         self.stack.append_page(self.phrasePage.ui)
         self.stack.append_page(self.scriptPage.ui)
@@ -1205,8 +1256,10 @@ class ConfigWindow:
             return self.folderPage
         elif isinstance(self.selectedObject, model.Phrase):
             return self.phrasePage
-        else:
+        elif isinstance(self.selectedObject, model.Script):
             return self.scriptPage
+        else:
+            return None
 
 
 class AkTreeModel(gtk.TreeStore):

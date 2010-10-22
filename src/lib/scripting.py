@@ -921,7 +921,7 @@ class Window:
                 matchingLine = line
                 
         if matchingLine is not None:
-            output = matchingLine[14:].split(' ')[0:3]
+            output = matchingLine.split()[2:6]
             return map(int, output)
         else:
             return None
