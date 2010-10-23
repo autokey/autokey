@@ -1,3 +1,9 @@
+autokey (0.71.1-1~maverick) maverick; urgency=low
+
+  * Packaging change only, add missing xml data file for GTK UI
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 24 Oct 2010 09:59:23 +1100
+
 autokey (0.71.1-0~maverick) maverick; urgency=low
 
   * [gtk] Handle situation where no folders exist (issue 62)
