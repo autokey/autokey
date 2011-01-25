@@ -1044,7 +1044,7 @@ class Engine:
         """
         targetScript = None
         for item in self.configManager.allItems:
-            if item.description == description and isinstance(item, Script):
+            if item.description == description and isinstance(item, model.Script):
                 targetScript = item
 
         if targetScript is not None:
