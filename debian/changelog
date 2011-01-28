@@ -1,3 +1,13 @@
+autokey (0.71.2-0~maverick) maverick; urgency=low
+
+  * Update all licenses to GPLv3 and add where missing
+  * Update package license to GPLv3
+  * Add missing COPYING file
+  * Fix engine.run_script() (issue 97)
+  * Fix for issue 95, dropping next character after hotkey
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 28 Jan 2011 18:24:11 +1100
+
 autokey (0.71.1-1~maverick) maverick; urgency=low
 
   * Packaging change only, add missing xml data file for GTK UI
