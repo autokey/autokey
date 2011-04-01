@@ -699,16 +699,33 @@ class XInterfaceBase(threading.Thread):
 
         return str(wmname)
 
+
 class EvDevInterface(XInterfaceBase):
     
-    def __init__(self, mediator, app):
-        XInterfaceBase.__init__(self, mediator, app)
+    def initialise(self):
         self.cancelling = False
-        self.__connect()
+        self.connected = False
+        retryCount = 0
+
+        while not self.connected:
+            try:
+                self.__connect()
+            except:
+                if retryCount >= 6:
+                    raise
+                
+            if self.cancelling:
+                break
+                
+            if not self.connected:
+                retryCount += 1
+                time.sleep(10)
+
         
     def cancel(self):
         self.cancelling = True
-        self.join(1.0)
+        if self.isAlive():
+            self.join(1.0)
         self.localDisplay.close()
         
     def run(self):
@@ -752,7 +769,6 @@ class EvDevInterface(XInterfaceBase):
                 
     def __connect(self):
         # Connect to event daemon
-        self.connected = False
         logger.info("Attempting to establish connection to EvDev daemon")
         self.socket = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
         self.socket.settimeout(1)
@@ -784,8 +800,7 @@ class EvDevInterface(XInterfaceBase):
 
 class XRecordInterface(XInterfaceBase):
         
-    def __init__(self, mediator, app):
-        XInterfaceBase.__init__(self, mediator, app)
+    def initialise(self):
         self.recordDisplay = display.Display()
         self.__locksChecked = False
 
@@ -851,8 +866,7 @@ class XRecordInterface(XInterfaceBase):
 
 class AtSpiInterface(XInterfaceBase):
     
-    def __init__(self, mediator, app):
-        XInterfaceBase.__init__(self, mediator, app)
+    def initialise(self):
         self.registry = pyatspi.Registry
         self.activeWindow = ""    
         

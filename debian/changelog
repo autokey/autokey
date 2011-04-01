@@ -1,3 +1,15 @@
+autokey (0.71.3-0~maverick) maverick; urgency=low
+
+  * Fix for issue 108 - cannot upgrade a v0.5x config file any more
+  * Fix for issue 107 - clipboard get functions are not using unicode
+  * Implement enhancement 109 - add general keyword arguments to script
+    dialogs
+  * If unable to connect to the daemon on startup, retry a few times
+  * If interface initialisation fails, still initialise necessary objects
+    to allow user to modify interface configuration.
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 1 Apr 2011 11:24:11 +1100
+
 autokey (0.71.2-0~maverick) maverick; urgency=low
 
   * Update all licenses to GPLv3 and add where missing

@@ -59,7 +59,12 @@
 <h1 class="epydoc">Class QtDialog</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog">source&nbsp;code</a></span></p>
 <p>Provides a simple interface for the display of some basic dialogs to 
   collect information from the user.</p>
-  <p>This version uses KDialog to integrate well with KDE.</p>
+  <p>This version uses KDialog to integrate well with KDE. To pass 
+  additional arguments to KDialog that are not specifically handled, use 
+  keyword arguments. For example, to pass the --geometry argument to 
+  KDialog to specify the desired size of the dialog, pass 
+  <code>geometry=&quot;700x400&quot;</code> as one of the parameters. All 
+  keyword arguments must be given as strings.</p>
   <p>A note on exit codes: an exit code of 0 indicates that the user 
   clicked OK.</p>
 
@@ -88,7 +93,8 @@
         <tr>
           <td><span class="summary-sig"><a name="__runKdialog"></a><span class="summary-sig-name">__runKdialog</span>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
-        <span class="summary-sig-arg">args</span>)</span></td>
+        <span class="summary-sig-arg">args</span>,
+        <span class="summary-sig-arg">kwargs</span>)</span></td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.__runKdialog">source&nbsp;code</a></span>
             
@@ -107,7 +113,8 @@
           <td><span class="summary-sig"><a href="lib.scripting.QtDialog-class.html#input_dialog" class="summary-sig-name">input_dialog</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show an input dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.input_dialog">source&nbsp;code</a></span>
@@ -126,7 +133,8 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.QtDialog-class.html#password_dialog" class="summary-sig-name">password_dialog</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a password input dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.password_dialog">source&nbsp;code</a></span>
@@ -146,7 +154,8 @@
           <td><span class="summary-sig"><a href="lib.scripting.QtDialog-class.html#combo_menu" class="summary-sig-name">combo_menu</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">options</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a combobox menu</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.combo_menu">source&nbsp;code</a></span>
@@ -167,7 +176,8 @@
         <span class="summary-sig-arg">options</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">default</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a single-selection list menu</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.list_menu">source&nbsp;code</a></span>
@@ -188,7 +198,8 @@
         <span class="summary-sig-arg">options</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">message</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">defaults</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span><br />
+        <span class="summary-sig-arg">defaults</span>=<span class="summary-sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a multiple-selection list menu</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.list_menu_multi">source&nbsp;code</a></span>
@@ -209,7 +220,8 @@
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Open File</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">fileTypes</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show an Open File dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.open_file">source&nbsp;code</a></span>
@@ -230,7 +242,8 @@
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Save As</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">fileTypes</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a Save As dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.save_file">source&nbsp;code</a></span>
@@ -250,7 +263,8 @@
           <td><span class="summary-sig"><a href="lib.scripting.QtDialog-class.html#choose_directory" class="summary-sig-name">choose_directory</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Directory</code><code class="variable-quote">'</code></span>,
         <span class="summary-sig-arg">initialDir</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>)</span><br />
+        <span class="summary-sig-arg">rememberAs</span>=<span class="summary-sig-default">None</span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a Directory Chooser dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.choose_directory">source&nbsp;code</a></span>
@@ -268,7 +282,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.QtDialog-class.html#choose_colour" class="summary-sig-name">choose_colour</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>)</span><br />
+        <span class="summary-sig-arg">title</span>=<span class="summary-sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>,
+        <span class="summary-sig-arg">**kwargs</span>)</span><br />
       Show a Colour Chooser dialog</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.choose_colour">source&nbsp;code</a></span>
@@ -308,7 +323,8 @@
   <h3 class="epydoc"><span class="sig"><span class="sig-name">input_dialog</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter a value</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">default</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">default</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string"></code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.input_dialog">source&nbsp;code</a></span>&nbsp;
@@ -317,7 +333,8 @@
   
   <p>Show an input dialog</p>
   <p>Usage: <code>dialog.input_dialog(title=&quot;Enter a value&quot;, 
-  message=&quot;Enter a value&quot;, default=&quot;&quot;)</code></p>
+  message=&quot;Enter a value&quot;, default=&quot;&quot;, 
+  **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -339,7 +356,8 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">password_dialog</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Enter password</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.password_dialog">source&nbsp;code</a></span>&nbsp;
@@ -348,7 +366,7 @@
   
   <p>Show a password input dialog</p>
   <p>Usage: <code>dialog.password_dialog(title=&quot;Enter password&quot;, 
-  message=&quot;Enter password&quot;)</code></p>
+  message=&quot;Enter password&quot;, **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -370,7 +388,8 @@
   <h3 class="epydoc"><span class="sig"><span class="sig-name">combo_menu</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">options</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose an option</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.combo_menu">source&nbsp;code</a></span>&nbsp;
@@ -379,7 +398,7 @@
   
   <p>Show a combobox menu</p>
   <p>Usage: <code>dialog.combo_menu(options, title=&quot;Choose an 
-  option&quot;, message=&quot;Choose an option&quot;)</code></p>
+  option&quot;, message=&quot;Choose an option&quot;, **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -403,7 +422,8 @@
         <span class="sig-arg">options</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose a value</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">default</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">default</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.list_menu">source&nbsp;code</a></span>&nbsp;
@@ -412,7 +432,8 @@
   
   <p>Show a single-selection list menu</p>
   <p>Usage: <code>dialog.list_menu(options, title=&quot;Choose a 
-  value&quot;, message=&quot;Choose a value&quot;, default=None)</code></p>
+  value&quot;, message=&quot;Choose a value&quot;, default=None, 
+  **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -437,7 +458,8 @@
         <span class="sig-arg">options</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">message</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Choose one or more values</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">defaults</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>)</span>
+        <span class="sig-arg">defaults</span>=<span class="sig-default"><code class="variable-group">[</code><code class="variable-group">]</code></span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.list_menu_multi">source&nbsp;code</a></span>&nbsp;
@@ -447,7 +469,7 @@
   <p>Show a multiple-selection list menu</p>
   <p>Usage: <code>dialog.list_menu_multi(options, title=&quot;Choose one or
   more values&quot;, message=&quot;Choose one or more values&quot;, 
-  defaults=[])</code></p>
+  defaults=[], **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -472,7 +494,8 @@
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Open File</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">fileTypes</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.open_file">source&nbsp;code</a></span>&nbsp;
@@ -482,7 +505,7 @@
   <p>Show an Open File dialog</p>
   <p>Usage: <code>dialog.open_file(title=&quot;Open File&quot;, 
   initialDir=&quot;~&quot;, fileTypes=&quot;*|All Files&quot;, 
-  rememberAs=None)</code></p>
+  rememberAs=None, **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -508,7 +531,8 @@
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Save As</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">fileTypes</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">*|All Files</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.save_file">source&nbsp;code</a></span>&nbsp;
@@ -518,7 +542,7 @@
   <p>Show a Save As dialog</p>
   <p>Usage: <code>dialog.save_file(title=&quot;Save As&quot;, 
   initialDir=&quot;~&quot;, fileTypes=&quot;*|All Files&quot;, 
-  rememberAs=None)</code></p>
+  rememberAs=None, **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -543,7 +567,8 @@
   <h3 class="epydoc"><span class="sig"><span class="sig-name">choose_directory</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Directory</code><code class="variable-quote">'</code></span>,
         <span class="sig-arg">initialDir</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">~</code><code class="variable-quote">'</code></span>,
-        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>)</span>
+        <span class="sig-arg">rememberAs</span>=<span class="sig-default">None</span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.choose_directory">source&nbsp;code</a></span>&nbsp;
@@ -552,7 +577,8 @@
   
   <p>Show a Directory Chooser dialog</p>
   <p>Usage: <code>dialog.choose_directory(title=&quot;Select 
-  Directory&quot;, initialDir=&quot;~&quot;, rememberAs=None)</code></p>
+  Directory&quot;, initialDir=&quot;~&quot;, rememberAs=None, 
+  **kwargs)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
@@ -574,7 +600,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">choose_colour</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>)</span>
+        <span class="sig-arg">title</span>=<span class="sig-default"><code class="variable-quote">'</code><code class="variable-string">Select Colour</code><code class="variable-quote">'</code></span>,
+        <span class="sig-arg">**kwargs</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#QtDialog.choose_colour">source&nbsp;code</a></span>&nbsp;
@@ -621,7 +648,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Jul 30 23:09:08 2010
+    Generated by Epydoc 3.0.1 on Fri Apr  1 11:37:50 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

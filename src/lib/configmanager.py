@@ -220,9 +220,9 @@ def upgrade_config_file():
     Upgrade a v0.5x config file to v0.6x
     """
     _logger.info("Upgrading v0.5x config file to v0.6x")
-    shutil.move(CONFIG_FILE, CONFIG_FILE + "-0.5x")
-    infile = open(CONFIG_FILE + "-0.5x", 'rb')
-    outfile = open(CONFIG_FILE, 'wb')
+    shutil.move(CONFIG_FILE_OLD, CONFIG_FILE_OLD + "-0.5x")
+    infile = open(CONFIG_FILE_OLD + "-0.5x", 'rb')
+    outfile = open(CONFIG_FILE_OLD, 'wb')
     
     for line in infile:
         if len(line) > 5:

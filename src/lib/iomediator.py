@@ -144,8 +144,6 @@ class IoMediator(threading.Thread):
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
-        self.interface.start()
-        self.start()
         
     def shutdown(self):
         self.interface.cancel()
