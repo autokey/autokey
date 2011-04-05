@@ -107,7 +107,7 @@ def load_items(path, configManager):
 def check_folder(folder, configManager):
     check_item(folder, configManager)
     for subFolder in folder.folders:
-        check_folder(folder, configManager)
+        check_folder(subFolder, configManager)
         
     for item in folder.items:
         check_item(item, configManager)
