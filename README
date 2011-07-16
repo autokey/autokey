@@ -6,3 +6,5 @@ AutoKey is a desktop automation utility for Linux and X11. It allows the automat
 any task by responding to typed abbreviations and hotkeys. It offers a full-featured GUI that
 makes it highly accessible for novices, as well as a scripting interface offering the
 full flexibility and power of the Python language.
+
+This software is licensed under the GPLv3 software license.
