@@ -18,7 +18,8 @@
 __all__ = ["XRecordInterface", "EvDevInterface", "AtSpiInterface"]
 
 
-import os, threading, re, time, socket, select, logging
+import os, threading, re, time, socket, select, logging, gtk
+
 try:
     import pyatspi
     HAS_ATSPI = True
@@ -33,12 +34,6 @@ except ImportError:
     HAS_RECORD = False
     
 from Xlib.protocol import rq, event
-
-import common
-if common.USING_QT:
-    from PyQt4.QtGui import QClipboard, QApplication
-else:
-    import gtk
 
 logger = logging.getLogger("interface")
 
@@ -73,11 +68,8 @@ class XInterfaceBase(threading.Thread):
         self.dpyLock = threading.RLock()
         self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
         
-        if common.USING_QT:
-            self.clipBoard = QApplication.clipboard()
-        else:
-            self.clipBoard = gtk.Clipboard()
-            self.selection = gtk.Clipboard(selection="PRIMARY")
+        self.clipBoard = gtk.Clipboard()
+        self.selection = gtk.Clipboard(selection="PRIMARY")
         
         self.__initMappings()
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
@@ -301,46 +293,27 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Sending string: %r", string)
 
         if pasteCommand is None:
-            if common.USING_QT:
-                self.sem = threading.Semaphore(0)
-                self.app.exec_in_main(self.__fillSelection, string)
-                self.sem.acquire()
-            else:
-                self.__fillSelection(string)
+            self.__fillSelection(string)
 
             focus = self.localDisplay.get_input_focus().focus
             xtest.fake_input(focus, X.ButtonPress, X.Button2)
             xtest.fake_input(focus, X.ButtonRelease, X.Button2)
 
         else:
-            if common.USING_QT:
-                self.sem = threading.Semaphore(0)
-                self.app.exec_in_main(self.__fillClipboard, string)
-                self.sem.acquire()
-            else:
-                self.__fillClipboard(string)
-
+            self.__fillClipboard(string)
             self.mediator.send_string(pasteCommand)
                 
         logger.debug("Send via clipboard done")
         
     def __fillSelection(self, string):
-        if common.USING_QT:
-            self.clipBoard.setText(string, QClipboard.Selection)
-            self.sem.release()
-        else:
-            gtk.gdk.threads_enter()
-            self.selection.set_text(string.encode("utf-8"))
-            gtk.gdk.threads_leave()
+        gtk.gdk.threads_enter()
+        self.selection.set_text(string.encode("utf-8"))
+        gtk.gdk.threads_leave()
 
     def __fillClipboard(self, string):
-        if common.USING_QT:
-            self.clipBoard.setText(string, QClipboard.Clipboard)
-            self.sem.release()
-        else:
-            gtk.gdk.threads_enter()
-            self.clipBoard.set_text(string.encode("utf-8"))
-            gtk.gdk.threads_leave()
+        gtk.gdk.threads_enter()
+        self.clipBoard.set_text(string.encode("utf-8"))
+        gtk.gdk.threads_leave()
 
     def begin_send(self):
         self.unmapCodes = []

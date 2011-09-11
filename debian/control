@@ -8,15 +8,6 @@ Standards-Version: 3.8.4
 XS-Python-Version: >= 2.5
 Homepage: http://autokey.googlecode.com/
 
-Package: autokey
-Architecture: all
-Depends: ${misc:Depends}, autokey-qt, autokey-common
-Breaks: autokey (<<0.61.4-0~0)
-Section: metapackages
-Description: dummy transitional package for autokey-qt
- This transitional package helps users transition to the autokey-qt package. Once
- this package and its dependencies are installed you can safely remove it.
-
 Package: autokey-common
 Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, wmctrl
@@ -31,28 +22,12 @@ Description: desktop automation utility - common data
  novices, as well as a scripting interface offering the full flexibility and 
  power of the Python language.
  . 
- This package contains the common data shared between the various frontends.
-
-Package: autokey-qt
-Section: kde
-Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qscintilla2, python-xlib, wmctrl, autokey-common
-Replaces: autokey (<<0.61.4-0~0)
-Breaks: autokey (<<0.61.4-0~0)
-XB-Python-Version: ${python:Versions}
-Description: desktop automation utility - QT version
- AutoKey is a desktop automation utility for Linux and X11. It allows the 
- automation of virtually any task by responding to typed abbreviations and 
- hotkeys. It offers a full-featured GUI that makes it highly accessible for 
- novices, as well as a scripting interface offering the full flexibility and 
- power of the Python language.
- . 
- This package contains the QT frontend.
+ This package contains the common data.
 
 Package: autokey-gtk
 Section: gnome
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gtksourceview2, python-glade2, python-xlib, python-notify, wmctrl, autokey-common
+Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gtksourceview2, python-glade2, python-xlib, python-notify, autokey-common
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
 XB-Python-Version: ${python:Versions}

@@ -20,10 +20,7 @@ import time, logging, threading, traceback
 import common
 from iomediator import Key, IoMediator
 from configmanager import *
-if common.USING_QT:
-    from qtui.popupmenu import *
-else:
-    from gtkui.popupmenu import *
+from gtkui.popupmenu import *
 import scripting, model
 
 logger = logging.getLogger("service")
@@ -382,13 +379,8 @@ class ScriptRunner:
         self.scope["system"] = scripting.System()
         self.scope["window"] = scripting.Window(mediator)
         self.scope["engine"] = scripting.Engine(app.configManager, self)
-
-        if common.USING_QT:
-            self.scope["dialog"] = scripting.QtDialog()
-            self.scope["clipboard"] = scripting.QtClipboard(app)
-        else:
-            self.scope["dialog"] = scripting.GtkDialog()
-            self.scope["clipboard"] = scripting.GtkClipboard(app)
+        self.scope["dialog"] = scripting.GtkDialog()
+        self.scope["clipboard"] = scripting.GtkClipboard(app)
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)

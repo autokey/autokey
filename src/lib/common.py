@@ -39,8 +39,6 @@ CONFIG_WINDOW_TITLE = "AutoKey"
 ICON_FILE = "/usr/share/pixmaps/akicon.png"
 ICON_FILE_GRAYSCALE = "/usr/share/pixmaps/akicon-status.png"
 
-USING_QT = True
-
 # Misc
 DOMAIN_SOCKET_PATH = "/var/run/autokey-daemon"
 PACKET_SIZE = 32

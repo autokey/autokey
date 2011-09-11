@@ -6,7 +6,6 @@ usr/lib/python*/*-packages/autokey/__init__.py
 usr/lib/python*/*-packages/autokey/interface.py
 usr/lib/python*/*-packages/autokey/iomediator.py
 usr/lib/python*/*-packages/autokey/model.py
-usr/lib/python*/*-packages/autokey/nogui.py
 usr/lib/python*/*-packages/autokey/scripting.py
 usr/lib/python*/*-packages/autokey/service.py
 usr/lib/python*/*-packages/autokey-*.egg-info
