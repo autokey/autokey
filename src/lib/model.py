@@ -15,18 +15,30 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
+import re, os, os.path, glob
 from configmanager import *
 from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from scripting import Store
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
+JSON_SECTION_HEADER = "### Begin JSON Data - do not remove this header ###\n"
+JSON_SECTION_FOOTER = "### End JSON Data - do not remove this footer ###\n"
 
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
         return jsonData[key]
     else:
         return default
+    
+def get_safe_path(string):
+    initialPath = ''.join([char for char in string if char.isalnum() or char in " ./"])
+    path = initialPath
+    n = 1
+    while os.path.exists(path):
+        path = initialPath + str(n)
+        n += 1
+        
+    return path
 
 class AbstractAbbreviation:
     """
@@ -240,7 +252,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     with an abbreviation or hotkey.
     """
     
-    def __init__(self, title, showInTrayMenu=False):
+    def __init__(self, title, showInTrayMenu=False, path=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
@@ -251,39 +263,94 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.usageCount = 0
         self.showInTrayMenu = showInTrayMenu
         self.parent = None
+        self.path = path
+        
+    def build_path(self, baseName=None):
+        if baseName is None:
+            baseName = self.title
+            
+        if self.parent is not None:
+            self.path = get_safe_path(self.parent.path + '/' + baseName)
+        else:
+            self.path = get_safe_path(CONFIG_DEFAULT_FOLDER + '/' + baseName)
+    
+    def persist(self):
+        if self.path is None:
+            self.build_path()
+        
+        if not os.path.exists(self.path):
+            os.mkdir(self.path)
+        
+        with open(self.path + "/.folder.json", 'w') as outFile:
+            json.dump(self.get_serializable(), outFile, indent=4)
 
     def get_serializable(self):
         d = {
             "type": "folder",
             "title": self.title,
-            "folders": [folder.get_serializable() for folder in self.folders],
-            "items": [item.get_serializable() for item in self.items],
+            #"folders": [folder.get_serializable() for folder in self.folders],
+            #"items": [item.get_serializable() for item in self.items],
             "modes": self.modes,
             "usageCount": self.usageCount,
             "showInTrayMenu": self.showInTrayMenu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
-            "filter": AbstractWindowFilter.get_serializable(self)
+            "filter": AbstractWindowFilter.get_serializable(self),
+            #"isTopLevel": self.isTopLevel
             }
         return d
-
+    
+    def load(self, parent=None):
+        if os.path.exists(self.path + "/.folder.json"):
+            with open(self.path + "/.folder.json", 'r') as inFile:
+                data = json.load(inFile)
+            
+            self.load_from_serialized(data, parent)
+        else:
+            self.title = os.path.basename(self.path)
+        
+        self.load_children()
+        
+    def load_children(self):
+        entries = glob.glob(self.path + "/*")
+        self.folders = []
+        self.items = []
+        
+        for entryPath in entries:  
+            #entryPath = self.path + '/' + entry
+            if os.path.isdir(entryPath):
+                f = Folder("", path=entryPath)
+                f.load(self)
+                self.folders.append(f)
+                
+            if os.path.isfile(entryPath):
+                i = None
+                if entryPath.endswith(".txt"):
+                    i = Phrase("", "", path=entryPath)
+                elif entryPath.endswith(".py"):
+                    i = Script("", "", path=entryPath)
+                
+                if i is not None:
+                    i.load(self)
+                    self.items.append(i)
+                
     def load_from_serialized(self, data, parent):
         self.title = data["title"]
-        self.folders = []
-        for folderData in data["folders"]:
-            f = Folder("")
-            f.load_from_serialized(folderData, self)
-            self.folders.append(f)
+        
+        #for folderData in data["folders"]:
+        #    f = Folder("")
+        #    f.load_from_serialized(folderData, self)
+        #    self.folders.append(f)
             
-        self.items = []
-        for itemData in data["items"]:
-            if itemData["type"] == "phrase":
-                i = Phrase("", "")
-            else:
-                i = Script("", "")
+        
+        #for itemData in data["items"]:
+        #    if itemData["type"] == "phrase":
+        #        i = Phrase("", "")
+        #    else:
+        #        i = Script("", "")
 
-            i.load_from_serialized(itemData, self)
-            self.items.append(i)
+        #    i.load_from_serialized(itemData, self)
+        #    self.items.append(i)
         
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
@@ -293,6 +360,29 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
+        
+    def rebuild_path(self):
+        if self.path is not None:
+            oldName = self.path
+            self.path = get_safe_path(os.path.split(oldName)[0] + '/' + self.title)
+            
+            self.update_children()
+            
+            os.rename(oldName, self.path)
+        else:
+            self.build_path()     
+            
+    def update_children(self):   
+        for childFolder in self.folders:
+            childFolder.build_path(os.path.basename(childFolder.path))
+            childFolder.update_children()
+            
+        for childItem in self.items:
+            childItem.build_path(os.path.basename(childItem.path))        
+        
+    def remove_data(self):
+        if self.path is not None:
+            shutil.rmtree(self.path)
         
     def get_tuple(self):
         return ("folder", self.title, self.get_abbreviation(), self.get_hotkey_string(), self)
@@ -423,7 +513,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     Encapsulates all data and behaviour for a phrase.
     """
     
-    def __init__(self, description, phrase):
+    def __init__(self, description, phrase, path=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
@@ -437,12 +527,28 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = None
         self.showInTrayMenu = False
         self.sendMode = SendMode.KEYBOARD
+        self.path = path
+
+    def build_path(self, baseName=None):        
+        if baseName is None:
+            baseName = self.description + ".txt"
+        self.path = get_safe_path(self.parent.path + '/' + baseName)
+        
+    def persist(self):
+        if self.path is None:
+            self.build_path()
+                
+        with open(self.path, "w") as outFile:
+            outFile.write(JSON_SECTION_HEADER)
+            outFile.write(json.dumps(self.get_serializable(), indent=4) + '\n')
+            outFile.write(JSON_SECTION_FOOTER + '\n')
+            outFile.write(self.phrase)
 
     def get_serializable(self):
         d = {
             "type": "phrase",
             "description": self.description,
-            "phrase": self.phrase,
+            #"phrase": self.phrase,
             "modes": self.modes,
             "usageCount": self.usageCount,
             "prompt": self.prompt,
@@ -456,10 +562,38 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             }
         return d
         
+    def load(self, parent):
+        with open(self.path, "r") as inFile:
+            jsonData = []
+            phraseData = []
+            inJson = False
+            
+            for line in inFile:        
+                if line == JSON_SECTION_HEADER: 
+                    inJson = True
+                    continue
+    
+                if line == JSON_SECTION_FOOTER:
+                    inJson = False
+                    continue
+                
+                if inJson:
+                    jsonData.append(line)
+                else:
+                    phraseData.append(line)
+            
+        if jsonData:
+            data = ''.join(jsonData)
+            self.load_from_serialized(json.loads(data), parent)
+            
+        else:
+            self.description = os.path.basename(self.path)[:-4]
+            
+        self.phrase = ''.join(phraseData[1:]) # drop extra newline at start
 
     def load_from_serialized(self, data, parent):
         self.description = data["description"]
-        self.phrase = data["phrase"]
+        #self.phrase = data["phrase"]
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
@@ -471,6 +605,18 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
+        
+    def rebuild_path(self):
+        if self.path is not None:
+            oldName = self.path
+            self.build_path()
+            os.rename(oldName, self.path)
+        else:
+            self.build_path()  
+        
+    def remove_data(self):
+        if self.path is not None:
+            os.remove(self.path)
         
     def copy(self, thePhrase):
         self.description = thePhrase.description
@@ -650,7 +796,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     Encapsulates all data and behaviour for a script.
     """
     
-    def __init__(self, description, code):
+    def __init__(self, description, code, path=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
@@ -663,12 +809,30 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.omitTrigger = False
         self.parent = None
         self.showInTrayMenu = False
+        self.path = path
+        
+    def build_path(self, baseName=None):        
+        if baseName is None:
+            baseName = self.description + ".py"
+        self.path = get_safe_path(self.parent.path + '/' + baseName)
+        
+    def persist(self):
+        if self.path is None:
+            self.build_path()
+                        
+        with open(self.path, "w") as outFile:
+            outFile.write(JSON_SECTION_HEADER)
+            data = json.dumps(self.get_serializable(), indent=4).split('\n')
+            data = ['#' + line for line in data]
+            outFile.write('\n'.join(data) + '\n')
+            outFile.write(JSON_SECTION_FOOTER + '\n')
+            outFile.write(self.code)
 
     def get_serializable(self):
         d = {
             "type": "script",
             "description": self.description,
-            "code": self.code,
+            #"code": self.code,
             "store": self.store,
             "modes": self.modes,
             "usageCount": self.usageCount,
@@ -681,10 +845,39 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             }
         return d
 
+    def load(self, parent):
+        with open(self.path, "r") as inFile:
+            jsonData = []
+            scriptData = []
+            inJson = False
+            
+            for line in inFile:        
+                if line == JSON_SECTION_HEADER: 
+                    inJson = True
+                    continue
+    
+                if line == JSON_SECTION_FOOTER:
+                    inJson = False
+                    continue
+                
+                if inJson:
+                    jsonData.append(line[1:])
+                else:
+                    scriptData.append(line)
+            
+        if jsonData:
+            data = ''.join(jsonData)
+            self.load_from_serialized(json.loads(data), parent)
+            
+        else:
+            self.description = os.path.basename(self.path)[:-3]
+            
+        self.code = ''.join(scriptData[1:]) # drop extra newline at start
+                
 
     def load_from_serialized(self, data, parent):
         self.description = data["description"]
-        self.code = data["code"]
+        #self.code = data["code"]
         self.store = Store(data["store"])
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
@@ -695,6 +888,18 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
+        
+    def rebuild_path(self):
+        if self.path is not None:
+            oldName = self.path
+            self.build_path()
+            os.rename(oldName, self.path)
+        else:
+            self.build_path()         
+        
+    def remove_data(self):
+        if self.path is not None:
+            os.remove(self.path)
 
     def copy(self, theScript):
         self.description = theScript.description

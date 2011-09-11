@@ -166,7 +166,7 @@ class SettingsDialog:
             self.showPopupDlg.save(popupHotkey)
             app.hotkey_created(popupHotkey)
             
-        self.configManager.config_altered()
+        self.configManager.config_altered(True)
         
         self.hide()
         self.destroy()

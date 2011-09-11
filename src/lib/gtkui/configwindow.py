@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging, sys, os, webbrowser, re
-import gtk, gtk.glade, gtksourceview2
+import gtk, gtk.glade, gtksourceview2, pango
 
 import gettext
 import locale
@@ -35,7 +35,7 @@ from autokey.configmanager import *
 from autokey.iomediator import Recorder
 from autokey import model, common
 
-CONFIG_WINDOW_TITLE = _(common.CONFIG_WINDOW_TITLE + " - AutoKey")
+CONFIG_WINDOW_TITLE = "AutoKey"
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
@@ -46,6 +46,19 @@ def get_ui(fileName):
     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
     builder.add_from_file(uiFile)
     return builder
+
+def set_linkbutton(button, path):
+    button.set_sensitive(True)
+    
+    if path.startswith(CONFIG_DEFAULT_FOLDER):
+        text = path.replace(CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
+    else:
+        text = path.replace(os.path.expanduser("~"), "~")
+    
+    button.set_label(text)
+    button.set_uri("file://" + path)
+    label = button.get_child()
+    label.set_ellipsize(pango.ELLIPSIZE_START)
 
 class SettingsWidget:
 	
@@ -222,6 +235,9 @@ class FolderPage:
         builder.connect_signals(self)
         
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
+        self.linkButton = builder.get_object("linkButton")
+        label = self.linkButton.get_child()
+        label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
         
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -231,14 +247,29 @@ class FolderPage:
         self.currentFolder = theFolder
         self.showInTrayCheckbox.set_active(theFolder.showInTrayMenu)
         self.settingsWidget.load(theFolder)
+        
+        if self.is_new_item():
+            self.linkButton.set_sensitive(False)
+            self.linkButton.set_label(_("(Unsaved)"))
+        else:
+            set_linkbutton(self.linkButton, self.currentFolder.path)
     
     def save(self):
         self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.get_active()
         self.settingsWidget.save()
+        self.currentFolder.persist()
+        set_linkbutton(self.linkButton, self.currentFolder.path)
+        
+        return not self.currentFolder.path.startswith(CONFIG_DEFAULT_FOLDER)
         
     def set_item_title(self, newTitle):
         self.currentFolder.title = newTitle.decode("utf-8")
-        #self.titleEntry.set_text(newTitle) # TODO testing remove me later
+        
+    def rebuild_item_path(self):
+        self.currentFolder.rebuild_path()
+        
+    def is_new_item(self):
+        return self.currentFolder.path is None
     
     def reset(self):
         self.load(self.currentFolder)
@@ -251,70 +282,7 @@ class FolderPage:
     
     def set_dirty(self):
         self.parentWindow.set_dirty(True)
-        
-        
-class OldPhrasePage:
-    
-    def __init__(self, parentWindow):
-        self.parentWindow = parentWindow
-        builder = get_ui("phrasepage.xml")
-        self.ui = builder.get_object("phrasepage")
-        builder.connect_signals(self)
-        
-        self.descriptionEntry = builder.get_object("descriptionEntry")
-        self.phraseText = builder.get_object("phraseText")
-        self.promptCheckbox = builder.get_object("promptCheckbox")
-        self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
 
-        vbox = builder.get_object("settingsVbox")
-        self.settingsWidget = SettingsWidget(parentWindow)
-        vbox.pack_start(self.settingsWidget.ui)
-
-    def load(self, thePhrase):
-        self.currentPhrase = thePhrase
-        self.descriptionEntry.set_text(thePhrase.description.encode("utf-8"))
-        buffer = gtk.TextBuffer()
-        buffer.set_text(thePhrase.phrase.encode("utf-8"))
-        buffer.connect("changed", self.on_modified)
-        self.phraseText.set_buffer(buffer)
-        self.promptCheckbox.set_active(thePhrase.prompt)
-        self.showInTrayCheckbox.set_active(thePhrase.showInTrayMenu)
-        self.settingsWidget.load(thePhrase)
-    
-    def save(self):
-        self.currentPhrase.description = self.descriptionEntry.get_text().decode("utf-8")
-    
-        buffer = self.phraseText.get_buffer()
-        self.currentPhrase.phrase = buffer.get_text(buffer.get_start_iter(),
-                                                        buffer.get_end_iter()).decode("utf-8")
-    
-        self.currentPhrase.prompt = self.promptCheckbox.get_active()
-        self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.get_active()
-        
-        self.settingsWidget.save()
-    
-    def reset(self):
-        self.load(self.currentPhrase)
-        
-    def validate(self):
-        if not validate(not EMPTY_FIELD_REGEX.match(self.descriptionEntry.get_text()),
-                         _("The phrase description can't be empty"), self.descriptionEntry, self.parentWindow.ui):
-            return False
-        
-        buffer = self.phraseText.get_buffer()
-        text = buffer.get_text(buffer.get_start_iter(), buffer.get_end_iter())
-        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The phrase content can't be empty"), self.phraseText,
-                         self.parentWindow.ui):
-            return False
-        
-        return True
-        
-    def on_modified(self, widget, data=None):
-        self.set_dirty()
-    
-    def set_dirty(self):
-        self.parentWindow.set_dirty(True)
-        
 
 class ScriptPage:
     
@@ -331,6 +299,9 @@ class ScriptPage:
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
+        self.linkButton = builder.get_object("linkButton")
+        label = self.linkButton.get_child()
+        label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -359,19 +330,34 @@ class ScriptPage:
         self.promptCheckbox.set_active(theScript.prompt)
         self.showInTrayCheckbox.set_active(theScript.showInTrayMenu)
         self.settingsWidget.load(theScript)
+        
+        if self.is_new_item():
+            self.linkButton.set_sensitive(False)
+            self.linkButton.set_label(_("(Unsaved)"))
+        else:
+            set_linkbutton(self.linkButton, self.currentItem.path)
     
     def save(self):
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(),
-                                                        self.buffer.get_end_iter()).decode("utf-8")
+                                    self.buffer.get_end_iter()).decode("utf-8")
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
         
         self.settingsWidget.save()
+        self.currentItem.persist()
+        set_linkbutton(self.linkButton, self.currentItem.path)
+        
+        return False
         
     def set_item_title(self, newTitle):
         self.currentItem.description = newTitle.decode("utf-8")
 
+    def rebuild_item_path(self):
+        self.currentItem.rebuild_path()
+        
+    def is_new_item(self):
+        return self.currentItem.path is None
     
     def reset(self):
         self.load(self.currentItem)
@@ -447,6 +433,8 @@ class PhrasePage(ScriptPage):
         self.sendModeCombo.connect("changed", self.on_modified)
         sendModeHbox = builder.get_object("sendModeHbox")
         sendModeHbox.pack_start(self.sendModeCombo, False, False)
+        
+        self.linkButton = builder.get_object("linkButton")
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -482,6 +470,12 @@ class PhrasePage(ScriptPage):
         self.promptCheckbox.set_active(thePhrase.prompt)
         self.showInTrayCheckbox.set_active(thePhrase.showInTrayMenu)
         self.settingsWidget.load(thePhrase)
+        
+        if self.is_new_item():
+            self.linkButton.set_sensitive(False)
+            self.linkButton.set_label(_("(Unsaved)"))
+        else:
+            set_linkbutton(self.linkButton, self.currentItem.path)
 
         l = model.SEND_MODES.keys()
         l.sort()
@@ -500,6 +494,9 @@ class PhrasePage(ScriptPage):
         self.currentItem.sendMode = model.SEND_MODES[self.sendModeCombo.get_active_text()]
         
         self.settingsWidget.save()
+        self.currentItem.persist()
+        set_linkbutton(self.linkButton, self.currentItem.path)
+        return False
 
     def validate(self):
         text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).decode("utf-8")
@@ -520,6 +517,7 @@ class ConfigWindow:
         builder = get_ui("mainwindow.xml")
         self.ui = builder.get_object("mainwindow")
         builder.connect_signals(self)
+        self.ui.set_title(CONFIG_WINDOW_TITLE)
         
         # Menus and Actions
         self.uiManager = gtk.UIManager()
@@ -535,8 +533,6 @@ class ConfigWindow:
                 ("new-phrase", gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
                 ("new-script", gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
                 ("save", gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
-                ("import", None, _("_Import"), None, _("Import into selected folder"), self.on_import),
-                ("export", None, _("_Export"), None, _("Export selected items"), self.on_export),                                
                 ("close-window", gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
                 ("quit", gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
                 ("Edit", None, _("_Edit")),
@@ -623,10 +619,10 @@ class ConfigWindow:
             self.uiManager.get_widget("/MenuBar/Edit/record").set_active(False)
             self.recorder.stop()
             
-    def save_completed(self):
+    def save_completed(self, persistGlobal):
         self.saveButton.set_sensitive(False)
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)        
-        self.app.config_altered()
+        self.app.config_altered(persistGlobal)
         
     def set_dirty(self, dirty):
         self.dirty = dirty
@@ -655,8 +651,6 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
         self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
-        self.uiManager.get_action("/MenuBar/File/import").set_sensitive(canCreate)
-        self.uiManager.get_action("/MenuBar/File/export").set_sensitive(enableAny)
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/cut-item").set_sensitive(enableAny)
@@ -686,8 +680,8 @@ class ConfigWindow:
     
     def on_save(self, widget, data=None):
         if self.__getCurrentPage().validate():
-            self.__getCurrentPage().save()
-            self.save_completed()
+            persistGlobal = self.__getCurrentPage().save()
+            self.save_completed(persistGlobal)
             self.set_dirty(False)
             
             self.refresh_tree()
@@ -713,7 +707,7 @@ class ConfigWindow:
             self.hide()
             self.destroy()
             self.app.configWindow = None
-            self.app.config_altered()
+            self.app.config_altered(True)
             
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
@@ -724,22 +718,42 @@ class ConfigWindow:
     # File Menu
     
     def on_new_topfolder(self, widget, data=None):
-        self.__createFolder(None)
+        dlg = gtk.FileChooserDialog(_("Create a new folder"), self.ui)
+        dlg.set_action(gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
+        dlg.set_local_only(True)
+        dlg.add_buttons(_("Use Default"), gtk.RESPONSE_NONE, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK)
+        
+        response = dlg.run()
+        if response == gtk.RESPONSE_OK:
+            path = dlg.get_filename()
+            self.__createFolder(None, path)
+        elif response == gtk.RESPONSE_NONE:
+            self.__createFolder(None)
+            
+        dlg.destroy()
         
     def on_new_folder(self, widget, data=None):
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
         parentIter = theModel[selectedPaths[0]].iter
         self.__createFolder(parentIter)
         
-    def __createFolder(self, parentIter):
+    def __createFolder(self, parentIter, path=None):
         theModel = self.treeView.get_model()
-        newFolder = model.Folder("New Folder")   
+        
+        if path is None:
+            title = _("New Folder")
+        else:
+            title = os.path.basename(path)
+        
+        newFolder = model.Folder(title, path=path)   
         newIter = theModel.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().unselect_all()
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
-        self.on_rename(self.treeView)
+        
+        if path is None:
+            self.on_rename(self.treeView)
         
     def on_new_phrase(self, widget, data=None):
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
@@ -763,82 +777,6 @@ class ConfigWindow:
         self.on_tree_selection_changed(self.treeView)
         self.on_rename(self.treeView)
 
-    def on_import(self, widget, data=None):
-        dlg = gtk.FileChooserDialog(_("Import items"), self.ui, gtk.FILE_CHOOSER_ACTION_OPEN,
-                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))
-        dlg.set_default_response(gtk.RESPONSE_OK)
-        if dlg.run() == gtk.RESPONSE_OK:
-            paths = dlg.get_filenames()    
-            dlg.destroy()
-            targetFolder = self.__getTreeSelection()[0]
-            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = theModel[selectedPaths[0]].iter
-            newIters = []                    
-            imported = False
-
-            
-            for path in paths:
-                try:
-                    items = load_items(path, self.app.configManager)
-
-                    for item in items:
-                        newIter = theModel.append_item(item, parentIter)
-                        if isinstance(item, model.Folder):
-                            theModel.populate_store(newIter, item)    
-                        newIters.append(newIter)                    
-                    
-                    imported = True
-                except Exception, e:
-                    _logger.exception("Error while importing data from %s", path)
-                    errDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK)
-                    errDlg.set_markup(_("Error while importing data from %s.") % path)
-                    errDlg.format_secondary_text(str(e))
-                    errDlg.run()
-                    errDlg.destroy()
-                    
-            if imported:
-                self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
-                self.treeView.get_selection().unselect_all()
-                self.treeView.get_selection().select_iter(newIters[0])
-                self.cutCopiedItems = []
-                self.on_tree_selection_changed(self.treeView)        
-                for iter in newIters:
-                    self.treeView.get_selection().select_iter(iter)
-                self.app.config_altered()
-                infoDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-                infoDlg.set_markup(_("The files were imported successfully."))
-                infoDlg.run()
-                infoDlg.destroy()
-        else:
-            dlg.destroy()
-        
-    def on_export(self, widget, data=None):
-        dlg = gtk.FileChooserDialog(_("Export items"), self.ui, gtk.FILE_CHOOSER_ACTION_SAVE,
-                                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK))  
-        dlg.set_default_response(gtk.RESPONSE_OK)      
-        if dlg.run() == gtk.RESPONSE_OK:
-            path = dlg.get_filename()    
-            dlg.destroy()
-            sourceObjects = self.__getTreeSelection()
-            
-            try:
-                export_items(sourceObjects, path)
-                infoDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_INFO, gtk.BUTTONS_OK)
-                infoDlg.set_markup(_("The items were exported successfully."))
-                infoDlg.run()
-                infoDlg.destroy()                
-            except Exception, e:
-                _logger.exception("Error while exporting data.")            
-                errDlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR, gtk.BUTTONS_OK)
-                errDlg.set_markup(_("Error while exporting data."))
-                errDlg.format_secondary_text(str(e))
-                errDlg.run()
-                errDlg.destroy()
-    
-        else:
-            dlg.destroy()             
-           
-        
     # Edit Menu
 
     def on_cut_item(self, widget, data=None):
@@ -858,7 +796,7 @@ class ConfigWindow:
             self.treeView.get_selection().select_iter(model.get_iter_root())
             self.on_tree_selection_changed(self.treeView)
             
-        self.app.config_altered()    
+        self.app.config_altered(True)    
     
     def on_copy_item(self, widget, data=None):
         sourceObjects = self.__getTreeSelection()
@@ -889,7 +827,7 @@ class ConfigWindow:
         self.on_tree_selection_changed(self.treeView)        
         for iter in newIters:
             self.treeView.get_selection().select_iter(iter)        
-        self.app.config_altered()
+        self.app.config_altered(True)
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
@@ -923,7 +861,7 @@ class ConfigWindow:
                 self.treeView.get_selection().select_iter(theModel.get_iter_root())
                 self.on_tree_selection_changed(self.treeView)
             
-            self.app.config_altered()
+            self.app.config_altered(True)
             
     def __removeItem(self, model, item):
         #selection = self.treeView.get_selection()
@@ -1119,7 +1057,7 @@ class ConfigWindow:
         for iter in newIters:
             selection.select_iter(iter)
         self.on_tree_selection_changed(self.treeView)
-        self.app.config_altered()
+        self.app.config_altered(True)
         
     def on_drag_drop(self, widget, drag_context, x, y, timestamp):
         drop_info = widget.get_dest_row_at_pos(x, y)
@@ -1145,8 +1083,18 @@ class ConfigWindow:
         if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
                          None, self.ui):
             self.__getCurrentPage().set_item_title(newText)
+            isNew = self.__getCurrentPage().is_new_item()
+            
+            if not isNew:
+                msg = _("Do you want to update the file system name of this item?")
+                dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+                if dlg.run() == gtk.RESPONSE_YES:
+                    self.__getCurrentPage().rebuild_item_path()
+                dlg.destroy()
+            
+            persistGlobal = self.__getCurrentPage().save()
             self.refresh_tree()
-            self.app.config_altered()
+            self.app.config_altered(persistGlobal)
         else:
             self.on_edit_cell(self.treeView)
             
@@ -1300,6 +1248,7 @@ class AkTreeModel(gtk.TreeStore):
             
     def remove_item(self, iter):
         item = self.get_value(iter, self.OBJECT_COLUMN)
+        item.remove_data()
         if item.parent is None:
             del self.folders[item.title]
         else:

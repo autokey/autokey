@@ -8,10 +8,6 @@
                         <menuitem action="new-script" />
                     </menu>
 			<menuitem action="save" />
-			<separator />
-			<menuitem action="import" />
-			<menuitem action="export" />
-			<separator />			
 			<menuitem action="close-window" />
                         <separator />
 			<menuitem action="quit" />

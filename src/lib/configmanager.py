@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, os.path, shutil, logging, pickle
+import os, os.path, shutil, logging, pickle, glob
 import iomediator, interface, common
 
 try:
@@ -26,8 +26,9 @@ except:
 
 _logger = logging.getLogger("config-manager")
 
-CONFIG_FILE_OLD = os.path.expanduser("~/.config/autokey/autokey.bin")
-CONFIG_FILE = os.path.expanduser("~/.config/autokey/autokey.json")
+CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+CONFIG_FILE = os.path.join(CONFIG_DIR, "autokey.json")
+CONFIG_DEFAULT_FOLDER = os.path.join(CONFIG_DIR, "data")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
@@ -57,112 +58,11 @@ NOTIFICATION_ICON = "notificationIcon"
 #RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
 #RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
-REPLACE_STRINGS = [("iautokey.configurationmanager", "iautokey.configmanager"),
-                  ("ConfigurationManager", "ConfigManager"),
-                  ("iautokey.phrase", "iautokey.model"),
-                  ("PhraseFolder", "Folder"),
-                  ("S'phrases'", "S'items'"),
-                  ("S'allPhrases'", "S'allItems'"),
-                  ("S'hotKeyPhrases'", "S'hotKeys'"),
-                  ("S'abbrPhrases'", "S'abbreviations'")]
-                  
-                  
-def export_items(items, path):
-    """
-    Export the given list of items (phrases, folders, scripts) to the specified path
-    """
-    outFile = open(path, "w")
-    outList = [item.get_serializable() for item in items]
-    json.dump(outList, outFile, indent=4)
-    outFile.close()
-    _logger.debug("Finished persisting items to file at %s - no errors", path)
-    
-def load_items(path, configManager):
-    """
-    Deserialize a list of items (phrases, folders, scripts) from the specified file
-    """
-    pFile = open(path, 'r')
-    data = json.load(pFile)
-    pFile.close()
-    result = []
-    
-    for item in data:
-        if item["type"] == "folder":
-            i = Folder("")
-            i.load_from_serialized(item, None)
-            check_folder(i, configManager)
-        elif item["type"] == "phrase":
-            i = Phrase("", "")
-            i.load_from_serialized(item, None)
-            check_item(i, configManager)
-        else:
-            i = Script("", "")
-            i.load_from_serialized(item, None)
-            check_item(i, configManager)
-        
-        result.append(i)
-    
-    return result
-    
-def check_folder(folder, configManager):
-    check_item(folder, configManager)
-    for subFolder in folder.folders:
-        check_folder(subFolder, configManager)
-        
-    for item in folder.items:
-        check_item(item, configManager)
-        
-def check_item(item, configManager):
-    if TriggerMode.ABBREVIATION in item.modes:
-        unique, msg = configManager.check_abbreviation_unique(item.abbreviation, item)
-        if not unique:
-            item.modes.remove(TriggerMode.ABBREVIATION)
-    if TriggerMode.HOTKEY in item.modes:
-        unique, msg = configManager.check_hotkey_unique(item.modifiers, item.hotKey, item)
-        if not unique:
-            item.modes.remove(TriggerMode.HOTKEY)
-            
-
-def load_legacy_config(autoKeyApp, hadError=False):
-    _logger.info("Loading config from legacy file: " + CONFIG_FILE_OLD)
-    pFile = open(CONFIG_FILE_OLD, 'rb')
-
-    try:
-        settings, configManager = pickle.load(pFile)
-    except EOFError:
-        if hadError:
-            _logger.error("Error while loading configuration. Cannot recover.")
-            raise
-
-        _logger.error("Error while loading configuration. Backup has been restored.")
-        os.remove(CONFIG_FILE_OLD)
-        shutil.copy2(CONFIG_FILE_OLD + '~', CONFIG_FILE_OLD)
-        return load_legacy_config(autoKeyApp, True)
-    except ImportError:
-        pFile.close()
-        upgrade_config_file()
-        return load_legacy_config(autoKeyApp)
-
-    pFile.close()
-    apply_settings(settings)
-    configManager.app = autoKeyApp
-
-    if not hasattr(configManager, 'VERSION'):
-        configManager.VERSION = "0.60.0"
-
-    if configManager.VERSION < ConfigManager.CLASS_VERSION:
-        configManager.upgrade()
-
-    autoKeyApp.init_global_hotkeys(configManager)
-
-    _logger.info("Successfully loaded configuration file")
-    _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
-    return configManager
-
 def get_config_manager(autoKeyApp, hadError=False):
-    if os.path.exists(CONFIG_FILE_OLD) and not os.path.exists(CONFIG_FILE):
-        return load_legacy_config(autoKeyApp)
-    elif os.path.exists(CONFIG_FILE):
+    if not os.path.exists(CONFIG_DEFAULT_FOLDER):
+        os.mkdir(CONFIG_DEFAULT_FOLDER)
+        
+    if os.path.exists(CONFIG_FILE):
         _logger.info("Loading config from existing file: " + CONFIG_FILE)
         pFile = open(CONFIG_FILE, 'r')
 
@@ -186,12 +86,13 @@ def get_config_manager(autoKeyApp, hadError=False):
 
         autoKeyApp.init_global_hotkeys(configManager)
 
-        _logger.info("Successfully loaded configuration file")
+        _logger.info("Successfully loaded configuration")
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
         return configManager
     else:
-        _logger.info("No configuration file found - creating new one")
+        _logger.info("No configuration found - creating new one")
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
+        # TODO copy default set of scripts and phrases from shared
         c = ConfigManager(autoKeyApp)
         autoKeyApp.init_global_hotkeys(c)
         return c
@@ -215,25 +116,6 @@ def save_config(configManager):
     finally:
         outFile.close()
         
-def upgrade_config_file():
-    """
-    Upgrade a v0.5x config file to v0.6x
-    """
-    _logger.info("Upgrading v0.5x config file to v0.6x")
-    shutil.move(CONFIG_FILE_OLD, CONFIG_FILE_OLD + "-0.5x")
-    infile = open(CONFIG_FILE_OLD + "-0.5x", 'rb')
-    outfile = open(CONFIG_FILE_OLD, 'wb')
-    
-    for line in infile:
-        if len(line) > 5:
-            for s, t in REPLACE_STRINGS:
-                line = line.replace(s, t)
-        outfile.write(line)
-        
-    infile.close()
-    outfile.close()
-    
-    
 def apply_settings(settings):
     """
     Allows new settings to be added without users having to lose all their configuration
@@ -269,13 +151,6 @@ def _chooseInterface():
         
     
     return iomediator.X_EVDEV_INTERFACE
-
-class ImportException(Exception):
-    """
-    Exception raised when an error occurs during the import of an abbreviations file.
-    """
-    pass
-
 
 class ConfigManager:
     """
@@ -333,16 +208,25 @@ class ConfigManager:
         
         self.showPopupHotkey = GlobalHotkey()
         self.showPopupHotkey.enabled = False
+        
+        for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+            if os.path.isdir(entryPath):
+                f = Folder("", path=entryPath)
+                f.load(None)
+                self.folders[f.title] = f
 
         if configData is not None:
             self.load_from_serialized(configData)
+        
+        if self.folders:
             return
-
+    
         # --- Code below here only executed if no persisted config data provided
         
         myPhrases = Folder(u"My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
         myPhrases.set_modes([TriggerMode.HOTKEY])
+        myPhrases.persist()
         
         f = Folder(u"Addresses")
         adr = Phrase(u"Home Address", u"22 Avenue Street\nBrisbane\nQLD\n4000")
@@ -350,6 +234,8 @@ class ConfigManager:
         adr.set_abbreviation(u"adr")
         f.add_item(adr)
         myPhrases.add_folder(f)        
+        f.persist()
+        adr.persist()
 
         p = Phrase(u"First phrase", u"Test phrase number one!")
         p.set_modes([TriggerMode.PREDICTIVE])
@@ -359,8 +245,10 @@ class ConfigManager:
         myPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
         myPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
         self.folders[myPhrases.title] = myPhrases
+        [p.persist() for p in myPhrases.items]
         
         sampleScripts = Folder(u"Sample Scripts")
+        sampleScripts.persist()
         dte = Script("Insert Date", "")
         dte.code = """output = system.exec_command("date")
 keyboard.send_keys(output)"""
@@ -407,18 +295,24 @@ engine.create_phrase(folder, title, contents)"""
         sampleScripts.add_item(phrasec)
         
         self.folders[sampleScripts.title] = sampleScripts
-        
+        [s.persist() for s in sampleScripts.items]
+
         # TODO - future functionality
         self.recentEntries = []
         
-        self.config_altered()
+        self.config_altered(True)
 
     def get_serializable(self):
+        extraFolders = []
+        for folder in self.folders.values():
+            if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
+                extraFolders.append(folder.path)
+        
         d = {
             "version": self.VERSION,
             "userCodeDir": self.userCodeDir,
             "settings": ConfigManager.SETTINGS,
-            "folders": [folder.get_serializable() for folder in self.folders.values()],
+            "folders": extraFolders,
             "showPopupHotkey": self.showPopupHotkey.get_serializable(),
             "toggleServiceHotkey": self.toggleServiceHotkey.get_serializable(),
             "configHotkey": self.configHotkey.get_serializable()
@@ -430,33 +324,22 @@ engine.create_phrase(folder, title, contents)"""
         self.userCodeDir = data["userCodeDir"]
         apply_settings(data["settings"])
 
-        self.folders.clear()
-        for folderData in data["folders"]:
-            f = Folder("")
-            f.load_from_serialized(folderData, None)
+        #self.folders.clear()
+        for folderPath in data["folders"]:
+            f = Folder("", path=folderPath)
+            f.load()
             self.folders[f.title] = f
 
         self.showPopupHotkey.load_from_serialized(data["showPopupHotkey"])
         self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
         self.configHotkey.load_from_serialized(data["configHotkey"])
 
-        self.config_altered()
+        self.config_altered(False)
         
     def upgrade(self):
         _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
         upgradeDone = False
         
-        if self.VERSION < '0.60.6':
-            _logger.info("Doing upgrade to 0.60.6")
-            if not hasattr(self, "showPopupHotkey"):
-                self.showPopupHotkey = GlobalHotkey()
-                self.showPopupHotkey.set_hotkey(["<ctrl>"], " ")
-                self.showPopupHotkey.enabled = True
-                upgradeDone = True
-        if self.VERSION < '0.61.2':
-            _logger.info("Doing upgrade to 0.61.2")
-            self.userCodeDir = None
-            upgradeDone = True
         if self.VERSION < '0.70.0':
             _logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
@@ -464,15 +347,16 @@ engine.create_phrase(folder, title, contents)"""
                     item.sendMode = SendMode.KEYBOARD
             
         if upgradeDone:
-            self.config_altered()
+            self.config_altered(True)
             
-        self.VERSION = common.VERSION
-        
+        self.VERSION = common.VERSION        
             
-    def config_altered(self):
+    def config_altered(self, persistGlobal):
         """
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders. 
+        
+        @param persist: save the global configuration at the end of the process
         """
         _logger.info("Configuration changed - rebuilding in-memory structures")
         # Rebuild root folder list
@@ -508,7 +392,8 @@ engine.create_phrase(folder, title, contents)"""
         #_logger.debug("All folders: %s", self.allFolders)
         #_logger.debug("All phrases: %s", self.allItems)
         
-        save_config(self)
+        if persistGlobal:
+            save_config(self)
                     
     def __processFolder(self, parentFolder):
         for folder in parentFolder.folders:
@@ -556,24 +441,8 @@ engine.create_phrase(folder, title, contents)"""
             
                 folder.add_item(p)
                 
-            self.config_altered()
+            self.config_altered(False)
         
-    def import_legacy_settings(self, configFilePath):
-        """
-        Import an abbreviations settings file from v0.4x.x.
-        
-        @param configFilePath: full path to the abbreviations file
-        """
-        importer = LegacyImporter()
-        importer.load_config(configFilePath)        
-        folder = Folder(DEFAULT_ABBR_FOLDER)
-        
-        # Check phrases for unique abbreviations
-        for phrase in importer.phrases:
-            if not self.check_abbreviation_unique(phrase.abbreviation, phrase):
-                raise ImportException("The abbreviation '" + phrase.abbreviation + "' is already in use.")
-        return (folder, importer.phrases)
-    
     def check_abbreviation_unique(self, abbreviation, targetItem):
         """
         Checks that the given abbreviation is not already in use.
@@ -658,140 +527,6 @@ engine.create_phrase(folder, title, contents)"""
 
         return True, ""
     
-# Legacy Importer ----
-
-# Legacy configuration sections
-CONFIG_SECTION = "config"
-DEFAULTS_SECTION = "defaults"
-ABBR_SECTION = "abbr"
-
-# Legacy configuration parameters
-
-WORD_CHARS_REGEX_OPTION = "wordchars"
-IMMEDIATE_OPTION = "immediate"
-IGNORE_CASE_OPTION = "ignorecase"
-MATCH_CASE_OPTION = "matchcase"
-BACKSPACE_OPTION = "backspace"
-OMIT_TRIGGER_OPTION = "omittrigger"
-TRIGGER_INSIDE_OPTION = "triggerinside"
-
-ABBREVIATION_OPTIONS = [
-                        WORD_CHARS_REGEX_OPTION,
-                        IMMEDIATE_OPTION,
-                        IGNORE_CASE_OPTION,
-                        MATCH_CASE_OPTION,
-                        BACKSPACE_OPTION,
-                        OMIT_TRIGGER_OPTION,
-                        TRIGGER_INSIDE_OPTION
-                        ]
-
-class LegacyImporter:
-    
-    def load_config(self, configFilePath):
-        try:
-            config = configobj.ConfigObj(configFilePath, list_values=False)
-        except Exception, e:
-            raise ImportException(str(e))
-        abbrDefinitions = config[ABBR_SECTION]
-        
-        definitions = abbrDefinitions.keys()
-        definitions.sort()        
-
-        # Import default settings
-        #defaultSettings = dict(p.items(DEFAULTS_SECTION))
-        defaultSettings = config[DEFAULTS_SECTION]
-        defaultSettings[WORD_CHARS_REGEX_OPTION] = re.compile(defaultSettings[WORD_CHARS_REGEX_OPTION], re.UNICODE)
-        
-        self.__applyBooleanOption(IMMEDIATE_OPTION, defaultSettings)        
-        self.__applyBooleanOption(IGNORE_CASE_OPTION, defaultSettings)
-        self.__applyBooleanOption(MATCH_CASE_OPTION, defaultSettings)   
-        self.__applyBooleanOption(BACKSPACE_OPTION, defaultSettings)    
-        self.__applyBooleanOption(OMIT_TRIGGER_OPTION, defaultSettings)
-        self.__applyBooleanOption(TRIGGER_INSIDE_OPTION, defaultSettings)        
-        
-        # Import user-defined abbreviations as phrases        
-        self.phrases = []
-        
-        while len(definitions) > 0:
-
-            # Flush any unused options that weren't matched with an abbreviation definition
-            while '.' in definitions[0]:
-                isOption = False
-                for option in ABBREVIATION_OPTIONS:
-                    if definitions[0].endswith(option):
-                        definitions.pop(0)
-                        isOption = True
-                        break
-
-                if len(definitions) == 0:
-                    break # leave the flushing loop if no definitions remaining
-                if len(definitions) == 1 and not isOption:
-                    break # leave the flushing loop if the last remaining definition is not an option
-                    
-
-            if len(definitions) > 0:
-                self.phrases.append(self.__buildPhrase(definitions, abbrDefinitions, defaultSettings))                 
-
-    def __buildPhrase(self, definitions, abbrDefinitions, defaults):
-        """
-        Create a new Phrase instance for the abbreviation definition at the start of the list
-        
-        @param definitions: list of definitions yet to be processed, with the abbreviation definition
-        to be instantiated at the start of the list
-        @param abbrDefinitions: dictionary of all abbreviation and config definitions
-        """
-        ownSettings = {}
-        definition = definitions.pop(0)
-        phraseText = abbrDefinitions[definition]
-        startString = definition + '.'
-        offset = len(startString)
-
-        while len(definitions) > 0:
-            key = definitions[0]
-            if key.startswith(startString):
-                ownSettings[key[offset:]] = abbrDefinitions[key]
-                definitions.pop(0)
-            else:
-                # no more options for me - leave loop
-                break
-        
-        if ownSettings.has_key(WORD_CHARS_REGEX_OPTION):
-            ownSettings[WORD_CHARS_REGEX_OPTION] = re.compile(ownSettings[WORD_CHARS_REGEX_OPTION], re.UNICODE)
-        
-        self.__applyBooleanOption(IMMEDIATE_OPTION, ownSettings)        
-        self.__applyBooleanOption(IGNORE_CASE_OPTION, ownSettings)
-        self.__applyBooleanOption(MATCH_CASE_OPTION, ownSettings)   
-        self.__applyBooleanOption(BACKSPACE_OPTION, ownSettings)    
-        self.__applyBooleanOption(OMIT_TRIGGER_OPTION, ownSettings)
-        self.__applyBooleanOption(TRIGGER_INSIDE_OPTION, ownSettings)
-        
-        #if result._getSetting(IGNORE_CASE_OPTION):
-        #    result.abbreviation = result.abbreviation.lower()
-        
-        # Apply options to final phrase
-        phraseDescription = phraseText[:20].replace('\n', ' ')
-        result = Phrase(phraseDescription, phraseText)
-        result.set_abbreviation(definition)
-        result.set_modes([TriggerMode.ABBREVIATION])
-        result.wordChars = self.__getDefaultOrCustom(defaults, ownSettings, WORD_CHARS_REGEX_OPTION)
-        result.immediate = self.__getDefaultOrCustom(defaults, ownSettings, IMMEDIATE_OPTION)
-        result.ignoreCase = self.__getDefaultOrCustom(defaults, ownSettings, IGNORE_CASE_OPTION)
-        result.matchCase = self.__getDefaultOrCustom(defaults, ownSettings, MATCH_CASE_OPTION)
-        result.backspace = self.__getDefaultOrCustom(defaults, ownSettings, BACKSPACE_OPTION)
-        result.omitTrigger = self.__getDefaultOrCustom(defaults, ownSettings, OMIT_TRIGGER_OPTION)
-        result.triggerInside = self.__getDefaultOrCustom(defaults, ownSettings, TRIGGER_INSIDE_OPTION)
-        return result
-            
-    def __applyBooleanOption(self, optionName, settings):
-        if settings.has_key(optionName):
-            settings[optionName] = (settings[optionName].lower()[0] == 't')
-            
-    def __getDefaultOrCustom(self, defaults, ownSettings, optionName):
-        if ownSettings.has_key(optionName):
-            return ownSettings[optionName]
-        else:
-            return defaults[optionName]
-
 # This import placed here to prevent circular import conflicts
 from model import *
 

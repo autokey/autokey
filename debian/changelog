@@ -1,3 +1,11 @@
+autokey (0.80.0-0~natty) natty; urgency=low
+
+  * Rewrite configuration back-end to allow users to edit script and phrases
+    directly in their preferred editor.
+  * Create conversion path from previous single configuration file.
+
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 16 Jul 2011 10:45:13 +1000
+
 autokey (0.71.3-1~natty) natty; urgency=low
 
   * Documentation change only - license in README

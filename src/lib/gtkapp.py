@@ -142,8 +142,8 @@ class Application:
         configManager.configHotkey.set_closure(self.show_configure_async)
         configManager.showPopupHotkey.set_closure(self.show_abbr_async)        
         
-    def config_altered(self):
-        self.configManager.config_altered()
+    def config_altered(self, persistGlobal):
+        self.configManager.config_altered(persistGlobal)
         #self.notifier.build_menu()
 
     def hotkey_created(self, item):
