@@ -1,15 +1,15 @@
 <ui>
 	<menubar name="MenuBar">
 		<menu action="File">
-                    <menu action="create">
-			<menuitem action="new-top-folder" />
-			<menuitem action="new-folder" />
-			<menuitem action="new-phrase" />
-                        <menuitem action="new-script" />
-                    </menu>
+            <menu action="create">
+			    <menuitem action="new-top-folder" />
+			    <menuitem action="new-folder" />
+			    <menuitem action="new-phrase" />
+                <menuitem action="new-script" />
+            </menu>
 			<menuitem action="save" />
 			<menuitem action="close-window" />
-                        <separator />
+            <separator />
 			<menuitem action="quit" />
 		</menu>
 		<menu action="Edit">
@@ -31,10 +31,6 @@
                     <menuitem action="toolbar" />
                     <menuitem action="script-error" />
                 </menu>
-<!--		<menu action="Settings">
-			<menuitem action="enable-monitoring" />
-			<menuitem action="advanced" />
-		</menu>	-->	
 		<menu action="Help">
 			<menuitem action="faq" />
 			<menuitem action="help" />
@@ -54,6 +50,12 @@
             <separator />
             <toolitem action="record" />
         </toolbar>
+        <popup name="NewDropdown">
+		    <menuitem action="new-top-folder" />
+		    <menuitem action="new-folder" />
+		    <menuitem action="new-phrase" />
+            <menuitem action="new-script" />
+        </popup>
         <popup name="Context">
 <!--            <menuitem action="new-top-folder" /> -->
             <menuitem action="new-folder" />
@@ -66,7 +68,5 @@
             <menuitem action="delete-item" />
             <separator />
             <menuitem action="rename" />
-            <separator />
-			<menuitem action="export" />
         </popup>
 </ui>

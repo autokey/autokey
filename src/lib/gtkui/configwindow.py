@@ -571,7 +571,7 @@ class ConfigWindow:
         # Toolbar 'create' button 
         create = gtk.MenuToolButton(gtk.STOCK_NEW)
         create.show()
-        menu = self.uiManager.get_widget('/MenuBar/File/create').get_submenu()
+        menu = self.uiManager.get_widget('/NewDropdown')
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
         s = gtk.SeparatorToolItem()

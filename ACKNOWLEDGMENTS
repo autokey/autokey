@@ -1,10 +1,14 @@
 Thanks go to Sam Peterson (peabody17), the original developer of 
 AutoKey, for allowing me to join his project and not objecting 
-when I more or less took it over. :)
+when I more or less took it over.
+
+My sincerest thanks to tiheum, the designer of the Faenza icon set for
+Linux. One of his designs is the basis of AutoKey's icon and his superb
+icon set makes my desktop a joy to use. 
 
 I'd like to pass my gratitude to all who have made donations to the 
 AutoKey project: theoa, jschall, mfseeker, jflevi, keycombat, rkcallahan,
-bkudria, riffian
+bkudria, riffian, and many others.
 
 Many thanks to the developers of xdotool, from which I copied the idea
 of dynamically modifying the keyboard map to send non-mapped characters.

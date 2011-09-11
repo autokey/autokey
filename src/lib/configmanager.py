@@ -68,7 +68,25 @@ def get_config_manager(autoKeyApp, hadError=False):
 
         try:
             configData = json.load(pFile)
+            version = configData["version"]
+            
+            if version < "0.80.0":
+                os.rename(CONFIG_FILE, CONFIG_FILE + version)
+                try:
+                    convert_v07_to_v08(configData)
+                    # Remove old backup file so we never retry the conversion
+                    os.remove(CONFIG_FILE_BACKUP)
+                    
+                except Exception, e:
+                    _logger.exception("Problem occurred during conversion.")
+                    _logger.error("Existing config file has been saved as %s%s",
+                                  CONFIG_FILE, version)
+                    hadError = True
+                    raise        
+            
+            # If conversion successful or no conversion needed, load normally
             configManager = ConfigManager(autoKeyApp, configData)
+            
         except Exception, e:
             if hadError or not os.path.exists(CONFIG_FILE_BACKUP):
                 _logger.error("Error while loading configuration. Cannot recover.")
@@ -92,7 +110,6 @@ def get_config_manager(autoKeyApp, hadError=False):
     else:
         _logger.info("No configuration found - creating new one")
         _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
-        # TODO copy default set of scripts and phrases from shared
         c = ConfigManager(autoKeyApp)
         autoKeyApp.init_global_hotkeys(c)
         return c
@@ -151,6 +168,40 @@ def _chooseInterface():
         
     
     return iomediator.X_EVDEV_INTERFACE
+
+def convert_v07_to_v08(configData):
+    _logger.info("Convert v%s configuration data to v0.80.0", configData["version"])
+    for folderData in configData["folders"]:
+        _convertFolder(folderData, None)
+        
+    configData["folders"] = []
+    configData["version"] = common.VERSION
+    configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE
+    _logger.info("Conversion succeeded")
+        
+        
+def _convertFolder(folderData, parent):
+    f = Folder("")
+    f.load_from_serialized(folderData)
+    f.parent = parent
+    f.persist()    
+    
+    for subfolder in folderData["folders"]:
+        _convertFolder(subfolder, f)
+    
+    for itemData in folderData["items"]:
+        i = None
+        if itemData["type"] == "script":
+            i = Script("", "")
+            i.code = itemData["code"]
+        elif itemData["type"] == "phrase":
+            i = Phrase("", "")
+            i.phrase = itemData["phrase"]
+        
+        if i is not None:
+            i.load_from_serialized(itemData)
+            i.parent = f
+            i.persist()
 
 class ConfigManager:
     """
@@ -349,7 +400,7 @@ engine.create_phrase(folder, title, contents)"""
         if upgradeDone:
             self.config_altered(True)
             
-        self.VERSION = common.VERSION        
+        self.VERSION = common.VERSION
             
     def config_altered(self, persistGlobal):
         """

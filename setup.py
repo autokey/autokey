@@ -34,7 +34,7 @@ interface offering the full flexibility and power of the Python language.""",
       package_dir={"autokey": "src/lib"},
       packages=["autokey", "autokey.gtkui"],
       package_data={"autokey.gtkui" : ["data/*"]},
-      data_files=[("/usr/share/pixmaps", ["config/akicon.svg", "config/akicon-status.png"]),
+      data_files=[("/usr/share/pixmaps", ["config/akicon.svg"]),
                   ("/usr/share/applications", ["config/autokey-gtk.desktop"]),
                   ('share/man/man1/', ['doc/man/autokey-gtk.1'])],
       scripts=['autokey-gtk']
