@@ -34,9 +34,7 @@ FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
 
-CONFIG_WINDOW_TITLE = "AutoKey"
-
-ICON_FILE = "/usr/share/pixmaps/akicon.png"
+ICON_FILE = "/usr/share/pixmaps/akicon.svg"
 ICON_FILE_GRAYSCALE = "/usr/share/pixmaps/akicon-status.png"
 
 # Misc
