@@ -3,14 +3,16 @@
   <!-- interface-requires gtk+ 2.6 -->
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="mainwindow">
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">AutoKey - Configuration</property>
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <property name="icon">akicon.png</property>
-    <signal handler="on_close" name="delete_event"/>
+    <signal handler="on_close" name="delete_event" swapped="no"/>
     <child>
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkHPaned" id="hpaned">
             <property name="visible">True</property>
@@ -28,12 +30,13 @@
                   <object class="GtkTreeView" id="treeWidget">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <signal handler="on_treeview_buttonpress" name="button_press_event"/>
-                    <signal handler="on_treeWidget_row_activated" name="row_activated"/>
-                    <signal handler="on_drag_drop" name="drag_drop"/>
-                    <signal handler="on_treeview_buttonrelease" name="button_release_event"/>
-                    <signal handler="on_drag_data_received" name="drag_data_received"/>
-                    <signal handler="on_tree_selection_changed" name="cursor_changed"/>
+                    <signal handler="on_drag_drop" name="drag_drop" swapped="no"/>
+                    <signal handler="on_drag_data_received" name="drag_data_received" swapped="no"/>
+                    <signal handler="on_treeview_buttonpress" name="button_press_event" swapped="no"/>
+                    <signal handler="on_treeWidget_row_activated" name="row_activated" swapped="no"/>
+                    <signal handler="on_tree_selection_changed" name="cursor_changed" swapped="no"/>
+                    <signal handler="on_treeview_buttonrelease" name="button_release_event" swapped="no"/>
+                    <signal handler="on_drag_begin" name="drag_begin" swapped="no"/>
                   </object>
                 </child>
               </object>
@@ -45,11 +48,13 @@
             <child>
               <object class="GtkAlignment" id="alignment1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="bottom_padding">5</property>
                 <property name="right_padding">5</property>
                 <child>
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkNotebook" id="stack">
@@ -59,12 +64,15 @@
                         <property name="show_border">False</property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkHButtonBox" id="hbuttonbox1">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="spacing">5</property>
                         <property name="homogeneous">True</property>
                         <property name="layout_style">end</property>
@@ -74,8 +82,9 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
-                            <signal handler="on_save" name="clicked"/>
+                            <signal handler="on_save" name="clicked" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -89,8 +98,9 @@
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
-                            <signal handler="on_reset" name="clicked"/>
+                            <signal handler="on_reset" name="clicked" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -101,6 +111,7 @@
                       </object>
                       <packing>
                         <property name="expand">False</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -114,6 +125,8 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>

@@ -998,6 +998,11 @@ class ConfigWindow:
                 if event.button == 3:
                     self.__popupMenu(event)
             return False
+    
+    def on_drag_begin(self, *args):
+        selection = self.treeView.get_selection()
+        theModel, self.__sourceRows = selection.get_selected_rows()
+        self.__sourceObjects = self.__getTreeSelection()
         
     def on_tree_selection_changed(self, widget, data=None):
         selectedObjects = self.__getTreeSelection()
@@ -1033,15 +1038,17 @@ class ConfigWindow:
     def on_drag_data_received(self, treeview, context, x, y, selection, info, etime):
         selection = self.treeView.get_selection()
         theModel, sourcePaths = selection.get_selected_rows()
+        sourcePaths = self.__sourceRows
         drop_info = treeview.get_dest_row_at_pos(x, y)
         if drop_info:
             path, position = drop_info
             targetIter = theModel.get_iter(path)
             
-        sourceModelItems = self.__getTreeSelection()
+        #sourceModelItems = self.__getTreeSelection()
+        sourceModelItems = self.__sourceObjects
         #sourceModelItem = theModel.get_value(sourceIter, AkTreeModel.OBJECT_COLUMN)
         targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
-        
+    
         for path in sourcePaths:
             self.__removeItem(theModel, theModel[path].iter)
         
@@ -1050,6 +1057,10 @@ class ConfigWindow:
             newIter = theModel.append_item(item, targetIter)    
             if isinstance(item, model.Folder):
                 theModel.populate_store(newIter, item)
+                self.__dropRecurseUpdate(item)
+            else:
+                item.path = None
+                item.persist()
             newIters.append(newIter)
                 
         self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
@@ -1059,11 +1070,23 @@ class ConfigWindow:
         self.on_tree_selection_changed(self.treeView)
         self.app.config_altered(True)
         
+    def __dropRecurseUpdate(self, folder):
+        folder.path = None
+        folder.persist()
+        
+        for subfolder in folder.folders:
+            self.__dropRecurseUpdate(subfolder)
+        
+        for child in folder.items:
+            child.path = None
+            child.persist()
+        
     def on_drag_drop(self, widget, drag_context, x, y, timestamp):
         drop_info = widget.get_dest_row_at_pos(x, y)
         if drop_info:
             selection = widget.get_selection()
             theModel, sourcePaths = selection.get_selected_rows()
+            sourcePaths = self.__sourceRows
             path, position = drop_info
             
             if position not in (gtk.TREE_VIEW_DROP_INTO_OR_BEFORE, gtk.TREE_VIEW_DROP_INTO_OR_AFTER):

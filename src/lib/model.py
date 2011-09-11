@@ -301,11 +301,13 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return d
     
     def load(self, parent=None):
+        self.parent = parent
+        
         if os.path.exists(self.path + "/.folder.json"):
             with open(self.path + "/.folder.json", 'r') as inFile:
                 data = json.load(inFile)
             
-            self.load_from_serialized(data, parent)
+            self.load_from_serialized(data)
         else:
             self.title = os.path.basename(self.path)
         
@@ -334,28 +336,12 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     i.load(self)
                     self.items.append(i)
                 
-    def load_from_serialized(self, data, parent):
+    def load_from_serialized(self, data):
         self.title = data["title"]
-        
-        #for folderData in data["folders"]:
-        #    f = Folder("")
-        #    f.load_from_serialized(folderData, self)
-        #    self.folders.append(f)
-            
-        
-        #for itemData in data["items"]:
-        #    if itemData["type"] == "phrase":
-        #        i = Phrase("", "")
-        #    else:
-        #        i = Script("", "")
-
-        #    i.load_from_serialized(itemData, self)
-        #    self.items.append(i)
         
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
         self.showInTrayMenu = data["showInTrayMenu"]
-        self.parent = parent
 
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
@@ -563,6 +549,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return d
         
     def load(self, parent):
+        self.parent = parent
         with open(self.path, "r") as inFile:
             jsonData = []
             phraseData = []
@@ -584,22 +571,20 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             
         if jsonData:
             data = ''.join(jsonData)
-            self.load_from_serialized(json.loads(data), parent)
+            self.load_from_serialized(json.loads(data))
             
         else:
             self.description = os.path.basename(self.path)[:-4]
             
         self.phrase = ''.join(phraseData[1:]) # drop extra newline at start
 
-    def load_from_serialized(self, data, parent):
+    def load_from_serialized(self, data):
         self.description = data["description"]
-        #self.phrase = data["phrase"]
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
         self.matchCase = data["matchCase"]
-        self.parent = parent
         self.showInTrayMenu = data["showInTrayMenu"]
         self.sendMode = get_value_or_default(data, "sendMode", SendMode.KEYBOARD)
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
@@ -846,6 +831,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return d
 
     def load(self, parent):
+        self.parent = parent
         with open(self.path, "r") as inFile:
             jsonData = []
             scriptData = []
@@ -867,7 +853,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             
         if jsonData:
             data = ''.join(jsonData)
-            self.load_from_serialized(json.loads(data), parent)
+            self.load_from_serialized(json.loads(data))
             
         else:
             self.description = os.path.basename(self.path)[:-3]
@@ -875,15 +861,13 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.code = ''.join(scriptData[1:]) # drop extra newline at start
                 
 
-    def load_from_serialized(self, data, parent):
+    def load_from_serialized(self, data):
         self.description = data["description"]
-        #self.code = data["code"]
         self.store = Store(data["store"])
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
-        self.parent = parent
         self.showInTrayMenu = data["showInTrayMenu"]
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
