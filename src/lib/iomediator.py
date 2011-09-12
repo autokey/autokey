@@ -309,6 +309,9 @@ class IoMediator(threading.Thread):
         
     def send_mouse_click(self, x, y, button, relative):
         self.interface.send_mouse_click(x, y, button, relative)
+        
+    def send_mouse_click_relative(self, x, y, button):
+        self.interface.send_mouse_click_relative(x, y, button)
             
     def flush(self):
         self.interface.flush()

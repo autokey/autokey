@@ -539,8 +539,9 @@ class ConfigWindow:
                 ("cut-item", gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
                 ("copy-item", gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
                 ("paste-item", gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
+                ("clone-item", gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
                 ("delete-item", gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
-                ("rename", None, _("_Rename"), "", _("Rename the selected item"), self.on_rename),
+                ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
                 ("undo", gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
                 ("redo", gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
                 ("preferences", gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
@@ -654,6 +655,7 @@ class ConfigWindow:
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/cut-item").set_sensitive(enableAny)
+        self.uiManager.get_action("/MenuBar/Edit/clone-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(canCreate and len(self.cutCopiedItems) > 0)
         self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
@@ -828,6 +830,28 @@ class ConfigWindow:
         for iter in newIters:
             self.treeView.get_selection().select_iter(iter)        
         self.app.config_altered(True)
+        
+    def on_clone_item(self, widget, data=None):
+        source = self.__getTreeSelection()[0]
+        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+        sourceIter = theModel[selectedPaths[0]].iter
+        parentIter = theModel.iter_parent(sourceIter)
+        
+        if isinstance(source, model.Phrase):
+            newObj = model.Phrase('', '')
+        else:
+            newObj = model.Script('', '')
+        newObj.copy(source)
+        newObj.persist()
+
+        newIter = theModel.append_item(newObj, parentIter)
+                
+        #self.treeView.expand_to_path(theModel.get_path(newIter))
+        #self.treeView.get_selection().unselect_all()
+        #self.treeView.get_selection().select_iter(newIter)
+        #self.on_tree_selection_changed(self.treeView)   
+        #self.treeView.get_selection().select_iter(newIter)        
+        self.app.config_altered(True)        
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
@@ -1038,22 +1062,18 @@ class ConfigWindow:
     def on_drag_data_received(self, treeview, context, x, y, selection, info, etime):
         selection = self.treeView.get_selection()
         theModel, sourcePaths = selection.get_selected_rows()
-        sourcePaths = self.__sourceRows
         drop_info = treeview.get_dest_row_at_pos(x, y)
         if drop_info:
             path, position = drop_info
             targetIter = theModel.get_iter(path)
             
-        #sourceModelItems = self.__getTreeSelection()
-        sourceModelItems = self.__sourceObjects
-        #sourceModelItem = theModel.get_value(sourceIter, AkTreeModel.OBJECT_COLUMN)
         targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
     
-        for path in sourcePaths:
+        for path in self.__sourceRows:
             self.__removeItem(theModel, theModel[path].iter)
         
         newIters = []
-        for item in sourceModelItems:
+        for item in self.__sourceObjects:
             newIter = theModel.append_item(item, targetIter)    
             if isinstance(item, model.Folder):
                 theModel.populate_store(newIter, item)
@@ -1086,7 +1106,6 @@ class ConfigWindow:
         if drop_info:
             selection = widget.get_selection()
             theModel, sourcePaths = selection.get_selected_rows()
-            sourcePaths = self.__sourceRows
             path, position = drop_info
             
             if position not in (gtk.TREE_VIEW_DROP_INTO_OR_BEFORE, gtk.TREE_VIEW_DROP_INTO_OR_AFTER):
@@ -1094,7 +1113,7 @@ class ConfigWindow:
             
             targetIter = theModel.get_iter(path)
             targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
-            if isinstance(targetModelItem, model.Folder) and path not in sourcePaths:
+            if isinstance(targetModelItem, model.Folder) and path not in self.__sourceRows:
                 # checking path prevents dropping a folder onto itself
                 return False
             else:

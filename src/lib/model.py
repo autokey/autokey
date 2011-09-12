@@ -30,12 +30,12 @@ def get_value_or_default(jsonData, key, default):
     else:
         return default
     
-def get_safe_path(string):
-    initialPath = ''.join([char for char in string if char.isalnum() or char in " ./"])
-    path = initialPath
+def get_safe_path(basePath, name, ext=""):
+    safeName = ''.join([char for char in name if char.isalnum() or char in "- ."])
+    path = basePath + '/' + safeName + ext
     n = 1
     while os.path.exists(path):
-        path = initialPath + str(n)
+        path = basePath + '/' + safeName + str(n) + ext
         n += 1
         
     return path
@@ -270,9 +270,9 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             baseName = self.title
             
         if self.parent is not None:
-            self.path = get_safe_path(self.parent.path + '/' + baseName)
+            self.path = get_safe_path(self.parent.path, baseName)
         else:
-            self.path = get_safe_path(CONFIG_DEFAULT_FOLDER + '/' + baseName)
+            self.path = get_safe_path(CONFIG_DEFAULT_FOLDER, baseName)
     
     def persist(self):
         if self.path is None:
@@ -350,10 +350,8 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def rebuild_path(self):
         if self.path is not None:
             oldName = self.path
-            self.path = get_safe_path(os.path.split(oldName)[0] + '/' + self.title)
-            
-            self.update_children()
-            
+            self.path = get_safe_path(os.path.split(oldName)[0], self.title)            
+            self.update_children()            
             os.rename(oldName, self.path)
         else:
             self.build_path()     
@@ -517,8 +515,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def build_path(self, baseName=None):        
         if baseName is None:
-            baseName = self.description + ".txt"
-        self.path = get_safe_path(self.parent.path + '/' + baseName)
+            baseName = self.description
+        else:
+            baseName = baseName[:-4]
+        self.path = get_safe_path(self.parent.path, baseName, ".txt")
         
     def persist(self):
         if self.path is None:
@@ -798,8 +798,10 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def build_path(self, baseName=None):        
         if baseName is None:
-            baseName = self.description + ".py"
-        self.path = get_safe_path(self.parent.path + '/' + baseName)
+            baseName = self.description
+        else:
+            baseName = baseName[:-3]
+        self.path = get_safe_path(self.parent.path, baseName, ".py")
         
     def persist(self):
         if self.path is None:

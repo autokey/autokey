@@ -110,6 +110,18 @@ class Mouse:
         """
         self.mediator.send_mouse_click(x, y, button, True)
         
+    def click_relative_self(self, x, y, button):
+        """
+        Send a mouse click relative to the current mouse position
+        
+        Usage: C{mouse.click_relative_self(x, y, button)}
+        
+        @param x: x-offset in pixels, relative to current mouse position
+        @param y: y-offset in pixels, relative to current mouse position
+        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        """
+        self.mediator.send_mouse_click_relative(x, y, button)
+        
     def click_absolute(self, x, y, button):
         """
         Send a mouse click relative to the screen (absolute)

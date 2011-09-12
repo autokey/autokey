@@ -316,13 +316,16 @@ class XInterfaceBase(threading.Thread):
         gtk.gdk.threads_leave()
 
     def begin_send(self):
+        self.dpyLock.acquire()
         self.unmapCodes = []
         self.remappedChars = {}
         focus = self.localDisplay.get_input_focus().focus
         focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
+        self.dpyLock.release()
 
     def finish_send(self):
+        self.dpyLock.acquire()
         if len(self.unmapCodes) > 0:
             unmapCodes = self.unmapCodes
             mapping = self.localDisplay.get_keyboard_mapping(min(unmapCodes), max(unmapCodes) - min(unmapCodes) + 1)
@@ -338,6 +341,7 @@ class XInterfaceBase(threading.Thread):
 
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
         self.localDisplay.flush()
+        self.dpyLock.release()
 
     def grab_keyboard(self):
         t = threading.Thread(target=self.__grab_keyboard)
@@ -500,6 +504,21 @@ class XInterfaceBase(threading.Thread):
             self.rootWindow.warp_pointer(xCoord, yCoord)
             xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
             xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
+            
+        self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
+            
+        self.flush()
+        
+    def send_mouse_click_relative(self, xoff, yoff, button):
+        # Get current pointer position
+        pos = self.rootWindow.query_pointer()
+
+        xCoord = pos.root_x + xoff
+        yCoord = pos.root_y + yoff
+        
+        self.rootWindow.warp_pointer(xCoord, yCoord)
+        xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
+        xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
             
         self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
             

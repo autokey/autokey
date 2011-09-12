@@ -19,6 +19,7 @@
 			<menuitem action="cut-item" />
 			<menuitem action="copy-item" />
 			<menuitem action="paste-item" />
+			<menuitem action="clone-item" />
 			<menuitem action="delete-item" />
 			<separator />
             <menuitem action="rename" />
@@ -65,6 +66,7 @@
             <menuitem action="cut-item" />
             <menuitem action="copy-item" />
             <menuitem action="paste-item" />
+            <menuitem action="clone-item" />
             <menuitem action="delete-item" />
             <separator />
             <menuitem action="rename" />
