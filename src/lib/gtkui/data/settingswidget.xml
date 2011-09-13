@@ -89,7 +89,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">Set</property>
-                <property name="response_id">0</property>
                 <signal handler="on_setAbbrButton_clicked" name="clicked"/>
               </object>
               <packing>
@@ -106,7 +105,6 @@
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">gtk-clear</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
                 <signal handler="on_clearAbbrButton_clicked" name="clicked"/>
               </object>
               <packing>
@@ -121,7 +119,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">Set</property>
-                <property name="response_id">0</property>
                 <signal handler="on_setHotkeyButton_clicked" name="clicked"/>
               </object>
               <packing>
@@ -138,7 +135,6 @@
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">Set</property>
-                <property name="response_id">0</property>
                 <signal handler="on_setFilterButton_clicked" name="clicked"/>
               </object>
               <packing>
@@ -156,7 +152,6 @@
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">gtk-clear</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
                 <signal handler="on_clearHotkeyButton_clicked" name="clicked"/>
               </object>
               <packing>
@@ -174,7 +169,6 @@
                 <property name="receives_default">True</property>
                 <property name="label" translatable="yes">gtk-clear</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
                 <signal handler="on_clearFilterButton_clicked" name="clicked"/>
               </object>
               <packing>
