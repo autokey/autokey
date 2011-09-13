@@ -535,16 +535,19 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
     def __flushEvents(self):
-        r, w, x = select.select([self.localDisplay], [], [], 0)
-        if self.localDisplay in r:
-            for x in range(self.localDisplay.pending_events()):
-                event = self.localDisplay.next_event()
-                if event.type == X.MapNotify:
-                    logger.debug("New window mapped, grabbing hotkeys")
-                    try:
-                        self.__grabHotkeysForWindow(event.window)
-                    except:
-                        logging.exception("Window destroyed during hotkey grab")
+        try:
+            r, w, x = select.select([self.localDisplay], [], [], 0)
+            if self.localDisplay in r:
+                for x in range(self.localDisplay.pending_events()):
+                    event = self.localDisplay.next_event()
+                    if event.type == X.MapNotify:
+                        logger.debug("New window mapped, grabbing hotkeys")
+                        try:
+                            self.__grabHotkeysForWindow(event.window)
+                        except:
+                            logging.exception("Window destroyed during hotkey grab")
+        except ConnectionClosedError:
+            pass
 
     def _handleKeyPress(self, keyCode):
         self.lock.acquire()
