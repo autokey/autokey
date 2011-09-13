@@ -59,6 +59,39 @@ def set_linkbutton(button, path):
     button.set_uri("file://" + path)
     label = button.get_child()
     label.set_ellipsize(pango.ELLIPSIZE_START)
+    
+class RenameDialog:
+    
+    def __init__(self, parentWindow, oldName, isNew, title=_("Rename '%s'")):
+        builder = get_ui("renamedialog.xml")
+        self.ui = builder.get_object("dialog")
+        builder.connect_signals(self)
+        
+        self.nameEntry = builder.get_object("nameEntry")
+        self.checkButton = builder.get_object("checkButton")
+        self.image = builder.get_object("image")
+        
+        self.nameEntry.set_text(oldName.encode("utf-8"))
+        self.checkButton.set_active(True)
+        
+        if isNew:
+            self.checkButton.hide()
+            self.set_title(title)
+        else:
+            self.set_title(title % oldName)
+        
+    def get_name(self):
+        return self.nameEntry.get_text().decode("utf-8")
+    
+    def get_update_fs(self):
+        return self.checkButton.get_active()
+    
+    def set_image(self, stockId):
+        self.image.set_from_stock(stockId, gtk.ICON_SIZE_DIALOG)
+        
+    def __getattr__(self, attr):
+        # Magic fudge to allow us to pretend to be the ui class we encapsulate
+        return getattr(self.ui, attr)
 
 class SettingsWidget:
 	
@@ -720,7 +753,7 @@ class ConfigWindow:
     # File Menu
     
     def on_new_topfolder(self, widget, data=None):
-        dlg = gtk.FileChooserDialog(_("Create a new folder"), self.ui)
+        dlg = gtk.FileChooserDialog(_("Create New Folder"), self.ui)
         dlg.set_action(gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
         dlg.set_local_only(True)
         dlg.add_buttons(_("Use Default"), gtk.RESPONSE_NONE, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK)
@@ -728,25 +761,21 @@ class ConfigWindow:
         response = dlg.run()
         if response == gtk.RESPONSE_OK:
             path = dlg.get_filename()
-            self.__createFolder(None, path)
+            self.__createFolder(os.path.basename(path), None, path)
         elif response == gtk.RESPONSE_NONE:
-            self.__createFolder(None)
+            self.__createFolder("New Folder", None)
             
         dlg.destroy()
         
     def on_new_folder(self, widget, data=None):
-        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-        parentIter = theModel[selectedPaths[0]].iter
-        self.__createFolder(parentIter)
+        name = self.__getNewItemName("Folder")
+        if name is not None:
+            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+            parentIter = theModel[selectedPaths[0]].iter
+            self.__createFolder(name, parentIter)
         
-    def __createFolder(self, parentIter, path=None):
-        theModel = self.treeView.get_model()
-        
-        if path is None:
-            title = _("New Folder")
-        else:
-            title = os.path.basename(path)
-        
+    def __createFolder(self, title, parentIter, path=None):
+        theModel = self.treeView.get_model()        
         newFolder = model.Folder(title, path=path)   
         newIter = theModel.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(theModel.get_path(newIter))
@@ -754,30 +783,53 @@ class ConfigWindow:
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
         
-        if path is None:
-            self.on_rename(self.treeView)
+        #if path is None:
+        #    self.on_rename(self.treeView)
+            
+    def __getNewItemName(self, itemType):
+        dlg = RenameDialog(self.ui, "New %s" % itemType, True, _("Create New %s") % itemType)
+        dlg.set_image(gtk.STOCK_NEW)
+                
+        if dlg.run() == 1:
+            newText = dlg.get_name()
+            if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
+                             None, self.ui):
+                dlg.destroy()
+                return newText
+            else:
+                dlg.destroy()
+                return None
+            
+        dlg.destroy()
+        return None
         
     def on_new_phrase(self, widget, data=None):
-        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-        parentIter = theModel[selectedPaths[0]].iter
-        newPhrase = model.Phrase("New Phrase", "Enter phrase contents")
-        newIter = theModel.append_item(newPhrase, parentIter)
-        self.treeView.expand_to_path(theModel.get_path(newIter))
-        self.treeView.get_selection().unselect_all()
-        self.treeView.get_selection().select_iter(newIter)
-        self.on_tree_selection_changed(self.treeView)
-        self.on_rename(self.treeView)        
+        name = self.__getNewItemName("Phrase")
+        if name is not None:
+            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+            parentIter = theModel[selectedPaths[0]].iter
+            newPhrase = model.Phrase(name, "Enter phrase contents")
+            newIter = theModel.append_item(newPhrase, parentIter)
+            newPhrase.persist()
+            self.treeView.expand_to_path(theModel.get_path(newIter))
+            self.treeView.get_selection().unselect_all()
+            self.treeView.get_selection().select_iter(newIter)
+            self.on_tree_selection_changed(self.treeView)
+            #self.on_rename(self.treeView)        
     
     def on_new_script(self, widget, data=None):
-        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-        parentIter = theModel[selectedPaths[0]].iter
-        newScript = model.Script("New Script", "# Enter script code")
-        newIter = theModel.append_item(newScript, parentIter)
-        self.treeView.expand_to_path(theModel.get_path(newIter))
-        self.treeView.get_selection().unselect_all()
-        self.treeView.get_selection().select_iter(newIter)
-        self.on_tree_selection_changed(self.treeView)
-        self.on_rename(self.treeView)
+        name = self.__getNewItemName("Script")
+        if name is not None:
+            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+            parentIter = theModel[selectedPaths[0]].iter
+            newScript = model.Script(name, "# Enter script code")
+            newIter = theModel.append_item(newScript, parentIter)
+            newScript.persist()
+            self.treeView.expand_to_path(theModel.get_path(newIter))
+            self.treeView.get_selection().unselect_all()
+            self.treeView.get_selection().select_iter(newIter)
+            self.on_tree_selection_changed(self.treeView)
+           # self.on_rename(self.treeView)
 
     # Edit Menu
 
@@ -980,11 +1032,10 @@ class ConfigWindow:
         
     def on_show_about(self, widget, data=None):
         dlg = gtk.AboutDialog()
-        dlg.set_name("AutoKey (GTK UI)")
+        dlg.set_name("AutoKey")
         dlg.set_comments(_("A desktop automation utility for Linux and X11."))
         dlg.set_version(common.VERSION)
-        p = gtk.gdk.pixbuf_new_from_file(common.ICON_FILE)
-        p = p.scale_simple(100, 100, gtk.gdk.INTERP_BILINEAR)
+        p = gtk.gdk.pixbuf_new_from_file_at_size(common.ICON_FILE, 100, 100)
         dlg.set_logo(p)
         dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
@@ -997,7 +1048,32 @@ class ConfigWindow:
     def on_rename(self, widget, data=None):
         selection = self.treeView.get_selection()
         theModel, selectedPaths = selection.get_selected_rows()
-        self.treeView.set_cursor(selectedPaths[0], self.treeView.get_column(0), True)
+        selection.unselect_all()
+        self.treeView.set_cursor(selectedPaths[0], self.treeView.get_column(0), False)
+        selectedObject = self.__getTreeSelection()[0]
+        if isinstance(selectedObject, model.Folder):
+            oldName = selectedObject.title
+        else:
+            
+            oldName = selectedObject.description
+        
+        dlg = RenameDialog(self.ui, oldName, False)
+        dlg.set_image(gtk.STOCK_EDIT)
+                
+        if dlg.run() == 1:
+            newText = dlg.get_name()
+            if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
+                             None, self.ui):
+                self.__getCurrentPage().set_item_title(newText)
+                
+                if dlg.get_update_fs():
+                    self.__getCurrentPage().rebuild_item_path()
+                
+                persistGlobal = self.__getCurrentPage().save()
+                self.refresh_tree()
+                self.app.config_altered(persistGlobal)
+            
+        dlg.destroy()
     
     def on_treeWidget_row_activated(self, widget, path, viewColumn, data=None):
         widget.expand_row(path, False)
@@ -1120,25 +1196,6 @@ class ConfigWindow:
                 return True
         
         return True
-        
-    def on_cell_modified(self, renderer, path, newText, data=None):
-        if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
-                         None, self.ui):
-            self.__getCurrentPage().set_item_title(newText)
-            isNew = self.__getCurrentPage().is_new_item()
-            
-            if not isNew:
-                msg = _("Do you want to update the file system name of this item?")
-                dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
-                if dlg.run() == gtk.RESPONSE_YES:
-                    self.__getCurrentPage().rebuild_item_path()
-                dlg.destroy()
-            
-            persistGlobal = self.__getCurrentPage().save()
-            self.refresh_tree()
-            self.app.config_altered(persistGlobal)
-        else:
-            self.on_edit_cell(self.treeView)
             
     def __initTreeWidget(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
@@ -1154,8 +1211,8 @@ class ConfigWindow:
         column1 = gtk.TreeViewColumn(_("Name"))
         iconRenderer = gtk.CellRendererPixbuf()
         textRenderer = gtk.CellRendererText()
-        textRenderer.set_property("editable", True)
-        textRenderer.connect("edited", self.on_cell_modified)
+        #textRenderer.set_property("editable", True)
+        #textRenderer.connect("edited", self.on_cell_modified)
         column1.pack_start(iconRenderer, False)
         column1.pack_end(textRenderer, True)
         column1.add_attribute(iconRenderer, "icon-name", 0)
