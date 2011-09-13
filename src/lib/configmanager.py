@@ -75,7 +75,8 @@ def get_config_manager(autoKeyApp, hadError=False):
                 try:
                     convert_v07_to_v08(configData)
                     # Remove old backup file so we never retry the conversion
-                    os.remove(CONFIG_FILE_BACKUP)
+                    if os.path.exists(CONFIG_FILE_BACKUP):
+                        os.remove(CONFIG_FILE_BACKUP)
                     
                 except Exception, e:
                     _logger.exception("Problem occurred during conversion.")
@@ -170,7 +171,8 @@ def _chooseInterface():
     return iomediator.X_EVDEV_INTERFACE
 
 def convert_v07_to_v08(configData):
-    _logger.info("Convert v%s configuration data to v0.80.0", configData["version"])
+    oldVersion = configData["version"]
+    _logger.info("Convert v%s configuration data to v0.80.0", oldVersion)
     for folderData in configData["folders"]:
         _convertFolder(folderData, None)
         
@@ -178,6 +180,13 @@ def convert_v07_to_v08(configData):
     configData["version"] = common.VERSION
     configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE
     _logger.info("Conversion succeeded")
+    import gtk
+    dlg = gtk.MessageDialog(buttons=gtk.BUTTONS_OK, message_format=_("Configuration upgrade completed"))
+    dlg.format_secondary_text(_("Your configuration data has been upgraded. It \
+is recommended that you check everything is in order.\n\nYour original configuration\
+ has been saved as %s%s") % (CONFIG_FILE, oldVersion))
+    dlg.run()
+    dlg.destroy()
         
         
 def _convertFolder(folderData, parent):
