@@ -68,12 +68,12 @@
                                 </child>
                                 <child>
                                   <object class="GtkCheckButton" id="showTrayCheckbox">
-                                    <property name="label" translatable="yes">Show a tray icon (requires restart)</property>
+                                    <property name="label" translatable="yes">Show a notification icon (requires restart)</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal handler="on_showTrayCheckbox_toggled" name="toggled"/>
+                                    <!--<signal handler="on_showTrayCheckbox_toggled" name="toggled"/>-->
                                   </object>
                                   <packing>
                                     <property name="position">2</property>
