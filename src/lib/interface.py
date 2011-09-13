@@ -546,7 +546,8 @@ class XInterfaceBase(threading.Thread):
                             self.__grabHotkeysForWindow(event.window)
                         except:
                             logging.exception("Window destroyed during hotkey grab")
-        except ConnectionClosedError:
+        except:
+            logger.exception("Error in __flushEvents()")
             pass
 
     def _handleKeyPress(self, keyCode):

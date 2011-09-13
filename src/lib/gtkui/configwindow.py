@@ -873,6 +873,8 @@ class ConfigWindow:
             if isinstance(item, model.Folder):
                 theModel.populate_store(newIter, item)
             newIters.append(newIter)
+            item.path = None
+            item.persist()
                 
         self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
         self.treeView.get_selection().unselect_all()
@@ -897,12 +899,6 @@ class ConfigWindow:
         newObj.persist()
 
         newIter = theModel.append_item(newObj, parentIter)
-                
-        #self.treeView.expand_to_path(theModel.get_path(newIter))
-        #self.treeView.get_selection().unselect_all()
-        #self.treeView.get_selection().select_iter(newIter)
-        #self.on_tree_selection_changed(self.treeView)   
-        #self.treeView.get_selection().select_iter(newIter)        
         self.app.config_altered(True)        
         
     def on_delete_item(self, widget, data=None):
@@ -913,23 +909,27 @@ class ConfigWindow:
             refs.append(gtk.TreeRowReference(theModel, path))
 
         modified = False
+        
+        if len(refs) == 1:
+            item = theModel[refs[0].get_path()].iter
+            modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)            
+            if isinstance(modelItem, model.Folder):
+                msg = _("Are you sure you want to delete '%s' and all the items in it?") % modelItem.title
+            else:
+                msg = _("Are you sure you want to delete '%s'?") % modelItem.description
+        else:
+            msg = _("Are you sure you want to delete the %d selected items?") % len(refs)
             
-        for ref in refs:
-            if ref.valid():
-                # Prompt for removal of a folder with phrases
-                item = theModel[ref.get_path()].iter
-                modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
-                
-                if isinstance(modelItem, model.Folder):
-                    msg = _("Are you sure you want to delete the %s folder and all the items in it?") % modelItem.title
-                else:
-                    msg = _("Are you sure you want to delete '%s'?") % modelItem.description
-                    
-                dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
-                if dlg.run() == gtk.RESPONSE_YES:
+        dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+        if dlg.run() == gtk.RESPONSE_YES:
+            for ref in refs:
+                if ref.valid():
+                    item = theModel[ref.get_path()].iter
+                    modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
                     self.__removeItem(theModel, item)
                     modified = True
-                dlg.destroy()
+
+        dlg.destroy()            
         
         if modified: 
             if len(selectedPaths) > 1:
