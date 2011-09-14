@@ -10,7 +10,7 @@ Homepage: http://autokey.googlecode.com/
 
 Package: autokey-common
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, wmctrl
+Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, python-pyinotify, wmctrl
 Replaces: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
 Breaks: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
 XB-Python-Version: ${python:Versions}

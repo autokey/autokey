@@ -17,13 +17,12 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import common
-common.USING_QT = False
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, Queue, optparse
 import gettext, gtk
 gettext.install("autokey")
 
-import service
+import service, monitor
 from gtkui.notifier import Notifier
 from gtkui.popupmenu import PopupMenu
 from gtkui.configwindow import ConfigWindow
@@ -34,7 +33,7 @@ from common import *
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 #LICENSE = KAboutData.License_GPL_V3
-COPYRIGHT = _("(c) 2009 Chris Dekter")
+COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 #TEXT = _("")
 
 
@@ -112,6 +111,7 @@ class Application:
 
     def initialise(self, configure):
         logging.info("Initialising application")
+        self.monitor = monitor.FileMonitor(self)
         self.configManager = get_config_manager(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
@@ -131,6 +131,7 @@ class Application:
         self.notifier = Notifier(self)
         self.configWindow = None
         self.abbrPopup = None
+        self.monitor.start()
         
         if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
             ConfigManager.SETTINGS[IS_FIRST_RUN] = False
@@ -153,6 +154,12 @@ class Application:
     def hotkey_removed(self, item):
         logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.ungrab_hotkey(item)
+        
+    def path_created_or_modified(self, path):
+        self.configManager.path_created_or_modified(path)
+        
+    def path_removed(self, path):
+        self.configManager.path_removed(path)
         
     def unpause_service(self):
         """
@@ -187,6 +194,7 @@ class Application:
              
         logging.info("Shutting down")
         self.service.shutdown()
+        self.monitor.stop()
         gtk.main_quit()
         os.remove(LOCK_FILE)
             

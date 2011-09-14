@@ -8,5 +8,6 @@ usr/lib/python*/*-packages/autokey/iomediator.py
 usr/lib/python*/*-packages/autokey/model.py
 usr/lib/python*/*-packages/autokey/scripting.py
 usr/lib/python*/*-packages/autokey/service.py
+usr/lib/python*/*-packages/autokey/monitor.py
 usr/lib/python*/*-packages/autokey-*.egg-info
 usr/share/pixmaps/akicon.svg

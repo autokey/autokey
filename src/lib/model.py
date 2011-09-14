@@ -304,10 +304,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = parent
         
         if os.path.exists(self.path + "/.folder.json"):
-            with open(self.path + "/.folder.json", 'r') as inFile:
-                data = json.load(inFile)
-            
-            self.load_from_serialized(data)
+            self.load_from_serialized()
         else:
             self.title = os.path.basename(self.path)
         
@@ -336,7 +333,10 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     i.load(self)
                     self.items.append(i)
                 
-    def load_from_serialized(self, data):
+    def load_from_serialized(self):
+        with open(self.path + "/.folder.json", 'r') as inFile:
+            data = json.load(inFile)
+                    
         self.title = data["title"]
         
         self.modes = data["modes"]
@@ -366,7 +366,10 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def remove_data(self):
         if self.path is not None:
-            shutil.rmtree(self.path)
+            try:
+                shutil.rmtree(self.path)
+            except OSError:
+                pass
         
     def get_tuple(self):
         return ("folder", self.title, self.get_abbreviation(), self.get_hotkey_string(), self)
@@ -601,7 +604,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def remove_data(self):
         if self.path is not None:
-            os.remove(self.path)
+            try:            
+                os.remove(self.path)
+            except OSError:
+                pass
         
     def copy(self, thePhrase):
         self.description = thePhrase.description
@@ -885,7 +891,10 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def remove_data(self):
         if self.path is not None:
-            os.remove(self.path)
+            try:            
+                os.remove(self.path)
+            except OSError:
+                pass
 
     def copy(self, theScript):
         self.description = theScript.description

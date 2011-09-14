@@ -776,7 +776,8 @@ class ConfigWindow:
         
     def __createFolder(self, title, parentIter, path=None):
         theModel = self.treeView.get_model()        
-        newFolder = model.Folder(title, path=path)   
+        newFolder = model.Folder(title, path=path)
+        newFolder.persist()
         newIter = theModel.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().unselect_all()
@@ -1315,7 +1316,7 @@ class AkTreeModel(gtk.TreeStore):
     def __init__(self, folders):
         gtk.TreeStore.__init__(self, str, str, str, str, object)
         
-        for folder in folders.values():
+        for folder in folders:
             iter = self.append(None, folder.get_tuple())
             self.populate_store(iter, folder)
             
@@ -1333,7 +1334,7 @@ class AkTreeModel(gtk.TreeStore):
             
     def append_item(self, item, parentIter):
         if parentIter is None:
-            self.folders[item.title] = item
+            self.folders.append(item)
             return self.append(None, item.get_tuple())
         
         else:
@@ -1349,7 +1350,7 @@ class AkTreeModel(gtk.TreeStore):
         item = self.get_value(iter, self.OBJECT_COLUMN)
         item.remove_data()
         if item.parent is None:
-            del self.folders[item.title]
+            self.folders.remove(item)
         else:
             if isinstance(item, model.Folder):
                 item.parent.remove_folder(item)

@@ -108,6 +108,7 @@ class Service:
         
     def handle_keypress(self, rawKey, modifiers, key, windowName):
         logger.debug("Raw key: %r, modifiers: %r, Key: %r", rawKey, modifiers, key)
+        self.configManager.lock.acquire()
         
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
@@ -158,6 +159,7 @@ class Service:
             
             if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
                 self.inputStack = []
+                self.configManager.lock.release()
                 return
                 
             ### --- end of processing if non-printing modifiers are on --- ###
@@ -182,6 +184,8 @@ class Service:
                     self.app.show_popup_menu(*menu)
                 
                 logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
+                
+        self.configManager.lock.release()
                 
                 
     @threaded
