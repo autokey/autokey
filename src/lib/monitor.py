@@ -59,6 +59,11 @@ class Processor(ProcessEvent):
         path = self.__getEventPath(event)
         if not self.monitor.is_suspended(path):        
             self.listener.path_removed(path)
+            
+    def process_IN_MOVED_FROM(self, event):
+        path = self.__getEventPath(event)
+        if not self.monitor.is_suspended(path):
+            self.listener.path_removed(path)
 
 
 class FileMonitor(threading.Thread):
@@ -71,21 +76,37 @@ class FileMonitor(threading.Thread):
         self.event = threading.Event()
         self.setDaemon(True)
         self.watches = []
-        self.suspended = []
+        #self.suspended = []
+        self.__isSuspended = False
             
     def suspend_path(self, path):
-        self.suspended.append(path)
+        #self.suspended.append(path)
+        self.suspend()
         
+    def suspend(self):
+        self.__isSuspended = True
+    
+    def unsuspend(self):
+        t = threading.Thread(target=self.__unsuspend, args=('',))
+        t.start()
+    
     def unsuspend_path(self, path):
         t = threading.Thread(target=self.__unsuspend, args=(path,))
         t.start()
         
     def __unsuspend(self, path):
         time.sleep(1)
-        self.suspended.remove(path)
+        #self.suspended.remove(path)
+        self.__isSuspended = False
         
     def is_suspended(self, path):
-        return path in self.suspended
+        #if path not in self.suspended:
+        #    for susp in self.suspended:
+        #        if path.startswith(susp):
+        #            return True
+        #  
+        #return False
+        return self.__isSuspended
         
     def has_watch(self, path):
         return path in self.watches
@@ -107,13 +128,13 @@ class FileMonitor(threading.Thread):
             except IndexError:
                 break
     
-        if path in self.suspended: self.suspended.remove(path)
-        for i in range(len(self.suspended)):
-            try:
-                if self.suspended[i].startswith(path):
-                    self.suspended.remove(self.suspended[i])
-            except IndexError:
-                break        
+        #if path in self.suspended: self.suspended.remove(path)
+        #for i in range(len(self.suspended)):
+        #    try:
+        #        if self.suspended[i].startswith(path):
+        #            self.suspended.remove(self.suspended[i])
+        #    except IndexError:
+        #        break        
         
     def run(self):        
         while not self.event.isSet():
@@ -129,31 +150,3 @@ class FileMonitor(threading.Thread):
     def stop(self):
         self.event.set()
         
-        
-"""class MonitoredPath:
-    
-    def __init__(self, path, monitor, isDir):
-        self.suspended = False
-        self.path = path
-        self.monitor = monitor
-        self.isDir = isDir        
-        
-    def callback(self, path, eType):
-        _logger.debug("Got modification event under path %s:\n\t%s, %d", self.path, path, eType)
-        if not eType in (2, 5):
-            return
-    
-        if self.suspended:
-            return
-    
-        if self.isDir and not path.startswith(self.path):
-            self.monitor.handle_event(self.path + '/' + path, eType)
-        else:
-            self.monitor.handle_event(self.path, eType)
-        
-
-class WatchMonitorWrapper(gamin.WatchMonitor):
-    
-    def fileno(self):
-        return self.get_fd()"""
-    

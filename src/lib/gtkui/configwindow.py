@@ -544,6 +544,7 @@ class PhrasePage(ScriptPage):
 class ConfigWindow:
     
     def __init__(self, app):
+        app.monitor.suspend()
         self.app = app
         self.cutCopiedItems = []
         
@@ -743,6 +744,7 @@ class ConfigWindow:
             self.destroy()
             self.app.configWindow = None
             self.app.config_altered(True)
+            self.app.monitor.unsuspend()
             
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
