@@ -1,10 +1,30 @@
 autokey (0.80.0-0~natty) natty; urgency=low
 
-  * Rewrite configuration back-end to allow users to edit script and phrases
-    directly in their preferred editor.
-  * Create conversion path from previous single configuration file.
-
- -- Chris Dekter <cdekter@gmail.com>  Sat, 16 Jul 2011 10:45:13 +1000
+  * Rewrite persistence layer - use a real filesystem layout of folders and files
+    to persist configuration and allow direct editing in other programs
+  * Create conversion path from previous single configuration file
+  * Add inotify-based file monitoring and reload configuration in real-time if
+    modified externally
+  * Deprecate and remove the KDE GUI
+  * Stop building transitional 'autokey' package
+  * Remove nogui code and documentation - it's been broken for a long time
+  * Redesigned application icon
+  * Fix drag and drop in the tree view
+  * Silence various GTK builder warnings
+  * Add F2 as an accelerator for Rename
+  * Completely rework item naming and renaming by adding a separate dialog to
+    perform this function
+  * Fix for issue 137 - add locks around display for grab/ungrab during phrase
+    send
+  * Implement issue 110 - add option to clone a phrase/script
+  * Implement issue 133 - add scripting function to click mouse relative to
+    current location
+  * Make delete nicer by not prompting for every single selected item
+  * Fix problem where having two identically-named top-level folders was
+    impossible
+  * Fix divergence between list of folders in configmanager and treemodel
+  
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 16 Sep 2011 21:23:08 +1000
 
 autokey (0.71.3-1~natty) natty; urgency=low
 

@@ -1247,10 +1247,8 @@ class ConfigWindow:
                 return False
             else:
                 # Target is top level
-                print "top level target"
                 for item in self.__sourceObjects:
                     if not isinstance(item, model.Folder):
-                        print "drop not permitted"
                         return True
 
             return False
