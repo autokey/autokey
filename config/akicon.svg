@@ -57,8 +57,8 @@
    guidetolerance="10"
    inkscape:pageopacity="0"
    inkscape:pageshadow="2"
-   inkscape:window-width="640"
-   inkscape:window-height="480"
+   inkscape:window-width="899"
+   inkscape:window-height="730"
    id="namedview102"
    showgrid="false"
    inkscape:zoom="3.2395833"
@@ -412,16 +412,18 @@
 		
 	<g
    id="g96"
-   style="filter:url(#filter3237)">
+   style="filter:url(#filter3237);fill:#ffffff">
 		<g
-   id="g98">
+   id="g98"
+   style="fill:#ffffff">
 			<path
    stroke-miterlimit="10"
    d="M69.063,74.334H58.117l-2.245-13.232H36.023     l-6.095,13.232h-9.263L46.89,19.601h12.149L69.063,74.334z M54.949,53.483l-4.29-24.299L39.392,53.483H54.949z"
    id="path100"
    stroke-width="0.5"
    stroke="#BABABD"
-   fill="#FFFCD6" />
+   fill="#FFFCD6"
+   style="fill:#ffffff" />
 		</g>
 	</g>
 </g>
