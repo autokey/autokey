@@ -156,10 +156,21 @@ class Application:
         self.service.mediator.interface.ungrab_hotkey(item)
         
     def path_created_or_modified(self, path):
-        self.configManager.path_created_or_modified(path)
+        changed = self.configManager.path_created_or_modified(path)
+        if changed and self.configWindow is not None: 
+            self.configWindow.config_modified()
+            #if doReload:
+            #    self.configWindow.hide()
+            #    self.show_configure_async()
         
     def path_removed(self, path):
-        self.configManager.path_removed(path)
+        changed = self.configManager.path_removed(path)        
+        if changed and self.configWindow is not None: 
+            self.configWindow.config_modified()
+            #if doReload:
+            #    self.configWindow.hide()
+            #    self.configWindow = None
+            #    self.show_configure()
         
     def unpause_service(self):
         """
@@ -188,10 +199,14 @@ class Application:
         """
         Shut down the entire application.
         """
+        self.notifier.hide_icon()
+        
         if self.configWindow is not None:
             if self.configWindow.promptToSave():
-               return
-             
+                return
+            else:
+                self.configWindow.hide()
+                
         logging.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()

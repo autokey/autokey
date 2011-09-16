@@ -79,7 +79,7 @@ def get_config_manager(autoKeyApp, hadError=False):
 
 def save_config(configManager):
     _logger.info("Persisting configuration")
-    configManager.app.monitor.suspend_path(CONFIG_FILE) 
+    configManager.app.monitor.suspend() 
     # Back up configuration if it exists
     if os.path.exists(CONFIG_FILE):
         _logger.info("Backing up existing config file")
@@ -95,7 +95,7 @@ def save_config(configManager):
         raise Exception("Error while saving configuration. Backup has been restored (if found).")
     finally:
         outFile.close()
-        configManager.app.monitor.unsuspend_path(CONFIG_FILE) 
+        configManager.app.monitor.unsuspend() 
         
 def apply_settings(settings):
     """
@@ -134,8 +134,8 @@ def _chooseInterface():
     return iomediator.X_EVDEV_INTERFACE
 
 def convert_v07_to_v08(configData):
-    os.rename(CONFIG_FILE, CONFIG_FILE + version)
     oldVersion = configData["version"]
+    os.rename(CONFIG_FILE, CONFIG_FILE + oldVersion)
     _logger.info("Converting v%s configuration data to v0.80.0", oldVersion)
     for folderData in configData["folders"]:
         _convertFolder(folderData, None)
@@ -160,7 +160,7 @@ is recommended that you check everything is in order.\n\nYour original configura
         
 def _convertFolder(folderData, parent):
     f = Folder("")
-    f.load_from_serialized(folderData)
+    f.inject_json_data(folderData)
     f.parent = parent
     f.persist()    
     
@@ -177,7 +177,7 @@ def _convertFolder(folderData, parent):
             i.phrase = itemData["phrase"]
         
         if i is not None:
-            i.load_from_serialized(itemData)
+            i.inject_json_data(itemData)
             i.parent = f
             i.persist()
 
@@ -241,16 +241,8 @@ class ConfigManager:
         
         app.init_global_hotkeys(self)        
         
-        for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
-            if os.path.isdir(entryPath):
-                _logger.debug("Loading folder at '%s'", entryPath)
-                f = Folder("", path=entryPath)
-                f.load(None)
-                self.folders.append(f)
-
         self.load_global_config()
-        
-        self.app.monitor.add_watch(CONFIG_FILE)
+                
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
         
         if self.folders:
@@ -359,6 +351,7 @@ engine.create_phrase(folder, title, contents)"""
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
             _logger.info("Loading config from existing file: " + CONFIG_FILE)
+            
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
@@ -366,15 +359,25 @@ engine.create_phrase(folder, title, contents)"""
             if version < "0.80.0":
                 try:
                     convert_v07_to_v08(data)
+                    self.config_altered(True)
                 except Exception, e:
                     _logger.exception("Problem occurred during conversion.")
                     _logger.error("Existing config file has been saved as %s%s",
                                   CONFIG_FILE, version)
-                    raise    
+                    raise
+                
+            self.app.monitor.add_watch(CONFIG_FILE)
         
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
+            
+            for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+                if os.path.isdir(entryPath):
+                    _logger.debug("Loading folder at '%s'", entryPath)
+                    f = Folder("", path=entryPath)
+                    f.load(None)
+                    self.folders.append(f)
 
             for folderPath in data["folders"]:
                 f = Folder("", path=folderPath)
@@ -413,6 +416,8 @@ engine.create_phrase(folder, title, contents)"""
             directory, baseName = os.path.split(path)
             loaded = False
             
+            # --- handle directories added
+            
             if os.path.isdir(path):
                 f = Folder("", path=path)
                 
@@ -426,7 +431,9 @@ engine.create_phrase(folder, title, contents)"""
                         f.load(folder)
                         folder.add_folder(f)
                         loaded = True
-                
+            
+            # -- handle txt or py files added or modified
+            
             elif os.path.isfile(path):
                 i = self.__checkExisting(path)
                 isNew = False
@@ -444,17 +451,28 @@ engine.create_phrase(folder, title, contents)"""
                         i.load(folder)
                         if isNew: folder.add_item(i)
                         loaded = True
+                        
+                # --- handle changes to folder settings
                             
                 if baseName == ".folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         folder.load_from_serialized()
                         loaded = True
+                        
+                # --- handle changes to item settings
+                
+                if baseName.endswith(".json"):
+                    for item in self.allItems:
+                        if item.get_json_path() == path:
+                            item.load_from_serialized()
+                            loaded = True
                             
             if not loaded:
                 _logger.warn("No action taken for create/update event at %s", path)
             else:
                 self.config_altered(False)
+            return loaded
         
     def path_removed(self, path):
         directory, baseName = os.path.split(path)
@@ -472,12 +490,14 @@ engine.create_phrase(folder, title, contents)"""
                 
         elif item is not None:
             item.parent.remove_item(item)
+            #item.remove_data()
             deleted = True
             
         if not deleted:
             _logger.warn("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
+        return deleted
             
     def reload_global_config(self):
         _logger.info("Reloading global configuration")
@@ -528,12 +548,13 @@ engine.create_phrase(folder, title, contents)"""
         @param persist: save the global configuration at the end of the process
         """
         _logger.info("Configuration changed - rebuilding in-memory structures")
+        
         self.lock.acquire()
         # Rebuild root folder list
-        rootFolders = self.folders
-        self.folders = []
-        for folder in rootFolders:
-            self.folders.append(folder)
+        #rootFolders = self.folders
+        #self.folders = []
+        #for folder in rootFolders:
+        #    self.folders.append(folder)
         
         self.hotKeyFolders = []
         self.hotKeys = []
@@ -570,7 +591,10 @@ engine.create_phrase(folder, title, contents)"""
 
         self.lock.release()
                     
-    def __processFolder(self, parentFolder):
+    def __processFolder(self, parentFolder):        
+        if not self.app.monitor.has_watch(parentFolder.path):
+            self.app.monitor.add_watch(parentFolder.path)
+        
         for folder in parentFolder.folders:
             if TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)

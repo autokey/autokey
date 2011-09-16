@@ -21,8 +21,8 @@ from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from scripting import Store
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
-JSON_SECTION_HEADER = "### Begin JSON Data - do not remove this header ###\n"
-JSON_SECTION_FOOTER = "### End JSON Data - do not remove this footer ###\n"
+
+JSON_FILE_PATTERN = "%s/.%s.json"
 
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
@@ -334,9 +334,15 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     self.items.append(i)
                 
     def load_from_serialized(self):
-        with open(self.path + "/.folder.json", 'r') as inFile:
-            data = json.load(inFile)
-                    
+        try:
+            with open(self.path + "/.folder.json", 'r') as inFile:
+                data = json.load(inFile)
+                self.inject_json_data(data)
+        except Exception:
+            logger.exception("Error while loading json data for %s", self.description)
+            logger.error("JSON data not loaded (or loaded incomplete)")
+    
+    def inject_json_data(self, data):
         self.title = data["title"]
         
         self.modes = data["modes"]
@@ -523,14 +529,18 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             baseName = baseName[:-4]
         self.path = get_safe_path(self.parent.path, baseName, ".txt")
         
+    def get_json_path(self):
+        directory, baseName = os.path.split(self.path[:-4])
+        return JSON_FILE_PATTERN % (directory, baseName)
+        
     def persist(self):
         if self.path is None:
             self.build_path()
+            
+        with open(self.get_json_path(), 'w') as jsonFile:
+            json.dump(self.get_serializable(), jsonFile, indent=4)
                 
         with open(self.path, "w") as outFile:
-            outFile.write(JSON_SECTION_HEADER)
-            outFile.write(json.dumps(self.get_serializable(), indent=4) + '\n')
-            outFile.write(JSON_SECTION_FOOTER + '\n')
             outFile.write(self.phrase)
 
     def get_serializable(self):
@@ -553,35 +563,25 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def load(self, parent):
         self.parent = parent
+        
         with open(self.path, "r") as inFile:
-            jsonData = []
-            phraseData = []
-            inJson = False
-            
-            for line in inFile:        
-                if line == JSON_SECTION_HEADER: 
-                    inJson = True
-                    continue
-    
-                if line == JSON_SECTION_FOOTER:
-                    inJson = False
-                    continue
-                
-                if inJson:
-                    jsonData.append(line)
-                else:
-                    phraseData.append(line)
-            
-        if jsonData:
-            data = ''.join(jsonData)
-            self.load_from_serialized(json.loads(data))
-            
+            self.phrase = inFile.read()  
+        
+        if os.path.exists(self.get_json_path()):           
+            self.load_from_serialized()
         else:
             self.description = os.path.basename(self.path)[:-4]
-            
-        self.phrase = ''.join(phraseData[1:]) # drop extra newline at start
 
-    def load_from_serialized(self, data):
+    def load_from_serialized(self):
+        try:
+            with open(self.get_json_path(), "r") as jsonFile:
+                data = json.load(jsonFile)
+                self.inject_json_data(data)
+        except Exception:
+            logger.exception("Error while loading json data for %s", self.description)
+            logger.error("JSON data not loaded (or loaded incomplete)")
+    
+    def inject_json_data(self, data):
         self.description = data["description"]
         self.modes = data["modes"]
         self.usageCount = data["usageCount"]
@@ -597,17 +597,19 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def rebuild_path(self):
         if self.path is not None:
             oldName = self.path
+            oldJson = self.get_json_path()
             self.build_path()
             os.rename(oldName, self.path)
+            os.rename(oldJson, self.get_json_path())
         else:
             self.build_path()  
         
     def remove_data(self):
         if self.path is not None:
-            try:            
+            if os.path.exists(self.path):
                 os.remove(self.path)
-            except OSError:
-                pass
+            if os.path.exists(self.get_json_path()):
+                os.remove(self.get_json_path())
         
     def copy(self, thePhrase):
         self.description = thePhrase.description
@@ -809,16 +811,18 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             baseName = baseName[:-3]
         self.path = get_safe_path(self.parent.path, baseName, ".py")
         
+    def get_json_path(self):
+        directory, baseName = os.path.split(self.path[:-3])
+        return JSON_FILE_PATTERN % (directory, baseName)
+        
     def persist(self):
         if self.path is None:
             self.build_path()
+            
+        with open(self.get_json_path(), 'w') as jsonFile:
+            json.dump(self.get_serializable(), jsonFile, indent=4)
                         
         with open(self.path, "w") as outFile:
-            outFile.write(JSON_SECTION_HEADER)
-            data = json.dumps(self.get_serializable(), indent=4).split('\n')
-            data = ['#' + line for line in data]
-            outFile.write('\n'.join(data) + '\n')
-            outFile.write(JSON_SECTION_FOOTER + '\n')
             outFile.write(self.code)
 
     def get_serializable(self):
@@ -840,36 +844,25 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def load(self, parent):
         self.parent = parent
+        
         with open(self.path, "r") as inFile:
-            jsonData = []
-            scriptData = []
-            inJson = False
-            
-            for line in inFile:        
-                if line == JSON_SECTION_HEADER: 
-                    inJson = True
-                    continue
-    
-                if line == JSON_SECTION_FOOTER:
-                    inJson = False
-                    continue
-                
-                if inJson:
-                    jsonData.append(line[1:])
-                else:
-                    scriptData.append(line)
-            
-        if jsonData:
-            data = ''.join(jsonData)
-            self.load_from_serialized(json.loads(data))
-            
+            self.code = inFile.read()  
+        
+        if os.path.exists(self.get_json_path()):           
+            self.load_from_serialized()
         else:
             self.description = os.path.basename(self.path)[:-3]
-            
-        self.code = ''.join(scriptData[1:]) # drop extra newline at start
-                
 
-    def load_from_serialized(self, data):
+    def load_from_serialized(self):
+        try:
+            with open(self.get_json_path(), "r") as jsonFile:
+                data = json.load(jsonFile)
+                self.inject_json_data(data)
+        except Exception:
+            logger.exception("Error while loading json data for %s", self.description)
+            logger.error("JSON data not loaded (or loaded incomplete)")
+    
+    def inject_json_data(self, data):   
         self.description = data["description"]
         self.store = Store(data["store"])
         self.modes = data["modes"]
@@ -884,17 +877,19 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def rebuild_path(self):
         if self.path is not None:
             oldName = self.path
+            oldJson = self.get_json_path()
             self.build_path()
             os.rename(oldName, self.path)
+            os.rename(oldJson, self.get_json_path())
         else:
             self.build_path()         
         
     def remove_data(self):
         if self.path is not None:
-            try:            
+            if os.path.exists(self.path):
                 os.remove(self.path)
-            except OSError:
-                pass
+            if os.path.exists(self.get_json_path()):
+                os.remove(self.get_json_path())
 
     def copy(self, theScript):
         self.description = theScript.description

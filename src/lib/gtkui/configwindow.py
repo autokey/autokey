@@ -544,7 +544,6 @@ class PhrasePage(ScriptPage):
 class ConfigWindow:
     
     def __init__(self, app):
-        app.monitor.suspend()
         self.app = app
         self.cutCopiedItems = []
         
@@ -665,6 +664,32 @@ class ConfigWindow:
         self.saveButton.set_sensitive(dirty)
         self.revertButton.set_sensitive(dirty)
         
+    def config_modified(self):
+        gtk.gdk.threads_enter()
+        msg = _("Changes made in other programs will not be displayed until you\
+ close and reopen the AutoKey window.")
+        dlg = gtk.MessageDialog(self.ui, type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK,
+                               message_format= _("Configuration has been changed on disk."))
+        dlg.format_secondary_text(msg)
+        
+        #if self.dirty:
+        #    checkButton = gtk.CheckButton(_("Save changes before reloading (this may overwrite changes from other programs)"))    
+        #    box = dlg.get_content_area()
+        #    box.pack_end(checkButton)
+            
+        dlg.run()
+        #    if self.dirty:
+        #        if checkButton.get_active():
+        #            self.on_save()
+            
+        #    dlg.destroy()
+        #    gtk.gdk.threads_leave()
+        #    return True
+                    
+        dlg.destroy()
+        gtk.gdk.threads_leave()
+        #return False
+        
     def update_actions(self, items, changed):
         if len(items) == 0:
             canCreate = False
@@ -716,11 +741,13 @@ class ConfigWindow:
     
     def on_save(self, widget, data=None):
         if self.__getCurrentPage().validate():
+            self.app.monitor.suspend()
             persistGlobal = self.__getCurrentPage().save()
             self.save_completed(persistGlobal)
             self.set_dirty(False)
             
             self.refresh_tree()
+            self.app.monitor.unsuspend()
     
     def on_reset(self, widget, data=None):
         self.__getCurrentPage().reset()
@@ -744,7 +771,6 @@ class ConfigWindow:
             self.destroy()
             self.app.configWindow = None
             self.app.config_altered(True)
-            self.app.monitor.unsuspend()
             
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
@@ -764,10 +790,16 @@ class ConfigWindow:
         if response == gtk.RESPONSE_OK:
             path = dlg.get_filename()
             self.__createFolder(os.path.basename(path), None, path)
+            self.app.monitor.add_watch(path)
+            dlg.destroy()
+            self.app.config_altered(True)
         elif response == gtk.RESPONSE_NONE:
-            self.__createFolder("New Folder", None)
-            
-        dlg.destroy()
+            dlg.destroy()
+            name = self.__getNewItemName("Folder")
+            self.__createFolder(name, None)
+            self.app.config_altered(True)
+        else:        
+            dlg.destroy()
         
     def on_new_folder(self, widget, data=None):
         name = self.__getNewItemName("Folder")
@@ -775,19 +807,19 @@ class ConfigWindow:
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = theModel[selectedPaths[0]].iter
             self.__createFolder(name, parentIter)
+            self.app.config_altered(False)
         
     def __createFolder(self, title, parentIter, path=None):
-        theModel = self.treeView.get_model()        
+        self.app.monitor.suspend()        
+        theModel = self.treeView.get_model()  
         newFolder = model.Folder(title, path=path)
         newFolder.persist()
+        self.app.monitor.unsuspend()
         newIter = theModel.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().unselect_all()
         self.treeView.get_selection().select_iter(newIter)
         self.on_tree_selection_changed(self.treeView)
-        
-        #if path is None:
-        #    self.on_rename(self.treeView)
             
     def __getNewItemName(self, itemType):
         dlg = RenameDialog(self.ui, "New %s" % itemType, True, _("Create New %s") % itemType)
@@ -809,11 +841,13 @@ class ConfigWindow:
     def on_new_phrase(self, widget, data=None):
         name = self.__getNewItemName("Phrase")
         if name is not None:
+            self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = theModel[selectedPaths[0]].iter
             newPhrase = model.Phrase(name, "Enter phrase contents")
             newIter = theModel.append_item(newPhrase, parentIter)
             newPhrase.persist()
+            self.app.monitor.unsuspend()
             self.treeView.expand_to_path(theModel.get_path(newIter))
             self.treeView.get_selection().unselect_all()
             self.treeView.get_selection().select_iter(newIter)
@@ -823,11 +857,13 @@ class ConfigWindow:
     def on_new_script(self, widget, data=None):
         name = self.__getNewItemName("Script")
         if name is not None:
+            self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = theModel[selectedPaths[0]].iter
             newScript = model.Script(name, "# Enter script code")
             newIter = theModel.append_item(newScript, parentIter)
             newScript.persist()
+            self.app.monitor.unsuspend()
             self.treeView.expand_to_path(theModel.get_path(newIter))
             self.treeView.get_selection().unselect_all()
             self.treeView.get_selection().select_iter(newIter)
@@ -869,6 +905,7 @@ class ConfigWindow:
     def on_paste_item(self, widget, data=None):
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
         parentIter = theModel[selectedPaths[0]].iter
+        self.app.monitor.suspend()
         
         newIters = []
         for item in self.cutCopiedItems:
@@ -878,6 +915,8 @@ class ConfigWindow:
             newIters.append(newIter)
             item.path = None
             item.persist()
+            
+        self.app.monitor.unsuspend()
                 
         self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
         self.treeView.get_selection().unselect_all()
@@ -893,6 +932,7 @@ class ConfigWindow:
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
         sourceIter = theModel[selectedPaths[0]].iter
         parentIter = theModel.iter_parent(sourceIter)
+        self.app.monitor.suspend()
         
         if isinstance(source, model.Phrase):
             newObj = model.Phrase('', '')
@@ -901,8 +941,9 @@ class ConfigWindow:
         newObj.copy(source)
         newObj.persist()
 
+        self.app.monitor.unsuspend()
         newIter = theModel.append_item(newObj, parentIter)
-        self.app.config_altered(True)        
+        self.app.config_altered(False)        
         
     def on_delete_item(self, widget, data=None):
         selection = self.treeView.get_selection()
@@ -924,14 +965,17 @@ class ConfigWindow:
             msg = _("Are you sure you want to delete the %d selected items?") % len(refs)
             
         dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+        dlg.set_title(_("Delete"))
         if dlg.run() == gtk.RESPONSE_YES:
+            self.app.monitor.suspend()
             for ref in refs:
                 if ref.valid():
                     item = theModel[ref.get_path()].iter
                     modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
                     self.__removeItem(theModel, item)
                     modified = True
-
+            self.app.monitor.unsuspend()
+            
         dlg.destroy()            
         
         if modified: 
@@ -1070,7 +1114,9 @@ class ConfigWindow:
                 self.__getCurrentPage().set_item_title(newText)
                 
                 if dlg.get_update_fs():
+                    self.app.monitor.suspend()
                     self.__getCurrentPage().rebuild_item_path()
+                    self.app.monitor.unsuspend()
                 
                 persistGlobal = self.__getCurrentPage().save()
                 self.refresh_tree()
@@ -1145,15 +1191,18 @@ class ConfigWindow:
         if drop_info:
             path, position = drop_info
             targetIter = theModel.get_iter(path)
+        else:
+            targetIter = None
             
-        targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
-    
+        #targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
+        self.app.monitor.suspend()
+            
         for path in self.__sourceRows:
             self.__removeItem(theModel, theModel[path].iter)
         
         newIters = []
         for item in self.__sourceObjects:
-            newIter = theModel.append_item(item, targetIter)    
+            newIter = theModel.append_item(item, targetIter)  
             if isinstance(item, model.Folder):
                 theModel.populate_store(newIter, item)
                 self.__dropRecurseUpdate(item)
@@ -1161,7 +1210,8 @@ class ConfigWindow:
                 item.path = None
                 item.persist()
             newIters.append(newIter)
-                
+            
+        self.app.monitor.unsuspend()                
         self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
         selection.unselect_all()
         for iter in newIters:
@@ -1179,7 +1229,7 @@ class ConfigWindow:
         for child in folder.items:
             child.path = None
             child.persist()
-        
+            
     def on_drag_drop(self, widget, drag_context, x, y, timestamp):
         drop_info = widget.get_dest_row_at_pos(x, y)
         if drop_info:
@@ -1196,9 +1246,11 @@ class ConfigWindow:
                 # checking path prevents dropping a folder onto itself
                 return False
             else:
-                return True
-        
-        return True
+                # Target is top level
+                for item in self.__sourceObjects:
+                    if not isinstance(item, model.Folder):
+                        return True
+        return False
             
     def __initTreeWidget(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
@@ -1337,8 +1389,8 @@ class AkTreeModel(gtk.TreeStore):
     def append_item(self, item, parentIter):
         if parentIter is None:
             self.folders.append(item)
+            item.parent = None
             return self.append(None, item.get_tuple())
-        
         else:
             parentFolder = self.get_value(parentIter, self.OBJECT_COLUMN)
             if isinstance(item, model.Folder):

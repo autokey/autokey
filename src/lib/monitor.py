@@ -37,32 +37,32 @@ class Processor(ProcessEvent):
             path = os.path.join(event.path, event.name)
         else:
             path = event.path
-        _logger.info("Reporting %s event at %s", event.maskname, path)
+        _logger.debug("Reporting %s event at %s", event.maskname, path)
         return path
     
     def process_IN_MOVED_TO(self, event):
         path = self.__getEventPath(event)
-        if not self.monitor.is_suspended(path):
+        if not self.monitor.is_suspended():
             self.listener.path_created_or_modified(path)
     
     def process_IN_CREATE(self, event):
         path = self.__getEventPath(event)
-        if not self.monitor.is_suspended(path):
+        if not self.monitor.is_suspended():
             self.listener.path_created_or_modified(path)
         
     def process_IN_MODIFY(self, event):
         path = self.__getEventPath(event)
-        if not self.monitor.is_suspended(path):
+        if not self.monitor.is_suspended():
             self.listener.path_created_or_modified(path)
         
     def process_IN_DELETE(self, event):
         path = self.__getEventPath(event)
-        if not self.monitor.is_suspended(path):        
+        if not self.monitor.is_suspended():        
             self.listener.path_removed(path)
             
     def process_IN_MOVED_FROM(self, event):
         path = self.__getEventPath(event)
-        if not self.monitor.is_suspended(path):
+        if not self.monitor.is_suspended():
             self.listener.path_removed(path)
 
 
@@ -78,34 +78,23 @@ class FileMonitor(threading.Thread):
         self.watches = []
         #self.suspended = []
         self.__isSuspended = False
-            
-    def suspend_path(self, path):
-        #self.suspended.append(path)
-        self.suspend()
         
     def suspend(self):
         self.__isSuspended = True
     
     def unsuspend(self):
-        t = threading.Thread(target=self.__unsuspend, args=('',))
-        t.start()
-    
-    def unsuspend_path(self, path):
-        t = threading.Thread(target=self.__unsuspend, args=(path,))
+        t = threading.Thread(target=self.__unsuspend)
         t.start()
         
-    def __unsuspend(self, path):
+    def __unsuspend(self):
         time.sleep(1)
-        #self.suspended.remove(path)
         self.__isSuspended = False
+        for watch in self.watches:
+            if not os.path.exists(watch):
+                _logger.debug("Removed stale watch on %s", watch)
+                self.watches.remove(watch)
         
-    def is_suspended(self, path):
-        #if path not in self.suspended:
-        #    for susp in self.suspended:
-        #        if path.startswith(susp):
-        #            return True
-        #  
-        #return False
+    def is_suspended(self):
         return self.__isSuspended
         
     def has_watch(self, path):
@@ -126,27 +115,19 @@ class FileMonitor(threading.Thread):
                 if self.watches[i].startswith(path):
                     self.watches.remove(self.watches[i])
             except IndexError:
-                break
-    
-        #if path in self.suspended: self.suspended.remove(path)
-        #for i in range(len(self.suspended)):
-        #    try:
-        #        if self.suspended[i].startswith(path):
-        #            self.suspended.remove(self.suspended[i])
-        #    except IndexError:
-        #        break        
+                break       
         
     def run(self):        
         while not self.event.isSet():
             self.notifier.process_events()
             if self.notifier.check_events():
                 self.notifier.read_events()
+            time.sleep(0.1)
         
         _logger.info("Shutting down file monitor")
-        for path in self.watches:
-            wd = self.manager.get_wd(path)
-            self.manager.rm_watch(wd, True)
+        self.notifier.stop()
         
     def stop(self):
         self.event.set()
+        self.join()
         

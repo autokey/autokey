@@ -73,6 +73,9 @@ class Notifier(gobject.GObject):
             else:
                 self.icon.set_tooltip(TOOLTIP_PAUSED)
                 #self.toggleAction.setChecked(False)
+                
+    def hide_icon(self):
+        self.icon.set_visible(False)
         
     # Signal Handlers ----
     
