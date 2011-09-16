@@ -1247,10 +1247,19 @@ class ConfigWindow:
                 return False
             else:
                 # Target is top level
+                print "top level target"
                 for item in self.__sourceObjects:
                     if not isinstance(item, model.Folder):
+                        print "drop not permitted"
                         return True
-        return False
+
+            return False
+    
+        else:
+            # target is top level with no drop info
+            for item in self.__sourceObjects:
+                if not isinstance(item, model.Folder):
+                    return True
             
     def __initTreeWidget(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
