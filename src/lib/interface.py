@@ -432,16 +432,22 @@ class XInterfaceBase(threading.Thread):
                     if offset == 0:
                         self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
+                        self.press_key(Key.SHIFT)
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
+                        self.release_key(Key.SHIFT)
                     if offset == 4:
+                        self.press_key(Key.ALT_GR)
                         self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR], focus)
+                        self.release_key(Key.ALT_GR)
 
                 elif char in self.remappedChars:
                     keyCode, offset = self.remappedChars[char]
                     if offset == 0:
                         self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)                    
+                        self.press_key(Key.SHIFT)
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
+                        self.release_key(Key.SHIFT)              
 
                 elif len(availCodes) > 0:
                     # Remap available keycode and send
