@@ -82,6 +82,15 @@ class XInterfaceBase(threading.Thread):
         # Window name atoms
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
+
+        self.keyMap = gtk.gdk.keymap_get_default()
+        self.keyMap.connect("keys-changed", self.on_keys_changed)
+        self.__refreshKeymap = False
+        
+    def on_keys_changed(self, data=None):
+        logger.debug("Recorded keymap change event")
+        self.__refreshKeymap = True
+        
         
     def __initMappings(self):
         # TODO - this is a hack - do we need to reimplement it the new way?
@@ -376,6 +385,14 @@ class XInterfaceBase(threading.Thread):
 
         return avail
     
+    def __findUsableKeycode(self, codeList):
+        for code, offset in codeList:
+            if offset in (0, 1, 4):
+                return code, offset
+    
+        return None, None
+            
+    
     def send_string(self, string):
         """
         Send a string of printable characters.
@@ -386,7 +403,8 @@ class XInterfaceBase(threading.Thread):
         remapChars = []
         for char in string:
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-            if len(keyCodeList) == 0 and char not in self.remappedChars:
+            usableCode, offset = self.__findUsableKeycode(keyCodeList)
+            if usableCode is None and char not in self.remappedChars:
                 remapChars.append(char)
 
         # Now we know which chars need remapping, do it
@@ -427,8 +445,8 @@ class XInterfaceBase(threading.Thread):
         for char in string:
             try:
                 keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-                if len(keyCodeList) > 0:
-                    keyCode, offset = keyCodeList[0]
+                keyCode, offset = self.__findUsableKeycode(keyCodeList)
+                if keyCode is not None:
                     if offset == 0:
                         self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
@@ -561,6 +579,11 @@ class XInterfaceBase(threading.Thread):
 
         self.__flushEvents()
         
+        if self.__refreshKeymap:
+            self.localDisplay = display.Display()
+            self.__initMappings()
+            self.__refreshKeymap = False
+        
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
@@ -587,11 +610,6 @@ class XInterfaceBase(threading.Thread):
             return keyName
         
         return None
-    
-    def __updateMapping(self, event):
-        logger.info("Got XMappingNotify - reloading keyboard mapping")
-        self.localDisplay.refresh_keyboard_mapping(event)   
-        self.__initMappings() 
     
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
         if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
