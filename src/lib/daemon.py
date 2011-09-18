@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, time, atexit
+import sys, os, time, atexit, errno
 from signal import SIGTERM 
 
 class Daemon:
@@ -111,7 +111,7 @@ class Daemon:
 				os.kill(pid, SIGTERM)
 				time.sleep(0.1)
 		except OSError, err:
-			if err.errno == 3: # "No such process"
+			if err.errno == errno.ESRCH: # "No such process"
 				if os.path.exists(self.pidfile):
 					os.remove(self.pidfile)
 			else:
