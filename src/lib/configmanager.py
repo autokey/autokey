@@ -51,6 +51,7 @@ HPANE_POSITION = "hPanePosition"
 COLUMN_WIDTHS = "columnWidths"
 SHOW_TOOLBAR = "showToolbar"
 NOTIFICATION_ICON = "notificationIcon"
+WORKAROUND_APP_REGEX = "workAroundApps"
 
 # TODO - Future functionality
 #TRACK_RECENT_ENTRY = "trackRecentEntry"
@@ -209,7 +210,8 @@ class ConfigManager:
                 HPANE_POSITION : 150,
                 COLUMN_WIDTHS : [150, 50, 100],
                 SHOW_TOOLBAR : True,
-                NOTIFICATION_ICON : common.ICON_FILE
+                NOTIFICATION_ICON : common.ICON_FILE,
+                WORKAROUND_APP_REGEX : ".*VirtualBox.*"
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,
@@ -370,6 +372,8 @@ engine.create_phrase(folder, title, contents)"""
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
+            
+            self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
             
             for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
                 if os.path.isdir(entryPath):

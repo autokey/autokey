@@ -66,7 +66,8 @@ class XInterfaceBase(threading.Thread):
         self.rootWindow = self.localDisplay.screen().root
         self.lock = threading.RLock()
         self.dpyLock = threading.RLock()
-        self.lastChars = [] # TODO QT4 Workaround - remove me once the bug is fixed
+        self.lastChars = [] # QT4 Workaround
+        self.__enableQT4Workaround = False # QT4 Workaround
         
         self.clipBoard = gtk.Clipboard()
         self.selection = gtk.Clipboard(selection="PRIMARY")
@@ -398,6 +399,9 @@ class XInterfaceBase(threading.Thread):
         Send a string of printable characters.
         """
         logger.debug("Sending string: %r", string)
+        # Determine if workaround is needed
+        if not ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+            self.__checkWorkaroundNeeded() 
 
         # First find out if any chars need remapping
         remapChars = []
@@ -620,10 +624,17 @@ class XInterfaceBase(threading.Thread):
         return None
     
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
-        if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+        if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
+        
+    def __checkWorkaroundNeeded(self):
+        windowName = self.get_window_title()
+        if self.app.configManager.workAroundApps.match(windowName):
+            self.__enableQT4Workaround = True
+        else:
+            self.__enableQT4Workaround = False
         
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
