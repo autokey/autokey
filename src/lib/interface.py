@@ -471,7 +471,7 @@ class XInterfaceBase(threading.Thread):
                     if offset == 1:
                         self.press_key(Key.SHIFT)
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
-                        self.release_key(Key.SHIFT)              
+                        self.release_key(Key.SHIFT)
 
                 elif len(availCodes) > 0:
                     # Remap available keycode and send
@@ -517,7 +517,9 @@ class XInterfaceBase(threading.Thread):
             for mod in modifiers:
                 mask |= self.modMasks[mod]
             keyCode = self.__lookupKeyCode(keyName)
+            for mod in modifiers: self.press_key(mod)
             self.__sendKeyCode(keyCode, mask)
+            for mod in modifiers: self.release_key(mod)
         except Exception, e:
             logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
         
@@ -621,12 +623,13 @@ class XInterfaceBase(threading.Thread):
         if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
-        self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)        
+        self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
         
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
             if keyCode in self.lastChars and not self.lastChars[-1] == keyCode:
-                time.sleep(0.0125)
+                time.sleep(0.05)
+                self.localDisplay.flush()
                 #print "waiting"
 
         self.lastChars.append(keyCode)
