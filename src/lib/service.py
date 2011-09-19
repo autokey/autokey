@@ -107,7 +107,7 @@ class Service:
         self.phraseRunner.clear_last() 
         
     def handle_keypress(self, rawKey, modifiers, key, windowName):
-        logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key.encode("utf-8"))
+        logger.debug("Raw key: %r, modifiers: %r, Key: %s, Window: '%s'", rawKey, modifiers, key.encode("utf-8"), windowName)
         self.configManager.lock.acquire()
         
         # Always check global hotkeys

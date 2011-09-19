@@ -244,6 +244,7 @@ class ConfigManager:
         self.load_global_config()
                 
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
+        self.app.monitor.add_watch(CONFIG_DIR)
         
         if self.folders:
             return
@@ -366,8 +367,6 @@ engine.create_phrase(folder, title, contents)"""
                                   CONFIG_FILE, version)
                     raise
                 
-            self.app.monitor.add_watch(CONFIG_FILE)
-        
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
@@ -410,11 +409,13 @@ engine.create_phrase(folder, title, contents)"""
         return None
             
     def path_created_or_modified(self, path):
+        directory, baseName = os.path.split(path)
+        loaded = False
+        
         if path == CONFIG_FILE:
             self.reload_global_config()
-        else:    
-            directory, baseName = os.path.split(path)
-            loaded = False
+            
+        elif directory != CONFIG_DIR:  # ignore all other changes in top dir
             
             # --- handle directories added
             
@@ -477,6 +478,9 @@ engine.create_phrase(folder, title, contents)"""
     def path_removed(self, path):
         directory, baseName = os.path.split(path)
         deleted = False
+        
+        if directory == CONFIG_DIR: # ignore all deletions in top dir
+            return 
         
         folder = self.__checkExistingFolder(path)
         item = self.__checkExisting(path)

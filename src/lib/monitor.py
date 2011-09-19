@@ -87,7 +87,7 @@ class FileMonitor(threading.Thread):
         t.start()
         
     def __unsuspend(self):
-        time.sleep(1)
+        time.sleep(1.5)
         self.__isSuspended = False
         for watch in self.watches:
             if not os.path.exists(watch):
@@ -120,12 +120,11 @@ class FileMonitor(threading.Thread):
     def run(self):        
         while not self.event.isSet():
             self.notifier.process_events()
-            if self.notifier.check_events():
+            if self.notifier.check_events(1000):
                 self.notifier.read_events()
-            time.sleep(0.1)
         
         _logger.info("Shutting down file monitor")
-        self.notifier.stop()
+        self.notifier.stop()        
         
     def stop(self):
         self.event.set()
