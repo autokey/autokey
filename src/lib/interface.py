@@ -639,16 +639,13 @@ class XInterfaceBase(threading.Thread):
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
             if keyCode in self.lastChars and not self.lastChars[-1] == keyCode:
-                time.sleep(0.05)
                 self.localDisplay.flush()
-                #print "waiting"
+                time.sleep(0.0125)
 
         self.lastChars.append(keyCode)
         
         if len(self.lastChars) > 10:
             self.lastChars.pop(0)
-        
-        #print self.lastChars
         
     def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
         if theWindow is None:
