@@ -91,13 +91,14 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Recorded keymap change event")
         self.__refreshKeymap = True
         
-        
     def __initMappings(self):
-        # TODO - this is a hack - do we need to reimplement it the new way?
-        #altGrTuples = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
-        #for keyCode, level in altGrTuples:
-        #    self.keyCodes[Key.ALT_GR] = keyCode
-        #    self.keyNames[keyCode] = Key.ALT_GR
+        altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
+        self.__usableOffsets = (0, 1)
+        for code, offset in altList:        
+            if code == 108 and offset == 0:
+                self.__usableOffsets += (4, 5)
+                logger.debug("Enabling sending using Alt-Grid")
+                break        
 
         # Build modifier mask mapping
         self.modMasks = {}
@@ -387,11 +388,10 @@ class XInterfaceBase(threading.Thread):
     
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
-            if offset in (0, 1, 4):
+            if offset in self.__usableOffsets:
                 return code, offset
     
         return None, None
-            
     
     def send_string(self, string):
         """
@@ -456,6 +456,12 @@ class XInterfaceBase(threading.Thread):
                     if offset == 4:
                         self.press_key(Key.ALT_GR)
                         self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR], focus)
+                        self.release_key(Key.ALT_GR)
+                    if offset == 5:
+                        self.press_key(Key.ALT_GR)
+                        self.press_key(Key.SHIFT)
+                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR]|self.modMasks[Key.SHIFT], focus)
+                        self.release_key(Key.SHIFT)
                         self.release_key(Key.ALT_GR)
 
                 elif char in self.remappedChars:
