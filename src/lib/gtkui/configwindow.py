@@ -1242,22 +1242,32 @@ class ConfigWindow:
             
             targetIter = theModel.get_iter(path)
             targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
-            if isinstance(targetModelItem, model.Folder) and path not in self.__sourceRows:
-                # checking path prevents dropping a folder onto itself
-                return False
-            else:
+            
+            if isinstance(targetModelItem, model.Folder):
+                # prevent dropping a folder onto itself
+                return path in self.__sourceRows
+            elif targetModelItem is None:
                 # Target is top level
                 for item in self.__sourceObjects:
                     if not isinstance(item, model.Folder):
+                        # drop not permitted for top level because not folder
                         return True
-
-            return False
+                
+                # prevent dropping a folder onto itself
+                return path in self.__sourceRows
     
         else:
             # target is top level with no drop info
             for item in self.__sourceObjects:
                 if not isinstance(item, model.Folder):
+                    # drop not permitted for no drop info because not folder
                     return True
+    
+            # drop permitted for no drop info which is a folder
+            return False
+    
+        # drop not permitted
+        return True
             
     def __initTreeWidget(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))

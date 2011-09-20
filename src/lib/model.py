@@ -15,10 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, os, os.path, glob
+import re, os, os.path, glob, logging
 from configmanager import *
 from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from scripting import Store
+
+_logger = logging.getLogger("model")
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
@@ -339,8 +341,8 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(inFile)
                 self.inject_json_data(data)
         except Exception:
-            logger.exception("Error while loading json data for %s", self.description)
-            logger.error("JSON data not loaded (or loaded incomplete)")
+            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.error("JSON data not loaded (or loaded incomplete)")
     
     def inject_json_data(self, data):
         self.title = data["title"]
@@ -578,8 +580,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(jsonFile)
                 self.inject_json_data(data)
         except Exception:
-            logger.exception("Error while loading json data for %s", self.description)
-            logger.error("JSON data not loaded (or loaded incomplete)")
+            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.error("JSON data not loaded (or loaded incomplete)")
     
     def inject_json_data(self, data):
         self.description = data["description"]
@@ -859,8 +861,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(jsonFile)
                 self.inject_json_data(data)
         except Exception:
-            logger.exception("Error while loading json data for %s", self.description)
-            logger.error("JSON data not loaded (or loaded incomplete)")
+            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.error("JSON data not loaded (or loaded incomplete)")
     
     def inject_json_data(self, data):   
         self.description = data["description"]

@@ -18,7 +18,7 @@
 
 import common
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, Queue, optparse
+import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
 import gettext, gtk
 gettext.install("autokey")
 
@@ -156,6 +156,7 @@ class Application:
         self.service.mediator.interface.ungrab_hotkey(item)
         
     def path_created_or_modified(self, path):
+        time.sleep(0.5)
         changed = self.configManager.path_created_or_modified(path)
         if changed and self.configWindow is not None: 
             self.configWindow.config_modified()
@@ -164,6 +165,7 @@ class Application:
             #    self.show_configure_async()
         
     def path_removed(self, path):
+        time.sleep(0.5)
         changed = self.configManager.path_removed(path)        
         if changed and self.configWindow is not None: 
             self.configWindow.config_modified()
