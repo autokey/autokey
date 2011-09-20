@@ -90,6 +90,7 @@ class PopupMenu(gtk.Menu):
         titleItem.add(button)
         titleItem.set_sensitive(False)
         self.append(titleItem)
+        self.set_property("reserve-toggle-size", False)
         
     def __addItemsToSelf(self, items, service, onDesktop):
         # Create phrase section
