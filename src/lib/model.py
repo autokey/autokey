@@ -541,7 +541,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), jsonFile, indent=4)
                 
         with open(self.path, "w") as outFile:
-            outFile.write(self.phrase)
+            outFile.write(self.phrase.encode("utf-8"))
 
     def get_serializable(self):
         d = {
@@ -565,7 +565,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = parent
         
         with open(self.path, "r") as inFile:
-            self.phrase = inFile.read()  
+            self.phrase = inFile.read().decode("utf-8") 
         
         if os.path.exists(self.get_json_path()):           
             self.load_from_serialized()
@@ -823,7 +823,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), jsonFile, indent=4)
                         
         with open(self.path, "w") as outFile:
-            outFile.write(self.code)
+            outFile.write(self.code.encode("utf-8"))
 
     def get_serializable(self):
         d = {
@@ -846,7 +846,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = parent
         
         with open(self.path, "r") as inFile:
-            self.code = inFile.read()  
+            self.code = inFile.read().decode("utf-8")
         
         if os.path.exists(self.get_json_path()):           
             self.load_from_serialized()
