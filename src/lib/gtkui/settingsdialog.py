@@ -25,12 +25,12 @@ import configwindow
 DESKTOP_FILE = "/usr/share/applications/autokey-gtk.desktop"
 AUTOSTART_FILE = os.path.expanduser("~/.config/autostart/autokey-gtk.desktop")
 
-ICON_NAME_MAP = {
+"""ICON_NAME_MAP = {
                 _("Default") : common.ICON_FILE,
                 _("Grayscale") : common.ICON_FILE_GRAYSCALE
                 }
 
-ICON_NAME_LIST = []
+ICON_NAME_LIST = []"""
 
 class SettingsDialog:
     
@@ -167,6 +167,8 @@ class SettingsDialog:
         if self.usePopupHotkey:
             self.showPopupDlg.save(popupHotkey)
             app.hotkey_created(popupHotkey)
+            
+        app.update_notifier_visibility()
             
         self.configManager.config_altered(True)
         

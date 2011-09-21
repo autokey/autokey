@@ -143,7 +143,7 @@ def convert_v07_to_v08(configData):
         
     configData["folders"] = []
     configData["version"] = common.VERSION
-    configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE
+    configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE_NOTIFICATION
 
     # Remove old backup file so we never retry the conversion
     if os.path.exists(CONFIG_FILE_BACKUP):
@@ -210,7 +210,7 @@ class ConfigManager:
                 HPANE_POSITION : 150,
                 COLUMN_WIDTHS : [150, 50, 100],
                 SHOW_TOOLBAR : True,
-                NOTIFICATION_ICON : common.ICON_FILE,
+                NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
                 WORKAROUND_APP_REGEX : ".*VirtualBox.*"
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,

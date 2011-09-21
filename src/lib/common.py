@@ -34,8 +34,8 @@ FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
 
-ICON_FILE = "/usr/share/pixmaps/akicon.svg"
-ICON_FILE_GRAYSCALE = "/usr/share/pixmaps/akicon-status.png"
+ICON_FILE = "autokey"
+ICON_FILE_NOTIFICATION = "autokey-status"
 
 # Misc
 DOMAIN_SOCKET_PATH = "/var/run/autokey-daemon"

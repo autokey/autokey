@@ -23,7 +23,7 @@ import gettext, gtk
 gettext.install("autokey")
 
 import service, monitor
-from gtkui.notifier import Notifier
+from gtkui.notifier import get_notifier
 from gtkui.popupmenu import PopupMenu
 from gtkui.configwindow import ConfigWindow
 from gtkui.abbrselector import AbbrSelectorDialog
@@ -128,7 +128,7 @@ class Application:
             self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                     "Check your system/configuration."), str(e))
         
-        self.notifier = Notifier(self)
+        self.notifier = get_notifier(self)
         self.configWindow = None
         self.abbrPopup = None
         self.monitor.start()
@@ -145,7 +145,7 @@ class Application:
         
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
-        #self.notifier.build_menu()
+        self.notifier.rebuild_menu()
 
     def hotkey_created(self, item):
         logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
@@ -225,6 +225,9 @@ class Application:
         the "View Details" button.
         """
         self.notifier.show_notify(message, isError, details)
+        
+    def update_notifier_visibility(self):
+        self.notifier.update_visible_status()
         
     def show_configure(self):
         """

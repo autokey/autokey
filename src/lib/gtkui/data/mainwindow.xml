@@ -7,7 +7,7 @@
     <property name="title" translatable="yes">AutoKey - Configuration</property>
     <property name="default_width">600</property>
     <property name="default_height">400</property>
-    <property name="icon">akicon.svg</property>
+    <property name="icon">autokey.svg</property>
     <signal handler="on_close" name="delete_event" swapped="no"/>
     <child>
       <object class="GtkVBox" id="vbox">

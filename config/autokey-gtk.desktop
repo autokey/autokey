@@ -6,5 +6,5 @@ Comment=Program keyboard shortcuts
 Exec=autokey-gtk
 Terminal=false
 Type=Application
-Icon=akicon
+Icon=autokey
 Categories=GNOME;GTK;Utility;

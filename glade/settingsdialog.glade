@@ -68,7 +68,7 @@
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="showTrayCheckbox">
-                                    <property name="label" translatable="yes">Show a notification icon (requires restart)</property>
+                                    <property name="label" translatable="yes">Show a notification icon</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
