@@ -90,11 +90,21 @@ class XInterfaceBase(threading.Thread):
         self.__ignoreRemap = False
         
     def on_keys_changed(self, data=None):
-        if not self.__ignoreRemap:
+        if not self.__ignoreRemap and not self.__refreshKeymap:
             logger.debug("Recorded keymap change event")
             self.__refreshKeymap = True
+            t = threading.Thread(target=self.__delayedInitMappings)
+            t.start()
         else:
             logger.debug("Ignored keymap change event")
+            
+    def __delayedInitMappings(self):
+        time.sleep(0.5)
+        self.__refreshKeymap = False
+        self.dpyLock.acquire()
+        self.localDisplay = display.Display()        
+        self.__initMappings()
+        self.dpyLock.release()
         
     def __initMappings(self):
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
@@ -582,11 +592,6 @@ class XInterfaceBase(threading.Thread):
         self.lock.acquire()
 
         self.__flushEvents()
-        
-        if self.__refreshKeymap:
-            self.localDisplay = display.Display()
-            self.__initMappings()
-            self.__refreshKeymap = False
         
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
