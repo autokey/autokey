@@ -19,7 +19,7 @@
 import common
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
-import gettext, gtk
+import gettext, gtk, dbus, dbus.service, dbus.mainloop.glib
 gettext.install("autokey")
 
 import service, monitor
@@ -32,9 +32,7 @@ from common import *
 
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
-#LICENSE = KAboutData.License_GPL_V3
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
-#TEXT = _("")
 
 
 class Application:
@@ -96,13 +94,19 @@ class Application:
             # Check that the found PID is running and is autokey
             p = subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE)
             p.wait()
-            output = p.stdout.readlines()
-            if len(output) > 1:
-                # process exists
-                if "autokey" in output[1]:
-                    logging.error("AutoKey is already running - exiting")
-                    self.show_error_dialog(_("AutoKey is already running as pid: ") + pid)
-                    sys.exit(1)
+            output = p.stdout.read()
+            if "autokey" in output:
+                logging.debug("AutoKey is already running as pid %s", pid)
+                bus = dbus.SessionBus()
+                
+                try:
+                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
+                    dbusService.show_configure(dbus_interface = "org.autokey.Service")
+                    sys.exit(0)
+                except dbus.DBusException, e:
+                    logging.exception("Error communicating with Dbus service")
+                    self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
+                    sys.exit(1)            
          
         return True
 
@@ -132,6 +136,9 @@ class Application:
         self.configWindow = None
         self.abbrPopup = None
         self.monitor.start()
+        
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self.dbusService = AppService(self)
         
         if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
             ConfigManager.SETTINGS[IS_FIRST_RUN] = False
@@ -295,3 +302,17 @@ class Application:
     
     def hide_menu(self):
         self.menu.remove_from_desktop()
+
+
+class AppService(dbus.service.Object):
+    
+    def __init__(self, app):
+        busName = dbus.service.BusName('org.autokey.Service', bus=dbus.SessionBus())
+        dbus.service.Object.__init__(self, busName, "/AppService")
+        self.app = app
+        
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='', out_signature='')
+    def show_configure(self):
+        self.app.show_configure()
+        
+        
