@@ -5,10 +5,24 @@ autokey (0.80.0-0~natty) natty; urgency=low
   * Create conversion path from previous single configuration file
   * Add inotify-based file monitoring and reload configuration in real-time if
     modified externally
+  * Implement reloading of the keyboard mapping when it is changed
+  * Simplify and improve implementation of dynamic keyboard remapping
+  * Better detection and use of ISO Level 3 shift (Alt-Grid)
+  * Make AutoKey compatible with QT4 apps having the event rate bug
+  * Add a configurable window title regex to allow specifying which apps should
+    have the workaround performed
+  * Implement a Dbus session service and use it to trigger display of the main
+    window when a second instance of the program is started
+  * Use application indicator instead of GTK notification icon if available
+  * Use icon names rather than file names to allow icon themes to change our icons
+  * Redesigned application icon
+  * Add a standard notification area icon that is less intrusive
+  * Make enabling/disabling the notification icon instant instead of requiring a
+    restart
+  * Give icons more sensible names
   * Deprecate and remove the KDE GUI
   * Stop building transitional 'autokey' package
   * Remove nogui code and documentation - it's been broken for a long time
-  * Redesigned application icon
   * Fix drag and drop in the tree view
   * Silence various GTK builder warnings
   * Add F2 as an accelerator for Rename
@@ -23,8 +37,10 @@ autokey (0.80.0-0~natty) natty; urgency=low
   * Fix problem where having two identically-named top-level folders was
     impossible
   * Fix divergence between list of folders in configmanager and treemodel
+  * Simulate press and release of modifier keys when sending modified symbols
+  * Merge patch for issue 140 - don't use hardcoded errno value
   
- -- Chris Dekter <cdekter@gmail.com>  Fri, 16 Sep 2011 21:23:08 +1000
+ -- Chris Dekter <cdekter@gmail.com>  Thu, 22 Sep 2011 14:26:08 +1000
 
 autokey (0.71.3-1~natty) natty; urgency=low
 
