@@ -172,6 +172,7 @@ class SettingsWidget:
     # ---- Signal handlers
         
     def on_setAbbrButton_clicked(self, widget, data=None):
+        self.abbrDialog.reset_focus()
         self.abbrDialog.run()
          
     def on_abbr_response(self, res):
@@ -208,6 +209,7 @@ class SettingsWidget:
         self.hotkeyDialog.reset()
 
     def on_setFilterButton_clicked(self, widget, data=None):
+        self.filterDialog.reset_focus()
         if self.filterDialog.run() == gtk.RESPONSE_OK:
             self.set_dirty()
             filterText = self.filterDialog.get_filter_text()

@@ -55,6 +55,14 @@ def validate(expression, message, widget, parent):
 
 class DialogBase:
 
+    def __init__(self):    
+        self.connect("close", self.on_close)
+        self.connect("delete_event", self.on_close)        
+
+    def on_close(self, widget, data=None):
+        self.hide()
+        return gtk.TRUE    
+
     def on_cancel(self, widget, data=None):
         self.load(self.targetItem)
         self.ui.response(gtk.RESPONSE_CANCEL)
@@ -71,6 +79,9 @@ class DialogBase:
     
     def on_response(self, widget, responseId):
         self.closure(responseId)
+        if responseId < 0:
+            self.hide()
+            self.emit_stop_by_name('response')
 
 
 class AbbrSettingsDialog(DialogBase):
@@ -91,6 +102,8 @@ class AbbrSettingsDialog(DialogBase):
         self.ignoreCaseCheckbox = builder.get_object("ignoreCaseCheckbox")
         self.triggerInsideCheckbox = builder.get_object("triggerInsideCheckbox")
         self.immediateCheckbox = builder.get_object("immediateCheckbox")
+        
+        DialogBase.__init__(self)
         
         #for item in WORD_CHAR_OPTIONS_ORDERED:
         #    self.wordCharCombo.append_text(item)
@@ -168,6 +181,9 @@ class AbbrSettingsDialog(DialogBase):
                             self.abbrEntry, self.ui): return False
 
         return True
+    
+    def reset_focus(self):
+        self.abbrEntry.grab_focus()
         
     # Signal handlers
     
@@ -212,6 +228,8 @@ class HotkeySettingsDialog(DialogBase):
         self.superButton = builder.get_object("superButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
+        
+        DialogBase.__init__(self)
         
     def load(self, item):
         self.targetItem = item
@@ -352,6 +370,8 @@ class WindowFilterSettingsDialog(DialogBase):
         
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
         
+        DialogBase.__init__(self)
+        
     def load(self, item):
         self.targetItem = item
         if item.uses_default_filter():
@@ -370,7 +390,9 @@ class WindowFilterSettingsDialog(DialogBase):
     
     def valid(self):
         return True
-        
+    
+    def reset_focus(self):
+        self.triggerRegexEntry.grabber()        
         
 class RecordDialog(DialogBase):
     
@@ -384,6 +406,8 @@ class RecordDialog(DialogBase):
         self.keyboardButton = builder.get_object("keyboardButton")
         self.mouseButton = builder.get_object("mouseButton")
         self.spinButton = builder.get_object("spinButton")
+        
+        DialogBase.__init__(self)
         
     def get_record_keyboard(self):
         return self.keyboardButton.get_active()
