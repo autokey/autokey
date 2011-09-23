@@ -13,6 +13,8 @@ autokey (0.80.0-0~natty) natty; urgency=low
     have the workaround performed
   * Implement a Dbus session service and use it to trigger display of the main
     window when a second instance of the program is started
+  * Add ability for scripts to get the active window title and class
+  * Add sample script that shows the active window information
   * Use application indicator instead of GTK notification icon if available
   * Use icon names rather than file names to allow icon themes to change our icons
   * Redesigned application icon

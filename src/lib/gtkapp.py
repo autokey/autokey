@@ -213,9 +213,13 @@ class Application:
         if self.configWindow is not None:
             if self.configWindow.promptToSave():
                 return
-            else:
-                self.configWindow.hide()
-                
+
+            self.configWindow.hide()
+        
+        t = threading.Thread(target=self.__completeShutdown)
+        t.start()
+    
+    def __completeShutdown(self):                
         logging.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()

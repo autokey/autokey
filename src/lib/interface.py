@@ -592,12 +592,13 @@ class XInterfaceBase(threading.Thread):
         self.lock.acquire()
 
         self.__flushEvents()
+        focus = self.localDisplay.get_input_focus().focus
         
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            self.mediator.handle_keypress(keyCode, self.get_window_title(), self.get_window_class())
+            self.mediator.handle_keypress(keyCode, self.get_window_title(focus), self.get_window_class(focus))
             
     def _handleKeyRelease(self, keyCode):
         try:
@@ -967,9 +968,12 @@ class AtSpiInterface(XInterfaceBase):
         self.activeWindow = event.source_name
         self.mediator.handle_mouse_click(0, 0, 0, 0, 0)
     
-    def get_window_title(self):
+    def get_window_title(self, window=None):
         logger.debug("Window name: %s", self.activeWindow)
         return self.activeWindow
+    
+    def get_window_class(self, window=None):
+        return ""
     
     def __pumpEvents(self):
         pyatspi.Registry.pumpQueuedEvents()

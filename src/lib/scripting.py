@@ -230,6 +230,19 @@ class GtkDialog:
         output = p.stdout.read()[:-1] # Drop trailing newline
         
         return (retCode, output)
+    
+    def info_dialog(self, title="Information", message="", **kwargs):
+        """
+        Show an information dialog
+        
+        Usage: C{dialog.info_dialog(title="Information", message="", **kwargs)}
+        
+        @param title: window title for the dialog
+        @param message: message displayed in the dialog
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runZenity(title, ["--info", "--text", message], kwargs)        
         
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -675,6 +688,28 @@ class Window:
             return map(int, output)
         else:
             return None
+
+    def get_active_title(self):
+        """
+        Get the visible title of the currently active window
+        
+        Usage: C{window.get_active_title()}
+        
+        @return: the visible title of the currentle active window
+        @rtype: C{str}
+        """
+        return self.mediator.interface.get_window_title()
+    
+    def get_active_class(self):
+        """
+        Get the class of the currently active window
+        
+        Usage: C{window.get_active_class()}
+        
+        @return: the class of the currentle active window
+        @rtype: C{str}
+        """
+        return self.mediator.interface.get_window_class()
         
     def __runWmctrl(self, args):
         p = subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE)

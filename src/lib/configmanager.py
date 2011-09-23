@@ -326,6 +326,17 @@ folder = engine.get_folder("My Phrases")
 engine.create_phrase(folder, title, contents)"""
         sampleScripts.add_item(phrasec)
         
+        win = Script("Display window info")
+        win.code = """# Displays the information of the active window after 2 seconds
+import time
+time.sleep(2)
+winTitle = window.get_active_title()
+winClass = window.get_active_class()
+dialog.info_dialog("Window information", 
+          "Active window information:\nTitle: '%s'\nClass: '%s'" % (winTitle, winClass))"""
+        win.showInTrayMenu = True
+        sampleScripts.append(win)
+        
         self.folders.append(sampleScripts)
         [s.persist() for s in sampleScripts.items]
 

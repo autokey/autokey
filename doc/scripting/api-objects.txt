@@ -19,6 +19,7 @@ lib.scripting.GtkClipboard.__fillSelection	lib.scripting.GtkClipboard-class.html
 lib.scripting.GtkClipboard.__init__	lib.scripting.GtkClipboard-class.html#__init__
 lib.scripting.GtkDialog	lib.scripting.GtkDialog-class.html
 lib.scripting.GtkDialog.input_dialog	lib.scripting.GtkDialog-class.html#input_dialog
+lib.scripting.GtkDialog.info_dialog	lib.scripting.GtkDialog-class.html#info_dialog
 lib.scripting.GtkDialog.list_menu	lib.scripting.GtkDialog-class.html#list_menu
 lib.scripting.GtkDialog.open_file	lib.scripting.GtkDialog-class.html#open_file
 lib.scripting.GtkDialog.password_dialog	lib.scripting.GtkDialog-class.html#password_dialog
@@ -51,10 +52,12 @@ lib.scripting.Window.wait_for_exist	lib.scripting.Window-class.html#wait_for_exi
 lib.scripting.Window.activate	lib.scripting.Window-class.html#activate
 lib.scripting.Window.move_to_desktop	lib.scripting.Window-class.html#move_to_desktop
 lib.scripting.Window.get_active_geometry	lib.scripting.Window-class.html#get_active_geometry
+lib.scripting.Window.get_active_class	lib.scripting.Window-class.html#get_active_class
 lib.scripting.Window.wait_for_focus	lib.scripting.Window-class.html#wait_for_focus
 lib.scripting.Window.__runWmctrl	lib.scripting.Window-class.html#__runWmctrl
+lib.scripting.Window.__init__	lib.scripting.Window-class.html#__init__
 lib.scripting.Window.resize_move	lib.scripting.Window-class.html#resize_move
 lib.scripting.Window.close	lib.scripting.Window-class.html#close
 lib.scripting.Window.switch_desktop	lib.scripting.Window-class.html#switch_desktop
 lib.scripting.Window.set_property	lib.scripting.Window-class.html#set_property
-lib.scripting.Window.__init__	lib.scripting.Window-class.html#__init__
+lib.scripting.Window.get_active_title	lib.scripting.Window-class.html#get_active_title
