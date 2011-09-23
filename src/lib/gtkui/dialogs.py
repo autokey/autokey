@@ -392,7 +392,7 @@ class WindowFilterSettingsDialog(DialogBase):
         return True
     
     def reset_focus(self):
-        self.triggerRegexEntry.grabber()        
+        self.triggerRegexEntry.grab_focus()        
         
 class RecordDialog(DialogBase):
     
