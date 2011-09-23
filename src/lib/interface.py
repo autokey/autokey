@@ -189,7 +189,7 @@ class XInterfaceBase(threading.Thread):
 
         # Grab hotkeys without a filter in root window
         for item in hotkeys:
-            if item.windowTitleRegex is None:
+            if item.windowInfoRegex is None:
                 self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
 
         self.__recurseTree(self.rootWindow, hotkeys)
@@ -200,7 +200,7 @@ class XInterfaceBase(threading.Thread):
             title = self.get_window_title(window)
             if title != "" and title != "None":
                 for item in hotkeys:
-                    if item.windowTitleRegex is not None and item._should_trigger_window_title(title):
+                    if item.windowInfoRegex is not None and item._should_trigger_window_title(title):
                         self.__grabHotkey(item.hotKey, item.modifiers, window)
 
             try:
@@ -220,7 +220,7 @@ class XInterfaceBase(threading.Thread):
         title = self.get_window_title(window)
         if title != "" and title != "None":
             for item in hotkeys:
-                if item.windowTitleRegex is not None and item._should_trigger_window_title(title):
+                if item.windowInfoRegex is not None and item._should_trigger_window_title(title):
                     self.__grabHotkey(item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
@@ -255,7 +255,7 @@ class XInterfaceBase(threading.Thread):
         If the hotkey has no filter regex, it is global and need only be grabbed from the root window
         If it has a filter regex, iterate over all children of the root and grab from matching windows
         """
-        if item.windowTitleRegex is None:
+        if item.windowInfoRegex is None:
             self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
         else:
             self.__grabRecurse(item, self.rootWindow)
@@ -275,7 +275,7 @@ class XInterfaceBase(threading.Thread):
         If the hotkey has no filter regex, it is global and need only be ungrabbed from the root window
         If it has a filter regex, iterate over all children of the root and ungrab from matching windows
         """
-        if item.windowTitleRegex is None:
+        if item.windowInfoRegex is None:
             self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
         else:
             self.__ungrabRecurse(item, self.rootWindow)
@@ -597,7 +597,7 @@ class XInterfaceBase(threading.Thread):
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            self.mediator.handle_keypress(keyCode, self.get_window_title())
+            self.mediator.handle_keypress(keyCode, self.get_window_title(), self.get_window_class())
             
     def _handleKeyRelease(self, keyCode):
         try:
@@ -627,8 +627,12 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
         
     def __checkWorkaroundNeeded(self):
-        windowName = self.get_window_title()
-        if self.app.configManager.workAroundApps.match(windowName):
+        focus = self.localDisplay.get_input_focus().focus
+        windowName = self.get_window_title(focus)
+        windowClass = self.get_window_class(focus)
+        w = self.app.configManager.workAroundApps
+        
+        if w.match(windowName) or w.match(windowClass):
             self.__enableQT4Workaround = True
         else:
             self.__enableQT4Workaround = False
@@ -711,7 +715,7 @@ class XInterfaceBase(threading.Thread):
             if atom:
                 return atom.value
             else:
-                return self.__getAppName(windowvar)
+                return self.__getWinTitle(windowvar)
 
         except:
             return ""
@@ -719,19 +723,40 @@ class XInterfaceBase(threading.Thread):
             self.dpyLock.release()
         
     
-    def __getAppName(self, windowvar):
+    def __getWinTitle(self, windowvar):
         wmname = windowvar.get_wm_name()
         wmclass = windowvar.get_wm_class()
 
         if (wmname == None) and (wmclass == None):
-            return self.__getAppName(windowvar.query_tree().parent)
+            return self.__getWinTitle(windowvar.query_tree().parent)
         elif wmname == "":
             if wmclass == "":
-                return self.__getAppName(windowvar.query_tree().parent)
-            else:
-                return wmclass[0]
+                return self.__getWinTitle(windowvar.query_tree().parent)
 
         return str(wmname)
+    
+    def get_window_class(self, window=None):
+        self.dpyLock.acquire()
+        
+        try:
+            if window is None:
+                windowvar = self.localDisplay.get_input_focus().focus
+            else:
+                windowvar = window
+        
+            return self.__getWinClass(windowvar)
+        except:
+            return ""
+        finally:
+            self.dpyLock.release()
+    
+    def __getWinClass(self, windowvar):
+        wmclass = windowvar.get_wm_class()
+        
+        if wmclass == None or wmclass == "":
+            return self.__getWinClass(windowvar.query_tree().parent)
+    
+        return wmclass[0]
 
 
 class EvDevInterface(XInterfaceBase):

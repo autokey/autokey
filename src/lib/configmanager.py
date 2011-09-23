@@ -749,7 +749,7 @@ class GlobalHotkey(AbstractHotkey):
     def __init__(self):
         AbstractHotkey.__init__(self)
         self.enabled = False
-        self.windowTitleRegex = None
+        self.windowInfoRegex = None
 
     def get_serializable(self):
         d = {

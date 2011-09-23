@@ -106,20 +106,22 @@ class Service:
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last() 
         
-    def handle_keypress(self, rawKey, modifiers, key, windowName):
-        logger.debug("Raw key: %r, modifiers: %r, Key: %s, Window: '%s'", rawKey, modifiers, key.encode("utf-8"), windowName)
+    def handle_keypress(self, rawKey, modifiers, key, windowName, windowClass):
+        logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key.encode("utf-8"))
+        logger.debug("Window visible title: '%s', Window class: '%s'" % (windowName, windowClass))
         self.configManager.lock.acquire()
+        windowInfo = (windowName, windowClass)
         
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
-            hotkey.check_hotkey(modifiers, rawKey, windowName)
+            hotkey.check_hotkey(modifiers, rawKey, windowInfo)
         
-        if self.__shouldProcess(windowName):
+        if self.__shouldProcess(windowInfo):
             itemMatch = None
             menu = None
 
             for item in self.configManager.hotKeys:
-                if item.check_hotkey(modifiers, rawKey, windowName):
+                if item.check_hotkey(modifiers, rawKey, windowInfo):
                     itemMatch = item
                     break
 
@@ -134,7 +136,7 @@ class Service:
             else:
                 logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey(modifiers, rawKey, windowName):
+                    if folder.check_hotkey(modifiers, rawKey, windowInfo):
                         #menu = PopupMenu(self, [folder], [])
                         menu = ([folder], [])
 
@@ -168,11 +170,11 @@ class Service:
             if self.__updateStack(key):
                 currentInput = ''.join(self.inputStack)
                 item, menu = self.__checkTextMatches([], self.configManager.abbreviations,
-                                                    currentInput, windowName, True)
+                                                    currentInput, windowInfo, True)
                 if not item or menu:
                     item, menu = self.__checkTextMatches(self.configManager.allFolders,
                                                          self.configManager.allItems,
-                                                         currentInput, windowName)
+                                                         currentInput, windowInfo)
                                                          
                 if item:
                     self.__tryReleaseLock()
@@ -256,7 +258,7 @@ class Service:
                 self.inputStack.pop(0)
             return True
             
-    def __checkTextMatches(self, folders, items, buffer, windowName, immediate=False):
+    def __checkTextMatches(self, folders, items, buffer, windowInfo, immediate=False):
         """
         Check for an abbreviation/predictive match among the given folder and items 
         (scripts, phrases).
@@ -267,14 +269,14 @@ class Service:
         folderMatches = []
         
         for item in items:
-            if item.check_input(buffer, windowName):
+            if item.check_input(buffer, windowInfo):
                 if not item.prompt and immediate:
                     return (item, None)
                 else:
                     itemMatches.append(item)
                     
         for folder in folders:
-            if folder.check_input(buffer, windowName):
+            if folder.check_input(buffer, windowInfo):
                 folderMatches.append(folder)
                 break # There should never be more than one folder match anyway
         
@@ -289,11 +291,11 @@ class Service:
             return (None, None)
             
                 
-    def __shouldProcess(self, windowName):
+    def __shouldProcess(self, windowInfo):
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return windowName != "Set Abbreviation" and self.is_running()
+        return windowInfo[0] != "Set Abbreviation" and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):

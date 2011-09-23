@@ -159,11 +159,11 @@ class AbstractAbbreviation:
 class AbstractWindowFilter:
     
     def __init__(self):
-        self.windowTitleRegex = None
+        self.windowInfoRegex = None
 
     def get_serializable(self):
-        if self.windowTitleRegex is not None:
-            return self.windowTitleRegex.pattern
+        if self.windowInfoRegex is not None:
+            return self.windowInfoRegex.pattern
         else:
             return None
 
@@ -171,26 +171,27 @@ class AbstractWindowFilter:
         self.set_window_titles(pattern)
         
     def copy_window_filter(self, filter):
-        self.windowTitleRegex = filter.windowTitleRegex
+        self.windowInfoRegex = filter.windowInfoRegex
     
     def set_window_titles(self, regex):
         if regex is not None:
-            self.windowTitleRegex = re.compile(regex, re.UNICODE)
+            self.windowInfoRegex = re.compile(regex, re.UNICODE)
         else:
-            self.windowTitleRegex = regex
+            self.windowInfoRegex = regex
             
     def uses_default_filter(self):
-        return self.windowTitleRegex is None
+        return self.windowInfoRegex is None
     
     def get_filter_regex(self):
-        if self.windowTitleRegex is not None:
-            return self.windowTitleRegex.pattern
+        if self.windowInfoRegex is not None:
+            return self.windowInfoRegex.pattern
         else:
             return ""
 
-    def _should_trigger_window_title(self, windowTitle):
-        if self.windowTitleRegex is not None:
-            return self.windowTitleRegex.match(windowTitle)
+    def _should_trigger_window_title(self, windowInfo):
+        if self.windowInfoRegex is not None:
+            r = self.windowInfoRegex
+            return r.match(windowInfo[0]) or r.match(windowInfo[1]) 
         else:
             return True        
             
@@ -412,9 +413,9 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def set_modes(self, modes):
         self.modes = modes
         
-    def check_input(self, buffer, windowName):
+    def check_input(self, buffer, windowInfo):
         if TriggerMode.ABBREVIATION in self.modes:
-            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(windowName)
+            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(windowInfo)
         else:
             return False
         
@@ -636,8 +637,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def set_modes(self, modes):
         self.modes = modes
 
-    def check_input(self, buffer, windowName):
-        if self._should_trigger_window_title(windowName):
+    def check_input(self, buffer, windowInfo):
+        if self._should_trigger_window_title(windowInfo):
             abbr = False
             predict = False
             
@@ -911,8 +912,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def set_modes(self, modes):
         self.modes = modes
 
-    def check_input(self, buffer, windowName):
-        if self._should_trigger_window_title(windowName):            
+    def check_input(self, buffer, windowInfo):
+        if self._should_trigger_window_title(windowInfo):            
             if TriggerMode.ABBREVIATION in self.modes:
                 return self._should_trigger_abbreviation(buffer)
             

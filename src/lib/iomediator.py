@@ -147,7 +147,7 @@ class IoMediator(threading.Thread):
         
     def shutdown(self):
         self.interface.cancel()
-        self.queue.put_nowait((None, None))
+        self.queue.put_nowait((None, None, None))
         #self.join()
 
     # Callback methods for Interfaces ----
@@ -178,16 +178,16 @@ class IoMediator(threading.Thread):
         if not modifier in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
-    def handle_keypress(self, keyCode, windowName):
+    def handle_keypress(self, keyCode, windowName, windowClass):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
         """
-        self.queue.put_nowait((keyCode, windowName))
+        self.queue.put_nowait((keyCode, windowName, windowClass))
         
     def run(self):
         while True:
-            keyCode, windowName = self.queue.get()
+            keyCode, windowName, windowClass = self.queue.get()
             if keyCode is None and windowName is None:
                 break
             
@@ -198,7 +198,7 @@ class IoMediator(threading.Thread):
             rawKey = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
             
             for target in self.listeners:
-                target.handle_keypress(rawKey, modifiers, key, windowName)                
+                target.handle_keypress(rawKey, modifiers, key, windowName, windowClass)                
                 
             self.queue.task_done()
             
@@ -356,7 +356,7 @@ class KeyGrabber:
         IoMediator.listeners.append(self)
         CURRENT_INTERFACE.grab_keyboard()
                  
-    def handle_keypress(self, rawKey, modifiers, key, windowName=""):
+    def handle_keypress(self, rawKey, modifiers, key, *args):
         if not rawKey in MODIFIERS:
             IoMediator.listeners.remove(self)
             self.targetParent.set_key(rawKey)
@@ -406,7 +406,7 @@ class Recorder(KeyGrabber):
             
         return self.delayFinished
                 
-    def handle_keypress(self, rawKey, modifiers, key, windowName=""):
+    def handle_keypress(self, rawKey, modifiers, key, *args):
         if self.recordKeyboard and self.__delayPassed():
             if not self.insideKeys:
                 self.insideKeys = True
