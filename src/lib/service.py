@@ -150,6 +150,7 @@ class Service:
                 self.app.show_popup_menu(*menu)
             
             if itemMatch is not None:
+                self.__tryReleaseLock()
                 self.__processItem(itemMatch)
                 
                 
@@ -159,7 +160,7 @@ class Service:
             
             if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
                 self.inputStack = []
-                self.configManager.lock.release()
+                self.__tryReleaseLock()
                 return
                 
             ### --- end of processing if non-printing modifiers are on --- ###
@@ -174,6 +175,7 @@ class Service:
                                                          currentInput, windowName)
                                                          
                 if item:
+                    self.__tryReleaseLock()
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
@@ -184,8 +186,14 @@ class Service:
                     self.app.show_popup_menu(*menu)
                 
                 logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
-                
-        self.configManager.lock.release()
+    
+        self.__tryReleaseLock()
+    
+    def __tryReleaseLock(self):     
+        try:     
+            self.configManager.lock.release()
+        except:
+            logger.debug("Ignored locking error in handle_keypress")
                 
                 
     @threaded

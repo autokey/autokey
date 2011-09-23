@@ -695,6 +695,7 @@ class Engine:
     def __init__(self, configManager, runner):
         self.configManager = configManager
         self.runner = runner
+        self.monitor = configManager.app.monitor
         
     def get_folder(self, title):
         """
@@ -722,9 +723,12 @@ class Engine:
         @param description: description for the phrase
         @param contents: the expansion text
         """
+        self.monitor.suspend()
         p = model.Phrase(description, contents)
         folder.add_item(p)
-        self.configManager.config_altered()            
+        p.persist()
+        self.monitor.unsuspend()
+        self.configManager.config_altered(False)
         
     def create_abbreviation(self, folder, description, abbr, contents):
         """
@@ -744,11 +748,14 @@ class Engine:
         if not self.configManager.check_abbreviation_unique(abbr, None):
             raise Exception("The specified abbreviation is already in use")
         
+        self.monitor.suspend()
         p = model.Phrase(description, contents)
         p.modes.append(model.TriggerMode.ABBREVIATION)
         p.abbreviation = abbr
         folder.add_item(p)
-        self.configManager.config_altered()
+        p.persist()
+        self.monitor.unsuspend()
+        self.configManager.config_altered(False)
         
     def create_hotkey(self, folder, description, modifiers, key, contents):
         """
@@ -778,11 +785,14 @@ class Engine:
         if not self.configManager.check_hotkey_unique(modifiers, key, None):
             raise Exception("The specified hotkey and modifier combination is already in use")
         
+        self.monitor.suspend()
         p = model.Phrase(description, contents)
         p.modes.append(model.TriggerMode.HOTKEY)
         p.set_hotkey(modifiers, key)
         folder.add_item(p)
-        self.configManager.config_altered()
+        p.persist()
+        self.monitor.unsuspend()
+        self.configManager.config_altered(False)
 
     def run_script(self, description):
         """
