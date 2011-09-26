@@ -23,7 +23,8 @@ from dialogs import GlobalHotkeyDialog
 import configwindow
 
 DESKTOP_FILE = "/usr/share/applications/autokey-gtk.desktop"
-AUTOSTART_FILE = os.path.expanduser("~/.config/autostart/autokey-gtk.desktop")
+AUTOSTART_DIR = os.path.expanduser("~/.config/autostart")
+AUTOSTART_FILE = os.path.join(AUTOSTART_DIR, "autokey-gtk.desktop")
 
 """ICON_NAME_MAP = {
                 _("Default") : common.ICON_FILE,
@@ -118,6 +119,10 @@ class SettingsDialog:
     def on_save(self, widget, data=None):
         if self.autoStartCheckbox.get_active():
             if not os.path.exists(AUTOSTART_FILE):
+                try:
+                    os.makedirs(AUTOSTART_DIR)
+                except OSError:
+                    pass
                 shutil.copy(DESKTOP_FILE, AUTOSTART_FILE)
         else:
             if os.path.exists(AUTOSTART_FILE):
