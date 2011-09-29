@@ -32,7 +32,7 @@ try:
     HAS_RECORD = True
 except ImportError:
     HAS_RECORD = False
-    
+
 from Xlib.protocol import rq, event
 
 logger = logging.getLogger("interface")
@@ -55,7 +55,7 @@ class XInterfaceBase(threading.Thread):
     """
     Encapsulates the common functionality for the two X interface classes.
     """
-    
+
     def __init__(self, mediator, app):
         threading.Thread.__init__(self)
         self.setDaemon(True)
@@ -63,15 +63,15 @@ class XInterfaceBase(threading.Thread):
         self.mediator = mediator
         self.app = app
         self.localDisplay = display.Display()
+        self.sendDisplay = display.Display()
         self.rootWindow = self.localDisplay.screen().root
         self.lock = threading.RLock()
-        self.dpyLock = threading.RLock()
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
-        
+
         self.clipBoard = gtk.Clipboard()
         self.selection = gtk.Clipboard(selection="PRIMARY")
-        
+
         self.__initMappings()
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
 
@@ -88,7 +88,7 @@ class XInterfaceBase(threading.Thread):
         self.keyMap.connect("keys-changed", self.on_keys_changed)
         self.__refreshKeymap = False
         self.__ignoreRemap = False
-        
+
     def on_keys_changed(self, data=None):
         if not self.__ignoreRemap and not self.__refreshKeymap:
             logger.debug("Recorded keymap change event")
@@ -97,23 +97,22 @@ class XInterfaceBase(threading.Thread):
             t.start()
         else:
             logger.debug("Ignored keymap change event")
-            
+
     def __delayedInitMappings(self):
         time.sleep(0.5)
         self.__refreshKeymap = False
-        self.dpyLock.acquire()
-        self.localDisplay = display.Display()        
+        self.localDisplay = display.Display()
+        self.sendDisplay = display.Display()
         self.__initMappings()
-        self.dpyLock.release()
-        
+
     def __initMappings(self):
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
         self.__usableOffsets = (0, 1)
-        for code, offset in altList:        
+        for code, offset in altList:
             if code == 108 and offset == 0:
                 self.__usableOffsets += (4, 5)
                 logger.debug("Enabling sending using Alt-Grid")
-                break        
+                break
 
         # Build modifier mask mapping
         self.modMasks = {}
@@ -123,8 +122,8 @@ class XInterfaceBase(threading.Thread):
             if ak in MODIFIERS:
                 keyCodeList = self.localDisplay.keysym_to_keycodes(keySym)
                 found = False
-                
-                for keyCode, lvl in keyCodeList:                    
+
+                for keyCode, lvl in keyCodeList:
                     for index, mask in MASK_INDEXES:
                         if keyCode in mapping[index]:
                             self.modMasks[ak] = mask
@@ -136,9 +135,9 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Modifier masks: %r", self.modMasks)
 
         self.__grabHotkeys()
-        
+
         # --- get list of keycodes that are unused in the current keyboard mapping
-        
+
         keyCode = 8
         avail = []
         for keyCodeMapping in self.localDisplay.get_keyboard_mapping(keyCode, 200):
@@ -150,15 +149,15 @@ class XInterfaceBase(threading.Thread):
 
             if codeAvail:
                 avail.append(keyCode)
-            
+
             keyCode += 1
-                 
+
         self.__availableKeycodes = avail
         self.remappedChars = {}
-        
+
         if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
             self.keymap_test()
-        
+
     def keymap_test(self):
         code = self.localDisplay.keycode_to_keysym(108, 0)
         for attr in XK.__dict__.iteritems():
@@ -166,7 +165,7 @@ class XInterfaceBase(threading.Thread):
                 if attr[1] == code:
                     logger.debug("Alt-Grid: %s, %s", attr[0], attr[1])
         logger.debug(repr(self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)))
-        
+
         logger.debug("X Server Keymap")
         for char in "\\|`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
@@ -320,34 +319,34 @@ class XInterfaceBase(threading.Thread):
 
         if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
             return XK_TO_AK_NUMLOCKED[keySym]
-        
+
         elif keySym in XK_TO_AK_MAP:
             return XK_TO_AK_MAP[keySym]
         else:
             try:
                 index = 0
-                if shifted: index += 1 
+                if shifted: index += 1
                 if altGrid: index += 4
                 return unichr(self.localDisplay.keycode_to_keysym(keyCode, index))
             except ValueError:
                 return "<code%d>" % keyCode
-                
+
     def send_string_clipboard(self, string, pasteCommand):
         logger.debug("Sending string: %r", string)
 
         if pasteCommand is None:
             self.__fillSelection(string)
 
-            focus = self.localDisplay.get_input_focus().focus
+            focus = self.sendDisplay.get_input_focus().focus
             xtest.fake_input(focus, X.ButtonPress, X.Button2)
             xtest.fake_input(focus, X.ButtonRelease, X.Button2)
 
         else:
             self.__fillClipboard(string)
             self.mediator.send_string(pasteCommand)
-                
+
         logger.debug("Send via clipboard done")
-        
+
     def __fillSelection(self, string):
         gtk.gdk.threads_enter()
         self.selection.set_text(string.encode("utf-8"))
@@ -359,17 +358,14 @@ class XInterfaceBase(threading.Thread):
         gtk.gdk.threads_leave()
 
     def begin_send(self):
-        self.dpyLock.acquire()
-        focus = self.localDisplay.get_input_focus().focus
+        focus = self.sendDisplay.get_input_focus().focus
         focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
-        self.localDisplay.flush()
-        self.dpyLock.release()
+        self.sendDisplay.flush()
 
     def finish_send(self):
-        self.dpyLock.acquire()
-        self.localDisplay.ungrab_keyboard(X.CurrentTime)
-        self.localDisplay.flush()
-        self.dpyLock.release()
+        self.sendDisplay.ungrab_keyboard(X.CurrentTime)
+        time.sleep(0.0125)
+        self.sendDisplay.flush()
         self.__ignoreRemap = False
 
     def grab_keyboard(self):
@@ -377,24 +373,21 @@ class XInterfaceBase(threading.Thread):
         t.start()
 
     def __grab_keyboard(self):
-        self.dpyLock.acquire()
         self.rootWindow.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
-        self.localDisplay.flush()
-        self.dpyLock.release()
+        self.sendDisplay.flush()
 
     def ungrab_keyboard(self):
-        self.dpyLock.acquire()
-        self.localDisplay.ungrab_keyboard(X.CurrentTime)
-        self.localDisplay.flush()
-        self.dpyLock.release()
+        self.sendDisplay.ungrab_keyboard(X.CurrentTime)
+        time.sleep(0.0125)
+        self.sendDisplay.flush()
 
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
             if offset in self.__usableOffsets:
                 return code, offset
-    
+
         return None, None
-    
+
     def send_string(self, string):
         """
         Send a string of printable characters.
@@ -402,40 +395,40 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Sending string: %r", string)
         # Determine if workaround is needed
         if not ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
-            self.__checkWorkaroundNeeded() 
+            self.__checkWorkaroundNeeded()
 
         # First find out if any chars need remapping
         remapNeeded = False
         for char in string:
-            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+            keyCodeList = self.sendDisplay.keysym_to_keycodes(ord(char))
             usableCode, offset = self.__findUsableKeycode(keyCodeList)
             if usableCode is None and char not in self.remappedChars:
                 remapNeeded = True
                 break
-        
+
         # Now we know chars need remapping, do it
         if remapNeeded:
             self.__ignoreRemap = True
             self.remappedChars = {}
             remapChars = []
-            
+
             for char in string:
-                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+                keyCodeList = self.sendDisplay.keysym_to_keycodes(ord(char))
                 usableCode, offset = self.__findUsableKeycode(keyCodeList)
                 if usableCode is None:
                     remapChars.append(char)
-            
+
             logger.debug("Characters requiring remapping: %r", remapChars)
             availCodes = self.__availableKeycodes
             logger.debug("Remapping with keycodes in the range: %r", availCodes)
-            mapping = self.localDisplay.get_keyboard_mapping(8, 200)
+            mapping = self.sendDisplay.get_keyboard_mapping(8, 200)
             firstCode = 8
 
             for i in xrange(len(availCodes) - 1):
                 code = availCodes[i]
                 sym1 = 0
                 sym2 = 0
-                
+
                 if len(remapChars) > 0:
                     char = remapChars.pop(0)
                     self.remappedChars[char] = (code, 0)
@@ -450,16 +443,14 @@ class XInterfaceBase(threading.Thread):
                     mapping[code - firstCode][1] = sym2
 
             mapping = [tuple(l) for l in mapping]
-            self.localDisplay.change_keyboard_mapping(firstCode, mapping)
-            self.localDisplay.flush()
+            self.sendDisplay.change_keyboard_mapping(firstCode, mapping)
+            self.sendDisplay.flush()
 
-        self.dpyLock.acquire()
-        focus = self.localDisplay.get_input_focus().focus
-        self.dpyLock.release()
-        
+        focus = self.sendDisplay.get_input_focus().focus
+
         for char in string:
             try:
-                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+                keyCodeList = self.sendDisplay.keysym_to_keycodes(ord(char))
                 keyCode, offset = self.__findUsableKeycode(keyCodeList)
                 if keyCode is not None:
                     if offset == 0:
@@ -491,8 +482,8 @@ class XInterfaceBase(threading.Thread):
                     logger.warn("Unable to send character %r", char)
             except Exception, e:
                 logger.exception("Error sending char %r: %s", char, str(e))
-                
-                    
+
+
     def send_key(self, keyName):
         """
         Send a specific non-printing key, eg Up, Left, etc
@@ -503,16 +494,16 @@ class XInterfaceBase(threading.Thread):
     def fake_keypress(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)        
-        
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+
     def fake_keydown(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        
+
     def fake_keyup(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)               
-        
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
@@ -528,13 +519,13 @@ class XInterfaceBase(threading.Thread):
             for mod in modifiers: self.release_key(mod)
         except Exception, e:
             logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
-        
+
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         # Get current pointer position so we can return it there
         pos = self.rootWindow.query_pointer()
 
         if relative:
-            focus = self.localDisplay.get_input_focus().focus
+            focus = self.sendDisplay.get_input_focus().focus
             focus.warp_pointer(xCoord, yCoord)
             xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
             xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
@@ -542,33 +533,33 @@ class XInterfaceBase(threading.Thread):
             self.rootWindow.warp_pointer(xCoord, yCoord)
             xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
             xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
-            
+
         self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
-            
+
         self.flush()
-        
+
     def send_mouse_click_relative(self, xoff, yoff, button):
         # Get current pointer position
         pos = self.rootWindow.query_pointer()
 
         xCoord = pos.root_x + xoff
         yCoord = pos.root_y + yoff
-        
+
         self.rootWindow.warp_pointer(xCoord, yCoord)
         xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
         xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
-            
+
         self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
-            
+
         self.flush()
-        
+
     def flush(self):
-        self.localDisplay.flush()
+        self.sendDisplay.flush()
         self.lastChars = []
-        
+
     def press_key(self, keyName):
         self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
-        
+
     def release_key(self, keyName):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
@@ -593,23 +584,23 @@ class XInterfaceBase(threading.Thread):
 
         self.__flushEvents()
         focus = self.localDisplay.get_input_focus().focus
-        
+
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
             self.mediator.handle_keypress(keyCode, self.get_window_title(focus), self.get_window_class(focus))
-            
+
     def _handleKeyRelease(self, keyCode):
         try:
             self.lock.release()
         except RuntimeError, e:
-            pass # ignore releasing of lock when not acquired 
+            pass # ignore releasing of lock when not acquired
                  # just means we got a KeyRelease with no matching KeyPress
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_up(modifier)
-            
+
     def __decodeModifier(self, keyCode):
         """
         Checks if the given keyCode is a modifier key. If it is, returns the modifier name
@@ -618,40 +609,40 @@ class XInterfaceBase(threading.Thread):
         keyName = self.lookup_string(keyCode, False, False, False)
         if keyName in MODIFIERS:
             return keyName
-        
+
         return None
-    
+
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
         if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
-        
+
     def __checkWorkaroundNeeded(self):
-        focus = self.localDisplay.get_input_focus().focus
+        focus = self.sendDisplay.get_input_focus().focus
         windowName = self.get_window_title(focus)
         windowClass = self.get_window_class(focus)
         w = self.app.configManager.workAroundApps
-        
+
         if w.match(windowName) or w.match(windowClass):
             self.__enableQT4Workaround = True
         else:
             self.__enableQT4Workaround = False
-        
+
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
             if keyCode in self.lastChars and not self.lastChars[-1] == keyCode:
-                self.localDisplay.flush()
+                self.sendDisplay.flush()
                 time.sleep(0.0125)
 
         self.lastChars.append(keyCode)
-        
+
         if len(self.lastChars) > 10:
             self.lastChars.pop(0)
-        
+
     def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
         if theWindow is None:
-            focus = self.localDisplay.get_input_focus().focus
+            focus = self.sendDisplay.get_input_focus().focus
         else:
             focus = theWindow
         keyEvent = event.KeyPress(
@@ -668,10 +659,10 @@ class XInterfaceBase(threading.Thread):
                                   same_screen=1
                                   )
         focus.send_event(keyEvent)
-        
+
     def __sendKeyReleaseEvent(self, keyCode, modifiers, theWindow=None):
         if theWindow is None:
-            focus = self.localDisplay.get_input_focus().focus
+            focus = self.sendDisplay.get_input_focus().focus
         else:
             focus = theWindow
         keyEvent = event.KeyRelease(
@@ -688,7 +679,7 @@ class XInterfaceBase(threading.Thread):
                                   same_screen=1
                                   )
         focus.send_event(keyEvent)
-        
+
     def __lookupKeyCode(self, char):
         if char in AK_TO_XK_MAP:
             return self.localDisplay.keysym_to_keycode(AK_TO_XK_MAP[char])
@@ -702,8 +693,6 @@ class XInterfaceBase(threading.Thread):
                 raise
 
     def get_window_title(self, window=None):
-        self.dpyLock.acquire()
-
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
@@ -720,10 +709,8 @@ class XInterfaceBase(threading.Thread):
 
         except:
             return ""
-        finally:
-            self.dpyLock.release()
-        
-    
+
+
     def __getWinTitle(self, windowvar):
         wmname = windowvar.get_wm_name()
         wmclass = windowvar.get_wm_class()
@@ -735,33 +722,29 @@ class XInterfaceBase(threading.Thread):
                 return self.__getWinTitle(windowvar.query_tree().parent)
 
         return str(wmname)
-    
+
     def get_window_class(self, window=None):
-        self.dpyLock.acquire()
-        
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
-        
+
             return self.__getWinClass(windowvar)
         except:
             return ""
-        finally:
-            self.dpyLock.release()
     
     def __getWinClass(self, windowvar):
         wmclass = windowvar.get_wm_class()
-        
+
         if wmclass == None or wmclass == "":
             return self.__getWinClass(windowvar.query_tree().parent)
-    
+
         return wmclass[0]
 
 
 class EvDevInterface(XInterfaceBase):
-    
+
     def initialise(self):
         self.cancelling = False
         self.connected = False
@@ -773,40 +756,41 @@ class EvDevInterface(XInterfaceBase):
             except:
                 if retryCount >= 6:
                     raise
-                
+
             if self.cancelling:
                 break
-                
+
             if not self.connected:
                 retryCount += 1
                 time.sleep(10)
 
-        
+
     def cancel(self):
         self.cancelling = True
         if self.isAlive():
             self.join(1.0)
         self.localDisplay.close()
-        
+        self.sendDisplay.close()
+
     def run(self):
         logger.info("EvDev interface thread starting")
         while True:
             if self.cancelling:
                 logger.info("EvDev interface thread terminated")
                 break
-            
+
             try:
                 # Request next event
                 try:
                     data = self.socket.recv(common.PACKET_SIZE)
                 except socket.timeout:
                     continue # Timeout means no data to received
-                    
-                
+
+
                 data = data.strip()
                 keyCode, button, state = data.split(',')
 
-                
+
                 if keyCode:
                     keyCode = int(keyCode)
                     if state == '2':
@@ -816,17 +800,17 @@ class EvDevInterface(XInterfaceBase):
                         self._handleKeyPress(keyCode)
                     elif state == '0':
                         self._handleKeyRelease(keyCode)
-                        
+
                 if button:
                     ret = self.localDisplay.get_input_focus().focus.query_pointer()
                     self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button)
-                
+
             except:
                 logger.exception("Connection to EvDev daemon lost")
                 self.__connLost()
                 continue
-                
-                
+
+
     def __connect(self):
         # Connect to event daemon
         logger.info("Attempting to establish connection to EvDev daemon")
@@ -838,36 +822,36 @@ class EvDevInterface(XInterfaceBase):
             self.connected = True
         except socket.error, e:
             raise Exception("Unable to connect to EvDev daemon:\n" + str(e))
-        
+
     def __connLost(self):
         # Called when the connection is lost - try to re-establish
         # Loops every 10 seconds trying to establish a connection.
         self.socket.close()
         self.connected = False
-        
+
         while not self.connected:
             try:
                 self.__connect()
             except:
                 pass # don't care if something went wrong - keep retrying
-                
+
             if self.cancelling:
                 break
-                
+
             if not self.connected:
                 time.sleep(10)
 
 
 class XRecordInterface(XInterfaceBase):
-        
+
     def initialise(self):
         self.recordDisplay = display.Display()
         self.__locksChecked = False
 
-        # Check for record extension 
+        # Check for record extension
         if not self.recordDisplay.has_extension("RECORD"):
-            raise Exception("Your X-Server does not have the RECORD extension available/enabled.")                            
-        
+            raise Exception("Your X-Server does not have the RECORD extension available/enabled.")
+
     def run(self):
         # Create a recording context; we only want key and mouse events
         self.ctx = self.recordDisplay.record_create_context(
@@ -879,7 +863,7 @@ class XRecordInterface(XInterfaceBase):
                         'ext_requests': (0, 0, 0, 0),
                         'ext_replies': (0, 0, 0, 0),
                         'delivered_events': (0, 0),
-                        'device_events': (X.KeyPress, X.ButtonPress), #X.KeyRelease, 
+                        'device_events': (X.KeyPress, X.ButtonPress), #X.KeyRelease,
                         'errors': (0, 0),
                         'client_started': False,
                         'client_died': False,
@@ -892,7 +876,7 @@ class XRecordInterface(XInterfaceBase):
         # Finally free the context
         self.recordDisplay.record_free_context(self.ctx)
         self.recordDisplay.close()
-        
+
     def cancel(self):
         self.localDisplay.record_disable_context(self.ctx)
         self.localDisplay.flush()
@@ -907,7 +891,7 @@ class XRecordInterface(XInterfaceBase):
         if not len(reply.data) or ord(reply.data[0]) < 2:
             # not an event
             return
-        
+
         data = reply.data
         while len(data):
             event, data = rq.EventField(None).parse_binary_value(data, self.recordDisplay.display, None, None)
@@ -925,34 +909,35 @@ class XRecordInterface(XInterfaceBase):
 
 
 class AtSpiInterface(XInterfaceBase):
-    
+
     def initialise(self):
         self.registry = pyatspi.Registry
-        self.activeWindow = ""    
-        
+        self.activeWindow = ""
+
     def start(self):
         logger.info("AT-SPI interface thread starting")
         self.registry.registerKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
         self.registry.registerEventListener(self.__processWindowEvent, 'window:activate')
-        self.registry.registerEventListener(self.__processMouseEvent, 'mouse:button')        
-        
+        self.registry.registerEventListener(self.__processMouseEvent, 'mouse:button')
+
     def cancel(self):
         self.registry.deregisterKeystrokeListener(self.__processKeyEvent, mask=pyatspi.allModifiers())
         self.registry.deregisterEventListener(self.__processWindowEvent, 'window:activate')
         self.registry.deregisterEventListener(self.__processMouseEvent, 'mouse:button')
         self.registry.stop()
         self.localDisplay.close()
-        
+        self.sendDisplay.close()
+
     def __processKeyEvent(self, event):
         if event.type == pyatspi.KEY_PRESSED_EVENT:
             self._handleKeyPress(event.hw_code)
         else:
             self._handleKeyRelease(event.hw_code)
-            
+
     def __processMouseEvent(self, event):
         if event.type[-1] == 'p':
             button = int(event.type[-2])
-            
+
             focus = self.localDisplay.get_input_focus().focus
             try:
                 rel = focus.translate_coords(self.rootWindow, event.detail1, event.detail2)
@@ -961,24 +946,24 @@ class AtSpiInterface(XInterfaceBase):
             except:
                 relX = 0
                 relY = 0
-            
+
             self.mediator.handle_mouse_click(event.detail1, event.detail2, relX, relY, button)
-    
+
     def __processWindowEvent(self, event):
         self.activeWindow = event.source_name
         self.mediator.handle_mouse_click(0, 0, 0, 0, 0)
-    
+
     def get_window_title(self, window=None):
         logger.debug("Window name: %s", self.activeWindow)
         return self.activeWindow
-    
+
     def get_window_class(self, window=None):
         return ""
-    
+
     def __pumpEvents(self):
         pyatspi.Registry.pumpQueuedEvents()
         return True
-                
+
 from iomediator import Key, MODIFIERS
 from configmanager import *
 
@@ -1047,7 +1032,7 @@ XK_TO_AK_MAP = {
            }
 
 AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.iteritems())
-           
+
 XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Insert : "0",
            XK.XK_KP_Delete : ".",
@@ -1066,27 +1051,27 @@ XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Subtract : "-",
            XK.XK_KP_Enter : Key.ENTER
            }
-    
+
 
 class MockMediator:
     """
     Mock IoMediator for testing purposes.
     """
-    
+
     def handle_modifier_down(self, modifier):
         pass
-        
+
     def handle_modifier_up(self, modifier):
-        pass    
+        pass
 
     def handle_keypress(self, keyCode, windowName):
         pass
-    
+
     def handle_mouse_click(self):
         pass
-        
 
-        
+
+
 if __name__ == "__main__":
     import time
     x = XLibInterface(MockMediator(), True)
