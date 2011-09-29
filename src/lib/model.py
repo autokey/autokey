@@ -34,8 +34,14 @@ def get_value_or_default(jsonData, key, default):
     
 def get_safe_path(basePath, name, ext=""):
     safeName = ''.join([char for char in name if char.isalnum() or char in "- ."])
-    path = basePath + '/' + safeName + ext
-    n = 1
+    
+    if safeName == '':
+        path = basePath + '/1' + ext
+        n = 2
+    else:
+        path = basePath + '/' + safeName + ext
+        n = 1
+
     while os.path.exists(path):
         path = basePath + '/' + safeName + str(n) + ext
         n += 1
