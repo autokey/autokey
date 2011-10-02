@@ -377,9 +377,9 @@ class XInterfaceBase(threading.Thread):
         self.sendDisplay.flush()
 
     def ungrab_keyboard(self):
-        self.sendDisplay.ungrab_keyboard(X.CurrentTime)
+        self.localDisplay.ungrab_keyboard(X.CurrentTime)
         time.sleep(0.0125)
-        self.sendDisplay.flush()
+        self.localDisplay.flush()
 
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:

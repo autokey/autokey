@@ -1,3 +1,9 @@
+autokey (0.80.2-0~natty) natty; urgency=low
+
+  * Fix a bug where keyboard was not ungrabbed after creating a hotkey
+
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 2 Oct 2011 15:56:01 +1100
+
 autokey (0.80.1-0~natty) natty; urgency=low
 
   * Fix for issue 143 - deadlocks in python-xlib during high-speed events
@@ -5,7 +11,7 @@ autokey (0.80.1-0~natty) natty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 30 Sep 2011 09:33:21 +1100
  
- autokey (0.80.0-0~natty) natty; urgency=low
+autokey (0.80.0-0~natty) natty; urgency=low
 
   * Rewrite persistence layer - use a real filesystem layout of folders and files
     to persist configuration and allow direct editing in other programs

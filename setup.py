@@ -19,7 +19,7 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.80.1",
+      version="0.80.2",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.googlecode.com/",
