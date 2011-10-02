@@ -25,6 +25,7 @@ _logger = logging.getLogger("model")
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
 JSON_FILE_PATTERN = "%s/.%s.json"
+SPACES_RE = re.compile(r"^ | $")
 
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
@@ -33,7 +34,8 @@ def get_value_or_default(jsonData, key, default):
         return default
     
 def get_safe_path(basePath, name, ext=""):
-    safeName = ''.join([char for char in name if char.isalnum() or char in "- ."])
+    name = SPACES_RE.sub('_', name)
+    safeName = ''.join([char for char in name if char.isalnum() or char in "_ -."])
     
     if safeName == '':
         path = basePath + '/1' + ext
