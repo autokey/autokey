@@ -64,8 +64,9 @@ class XInterfaceBase(threading.Thread):
         self.app = app
         self.localDisplay = display.Display()
         self.sendDisplay = display.Display()
-        self.rootWindow = self.localDisplay.screen().root
+        self.rootWindow = self.sendDisplay.screen().root
         self.lock = threading.RLock()
+        self.displayLock = threading.Lock()
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
 
@@ -73,7 +74,8 @@ class XInterfaceBase(threading.Thread):
         self.selection = gtk.Clipboard(selection="PRIMARY")
 
         self.__initMappings()
-        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
+        eventWindow = self.localDisplay.screen().root
+        eventWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
 
         # Set initial lock state
         ledMask = self.localDisplay.get_keyboard_control().led_mask
@@ -83,7 +85,7 @@ class XInterfaceBase(threading.Thread):
         # Window name atoms
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
-
+        
         self.keyMap = gtk.gdk.keymap_get_default()
         self.keyMap.connect("keys-changed", self.on_keys_changed)
         self.__refreshKeymap = False
@@ -101,9 +103,11 @@ class XInterfaceBase(threading.Thread):
     def __delayedInitMappings(self):
         time.sleep(0.5)
         self.__refreshKeymap = False
+        self.displayLock.acquire()
         self.localDisplay = display.Display()
         self.sendDisplay = display.Display()
         self.__initMappings()
+        self.displayLock.release()
 
     def __initMappings(self):
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
@@ -135,6 +139,7 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Modifier masks: %r", self.modMasks)
 
         self.__grabHotkeys()
+        self.sendDisplay.flush()
 
         # --- get list of keycodes that are unused in the current keyboard mapping
 
@@ -195,32 +200,36 @@ class XInterfaceBase(threading.Thread):
 
     def __recurseTree(self, parent, hotkeys):
         # Grab matching hotkeys in all open child windows
+        subhotkeys = list(hotkeys)
         for window in parent.query_tree().children:
-            title = self.get_window_title(window)
-            if title != "" and title != "None":
+            if window.get_attributes().map_state != 0:
+                title = self.get_window_title(window)
+                klass = self.get_window_class(window)
                 for item in hotkeys:
-                    if item.windowInfoRegex is not None and item._should_trigger_window_title(title):
+                    if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
                         self.__grabHotkey(item.hotKey, item.modifiers, window)
+                        if item in subhotkeys:
+                            subhotkeys.remove(item)
 
-            try:
-                self.__recurseTree(window, hotkeys)
-            except:
-                logger.exception("__recurseTree failed")
+                try:
+                    self.__recurseTree(window, subhotkeys)
+                except:
+                    logger.exception("__recurseTree failed")
 
 
     def __grabHotkeysForWindow(self, window):
         """
         Grab all hotkeys relevant to the window
 
-        Used when a new windows is mapped
+        Used when a new window is created
         """
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
         title = self.get_window_title(window)
-        if title != "" and title != "None":
-            for item in hotkeys:
-                if item.windowInfoRegex is not None and item._should_trigger_window_title(title):
-                    self.__grabHotkey(item.hotKey, item.modifiers, window)
+        klass = self.get_window_class(window)
+        for item in hotkeys:
+            if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
+                self.__grabHotkey(item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
         """
@@ -258,12 +267,16 @@ class XInterfaceBase(threading.Thread):
             self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
         else:
             self.__grabRecurse(item, self.rootWindow)
+        self.sendDisplay.flush()
+        
 
     def __grabRecurse(self, item, parent):
         for window in parent.query_tree().children:
             title = self.get_window_title(window)
-            if title != "" and title != "None" and item._should_trigger_window_title(title):
+            klass = self.get_window_class(window)
+            if item._should_trigger_window_title((title, klass)):
                 self.__grabHotkey(item.hotKey, item.modifiers, window)
+                break
 
             self.__grabRecurse(item, window)
 
@@ -276,14 +289,18 @@ class XInterfaceBase(threading.Thread):
         """
         if item.windowInfoRegex is None:
             self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
-        else:
+        else:          
             self.__ungrabRecurse(item, self.rootWindow)
+        self.sendDisplay.flush()
+        
 
     def __ungrabRecurse(self, item, parent):
         for window in parent.query_tree().children:
             title = self.get_window_title(window)
-            if title != "" and title != "None" and item._should_trigger_window_title(title):
+            klass = self.get_window_class(window)
+            if item._should_trigger_window_title((title, klass)):
                 self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                break
 
             self.__ungrabRecurse(item, window)
 
@@ -377,9 +394,9 @@ class XInterfaceBase(threading.Thread):
         self.sendDisplay.flush()
 
     def ungrab_keyboard(self):
-        self.localDisplay.ungrab_keyboard(X.CurrentTime)
+        self.sendDisplay.ungrab_keyboard(X.CurrentTime)
         time.sleep(0.0125)
-        self.localDisplay.flush()
+        self.sendDisplay.flush()
 
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
@@ -565,16 +582,14 @@ class XInterfaceBase(threading.Thread):
 
     def __flushEvents(self):
         try:
-            r, w, x = select.select([self.localDisplay], [], [], 0)
-            if self.localDisplay in r:
-                for x in range(self.localDisplay.pending_events()):
-                    event = self.localDisplay.next_event()
-                    if event.type == X.MapNotify:
-                        logger.debug("New window mapped, grabbing hotkeys")
-                        try:
-                            self.__grabHotkeysForWindow(event.window)
-                        except:
-                            logging.exception("Window destroyed during hotkey grab")
+            for x in range(self.localDisplay.pending_events()):
+                event = self.localDisplay.next_event()
+                if event.type == X.CreateNotify:
+                    logger.debug("New window created, grabbing hotkeys")
+                    try:
+                        self.__grabHotkeysForWindow(event.window)
+                    except:
+                        logging.exception("Window destroyed during hotkey grab")
         except:
             logger.exception("Error in __flushEvents()")
             pass
@@ -694,6 +709,7 @@ class XInterfaceBase(threading.Thread):
 
     def get_window_title(self, window=None):
         try:
+            self.displayLock.acquire()
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
@@ -709,6 +725,8 @@ class XInterfaceBase(threading.Thread):
 
         except:
             return ""
+        finally:
+            self.displayLock.release()
 
 
     def __getWinTitle(self, windowvar):
@@ -725,6 +743,7 @@ class XInterfaceBase(threading.Thread):
 
     def get_window_class(self, window=None):
         try:
+            self.displayLock.acquire()
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
@@ -733,6 +752,8 @@ class XInterfaceBase(threading.Thread):
             return self.__getWinClass(windowvar)
         except:
             return ""
+        finally:
+            self.displayLock.release()
     
     def __getWinClass(self, windowvar):
         wmclass = windowvar.get_wm_class()
@@ -802,7 +823,9 @@ class EvDevInterface(XInterfaceBase):
                         self._handleKeyRelease(keyCode)
 
                 if button:
+                    self.displayLock.acquire()
                     ret = self.localDisplay.get_input_focus().focus.query_pointer()
+                    self.displayLock.release()
                     self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button)
 
             except:
@@ -881,6 +904,7 @@ class XRecordInterface(XInterfaceBase):
         self.localDisplay.record_disable_context(self.ctx)
         self.localDisplay.flush()
         self.localDisplay.close()
+        self.sendDisplay.close()
         self.join(1.0)
 
     def __processEvent(self, reply):
@@ -900,9 +924,12 @@ class XRecordInterface(XInterfaceBase):
             elif event.type == X.KeyRelease:
                 self._handleKeyRelease(event.detail)
             elif event.type == X.ButtonPress:
+                self.displayLock.acquire()
                 focus = self.localDisplay.get_input_focus().focus
+                root = self.localDisplay.screen().root
+                self.displayLock.release()
                 try:
-                    rel = focus.translate_coords(self.rootWindow, event.root_x, event.root_y)
+                    rel = focus.translate_coords(root, event.root_x, event.root_y)
                     self.mediator.handle_mouse_click(event.root_x, event.root_y, rel.x, rel.y, event.detail)
                 except:
                     self.mediator.handle_mouse_click(event.root_x, event.root_y, 0, 0, event.detail)
@@ -939,8 +966,9 @@ class AtSpiInterface(XInterfaceBase):
             button = int(event.type[-2])
 
             focus = self.localDisplay.get_input_focus().focus
+            root = self.localDisplay.screen().root
             try:
-                rel = focus.translate_coords(self.rootWindow, event.detail1, event.detail2)
+                rel = focus.translate_coords(root, event.detail1, event.detail2)
                 relX = rel.x
                 relY = rel.y
             except:
