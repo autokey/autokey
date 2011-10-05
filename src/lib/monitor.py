@@ -128,5 +128,5 @@ class FileMonitor(threading.Thread):
         
     def stop(self):
         self.event.set()
-        self.join()
+        self.join(1.0)
         

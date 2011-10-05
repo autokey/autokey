@@ -202,7 +202,7 @@ class XInterfaceBase(threading.Thread):
         # Grab matching hotkeys in all open child windows
         subhotkeys = list(hotkeys)
         for window in parent.query_tree().children:
-            if window.get_attributes().map_state != 0:
+            try:
                 title = self.get_window_title(window)
                 klass = self.get_window_class(window)
                 for item in hotkeys:
@@ -211,10 +211,10 @@ class XInterfaceBase(threading.Thread):
                         if item in subhotkeys:
                             subhotkeys.remove(item)
 
-                try:
-                    self.__recurseTree(window, subhotkeys)
-                except:
-                    logger.exception("__recurseTree failed")
+                
+                self.__recurseTree(window, subhotkeys)
+            except:
+                logger.exception("grab on window failed")
 
 
     def __grabHotkeysForWindow(self, window):
