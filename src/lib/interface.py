@@ -397,9 +397,6 @@ class XInterfaceBase(threading.Thread):
         self.__enqueue(self.__ungrabKeyboard)
         
     def __ungrabKeyboard(self):
-        self.localDisplay.sync()
-        self.localDisplay.flush()
-        time.sleep(0.2)
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
         self.localDisplay.flush()
 
@@ -411,7 +408,6 @@ class XInterfaceBase(threading.Thread):
         return None, None
 
     def send_string(self, string):
-        print "enqueue sendstring"
         self.__enqueue(self.__sendString, string)
         
     def __sendString(self, string):
