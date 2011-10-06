@@ -68,6 +68,10 @@ class XInterfaceBase(threading.Thread):
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
         self.queue = Queue.Queue()
+        
+        # Event listener
+        self.listenerThread = threading.Thread(target=self.__flushEvents)
+        self.listenerThread.setDaemon(True)
 
         self.clipBoard = gtk.Clipboard()
         self.selection = gtk.Clipboard(selection="PRIMARY")
@@ -88,8 +92,11 @@ class XInterfaceBase(threading.Thread):
         self.__ignoreRemap = False
         
         self.eventThread.start()
+        self.listenerThread.start()
         
     def __eventLoop(self):
+        t = None
+        
         while True:
             method, args = self.queue.get()
             
@@ -618,24 +625,22 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
     def __flushEvents(self):
-        try:
-            for x in xrange(self.localDisplay.pending_events()):
-                event = self.localDisplay.next_event()
-                if event.type == X.CreateNotify:
-                    logger.debug("New window created, grabbing hotkeys")
-                    try:
-                        self.__grabHotkeysForWindow(event.window)
-                    except:
-                        logging.exception("Window destroyed during hotkey grab")
-        except:
-            logger.exception("Error in __flushEvents()")
-            pass
+        while True:
+            try:
+                readable, w, e = select.select([self.localDisplay], [], [], 1)
+                time.sleep(0.2)
+                if self.localDisplay in readable:
+                    for x in xrange(self.localDisplay.pending_events()):
+                        event = self.localDisplay.next_event()
+                        if event.type == X.CreateNotify:
+                            self.__enqueue(self.__grabHotkeysForWindow, event.window)
+            except:
+                pass
 
     def handle_keypress(self, keyCode):
         self.__enqueue(self.__handleKeyPress, keyCode)
     
     def __handleKeyPress(self, keyCode):
-        self.__flushEvents()
         focus = self.localDisplay.get_input_focus().focus
 
         modifier = self.__decodeModifier(keyCode)
@@ -655,9 +660,7 @@ class XInterfaceBase(threading.Thread):
     def handle_mouseclick(self, button, x, y):
         self.__enqueue(self.__handleMouseclick, button, x, y)
         
-    def __handleMouseclick(self, button, x, y):
-        self.__flushEvents()
-        
+    def __handleMouseclick(self, button, x, y):        
         title = self.get_window_title()
         klass = self.get_window_class()
         info = (title, klass)
