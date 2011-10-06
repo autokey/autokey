@@ -812,7 +812,7 @@ class XInterfaceBase(threading.Thread):
         if wmclass == None or wmclass == "":
             return self.__getWinClass(windowvar.query_tree().parent)
 
-        return wmclass[0]
+        return wmclass[0] + '.' + wmclass[1]
     
     def cancel(self):
         self.queue.put_nowait((None, None))

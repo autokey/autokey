@@ -71,7 +71,7 @@ class Service:
         
     def start(self):
         self.mediator = IoMediator(self)
-	self.mediator.interface.initialise()
+        self.mediator.interface.initialise()
         self.mediator.interface.start()
         self.mediator.start()
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
