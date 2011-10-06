@@ -1,8 +1,16 @@
 autokey (0.80.2-0~natty) natty; urgency=low
 
+  * Rewrite X interface to use a single-threaded queue model
   * Fix a bug where keyboard was not ungrabbed after creating a hotkey
+  * Don't create file names with spaces at the start or end
+  * Get detection of window creation working again and use CreateNotify 
+    instead of MapNotify
+  * Speed up hotkey grab/ungrab by not needlessly iterating over child windows
+  * Grab/ungrab hotkeys using window title and class for the filter
+  * Minor tweaks and improvements to EvDev and ATSPI interfaces
+  * Fix a bug where keyboard ungrabbing stop working after keymap change
 
- -- Chris Dekter <cdekter@gmail.com>  Sun, 2 Oct 2011 15:56:01 +1100
+ -- Chris Dekter <cdekter@gmail.com>  Thu, 6 Oct 2011 15:56:01 +1100
 
 autokey (0.80.1-0~natty) natty; urgency=low
 

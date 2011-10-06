@@ -202,9 +202,9 @@ class IoMediator(threading.Thread):
                 
             self.queue.task_done()
             
-    def handle_mouse_click(self, rootX, rootY, relX, relY, button):
+    def handle_mouse_click(self, rootX, rootY, relX, relY, button, windowInfo):
         for target in self.listeners:
-            target.handle_mouseclick(rootX, rootY, relX, relY, button, self.interface.get_window_title())
+            target.handle_mouseclick(rootX, rootY, relX, relY, button, windowInfo)
         
     # Methods for expansion service ----
 
@@ -362,7 +362,7 @@ class KeyGrabber:
             self.targetParent.set_key(rawKey)
             CURRENT_INTERFACE.ungrab_keyboard()
     
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
         IoMediator.listeners.remove(self)
         CURRENT_INTERFACE.ungrab_keyboard()
         self.targetParent.cancel_grab()
@@ -421,11 +421,11 @@ class Recorder(KeyGrabber):
             elif not key in MODIFIERS:
                 self.targetParent.append_key(key)
         
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
         if self.recordMouse and self.__delayPassed():
             if self.insideKeys:
                 self.insideKeys = False
                 self.targetParent.end_key_sequence()
                 
-            self.targetParent.append_mouseclick(relX, relY, button, windowTitle)
+            self.targetParent.append_mouseclick(relX, relY, button, windowInfo[0])
             
