@@ -96,7 +96,6 @@ class XInterfaceBase(threading.Thread):
             if method is None and args is None:
                 break
     
-            logger.debug("Executing method '%s'", method.__name__)
             method(*args)
             self.queue.task_done()
     
@@ -112,7 +111,7 @@ class XInterfaceBase(threading.Thread):
             logger.debug("Ignored keymap change event")
 
     def __delayedInitMappings(self):
-        time.sleep(0.5)
+        time.sleep(0.2)
         self.__initMappings()
         self.__ignoreRemap = False
 
@@ -200,33 +199,29 @@ class XInterfaceBase(threading.Thread):
         # Grab global hotkeys in root window
         for item in c.globalHotkeys:
             if item.enabled:
-                self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
 
         # Grab hotkeys without a filter in root window
         for item in hotkeys:
             if item.windowInfoRegex is None:
-                self.__grabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
 
-        self.__recurseTree(self.rootWindow, hotkeys)
+        self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
 
     def __recurseTree(self, parent, hotkeys):
         # Grab matching hotkeys in all open child windows
-        subhotkeys = list(hotkeys)
         for window in parent.query_tree().children:
             try:
                 title = self.get_window_title(window)
                 klass = self.get_window_class(window)
                 for item in hotkeys:
                     if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
-                        self.__grabHotkey(item.hotKey, item.modifiers, window)
-                        if item in subhotkeys:
-                            subhotkeys.remove(item)
+                        self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
 
                 
-                self.__recurseTree(window, subhotkeys)
+                self.__recurseTree(window, hotkeys)
             except:
                 logger.exception("grab on window failed")
-
 
     def __grabHotkeysForWindow(self, window):
         """
@@ -240,7 +235,7 @@ class XInterfaceBase(threading.Thread):
         klass = self.get_window_class(window)
         for item in hotkeys:
             if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
-                self.__grabHotkey(item.hotKey, item.modifiers, window)
+                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
         """
@@ -285,7 +280,7 @@ class XInterfaceBase(threading.Thread):
             title = self.get_window_title(window)
             klass = self.get_window_class(window)
             if item._should_trigger_window_title((title, klass)):
-                self.__grabHotkey(item.hotKey, item.modifiers, window)
+                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
                 break
 
             self.__grabRecurse(item, window)
@@ -307,7 +302,7 @@ class XInterfaceBase(threading.Thread):
             title = self.get_window_title(window)
             klass = self.get_window_class(window)
             if item._should_trigger_window_title((title, klass)):
-                self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                self.__enqueue(self.__ungrabHotkey, item.hotKey, item.modifiers, window)
                 break
 
             self.__ungrabRecurse(item, window)

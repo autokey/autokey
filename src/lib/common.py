@@ -22,7 +22,7 @@ LOCK_FILE = CONFIG_DIR + "/autokey.pid"
 LOG_FILE = CONFIG_DIR + "/autokey.log"
 MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
 MAX_LOG_COUNT = 3
-LOG_FORMAT = "%(levelname)s - %(name)s - %(message)s"
+LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "AutoKey"
 CATALOG = ""
