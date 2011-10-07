@@ -219,7 +219,7 @@ class XInterfaceBase(threading.Thread):
         for window in parent.query_tree().children:
             try:
                 title = self.get_window_title(window)
-                klass = self.get_window_class(window, False)
+                klass = self.get_window_class(window)
                 for item in hotkeys:
                     if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
                         self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
@@ -253,7 +253,7 @@ class XInterfaceBase(threading.Thread):
         for window in parent.query_tree().children:
             try:
                 title = self.get_window_title(window)
-                klass = self.get_window_class(window, False)
+                klass = self.get_window_class(window)
                 for item in hotkeys:
                     if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
                         self.__ungrabHotkey(item.hotKey, item.modifiers, window)
