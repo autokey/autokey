@@ -5,12 +5,13 @@ autokey (0.80.2-0~natty) natty; urgency=low
   * Don't create file names with spaces at the start or end
   * Get detection of window creation working again and use CreateNotify 
     instead of MapNotify
-  * Speed up hotkey grab/ungrab by not needlessly iterating over child windows
   * Grab/ungrab hotkeys using window title and class for the filter
   * Minor tweaks and improvements to EvDev and ATSPI interfaces
-  * Fix a bug where keyboard ungrabbing stop working after keymap change
+  * Fix a bug where keyboard ungrabbing stops working after keymap change
+  * Correctly ungrab and regrab hotkeys when the keymap is changed
+  * Make both parts of the window class available to match on
 
- -- Chris Dekter <cdekter@gmail.com>  Thu, 6 Oct 2011 15:56:01 +1100
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 8 Oct 2011 14:56:01 +1100
 
 autokey (0.80.1-0~natty) natty; urgency=low
 
