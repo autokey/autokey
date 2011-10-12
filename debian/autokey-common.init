@@ -13,7 +13,7 @@
 
 import sys, os, socket, glob, shutil, time
 try:
-    from autokey import evdev, daemon
+    from autokey import evdev, daemon, configmanager
     from autokey.common import DOMAIN_SOCKET_PATH, PACKET_SIZE
 except ImportError:
     # Per DPM § 9.3.2 script should fail gracefully if not installed.
@@ -33,6 +33,9 @@ class AutoKeyDaemon(daemon.Daemon):
     def __init__(self):
         logFile = "/var/log/autokey-daemon.log"
         daemon.Daemon.__init__(self, '/var/run/autokey-daemon.pid', stdout=logFile, stderr=logFile)
+        
+    def canrecord(self):
+        return configmanager._chooseInterface() == "XRecord"
 
     def get_device_paths(self):
         keyboardLocations = glob.glob("/dev/input/by-path/*-event-kbd")
@@ -145,6 +148,12 @@ if __name__ == "__main__":
             else:
                 print "AutoKey daemon is stopped"
                 sys.exit(3)
+        elif 'status-xrecord' == sys.argv[1]:
+            if not daemon.canrecord():
+                print "XRecord not available"
+                sys.exit(1)
+            else:
+                print "XRecord is available"
         else:
             print "Unknown command"
             sys.exit(2)

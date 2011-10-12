@@ -1,3 +1,15 @@
+autokey (0.80.3-0~oneiric) oneiric; urgency=low
+
+  * Fix a bug where Firefox/Thunderbird were not responding to keyboard events
+  * Fix for issue 150 - window titles containing unicode characters were not
+    handled correctly
+  * Re-choose interface type each time a version upgrade occurs
+  * Implement a better way of determining Xorg version
+  * Make XRecord the default interface type if we can't determine Xorg version
+  * Disable daemon and don't start it during postinst if Xorg supports XRecord
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 12 Oct 2011 11:54:02 +1100
+
 autokey (0.80.2-0~natty) natty; urgency=low
 
   * Rewrite X interface to use a single-threaded queue model

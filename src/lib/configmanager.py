@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, os.path, shutil, logging, pickle, glob, threading
+import os, os.path, shutil, logging, pickle, glob, threading, subprocess
 import iomediator, interface, common, monitor
 
 try:
@@ -108,13 +108,16 @@ def apply_settings(settings):
 def _chooseInterface():
     # Choose a sensible default interface type. Get Xorg version to determine this:
     try:
-        f = open("/var/log/Xorg.0.log", "r")
-        for x in range(2):
-            versionLine = f.readline()
-            if "X Server" in versionLine:
+        p = subprocess.Popen(["Xorg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read().split('\n')
+        output += p.stderr.read().split('\n')
+
+        for line in output:
+            if "X Server" in line:
+                versionLine = line.strip()
                 break
-        f.close()
-        versionLine = versionLine.strip()
+
         version = versionLine.split(" ")[-1]
         majorVersion, minorVersion, release = [int(i) for i in version.split(".")]
     except:
@@ -122,7 +125,7 @@ def _chooseInterface():
         release = None
         
     if minorVersion is None:
-        return iomediator.X_EVDEV_INTERFACE
+        return iomediator.X_RECORD_INTERFACE
     elif interface.HAS_RECORD:
         if minorVersion < 6:
             return iomediator.X_RECORD_INTERFACE
@@ -130,7 +133,6 @@ def _chooseInterface():
             return iomediator.X_RECORD_INTERFACE
         elif minorVersion > 7:
             return iomediator.X_RECORD_INTERFACE
-        
     
     return iomediator.X_EVDEV_INTERFACE
 
@@ -546,18 +548,19 @@ dialog.info_dialog("Window information",
         
     def upgrade(self):
         _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
-        upgradeDone = False
+        
+        # Always reset interface type when upgrading
+        self.SETTINGS[INTERFACE_TYPE] = _chooseInterface()
+        _logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
         
         if self.VERSION < '0.70.0':
             _logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
                 if isinstance(item, Phrase):
                     item.sendMode = SendMode.KEYBOARD
-            
-        if upgradeDone:
-            self.config_altered(True)
-            
-        self.VERSION = common.VERSION
+        
+        self.VERSION = common.VERSION    
+        self.config_altered(True)
             
     def config_altered(self, persistGlobal):
         """
