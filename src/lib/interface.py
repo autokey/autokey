@@ -430,7 +430,8 @@ class XInterfaceBase(threading.Thread):
         self.__enqueue(self.__grab_keyboard)
 
     def __grab_keyboard(self):
-        self.rootWindow.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        focus = self.localDisplay.get_input_focus().focus
+        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
 
     def ungrab_keyboard(self):
