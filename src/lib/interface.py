@@ -808,28 +808,21 @@ class XInterfaceBase(threading.Thread):
             else:
                 windowvar = window
 
-            atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
-            atom = atom or windowvar.get_property(self.__NameAtom, 0, 0, 255)
-
-            if atom:
-                return atom.value
-            else:
-                return self.__getWinTitle(windowvar)
+            return self.__getWinTitle(windowvar)
 
         except:
             return ""
 
 
     def __getWinTitle(self, windowvar):
-        wmname = windowvar.get_wm_name()
-        wmclass = windowvar.get_wm_class()
+        atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
+        if atom is None:
+            atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
 
-        if (wmname == None) and (wmclass == None):
+        if atom:
+            return atom.value.decode("utf-8")
+        else:
             return self.__getWinTitle(windowvar.query_tree().parent)
-        elif wmname == "" and wmclass == "":
-            return self.__getWinTitle(windowvar.query_tree().parent)
-
-        return str(wmname)
 
     def get_window_class(self, window=None):
         try:

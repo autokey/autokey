@@ -104,11 +104,11 @@ class Service:
         self.lastMenu = None
         
         # Clear last to prevent undo of previous phrase in unexpected places
-        self.phraseRunner.clear_last() 
+        self.phraseRunner.clear_last()
         
     def handle_keypress(self, rawKey, modifiers, key, windowName, windowClass):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key.encode("utf-8"))
-        logger.debug("Window visible title: '%s', Window class: '%s'" % (windowName, windowClass))
+        logger.debug("Window visible title: %r, Window class: %r" % (windowName, windowClass))
         self.configManager.lock.acquire()
         windowInfo = (windowName, windowClass)
         
