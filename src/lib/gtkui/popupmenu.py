@@ -30,6 +30,7 @@ class PopupMenu(gtk.Menu):
     def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
         gtk.Menu.__init__(self)
         #self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        self.__i = 1
         self.service = service
         
         if title is not None:
@@ -48,8 +49,9 @@ class PopupMenu(gtk.Menu):
             # Only one folder - create menu with just its folders and items
             self.add_title(folders[0].title)
             for folder in folders[0].folders:
-                menuItem = gtk.MenuItem(folder.title, False)
-                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
+                menuItem = gtk.MenuItem(self.__getMnemonic(folder.title, onDesktop), False)
+                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, onDesktop))
+                menuItem.set_use_underline(True)
                 self.append(menuItem)
     
             if len(folders[0].folders) > 0:
@@ -60,8 +62,9 @@ class PopupMenu(gtk.Menu):
         else:
             # Create phrase folder section
             for folder in folders:
-                menuItem = gtk.MenuItem(folder.title, False)
+                menuItem = gtk.MenuItem(self.__getMnemonic(folder.title, onDesktop), False)
                 menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
+                menuItem.set_use_underline(True)
                 self.append(menuItem)
     
             if len(folders) > 0:
@@ -70,7 +73,14 @@ class PopupMenu(gtk.Menu):
             self.__addItemsToSelf(items, service, onDesktop)
             
         self.show_all()
-
+        
+    def __getMnemonic(self, desc, onDesktop):
+        if 1 < 10 and '_' not in desc and onDesktop:
+            ret = "_%d - %s" % (self.__i, desc)
+            self.__i += 1
+            return ret
+        else:
+            return desc        
 
     def show_on_desktop(self):
         gtk.gdk.threads_enter()
@@ -98,13 +108,15 @@ class PopupMenu(gtk.Menu):
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))
-            
+        
+        i = 1
         for item in items:
             #if onDesktop:
             #    menuItem = gtk.MenuItem(item.get_description(service.lastStackState), False)
             #else:
-            menuItem = gtk.MenuItem(item.description, False)
+            menuItem = gtk.MenuItem(self.__getMnemonic(item.description, onDesktop), False)
             menuItem.connect("activate", self.__itemSelected, item)
+            menuItem.set_use_underline(True)
             self.append(menuItem)
             
     def __itemSelected(self, widget, item):
