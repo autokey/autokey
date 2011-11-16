@@ -139,14 +139,18 @@ class SettingsWidget:
             self.hotkeyEnabled = False
         
         self.filterDialog.load(self.currentItem)
-        if item.uses_default_filter():
+        self.filterEnabled = False
+        if item.has_filter() or item.inherits_filter():
+            self.windowFilterLabel.set_text(item.get_filter_regex())
+            
+            if not item.inherits_filter():            
+                self.clearFilterButton.set_sensitive(True)
+                self.filterEnabled = True
+        
+        else:
             self.windowFilterLabel.set_text(_("(None configured)"))
             self.clearFilterButton.set_sensitive(False)
-            self.filterEnabled = False
-        else:
-            self.windowFilterLabel.set_text(item.get_filter_regex())
-            self.clearFilterButton.set_sensitive(True)
-            self.filterEnabled = True
+            
             
     def save(self):
         # Perform hotkey ungrab
@@ -1115,13 +1119,14 @@ class ConfigWindow:
                              None, self.ui):
                 self.__getCurrentPage().set_item_title(newText)
                 
+                self.app.monitor.suspend()
+                
                 if dlg.get_update_fs():
-                    self.app.monitor.suspend()
                     self.__getCurrentPage().rebuild_item_path()
-                    self.app.monitor.unsuspend()
                 
                 persistGlobal = self.__getCurrentPage().save()
                 self.refresh_tree()
+                self.app.monitor.unsuspend()
                 self.app.config_altered(persistGlobal)
             
         dlg.destroy()

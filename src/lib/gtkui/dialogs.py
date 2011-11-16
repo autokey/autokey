@@ -369,21 +369,32 @@ class WindowFilterSettingsDialog(DialogBase):
         self.ui.set_transient_for(parent)
         
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
+        self.recursiveButton = builder.get_object("recursiveButton")
         
         DialogBase.__init__(self)
         
     def load(self, item):
         self.targetItem = item
-        if item.uses_default_filter():
+        
+        if not isinstance(item, model.Folder):
+            self.recursiveButton.hide()
+        else:
+            self.recursiveButton.show()
+        
+        if not item.has_filter():
             self.reset()
         else:
             self.triggerRegexEntry.set_text(item.get_filter_regex())
+            self.recursiveButton.set_active(item.isRecursive)
+            
             
     def save(self, item):
         item.set_window_titles(self.get_filter_text())
+        item.set_filter_recursive(self.recursiveButton.get_active())
             
     def reset(self):
         self.triggerRegexEntry.set_text("")
+        self.recursiveButton.set_active(False)
         
     def get_filter_text(self):
         return self.triggerRegexEntry.get_text().decode("utf-8")

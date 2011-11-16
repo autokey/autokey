@@ -168,18 +168,24 @@ class AbstractWindowFilter:
     
     def __init__(self):
         self.windowInfoRegex = None
+        self.isRecursive = False
 
     def get_serializable(self):
         if self.windowInfoRegex is not None:
-            return self.windowInfoRegex.pattern
+            return {"regex": self.windowInfoRegex.pattern, "isRecursive": self.isRecursive}
         else:
-            return None
+            return {"regex": None, "isRecursive": False}
 
-    def load_from_serialized(self, pattern):
-        self.set_window_titles(pattern)
+    def load_from_serialized(self, data):
+        if isinstance(data, dict): # check needed for data from versions < 0.80.4
+            self.set_window_titles(data["regex"])
+            self.isRecursive = data["isRecursive"]
+        else:
+            self.set_window_titles(data)
         
     def copy_window_filter(self, filter):
         self.windowInfoRegex = filter.windowInfoRegex
+        self.isRecursive = filter.isRecursive
     
     def set_window_titles(self, regex):
         if regex is not None:
@@ -187,21 +193,60 @@ class AbstractWindowFilter:
         else:
             self.windowInfoRegex = regex
             
-    def uses_default_filter(self):
-        return self.windowInfoRegex is None
+    def set_filter_recursive(self, recurse):
+        self.isRecursive = recurse
+            
+    def has_filter(self):
+        return self.windowInfoRegex is not None
     
-    def get_filter_regex(self):
-        if self.windowInfoRegex is not None:
-            return self.windowInfoRegex.pattern
+    def inherits_filter(self):
+        if self.parent is not None:
+            return self.parent.get_applicable_regex(True) is not None
+        
+        return False
+        
+    def get_child_filter(self):
+        if self.isRecursive and self.windowInfoRegex is not None:
+            return self.get_filter_regex() + _(" (Inherited)")
+        elif self.parent is not None:
+            return self.parent.get_child_filter()
         else:
             return ""
+    
+    def get_filter_regex(self):
+        """
+        Used by the GUI to obtain human-readable version of the filter
+        """
+        if self.windowInfoRegex is not None:
+            return self.windowInfoRegex.pattern
+        elif self.parent is not None:
+            return self.parent.get_child_filter()
+        else:
+            return ""
+            
+    def filter_matches(self, otherFilter):
+        if otherFilter.windowInfoRegex is not None:
+            return otherFilter.windowInfoRegex.pattern == self.windowInfoRegex.pattern
+        
+        return False
+            
+    def get_applicable_regex(self, forChild=False):
+        if self.windowInfoRegex is not None:
+            if (forChild and self.isRecursive) or not forChild:
+                return self.windowInfoRegex
+        elif self.parent is not None:
+            return self.parent.get_applicable_regex(True)
+
+        return None
 
     def _should_trigger_window_title(self, windowInfo):
-        if self.windowInfoRegex is not None:
-            r = self.windowInfoRegex
+        r = self.get_applicable_regex()
+        if r is not None:
             return r.match(windowInfo[0]) or r.match(windowInfo[1]) 
         else:
-            return True        
+            return True
+            
+          
             
             
 class AbstractHotkey(AbstractWindowFilter):
@@ -350,7 +395,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(inFile)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.exception("Error while loading json data for %s", self.title)
             _logger.error("JSON data not loaded (or loaded incomplete)")
     
     def inject_json_data(self, data):

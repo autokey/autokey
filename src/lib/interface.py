@@ -209,7 +209,7 @@ class XInterfaceBase(threading.Thread):
 
         # Grab hotkeys without a filter in root window
         for item in hotkeys:
-            if item.windowInfoRegex is None:
+            if item.get_applicable_regex() is None:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
 
         self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
@@ -218,14 +218,16 @@ class XInterfaceBase(threading.Thread):
         # Grab matching hotkeys in all open child windows
         for window in parent.query_tree().children:
             try:
-                title = self.get_window_title(window)
-                klass = self.get_window_class(window)
-                for item in hotkeys:
-                    if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
-                        self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
-
+                title = self.get_window_title(window, False)
+                klass = self.get_window_class(window, False)
                 
-                self.__recurseTree(window, hotkeys)
+                if title or klass:
+                    for item in hotkeys:
+                        if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+                            self.__grabHotkey(item.hotKey, item.modifiers, window)
+                            self.__grabRecurse(item, window, False)
+                        
+                self.__enqueue(self.__recurseTree, window, hotkeys)
             except:
                 logger.exception("grab on window failed")
                 
@@ -243,7 +245,7 @@ class XInterfaceBase(threading.Thread):
         
         # Ungrab hotkeys without a filter in root window
         for item in hotkeys:
-            if item.windowInfoRegex is None:
+            if item.get_applicable_regex() is None:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
                 
         self.__recurseTreeUngrab(self.rootWindow, hotkeys)
@@ -252,14 +254,16 @@ class XInterfaceBase(threading.Thread):
         # Ungrab matching hotkeys in all open child windows
         for window in parent.query_tree().children:
             try:
-                title = self.get_window_title(window)
-                klass = self.get_window_class(window)
-                for item in hotkeys:
-                    if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
-                        self.__ungrabHotkey(item.hotKey, item.modifiers, window)
-
+                title = self.get_window_title(window, False)
+                klass = self.get_window_class(window, False)
                 
-                self.__recurseTreeUngrab(window, hotkeys)
+                if title or klass:
+                    for item in hotkeys:
+                        if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+                            self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                            self.__ungrabRecurse(item, window, False)
+                        
+                self.__enqueue(self.__recurseTreeUngrab, window, hotkeys)
             except:
                 logger.exception("ungrab on window failed")
 
@@ -274,7 +278,7 @@ class XInterfaceBase(threading.Thread):
         title = self.get_window_title(window)
         klass = self.get_window_class(window)
         for item in hotkeys:
-            if item.windowInfoRegex is not None and item._should_trigger_window_title((title, klass)):
+            if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
@@ -309,21 +313,26 @@ class XInterfaceBase(threading.Thread):
         If the hotkey has no filter regex, it is global and need only be grabbed from the root window
         If it has a filter regex, iterate over all children of the root and grab from matching windows
         """
-        if item.windowInfoRegex is None:
+        if item.get_applicable_regex() is None:
             self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
         else:
             self.__enqueue(self.__grabRecurse, item, self.rootWindow)
         
 
-    def __grabRecurse(self, item, parent):
+    def __grabRecurse(self, item, parent, checkWinInfo=True):
         for window in parent.query_tree().children:
-            title = self.get_window_title(window)
-            klass = self.get_window_class(window)
-            if item._should_trigger_window_title((title, klass)):
-                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
-                break
+            shouldTrigger = False
+            
+            if checkWinInfo:
+                title = self.get_window_title(window, False)
+                klass = self.get_window_class(window, False)
+                shouldTrigger = item._should_trigger_window_title((title, klass))
 
-            self.__grabRecurse(item, window)
+            if shouldTrigger or not checkWinInfo:
+                self.__grabHotkey(item.hotKey, item.modifiers, window)
+                self.__grabRecurse(item, window, False)
+            else:
+                self.__grabRecurse(item, window)
 
     def ungrab_hotkey(self, item):
         """
@@ -332,20 +341,28 @@ class XInterfaceBase(threading.Thread):
         If the hotkey has no filter regex, it is global and need only be ungrabbed from the root window
         If it has a filter regex, iterate over all children of the root and ungrab from matching windows
         """
-        if item.windowInfoRegex is None:
+        
+        if item.get_applicable_regex() is None:
             self.__enqueue(self.__ungrabHotkey, item.hotKey, item.modifiers, self.rootWindow)
         else:
-            self.__enqueue(self.__ungrabRecurse, item, self.rootWindow)
+            import copy
+            newItem = copy.copy(item)
+            self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow)
 
-    def __ungrabRecurse(self, item, parent):
+    def __ungrabRecurse(self, item, parent, checkWinInfo=True):
         for window in parent.query_tree().children:
-            title = self.get_window_title(window)
-            klass = self.get_window_class(window)
-            if item._should_trigger_window_title((title, klass)):
-                self.__enqueue(self.__ungrabHotkey, item.hotKey, item.modifiers, window)
-                break
+            shouldTrigger = False
+            
+            if checkWinInfo:        
+                title = self.get_window_title(window, False)
+                klass = self.get_window_class(window, False)
+                shouldTrigger = item._should_trigger_window_title((title, klass))
 
-            self.__ungrabRecurse(item, window)
+            if shouldTrigger or not checkWinInfo:
+                self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                self.__ungrabRecurse(item, window, False)
+            else:
+                self.__ungrabRecurse(item, window)
 
     def __ungrabHotkey(self, key, modifiers, window):
         """
@@ -801,45 +818,50 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
 
-    def get_window_title(self, window=None):
+    def get_window_title(self, window=None, traverse=True):
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
 
-            return self.__getWinTitle(windowvar)
+            return self.__getWinTitle(windowvar, traverse)
 
         except:
             return ""
 
 
-    def __getWinTitle(self, windowvar):
+    def __getWinTitle(self, windowvar, traverse):
         atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
         if atom is None:
             atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
 
         if atom:
             return atom.value.decode("utf-8")
+        elif traverse:
+            return self.__getWinTitle(windowvar.query_tree().parent, True)
         else:
-            return self.__getWinTitle(windowvar.query_tree().parent)
+            return ""
 
-    def get_window_class(self, window=None):
+    def get_window_class(self, window=None, traverse=True):
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
 
-            return self.__getWinClass(windowvar)
+            return self.__getWinClass(windowvar, traverse)
         except:
             return ""
     
-    def __getWinClass(self, windowvar):
+    def __getWinClass(self, windowvar, traverse):
         wmclass = windowvar.get_wm_class()
 
-        if wmclass == None or wmclass == "":
-            return self.__getWinClass(windowvar.query_tree().parent)
+        if (wmclass == None or wmclass == ""):
+            if traverse:
+                return self.__getWinClass(windowvar.query_tree().parent, True)
+            else:
+                return ""
 
         return wmclass[0] + '.' + wmclass[1]
     
