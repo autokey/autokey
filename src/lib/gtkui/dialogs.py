@@ -94,7 +94,10 @@ class AbbrSettingsDialog(DialogBase):
         self.configManager = configManager
         self.closure = closure
         
-        self.abbrEntry = builder.get_object("abbrEntry")
+        self.abbrList = builder.get_object("abbrList")
+        self.addButton = builder.get_object("addButton")
+        self.removeButton = builder.get_object("removeButton")
+        
         self.wordCharCombo = builder.get_object("wordCharCombo")
         self.removeTypedCheckbox = builder.get_object("removeTypedCheckbox")
         self.omitTriggerCheckbox = builder.get_object("omitTriggerCheckbox")
@@ -105,16 +108,37 @@ class AbbrSettingsDialog(DialogBase):
         
         DialogBase.__init__(self)
         
+        # set up list view
+        store = gtk.ListStore(str)
+        self.abbrList.set_model(store)
+        
+        column1 = gtk.TreeViewColumn(_("Abbreviations"))
+        textRenderer = gtk.CellRendererText()
+        textRenderer.set_property("editable", True)
+        textRenderer.connect("edited", self.on_cell_modified)
+        textRenderer.connect("editing-canceled", self.on_cell_editing_cancelled)
+        column1.pack_end(textRenderer, True)
+        column1.add_attribute(textRenderer, "text", 0)
+        column1.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        self.abbrList.append_column(column1)
+        
         #for item in WORD_CHAR_OPTIONS_ORDERED:
         #    self.wordCharCombo.append_text(item)
         
     def load(self, item):
         self.targetItem = item
+        self.abbrList.get_model().clear()
         
         if model.TriggerMode.ABBREVIATION in item.modes:
-            self.abbrEntry.set_text(item.abbreviation.encode("utf-8"))
+            for abbr in item.abbreviations:
+                self.abbrList.get_model().append((abbr.encode("utf-8"),))
+            self.removeButton.set_sensitive(True)
+            firstIter = self.abbrList.get_model().get_iter_first()  
+            self.abbrList.get_selection().select_iter(firstIter)
         else:
-            self.abbrEntry.set_text("")
+            self.removeButton.set_sensitive(False)
+            
+            
         self.removeTypedCheckbox.set_active(item.backspace)
         
         for desc, regex in WORD_CHAR_OPTIONS.iteritems():
@@ -140,7 +164,8 @@ class AbbrSettingsDialog(DialogBase):
         
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
-        item.abbreviation = self.get_abbr()
+        item.clear_abbreviations()
+        item.abbreviations = self.get_abbrs()
         
         item.backspace = self.removeTypedCheckbox.get_active()
         
@@ -158,7 +183,8 @@ class AbbrSettingsDialog(DialogBase):
         item.immediate = self.immediateCheckbox.get_active()
         
     def reset(self):
-        self.abbrEntry.set_text("")
+        self.abbrList.get_model().clear()
+        self.removeButton.set_sensitive(False)
         self.wordCharCombo.set_active(0)
         self.omitTriggerCheckbox.set_active(False)
         self.removeTypedCheckbox.set_active(True)
@@ -167,25 +193,82 @@ class AbbrSettingsDialog(DialogBase):
         self.triggerInsideCheckbox.set_active(False)
         self.immediateCheckbox.set_active(False)
         
-    def get_abbr(self):
-        return self.abbrEntry.get_text().decode("utf-8")
+    def get_abbrs(self):
+        ret = []
+        model = self.abbrList.get_model()
+        i = iter(model)
+        
+        try:
+            while True:
+                text = model.get_value(i.next().iter, 0)
+                ret.append(text.decode("utf-8"))
+        except StopIteration:
+            pass
+            
+        return list(set(ret))
+        
+    def get_abbrs_readable(self):
+        abbrs = self.get_abbrs()
+        if len(abbrs) == 1:
+            return abbrs[0].encode("utf-8")
+        else:
+            return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])    
             
     def valid(self):
         configManager = self.configManager
 
-        unique, itemName  = configManager.check_abbreviation_unique(self.get_abbr(), self.targetItem)
-        if not validate(unique, _("The abbreviation is already in use by '%s'.") % itemName,
-                             self.abbrEntry, self.ui): return False
+        unique = True
+        duplicate = None
         
-        if not validate(not EMPTY_FIELD_REGEX.match(self.get_abbr()), _("The abbreviation can't be empty."),
-                            self.abbrEntry, self.ui): return False
+        for abbr in self.get_abbrs():        
+            unique, itemName  = configManager.check_abbreviation_unique(abbr, self.targetItem)
+            if not unique:
+                duplicate = abbr
+                break
+            
+        if not validate(unique, _("The abbreviation '%s' is already in use by '%s'.") % (duplicate, itemName),
+                             self.abbrList, self.ui): return False
+        
+        if not validate(len(self.get_abbrs()) > 0, _("You must specify at least one abbreviation"),
+                            self.abbrList, self.ui): return False
 
         return True
     
     def reset_focus(self):
-        self.abbrEntry.grab_focus()
+        self.abbrList.grab_focus()
         
     # Signal handlers
+    
+    def on_cell_editing_cancelled(self, renderer, data=None):
+        model, curIter = self.abbrList.get_selection().get_selected()
+        oldText = model.get_value(curIter, 0) or ""
+        self.on_cell_modified(renderer, None, oldText)    
+    
+    def on_cell_modified(self, renderer, path, newText, data=None):
+        model, curIter = self.abbrList.get_selection().get_selected()
+        oldText = model.get_value(curIter, 0) or ""
+        if EMPTY_FIELD_REGEX.match(newText) and EMPTY_FIELD_REGEX.match(oldText):
+            self.on_removeButton_clicked(renderer)
+        else:
+            model.set(curIter, 0, newText)      
+    
+    def on_addButton_clicked(self, widget, data=None):
+        model = self.abbrList.get_model()
+        newIter = model.append()
+        self.abbrList.set_cursor(model.get_path(newIter), self.abbrList.get_column(0), True)
+        self.removeButton.set_sensitive(True)
+        
+    def on_removeButton_clicked(self, widget, data=None):
+        model, curIter = self.abbrList.get_selection().get_selected()
+        model.remove(curIter)
+        if model.get_iter_first() is None:
+            self.removeButton.set_sensitive(False)
+        else:
+            self.abbrList.get_selection().select_iter(model.get_iter_first())
+        
+        
+    def on_abbrList_cursorchanged(self, widget, data=None):
+        pass
     
     def on_ignoreCaseCheckbox_stateChanged(self, widget, data=None):
         if not self.ignoreCaseCheckbox.get_active():

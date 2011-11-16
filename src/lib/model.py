@@ -52,11 +52,11 @@ def get_safe_path(basePath, name, ext=""):
 
 class AbstractAbbreviation:
     """
-    Abstract class encapsulating the common functionality of an abbreviation
+    Abstract class encapsulating the common functionality of an abbreviation list
     """
 
     def __init__(self):
-        self.abbreviation = None
+        self.abbreviations = []
         self.backspace = True
         self.ignoreCase = False
         self.immediate = False
@@ -65,7 +65,7 @@ class AbstractAbbreviation:
 
     def get_serializable(self):
         d = {
-            "abbreviation": self.abbreviation,
+            "abbreviations": self.abbreviations,
             "backspace": self.backspace,
             "ignoreCase": self.ignoreCase,
             "immediate": self.immediate,
@@ -75,7 +75,11 @@ class AbstractAbbreviation:
         return d
 
     def load_from_serialized(self, data):
-        self.abbreviation = data["abbreviation"]
+        if "abbreviations" not in data: # check for pre v0.80.4
+            self.abbreviations = [data["abbreviation"]]
+        else:
+            self.abbreviations = data["abbreviations"]
+            
         self.backspace = data["backspace"]
         self.ignoreCase = data["ignoreCase"]
         self.immediate = data["immediate"]
@@ -83,7 +87,7 @@ class AbstractAbbreviation:
         self.set_word_chars(data["wordChars"])
         
     def copy_abbreviation(self, abbr):
-        self.abbreviation = abbr.abbreviation
+        self.abbreviations = abbr.abbreviations
         self.backspace = abbr.backspace
         self.ignoreCase = abbr.ignoreCase
         self.immediate = abbr.immediate
@@ -96,14 +100,19 @@ class AbstractAbbreviation:
     def get_word_chars(self):
         return self.wordChars.pattern
         
-    def set_abbreviation(self, abbr):
-        self.abbreviation = abbr
+    def add_abbreviation(self, abbr):
+        self.abbreviations.append(abbr)
+        
+    def clear_abbreviations(self):
+        self.abbreviations = []
 
-    def get_abbreviation(self):
+    def get_abbreviations(self):
         if TriggerMode.ABBREVIATION not in self.modes:
             return ""
+        elif len(self.abbreviations) == 1:
+            return self.abbreviations[0]
         else:
-            return self.abbreviation
+            return u"[%s]" % u','.join(self.abbreviations)
         
     def _should_trigger_abbreviation(self, buffer):
         """
@@ -112,7 +121,21 @@ class AbstractAbbreviation:
         
         @param buffer Input buffer to be checked (as string)
         """
-        stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+        for abbr in self.abbreviations:
+            if self.__checkInput(buffer, abbr):
+                return True
+        
+        return False
+        
+    def _get_trigger_abbreviation(self, buffer):
+        for abbr in self.abbreviations:
+            if self.__checkInput(buffer, abbr):
+                return abbr
+        
+        return None      
+        
+    def __checkInput(self, buffer, abbr):
+        stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
         
         if len(typedAbbr) > 0:            
             # Check trigger character condition
@@ -148,18 +171,18 @@ class AbstractAbbreviation:
         
         return False
     
-    def _partition_input(self, currentString):
+    def _partition_input(self, currentString, abbr):
         """
         Partition the input into text before, text after, and typed abbreviation (if it exists)
         """
         if self.ignoreCase:
             matchString = currentString.lower()
-            stringBefore, typedAbbr, stringAfter = matchString.rpartition(self.abbreviation)
+            stringBefore, typedAbbr, stringAfter = matchString.rpartition(abbr)
             abbrStart = len(stringBefore)
             abbrEnd = abbrStart + len(typedAbbr)
             typedAbbr = currentString[abbrStart:abbrEnd]
         else:
-            stringBefore, typedAbbr, stringAfter = currentString.rpartition(self.abbreviation)     
+            stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)     
             
         return (stringBefore, typedAbbr, stringAfter)
     
@@ -434,7 +457,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 pass
         
     def get_tuple(self):
-        return ("folder", self.title, self.get_abbreviation(), self.get_hotkey_string(), self)
+        return ("folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self)
     
     def set_modes(self, modes):
         self.modes = modes
@@ -685,7 +708,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("edit-paste", self.description, self.get_abbreviation(), self.get_hotkey_string(), self)
+        return ("edit-paste", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
         
     def set_modes(self, modes):
         self.modes = modes
@@ -714,11 +737,13 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
         if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
-                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+                abbr = self._get_trigger_abbreviation(buffer)
+            
+                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
                 triggerFound = True        
                 if self.backspace:
                     # determine how many backspaces to send
-                    expansion.backspaces = len(self.abbreviation) + len(stringAfter)
+                    expansion.backspaces = len(abbr) + len(stringAfter)
                 else:
                     expansion.backspaces = len(stringAfter)
                 
@@ -960,7 +985,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(theScript)
 
     def get_tuple(self):
-        return ("text-x-script", self.description, self.get_abbreviation(), self.get_hotkey_string(), self)
+        return ("text-x-script", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
 
     def set_modes(self, modes):
         self.modes = modes

@@ -265,7 +265,7 @@ class ConfigManager:
         f = Folder(u"Addresses")
         adr = Phrase(u"Home Address", u"22 Avenue Street\nBrisbane\nQLD\n4000")
         adr.set_modes([TriggerMode.ABBREVIATION])
-        adr.set_abbreviation(u"adr")
+        adr.add_abbreviation(u"adr")
         f.add_item(adr)
         myPhrases.add_folder(f)        
         f.persist()
@@ -676,12 +676,12 @@ dialog.info_dialog("Window information",
         """
         for item in self.allFolders:
             if TriggerMode.ABBREVIATION in item.modes:
-                if item.abbreviation == abbreviation:
+                if abbreviation in item.abbreviations and item.filter_matches(targetItem):
                     return item is targetItem, item.title
             
         for item in self.allItems:
             if TriggerMode.ABBREVIATION in item.modes:
-                if item.abbreviation == abbreviation:
+                if abbreviation in item.abbreviations and item.filter_matches(targetItem):
                     return item is targetItem, item.description
 
         return True, ""
@@ -725,29 +725,29 @@ dialog.info_dialog("Window information",
         else:
             return msg % ("script", conflictItem.description)"""
             
-    def check_hotkey_unique(self, modifiers, hotKey, targetPhrase):
+    def check_hotkey_unique(self, modifiers, hotKey, targetItem):
         """
         Checks that the given hotkey is not already in use. Also checks the 
         special hotkeys configured from the advanced settings dialog.
         
         @param modifiers: modifiers for the hotkey
         @param hotKey: the hotkey to check
-        @param targetPhrase: the phrase for which the hotKey to be used        
+        @param targetItem: the phrase for which the hotKey to be used        
         """
         for item in self.allFolders:
             if TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase, item.title
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
+                    return item is targetItem, item.title
             
         for item in self.allItems:
             if TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase, item.description
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
+                    return item is targetItem, item.description
 
         for item in self.globalHotkeys:
             if item.enabled:
-                if item.modifiers == modifiers and item.hotKey == hotKey:
-                    return item is targetPhrase, "a global hotkey"
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
+                    return item is targetItem, "a global hotkey"
 
         return True, ""
     

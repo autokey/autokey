@@ -120,7 +120,7 @@ class SettingsWidget:
         
         self.abbrDialog.load(self.currentItem)
         if model.TriggerMode.ABBREVIATION in item.modes:
-            self.abbrLabel.set_text(item.abbreviation)
+            self.abbrLabel.set_text(item.get_abbreviations())
             self.clearAbbrButton.set_sensitive(True)
             self.abbrEnabled = True
         else:
@@ -183,7 +183,7 @@ class SettingsWidget:
         if res == gtk.RESPONSE_OK:
             self.set_dirty()
             self.abbrEnabled = True
-            self.abbrLabel.set_text(self.abbrDialog.get_abbr())
+            self.abbrLabel.set_text(self.abbrDialog.get_abbrs_readable())
             self.clearAbbrButton.set_sensitive(True)
             
     def on_clearAbbrButton_clicked(self, widget, data=None):
