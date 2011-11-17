@@ -667,24 +667,25 @@ dialog.info_dialog("Window information",
                 
             self.config_altered(False)
         
-    def check_abbreviation_unique(self, abbreviation, targetItem):
+        
+    def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
         """
         Checks that the given abbreviation is not already in use.
         
         @param abbreviation: the abbreviation to check
-        @param targetPhrase: the phrase for which the abbreviation to be used 
+        @param targetItem: the phrase for which the abbreviation to be used 
         """
         for item in self.allFolders:
             if TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(targetItem):
-                    return item is targetItem, item.title
+                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
+                    return item is targetItem, item
             
         for item in self.allItems:
             if TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(targetItem):
-                    return item is targetItem, item.description
+                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
+                    return item is targetItem, item
 
-        return True, ""
+        return True, None
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
@@ -715,17 +716,9 @@ dialog.info_dialog("Window information",
             else:
                 return False
         except ValueError:
-            return False
-
-    def __buildErrorMsg(self, conflictItem, msg):
-        if isinstance(conflictItem, Folder):
-            return msg % ("folder", conflictItem.title)
-        elif isinstance(conflictItem, Phrase):
-            return msg % ("phrase", conflictItem.description)
-        else:
-            return msg % ("script", conflictItem.description)"""
+            return False"""
             
-    def check_hotkey_unique(self, modifiers, hotKey, targetItem):
+    def check_hotkey_unique(self, modifiers, hotKey, newFilterPattern, targetItem):
         """
         Checks that the given hotkey is not already in use. Also checks the 
         special hotkeys configured from the advanced settings dialog.
@@ -736,20 +729,20 @@ dialog.info_dialog("Window information",
         """
         for item in self.allFolders:
             if TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
-                    return item is targetItem, item.title
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
+                    return item is targetItem, item
             
         for item in self.allItems:
             if TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
-                    return item is targetItem, item.description
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
+                    return item is targetItem, item
 
         for item in self.globalHotkeys:
             if item.enabled:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(targetItem):
-                    return item is targetItem, "a global hotkey"
+                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
+                    return item is targetItem, item
 
-        return True, ""
+        return True, None
     
 # This import placed here to prevent circular import conflicts
 from model import *
@@ -810,3 +803,6 @@ class GlobalHotkey(AbstractHotkey):
             ret += key
 
         return ret
+        
+    def __str__(self):
+        return _("AutoKey global hotkeys")

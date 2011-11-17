@@ -295,7 +295,7 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
-        return windowInfo[0] != "Set Abbreviation" and self.is_running()
+        return windowInfo[0] != "Set Abbreviations" and self.is_running()
         
     def __processItem(self, item, buffer=''):
         if isinstance(item, model.Phrase):

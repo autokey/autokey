@@ -208,13 +208,13 @@ class Application:
         """
         Shut down the entire application.
         """
-        self.notifier.hide_icon()
-        
         if self.configWindow is not None:
-            if self.configWindow.promptToSave():
+            if self.configWindow.promptToSave(True):
                 return
 
             self.configWindow.hide()
+
+        self.notifier.hide_icon()
         
         t = threading.Thread(target=self.__completeShutdown)
         t.start()
@@ -223,8 +223,11 @@ class Application:
         logging.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()
+        gtk.gdk.threads_enter()
         gtk.main_quit()
+        gtk.gdk.threads_leave()
         os.remove(LOCK_FILE)
+        logging.debug("All shutdown tasks complete... quitting")
             
     def show_notify(self, message, isError=False, details=''):
         """

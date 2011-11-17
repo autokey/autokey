@@ -212,23 +212,9 @@ class AbbrSettingsDialog(DialogBase):
         if len(abbrs) == 1:
             return abbrs[0].encode("utf-8")
         else:
-            return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])    
+            return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])
             
     def valid(self):
-        configManager = self.configManager
-
-        unique = True
-        duplicate = None
-        
-        for abbr in self.get_abbrs():        
-            unique, itemName  = configManager.check_abbreviation_unique(abbr, self.targetItem)
-            if not unique:
-                duplicate = abbr
-                break
-            
-        if not validate(unique, _("The abbreviation '%s' is already in use by '%s'.") % (duplicate, itemName),
-                             self.abbrList, self.ui): return False
-        
         if not validate(len(self.get_abbrs()) > 0, _("You must specify at least one abbreviation"),
                             self.abbrList, self.ui): return False
 
@@ -388,13 +374,6 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
         
     def valid(self):
-        configManager = self.configManager
-        modifiers = self.build_modifiers()
-
-        unique, itemName = configManager.check_hotkey_unique(modifiers, self.key, self.targetItem)
-        if not validate(unique, _("The hotkey is already in use by '%s'.") % itemName, None,
-                            self.ui): return False
-
         if not validate(self.key is not None, _("You must specify a key for the hotkey."),
                             None, self.ui): return False
         
@@ -441,6 +420,21 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
         assert key != None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
+        
+        
+    def valid(self):
+        configManager = self.configManager
+        modifiers = self.build_modifiers()
+        pattern = self.targetItem.get_applicable_regex().pattern
+
+        unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
+        if not validate(unique, _("The hotkey is already in use for %s.") % conflicting, None,
+                            self.ui): return False
+
+        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
+                            None, self.ui): return False
+        
+        return True        
 
 
 class WindowFilterSettingsDialog(DialogBase):
@@ -473,7 +467,7 @@ class WindowFilterSettingsDialog(DialogBase):
             
     def save(self, item):
         item.set_window_titles(self.get_filter_text())
-        item.set_filter_recursive(self.recursiveButton.get_active())
+        item.set_filter_recursive(self.get_is_recursive())
             
     def reset(self):
         self.triggerRegexEntry.set_text("")
@@ -481,6 +475,10 @@ class WindowFilterSettingsDialog(DialogBase):
         
     def get_filter_text(self):
         return self.triggerRegexEntry.get_text().decode("utf-8")
+        
+    def get_is_recursive(self):
+        return self.recursiveButton.get_active()
+        
     
     def valid(self):
         return True

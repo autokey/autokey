@@ -248,10 +248,10 @@ class AbstractWindowFilter:
             return ""
             
     def filter_matches(self, otherFilter):
-        if otherFilter.windowInfoRegex is not None:
-            return otherFilter.windowInfoRegex.pattern == self.windowInfoRegex.pattern
-        
-        return False
+        if otherFilter is None or self.get_applicable_regex() is None:
+            return True
+            
+        return otherFilter == self.get_applicable_regex().pattern
             
     def get_applicable_regex(self, forChild=False):
         if self.windowInfoRegex is not None:
@@ -538,7 +538,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return cmp(other.title, self.title)"""
     
     def __str__(self):
-        return self.title
+        return "Folder '%s'" % self.title
     
     def __repr__(self):
         return str(self)
@@ -853,7 +853,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             expansion.string = firstpart + secondpart
             
     def __str__(self):
-        return self.description
+        return "Phrase '%s'" % self.description
     
     def __repr__(self):
         return "Phrase('" + self.description + "')"
@@ -1032,7 +1032,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return self.description
 
     def __str__(self):
-        return self.description
+        return "Script '%s'" % self.description
     
     def __repr__(self):
         return "Script('" + self.description + "')"

@@ -41,6 +41,9 @@ UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
 _logger = logging.getLogger("configwindow")
 
+PROBLEM_MSG_PRIMARY = _("Some problems were found")
+PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
+
 def get_ui(fileName):
     builder = gtk.Builder()
     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
@@ -59,6 +62,7 @@ def set_linkbutton(button, path):
     button.set_uri("file://" + path)
     label = button.get_child()
     label.set_ellipsize(pango.ELLIPSIZE_START)
+    
     
 class RenameDialog:
     
@@ -140,6 +144,7 @@ class SettingsWidget:
         
         self.filterDialog.load(self.currentItem)
         self.filterEnabled = False
+        self.clearFilterButton.set_sensitive(False)
         if item.has_filter() or item.inherits_filter():
             self.windowFilterLabel.set_text(item.get_filter_regex())
             
@@ -149,7 +154,7 @@ class SettingsWidget:
         
         else:
             self.windowFilterLabel.set_text(_("(None configured)"))
-            self.clearFilterButton.set_sensitive(False)
+            
             
             
     def save(self):
@@ -172,6 +177,52 @@ class SettingsWidget:
             
     def set_dirty(self):
         self.parentWindow.set_dirty(True)
+        
+    def validate(self):
+        # Start by getting all applicable information
+        if self.abbrEnabled:
+            abbreviations = self.abbrDialog.get_abbrs()
+        else:
+            abbreviations = []
+            
+        if self.hotkeyEnabled:
+            modifiers = self.hotkeyDialog.build_modifiers()
+            key = self.hotkeyDialog.key
+        else:
+            modifiers = []
+            key = None
+        
+        filterExpression = None
+        if self.filterEnabled:
+            filterExpression = self.filterDialog.get_filter_text()
+        elif self.currentItem.parent is not None:
+            r = self.currentItem.parent.get_applicable_regex(True)
+            if r is not None:
+                filterExpression = r.pattern
+            
+        # Validate
+        ret = []
+        
+        configManager = self.parentWindow.app.configManager
+
+        for abbr in abbreviations:        
+            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            if not unique:
+                msg = _("The abbreviation '%s' is already in use by the %s") % (abbr, str(conflicting))
+                f = conflicting.get_applicable_regex()
+                if f is not None:
+                    msg += _(" for windows matching '%s'.") % f.pattern
+                ret.append(msg)
+                    
+        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        if not unique:
+            msg = _("The hotkey '%s' is already in use by the %s") % (conflicting.get_hotkey_string(), str(conflicting))
+            f = conflicting.get_applicable_regex()
+            if f is not None:
+                msg += _(" for windows matching '%s'.") % f.pattern
+            ret.append(msg)
+        
+        return ret
         
     # ---- Signal handlers
         
@@ -313,8 +364,19 @@ class FolderPage:
     def reset(self):
         self.load(self.currentFolder)
         
-    def validate(self):
-        return True
+    def validate(self):           
+        # Check settings
+        errors = self.settingsWidget.validate()
+        
+        if errors:
+            msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
+            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
+                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg.format_secondary_text(msg)
+            dlg.run()
+            dlg.destroy()
+                
+        return len(errors) == 0
         
     def on_modified(self, widget, data=None):
         self.set_dirty()
@@ -404,12 +466,25 @@ class ScriptPage:
         self.parentWindow.set_redo_available(False)
         
     def validate(self):
-        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter())
-        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The script code can't be empty"), self.editor,
-                         self.parentWindow.ui):
-            return False
+        errors = []
         
-        return True
+        # Check script code        
+        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter())
+        if EMPTY_FIELD_REGEX.match(text):
+            errors.append(_("The script code can't be empty"))
+            
+        # Check settings
+        errors += self.settingsWidget.validate()
+        
+        if errors:
+            msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
+            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
+                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg.format_secondary_text(msg)
+            dlg.run()
+            dlg.destroy()
+                
+        return len(errors) == 0
         
     def start_record(self):
         self.buffer.insert(self.buffer.get_end_iter(), "\n")
@@ -536,15 +611,27 @@ class PhrasePage(ScriptPage):
         self.currentItem.persist()
         set_linkbutton(self.linkButton, self.currentItem.path)
         return False
-
+        
     def validate(self):
+        errors = []
+        
+        # Check phrase content
         text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).decode("utf-8")
-        if not validate(not EMPTY_FIELD_REGEX.match(text), _("The phrase content can't be empty"), self.editor,
-                         self.parentWindow.ui):
-            return False
-
-        return True
-
+        if EMPTY_FIELD_REGEX.match(text):
+            errors.append(_("The phrase content can't be empty"))
+            
+        # Check settings
+        errors += self.settingsWidget.validate()
+        
+        if errors:
+            msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
+            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
+                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg.format_secondary_text(msg)
+            dlg.run()
+            dlg.destroy()
+                
+        return len(errors) == 0
         
 
 class ConfigWindow:
@@ -762,7 +849,7 @@ class ConfigWindow:
     
     def queryClose(self):
         if self.dirty:
-            return self.promptToSave()
+            return self.promptToSave(True)
 
         return False
         
@@ -1349,14 +1436,14 @@ class ConfigWindow:
         self.stack.append_page(self.phrasePage.ui)
         self.stack.append_page(self.scriptPage.ui)
         
-    def promptToSave(self):
+    def promptToSave(self, quitting=False):
         selectedObject = self.__getTreeSelection()
         current = self.__getCurrentPage()
             
         result = False
  
         if self.dirty:
-            if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
+            if ConfigManager.SETTINGS[PROMPT_TO_SAVE] or quitting:
                 dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
                                         _("There are unsaved changes. Would you like to save them?"))
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
