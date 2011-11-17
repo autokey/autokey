@@ -209,7 +209,7 @@ class Application:
         Shut down the entire application.
         """
         if self.configWindow is not None:
-            if self.configWindow.promptToSave(True):
+            if self.configWindow.promptToSave():
                 return
 
             self.configWindow.hide()

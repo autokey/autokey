@@ -841,6 +841,9 @@ class ConfigWindow:
             
             self.refresh_tree()
             self.app.monitor.unsuspend()
+            return False
+            
+        return True
     
     def on_reset(self, widget, data=None):
         self.__getCurrentPage().reset()
@@ -849,7 +852,7 @@ class ConfigWindow:
     
     def queryClose(self):
         if self.dirty:
-            return self.promptToSave(True)
+            return self.promptToSave()
 
         return False
         
@@ -1436,14 +1439,14 @@ class ConfigWindow:
         self.stack.append_page(self.phrasePage.ui)
         self.stack.append_page(self.scriptPage.ui)
         
-    def promptToSave(self, quitting=False):
+    def promptToSave(self):
         selectedObject = self.__getTreeSelection()
         current = self.__getCurrentPage()
             
         result = False
  
         if self.dirty:
-            if ConfigManager.SETTINGS[PROMPT_TO_SAVE] or quitting:
+            if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
                 dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
                                         _("There are unsaved changes. Would you like to save them?"))
                 dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
@@ -1457,7 +1460,7 @@ class ConfigWindow:
                 
                 dlg.destroy()
             else:
-                self.on_save(None)
+                result = self.on_save(None)
 
         return result
             
