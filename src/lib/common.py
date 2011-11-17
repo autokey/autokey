@@ -36,6 +36,7 @@ DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_
 
 ICON_FILE = "autokey"
 ICON_FILE_NOTIFICATION = "autokey-status"
+ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 
 # Misc
 DOMAIN_SOCKET_PATH = "/var/run/autokey-daemon"

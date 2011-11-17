@@ -3,7 +3,7 @@
   <!-- interface-requires gtk+ 2.10 -->
   <object class="GtkDialog" id="windowfiltersettings">
     <property name="can_focus">False</property>
-    <property name="border_width">5</property>
+    <property name="border_width">8</property>
     <property name="title" translatable="yes">Set Window Filter</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
@@ -66,7 +66,6 @@
           <object class="GtkVBox" id="vbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="spacing">5</property>
             <child>
               <object class="GtkLabel" id="label1">
                 <property name="visible">True</property>
@@ -77,6 +76,7 @@
               <packing>
                 <property name="expand">True</property>
                 <property name="fill">True</property>
+                <property name="padding">5</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -97,6 +97,22 @@
               </packing>
             </child>
             <child>
+              <object class="GtkCheckButton" id="negateButton">
+                <property name="label" translatable="yes">Negative matching</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkCheckButton" id="recursiveButton">
                 <property name="label" translatable="yes">Apply recursively to subfolders and items</property>
                 <property name="visible">True</property>
@@ -107,16 +123,15 @@
                 <property name="draw_indicator">True</property>
               </object>
               <packing>
-                <property name="expand">True</property>
+                <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">True</property>
             <property name="fill">False</property>
-            <property name="padding">10</property>
             <property name="position">2</property>
           </packing>
         </child>

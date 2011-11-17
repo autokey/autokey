@@ -1,14 +1,13 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <!-- interface-requires gtk+ 2.6 -->
-  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkWindow" id="mainwindow">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">AutoKey - Configuration</property>
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <property name="icon">autokey.svg</property>
-    <signal handler="on_close" name="delete_event" swapped="no"/>
+    <signal name="delete-event" handler="on_close" swapped="no"/>
     <child>
       <object class="GtkVBox" id="vbox">
         <property name="visible">True</property>
@@ -23,20 +22,21 @@
               <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <property name="shadow_type">in</property>
                 <child>
                   <object class="GtkTreeView" id="treeWidget">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <signal handler="on_drag_drop" name="drag_drop" swapped="no"/>
-                    <signal handler="on_drag_data_received" name="drag_data_received" swapped="no"/>
-                    <signal handler="on_treeview_buttonpress" name="button_press_event" swapped="no"/>
-                    <signal handler="on_treeWidget_row_activated" name="row_activated" swapped="no"/>
-                    <signal handler="on_tree_selection_changed" name="cursor_changed" swapped="no"/>
-                    <signal handler="on_treeview_buttonrelease" name="button_release_event" swapped="no"/>
-                    <signal handler="on_drag_begin" name="drag_begin" swapped="no"/>
+                    <signal name="button-press-event" handler="on_treeview_buttonpress" swapped="no"/>
+                    <signal name="drag-drop" handler="on_drag_drop" swapped="no"/>
+                    <signal name="drag-data-received" handler="on_drag_data_received" swapped="no"/>
+                    <signal name="row-activated" handler="on_treeWidget_row_activated" swapped="no"/>
+                    <signal name="button-release-event" handler="on_treeview_buttonrelease" swapped="no"/>
+                    <signal name="cursor-changed" handler="on_tree_selection_changed" swapped="no"/>
+                    <signal name="drag-begin" handler="on_drag_begin" swapped="no"/>
+                    <child internal-child="selection">
+                      <object class="GtkTreeSelection" id="treeview-selection1"/>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -49,8 +49,8 @@
               <object class="GtkAlignment" id="alignment1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="bottom_padding">5</property>
-                <property name="right_padding">5</property>
+                <property name="bottom_padding">8</property>
+                <property name="right_padding">8</property>
                 <child>
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
@@ -84,7 +84,7 @@
                             <property name="receives_default">True</property>
                             <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
-                            <signal handler="on_save" name="clicked" swapped="no"/>
+                            <signal name="clicked" handler="on_save" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -100,7 +100,7 @@
                             <property name="receives_default">True</property>
                             <property name="use_action_appearance">False</property>
                             <property name="use_stock">True</property>
-                            <signal handler="on_reset" name="clicked" swapped="no"/>
+                            <signal name="clicked" handler="on_reset" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
