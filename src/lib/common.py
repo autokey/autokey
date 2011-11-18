@@ -33,6 +33,7 @@ BUG_EMAIL = "cdekter@gmail.com"
 FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
+BUG_URL = "http://code.google.com/p/autokey/issues/entry"
 
 ICON_FILE = "autokey"
 ICON_FILE_NOTIFICATION = "autokey-status"

@@ -507,8 +507,9 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         """
         if TriggerMode.ABBREVIATION in self.modes and self.backspace:
             if self._should_trigger_abbreviation(buffer):
-                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
-                return len(self.abbreviation) + len(stringAfter)
+                abbr = self._get_trigger_abbreviation(buffer)
+                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
+                return len(abbr) + len(stringAfter)
         
         if self.parent is not None:
             return self.parent.get_backspace_count(buffer)
@@ -795,7 +796,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
         
     def get_trigger_chars(self, buffer):
-        stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+        abbr = self._get_trigger_abbreviation(buffer)
+        stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
         return typedAbbr + stringAfter
     
     def should_prompt(self, buffer):
@@ -1006,7 +1008,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
         if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
-                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer)
+                abbr = self._get_trigger_abbreviation(buffer)
+                stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
                 triggerFound = True        
                 if self.backspace:
                     # determine how many backspaces to send

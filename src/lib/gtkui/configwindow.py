@@ -678,7 +678,8 @@ class ConfigWindow:
                 ("Help", None, _("_Help")),
                 ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
                 ("help", gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
-                ("donate", gtk.STOCK_YES, _("Donate"), "", _("Make A Donation"), self.on_donate),
+                ("donate", gtk.STOCK_YES, _("Donate"), "", _("Make a Donation"), self.on_donate),
+                ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
                 ("about", gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about)
                 ]
         actionGroup.add_actions(actions)
@@ -1172,6 +1173,9 @@ class ConfigWindow:
         
     def on_donate(self, widget, data=None):
         webbrowser.open(common.DONATE_URL, False, True)
+        
+    def on_report_bug(self, widget, data=None):
+        webbrowser.open(common.BUG_URL, False, True)
         
     def on_show_about(self, widget, data=None):
         dlg = gtk.AboutDialog()

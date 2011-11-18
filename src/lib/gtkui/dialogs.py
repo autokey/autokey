@@ -268,8 +268,10 @@ class AbbrSettingsDialog(DialogBase):
         if self.immediateCheckbox.get_active():
             self.omitTriggerCheckbox.set_active(False)
             self.omitTriggerCheckbox.set_sensitive(False)
+            self.wordCharCombo.set_sensitive(False)
         else:
-            self.omitTriggerCheckbox.set_sensitive(True)        
+            self.omitTriggerCheckbox.set_sensitive(True)
+            self.wordCharCombo.set_sensitive(True)       
 
 
 class HotkeySettingsDialog(DialogBase):
