@@ -196,6 +196,76 @@
       
     </td>
   </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="run_script_from_macro"></a><span class="summary-sig-name">run_script_from_macro</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">args</span>)</span><br />
+      Used internally by AutoKey for phrase macros</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.run_script_from_macro">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>list(str())</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#get_macro_arguments" class="summary-sig-name">get_macro_arguments</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Get the arguments supplied to the current script via its macro.</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.get_macro_arguments">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="lib.scripting.Engine-class.html#set_return_value" class="summary-sig-name">set_return_value</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">val</span>)</span><br />
+      Store a return value to be used by a phrase macro</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.set_return_value">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="get_return_value"></a><span class="summary-sig-name">get_return_value</span>(<span class="summary-sig-arg">self</span>)</span><br />
+      Used internally by AutoKey for phrase macros</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#Engine.get_return_value">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
 </table>
 <!-- ==================== METHOD DETAILS ==================== -->
 <a name="section-MethodDetails"></a>
@@ -383,6 +453,52 @@
   </dl>
 </td></tr></table>
 </div>
+<a name="get_macro_arguments"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_macro_arguments</span>(<span class="sig-arg">self</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.get_macro_arguments">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Get the arguments supplied to the current script via its macro.</p>
+  <dl class="fields">
+    <dt>Returns: <code>list(str())</code></dt>
+        <dd>the arguments</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="set_return_value"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">set_return_value</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">val</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#Engine.set_return_value">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Store a return value to be used by a phrase macro</p>
+  <p>Usage: <code>engine.set_return_value(val)</code></p>
+  <dl class="fields">
+    <dt>Parameters:</dt>
+    <dd><ul class="nomargin-top">
+        <li><strong class="pname"><code>val</code></strong> - value to be stored</li>
+    </ul></dd>
+  </dl>
+</td></tr></table>
+</div>
 <br />
 <!-- ==================== NAVIGATION BAR ==================== -->
 <table class="navbar" border="0" width="100%" cellpadding="0"
@@ -410,7 +526,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Sep 23 13:14:05 2011
+    Generated by Epydoc 3.0.1 on Fri Nov 18 22:55:06 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

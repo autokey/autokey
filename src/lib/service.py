@@ -21,6 +21,7 @@ import common
 from iomediator import Key, IoMediator
 from configmanager import *
 from gtkui.popupmenu import *
+from macro import MacroManager
 import scripting, model
 
 logger = logging.getLogger("service")
@@ -75,8 +76,8 @@ class Service:
         self.mediator.interface.start()
         self.mediator.start()
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
-        self.phraseRunner = PhraseRunner(self)
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
+        self.phraseRunner = PhraseRunner(self)
         logger.info("Service now marked as running")
         
     def unpause(self):
@@ -335,7 +336,7 @@ class PhraseRunner:
     
     def __init__(self, service):
         self.service = service
-        #self.pluginManager = PluginManager()
+        self.macroManager = MacroManager(service.scriptRunner.engine)
         self.lastExpansion = None
         self.lastPhrase = None  
         self.lastBuffer = None
@@ -346,6 +347,7 @@ class PhraseRunner:
         mediator.interface.begin_send()
         
         expansion = phrase.build_phrase(buffer)
+        self.macroManager.process_expansion(expansion)
         
         mediator.send_backspace(expansion.backspaces)
         if phrase.sendMode == model.SendMode.KEYBOARD:
@@ -395,13 +397,10 @@ class ScriptRunner:
         self.scope["engine"] = scripting.Engine(app.configManager, self)
         self.scope["dialog"] = scripting.GtkDialog()
         self.scope["clipboard"] = scripting.GtkClipboard(app)
+        self.engine = self.scope["engine"]
         
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)
-        
-        # TODO temporary code - remove ASAP
-        if not hasattr(script, "store"):
-            script.store = scripting.Store()
             
         self.scope["store"] = script.store
         

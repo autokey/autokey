@@ -731,6 +731,7 @@ class Engine:
         self.configManager = configManager
         self.runner = runner
         self.monitor = configManager.app.monitor
+        self.__returnValue = ''
         
     def get_folder(self, title):
         """
@@ -848,4 +849,44 @@ class Engine:
         else:
             raise Exception("No script with description '%s' found" % description)
             
+    def run_script_from_macro(self, args):
+        """
+        Used internally by AutoKey for phrase macros
+        """        
+        if len(args) > 1:
+            self.__macroArgs = args[1:]
+        else:
+            self.__macroArgs = []
             
+        try:
+            self.run_script(args[0])
+        except Exception, e:
+            self.set_return_value("{ERROR: %s}" % str(e))
+            
+    def get_macro_arguments(self):
+        """
+        Get the arguments supplied to the current script via its macro.
+        
+        @return: the arguments
+        @rtype: C{list(str())}
+        """
+        return self.__macroArgs
+            
+    def set_return_value(self, val):
+        """
+        Store a return value to be used by a phrase macro
+        
+        Usage: C{engine.set_return_value(val)}
+        
+        @param val: value to be stored
+        """
+        self.__returnValue = val
+        
+    def get_return_value(self):
+        """
+        Used internally by AutoKey for phrase macros
+        """
+        ret = self.__returnValue
+        self.__returnValue = ''
+        return ret
+    
