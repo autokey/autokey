@@ -3,7 +3,6 @@
 <object class="GtkAlignment" id="settingswidget">
         <property name="visible">True</property>
         <property name="top_padding">5</property>
-        <property name="bottom_padding">5</property>
         <child>
           <object class="GtkTable" id="table1">
             <property name="visible">True</property>
