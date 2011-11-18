@@ -542,7 +542,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return cmp(other.title, self.title)"""
     
     def __str__(self):
-        return "Folder '%s'" % self.title
+        return "folder '%s'" % self.title
     
     def __repr__(self):
         return str(self)
@@ -858,7 +858,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             expansion.string = firstpart + secondpart
             
     def __str__(self):
-        return "Phrase '%s'" % self.description
+        return "phrase '%s'" % self.description
     
     def __repr__(self):
         return "Phrase('" + self.description + "')"
@@ -1038,7 +1038,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return self.description
 
     def __str__(self):
-        return "Script '%s'" % self.description
+        return "script '%s'" % self.description
     
     def __repr__(self):
         return "Script('" + self.description + "')"

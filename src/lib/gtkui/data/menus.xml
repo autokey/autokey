@@ -8,6 +8,7 @@
                 <menuitem action="new-script" />
             </menu>
 			<menuitem action="save" />
+			<menuitem action="revert" />			
 			<menuitem action="close-window" />
             <separator />
 			<menuitem action="quit" />
@@ -42,13 +43,15 @@
 		</menu>
 	</menubar>
         <toolbar name="Toolbar">
+            <toolitem action="save" />
+            <separator />
+            <toolitem action="undo" />
+            <toolitem action="redo" />
+            <separator />
             <toolitem action="cut-item" />
             <toolitem action="copy-item" />
             <toolitem action="paste-item" />
             <toolitem action="delete-item" />
-            <separator />
-            <toolitem action="undo" />
-            <toolitem action="redo" />
             <separator />
             <toolitem action="record" />
         </toolbar>

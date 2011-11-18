@@ -203,7 +203,7 @@ class ConfigManager:
                 SHOW_TRAY_ICON : True,
                 SORT_BY_USAGE_COUNT : True,
                 #DETECT_UNWANTED_ABBR : False,
-                PROMPT_TO_SAVE: True,
+                PROMPT_TO_SAVE: False,
                 #PREDICTIVE_LENGTH : 5,
                 ENABLE_QT4_WORKAROUND : False,
                 INTERFACE_TYPE : _chooseInterface(),

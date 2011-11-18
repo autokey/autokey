@@ -667,6 +667,7 @@ class ConfigWindow:
                 ("new-phrase", gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
                 ("new-script", gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
                 ("save", gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
+                ("revert", gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
                 ("close-window", gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
                 ("quit", gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
                 ("Edit", None, _("_Edit")),
@@ -724,8 +725,6 @@ class ConfigWindow:
         self.stack = builder.get_object("stack")
         self.__initStack()
         
-        self.saveButton = builder.get_object("saveButton")
-        self.revertButton = builder.get_object("revertButton")
         self.hpaned = builder.get_object("hpaned")
         
         #self.uiManager.get_action("/MenuBar/Settings/enable-monitoring").set_active(app.service.is_running())
@@ -756,15 +755,13 @@ class ConfigWindow:
             self.recorder.stop()
             
     def save_completed(self, persistGlobal):
-        self.saveButton.set_sensitive(False)
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)        
         self.app.config_altered(persistGlobal)
         
     def set_dirty(self, dirty):
         self.dirty = dirty
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(dirty)
-        self.saveButton.set_sensitive(dirty)
-        self.revertButton.set_sensitive(dirty)
+        self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
         
     def config_modified(self):
         gtk.gdk.threads_enter()
@@ -808,23 +805,22 @@ class ConfigWindow:
                     canCopy = False
                     break
         
-        self.uiManager.get_action("/MenuBar/File/create").set_sensitive(enableAny)
-        self.uiManager.get_action("/MenuBar/File/create/new-top-folder").set_sensitive(True)
-        self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
-        self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
-        self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
+        #self.uiManager.get_action("/MenuBar/File/create").set_sensitive(enableAny)
+        #self.uiManager.get_action("/MenuBar/File/create/new-top-folder").set_sensitive(True)
+        #self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
+        #self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
+        #self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/cut-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/clone-item").set_sensitive(canCopy)
-        self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(canCreate and len(self.cutCopiedItems) > 0)
+        self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(len(self.cutCopiedItems) > 0)
         self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(canRecord)
         
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
-            self.saveButton.set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/undo").set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/redo").set_sensitive(False)
         
@@ -854,7 +850,7 @@ class ConfigWindow:
             
         return True
     
-    def on_reset(self, widget, data=None):
+    def on_revert(self, widget, data=None):
         self.__getCurrentPage().reset()
         self.set_dirty(False)
         self.cancel_record()
@@ -906,11 +902,19 @@ class ConfigWindow:
         else:        
             dlg.destroy()
         
+    def __getRealParent(self, parentIter):
+        theModel = self.treeView.get_model()
+        parentModelItem = theModel.get_value(parentIter, AkTreeModel.OBJECT_COLUMN)
+        if not isinstance(parentModelItem, model.Folder):
+            return theModel.iter_parent(parentIter)
+        
+        return parentIter
+        
     def on_new_folder(self, widget, data=None):
         name = self.__getNewItemName("Folder")
         if name is not None:
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = theModel[selectedPaths[0]].iter
+            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
             self.__createFolder(name, parentIter)
             self.app.config_altered(False)
         
@@ -920,6 +924,7 @@ class ConfigWindow:
         newFolder = model.Folder(title, path=path)
         newFolder.persist()
         self.app.monitor.unsuspend()
+        
         newIter = theModel.append_item(newFolder, parentIter)
         self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().unselect_all()
@@ -948,7 +953,7 @@ class ConfigWindow:
         if name is not None:
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = theModel[selectedPaths[0]].iter
+            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
             newPhrase = model.Phrase(name, "Enter phrase contents")
             newIter = theModel.append_item(newPhrase, parentIter)
             newPhrase.persist()
@@ -964,7 +969,7 @@ class ConfigWindow:
         if name is not None:
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = theModel[selectedPaths[0]].iter
+            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
             newScript = model.Script(name, "# Enter script code")
             newIter = theModel.append_item(newScript, parentIter)
             newScript.persist()
@@ -1009,7 +1014,7 @@ class ConfigWindow:
     
     def on_paste_item(self, widget, data=None):
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-        parentIter = theModel[selectedPaths[0]].iter
+        parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
         self.app.monitor.suspend()
         
         newIters = []
@@ -1063,9 +1068,9 @@ class ConfigWindow:
             item = theModel[refs[0].get_path()].iter
             modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)            
             if isinstance(modelItem, model.Folder):
-                msg = _("Are you sure you want to delete '%s' and all the items in it?") % modelItem.title
+                msg = _("Are you sure you want to delete the %s and all the items in it?") % str(modelItem)
             else:
-                msg = _("Are you sure you want to delete '%s'?") % modelItem.description
+                msg = _("Are you sure you want to delete the %s?") % str(modelItem)
         else:
             msg = _("Are you sure you want to delete the %d selected items?") % len(refs)
             
