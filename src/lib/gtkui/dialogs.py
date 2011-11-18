@@ -216,7 +216,7 @@ class AbbrSettingsDialog(DialogBase):
             
     def valid(self):
         if not validate(len(self.get_abbrs()) > 0, _("You must specify at least one abbreviation"),
-                            self.abbrList, self.ui): return False
+                            self.addButton, self.ui): return False
 
         return True
     
