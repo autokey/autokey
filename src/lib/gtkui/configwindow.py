@@ -275,13 +275,21 @@ class SettingsWidget:
             else:
                 self.filterEnabled = False
                 self.clearFilterButton.set_sensitive(False)
-                self.windowFilterLabel.set_text(_("(None configured)"))
+                if self.currentItem.inherits_filter():
+                    text = self.currentItem.parent.get_child_filter()
+                else:
+                    text = _("(None configured)")
+                self.windowFilterLabel.set_text(text)
 
     def on_clearFilterButton_clicked(self, widget, data=None):
         self.set_dirty()
         self.filterEnabled = False
         self.clearFilterButton.set_sensitive(False)
-        self.windowFilterLabel.set_text(_("(None configured)"))
+        if self.currentItem.inherits_filter():
+            text = self.currentItem.parent.get_child_filter()
+        else:
+            text = _("(None configured)")
+        self.windowFilterLabel.set_text(text)
         self.filterDialog.reset()
 
     def __getattr__(self, attr):

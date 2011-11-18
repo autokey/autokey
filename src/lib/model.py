@@ -241,7 +241,10 @@ class AbstractWindowFilter:
         Used by the GUI to obtain human-readable version of the filter
         """
         if self.windowInfoRegex is not None:
-            return self.windowInfoRegex.pattern
+            if self.isRecursive:
+                return self.windowInfoRegex.pattern + _(" (Recursive)")
+            else:
+                return self.windowInfoRegex.pattern
         elif self.parent is not None:
             return self.parent.get_child_filter()
         else:
