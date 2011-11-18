@@ -78,6 +78,7 @@
                     <property name="shadow_type">in</property>
                     <child>
                       <object class="GtkTreeView" id="abbrList">
+                        <property name="height_request">180</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="headers_clickable">False</property>
@@ -108,6 +109,7 @@
                         <property name="label">gtk-add</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
+                        <property name="has_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="use_stock">True</property>

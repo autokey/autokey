@@ -221,7 +221,7 @@ class AbbrSettingsDialog(DialogBase):
         return True
     
     def reset_focus(self):
-        self.abbrList.grab_focus()
+        self.addButton.grab_focus()
         
     # Signal handlers
     

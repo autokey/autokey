@@ -922,10 +922,11 @@ class ConfigWindow:
         self.app.monitor.suspend()        
         theModel = self.treeView.get_model()  
         newFolder = model.Folder(title, path=path)
-        newFolder.persist()
-        self.app.monitor.unsuspend()
         
         newIter = theModel.append_item(newFolder, parentIter)
+        newFolder.persist()
+        self.app.monitor.unsuspend()        
+        
         self.treeView.expand_to_path(theModel.get_path(newIter))
         self.treeView.get_selection().unselect_all()
         self.treeView.get_selection().select_iter(newIter)

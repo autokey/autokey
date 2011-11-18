@@ -867,10 +867,10 @@ class XInterfaceBase(threading.Thread):
     
     def cancel(self):
         self.queue.put_nowait((None, None))
+        self.eventThread.join()
         self.localDisplay.flush()
         self.localDisplay.close()
-        self.eventThread.join()
-        self.join(1.0)
+        self.join()
 
 
 class EvDevInterface(XInterfaceBase):
