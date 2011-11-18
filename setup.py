@@ -19,7 +19,7 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.80.3",
+      version="0.80.4",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.googlecode.com/",
@@ -34,7 +34,7 @@ interface offering the full flexibility and power of the Python language.""",
       package_dir={"autokey": "src/lib"},
       packages=["autokey", "autokey.gtkui"],
       package_data={"autokey.gtkui" : ["data/*"]},
-      data_files=[("/usr/share/pixmaps", ["config/autokey.svg", "config/autokey-status.svg"]),
+      data_files=[("/usr/share/pixmaps", ["config/autokey.svg", "config/autokey-status.svg", "config/autokey-status-dark.svg"]),
                   ("/usr/share/applications", ["config/autokey-gtk.desktop"]),
                   ('share/man/man1/', ['doc/man/autokey-gtk.1'])],
       scripts=['autokey-gtk']

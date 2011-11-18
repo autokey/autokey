@@ -1,3 +1,29 @@
+autokey (0.80.4-0~oneiric) oneiric; urgency=low
+
+  * Add auto-mnemonic to the first 9 items in the popup menu
+  * Allow window filters on folders to be applied recursively to children
+  * Another attempt at improving grab/ungrab hotkey behaviour and performance
+  * Fix bug where our own changes were sometimes detected by file monitor
+  * Allow multiple abbreviations to be assigned
+  * Allow hotkeys and abbreviations to be re-used when the window filter is
+    different
+  * Rework validation framework, and do detailed validation at save time
+  * Bring back the option to configure notification icon style
+  * Add a dark-style notification icon
+  * Tweak alignment and spacing of all windows and dialogs to conform to GNOME
+    HIG
+  * Add a "Report a Bug" help menu option
+  * Disable the "Trigger On" combo box when trigger immediately is enabled
+  * Drop the separate Save/Revert buttons and move Save into the toolbar
+  * Make auto-saving the default mode
+  * Allow creation without needing to select a parent folder first
+  * Fix intermittent hanging during shutdown, and wait for all threads to
+    terminate before quitting
+  * Focus correct control on Set Abbreviations dialog
+  * Fix bug where folders are always created at the top level
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 18 Nov 2011 17:57:55 +1100
+
 autokey (0.80.3-0~oneiric) oneiric; urgency=low
 
   * Fix a bug where Firefox/Thunderbird were not responding to keyboard events

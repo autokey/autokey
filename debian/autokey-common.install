@@ -10,5 +10,4 @@ usr/lib/python*/*-packages/autokey/scripting.py
 usr/lib/python*/*-packages/autokey/service.py
 usr/lib/python*/*-packages/autokey/monitor.py
 usr/lib/python*/*-packages/autokey-*.egg-info
-usr/share/pixmaps/autokey.svg
-usr/share/pixmaps/autokey-status.svg
+usr/share/pixmaps/autokey*.svg
