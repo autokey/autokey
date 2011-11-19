@@ -144,7 +144,8 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#activate" class="summary-sig-name">activate</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
-        <span class="summary-sig-arg">switchDesktop</span>=<span class="summary-sig-default">False</span>)</span><br />
+        <span class="summary-sig-arg">switchDesktop</span>=<span class="summary-sig-default">False</span>,
+        <span class="summary-sig-arg">matchClass</span>=<span class="summary-sig-default">False</span>)</span><br />
       Activate the specified window, giving it input focus</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.activate">source&nbsp;code</a></span>
@@ -162,7 +163,8 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#close" class="summary-sig-name">close</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">title</span>)</span><br />
+        <span class="summary-sig-arg">title</span>,
+        <span class="summary-sig-arg">matchClass</span>=<span class="summary-sig-default">False</span>)</span><br />
       Close the specified window gracefully</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.close">source&nbsp;code</a></span>
@@ -184,7 +186,8 @@
         <span class="summary-sig-arg">xOrigin</span>=<span class="summary-sig-default">-1</span>,
         <span class="summary-sig-arg">yOrigin</span>=<span class="summary-sig-default">-1</span>,
         <span class="summary-sig-arg">width</span>=<span class="summary-sig-default">-1</span>,
-        <span class="summary-sig-arg">height</span>=<span class="summary-sig-default">-1</span>)</span><br />
+        <span class="summary-sig-arg">height</span>=<span class="summary-sig-default">-1</span>,
+        <span class="summary-sig-arg">matchClass</span>=<span class="summary-sig-default">False</span>)</span><br />
       Resize and/or move the specified window</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.resize_move">source&nbsp;code</a></span>
@@ -203,7 +206,8 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#move_to_desktop" class="summary-sig-name">move_to_desktop</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
-        <span class="summary-sig-arg">deskNum</span>)</span><br />
+        <span class="summary-sig-arg">deskNum</span>,
+        <span class="summary-sig-arg">matchClass</span>=<span class="summary-sig-default">False</span>)</span><br />
       Move the specified window to the given desktop</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.move_to_desktop">source&nbsp;code</a></span>
@@ -241,7 +245,8 @@
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#set_property" class="summary-sig-name">set_property</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
         <span class="summary-sig-arg">action</span>,
-        <span class="summary-sig-arg">prop</span>)</span><br />
+        <span class="summary-sig-arg">prop</span>,
+        <span class="summary-sig-arg">matchClass</span>=<span class="summary-sig-default">False</span>)</span><br />
       Set a property on the given window using the specified action</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.set_property">source&nbsp;code</a></span>
@@ -410,7 +415,8 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">activate</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>,
-        <span class="sig-arg">switchDesktop</span>=<span class="sig-default">False</span>)</span>
+        <span class="sig-arg">switchDesktop</span>=<span class="sig-default">False</span>,
+        <span class="sig-arg">matchClass</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.activate">source&nbsp;code</a></span>&nbsp;
@@ -418,7 +424,8 @@
   </tr></table>
   
   <p>Activate the specified window, giving it input focus</p>
-  <p>Usage: <code>window.activate(title, switchDesktop=False)</code></p>
+  <p>Usage: <code>window.activate(title, switchDesktop=False, 
+  matchClass=False)</code></p>
   <p>If switchDesktop is False (default), the window will be moved to the 
   current desktop and activated. Otherwise, switch to the window's current 
   desktop and activate it there.</p>
@@ -428,6 +435,7 @@
         <li><strong class="pname"><code>title</code></strong> - window title to match against (as case-insensitive substring 
           match)</li>
         <li><strong class="pname"><code>switchDesktop</code></strong> - whether or not to switch to the window's current desktop</li>
+        <li><strong class="pname"><code>matchClass</code></strong> - if True, match on the window class instead of the title</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -440,7 +448,8 @@
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">close</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">title</span>)</span>
+        <span class="sig-arg">title</span>,
+        <span class="sig-arg">matchClass</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.close">source&nbsp;code</a></span>&nbsp;
@@ -448,12 +457,13 @@
   </tr></table>
   
   <p>Close the specified window gracefully</p>
-  <p>Usage: <code>window.close(title)</code></p>
+  <p>Usage: <code>window.close(title, matchClass=False)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title to match against (as case-insensitive substring 
           match)</li>
+        <li><strong class="pname"><code>matchClass</code></strong> - if True, match on the window class instead of the title</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -470,7 +480,8 @@
         <span class="sig-arg">xOrigin</span>=<span class="sig-default">-1</span>,
         <span class="sig-arg">yOrigin</span>=<span class="sig-default">-1</span>,
         <span class="sig-arg">width</span>=<span class="sig-default">-1</span>,
-        <span class="sig-arg">height</span>=<span class="sig-default">-1</span>)</span>
+        <span class="sig-arg">height</span>=<span class="sig-default">-1</span>,
+        <span class="sig-arg">matchClass</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.resize_move">source&nbsp;code</a></span>&nbsp;
@@ -479,7 +490,7 @@
   
   <p>Resize and/or move the specified window</p>
   <p>Usage: <code>window.close(title, xOrigin=-1, yOrigin=-1, width=-1, 
-  height=-1)</code></p>
+  height=-1, matchClass=False)</code></p>
   <p>Leaving and of the position/dimension values as the default (-1) will 
   cause that value to be left unmodified.</p>
   <dl class="fields">
@@ -491,6 +502,7 @@
         <li><strong class="pname"><code>yOrigin</code></strong> - new y origin of the window (upper left corner)</li>
         <li><strong class="pname"><code>width</code></strong> - new width of the window</li>
         <li><strong class="pname"><code>height</code></strong> - new height of the window</li>
+        <li><strong class="pname"><code>matchClass</code></strong> - if True, match on the window class instead of the title</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -504,7 +516,8 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">move_to_desktop</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>,
-        <span class="sig-arg">deskNum</span>)</span>
+        <span class="sig-arg">deskNum</span>,
+        <span class="sig-arg">matchClass</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.move_to_desktop">source&nbsp;code</a></span>&nbsp;
@@ -512,13 +525,15 @@
   </tr></table>
   
   <p>Move the specified window to the given desktop</p>
-  <p>Usage: <code>window.move_to_desktop(title, deskNum)</code></p>
+  <p>Usage: <code>window.move_to_desktop(title, deskNum, 
+  matchClass=False)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
         <li><strong class="pname"><code>title</code></strong> - window title to match against (as case-insensitive substring 
           match)</li>
         <li><strong class="pname"><code>deskNum</code></strong> - desktop to move the window to (note: zero based)</li>
+        <li><strong class="pname"><code>matchClass</code></strong> - if True, match on the window class instead of the title</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -558,7 +573,8 @@
   <h3 class="epydoc"><span class="sig"><span class="sig-name">set_property</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>,
         <span class="sig-arg">action</span>,
-        <span class="sig-arg">prop</span>)</span>
+        <span class="sig-arg">prop</span>,
+        <span class="sig-arg">matchClass</span>=<span class="sig-default">False</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.set_property">source&nbsp;code</a></span>&nbsp;
@@ -566,8 +582,8 @@
   </tr></table>
   
   <p>Set a property on the given window using the specified action</p>
-  <p>Usage: <code>window.set_property(title, title, action, 
-  prop)</code></p>
+  <p>Usage: <code>window.set_property(title, action, prop, 
+  matchClass=False)</code></p>
   <p>Allowable actions: <code>add, remove, toggle</code> Allowable 
   properties: <code>modal, sticky, maximized_vert, maximized_horz, shaded, 
   skip_taskbar, skip_pager, hidden, fullscreen, above</code></p>
@@ -578,6 +594,7 @@
           match)</li>
         <li><strong class="pname"><code>action</code></strong> - one of the actions listed above</li>
         <li><strong class="pname"><code>prop</code></strong> - one of the properties listed above</li>
+        <li><strong class="pname"><code>matchClass</code></strong> - if True, match on the window class instead of the title</li>
     </ul></dd>
   </dl>
 </td></tr></table>
@@ -676,7 +693,7 @@
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0.1 on Fri Nov 18 22:55:06 2011
+    Generated by Epydoc 3.0.1 on Sat Nov 19 19:15:14 2011
     </td>
     <td align="right" class="footer">
       <a target="mainFrame" href="http://epydoc.sourceforge.net"

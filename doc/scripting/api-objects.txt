@@ -37,8 +37,10 @@ lib.scripting.Keyboard.fake_keypress	lib.scripting.Keyboard-class.html#fake_keyp
 lib.scripting.Keyboard.send_key	lib.scripting.Keyboard-class.html#send_key
 lib.scripting.Keyboard.send_keys	lib.scripting.Keyboard-class.html#send_keys
 lib.scripting.Keyboard.release_key	lib.scripting.Keyboard-class.html#release_key
+lib.scripting.Keyboard.wait_for_keypress	lib.scripting.Keyboard-class.html#wait_for_keypress
 lib.scripting.Keyboard.__init__	lib.scripting.Keyboard-class.html#__init__
 lib.scripting.Mouse	lib.scripting.Mouse-class.html
+lib.scripting.Mouse.wait_for_click	lib.scripting.Mouse-class.html#wait_for_click
 lib.scripting.Mouse.click_relative	lib.scripting.Mouse-class.html#click_relative
 lib.scripting.Mouse.click_absolute	lib.scripting.Mouse-class.html#click_absolute
 lib.scripting.Mouse.click_relative_self	lib.scripting.Mouse-class.html#click_relative_self

@@ -297,15 +297,17 @@ class Service:
         Return a boolean indicating whether we should take any action on the keypress
         """
         return windowInfo[0] != "Set Abbreviations" and self.is_running()
-        
+    
     def __processItem(self, item, buffer=''):
+        self.inputStack = []
+        self.lastStackState = ''
+        
         if isinstance(item, model.Phrase):
             self.phraseRunner.execute(item, buffer)
         else:
             self.scriptRunner.execute(item, buffer)
         
-        self.inputStack = []
-        self.lastStackState = ''
+
         
     def __haveMatch(self, data):
         folderMatch, itemMatches = data
@@ -341,7 +343,8 @@ class PhraseRunner:
         self.lastPhrase = None  
         self.lastBuffer = None
 
-    @synchronized(iomediator.SEND_LOCK)
+    @threaded
+    #@synchronized(iomediator.SEND_LOCK)
     def execute(self, phrase, buffer):
         mediator = self.service.mediator
         mediator.interface.begin_send()
@@ -398,7 +401,8 @@ class ScriptRunner:
         self.scope["dialog"] = scripting.GtkDialog()
         self.scope["clipboard"] = scripting.GtkClipboard(app)
         self.engine = self.scope["engine"]
-        
+    
+    @threaded
     def execute(self, script, buffer):
         logger.debug("Script runner executing: %r", script)
             

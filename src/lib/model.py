@@ -1016,7 +1016,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 triggerFound = True        
                 if self.backspace:
                     # determine how many backspaces to send
-                    backspaces = len(self.abbreviation) + len(stringAfter)
+                    backspaces = len(abbr) + len(stringAfter)
                 else:
                     backspaces = len(stringAfter)
                     

@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess, threading, time, re, gtk
-import common, model
+import common, model, iomediator
 
 class Keyboard:
     """
@@ -88,7 +88,21 @@ class Keyboard:
         """
         for x in xrange(repeat):
             self.mediator.fake_keypress(key.decode("utf-8"))
+            
+    def wait_for_keypress(self, key, modifiers=[], timeOut=10.0):
+        """
+        Wait for a keypress or key combination
         
+        Note: this function cannot be used to wait for modifier keys on their own
+
+        Usage: C{keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0)}
+
+        @param key: they key to wait for
+        @param modifiers: list of modifiers that should be pressed with the key
+        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        """
+        w = iomediator.Waiter(key, modifiers, None, timeOut)
+        w.wait()
         
 
 class Mouse:
@@ -133,6 +147,19 @@ class Mouse:
         @param button: mouse button to simulate (left=1, middle=2, right=3)
         """
         self.mediator.send_mouse_click(x, y, button, False)
+        
+    def wait_for_click(self, button, timeOut=10.0):
+        """
+        Wait for a mouse click
+        
+        Usage: C{mouse.wait_for_click(self, button, timeOut=10.0)}
+
+        @param key: they mouse button click to wait for as a button number, 1-9
+        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        """
+        button = int(button)
+        w = iomediator.Waiter(None, None, button, timeOut)
+        w.wait()
             
             
 class Store(dict):
@@ -582,39 +609,46 @@ class Window:
             
         return False
         
-    def activate(self, title, switchDesktop=False):
+    def activate(self, title, switchDesktop=False, matchClass=False):
         """
         Activate the specified window, giving it input focus
 
-        Usage: C{window.activate(title, switchDesktop=False)}
+        Usage: C{window.activate(title, switchDesktop=False, matchClass=False)}
         
         If switchDesktop is False (default), the window will be moved to the current desktop
         and activated. Otherwise, switch to the window's current desktop and activate it there.
         
         @param title: window title to match against (as case-insensitive substring match)
         @param switchDesktop: whether or not to switch to the window's current desktop
+        @param matchClass: if True, match on the window class instead of the title
         """
         if switchDesktop:
             args = ["-a", title]
         else:
             args = ["-R", title]
+        if matchClass:
+            args += ["-x"]
         self.__runWmctrl(args)
         
-    def close(self, title):
+    def close(self, title, matchClass=False):
         """
         Close the specified window gracefully
         
-        Usage: C{window.close(title)}
+        Usage: C{window.close(title, matchClass=False)}
         
         @param title: window title to match against (as case-insensitive substring match)
+        @param matchClass: if True, match on the window class instead of the title
         """
-        self.__runWmctrl(["-c", title])
+        if matchClass:
+            self.__runWmctrl(["-c", title, "-x"])
+        else:
+            self.__runWmctrl(["-c", title])
         
-    def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1):
+    def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False):
         """
         Resize and/or move the specified window
         
-        Usage: C{window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1)}
+        Usage: C{window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False)}
 
         Leaving and of the position/dimension values as the default (-1) will cause that
         value to be left unmodified.
@@ -624,21 +658,31 @@ class Window:
         @param yOrigin: new y origin of the window (upper left corner)
         @param width: new width of the window
         @param height: new height of the window
+        @param matchClass: if True, match on the window class instead of the title
         """
         mvArgs = ["0", str(xOrigin), str(yOrigin), str(width), str(height)]
-        self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)])
+        if matchClass:
+            xArgs = ["-x"]
+        else:
+            xArgs = []
+        self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
         
         
-    def move_to_desktop(self, title, deskNum):
+    def move_to_desktop(self, title, deskNum, matchClass=False):
         """
         Move the specified window to the given desktop
         
-        Usage: C{window.move_to_desktop(title, deskNum)}
+        Usage: C{window.move_to_desktop(title, deskNum, matchClass=False)}
         
         @param title: window title to match against (as case-insensitive substring match)
         @param deskNum: desktop to move the window to (note: zero based)
+        @param matchClass: if True, match on the window class instead of the title
         """
-        self.__runWmctrl(["-r", title, "-t", str(deskNum)])
+        if matchClass:
+            xArgs = ["-x"]
+        else:
+            xArgs = []
+        self.__runWmctrl(["-r", title, "-t", str(deskNum)] + xArgs)
         
         
     def switch_desktop(self, deskNum):
@@ -651,11 +695,11 @@ class Window:
         """
         self.__runWmctrl(["-s", str(deskNum)])
         
-    def set_property(self, title, action, prop):
+    def set_property(self, title, action, prop, matchClass=False):
         """
         Set a property on the given window using the specified action
 
-        Usage: C{window.set_property(title, title, action, prop)}
+        Usage: C{window.set_property(title, action, prop, matchClass=False)}
         
         Allowable actions: C{add, remove, toggle}
         Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
@@ -664,8 +708,13 @@ class Window:
         @param title: window title to match against (as case-insensitive substring match)
         @param action: one of the actions listed above
         @param prop: one of the properties listed above
+        @param matchClass: if True, match on the window class instead of the title
         """
-        self.__runWmctrl(["-r", title, "-b" + action + ',' + prop])
+        if matchClass:
+            xArgs = ["-x"]
+        else:
+            xArgs = []
+        self.__runWmctrl(["-r", title, "-b" + action + ',' + prop] + xArgs)
         
     def get_active_geometry(self):
         """
@@ -889,4 +938,5 @@ class Engine:
         ret = self.__returnValue
         self.__returnValue = ''
         return ret
-    
+
+#import iomediator
