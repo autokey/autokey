@@ -322,4 +322,15 @@ class AppService(dbus.service.Object):
     def show_configure(self):
         self.app.show_configure()
         
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
+    def run_script(self, name):
+        self.app.service.run_script(name)
         
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
+    def run_phrase(self, name):
+        self.app.service.run_phrase(name)
+    
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
+    def run_folder(self, name):
+        self.app.service.run_folder(name)
+    

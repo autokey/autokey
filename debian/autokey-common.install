@@ -12,3 +12,5 @@ usr/lib/python*/*-packages/autokey/monitor.py
 usr/lib/python*/*-packages/autokey/macro.py
 usr/lib/python*/*-packages/autokey-*.egg-info
 usr/share/pixmaps/autokey*.svg
+usr/bin/autokey-run
+usr/share/man/man1/autokey-run.1

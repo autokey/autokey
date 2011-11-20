@@ -197,7 +197,33 @@ class Service:
             self.configManager.lock.release()
         except:
             logger.debug("Ignored locking error in handle_keypress")
+            
+    def run_folder(self, name):
+        folder = None
+        for f in self.configManager.allFolders:
+            if f.title == name:
+                folder = f
                 
+        if folder is None:
+            raise Exception("No folder found with name '%s'" % name)
+            
+        self.app.show_popup_menu([folder])
+        
+            
+    def run_phrase(self, name):
+        phrase = self.__findItem(name, model.Phrase, "phrase")
+        self.phraseRunner.execute(phrase)
+        
+    def run_script(self, name):
+        script = self.__findItem(name, model.Script, "script")
+        self.scriptRunner.execute(script)
+        
+    def __findItem(self, name, objType, typeDescription):
+        for item in self.configManager.allItems:
+            if item.description == name and isinstance(item, objType):
+                return item
+                
+        raise Exception("No %s found with name '%s'" % (typeDescription, name))
                 
     @threaded
     def item_selected(self, item):
@@ -345,7 +371,7 @@ class PhraseRunner:
 
     @threaded
     #@synchronized(iomediator.SEND_LOCK)
-    def execute(self, phrase, buffer):
+    def execute(self, phrase, buffer=''):
         mediator = self.service.mediator
         mediator.interface.begin_send()
         
@@ -403,7 +429,7 @@ class ScriptRunner:
         self.engine = self.scope["engine"]
     
     @threaded
-    def execute(self, script, buffer):
+    def execute(self, script, buffer=''):
         logger.debug("Script runner executing: %r", script)
             
         self.scope["store"] = script.store
