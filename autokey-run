@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2011 Chris Dekter
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import sys, dbus, optparse
+
+if __name__ == "__main__":
+
+    p = optparse.OptionParser()
+    p.add_option("-s", "--script", help="Run a script", action="store", type="string")
+    p.add_option("-p", "--phrase", help="Paste a phrase", action="store", type="string")
+    p.add_option("-f", "--folder", help="Show a folder popup menu", action="store", type="string")
+    p.set_usage("autokey-run -[s|p|f] [name]")
+    options, args = p.parse_args()
+
+    if (not options.script) and (not options.phrase) and (not options.folder):
+        p.print_usage()
+        sys.exit(1)
+
+    bus = dbus.SessionBus()
+    
+    try:
+        dbusService = bus.get_object("org.autokey.Service", "/AppService")
+        if options.script:
+            dbusService.run_script(options.script, dbus_interface = "org.autokey.Service")
+        elif options.phrase:
+            dbusService.run_phrase(options.phrase, dbus_interface = "org.autokey.Service")
+        elif options.folder:
+            dbusService.run_folder(options.folder, dbus_interface = "org.autokey.Service")
+            
+        sys.exit(0)
+        
+    except dbus.DBusException, e:
+        print >> sys.stderr, str(e) 
+        sys.exit(1)

@@ -329,9 +329,10 @@ engine.create_phrase(folder, title, contents)"""
         sampleScripts.add_item(phrasec)
         
         win = Script("Display window info", "")
-        win.code = """# Displays the information of the active window after 2 seconds
+        win.code = """# Displays the information of the next window to be left-clicked
 import time
-time.sleep(2)
+mouse.wait_for_click(1)
+time.sleep(0.2)
 winTitle = window.get_active_title()
 winClass = window.get_active_class()
 dialog.info_dialog("Window information", 

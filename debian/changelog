@@ -1,13 +1,19 @@
 autokey (0.80.4-0~oneiric) oneiric; urgency=low
 
+  * Implement issue 154 - external method for triggering scripts/phrases/folders
   * Add auto-mnemonic to the first 9 items in the popup menu
   * Allow window filters on folders to be applied recursively to children
   * Another attempt at improving grab/ungrab hotkey behaviour and performance
   * Fix bug where our own changes were sometimes detected by file monitor
+  * Implement keyboard.wait_for_keypress() for scripts
+  * Implement mouse.wait_for_click() for scripts
   * Allow multiple abbreviations to be assigned
   * Allow hotkeys and abbreviations to be re-used when the window filter is
     different
   * Rework validation framework, and do detailed validation at save time
+  * Bring back a version of the macro system for phrases
+  * Add a cursor-positioning macro
+  * Add a macro that allows scripts to be run and the results used
   * Bring back the option to configure notification icon style
   * Add a dark-style notification icon
   * Tweak alignment and spacing of all windows and dialogs to conform to GNOME
@@ -21,8 +27,9 @@ autokey (0.80.4-0~oneiric) oneiric; urgency=low
     terminate before quitting
   * Focus correct control on Set Abbreviations dialog
   * Fix bug where folders are always created at the top level
+  * Enable window class matching features of wmctrl
 
- -- Chris Dekter <cdekter@gmail.com>  Wed, 18 Nov 2011 17:57:55 +1100
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 20 Nov 2011 16:20:55 +1100
 
 autokey (0.80.3-0~oneiric) oneiric; urgency=low
 
