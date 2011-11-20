@@ -34,9 +34,9 @@
                     <signal name="button-release-event" handler="on_treeview_buttonrelease" swapped="no"/>
                     <signal name="cursor-changed" handler="on_tree_selection_changed" swapped="no"/>
                     <signal name="drag-begin" handler="on_drag_begin" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection1"/>
-                    </child>
+<!--                    <child internal-child="selection">-->
+<!--                      <object class="GtkTreeSelection" id="treeview-selection1"/>-->
+<!--                    </child>-->
                   </object>
                 </child>
               </object>
