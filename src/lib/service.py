@@ -417,6 +417,7 @@ class ScriptRunner:
     
     def __init__(self, mediator, app):
         self.mediator = mediator
+        self.app = app
         self.error = ''
         self.scope = globals()
         self.scope["keyboard"]= scripting.Keyboard(mediator)
@@ -441,7 +442,8 @@ class ScriptRunner:
             exec script.code in self.scope
         except Exception, e:
             logger.exception("Script error")
-            self.error = traceback.format_exc()
+            self.error = _("Script name: '%s'\n%s") % (script.description, traceback.format_exc())
+            self.app.notify_error(_("The script '%s' encountered an error") % script.description)
             
         self.mediator.send_string(stringAfter)
         

@@ -16,6 +16,8 @@ autokey (0.80.4-0~oneiric) oneiric; urgency=low
   * Add a macro that allows scripts to be run and the results used
   * Bring back the option to configure notification icon style
   * Add a dark-style notification icon
+  * Bring back OSD notifications for script errors
+  * Change notification icon to red on script errors
   * Tweak alignment and spacing of all windows and dialogs to conform to GNOME
     HIG
   * Add a "Report a Bug" help menu option
@@ -29,7 +31,7 @@ autokey (0.80.4-0~oneiric) oneiric; urgency=low
   * Fix bug where folders are always created at the top level
   * Enable window class matching features of wmctrl
 
- -- Chris Dekter <cdekter@gmail.com>  Wed, 20 Nov 2011 16:20:55 +1100
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 22 Nov 2011 16:20:55 +1100
 
 autokey (0.80.3-0~oneiric) oneiric; urgency=low
 

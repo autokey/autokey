@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
-import pynotify, gobject, gtk, gettext
+import pynotify, gtk, gettext
 import popupmenu, abbrselector
 from autokey.configmanager import *
 from autokey import common
@@ -32,35 +32,19 @@ gettext.install("autokey")
 TOOLTIP_RUNNING = _("AutoKey - running")
 TOOLTIP_PAUSED = _("AutoKey - paused")
 
-"""def gthreaded(f):
-    
-    def wrapper(*args):
-        gtk.gdk.threads_enter()
-        f(*args)
-        gtk.gdk.threads_leave()
-        
-    wrapper.__name__ = f.__name__
-    wrapper.__dict__ = f.__dict__
-    wrapper.__doc__ = f.__doc__
-    return wrapper"""
-
 def get_notifier(app):
     if HAVE_APPINDICATOR:
         return IndicatorNotifier(app)
     else:
         return Notifier(app)
 
-class Notifier(gobject.GObject):
+class Notifier:
     """
     Encapsulates all functionality related to the notification icon, notifications, and tray menu.
     """
 
-    #__gsignals__ = { "show-notify" : (gobject.SIGNAL_RUN_LAST, gobject.TYPE_NONE,
-    #                                  (gobject.TYPE_STRING, gobject.TYPE_STRING, gobject.TYPE_STRING)) }
-    
     def __init__(self, autokeyApp):
-        gobject.GObject.__init__(self)
-        #pynotify.init("AutoKey")
+        pynotify.init("AutoKey")
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
         
@@ -68,7 +52,7 @@ class Notifier(gobject.GObject):
         self.update_tool_tip()
         self.icon.connect("popup_menu", self.on_popup_menu)
         self.icon.connect("activate", self.on_show_configure)
-        #self.connect("show-notify", self.on_show_notify)  
+        self.errorItem = None
 
         self.update_visible_status()
 
@@ -77,12 +61,6 @@ class Notifier(gobject.GObject):
             self.icon.set_visible(True)
         else:
             self.icon.set_visible(False)
-            
-    """def show_notify(self, message, isError=False, details=''):
-        if isError:
-            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_ERROR)
-        else:
-            self.emit("show-notify", message, details, gtk.STOCK_DIALOG_INFO)"""
             
     def update_tool_tip(self):
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
@@ -136,6 +114,8 @@ class Notifier(gobject.GObject):
         if len(items) > 0:
             menu.append(gtk.SeparatorMenuItem())
         menu.append(enableMenuItem)
+        if self.errorItem is not None:
+            menu.append(self.errorItem)
         menu.append(configureMenuItem)
         menu.append(removeMenuItem)
         menu.append(quitMenuItem)
@@ -158,38 +138,40 @@ class Notifier(gobject.GObject):
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()
         
-    """@gthreaded
-    def on_show_notify(self, widget, message, details, iconName):
-        n = pynotify.Notification("Autokey", message, iconName)
+    def notify_error(self, message):
+        self.show_notify(message, gtk.STOCK_DIALOG_ERROR)
+        self.errorItem = gtk.MenuItem(_("View script error"))
+        self.errorItem.connect("activate", self.on_show_error)
+        self.icon.set_from_icon_name(common.ICON_FILE_NOTIFICATION_ERROR)
+        
+    def on_show_error(self, widget, data=None):
+        self.app.show_script_error()
+        self.errorItem = None
+        self.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+        
+    def show_notify(self, message, iconName):
+        gtk.gdk.threads_enter()
+        n = pynotify.Notification("AutoKey", message, iconName)
         n.set_urgency(pynotify.URGENCY_LOW)
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             n.attach_to_status_icon(self.icon)
-        if details != '':
-            n.add_action("details", _("Details"), self.__notifyClicked, details)
-        self.__n = n
-        self.__details = details
         n.show()
-                    
-    # Utility methods ----
-    
-    @gthreaded
-    def __notifyClicked(self, notification, action, details):
-        dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
-                                 message_format=details)
-        dlg.run()
-        dlg.destroy()"""
+        gtk.gdk.threads_leave()
         
-#gobject.type_register(Notifier)
+                    
 
 class IndicatorNotifier:
     
     def __init__(self, autokeyApp):
+        pynotify.init("AutoKey")
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
         self.indicator = appindicator.Indicator("autokey-menu", ConfigManager.SETTINGS[NOTIFICATION_ICON],
                                                 appindicator.CATEGORY_APPLICATION_STATUS)
-
+                                                
+        
+        self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
         self.update_visible_status()           
         self.rebuild_menu()
         
@@ -204,12 +186,16 @@ class IndicatorNotifier:
         
     def rebuild_menu(self):
         # Main Menu items
+        self.errorItem = gtk.MenuItem(_("View script error"))
+        
         enableMenuItem = gtk.CheckMenuItem(_("Enable Expansions"))
         enableMenuItem.set_active(self.app.service.is_running())
         enableMenuItem.set_sensitive(not self.app.serviceDisabled)
         
         configureMenuItem = gtk.ImageMenuItem(_("Show Main Window"))
         configureMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_PREFERENCES, gtk.ICON_SIZE_MENU))
+        
+        
         
         removeMenuItem = gtk.ImageMenuItem(_("Remove icon"))
         removeMenuItem.set_image(gtk.image_new_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_MENU))
@@ -221,6 +207,7 @@ class IndicatorNotifier:
         configureMenuItem.connect("activate", self.on_show_configure)
         removeMenuItem.connect("activate", self.on_remove_icon)
         quitMenuItem.connect("activate", self.on_destroy_and_exit)
+        self.errorItem.connect("activate", self.on_show_error)
         
         # Get phrase folders to add to main menu
         folders = []
@@ -238,15 +225,34 @@ class IndicatorNotifier:
         self.menu = popupmenu.PopupMenu(self.app.service, folders, items, False)
         if len(items) > 0:
             self.menu.append(gtk.SeparatorMenuItem())
+        self.menu.append(self.errorItem)
         self.menu.append(enableMenuItem)
         self.menu.append(configureMenuItem)
         self.menu.append(removeMenuItem)
         self.menu.append(quitMenuItem)
-        self.menu.show_all()        
+        self.menu.show_all()
+        self.errorItem.hide()
         self.indicator.set_menu(self.menu)
+        
+    def notify_error(self, message):
+        self.show_notify(message, gtk.STOCK_DIALOG_ERROR)
+        self.errorItem.show()
+        self.indicator.set_status(appindicator.STATUS_ATTENTION)
+        
+    def show_notify(self, message, iconName):
+        gtk.gdk.threads_enter()
+        n = pynotify.Notification("AutoKey", message, iconName)
+        n.set_urgency(pynotify.URGENCY_LOW)
+        n.show()
+        gtk.gdk.threads_leave()
         
     def update_tool_tip(self):
         pass
+        
+    def on_show_error(self, widget, data=None):
+        self.app.show_script_error()
+        self.errorItem.hide()
+        self.update_visible_status()
             
     def on_enable_toggled(self, widget, data=None):
         if widget.active:

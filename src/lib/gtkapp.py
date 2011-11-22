@@ -229,16 +229,13 @@ class Application:
         os.remove(LOCK_FILE)
         logging.debug("All shutdown tasks complete... quitting")
             
-    def show_notify(self, message, isError=False, details=''):
+    def notify_error(self, message):
         """
-        Show a notification popup.
+        Show an error notification popup.
         
         @param message: Message to show in the popup
-        @param isError: Whether the message is an error (shows with an error icon)
-        @param details: Error details, which the user can view in a dialog by clicking
-        the "View Details" button.
         """
-        self.notifier.show_notify(message, isError, details)
+        self.notifier.notify_error(message)
         
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()
@@ -299,7 +296,8 @@ class Application:
         else:
             dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                                      message_format=_("No error information available"))
-                        
+        
+        dlg.set_title(_("View script error"))             
         dlg.run()
         dlg.destroy()        
         

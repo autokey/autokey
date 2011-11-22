@@ -711,12 +711,7 @@ class ConfigWindow:
         menu = self.uiManager.get_widget('/NewDropdown')
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
-        s = gtk.SeparatorToolItem()
-        s.show()
-        toolbar.insert(s, 0)
         toolbar.insert(create, 0)
-        #if ConfigManager.SETTINGS[SHOW_TOOLBAR]:
-        #    self.__addToolbar()
         self.uiManager.get_action("/MenuBar/View/toolbar").set_active(ConfigManager.SETTINGS[SHOW_TOOLBAR])
         
         self.treeView = builder.get_object("treeWidget")
@@ -727,8 +722,8 @@ class ConfigWindow:
         
         self.hpaned = builder.get_object("hpaned")
         
-        #self.uiManager.get_action("/MenuBar/Settings/enable-monitoring").set_active(app.service.is_running())
-        #self.uiManager.get_action("/MenuBar/Settings/enable-monitoring").set_sensitive(not app.serviceDisabled)
+        self.uiManager.get_widget("/Toolbar/save").set_is_important(True)
+        self.uiManager.get_widget("/Toolbar/undo").set_is_important(True)
         
         rootIter = self.treeView.get_model().get_iter_root()        
         if rootIter is not None:
