@@ -1,4 +1,4 @@
-autokey (0.80.4-0~oneiric) oneiric; urgency=low
+autokey (0.81.0-0~oneiric) oneiric; urgency=low
 
   * Implement issue 154 - external method for triggering scripts/phrases/folders
   * Add auto-mnemonic to the first 9 items in the popup menu
