@@ -662,8 +662,8 @@ class ConfigWindow:
         actions = [
                 ("File", None, _("_File")),
                 ("create", None, _("Create...")),
-                ("new-top-folder", "folder-new", _("New _Top-Level Folder"), "", _("Create a new top-level phrase folder"), self.on_new_topfolder),
-                ("new-folder", "folder-new", _("New _Folder"), "", _("Create a new phrase folder in the current folder"), self.on_new_folder),
+                ("new-top-folder", "folder-new", _("_New Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
+                ("new-folder", "folder-new", _("New Sub_folder"), "", _("Create a new folder in the current folder"), self.on_new_folder),
                 ("new-phrase", gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
                 ("new-script", gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
                 ("save", gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
