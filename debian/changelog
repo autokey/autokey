@@ -1,3 +1,10 @@
+autokey (0.81.1-0~oneiric) oneiric; urgency=low
+
+  * Critical bug fix for error "unknown internal child: selection" on older 
+    versions of GTK.
+
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 25 Nov 2011 09:08:23 +1100
+
 autokey (0.81.0-0~oneiric) oneiric; urgency=low
 
   * Implement issue 154 - external method for triggering scripts/phrases/folders

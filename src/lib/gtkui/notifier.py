@@ -270,3 +270,79 @@ class IndicatorNotifier:
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()
         
+        
+class UnityLauncher(IndicatorNotifier):
+
+    SHOW_ITEM_STRING = _("Add to quicklist/notification menu")
+    
+    #def __init__(self, autokeyApp):
+    #    IndicatorNotifier.__init__(self, autokeyApp)
+        
+    def __getQuickItem(self, label):
+        item = Dbusmenu.Menuitem.new()
+        item.property_set(Dbusmenu.MENUITEM_PROP_LABEL, label)
+        item.property_set_bool(Dbusmenu.MENUITEM_PROP_VISIBLE, True)
+        return item
+        
+    def rebuild_menu(self):
+        IndicatorNotifier.rebuild_menu(self)
+        print threading.currentThread().name
+        
+        #try:
+        from gi.repository import Unity, Dbusmenu
+        HAVE_UNITY = True
+        print "have unity"
+        #except ImportError:
+        #    return
+
+        print "rebuild unity menu"
+        self.launcher = Unity.LauncherEntry.get_for_desktop_id ("autokey-gtk.desktop")   
+    
+        # Main Menu items
+        enableMenuItem = self.__getQuickItem(_("Enable Expansions"))
+        enableMenuItem.property_set(Dbusmenu.MENUITEM_PROP_TOGGLE_TYPE, Dbusmenu.MENUITEM_TOGGLE_CHECK)
+        #if self.app.service.is_running():
+        #    enableMenuItem.property_set_int(Dbusmenu.MENUITEM_PROP_TOGGLE_STATE, Dbusmenu.MENUITEM_TOGGLE_STATE_CHECKED)
+        #else:
+        #    enableMenuItem.property_set_int(Dbusmenu.MENUITEM_PROP_TOGGLE_STATE, Dbusmenu.MENUITEM_TOGGLE_STATE_UNCHECKED)
+        enableMenuItem.property_set_int(Dbusmenu.MENUITEM_PROP_TOGGLE_STATE, int(self.app.service.is_running()))
+        
+        enableMenuItem.property_set_bool(Dbusmenu.MENUITEM_PROP_ENABLED, not self.app.serviceDisabled)
+        
+        configureMenuItem = self.__getQuickItem(_("Show Main Window"))
+        
+        # Menu signals
+        enableMenuItem.connect("item-activated", self.on_ql_enable_toggled, None)
+        configureMenuItem.connect("item-activated", self.on_show_configure, None)
+        
+        # Get phrase folders to add to main menu
+#        folders = []
+#        items = []
+
+#        for folder in self.configManager.allFolders:
+#            if folder.showInTrayMenu:
+#                folders.append(folder)
+#        
+#        for item in self.configManager.allItems:
+#            if item.showInTrayMenu:
+#                items.append(item)
+                    
+        # Construct main menu
+        quicklist = Dbusmenu.Menuitem.new()
+        #if len(items) > 0:
+        #    self.menu.append(gtk.SeparatorMenuItem())
+        quicklist.child_append(enableMenuItem)
+        quicklist.child_append(configureMenuItem)
+        self.launcher.set_property ("quicklist", quicklist)        
+        
+    def on_ql_enable_toggled(self, menuitem, data=None):
+        if menuitem.property_get_int(Menuitem.MENUITEM_PROP_TOGGLE_STATE) == Menuitem.MENUITEM_TOGGLE_STATE_CHECKED:
+            self.app.unpause_service()
+        else:
+            self.app.pause_service()
+            
+
+
+
+
+

@@ -26,7 +26,7 @@ LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "AutoKey"
 CATALOG = ""
-VERSION = "0.81.0"
+VERSION = "0.81.1"
 HOMEPAGE  = "http://autokey.googlecode.com/"
 BUG_EMAIL = "cdekter@gmail.com"
 
