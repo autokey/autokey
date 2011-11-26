@@ -167,7 +167,7 @@ class IndicatorNotifier:
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
-        self.indicator = appindicator.Indicator("autokey-menu", ConfigManager.SETTINGS[NOTIFICATION_ICON],
+        self.indicator = appindicator.Indicator("AutoKey", ConfigManager.SETTINGS[NOTIFICATION_ICON],
                                                 appindicator.CATEGORY_APPLICATION_STATUS)
                                                 
         

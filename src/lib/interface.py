@@ -206,11 +206,13 @@ class XInterfaceBase(threading.Thread):
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
+                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
         # Grab hotkeys without a filter in root window
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
+                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
         self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
 
@@ -242,11 +244,13 @@ class XInterfaceBase(threading.Thread):
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+                self.__ungrabRecurse(item, self.rootWindow, False)
         
         # Ungrab hotkeys without a filter in root window
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+                self.__ungrabRecurse(item, self.rootWindow, False)
                 
         self.__recurseTreeUngrab(self.rootWindow, hotkeys)
                 
@@ -315,6 +319,7 @@ class XInterfaceBase(threading.Thread):
         """
         if item.get_applicable_regex() is None:
             self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
+            self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
         else:
             self.__enqueue(self.__grabRecurse, item, self.rootWindow)
         
@@ -341,12 +346,13 @@ class XInterfaceBase(threading.Thread):
         If the hotkey has no filter regex, it is global and need only be ungrabbed from the root window
         If it has a filter regex, iterate over all children of the root and ungrab from matching windows
         """
+        import copy
+        newItem = copy.copy(item)
         
         if item.get_applicable_regex() is None:
-            self.__enqueue(self.__ungrabHotkey, item.hotKey, item.modifiers, self.rootWindow)
+            self.__enqueue(self.__ungrabHotkey, newItem.hotKey, newItem.modifiers, self.rootWindow)
+            self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow, False)
         else:
-            import copy
-            newItem = copy.copy(item)
             self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow)
 
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
