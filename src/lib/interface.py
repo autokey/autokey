@@ -202,13 +202,13 @@ class XInterfaceBase(threading.Thread):
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
 
-        # Grab global hotkeys in root window
+        # Grab global hotkeys in root window, recursively
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
                 self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
-        # Grab hotkeys without a filter in root window
+        # Grab hotkeys without a filter in root window, recursively
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
@@ -240,13 +240,13 @@ class XInterfaceBase(threading.Thread):
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
 
-        # Ungrab global hotkeys in root window
+        # Ungrab global hotkeys in root window, recursively
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
                 self.__ungrabRecurse(item, self.rootWindow, False)
         
-        # Ungrab hotkeys without a filter in root window
+        # Ungrab hotkeys without a filter in root window, recursively
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
@@ -314,7 +314,7 @@ class XInterfaceBase(threading.Thread):
         """
         Grab a hotkey.
 
-        If the hotkey has no filter regex, it is global and need only be grabbed from the root window
+        If the hotkey has no filter regex, it is global and is grabbed recursively from the root window
         If it has a filter regex, iterate over all children of the root and grab from matching windows
         """
         if item.get_applicable_regex() is None:
@@ -343,7 +343,7 @@ class XInterfaceBase(threading.Thread):
         """
         Ungrab a hotkey.
 
-        If the hotkey has no filter regex, it is global and need only be ungrabbed from the root window
+        If the hotkey has no filter regex, it is global and is grabbed recursively from the root window
         If it has a filter regex, iterate over all children of the root and ungrab from matching windows
         """
         import copy
