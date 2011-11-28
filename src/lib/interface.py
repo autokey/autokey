@@ -282,7 +282,7 @@ class XInterfaceBase(threading.Thread):
         title = self.get_window_title(window)
         klass = self.get_window_class(window)
         for item in hotkeys:
-            if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+            if item._should_trigger_window_title((title, klass)):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
