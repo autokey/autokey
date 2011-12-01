@@ -100,7 +100,7 @@ class SettingsDialog:
             if configManager.userCodeDir in sys.path:
                 sys.path.remove(configManager.userCodeDir)
         
-        # Interface Settings
+        # Interface Settings - not displayed unless needed
         self.xRecordButton = builder.get_object("xRecordButton")
         self.xEvdevButton = builder.get_object("xEvdevButton")
         self.atspiButton = builder.get_object("atspiButton")
@@ -111,6 +111,10 @@ class SettingsDialog:
         self.xEvdevButton.set_active(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
         self.atspiButton.set_active(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
         self.atspiButton.set_sensitive(interface.HAS_ATSPI)
+        
+        if interface.HAS_RECORD and self.xRecordButton.get_active():
+            # Already have optimum config - hide the entire tab
+            builder.get_object("notebook1").remove_page(-1)
         
         #self.checkBox.set_active(ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND])
 
