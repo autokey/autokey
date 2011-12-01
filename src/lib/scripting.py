@@ -830,7 +830,7 @@ class Engine:
         @param contents: the expansion text
         @raise Exception: if the specified abbreviation is not unique
         """
-        if not self.configManager.check_abbreviation_unique(abbr, None):
+        if not self.configManager.check_abbreviation_unique(abbr, None, None):
             raise Exception("The specified abbreviation is already in use")
         
         self.monitor.suspend()
@@ -867,7 +867,7 @@ class Engine:
         @raise Exception: if the specified hotkey is not unique
         """
         modifiers.sort()
-        if not self.configManager.check_hotkey_unique(modifiers, key, None):
+        if not self.configManager.check_hotkey_unique(modifiers, key, None, None):
             raise Exception("The specified hotkey and modifier combination is already in use")
         
         self.monitor.suspend()
