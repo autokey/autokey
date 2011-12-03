@@ -1,3 +1,13 @@
+autokey (0.81.2-0~oneiric) oneiric; urgency=low
+
+  * Improve compatibility with Gnome Shell by grabbing all hotkeys recursively
+  * Set a prettier indicator icon name
+  * Don't display the Interface tab in the preferences dialog if there is no 
+    need to change the setting
+  * Fix engine.create_hotkey() and engine.create_abbreviation()
+
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 3 Dec 2011 14:55:13 +1100
+
 autokey (0.81.1-0~oneiric) oneiric; urgency=low
 
   * Critical bug fix for error "unknown internal child: selection" on older 
