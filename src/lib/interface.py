@@ -101,7 +101,11 @@ class XInterfaceBase(threading.Thread):
             if method is None and args is None:
                 break
     
-            method(*args)
+            try:
+                method(*args)
+            except Exception, e:
+                logger.exception("Error in X event loop thread")
+                
             self.queue.task_done()
     
     def __enqueue(self, method, *args):
@@ -218,7 +222,12 @@ class XInterfaceBase(threading.Thread):
 
     def __recurseTree(self, parent, hotkeys):
         # Grab matching hotkeys in all open child windows
-        for window in parent.query_tree().children:
+        try:
+            children = parent.query_tree().children
+        except:
+            return # window has been destroyed
+            
+        for window in children:
             try:
                 title = self.get_window_title(window, False)
                 klass = self.get_window_class(window, False)
@@ -256,7 +265,12 @@ class XInterfaceBase(threading.Thread):
                 
     def __recurseTreeUngrab(self, parent, hotkeys):
         # Ungrab matching hotkeys in all open child windows
-        for window in parent.query_tree().children:
+        try:
+            children = parent.query_tree().children
+        except:
+            return # window has been destroyed
+            
+        for window in children:
             try:
                 title = self.get_window_title(window, False)
                 klass = self.get_window_class(window, False)
@@ -325,7 +339,12 @@ class XInterfaceBase(threading.Thread):
         
 
     def __grabRecurse(self, item, parent, checkWinInfo=True):
-        for window in parent.query_tree().children:
+        try:
+            children = parent.query_tree().children
+        except:
+            return # window has been destroyed
+                     
+        for window in children:
             shouldTrigger = False
             
             if checkWinInfo:
@@ -356,7 +375,12 @@ class XInterfaceBase(threading.Thread):
             self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow)
 
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
-        for window in parent.query_tree().children:
+        try:
+            children = parent.query_tree().children
+        except:
+            return # window has been destroyed
+                     
+        for window in children:
             shouldTrigger = False
             
             if checkWinInfo:        
