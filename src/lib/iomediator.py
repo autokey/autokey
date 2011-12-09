@@ -195,7 +195,7 @@ class IoMediator(threading.Thread):
             modifiers = self.__getModifiersOn()
             shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
             key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
-            rawKey = self.interface.lookup_string(keyCode, False, numLock, self.modifiers[Key.ALT_GR])
+            rawKey = self.interface.lookup_string(keyCode, False, False, False)
             
             for target in self.listeners:
                 target.handle_keypress(rawKey, modifiers, key, windowName, windowClass)                
