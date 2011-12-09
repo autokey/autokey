@@ -347,11 +347,16 @@ class HotkeySettingsDialog(DialogBase):
         self.key = None
         self.setButton.set_sensitive(True)
             
-    def set_key(self, key):
+    def set_key(self, key, modifiers=[]):
         if self.KEY_MAP.has_key(key):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
+        self.controlButton.set_active(iomediator.Key.CONTROL in modifiers)
+        self.altButton.set_active(iomediator.Key.ALT in modifiers)
+        self.shiftButton.set_active(iomediator.Key.SHIFT in modifiers)
+        self.superButton.set_active(iomediator.Key.SUPER in modifiers)        
+        
         self.setButton.set_sensitive(True)
 
     def cancel_grab(self):

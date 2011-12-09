@@ -386,7 +386,7 @@ class KeyGrabber:
     def handle_keypress(self, rawKey, modifiers, key, *args):
         if not rawKey in MODIFIERS:
             IoMediator.listeners.remove(self)
-            self.targetParent.set_key(rawKey)
+            self.targetParent.set_key(rawKey, modifiers)
             CURRENT_INTERFACE.ungrab_keyboard()
     
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
