@@ -18,7 +18,7 @@
 __all__ = ["XRecordInterface", "EvDevInterface", "AtSpiInterface"]
 
 
-import os, threading, re, time, socket, select, logging, gtk, Queue
+import os, threading, re, time, socket, select, logging, gtk, Queue, subprocess
 
 try:
     import pyatspi
@@ -64,6 +64,7 @@ class XInterfaceBase(threading.Thread):
         self.app = app
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
+        self.shutdown = False
         
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
@@ -71,7 +72,6 @@ class XInterfaceBase(threading.Thread):
         
         # Event listener
         self.listenerThread = threading.Thread(target=self.__flushEvents)
-        self.listenerThread.setDaemon(True)
 
         self.clipBoard = gtk.Clipboard()
         self.selection = gtk.Clipboard(selection="PRIMARY")
@@ -128,7 +128,7 @@ class XInterfaceBase(threading.Thread):
     def __initMappings(self):
         self.localDisplay = display.Display()
         self.rootWindow = self.localDisplay.screen().root
-        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask)
+        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
         
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
         self.__usableOffsets = (0, 1)
@@ -198,6 +198,19 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
+                
+    def __needsMutterWorkaround(self, item):
+        if Key.SUPER not in item.modifiers:
+            return False
+    
+        output = subprocess.check_output(["ps", "-eo", "command"])
+        lines = output.splitlines()
+        
+        for line in lines:
+            if "gnome-shell" or "mutter" in line:
+                return True
+                
+        return False
 
     def __grabHotkeys(self):
         """
@@ -206,17 +219,19 @@ class XInterfaceBase(threading.Thread):
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
 
-        # Grab global hotkeys in root window, recursively
+        # Grab global hotkeys in root window
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
+                if self.__needsMutterWorkaround(item):
+                    self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
-        # Grab hotkeys without a filter in root window, recursively
+        # Grab hotkeys without a filter in root window
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
+                if self.__needsMutterWorkaround(item):
+                    self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
         self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
 
@@ -253,13 +268,15 @@ class XInterfaceBase(threading.Thread):
         for item in c.globalHotkeys:
             if item.enabled:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
-                self.__ungrabRecurse(item, self.rootWindow, False)
+                if self.__needsMutterWorkaround(item):
+                    self.__ungrabRecurse(item, self.rootWindow, False)
         
         # Ungrab hotkeys without a filter in root window, recursively
         for item in hotkeys:
             if item.get_applicable_regex() is None:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
-                self.__ungrabRecurse(item, self.rootWindow, False)
+                if self.__needsMutterWorkaround(item):
+                    self.__ungrabRecurse(item, self.rootWindow, False)
                 
         self.__recurseTreeUngrab(self.rootWindow, hotkeys)
                 
@@ -296,7 +313,9 @@ class XInterfaceBase(threading.Thread):
         title = self.get_window_title(window)
         klass = self.get_window_class(window)
         for item in hotkeys:
-            if item._should_trigger_window_title((title, klass)):
+            if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
+            elif self.__needsMutterWorkaround(item):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
 
     def __grabHotkey(self, key, modifiers, window):
@@ -333,7 +352,8 @@ class XInterfaceBase(threading.Thread):
         """
         if item.get_applicable_regex() is None:
             self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-            self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
+            if self.__needsMutterWorkaround(item):
+                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
         else:
             self.__enqueue(self.__grabRecurse, item, self.rootWindow)
         
@@ -370,7 +390,8 @@ class XInterfaceBase(threading.Thread):
         
         if item.get_applicable_regex() is None:
             self.__enqueue(self.__ungrabHotkey, newItem.hotKey, newItem.modifiers, self.rootWindow)
-            self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow, False)
+            if self.__needsMutterWorkaround(item):
+                self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow, False)
         else:
             self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow)
 
@@ -709,12 +730,24 @@ class XInterfaceBase(threading.Thread):
         while True:
             try:
                 readable, w, e = select.select([self.localDisplay], [], [], 1)
-                time.sleep(0.2)
+                time.sleep(1)
                 if self.localDisplay in readable:
+                    createdWindows = []
+                    destroyedWindows = []
+                    
                     for x in xrange(self.localDisplay.pending_events()):
                         event = self.localDisplay.next_event()
                         if event.type == X.CreateNotify:
-                            self.__enqueue(self.__grabHotkeysForWindow, event.window)
+                            createdWindows.append(event.window)
+                        if event.type == X.DestroyNotify:
+                            destroyedWindows.append(event.window)
+                            
+                    for window in createdWindows:
+                        if window not in destroyedWindows:
+                            self.__enqueue(self.__grabHotkeysForWindow, window)
+
+                if self.shutdown:
+                    break
             except:
                 pass
 
@@ -897,6 +930,8 @@ class XInterfaceBase(threading.Thread):
     
     def cancel(self):
         self.queue.put_nowait((None, None))
+        self.shutdown = True
+        self.listenerThread.join()
         self.eventThread.join()
         self.localDisplay.flush()
         self.localDisplay.close()
