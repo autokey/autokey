@@ -712,7 +712,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("edit-paste", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return ("text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
         
     def set_modes(self, modes):
         self.modes = modes
@@ -990,7 +990,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(theScript)
 
     def get_tuple(self):
-        return ("text-x-script", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return ("text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
 
     def set_modes(self, modes):
         self.modes = modes
