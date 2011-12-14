@@ -1,4 +1,5 @@
 from iomediator import KEY_SPLIT_RE, Key
+import gtk
 
 class MacroManager:
     
@@ -7,6 +8,17 @@ class MacroManager:
         
         self.macros.append(ScriptMacro(engine))
         self.macros.append(CursorMacro())
+        
+    def get_menu(self, callback):
+        menu = gtk.Menu()
+        
+        for macro in self.macros:
+            menuItem = gtk.MenuItem(macro.TITLE)
+            menuItem.connect("activate", callback, macro)            
+            menu.append(menuItem)
+        
+        menu.show_all()
+        return menu
         
     def process_expansion(self, expansion):
         parts = KEY_SPLIT_RE.split(expansion.string)
@@ -18,6 +30,9 @@ class MacroManager:
         
 
 class AbstractMacro:
+
+    def get_token(self):
+        return "<%s>" % self.ID
 
     def _can_process(self, token):
         if KEY_SPLIT_RE.match(token):
@@ -36,6 +51,7 @@ class AbstractMacro:
 class CursorMacro(AbstractMacro):
 
     ID = "cursor"
+    TITLE = _("Position cursor")
     
     def process(self, parts):
         for i in xrange(len(parts)):
@@ -53,6 +69,7 @@ class CursorMacro(AbstractMacro):
 class ScriptMacro(AbstractMacro):
 
     ID = "script"
+    TITLE = _("Run script")
     
     def __init__(self, engine):
         self.engine = engine

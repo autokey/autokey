@@ -25,6 +25,7 @@
 			<separator />
             <menuitem action="rename" />
             <separator />
+            <menuitem action="insert-macro" />
             <menuitem action="record" />
             <separator />
             <menuitem action="preferences" />

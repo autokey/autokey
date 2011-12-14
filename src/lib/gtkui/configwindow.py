@@ -580,6 +580,9 @@ class PhrasePage(ScriptPage):
         self.editor.set_tab_width(4)
         
         self.ui.show_all()
+        
+    def insert_text(self, text):
+        self.buffer.insert_at_cursor(text.encode("utf-8"))
 
     def load(self, thePhrase):
         self.currentItem = thePhrase
@@ -679,6 +682,7 @@ class ConfigWindow:
                 ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
                 ("undo", gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
                 ("redo", gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
+                ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
                 ("preferences", gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
                 ("View", None, _("_View")),
                 ("script-error", gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
@@ -696,7 +700,7 @@ class ConfigWindow:
         toggleActions = [
                          #("enable-monitoring", None, _("_Enable Monitoring"), None, _("Toggle monitoring on/off"), self.on_enable_toggled),
                          ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", gtk.STOCK_MEDIA_RECORD, _("R_ecord Macro"), None, _("Record a keyboard/mouse macro"), self.on_record_keystrokes),
+                         ("record", gtk.STOCK_MEDIA_RECORD, _("R_ecord Script"), None, _("Record a keyboard/mouse script"), self.on_record_keystrokes),
                          ]
         actionGroup.add_toggle_actions(toggleActions)
                 
@@ -704,6 +708,10 @@ class ConfigWindow:
         self.uiManager.add_ui_from_file(UI_DESCRIPTION_FILE)
         self.vbox = builder.get_object("vbox")
         self.vbox.pack_end(self.uiManager.get_widget("/MenuBar"), False, False)
+        
+        # Macro menu
+        menu = self.app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro)
+        self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
         
         # Toolbar 'create' button 
         create = gtk.MenuToolButton(gtk.STOCK_NEW)
@@ -789,11 +797,13 @@ class ConfigWindow:
             canCreate = False
             canCopy = False
             canRecord = False
+            canMacro = False
             enableAny = False
         else:
             canCreate = isinstance(items[0], model.Folder) and len(items) == 1
             canCopy = True
             canRecord = isinstance(items[0], model.Script) and len(items) == 1
+            canMacro = isinstance(items[0], model.Phrase) and len(items) == 1
             enableAny = True
             for item in items:
                 if isinstance(item, model.Folder):
@@ -813,6 +823,8 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(canRecord)
+        self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)        
+        
         
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
@@ -1131,6 +1143,10 @@ class ConfigWindow:
 
     def on_redo(self, widget, data=None):
         self.__getCurrentPage().redo()
+        
+    def on_insert_macro(self, widget, macro):
+        token = macro.get_token()
+        self.phrasePage.insert_text(token)        
         
     def on_record_keystrokes(self, widget, data=None):
         if widget.get_active():
