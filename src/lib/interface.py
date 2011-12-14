@@ -203,12 +203,15 @@ class XInterfaceBase(threading.Thread):
         if Key.SUPER not in item.modifiers:
             return False
     
-        output = subprocess.check_output(["ps", "-eo", "command"])
-        lines = output.splitlines()
-        
-        for line in lines:
-            if "gnome-shell" or "mutter" in line:
-                return True
+        try:
+            output = subprocess.check_output(["ps", "-eo", "command"])
+            lines = output.splitlines()
+            
+            for line in lines:
+                if "gnome-shell" or "mutter" in line:
+                    return True
+        except:
+            pass # since this is just a nasty workaround, if anything goes wrong just disable it 
                 
         return False
 

@@ -1,3 +1,9 @@
+autokey (0.81.4-0~oneiric) oneiric; urgency=low
+
+  * Critical bugfix for mutter workaround method breaking on Python < 2.7
+
+ -- Chris Dekter <cdekter@gmail.com>  Thu, 15 Dec 2011 10:40:02 +1100
+
 autokey (0.81.3-0~oneiric) oneiric; urgency=low
 
   * Handle exceptions during grab/ungrab of hotkeys
