@@ -1,3 +1,17 @@
+autokey (0.81.3-0~oneiric) oneiric; urgency=low
+
+  * Handle exceptions during grab/ungrab of hotkeys
+  * Prevent the X event loop from terminating if an exception occurs
+  * Fix numpad hotkeys not working when numlock is on
+  * Allow modifier keys to be auto-grabbed when setting a hotkey
+  * Change icons for phrases and scripts to the standard ones for text files and
+    python scripts
+  * Refine the Gnome Shell workaround now that it's confirmed as a 'feature'
+  * Improve clean shutdown again
+  * Implement named, specified arguments for macros (work-in-progress)
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 14 Dec 2011 17:22:12 +1100
+
 autokey (0.81.2-0~oneiric) oneiric; urgency=low
 
   * Improve compatibility with Gnome Shell by grabbing all hotkeys recursively
