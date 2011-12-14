@@ -781,6 +781,7 @@ class Engine:
         self.runner = runner
         self.monitor = configManager.app.monitor
         self.__returnValue = ''
+        self.__event = threading.Event()
         
     def get_folder(self, title):
         """
@@ -902,13 +903,11 @@ class Engine:
         """
         Used internally by AutoKey for phrase macros
         """        
-        if len(args) > 1:
-            self.__macroArgs = args[1:]
-        else:
-            self.__macroArgs = []
-            
+        self.__event.clear()
+        self.__macroArgs = args["args"].split(',')
+        
         try:
-            self.run_script(args[0])
+            self.run_script(args["name"])
         except Exception, e:
             self.set_return_value("{ERROR: %s}" % str(e))
             
@@ -930,11 +929,13 @@ class Engine:
         @param val: value to be stored
         """
         self.__returnValue = val
+        self.__event.set()
         
     def get_return_value(self):
         """
         Used internally by AutoKey for phrase macros
         """
+        self.__event.wait(10)
         ret = self.__returnValue
         self.__returnValue = ''
         return ret

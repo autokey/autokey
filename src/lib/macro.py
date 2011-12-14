@@ -42,16 +42,25 @@ class AbstractMacro:
         
     def _get_args(self, token):
         l = token[:-1].split(' ')
+        ret = {}
+                
         if len(l) > 1:
-            return l[1:]
-        else:
-            return []
+            for arg in l[1:]:
+                key, val = arg.split('=', 1)
+                ret[key] = val
+
+        for k, v in self.ARGS:
+            if k not in ret:
+                raise Exception("Missing mandatory argument '%s' for macro '%s'" % (k, self.ID))
         
+        return ret
+    
 
 class CursorMacro(AbstractMacro):
 
     ID = "cursor"
     TITLE = _("Position cursor")
+    ARGS = []
     
     def process(self, parts):
         for i in xrange(len(parts)):
@@ -70,6 +79,8 @@ class ScriptMacro(AbstractMacro):
 
     ID = "script"
     TITLE = _("Run script")
+    ARGS = [("name", _("Name")),
+            ("args", _("Arguments (comma separated)"))]
     
     def __init__(self, engine):
         self.engine = engine
@@ -81,4 +92,6 @@ class ScriptMacro(AbstractMacro):
                 args = self._get_args(token)
                 self.engine.run_script_from_macro(args)
                 parts[i] = self.engine.get_return_value()
+
+
                 
