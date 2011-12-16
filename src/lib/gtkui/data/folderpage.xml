@@ -49,7 +49,7 @@
                     <property name="spacing">5</property>
                     <child>
                       <object class="GtkCheckButton" id="showInTrayCheckbox">
-                        <property name="label" translatable="yes">Show in tray menu	</property>
+                        <property name="label" translatable="yes">Show in notification icon menu</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
