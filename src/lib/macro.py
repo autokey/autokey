@@ -7,6 +7,8 @@ class MacroManager:
         self.macros = []
         
         self.macros.append(ScriptMacro(engine))
+        self.macros.append(DateMacro())
+        self.macros.append(FileContentsMacro())
         self.macros.append(CursorMacro())
         
     def get_menu(self, callback):
@@ -32,8 +34,19 @@ class MacroManager:
 class AbstractMacro:
 
     def get_token(self):
-        return "<%s>" % self.ID
-
+        ret = "<%s" % self.ID
+        
+        if len(self.ARGS) == 0:
+            ret += ">"
+        else:
+            for k, v in self.ARGS:
+                ret += " "
+                ret += k
+                ret += "="
+            ret += ">"
+        
+        return ret
+            
     def _can_process(self, token):
         if KEY_SPLIT_RE.match(token):
             return token[1:-1].split(' ', 1)[0] == self.ID
@@ -54,6 +67,11 @@ class AbstractMacro:
                 raise Exception("Missing mandatory argument '%s' for macro '%s'" % (k, self.ID))
         
         return ret
+        
+    def process(self, parts):
+        for i in xrange(len(parts)):
+            if self._can_process(parts[i]):
+                self.do_process(parts, i)
     
 
 class CursorMacro(AbstractMacro):
@@ -62,17 +80,13 @@ class CursorMacro(AbstractMacro):
     TITLE = _("Position cursor")
     ARGS = []
     
-    def process(self, parts):
-        for i in xrange(len(parts)):
-            token = parts[i]
-            if self._can_process(token):
-                try:
-                    lefts = len(''.join(parts[i+1:]))
-                    parts.append(Key.LEFT * lefts)
-                    parts[i] = ''
-                    break # Only process the first occurrence
-                except IndexError:
-                    pass
+    def do_process(self, parts, i):
+        try:
+            lefts = len(''.join(parts[i+1:]))
+            parts.append(Key.LEFT * lefts)
+            parts[i] = ''
+        except IndexError:
+            pass
                         
     
 class ScriptMacro(AbstractMacro):
@@ -85,13 +99,33 @@ class ScriptMacro(AbstractMacro):
     def __init__(self, engine):
         self.engine = engine
     
-    def process(self, parts):
-        for i in xrange(len(parts)):
-            token = parts[i]
-            if self._can_process(token):
-                args = self._get_args(token)
-                self.engine.run_script_from_macro(args)
-                parts[i] = self.engine.get_return_value()
+    def do_process(self, parts, i):
+        args = self._get_args(parts[i])
+        self.engine.run_script_from_macro(args)
+        parts[i] = self.engine.get_return_value()
 
 
-                
+class DateMacro(AbstractMacro):
+
+    ID = "date"
+    TITLE = _("Insert date")
+    ARGS = [("format", _("Format"))]
+    
+    def do_process(self, parts, i):
+        format = self._get_args(parts[i])["format"]
+        date = datetime.datetime.now().strftime(format)
+        parts[i] = date
+
+
+class FileContentsMacro(AbstractMacro):
+
+    ID = "file"
+    TITLE = _("Insert file contents")
+    ARGS = [("name", _("File name"))]
+    
+    def do_process(self, parts, i):
+        name = self._get_args(parts[i])["name"]
+        
+        with open(name, "r") as inputFile:
+            parts[i] = inputFile.read()
+    

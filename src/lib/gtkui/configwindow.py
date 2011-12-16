@@ -683,7 +683,7 @@ class ConfigWindow:
                 ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
                 ("undo", gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
                 ("redo", gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
-                #("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
+                ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
                 ("preferences", gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
                 ("View", None, _("_View")),
                 ("script-error", gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
@@ -711,8 +711,8 @@ class ConfigWindow:
         self.vbox.pack_end(self.uiManager.get_widget("/MenuBar"), False, False)
         
         # Macro menu
-        #menu = self.app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro)
-        #self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
+        menu = self.app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro)
+        self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
         
         # Toolbar 'create' button 
         create = gtk.MenuToolButton(gtk.STOCK_NEW)
@@ -824,7 +824,7 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(canRecord)
-        #self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)        
+        self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)        
         
         
         if changed:
