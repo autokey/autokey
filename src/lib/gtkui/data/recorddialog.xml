@@ -11,7 +11,7 @@
   <object class="GtkDialog" id="recorddialog">
     <property name="can_focus">False</property>
     <property name="border_width">8</property>
-    <property name="title" translatable="yes">Record Macro</property>
+    <property name="title" translatable="yes">Record Script</property>
     <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
@@ -79,7 +79,7 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">&lt;b&gt;Record a keyboard/mouse macro&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;Record a keyboard/mouse script&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
               <packing>

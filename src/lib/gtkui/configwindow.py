@@ -70,6 +70,7 @@ class RenameDialog:
         builder = get_ui("renamedialog.xml")
         self.ui = builder.get_object("dialog")
         builder.connect_signals(self)
+        self.ui.set_transient_for(parentWindow)
         
         self.nameEntry = builder.get_object("nameEntry")
         self.checkButton = builder.get_object("checkButton")
@@ -1174,7 +1175,7 @@ class ConfigWindow:
         ConfigManager.SETTINGS[SHOW_TOOLBAR] = widget.get_active()
         
     def on_show_error(self, widget, data=None):
-        self.app.show_script_error()
+        self.app.show_script_error(self.ui)
     
     # Settings Menu
     
@@ -1212,6 +1213,7 @@ class ConfigWindow:
         dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
+        dlg.set_transient_for(self.ui)
         dlg.run()
         dlg.destroy()
         

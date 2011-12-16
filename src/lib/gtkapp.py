@@ -285,7 +285,7 @@ class Application:
         dlg.run()
         dlg.destroy()
         
-    def show_script_error(self):
+    def show_script_error(self, parent):
         """
         Show the last script error (if any)
         """
@@ -297,7 +297,8 @@ class Application:
             dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                                      message_format=_("No error information available"))
         
-        dlg.set_title(_("View script error"))             
+        dlg.set_title(_("View script error"))
+        dlg.set_transient_for(parent) 
         dlg.run()
         dlg.destroy()        
         
