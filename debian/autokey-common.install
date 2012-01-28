@@ -11,6 +11,10 @@ usr/lib/python*/*-packages/autokey/service.py
 usr/lib/python*/*-packages/autokey/monitor.py
 usr/lib/python*/*-packages/autokey/macro.py
 usr/lib/python*/*-packages/autokey-*.egg-info
-usr/share/pixmaps/autokey*.svg
+usr/share/icons/hicolor/scalable/apps/autokey*.svg
+usr/share/icons/hicolor/scalable/apps/autokey.png
+usr/share/icons/Humanity/scalable/apps/*.svg
+usr/share/icons/ubuntu-mono-dark/scalable/apps/*.svg
+usr/share/icons/ubuntu-mono-light/scalable/apps/*.svg
 usr/bin/autokey-run
 usr/share/man/man1/autokey-run.1

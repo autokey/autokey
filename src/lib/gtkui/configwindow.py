@@ -1208,7 +1208,7 @@ class ConfigWindow:
         dlg.set_name("AutoKey")
         dlg.set_comments(_("A desktop automation utility for Linux and X11."))
         dlg.set_version(common.VERSION)
-        p = gtk.gdk.pixbuf_new_from_file_at_size("/usr/share/pixmaps/%s.svg" % common.ICON_FILE, 100, 100)
+        p = gtk.icon_theme_get_default().load_icon(common.ICON_FILE, 100, 0)
         dlg.set_logo(p)
         dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
