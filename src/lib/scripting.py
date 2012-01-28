@@ -837,7 +837,7 @@ class Engine:
         self.monitor.suspend()
         p = model.Phrase(description, contents)
         p.modes.append(model.TriggerMode.ABBREVIATION)
-        p.abbreviation = abbr
+        p.abbreviations = [abbr]
         folder.add_item(p)
         p.persist()
         self.monitor.unsuspend()
@@ -856,6 +856,7 @@ class Engine:
         <ctrl>
         <alt>
         <super>
+        <hyper>
         <shift>
         
         The key must be an unshifted character (i.e. lowercase)

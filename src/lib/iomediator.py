@@ -43,6 +43,7 @@ class Key:
     ALT_GR = "<alt_gr>"
     SHIFT = "<shift>"
     SUPER = "<super>"
+    HYPER = "<hyper>"
     CAPSLOCK = "<capslock>"
     NUMLOCK = "<numlock>"
     
@@ -95,8 +96,8 @@ import datetime, time, threading, Queue, re, logging
 
 _logger = logging.getLogger("iomediator")
 
-MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.CAPSLOCK, Key.NUMLOCK]
-HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT]
+MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.CAPSLOCK, Key.NUMLOCK]
+HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER]
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
 #KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
@@ -131,6 +132,7 @@ class IoMediator(threading.Thread):
                           Key.ALT_GR: False,
                           Key.SHIFT : False,
                           Key.SUPER : False,
+                          Key.HYPER : False,
                           Key.CAPSLOCK : False,
                           Key.NUMLOCK : False
                           }

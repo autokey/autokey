@@ -1142,6 +1142,8 @@ XK_TO_AK_MAP = {
            XK.XK_ISO_Level3_Shift : Key.ALT_GR,
            XK.XK_Super_L : Key.SUPER,
            XK.XK_Super_R : Key.SUPER,
+           XK.XK_Hyper_L : Key.HYPER,
+           XK.XK_Hyper_R : Key.HYPER,
            XK.XK_Num_Lock : Key.NUMLOCK,
            #SPACE : Key.SPACE,
            XK.XK_Tab : Key.TAB,

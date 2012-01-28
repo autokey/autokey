@@ -297,6 +297,7 @@ class HotkeySettingsDialog(DialogBase):
         self.altButton = builder.get_object("altButton")
         self.shiftButton = builder.get_object("shiftButton")
         self.superButton = builder.get_object("superButton")
+        self.hyperButton = builder.get_object("hyperButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
         
@@ -310,6 +311,7 @@ class HotkeySettingsDialog(DialogBase):
             self.altButton.set_active(iomediator.Key.ALT in item.modifiers)
             self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
             self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -342,6 +344,7 @@ class HotkeySettingsDialog(DialogBase):
         self.altButton.set_active(False)
         self.shiftButton.set_active(False)
         self.superButton.set_active(False)
+        self.hyperButton.set_active(False)
 
         self._setKeyLabel(_("(None)"))
         self.key = None
@@ -355,7 +358,8 @@ class HotkeySettingsDialog(DialogBase):
         self.controlButton.set_active(iomediator.Key.CONTROL in modifiers)
         self.altButton.set_active(iomediator.Key.ALT in modifiers)
         self.shiftButton.set_active(iomediator.Key.SHIFT in modifiers)
-        self.superButton.set_active(iomediator.Key.SUPER in modifiers)        
+        self.superButton.set_active(iomediator.Key.SUPER in modifiers)
+        self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
         
         self.setButton.set_sensitive(True)
 
@@ -373,6 +377,8 @@ class HotkeySettingsDialog(DialogBase):
             modifiers.append(iomediator.Key.SHIFT)
         if self.superButton.get_active():
             modifiers.append(iomediator.Key.SUPER)
+        if self.hyperButton.get_active():
+            modifiers.append(iomediator.Key.HYPER)
         
         modifiers.sort()
         return modifiers
@@ -402,6 +408,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             self.altButton.set_active(iomediator.Key.ALT in item.modifiers)
             self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
             self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
