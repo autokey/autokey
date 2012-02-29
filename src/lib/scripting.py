@@ -15,8 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess, threading, time, re, gtk
+import subprocess, threading, time, re
 import common, model, iomediator
+if common.USING_QT:
+    from PyQt4.QtGui import QClipboard, QApplication
+else:
+    import gtk
 
 class Keyboard:
     """
@@ -191,7 +195,200 @@ class Store(dict):
         """
         del self[key]
         
+class QtDialog:
+    """
+    Provides a simple interface for the display of some basic dialogs to collect information from the user.
+    
+    This version uses KDialog to integrate well with KDE. To pass additional arguments to KDialog that are 
+    not specifically handled, use keyword arguments. For example, to pass the --geometry argument to KDialog
+    to specify the desired size of the dialog, pass C{geometry="700x400"} as one of the parameters. All
+    keyword arguments must be given as strings.
 
+    A note on exit codes: an exit code of 0 indicates that the user clicked OK.
+    """
+    
+    def __runKdialog(self, title, args, kwargs):
+        for k, v in kwargs.iteritems():
+            args.append("--" + k)
+            args.append(v)
+
+        p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
+        retCode = p.wait()
+        output = p.stdout.read()[:-1] # Drop trailing newline
+        
+        return (retCode, output)
+        
+    def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
+        """
+        Show an input dialog
+        
+        Usage: C{dialog.input_dialog(title="Enter a value", message="Enter a value", default="", **kwargs)}
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the input box
+        @param default: default value for the input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--inputbox", message, default], kwargs)
+        
+    def password_dialog(self, title="Enter password", message="Enter password", **kwargs):
+        """
+        Show a password input dialog
+        
+        Usage: C{dialog.password_dialog(title="Enter password", message="Enter password", **kwargs)}
+        
+        @param title: window title for the dialog
+        @param message: message displayed above the password input box
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--password", message], kwargs)        
+        
+    def combo_menu(self, options, title="Choose an option", message="Choose an option", **kwargs):
+        """
+        Show a combobox menu
+        
+        Usage: C{dialog.combo_menu(options, title="Choose an option", message="Choose an option", **kwargs)}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the combobox
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--combobox", message] + options, kwargs)
+        
+    def list_menu(self, options, title="Choose a value", message="Choose a value", default=None, **kwargs):
+        """
+        Show a single-selection list menu
+        
+        Usage: C{dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None, **kwargs)}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param default: default value to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
+        """
+        
+        choices = []
+        optionNum = 0
+        for option in options:
+            choices.append(str(optionNum))
+            choices.append(option)
+            if option == default:
+                choices.append("on")
+            else:
+                choices.append("off")
+            optionNum += 1
+            
+        retCode, result = self.__runKdialog(title, ["--radiolist", message] + choices, kwargs)
+        choice = options[int(result)]
+        
+        return retCode, choice        
+        
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs):
+        """
+        Show a multiple-selection list menu
+        
+        Usage: C{dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs)}
+        
+        @param options: list of options (strings) for the dialog
+        @param title: window title for the dialog
+        @param message: message displayed above the list
+        @param defaults: list of default values to be selected
+        @return: a tuple containing the exit code and user choice
+        @rtype: C{tuple(int, str)}
+        """
+        
+        choices = []
+        optionNum = 0
+        for option in options:
+            choices.append(str(optionNum))
+            choices.append(option)
+            if option in defaults:
+                choices.append("on")
+            else:
+                choices.append("off")
+            optionNum += 1
+            
+        retCode, output = self.__runKdialog(title, ["--separate-output", "--checklist", message] + choices, kwargs)
+        results = output.split()
+    
+        choices = []
+        for index in results:
+            choices.append(options[int(index)])
+        
+        return retCode, choices
+        
+    def open_file(self, title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
+        """
+        Show an Open File dialog
+        
+        Usage: C{dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs)}
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the file dialog
+        @param fileTypes: file type filter expression
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
+        else:
+            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes], kwargs)
+        
+    def save_file(self, title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
+        """
+        Show a Save As dialog
+        
+        Usage: C{dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs)}
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the file dialog
+        @param fileTypes: file type filter expression
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and file path
+        @rtype: C{tuple(int, str)}
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
+        else:
+            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes], kwargs)
+
+    def choose_directory(self, title="Select Directory", initialDir="~", rememberAs=None, **kwargs):
+        """
+        Show a Directory Chooser dialog
+        
+        Usage: C{dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None, **kwargs)}
+        
+        @param title: window title for the dialog
+        @param initialDir: starting directory for the directory chooser dialog
+        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        @return: a tuple containing the exit code and chosen path
+        @rtype: C{tuple(int, str)}
+        """
+        if rememberAs is not None:
+            return self.__runKdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs], kwargs)
+        else:
+            return self.__runKdialog(title, ["--getexistingdirectory", initialDir], kwargs)
+        
+    def choose_colour(self, title="Select Colour", **kwargs):
+        """
+        Show a Colour Chooser dialog
+        
+        Usage: C{dialog.choose_colour(title="Select Colour")}
+        
+        @param title: window title for the dialog
+        @return: a tuple containing the exit code and colour
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--getcolor"], kwargs)
+        
+        
 class System:
     """
     Simplified access to some system commands.
@@ -451,7 +648,82 @@ class GtkDialog:
             date_args = []
         return self.__runZenity(title, ["--calendar", "--date-format=" + format] + date_args, kwargs)
 
+    
+class QtClipboard:
+    """
+    Read/write access to the X selection and clipboard - QT version
+    """
+    
+    def __init__(self, app):
+        self.clipBoard = QApplication.clipboard()
+        self.app = app
+        
+    def fill_selection(self, contents):
+        """
+        Copy text into the X selection
+        
+        Usage: C{clipboard.fill_selection(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        self.__execAsync(self.__fillSelection, contents)
+        
+    def __fillSelection(self, string):
+        self.clipBoard.setText(string, QClipboard.Selection)
+        self.sem.release()
+        
+    def get_selection(self):
+        """
+        Read text from the X selection
+        
+        Usage: C{clipboard.get_selection()}
 
+        @return: text contents of the mouse selection
+        @rtype: C{str}
+        """
+        self.__execAsync(self.__getSelection)
+        return unicode(self.text)
+        
+    def __getSelection(self):
+        self.text = self.clipBoard.text(QClipboard.Selection)
+        self.sem.release()
+        
+    def fill_clipboard(self, contents):
+        """
+        Copy text into the clipboard
+        
+        Usage: C{clipboard.fill_clipboard(contents)}
+        
+        @param contents: string to be placed in the selection
+        """
+        self.__execAsync(self.__fillClipboard, contents)
+        
+    def __fillClipboard(self, string):
+        self.clipBoard.setText(string, QClipboard.Clipboard)
+        self.sem.release()        
+        
+    def get_clipboard(self):
+        """
+        Read text from the clipboard
+        
+        Usage: C{clipboard.get_clipboard()}
+
+        @return: text contents of the clipboard
+        @rtype: C{str}
+        """
+        self.__execAsync(self.__getClipboard)
+        return unicode(self.text)
+        
+    def __getClipboard(self):
+        self.text = self.clipBoard.text(QClipboard.Clipboard)
+        self.sem.release()
+        
+    def __execAsync(self, callback, *args):
+        self.sem = threading.Semaphore(0)
+        self.app.exec_in_main(callback, *args)
+        self.sem.acquire()        
+        
+        
 class GtkClipboard:
     """
     Read/write access to the X selection and clipboard - GTK version

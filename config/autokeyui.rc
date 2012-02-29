@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gui name="autokey"
+     version="7"
+     xmlns="http://www.kde.org/standards/kxmlgui/1.0"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
+                         http://www.kde.org/standards/kxmlgui/1.0/kxmlgui.xsd" >
+ 
+  <MenuBar>
+    <Menu name="file" >
+      <Action name="create" />
+      <Action name="save" />
+      <Action name="revert" />
+      <separator />      
+      <Action name="close-window" />
+    </Menu>
+    <Menu name="edit" >
+      <Action name="undo" />
+      <Action name="redo" />
+      <separator />
+      <Action name="cut-item" />
+      <Action name="copy-item" />
+      <Action name="paste-item" />
+      <Action name="clone-item" />
+      <Action name="delete-item" />
+      <separator /> 
+      <Action name="rename" />
+    </Menu>
+    <Menu name="settings" noMerge="1">
+        <text>Settings</text>
+      <Action name="enable-monitoring" />
+      <Merge name="StandardToolBarMenuHandler" />
+      <separator />
+    <Action name="options_configure_keybinding"/>
+    <Action name="options_configure_toolbars"/>
+      <Action name="advanced-settings" />
+    </Menu>
+    <Menu name="tools" >
+      <Action name="script-error" />
+      <Action name="record" />
+      <Action name="run" />
+      <separator />
+      <Action name="insert-macro" />
+    </Menu>   
+    <Menu name="help">
+      <Action name="online-help" />
+      <Action name="online-faq" />
+      <Action name="donate" />
+      <Action name="report-bug" />
+      <separator />
+      <Action name="about" />
+    </Menu>
+  </MenuBar>
+  
+  <Menu name="Context">
+    <Action name="new-folder" />
+    <Action name="new-phrase" />
+    <Action name="new-script" />
+    <separator />    
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />  
+    <Action name="delete-item" />
+    <separator />    
+    <Action name="rename" />
+  </Menu>
+ 
+  <ToolBar name="ToolBar" noMerge="1" >
+    <text>ToolBar</text>
+    <Action name="create" />
+    <Action name="save" />
+    <separator />
+    <Action name="cut-item" />
+    <Action name="copy-item" />
+    <Action name="paste-item" />      
+    <Action name="delete-item" />
+    <separator />
+    <Action name="undo" />
+    <Action name="redo" />
+    <separator />
+    <Action name="run" />
+  </ToolBar>
+ 
+</gui>

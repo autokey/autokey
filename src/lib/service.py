@@ -20,7 +20,11 @@ import time, logging, threading, traceback
 import common
 from iomediator import Key, IoMediator
 from configmanager import *
-from gtkui.popupmenu import *
+if common.USING_QT:
+    from qtui.popupmenu import *
+    from PyKDE4.kdecore import i18n
+else:
+    from gtkui.popupmenu import *
 from macro import MacroManager
 import scripting, model
 
@@ -425,8 +429,14 @@ class ScriptRunner:
         self.scope["system"] = scripting.System()
         self.scope["window"] = scripting.Window(mediator)
         self.scope["engine"] = scripting.Engine(app.configManager, self)
-        self.scope["dialog"] = scripting.GtkDialog()
-        self.scope["clipboard"] = scripting.GtkClipboard(app)
+
+        if common.USING_QT:
+            self.scope["dialog"] = scripting.QtDialog()
+            self.scope["clipboard"] = scripting.QtClipboard(app)
+        else:
+            self.scope["dialog"] = scripting.GtkDialog()
+            self.scope["clipboard"] = scripting.GtkClipboard(app)
+
         self.engine = self.scope["engine"]
     
     @threaded
@@ -442,8 +452,14 @@ class ScriptRunner:
             exec script.code in self.scope
         except Exception, e:
             logger.exception("Script error")
-            self.error = _("Script name: '%s'\n%s") % (script.description, traceback.format_exc())
-            self.app.notify_error(_("The script '%s' encountered an error") % script.description)
+            
+            if common.USING_QT:
+                self.error = i18n("Script name: '%1'\n%2", script.description, traceback.format_exc())
+                self.app.notify_error(i18n("The script '%1' encountered an error", script.description))
+                
+            else:
+                self.error = _("Script name: '%s'\n%s") % (script.description, traceback.format_exc())
+                self.app.notify_error(_("The script '%s' encountered an error") % script.description)
             
         self.mediator.send_string(stringAfter)
         

@@ -1,0 +1,10 @@
+# $Id: autokey.desktop 22 2008-01-29 11:29:13Z peabody $
+[Desktop Entry]
+Name=AutoKey (KDE)
+GenericName=Keyboard Automation
+Comment=Program keyboard shortcuts
+Exec=autokey-qt
+Terminal=false
+Type=Application
+Icon=autokey
+Categories=KDE;Qt;Utility;

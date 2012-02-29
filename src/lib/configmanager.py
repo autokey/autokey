@@ -152,13 +152,6 @@ def convert_v07_to_v08(configData):
         os.remove(CONFIG_FILE_BACKUP)
     
     _logger.info("Conversion succeeded")
-    import gtk
-    dlg = gtk.MessageDialog(buttons=gtk.BUTTONS_OK, message_format=_("Configuration upgrade completed"))
-    dlg.format_secondary_text(_("Your configuration data has been upgraded. It \
-is recommended that you check everything is in order.\n\nYour original configuration\
- has been saved as %s%s") % (CONFIG_FILE, oldVersion))
-    dlg.run()
-    dlg.destroy()
         
         
 def _convertFolder(folderData, parent):

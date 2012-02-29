@@ -19,7 +19,7 @@ from distutils.core import setup
 
 setup(
       name="autokey",
-      version="0.81.4",
+      version="0.82.0",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       url="http://autokey.googlecode.com/",
@@ -32,14 +32,16 @@ interface offering the full flexibility and power of the Python language.""",
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},
-      packages=["autokey", "autokey.gtkui"],
-      package_data={"autokey.gtkui" : ["data/*"]},
+      packages=["autokey", "autokey.gtkui", "autokey.qtui"],
+      package_data={"autokey.qtui" : ["data/*"],
+                    "autokey.gtkui" : ["data/*"]},
       data_files=[("/usr/share/icons/hicolor/scalable/apps", ["config/autokey.png", "config/autokey-status.svg", "config/autokey-status-dark.svg", "config/autokey-status-error.svg"]),
                 ("/usr/share/icons/Humanity/scalable/apps", ["config/Humanity/autokey-status.svg", "config/Humanity/autokey-status-error.svg"]),
                 ("/usr/share/icons/ubuntu-mono-dark/scalable/apps", ["config/ubuntu-mono-dark/autokey-status.svg", "config/ubuntu-mono-dark/autokey-status-error.svg"]),
                 ("/usr/share/icons/ubuntu-mono-light/scalable/apps", ["config/ubuntu-mono-light/autokey-status.svg", "config/ubuntu-mono-light/autokey-status-error.svg"]),
-                  ("/usr/share/applications", ["config/autokey-gtk.desktop"]),
-                  ('share/man/man1/', ['doc/man/autokey-gtk.1', 'doc/man/autokey-run.1'])],
-      scripts=['autokey-gtk', 'autokey-run']
+                  ("/usr/share/applications", ["config/autokey-qt.desktop", "config/autokey-gtk.desktop"]),
+                  ('share/man/man1/', ['doc/man/autokey-qt.1', 'doc/man/autokey-gtk.1', 'doc/man/autokey-run.1']),
+                  ('/usr/share/kde4/apps/autokey' , ['config/autokeyui.rc'])],
+      scripts=['autokey-qt', 'autokey-gtk', 'autokey-run']
       #packages=["plugin"]
       )

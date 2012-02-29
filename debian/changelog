@@ -1,3 +1,10 @@
+autokey (0.82.0-0~precise) precise; urgency=low
+
+  * Revive the KDE UI and bring it up to date with features developed since its
+    deprecation.
+
+ -- Chris Dekter <cdekter@gmail.com>  Mon, 27 Feb 2012 08:38:02 +1100
+
 autokey (0.81.4-0~oneiric) oneiric; urgency=low
 
   * Critical bugfix for mutter workaround method breaking on Python < 2.7

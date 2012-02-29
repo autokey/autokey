@@ -1,5 +1,25 @@
 from iomediator import KEY_SPLIT_RE, Key
-import gtk
+import common
+
+if common.USING_QT:
+    from PyKDE4.kdecore import ki18n
+    from PyKDE4.kdeui import KMenu, KAction
+    from PyQt4.QtCore import SIGNAL
+    _ = ki18n
+
+    class MacroAction(KAction):
+
+        def __init__(self, menu, macro, callback):
+            KAction.__init__(self, macro.TITLE.toString(), menu)
+            self.macro = macro
+            self.callback = callback
+            self.connect(self, SIGNAL("triggered()"), self.on_triggered)
+
+        def on_triggered(self):
+            self.callback(self.macro)
+
+else:
+    import gtk
 
 class MacroManager:
     
@@ -11,15 +31,21 @@ class MacroManager:
         self.macros.append(FileContentsMacro())
         self.macros.append(CursorMacro())
         
-    def get_menu(self, callback):
-        menu = gtk.Menu()
+    def get_menu(self, callback, menu=None):
+        if common.USING_QT:
+            for macro in self.macros:
+                menu.addAction(MacroAction(menu, macro, callback))
         
-        for macro in self.macros:
-            menuItem = gtk.MenuItem(macro.TITLE)
-            menuItem.connect("activate", callback, macro)            
-            menu.append(menuItem)
-        
-        menu.show_all()
+        else:
+            menu = gtk.Menu()
+
+            for macro in self.macros:
+                menuItem = gtk.MenuItem(macro.TITLE)
+                menuItem.connect("activate", callback, macro)
+                menu.append(menuItem)
+
+            menu.show_all()
+
         return menu
         
     def process_expansion(self, expansion):
