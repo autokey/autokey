@@ -23,17 +23,21 @@ import scripting
 
 if __name__ == "__main__":
     
-    outFile = open("src/lib/ui/data/api.txt", "w")
+    outFile = open("src/lib/qtui/data/api.txt", "w")
     
     for name, attrib in inspect.getmembers(scripting):
         
-        if inspect.isclass(attrib) and not name.startswith("_"):
+        if inspect.isclass(attrib) and not (name.startswith("_") or name.startswith("Gtk")):
             for name, attrib in inspect.getmembers(attrib):
                 if inspect.ismethod(attrib) and not name.startswith("_"):
                     doc = attrib.__doc__
                     lines = doc.split('\n')
-                    apiLine = lines[3].strip()
-                    docLine = lines[1].strip()
+                    try:
+                        apiLine = lines[3].strip()
+                        docLine = lines[1].strip()
+                    except:
+                        continue
+                    
                     outFile.write(apiLine[9:-1] + " " + docLine +  '\n')
             
     outFile.close()
