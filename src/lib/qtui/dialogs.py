@@ -29,11 +29,11 @@ import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog
 from autokey import model, iomediator
 
 WORD_CHAR_OPTIONS = {
-                     "Default" : model.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter" : r"[^ \n]",
                      "Tab" : r"[^\t]"
                      }
-WORD_CHAR_OPTIONS_ORDERED = ["Default", "Space and Enter", "Tab"]
+WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
@@ -134,11 +134,20 @@ class AbbrSettingsDialog(KDialog):
             self.widget.removeButton.setEnabled(False)
         
         self.widget.removeTypedCheckbox.setChecked(item.backspace)
-        
-        for desc, regex in WORD_CHAR_OPTIONS.iteritems():
-            if item.get_word_chars() == regex:
-                self.widget.wordCharCombo.setCurrentIndex(WORD_CHAR_OPTIONS_ORDERED.index(desc))
-                break
+
+        self.__resetWordCharCombo()
+
+        wordCharRegex = item.get_word_chars()
+        if wordCharRegex in WORD_CHAR_OPTIONS.values():
+            # Default wordchar regex used
+            for desc, regex in WORD_CHAR_OPTIONS.iteritems():
+                if item.get_word_chars() == regex:
+                    self.widget.wordCharCombo.setCurrentIndex(WORD_CHAR_OPTIONS_ORDERED.index(desc))
+                    break
+        else:
+            # Custom wordchar regex used
+            self.widget.wordCharCombo.addItem(model.extract_wordchars(wordCharRegex))
+            self.widget.wordCharCombo.setCurrentIndex(len(WORD_CHAR_OPTIONS))
         
         if isinstance(item, model.Folder):
             self.widget.omitTriggerCheckbox.setVisible(False)
@@ -163,8 +172,11 @@ class AbbrSettingsDialog(KDialog):
         
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
         
-        option = str(self.widget.wordCharCombo.currentText())
-        item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        option = unicode(self.widget.wordCharCombo.currentText())
+        if option in WORD_CHAR_OPTIONS:
+            item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        else:
+            item.set_word_chars(model.make_wordchar_re(option))
         
         if not isinstance(item, model.Folder):
             item.omitTrigger = self.widget.omitTriggerCheckbox.isChecked()
@@ -179,13 +191,19 @@ class AbbrSettingsDialog(KDialog):
     def reset(self):
         self.widget.removeButton.setEnabled(False)
         self.widget.abbrListWidget.clear()
-        self.widget.wordCharCombo.setCurrentIndex(0)
+        self.__resetWordCharCombo()
         self.widget.omitTriggerCheckbox.setChecked(False)
         self.widget.removeTypedCheckbox.setChecked(True)
         self.widget.matchCaseCheckbox.setChecked(False)
         self.widget.ignoreCaseCheckbox.setChecked(False)
         self.widget.triggerInsideCheckbox.setChecked(False)
         self.widget.immediateCheckbox.setChecked(False)
+
+    def __resetWordCharCombo(self):
+        self.widget.wordCharCombo.clear()
+        for item in WORD_CHAR_OPTIONS_ORDERED:
+            self.widget.wordCharCombo.addItem(item)
+        self.widget.wordCharCombo.setCurrentIndex(0)
         
     def get_abbrs(self):
         ret = []
@@ -216,6 +234,7 @@ class AbbrSettingsDialog(KDialog):
             if self.__valid():
                 KDialog.slotButtonClicked(self, button)
         else:
+            self.load(self.targetItem)
             KDialog.slotButtonClicked(self, button)
 
 
@@ -408,6 +427,8 @@ class WindowFilterSettingsDialog(KDialog):
         self.setModal(True)
         
     def load(self, item):
+        self.targetItem = item
+        
         if not isinstance(item, model.Folder):
             self.widget.recursiveCheckBox.hide()
         else:
@@ -435,6 +456,11 @@ class WindowFilterSettingsDialog(KDialog):
         
     def get_filter_text(self):
         return unicode(self.widget.triggerRegexLineEdit.text())
+
+    def slotButtonClicked(self, button):
+        if button == KDialog.Cancel:
+            self.load(self.targetItem)
+        KDialog.slotButtonClicked(self, button)
 
         
 class RecordSettings(QWidget, recorddialog.Ui_Form):

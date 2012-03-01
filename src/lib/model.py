@@ -27,6 +27,12 @@ DEFAULT_WORDCHAR_REGEX = '[\w]'
 JSON_FILE_PATTERN = "%s/.%s.json"
 SPACES_RE = re.compile(r"^ | $")
 
+def make_wordchar_re(wordChars):
+    return "[^%s]" % wordChars
+
+def extract_wordchars(regex):
+    return regex[2:-1]
+
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
         return jsonData[key]

@@ -35,10 +35,11 @@ from autokey import model, iomediator
 import configwindow
 
 WORD_CHAR_OPTIONS = {
-                     "Default" : model.DEFAULT_WORDCHAR_REGEX,
-                     "Space and Enter" : r"[^ \n]"
+                     "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
+                     "Space and Enter" : r"[^ \n]",
+                     "Tab" : r"[^\t]"
                      }
-WORD_CHAR_OPTIONS_ORDERED = ["Default", "Space and Enter"]
+WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
@@ -359,7 +360,7 @@ class HotkeySettingsDialog(DialogBase):
         self.altButton.set_active(iomediator.Key.ALT in modifiers)
         self.shiftButton.set_active(iomediator.Key.SHIFT in modifiers)
         self.superButton.set_active(iomediator.Key.SUPER in modifiers)
-        self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
+        self.hyperButton.set_active(iomediator.Key.HYPER in modifiers)
         
         self.setButton.set_sensitive(True)
 
