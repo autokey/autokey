@@ -97,9 +97,9 @@ class Keyboard:
         """
         Wait for a keypress or key combination
         
-        Note: this function cannot be used to wait for modifier keys on their own
-
         Usage: C{keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0)}
+        
+        Note: this function cannot be used to wait for modifier keys on their own
 
         @param key: they key to wait for
         @param modifiers: list of modifiers that should be pressed with the key
@@ -194,6 +194,7 @@ class Store(dict):
         Usage: C{store.remove_value(key)}
         """
         del self[key]
+
         
 class QtDialog:
     """
@@ -217,6 +218,19 @@ class QtDialog:
         output = p.stdout.read()[:-1] # Drop trailing newline
         
         return (retCode, output)
+
+    def info_dialog(self, title="Information", message="", **kwargs):
+        """
+        Show an information dialog
+
+        Usage: C{dialog.info_dialog(title="Information", message="", **kwargs)}
+
+        @param title: window title for the dialog
+        @param message: message displayed in the dialog
+        @return: a tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--msgbox", message], kwargs)
         
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -387,6 +401,22 @@ class QtDialog:
         @rtype: C{tuple(int, str)}
         """
         return self.__runKdialog(title, ["--getcolor"], kwargs)
+
+    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today", **kwargs):
+        """
+        Show a calendar dialog
+
+        Usage: C{dialog.calendar_dialog(title="Choose a date", format="%Y-%m-%d", date="YYYY-MM-DD", **kwargs)}
+
+        Note: the format and date parameters are not currently used
+
+        @param title: window title for the dialog
+        @param format: format of date to be returned
+        @param date: initial date as YYYY-MM-DD, otherwise today
+        @return: a tuple containing the exit code and date
+        @rtype: C{tuple(int, str)}
+        """
+        return self.__runKdialog(title, ["--calendar"], kwargs)
         
         
 class System:
@@ -397,12 +427,12 @@ class System:
     def exec_command(self, command, getOutput=True):
         """
         Execute a shell command
+        
+        Usage: C{system.exec_command(command, getOutput=True)}
 
         Set getOutput to False if the command does not exit and return immediately. Otherwise
         AutoKey will not respond to any hotkeys/abbreviations etc until the process started
         by the command exits.
-        
-        Usage: C{system.exec_command(command, getOutput=True)}
         
         @param command: command to be executed (including any arguments) - e.g. "ls -l"
         @param getOutput: whether to capture the (stdout) output of the command
@@ -466,7 +496,7 @@ class GtkDialog:
         @return: a tuple containing the exit code and user input
         @rtype: C{tuple(int, str)}
         """
-        return self.__runZenity(title, ["--info", "--text", message], kwargs)        
+        return self.__runZenity(title, ["--info", "--text", message], kwargs)
         
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -1053,7 +1083,6 @@ class Engine:
         self.runner = runner
         self.monitor = configManager.app.monitor
         self.__returnValue = ''
-        self.__event = threading.Event()
         
     def get_folder(self, title):
         """
@@ -1117,7 +1146,7 @@ class Engine:
         
     def create_hotkey(self, folder, description, modifiers, key, contents):
         """
-        Create a text hotkey.
+        Create a text hotkey
         
         Usage: C{engine.create_hotkey(folder, description, modifiers, key, contents)}
         
@@ -1168,15 +1197,14 @@ class Engine:
                 targetScript = item
 
         if targetScript is not None:
-            self.runner.execute(targetScript, "")
+            self.runner.run_subscript(targetScript)
         else:
             raise Exception("No script with description '%s' found" % description)
             
     def run_script_from_macro(self, args):
         """
         Used internally by AutoKey for phrase macros
-        """        
-        self.__event.clear()
+        """
         self.__macroArgs = args["args"].split(',')
         
         try:
@@ -1186,7 +1214,9 @@ class Engine:
             
     def get_macro_arguments(self):
         """
-        Get the arguments supplied to the current script via its macro.
+        Get the arguments supplied to the current script via its macro
+
+        Usage: C{engine.get_macro_arguments()}
         
         @return: the arguments
         @rtype: C{list(str())}
@@ -1202,13 +1232,11 @@ class Engine:
         @param val: value to be stored
         """
         self.__returnValue = val
-        self.__event.set()
         
     def get_return_value(self):
         """
         Used internally by AutoKey for phrase macros
         """
-        self.__event.wait(10)
         ret = self.__returnValue
         self.__returnValue = ''
         return ret

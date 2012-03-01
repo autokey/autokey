@@ -442,14 +442,15 @@ class ScriptRunner:
     @threaded
     def execute(self, script, buffer=''):
         logger.debug("Script runner executing: %r", script)
-            
-        self.scope["store"] = script.store
+
+        scope = self.scope.copy()
+        scope["store"] = script.store
         
         backspaces, stringAfter = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
 
         try:
-            exec script.code in self.scope
+            exec script.code in scope
         except Exception, e:
             logger.exception("Script error")
             
@@ -463,3 +464,7 @@ class ScriptRunner:
             
         self.mediator.send_string(stringAfter)
         
+    def run_subscript(self, script):
+        scope = self.scope.copy()
+        scope["store"] = script.store
+        exec script.code in scope
