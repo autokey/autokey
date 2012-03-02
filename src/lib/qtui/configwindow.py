@@ -697,16 +697,17 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             self.topLevelWidget().update_actions(modelItems, False)
         
     def on_new_topfolder(self):
-        result = KMessageBox.questionYesNo(self.topLevelWidget(),
-                    i18n("Create folder in the default location?\nClick no to create a folder elsewhere."),
-                    "Create Folder")
+        result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
+                    i18n("Create folder in the default location?"),
+                    "Create Folder", KStandardGuiItem.yes(),
+                    KGuiItem(i18n("Create Elsewhere")))
         
         self.topLevelWidget().app.monitor.suspend()
 
         if result == KMessageBox.Yes:
             self.__createFolder(None)
 
-        else:
+        elif result != KMessageBox.Cancel:
             path = KFileDialog.getExistingDirectory(KUrl(), self.topLevelWidget())
 
             if path != "":
@@ -718,6 +719,8 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
                 self.configManager.folders.append(folder)
                 self.topLevelWidget().app.config_altered(True)
 
+            self.topLevelWidget().app.monitor.unsuspend()
+        else:
             self.topLevelWidget().app.monitor.unsuspend()
 
     
@@ -869,7 +872,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         widgetItems = self.treeWidget.selectedItems()
         self.topLevelWidget().app.monitor.suspend()
 
-        if len(widgetItems == 1):
+        if len(widgetItems) == 1:
             widgetItem = widgetItems[0]
             data = self.__extractData(widgetItem)
             if isinstance(data, model.Folder):
