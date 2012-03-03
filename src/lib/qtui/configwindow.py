@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, sys, os, webbrowser, subprocess
+import logging, sys, os, webbrowser, subprocess, time
 from PyKDE4.kio import *
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n, ki18n, KUrl
@@ -955,6 +955,9 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             child.persist()
         
     # ---- Private methods
+
+    def get_selected_item(self):
+        return self.__getSelection()
     
     def __getSelection(self):
         items = self.treeWidget.selectedItems()
@@ -1235,7 +1238,9 @@ class ConfigWindow(KXmlGuiWindow):
             self.record.setChecked(False)
 
     def on_run_script(self):
-        pass # TODO
+        script = self.centralWidget.get_selected_item()[0]
+        time.sleep(2)
+        self.app.service.scriptRunner.run_subscript(script)
     
     # Settings Menu
         
