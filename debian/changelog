@@ -1,9 +1,20 @@
 autokey (0.82.0-0~precise) precise; urgency=low
 
   * Revive the KDE UI and bring it up to date with features developed since its
-    deprecation.
+    deprecation
+  * [KDE] Add a function for running a script from the GUI (2 second delay)
+  * Implement enhancement issue 176  - add tab as a trigger character option
+  * [KDE] Allow entry of custom trigger character ranges for abbreviations
+  * Resolve issue 175 - wait for sub-scripts to complete before continuing
+  * Resolve issue 177 - create a shallow copy of the namespace object for each
+    script invocation
+  * [KDE] Enable calltips and suggestions and update the API file
+  * [KDE] Save and restore clipboard contents when using Send via Clipboard
+  * Add RPM spec and update to build the KDE package as well
+  * Add support for using the Hyper button in hotkeys
+  * Fix incorrect logic in Mutter workaround causing it to always trigger
 
- -- Chris Dekter <cdekter@gmail.com>  Mon, 27 Feb 2012 08:38:02 +1100
+ -- Chris Dekter <cdekter@gmail.com>  Sat, 3 Mar 2012 22:04:02 +1100
 
 autokey (0.81.4-0~oneiric) oneiric; urgency=low
 

@@ -31,7 +31,7 @@ Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qsc
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
 XB-Python-Version: ${python:Versions}
-Description: desktop automation utility - QT version
+Description: desktop automation utility - KDE version
  AutoKey is a desktop automation utility for Linux and X11. It allows the 
  automation of virtually any task by responding to typed abbreviations and 
  hotkeys. It offers a full-featured GUI that makes it highly accessible for 
@@ -43,7 +43,7 @@ Description: desktop automation utility - QT version
 Package: autokey-gtk
 Section: gnome
 Architecture: all
-Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gtksourceview2, python-glade2, python-notify, python-dbus, autokey-common
+Depends: ${python:Depends}, ${misc:Depends}, python-gtk2, python-gtksourceview2, python-glade2, python-notify, python-dbus, zenity, autokey-common
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
 XB-Python-Version: ${python:Versions}
