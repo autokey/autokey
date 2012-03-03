@@ -501,7 +501,14 @@ class XInterfaceBase(threading.Thread):
 
             self.mediator.send_string(pasteCommand)
 
+            if common.USING_QT:
+                self.app.exec_in_main(self.__restoreClipboard)
+
         logger.debug("Send via clipboard done")
+
+    def __restoreClipboard(self):
+        if self.__savedClipboard != "":
+            self.clipBoard.setText(self.__savedClipboard, QClipboard.Clipboard)
 
     def __fillSelection(self, string):
         if common.USING_QT:
@@ -514,6 +521,7 @@ class XInterfaceBase(threading.Thread):
 
     def __fillClipboard(self, string):
         if common.USING_QT:
+            self.__savedClipboard = self.clipBoard.text()
             self.clipBoard.setText(string, QClipboard.Clipboard)
             self.sem.release()
         else:
