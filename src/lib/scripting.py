@@ -158,7 +158,7 @@ class Mouse:
         
         Usage: C{mouse.wait_for_click(self, button, timeOut=10.0)}
 
-        @param key: they mouse button click to wait for as a button number, 1-9
+        @param button: they mouse button click to wait for as a button number, 1-9
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)

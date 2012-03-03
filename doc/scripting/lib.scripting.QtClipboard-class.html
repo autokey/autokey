@@ -3,7 +3,7 @@
           "DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <title>lib.scripting.Mouse</title>
+  <title>lib.scripting.QtClipboard</title>
   <link rel="stylesheet" href="epydoc.css" type="text/css" />
   <script type="text/javascript" src="epydoc.js"></script>
 </head>
@@ -39,7 +39,7 @@
       <span class="breadcrumbs">
         Package&nbsp;lib ::
         <a href="lib.scripting-module.html">Module&nbsp;scripting</a> ::
-        Class&nbsp;Mouse
+        Class&nbsp;QtClipboard
       </span>
     </td>
     <td>
@@ -49,15 +49,15 @@
     onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
         <tr><td align="right"><span class="options"
             >[<a href="frames.html" target="_top">frames</a
-            >]&nbsp;|&nbsp;<a href="lib.scripting.Mouse-class.html"
+            >]&nbsp;|&nbsp;<a href="lib.scripting.QtClipboard-class.html"
             target="_top">no&nbsp;frames</a>]</span></td></tr>
       </table>
     </td>
   </tr>
 </table>
 <!-- ==================== CLASS DESCRIPTION ==================== -->
-<h1 class="epydoc">Class Mouse</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#Mouse">source&nbsp;code</a></span></p>
-<p>Provides access to send mouse clicks</p>
+<h1 class="epydoc">Class QtClipboard</h1><p class="nomargin-top"><span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard">source&nbsp;code</a></span></p>
+<p>Read/write access to the X selection and clipboard - QT version</p>
 
 <!-- ==================== INSTANCE METHODS ==================== -->
 <a name="section-InstanceMethods"></a>
@@ -83,9 +83,9 @@
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
           <td><span class="summary-sig"><a name="__init__"></a><span class="summary-sig-name">__init__</span>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">mediator</span>)</span></td>
+        <span class="summary-sig-arg">app</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.__init__">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__init__">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -99,13 +99,61 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Mouse-class.html#click_relative" class="summary-sig-name">click_relative</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">x</span>,
-        <span class="summary-sig-arg">y</span>,
-        <span class="summary-sig-arg">button</span>)</span><br />
-      Send a mouse click relative to the active window</td>
+          <td><span class="summary-sig"><a href="lib.scripting.QtClipboard-class.html#fill_selection" class="summary-sig-name">fill_selection</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contents</span>)</span><br />
+      Copy text into the X selection</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_relative">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.fill_selection">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__fillSelection"></a><span class="summary-sig-name">__fillSelection</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">string</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__fillSelection">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr>
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type"><code>str</code></span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a href="lib.scripting.QtClipboard-class.html#get_selection" class="summary-sig-name">get_selection</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Read text from the X selection</td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.get_selection">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__getSelection"></a><span class="summary-sig-name">__getSelection</span>(<span class="summary-sig-arg">self</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__getSelection">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -119,13 +167,28 @@
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Mouse-class.html#click_relative_self" class="summary-sig-name">click_relative_self</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">x</span>,
-        <span class="summary-sig-arg">y</span>,
-        <span class="summary-sig-arg">button</span>)</span><br />
-      Send a mouse click relative to the current mouse position</td>
+          <td><span class="summary-sig"><a href="lib.scripting.QtClipboard-class.html#fill_clipboard" class="summary-sig-name">fill_clipboard</a>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">contents</span>)</span><br />
+      Copy text into the clipboard</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_relative_self">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.fill_clipboard">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__fillClipboard"></a><span class="summary-sig-name">__fillClipboard</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">string</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__fillClipboard">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -135,17 +198,14 @@
   </tr>
 <tr>
     <td width="15%" align="right" valign="top" class="summary">
-      <span class="summary-type">&nbsp;</span>
+      <span class="summary-type"><code>str</code></span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Mouse-class.html#click_absolute" class="summary-sig-name">click_absolute</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">x</span>,
-        <span class="summary-sig-arg">y</span>,
-        <span class="summary-sig-arg">button</span>)</span><br />
-      Send a mouse click relative to the screen (absolute)</td>
+          <td><span class="summary-sig"><a href="lib.scripting.QtClipboard-class.html#get_clipboard" class="summary-sig-name">get_clipboard</a>(<span class="summary-sig-arg">self</span>)</span><br />
+      Read text from the clipboard</td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_absolute">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.get_clipboard">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -153,18 +213,33 @@
       
     </td>
   </tr>
-<tr>
+<tr class="private">
     <td width="15%" align="right" valign="top" class="summary">
       <span class="summary-type">&nbsp;</span>
     </td><td class="summary">
       <table width="100%" cellpadding="0" cellspacing="0" border="0">
         <tr>
-          <td><span class="summary-sig"><a href="lib.scripting.Mouse-class.html#wait_for_click" class="summary-sig-name">wait_for_click</a>(<span class="summary-sig-arg">self</span>,
-        <span class="summary-sig-arg">button</span>,
-        <span class="summary-sig-arg">timeOut</span>=<span class="summary-sig-default">10.0</span>)</span><br />
-      Wait for a mouse click</td>
+          <td><span class="summary-sig"><a name="__getClipboard"></a><span class="summary-sig-name">__getClipboard</span>(<span class="summary-sig-arg">self</span>)</span></td>
           <td align="right" valign="top">
-            <span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.wait_for_click">source&nbsp;code</a></span>
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__getClipboard">source&nbsp;code</a></span>
+            
+          </td>
+        </tr>
+      </table>
+      
+    </td>
+  </tr>
+<tr class="private">
+    <td width="15%" align="right" valign="top" class="summary">
+      <span class="summary-type">&nbsp;</span>
+    </td><td class="summary">
+      <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+          <td><span class="summary-sig"><a name="__execAsync"></a><span class="summary-sig-name">__execAsync</span>(<span class="summary-sig-arg">self</span>,
+        <span class="summary-sig-arg">callback</span>,
+        <span class="summary-sig-arg">*args</span>)</span></td>
+          <td align="right" valign="top">
+            <span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.__execAsync">source&nbsp;code</a></span>
             
           </td>
         </tr>
@@ -191,118 +266,97 @@
   </td>
 </tr>
 </table>
-<a name="click_relative"></a>
+<a name="fill_selection"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">click_relative</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">x</span>,
-        <span class="sig-arg">y</span>,
-        <span class="sig-arg">button</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">fill_selection</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contents</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_relative">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.fill_selection">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Send a mouse click relative to the active window</p>
-  <p>Usage: <code>mouse.click_relative(x, y, button)</code></p>
+  <p>Copy text into the X selection</p>
+  <p>Usage: <code>clipboard.fill_selection(contents)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>x</code></strong> - x-coordinate in pixels, relative to upper left corner of window</li>
-        <li><strong class="pname"><code>y</code></strong> - y-coordinate in pixels, relative to upper left corner of window</li>
-        <li><strong class="pname"><code>button</code></strong> - mouse button to simulate (left=1, middle=2, right=3)</li>
+        <li><strong class="pname"><code>contents</code></strong> - string to be placed in the selection</li>
     </ul></dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="click_relative_self"></a>
+<a name="get_selection"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">click_relative_self</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">x</span>,
-        <span class="sig-arg">y</span>,
-        <span class="sig-arg">button</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_selection</span>(<span class="sig-arg">self</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_relative_self">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.get_selection">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Send a mouse click relative to the current mouse position</p>
-  <p>Usage: <code>mouse.click_relative_self(x, y, button)</code></p>
+  <p>Read text from the X selection</p>
+  <p>Usage: <code>clipboard.get_selection()</code></p>
+  <dl class="fields">
+    <dt>Returns: <code>str</code></dt>
+        <dd>text contents of the mouse selection</dd>
+  </dl>
+</td></tr></table>
+</div>
+<a name="fill_clipboard"></a>
+<div>
+<table class="details" border="1" cellpadding="3"
+       cellspacing="0" width="100%" bgcolor="white">
+<tr><td>
+  <table width="100%" cellpadding="0" cellspacing="0" border="0">
+  <tr valign="top"><td>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">fill_clipboard</span>(<span class="sig-arg">self</span>,
+        <span class="sig-arg">contents</span>)</span>
+  </h3>
+  </td><td align="right" valign="top"
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.fill_clipboard">source&nbsp;code</a></span>&nbsp;
+    </td>
+  </tr></table>
+  
+  <p>Copy text into the clipboard</p>
+  <p>Usage: <code>clipboard.fill_clipboard(contents)</code></p>
   <dl class="fields">
     <dt>Parameters:</dt>
     <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>x</code></strong> - x-offset in pixels, relative to current mouse position</li>
-        <li><strong class="pname"><code>y</code></strong> - y-offset in pixels, relative to current mouse position</li>
-        <li><strong class="pname"><code>button</code></strong> - mouse button to simulate (left=1, middle=2, right=3)</li>
+        <li><strong class="pname"><code>contents</code></strong> - string to be placed in the selection</li>
     </ul></dd>
   </dl>
 </td></tr></table>
 </div>
-<a name="click_absolute"></a>
+<a name="get_clipboard"></a>
 <div>
 <table class="details" border="1" cellpadding="3"
        cellspacing="0" width="100%" bgcolor="white">
 <tr><td>
   <table width="100%" cellpadding="0" cellspacing="0" border="0">
   <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">click_absolute</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">x</span>,
-        <span class="sig-arg">y</span>,
-        <span class="sig-arg">button</span>)</span>
+  <h3 class="epydoc"><span class="sig"><span class="sig-name">get_clipboard</span>(<span class="sig-arg">self</span>)</span>
   </h3>
   </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.click_absolute">source&nbsp;code</a></span>&nbsp;
+    ><span class="codelink"><a href="lib.scripting-pysrc.html#QtClipboard.get_clipboard">source&nbsp;code</a></span>&nbsp;
     </td>
   </tr></table>
   
-  <p>Send a mouse click relative to the screen (absolute)</p>
-  <p>Usage: <code>mouse.click_absolute(x, y, button)</code></p>
+  <p>Read text from the clipboard</p>
+  <p>Usage: <code>clipboard.get_clipboard()</code></p>
   <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>x</code></strong> - x-coordinate in pixels, relative to upper left corner of window</li>
-        <li><strong class="pname"><code>y</code></strong> - y-coordinate in pixels, relative to upper left corner of window</li>
-        <li><strong class="pname"><code>button</code></strong> - mouse button to simulate (left=1, middle=2, right=3)</li>
-    </ul></dd>
-  </dl>
-</td></tr></table>
-</div>
-<a name="wait_for_click"></a>
-<div>
-<table class="details" border="1" cellpadding="3"
-       cellspacing="0" width="100%" bgcolor="white">
-<tr><td>
-  <table width="100%" cellpadding="0" cellspacing="0" border="0">
-  <tr valign="top"><td>
-  <h3 class="epydoc"><span class="sig"><span class="sig-name">wait_for_click</span>(<span class="sig-arg">self</span>,
-        <span class="sig-arg">button</span>,
-        <span class="sig-arg">timeOut</span>=<span class="sig-default">10.0</span>)</span>
-  </h3>
-  </td><td align="right" valign="top"
-    ><span class="codelink"><a href="lib.scripting-pysrc.html#Mouse.wait_for_click">source&nbsp;code</a></span>&nbsp;
-    </td>
-  </tr></table>
-  
-  <p>Wait for a mouse click</p>
-  <p>Usage: <code>mouse.wait_for_click(self, button, 
-  timeOut=10.0)</code></p>
-  <dl class="fields">
-    <dt>Parameters:</dt>
-    <dd><ul class="nomargin-top">
-        <li><strong class="pname"><code>button</code></strong> - they mouse button click to wait for as a button number, 1-9</li>
-        <li><strong class="pname"><code>timeOut</code></strong> - maximum time, in seconds, to wait for the keypress to occur</li>
-    </ul></dd>
+    <dt>Returns: <code>str</code></dt>
+        <dd>text contents of the clipboard</dd>
   </dl>
 </td></tr></table>
 </div>
