@@ -615,6 +615,9 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         [self.treeWidget.setColumnWidth(x, ConfigManager.SETTINGS[COLUMN_WIDTHS][x]) for x in range(3)]
         hView = self.treeWidget.header()
         hView.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive|QHeaderView.ResizeToContents))
+
+        self.logHandler = ListWidgetHandler(self.listWidget, app)
+        self.listWidget.hide()
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -1076,6 +1079,8 @@ class ConfigWindow(KXmlGuiWindow):
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
         self.advancedSettings = self.__createAction("advanced-settings", i18n("Configure AutoKey"), "configure", self.on_advanced_settings)
         self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)
+        self.showLog = self.__createToggleAction("show-log-view", i18n("Show log view"), self.on_show_log)
+        self.showLog.setShortcut(QKeySequence("f4"))
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
@@ -1204,6 +1209,7 @@ class ConfigWindow(KXmlGuiWindow):
                 return False
 
         self.hide()
+        logging.getLogger().removeHandler(self.centralWidget.logHandler)
         return True
     
     # File Menu
@@ -1253,6 +1259,9 @@ class ConfigWindow(KXmlGuiWindow):
     def on_advanced_settings(self):
         s = SettingsDialog(self)
         s.show()
+
+    def on_show_log(self):
+        self.centralWidget.listWidget.setVisible(self.showLog.isChecked())
         
     def on_show_error(self):
         self.app.show_script_error()
@@ -1406,3 +1415,46 @@ class ScriptWidgetItem(QTreeWidgetItem):
             return QTreeWidgetItem.__lt__(self, other)
         else:
             return False
+
+    
+class ListWidgetHandler(logging.Handler):
+
+    def __init__(self, listWidget, app):
+        logging.Handler.__init__(self)
+        self.widget = listWidget
+        self.app = app
+        self.level = logging.DEBUG
+
+        rootLogger = logging.getLogger()
+        logFormat = "%(message)s"
+        rootLogger.addHandler(self)
+        self.setFormatter(logging.Formatter(logFormat))
+
+    def flush(self):
+        pass
+
+    def emit(self, record):
+        try:
+            item = QListWidgetItem(self.format(record))
+            if record.levelno > logging.INFO:
+                item.setIcon(KIcon("dialog-warning"))
+                item.setForeground(QBrush(Qt.red))
+                
+            else:
+                item.setIcon(KIcon("dialog-information"))
+
+            self.app.exec_in_main(self.__addItem, item)
+                
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
+    def __addItem(self, item):
+        self.widget.addItem(item)
+
+        if self.widget.count() > 50:
+            delItem = self.widget.takeItem(0)
+            del delItem
+
+        self.widget.scrollToBottom()

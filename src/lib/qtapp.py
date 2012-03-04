@@ -71,14 +71,14 @@ class Application:
                 os.makedirs(CONFIG_DIR)
             # Initialise logger
             rootLogger = logging.getLogger()
+            rootLogger.setLevel(logging.DEBUG)
             
             if args.isSet("verbose"):
-                rootLogger.setLevel(logging.DEBUG)
                 handler = logging.StreamHandler(sys.stdout)
-            else:           
-                rootLogger.setLevel(logging.INFO)
+            else:
                 handler = logging.handlers.RotatingFileHandler(LOG_FILE, 
                                         maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
+                handler.setLevel(logging.INFO)
             
             handler.setFormatter(logging.Formatter(LOG_FORMAT))
             rootLogger.addHandler(handler)
