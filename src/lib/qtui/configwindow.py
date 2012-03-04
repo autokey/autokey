@@ -266,6 +266,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         self.scriptCodeEditor.setAutoCompletionThreshold(3)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
         self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNoContext)
+        lex.setFont(KGlobalSettings.fixedFont())
         
     def load(self, script):
         self.currentScript = script
