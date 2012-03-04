@@ -1,3 +1,11 @@
+autokey (0.82.1-0~precise) precise; urgency=low
+
+  * Fix critical bug causing GTK version to no longer work
+  * [KDE] Add a log view that can be shown/hidden using F4
+  * [KDE] Use the KDE global setting for monospace font instead of custom fonts
+
+ -- Chris Dekter <cdekter@gmail.com>  Mon, 5 Mar 2012 10:10:04 +1100
+
 autokey (0.82.0-0~precise) precise; urgency=low
 
   * Revive the KDE UI and bring it up to date with features developed since its
