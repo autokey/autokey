@@ -17,6 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import common
+common.USING_QT = False
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
 import gettext, gtk, dbus, dbus.service, dbus.mainloop.glib
