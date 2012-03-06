@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gui name="autokey"
-     version="8"
+     version="9"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
@@ -30,6 +30,7 @@
         <text>Settings</text>
       <Action name="enable-monitoring" />
       <Merge name="StandardToolBarMenuHandler" />
+      <Action name="options_show_statusbar"/>
       <Action name="show-log-view" />
       <separator />
     <Action name="options_configure_keybinding"/>
@@ -65,6 +66,11 @@
     <separator />    
     <Action name="rename" />
   </Menu>
+
+   <Menu name="LogContext">
+       <Action name="clear-log" />
+       <Action name="save-log" />
+   </Menu>
  
   <ToolBar name="ToolBar" noMerge="1" >
     <text>ToolBar</text>

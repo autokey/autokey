@@ -96,6 +96,9 @@
    </item>
    <item>
     <widget class="QListWidget" name="listWidget">
+     <property name="contextMenuPolicy">
+      <enum>Qt::ActionsContextMenu</enum>
+     </property>
      <property name="showDropIndicator" stdset="0">
       <bool>false</bool>
      </property>

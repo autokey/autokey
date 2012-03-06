@@ -326,10 +326,13 @@
     </columns>
     <data>
       <row>
-        <col id="0">Default</col>
+        <col id="0">All non-word</col>
       </row>
       <row>
         <col id="0">Space and Enter</col>
+      </row>
+      <row>
+        <col id="0">Tab</col>
       </row>
     </data>
   </object>

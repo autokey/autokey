@@ -619,6 +619,9 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
 
         self.logHandler = ListWidgetHandler(self.listWidget, app)
         self.listWidget.hide()
+
+        # Log view context menu
+        
                                 
     def populate_tree(self, config):
         factory = WidgetItemFactory(config.folders)
@@ -920,6 +923,25 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.stack.currentWidget().reset()
         self.set_dirty(False)
         self.parentWidget().cancel_record()
+
+    def on_save_log(self):
+        fileName = KFileDialog.getSaveFileName(KUrl(), "", self.parentWidget(),
+                    "Save log file")
+
+        if fileName != "":
+            try:
+                f = open(fileName, 'w')
+                for i in range(self.listWidget.count()):
+                    text = self.listWidget.item(i).text()
+                    f.write(text)
+                    f.write('\n')
+            except:
+                logging.getLogger().exception("Error saving log file")
+            finally:
+                f.close()
+
+    def on_clear_log(self):
+        self.listWidget.clear()
         
     def move_items(self, sourceItems, target):
         targetModelItem = self.__extractData(target)
@@ -1073,8 +1095,6 @@ class ConfigWindow(KXmlGuiWindow):
         self.run.setShortcut(QKeySequence("f8"))
         self.insertMacro = self.__createMenuAction("insert-macro", i18n("Insert Macro"), None, None)
         menu = app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro, self.insertMacro.menu())
-        #self.insertMacro.setMenu(menu)
-        #print menu
         
         # Settings Menu
         self.enable = self.__createToggleAction("enable-monitoring", i18n("Enable Monitoring"), self.on_enable_toggled)
@@ -1092,7 +1112,15 @@ class ConfigWindow(KXmlGuiWindow):
 
         self.setHelpMenuEnabled(False)
 
+        # Log view context menu
+        act = self.__createAction("clear-log", i18n("Clear Log"), None, self.centralWidget.on_clear_log)
+        self.centralWidget.listWidget.addAction(act)
+        act = self.__createAction("clear-log", i18n("Save Log As..."), None, self.centralWidget.on_save_log)
+        self.centralWidget.listWidget.addAction(act)
+
+        #self.createStandardStatusBarAction() # TODO statusbar
         options = KXmlGuiWindow.Default ^ KXmlGuiWindow.StandardWindowOptions(KXmlGuiWindow.StatusBar)
+        #options = KXmlGuiWindow.Default # TODO  statusbar
         self.setupGUI(options)
         
         # Initialise action states
@@ -1245,9 +1273,13 @@ class ConfigWindow(KXmlGuiWindow):
             self.record.setChecked(False)
 
     def on_run_script(self):
+        t = threading.Thread(target=self.__runScript)
+        t.start()
+
+    def __runScript(self):
         script = self.centralWidget.get_selected_item()[0]
         time.sleep(2)
-        self.app.service.scriptRunner.run_subscript(script)
+        self.app.service.scriptRunner.execute(script)
     
     # Settings Menu
         

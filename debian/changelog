@@ -1,3 +1,12 @@
+autokey (0.82.2-0~precise) precise; urgency=low
+
+  * [GTK] Fix critical bug for issue 185 - unable to save abbreviations
+  * [KDE] Add a context menu for the log view
+  * [KDE] Improve running of scripts from main window - handle exceptions and
+    run in a worker thread
+
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 7 Mar 2012 8:32:33 +1100
+
 autokey (0.82.1-0~precise) precise; urgency=low
 
   * Fix critical bug causing GTK version to no longer work
