@@ -861,7 +861,7 @@ class XInterfaceBase(threading.Thread):
 
     def __doQT4Workaround(self, keyCode):
         if len(self.lastChars) > 0:
-            if keyCode in self.lastChars and not self.lastChars[-1] == keyCode:
+            if keyCode in self.lastChars:
                 self.localDisplay.flush()
                 time.sleep(0.0125)
 

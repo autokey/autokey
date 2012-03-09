@@ -206,7 +206,7 @@ class ConfigManager:
                 COLUMN_WIDTHS : [150, 50, 100],
                 SHOW_TOOLBAR : True,
                 NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
-                WORKAROUND_APP_REGEX : ".*VirtualBox.*"
+                WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc"
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,
@@ -521,6 +521,7 @@ dialog.info_dialog("Window information",
     
         self.userCodeDir = data["userCodeDir"]
         apply_settings(data["settings"])
+        self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
         
         existingPaths = []
         for folder in self.folders:
@@ -552,6 +553,10 @@ dialog.info_dialog("Window information",
             for item in self.allItems:
                 if isinstance(item, Phrase):
                     item.sendMode = SendMode.KEYBOARD
+
+        if self.VERSION < "0.82.3":
+            self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
+            self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
         
         self.VERSION = common.VERSION    
         self.config_altered(True)
