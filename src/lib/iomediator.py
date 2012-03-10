@@ -395,7 +395,6 @@ class KeyGrabber:
         IoMediator.listeners.remove(self)
         CURRENT_INTERFACE.ungrab_keyboard()
         self.targetParent.cancel_grab()
-    
 
 class Recorder(KeyGrabber):
     """
@@ -457,4 +456,21 @@ class Recorder(KeyGrabber):
                 self.targetParent.end_key_sequence()
                 
             self.targetParent.append_mouseclick(relX, relY, button, windowInfo[0])
-            
+
+
+class WindowGrabber:
+
+    def __init__(self, dialog):
+        self.dialog = dialog
+
+    def start(self):
+        time.sleep(0.1)
+        IoMediator.listeners.append(self)
+
+    def handle_keypress(self, rawKey, modifiers, key, *args):
+        pass
+
+    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
+        IoMediator.listeners.remove(self)
+        self.dialog.receive_window_info(windowInfo)
+

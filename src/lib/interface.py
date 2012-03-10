@@ -1157,7 +1157,7 @@ class AtSpiInterface(XInterfaceBase):
 
     def __processMouseEvent(self, event):
         if event.type[-1] == 'p':
-            button = int(event.type[-2])            
+            button = int(event.type[-2])
             self.handle_mouseclick(button, event.detail1, event.detail2)
 
     def __pumpEvents(self):

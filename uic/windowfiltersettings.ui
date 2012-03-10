@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>425</width>
+    <height>120</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,27 +15,31 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Only trigger in windows with title/class matching:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="KLineEdit" name="triggerRegexLineEdit">
-     <property name="toolTip">
-      <string>Window title</string>
-     </property>
-     <property name="whatsThis">
-      <string>Enter a regular expression that matches the title of windows in which you want this item to trigger.</string>
-     </property>
-     <property name="urlDropsEnabled">
-      <bool>false</bool>
-     </property>
-     <property name="showClearButton" stdset="0">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>Regular expression to match:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="KLineEdit" name="triggerRegexLineEdit">
+       <property name="toolTip">
+        <string>Window title</string>
+       </property>
+       <property name="whatsThis">
+        <string>Enter a regular expression that matches the title of windows in which you want this item to trigger.</string>
+       </property>
+       <property name="urlDropsEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="showClearButton" stdset="0">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="QCheckBox" name="recursiveCheckBox">
@@ -43,6 +47,30 @@
       <string>Apply recursively to subfolders and items</string>
      </property>
     </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="detectButton">
+       <property name="text">
+        <string>Detect Window Properties</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <widget class="KSeparator" name="kseparator"/>

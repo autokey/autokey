@@ -25,7 +25,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog
+import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
 from autokey import model, iomediator
 
 WORD_CHAR_OPTIONS = {
@@ -249,7 +249,7 @@ class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
     
     def on_setButton_pressed(self):
         self.setButton.setEnabled(False)
-        self.keyLabel.setText(i18n("Press a key..."))
+        self.keyLabel.setText(i18n("Press a key or combination..."))
         self.grabber = iomediator.KeyGrabber(self.parentWidget())
         self.grabber.start()  
 
@@ -413,7 +413,16 @@ class WindowFilterSettings(QWidget, windowfiltersettings.Ui_Form):
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         windowfiltersettings.Ui_Form.__init__(self)
-        self.setupUi(self)    
+        self.setupUi(self)
+        m = QFontMetrics(QApplication.font())
+        self.triggerRegexLineEdit.setMinimumWidth(m.width("windowclass.WindowClass"))
+
+    # ---- Signal handlers
+
+    def on_detectButton_pressed(self):
+        self.detectButton.setEnabled(False)
+        self.grabber = iomediator.WindowGrabber(self.parentWidget())
+        self.grabber.start()
 
 
 class WindowFilterSettingsDialog(KDialog):
@@ -457,10 +466,59 @@ class WindowFilterSettingsDialog(KDialog):
     def get_filter_text(self):
         return unicode(self.widget.triggerRegexLineEdit.text())
 
+    def receive_window_info(self, info):
+        self.parentWidget().topLevelWidget().app.exec_in_main(self.__receiveWindowInfo, info)
+
+    def __receiveWindowInfo(self, info):
+        dlg = DetectDialog(self)
+        dlg.populate(info)
+        dlg.exec_()
+
+        if dlg.result() == QDialog.Accepted:
+            self.widget.triggerRegexLineEdit.setText(dlg.get_choice())
+
+        self.widget.detectButton.setEnabled(True)
+
+    # --- event handlers ---
+
     def slotButtonClicked(self, button):
         if button == KDialog.Cancel:
             self.load(self.targetItem)
+            
         KDialog.slotButtonClicked(self, button)
+        
+
+
+class DetectSettings(QWidget, detectdialog.Ui_Form):
+
+    def __init__(self, parent):
+        QWidget.__init__(self, parent)
+        detectdialog.Ui_Form.__init__(self)
+        self.setupUi(self)
+        self.kbuttongroup.setSelected(0)
+
+class DetectDialog(KDialog):
+
+    def __init__(self, parent):
+        KDialog.__init__(self, parent)
+        self.widget = DetectSettings(self)
+        self.setMainWidget(self.widget)
+        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
+        self.setPlainCaption(i18n("Window Information"))
+        self.setModal(True)
+
+    def populate(self, windowInfo):
+        self.widget.titleLabel.setText(i18n("Window title: %1", windowInfo[0]))
+        self.widget.classLabel.setText(i18n("Window class: %1", windowInfo[1]))
+        self.windowInfo = windowInfo
+
+    def get_choice(self):
+        index = self.widget.kbuttongroup.selected()
+
+        if index == 0:
+            return self.windowInfo[1]
+        else:
+            return self.windowInfo[0]
 
         
 class RecordSettings(QWidget, recorddialog.Ui_Form):
