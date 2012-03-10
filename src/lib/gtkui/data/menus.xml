@@ -37,6 +37,8 @@
 		<menu action="Help">
 			<menuitem action="faq" />
 			<menuitem action="help" />
+                        <menuitem action="api" />
+                        <separator />
 			<menuitem action="donate" />
 			<menuitem action="report-bug"/>
                         <separator />
