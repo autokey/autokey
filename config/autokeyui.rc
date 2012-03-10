@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <gui name="autokey"
-     version="9"
+     version="10"
      xmlns="http://www.kde.org/standards/kxmlgui/1.0"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://www.kde.org/standards/kxmlgui/1.0
@@ -44,13 +44,17 @@
       <separator />
       <Action name="insert-macro" />
     </Menu>   
-    <Menu name="help">
+    <Menu name="help" noMerge="1">
+        <text>Help</text>
       <Action name="online-help" />
       <Action name="online-faq" />
+      <Action name="online-api" />
+      <separator />
       <Action name="donate" />
       <Action name="report-bug" />
       <separator />
       <Action name="about" />
+      <Action name="help_about_kde"/>
     </Menu>
   </MenuBar>
   

@@ -32,6 +32,7 @@ HOMEPAGE  = "http://autokey.googlecode.com/"
 BUG_EMAIL = "cdekter@gmail.com"
 
 FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
+API_URL = "http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
 BUG_URL = "http://code.google.com/p/autokey/issues/entry"
