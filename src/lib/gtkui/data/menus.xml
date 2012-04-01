@@ -22,17 +22,18 @@
 			<menuitem action="paste-item" />
 			<menuitem action="clone-item" />
 			<menuitem action="delete-item" />
-			<separator />
             <menuitem action="rename" />
             <separator />
             <menuitem action="insert-macro" />
-            <menuitem action="record" />
             <separator />
             <menuitem action="preferences" />
 		</menu>
-                <menu action="View">
+                <menu action="Tools">
                     <menuitem action="toolbar" />
+                    <separator />
                     <menuitem action="script-error" />
+                    <menuitem action="record" />
+                    <menuitem action="run" />
                 </menu>
 		<menu action="Help">
 			<menuitem action="faq" />
@@ -56,7 +57,7 @@
             <toolitem action="paste-item" />
             <toolitem action="delete-item" />
             <separator />
-            <toolitem action="record" />
+            <toolitem action="run" />
         </toolbar>
         <popup name="NewDropdown">
 		    <menuitem action="new-top-folder" />
@@ -65,11 +66,6 @@
             <menuitem action="new-script" />
         </popup>
         <popup name="Context">
-<!--            <menuitem action="new-top-folder" /> -->
-            <menuitem action="new-folder" />
-            <menuitem action="new-phrase" />
-            <menuitem action="new-script" />
-            <separator />
             <menuitem action="cut-item" />
             <menuitem action="copy-item" />
             <menuitem action="paste-item" />

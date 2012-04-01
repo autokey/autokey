@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, sys, os, webbrowser, re
+import logging, sys, os, webbrowser, re, time
 #import gtk, Gtk.glade, gtksourceview2, pango
 from gi.repository import Gtk, Pango, GtkSource, Gdk
 
@@ -686,8 +686,9 @@ class ConfigWindow:
                 ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
                 ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
                 ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
-                ("View", None, _("_View")),
+                ("Tools", None, _("_Tools")),
                 ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
+                ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
                 #("Settings", None, _("_Settings"), None, None, None),
                 #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
                 ("Help", None, _("_Help")),
@@ -701,7 +702,6 @@ class ConfigWindow:
         actionGroup.add_actions(actions)
         
         toggleActions = [
-                         #("enable-monitoring", None, _("_Enable Monitoring"), None, _("Toggle monitoring on/off"), self.on_enable_toggled),
                          ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
                          ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord Script"), None, _("Record a keyboard/mouse script"), self.on_record_keystrokes),
                          ]
@@ -725,7 +725,7 @@ class ConfigWindow:
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
         toolbar.insert(create, 0)
-        self.uiManager.get_action("/MenuBar/View/toolbar").set_active(ConfigManager.SETTINGS[SHOW_TOOLBAR])
+        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(ConfigManager.SETTINGS[SHOW_TOOLBAR])
         
         self.treeView = builder.get_object("treeWidget")
         self.__initTreeWidget()
@@ -758,8 +758,8 @@ class ConfigWindow:
         self.vbox.reorder_child(toolbar, 1)
         
     def cancel_record(self):
-        if self.uiManager.get_widget("/MenuBar/Edit/record").get_active():
-            self.uiManager.get_widget("/MenuBar/Edit/record").set_active(False)
+        if self.uiManager.get_widget("/MenuBar/Tools/record").get_active():
+            self.uiManager.get_widget("/MenuBar/Tools/record").set_active(False)
             self.recorder.stop()
             
     def save_completed(self, persistGlobal):
@@ -827,8 +827,9 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/Edit/paste-item").set_sensitive(len(self.cutCopiedItems) > 0)
         self.uiManager.get_action("/MenuBar/Edit/delete-item").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
-        self.uiManager.get_action("/MenuBar/Edit/record").set_sensitive(canRecord)
-        self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)        
+        self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)
+        self.uiManager.get_action("/MenuBar/Tools/record").set_sensitive(canRecord)
+        self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canRecord)
         
         
         if changed:
@@ -1154,7 +1155,11 @@ class ConfigWindow:
         
     def on_insert_macro(self, widget, macro):
         token = macro.get_token()
-        self.phrasePage.insert_text(token)        
+        self.phrasePage.insert_text(token)       
+
+    def on_advanced_settings(self, widget, data=None):
+        s = SettingsDialog(self.ui, self.app.configManager)
+        s.show() 
         
     def on_record_keystrokes(self, widget, data=None):
         if widget.get_active():
@@ -1169,9 +1174,9 @@ class ConfigWindow:
             self.recorder.set_record_mouse(recMouse)
             self.recorder.start(delay)
         elif response == Gtk.ResponseType.CANCEL:
-            self.uiManager.get_widget("/MenuBar/Edit/record").set_active(False)
+            self.uiManager.get_widget("/MenuBar/Tools/record").set_active(False)
         
-    # View Menu
+    # Tools Menu
     
     def on_toggle_toolbar(self, widget, data=None):
         if widget.get_active():
@@ -1183,19 +1188,16 @@ class ConfigWindow:
         
     def on_show_error(self, widget, data=None):
         self.app.show_script_error(self.ui)
-    
-    # Settings Menu
-    
-    def on_enable_toggled(self, widget, data=None):
-        if widget.get_active():
-            self.app.unpause_service()
-        else:
-            self.app.pause_service()
-            
-    def on_advanced_settings(self, widget, data=None):
-        s = SettingsDialog(self.ui, self.app.configManager)
-        s.show()
+        
+    def on_run_script(self, widget, data=None):
+        t = threading.Thread(target=self.__runScript)
+        t.start()
 
+    def __runScript(self):
+        script = self.__getTreeSelection()[0]
+        time.sleep(2)
+        self.app.service.scriptRunner.execute(script)
+    
     # Help Menu
             
     def on_show_faq(self, widget, data=None):
@@ -1451,7 +1453,7 @@ class ConfigWindow:
         
     def __popupMenu(self, event):
         menu = self.uiManager.get_widget("/Context")
-        menu.popup(None, None, None, event.button, event.time)
+        menu.popup(None, None, None, None, event.button, event.time)
         
     def __getattr__(self, attr):
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
