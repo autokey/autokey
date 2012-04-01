@@ -666,11 +666,11 @@ class ConfigWindow:
         actionGroup = Gtk.ActionGroup("menu")
         actions = [
                 ("File", None, _("_File")),
-                ("create", None, _("Create...")),
-                ("new-top-folder", "folder-new", _("_New Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
-                ("new-folder", "folder-new", _("New Sub_folder"), "", _("Create a new folder in the current folder"), self.on_new_folder),
-                ("new-phrase", Gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
-                ("new-script", Gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
+                ("create", None, _("New")),
+                ("new-top-folder", "folder-new", _("_Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
+                ("new-folder", "folder-new", _("Subf_older"), "", _("Create a new folder in the current folder"), self.on_new_folder),
+                ("new-phrase", "text-x-generic", _("_Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
+                ("new-script", "text-x-python", _("Scrip_t"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
                 ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
                 ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
                 ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
@@ -719,6 +719,8 @@ class ConfigWindow:
         # Toolbar 'create' button 
         create = Gtk.MenuToolButton(Gtk.STOCK_NEW)
         create.show()
+        create.set_is_important(True)
+        create.connect("clicked", self.on_new_clicked)
         menu = self.uiManager.get_widget('/NewDropdown')
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
@@ -846,6 +848,9 @@ class ConfigWindow:
             model.update_item(model[path].iter, self.__getTreeSelection())
         
     # ---- Signal handlers ----
+    
+    def on_new_clicked(self, widget, data=None):
+        widget.get_menu().popup(None, None, None, None, 1, Gtk.get_current_event_time())
     
     def on_save(self, widget, data=None):
         if self.__getCurrentPage().validate():
