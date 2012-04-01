@@ -1,5 +1,6 @@
 usr/lib/python*/*-packages/autokey/gtkui/
 usr/lib/python*/*-packages/autokey/gtkapp.py
+usr/share/icons/hicolor/scalable/apps/autokey.svg
 usr/bin/autokey-gtk
 usr/share/applications/autokey-gtk.desktop
 usr/share/man/man1/autokey-gtk.1

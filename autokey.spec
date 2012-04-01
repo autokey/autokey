@@ -103,7 +103,7 @@ find src/lib -name "*.py" -exec sed -i '/^#!\/usr\/bin\/env python$/d' {} ";"
 %{python_sitelib}/autokey/*.py*
 %exclude %{python_sitelib}/autokey/gtkapp.py*
 %{python_sitelib}/%{name}-%{version}-py%{py_ver}.egg-info
-%{_datadir}/icons/hicolor/scalable/apps/autokey*.svg
+%{_datadir}/icons/hicolor/scalable/apps/autokey-status*.svg
 %{_datadir}/icons/hicolor/scalable/apps/autokey.png
 %{_datadir}/icons/Humanity/scalable/apps/*.svg
 %{_datadir}/icons/ubuntu-mono-dark/scalable/apps/*.svg
@@ -117,6 +117,7 @@ find src/lib -name "*.py" -exec sed -i '/^#!\/usr\/bin\/env python$/d' {} ";"
 %{python_sitelib}/autokey/gtkapp.py*
 %{python_sitelib}/autokey/gtkui/
 %{_datadir}/applications/autokey-gtk.desktop
+%{_datadir}/icons/hicolor/scalable/apps/autokey.svg
 %{_mandir}/man1/autokey-gtk.1*
 
 %files qt
@@ -125,6 +126,7 @@ find src/lib -name "*.py" -exec sed -i '/^#!\/usr\/bin\/env python$/d' {} ";"
 %{python_sitelib}/autokey/qtapp.py*
 %{python_sitelib}/autokey/qtui/
 %{_datadir}/applications/autokey-qt.desktop
+%{_datadir}/icons/hicolor/scalable/apps/autokey.png
 %{_mandir}/man1/autokey-qt.1*
 
 %post common
