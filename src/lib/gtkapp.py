@@ -34,7 +34,6 @@ import service, monitor
 from gtkui.notifier import get_notifier
 from gtkui.popupmenu import PopupMenu
 from gtkui.configwindow import ConfigWindow
-from gtkui.abbrselector import AbbrSelectorDialog
 from configmanager import *
 from common import *
 
@@ -143,7 +142,6 @@ class Application:
         
         self.notifier = get_notifier(self)
         self.configWindow = None
-        self.abbrPopup = None
         self.monitor.start()
         
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -156,8 +154,7 @@ class Application:
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
-        configManager.configHotkey.set_closure(self.show_configure_async)
-        configManager.showPopupHotkey.set_closure(self.show_abbr_async)        
+        configManager.configHotkey.set_closure(self.show_configure_async)     
         
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
@@ -263,20 +260,6 @@ class Application:
     def show_configure_async(self):
         Gdk.threads_enter()
         self.show_configure()
-        Gdk.threads_leave()
-
-    def show_abbr_selector(self):
-        """
-        Show the abbreviation autocompletion popup.
-        """
-        if self.abbrPopup is None:
-            logging.info("Displaying abbreviation popup")
-            self.abbrPopup = AbbrSelectorDialog(self)
-            self.abbrPopup.present()
-            
-    def show_abbr_async(self):
-        Gdk.threads_enter()
-        self.show_abbr_selector()
         Gdk.threads_leave()
                 
     def main(self):

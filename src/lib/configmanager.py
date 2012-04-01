@@ -233,9 +233,6 @@ class ConfigManager:
         self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
         self.toggleServiceHotkey.enabled = True    
         
-        self.showPopupHotkey = GlobalHotkey()
-        self.showPopupHotkey.enabled = False
-        
         app.init_global_hotkeys(self)        
         
         self.load_global_config()
@@ -352,7 +349,6 @@ dialog.info_dialog("Window information",
             "userCodeDir": self.userCodeDir,
             "settings": ConfigManager.SETTINGS,
             "folders": extraFolders,
-            "showPopupHotkey": self.showPopupHotkey.get_serializable(),
             "toggleServiceHotkey": self.toggleServiceHotkey.get_serializable(),
             "configHotkey": self.configHotkey.get_serializable()
             }
@@ -394,7 +390,6 @@ dialog.info_dialog("Window information",
                 f.load()
                 self.folders.append(f)
 
-            self.showPopupHotkey.load_from_serialized(data["showPopupHotkey"])
             self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
             self.configHotkey.load_from_serialized(data["configHotkey"])
             
@@ -534,7 +529,6 @@ dialog.info_dialog("Window information",
                 f.load()
                 self.folders.append(f)
 
-        self.showPopupHotkey.load_from_serialized(data["showPopupHotkey"])
         self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
         self.configHotkey.load_from_serialized(data["configHotkey"])
 
@@ -598,7 +592,6 @@ dialog.info_dialog("Window information",
         self.globalHotkeys = []
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
-        self.globalHotkeys.append(self.showPopupHotkey)        
         #_logger.debug("Global hotkeys: %s", self.globalHotkeys)
         
         #_logger.debug("Hotkey folders: %s", self.hotKeyFolders)
