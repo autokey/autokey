@@ -124,8 +124,8 @@ class AbbrSettingsDialog(DialogBase):
         column1.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
         self.abbrList.append_column(column1)
         
-        #for item in WORD_CHAR_OPTIONS_ORDERED:
-        #    self.wordCharCombo.append_text(item)
+        for item in WORD_CHAR_OPTIONS_ORDERED:
+            self.wordCharCombo.append_text(item)
         
     def load(self, item):
         self.targetItem = item
@@ -143,10 +143,19 @@ class AbbrSettingsDialog(DialogBase):
             
         self.removeTypedCheckbox.set_active(item.backspace)
         
-        for desc, regex in WORD_CHAR_OPTIONS.iteritems():
-            if item.get_word_chars() == regex:
-                self.wordCharCombo.set_active(WORD_CHAR_OPTIONS_ORDERED.index(desc))
-                break
+        self.__resetWordCharCombo()
+
+        wordCharRegex = item.get_word_chars()
+        if wordCharRegex in WORD_CHAR_OPTIONS.values():
+            # Default wordchar regex used
+            for desc, regex in WORD_CHAR_OPTIONS.iteritems():
+                if item.get_word_chars() == regex:
+                    self.wordCharCombo.set_active(WORD_CHAR_OPTIONS_ORDERED.index(desc))
+                    break
+        else:
+            # Custom wordchar regex used
+            self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex).encode("utf-8"))
+            self.wordCharCombo.set_active(len(WORD_CHAR_OPTIONS))
         
         if isinstance(item, model.Folder):
             self.omitTriggerCheckbox.hide()
@@ -172,7 +181,10 @@ class AbbrSettingsDialog(DialogBase):
         item.backspace = self.removeTypedCheckbox.get_active()
         
         option = self.wordCharCombo.get_active_text()
-        item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        if option in WORD_CHAR_OPTIONS:
+            item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        else:
+            item.set_word_chars(model.make_wordchar_re(option))
         
         if not isinstance(item, model.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.get_active()
@@ -186,6 +198,7 @@ class AbbrSettingsDialog(DialogBase):
         
     def reset(self):
         self.abbrList.get_model().clear()
+        self.__resetWordCharCombo()
         self.removeButton.set_sensitive(False)
         self.wordCharCombo.set_active(0)
         self.omitTriggerCheckbox.set_active(False)
@@ -194,6 +207,12 @@ class AbbrSettingsDialog(DialogBase):
         self.ignoreCaseCheckbox.set_active(False)
         self.triggerInsideCheckbox.set_active(False)
         self.immediateCheckbox.set_active(False)
+        
+    def __resetWordCharCombo(self):
+        self.wordCharCombo.remove_all()
+        for item in WORD_CHAR_OPTIONS_ORDERED:
+            self.wordCharCombo.append_text(item)
+        self.wordCharCombo.set_active(0)
         
     def get_abbrs(self):
         ret = []

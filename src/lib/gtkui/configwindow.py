@@ -422,7 +422,7 @@ class ScriptPage:
         self.__m = GtkSource.LanguageManager()
         self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(self.__m.get_language("python"))
-        self.buffer.set_style_scheme(self.__sm.get_scheme("kate"))
+        self.buffer.set_style_scheme(self.__sm.get_scheme("classic"))
         self.editor.set_auto_indent(True)
         self.editor.set_smart_home_end(True)
         self.editor.set_insert_spaces_instead_of_tabs(True)
