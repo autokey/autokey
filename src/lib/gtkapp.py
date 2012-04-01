@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011 Chris Dekter
@@ -20,7 +19,15 @@ import common
 common.USING_QT = False
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
-import gettext, gtk, dbus, dbus.service, dbus.mainloop.glib
+import gettext, dbus, dbus.service, dbus.mainloop.glib
+
+#import gi.pygtkcompat
+
+#gi.pygtkcompat.enable() 
+#gi.pygtkcompat.enable_gtk(version='3.0')
+
+from gi.repository import Gtk, Gdk, GObject, GLib
+
 gettext.install("autokey")
 
 import service, monitor
@@ -43,7 +50,8 @@ class Application:
     """
     
     def __init__(self):
-        gtk.gdk.threads_init()
+        GLib.threads_init()
+        Gdk.threads_init()
         
         p = optparse.OptionParser()
         p.add_option("-l", "--verbose", help="Enable verbose logging", action="store_true", default=False)
@@ -112,7 +120,7 @@ class Application:
         return True
 
     def main(self):
-        gtk.main()
+        Gtk.main()
 
     def initialise(self, configure):
         logging.info("Initialising application")
@@ -224,9 +232,9 @@ class Application:
         logging.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()
-        gtk.gdk.threads_enter()
-        gtk.main_quit()
-        gtk.gdk.threads_leave()
+        Gdk.threads_enter()
+        Gtk.main_quit()
+        Gdk.threads_leave()
         os.remove(LOCK_FILE)
         logging.debug("All shutdown tasks complete... quitting")
             
@@ -253,9 +261,9 @@ class Application:
             self.configWindow.deiconify()
             
     def show_configure_async(self):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         self.show_configure()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
 
     def show_abbr_selector(self):
         """
@@ -267,19 +275,19 @@ class Application:
             self.abbrPopup.present()
             
     def show_abbr_async(self):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         self.show_abbr_selector()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
                 
     def main(self):
         logging.info("Entering main()")
-        gtk.main()
+        Gtk.main()
             
     def show_error_dialog(self, message, details=None):
         """
         Convenience method for showing an error dialog.
         """
-        dlg = gtk.MessageDialog(type=gtk.MESSAGE_ERROR, buttons=gtk.BUTTONS_OK,
+        dlg = Gtk.MessageDialog(type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
         if details is not None:
             dlg.format_secondary_text(details)
@@ -291,11 +299,11 @@ class Application:
         Show the last script error (if any)
         """
         if self.service.scriptRunner.error != '':
-            dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
         else:
-            dlg = gtk.MessageDialog(type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+            dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))
         
         dlg.set_title(_("View script error"))

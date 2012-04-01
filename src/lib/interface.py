@@ -39,7 +39,7 @@ import common
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
-    import gtk
+    from gi.repository import Gtk, Gdk
 
 logger = logging.getLogger("interface")
 
@@ -82,8 +82,8 @@ class XInterfaceBase(threading.Thread):
         if common.USING_QT:
             self.clipBoard = QApplication.clipboard()
         else:
-            self.clipBoard = gtk.Clipboard()
-            self.selection = gtk.Clipboard(selection="PRIMARY")
+            self.clipBoard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+            self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
 
         self.__initMappings()
 
@@ -97,7 +97,7 @@ class XInterfaceBase(threading.Thread):
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
         
         if not common.USING_QT:
-            self.keyMap = gtk.gdk.keymap_get_default()
+            self.keyMap = Gdk.Keymap.get_default()
             self.keyMap.connect("keys-changed", self.on_keys_changed)
         
         self.__ignoreRemap = False
@@ -515,9 +515,9 @@ class XInterfaceBase(threading.Thread):
             self.clipBoard.setText(string, QClipboard.Selection)
             self.sem.release()
         else:
-            gtk.gdk.threads_enter()
+            Gdk.threads_enter()
             self.selection.set_text(string.encode("utf-8"))
-            gtk.gdk.threads_leave()
+            Gdk.threads_leave()
 
     def __fillClipboard(self, string):
         if common.USING_QT:
@@ -525,9 +525,9 @@ class XInterfaceBase(threading.Thread):
             self.clipBoard.setText(string, QClipboard.Clipboard)
             self.sem.release()
         else:
-            gtk.gdk.threads_enter()
+            Gdk.threads_enter()
             self.clipBoard.set_text(string.encode("utf-8"))
-            gtk.gdk.threads_leave()
+            Gdk.threads_leave()
 
     def begin_send(self):
         self.__enqueue(self.__grab_keyboard)

@@ -1,7 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.6 -->
-  <!-- interface-naming-policy toplevel-contextual -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkAlignment" id="folderpage">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -16,6 +15,7 @@
         <child>
           <object class="GtkLinkButton" id="linkButton">
             <property name="label" translatable="yes">(Unsaved)</property>
+            <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
@@ -50,12 +50,13 @@
                     <child>
                       <object class="GtkCheckButton" id="showInTrayCheckbox">
                         <property name="label" translatable="yes">Show in notification icon menu</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
-                        <signal handler="on_modified" name="toggled" swapped="no"/>
+                        <signal name="toggled" handler="on_modified" swapped="no"/>
                       </object>
                       <packing>
                         <property name="expand">True</property>

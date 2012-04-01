@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.12 -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkDialog" id="hotkeysettings">
     <property name="can_focus">False</property>
     <property name="border_width">8</property>
@@ -24,6 +24,7 @@
             <child>
               <object class="GtkButton" id="cancelButton">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -40,6 +41,7 @@
             <child>
               <object class="GtkButton" id="okButton">
                 <property name="label">gtk-ok</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -76,6 +78,7 @@
                 <child>
                   <object class="GtkToggleButton" id="controlButton">
                     <property name="label" translatable="yes">Control</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -90,6 +93,7 @@
                 <child>
                   <object class="GtkToggleButton" id="altButton">
                     <property name="label" translatable="yes">Alt</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -104,6 +108,7 @@
                 <child>
                   <object class="GtkToggleButton" id="shiftButton">
                     <property name="label" translatable="yes">Shift</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -118,6 +123,7 @@
                 <child>
                   <object class="GtkToggleButton" id="superButton">
                     <property name="label" translatable="yes">Super</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -132,6 +138,7 @@
                 <child>
                   <object class="GtkToggleButton" id="hyperButton">
                     <property name="label" translatable="yes">Hyper</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>
@@ -140,7 +147,7 @@
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">True</property>
-                   <property name="position">4</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
               </object>
@@ -170,6 +177,7 @@
                 <child>
                   <object class="GtkButton" id="setButton">
                     <property name="label" translatable="yes">Press to Set</property>
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">False</property>

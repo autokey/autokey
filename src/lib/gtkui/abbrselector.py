@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtk
+from gi.repository import Gtk
 
 from autokey.configmanager import *
 import configwindow
@@ -33,14 +33,14 @@ class AbbrSelectorDialog:
         self.app = app
         self.abbreviations = self.service.configManager.abbreviations
         
-        self.completion = gtk.EntryCompletion()
+        self.completion = Gtk.EntryCompletion()
         self.entry.set_completion(self.completion)
         model = AbbreviationModel(self.abbreviations)
         self.completion.set_model(model)
         self.completion.set_text_column(0)
         
-        descriptionCell = gtk.CellRendererText()
-        self.completion.pack_start(descriptionCell)
+        descriptionCell = Gtk.CellRendererText()
+        self.completion.pack_start(descriptionCell, True, True, 0)
         self.completion.add_attribute(descriptionCell, "text", 1)
         self.completion.set_inline_completion(True)
         self.completion.set_inline_selection(True)
@@ -70,12 +70,12 @@ class AbbrSelectorDialog:
         return getattr(self.ui, attr)
     
     
-class AbbreviationModel(gtk.ListStore):
+class AbbreviationModel(Gtk.ListStore):
     
     OBJECT_COLUMN = 2
         
     def __init__(self, abbreviations):
-        gtk.ListStore.__init__(self, str, str, object)
+        GObject.GObject.__init__(self, str, str, object)
         
         for item in abbreviations:
             self.append((item.abbreviation, item.description, item))

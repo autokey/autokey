@@ -15,20 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtk, time, logging
-from autokey.configmanager import *
+import time, logging
+from gi.repository import Gtk
 
+from autokey.configmanager import *
 from autokey.model import Folder # TODO remove later
 
 _logger = logging.getLogger("phrase-menu")
 
-class PopupMenu(gtk.Menu):
+class PopupMenu(Gtk.Menu):
     """
     A popup menu that allows the user to select a phrase.
     """
 
     def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
-        gtk.Menu.__init__(self)
+        Gtk.Menu.__init__(self)
         #self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         self.__i = 1
         self.service = service
@@ -49,26 +50,26 @@ class PopupMenu(gtk.Menu):
             # Only one folder - create menu with just its folders and items
             self.add_title(folders[0].title)
             for folder in folders[0].folders:
-                menuItem = gtk.MenuItem(self.__getMnemonic(folder.title, onDesktop), False)
+                menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
                 menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, onDesktop))
                 menuItem.set_use_underline(True)
                 self.append(menuItem)
     
             if len(folders[0].folders) > 0:
-                self.append(gtk.SeparatorMenuItem())
+                self.append(Gtk.SeparatorMenuItem())
             
             self.__addItemsToSelf(folders[0].items, service, onDesktop)
         
         else:
             # Create phrase folder section
             for folder in folders:
-                menuItem = gtk.MenuItem(self.__getMnemonic(folder.title, onDesktop), False)
+                menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
                 menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
                 menuItem.set_use_underline(True)
                 self.append(menuItem)
     
             if len(folders) > 0:
-                self.append(gtk.SeparatorMenuItem())
+                self.append(Gtk.SeparatorMenuItem())
     
             self.__addItemsToSelf(items, service, onDesktop)
             
@@ -83,19 +84,19 @@ class PopupMenu(gtk.Menu):
             return desc        
 
     def show_on_desktop(self):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         time.sleep(0.2)
         self.popup(None, None, None, 1, 0)
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         
     def remove_from_desktop(self):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         self.popdown()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         
     def add_title(self, title):
-        titleItem = gtk.MenuItem()
-        button = gtk.Button(title)
+        titleItem = Gtk.MenuItem()
+        button = Gtk.Button(title)
         #button.set_sensitive(False)
         titleItem.add(button)
         titleItem.set_sensitive(False)
@@ -112,9 +113,9 @@ class PopupMenu(gtk.Menu):
         i = 1
         for item in items:
             #if onDesktop:
-            #    menuItem = gtk.MenuItem(item.get_description(service.lastStackState), False)
+            #    menuItem = Gtk.MenuItem(item.get_description(service.lastStackState), False)
             #else:
-            menuItem = gtk.MenuItem(self.__getMnemonic(item.description, onDesktop), False)
+            menuItem = Gtk.MenuItem(label=self.__getMnemonic(item.description, onDesktop))
             menuItem.connect("activate", self.__itemSelected, item)
             menuItem.set_use_underline(True)
             self.append(menuItem)
@@ -137,7 +138,7 @@ class MockExpansionService:
 
 
 if __name__ == "__main__":
-    gtk.gdk.threads_init()
+    Gdk.threads_init()
     
     myFolder = PhraseFolder("Some phrases")
     myFolder.add_phrase(MockPhrase("phrase 1"))
@@ -152,4 +153,4 @@ if __name__ == "__main__":
     menu = PhraseMenu(MockExpansionService(), [myFolder], myPhrases)
     menu.show_on_desktop()
     
-    gtk.main()
+    Gtk.main()

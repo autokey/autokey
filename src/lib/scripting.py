@@ -20,7 +20,7 @@ import common, model, iomediator
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
-    import gtk
+    from gi.repository import Gtk, Gdk
 
 class Keyboard:
     """
@@ -760,8 +760,8 @@ class GtkClipboard:
     """
     
     def __init__(self, app):
-        self.clipBoard = gtk.Clipboard()
-        self.selection = gtk.Clipboard(selection="PRIMARY")
+        self.clipBoard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
         self.app = app
         
     def fill_selection(self, contents):
@@ -776,9 +776,9 @@ class GtkClipboard:
         self.__fillSelection(contents)
         
     def __fillSelection(self, string):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         self.selection.set_text(string.encode("utf-8"))
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         #self.sem.release()
         
     def get_selection(self):
@@ -812,9 +812,9 @@ class GtkClipboard:
         self.__fillClipboard(contents)
         
     def __fillClipboard(self, string):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         self.clipBoard.set_text(string.encode("utf-8"))
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         #self.sem.release()        
         
     def get_clipboard(self):
@@ -835,9 +835,9 @@ class GtkClipboard:
         
     def __execAsync(self, callback, *args):
         self.sem = threading.Semaphore(0)
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         callback(*args)
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         self.sem.acquire()
 
         

@@ -1,7 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.6 -->
-  <!-- interface-naming-policy toplevel-contextual -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkAlignment" id="scriptpage">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -15,6 +14,7 @@
         <child>
           <object class="GtkLinkButton" id="linkButton">
             <property name="label" translatable="yes">(Unsaved)</property>
+            <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
@@ -32,8 +32,6 @@
           <object class="GtkScrolledWindow" id="scrolledWindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
             <property name="shadow_type">in</property>
             <child>
               <placeholder/>
@@ -65,32 +63,36 @@
                     <child>
                       <object class="GtkCheckButton" id="promptCheckbox">
                         <property name="label" translatable="yes">Always prompt before executing this script</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
+                        <property name="xalign">0</property>
                         <property name="draw_indicator">True</property>
-                        <signal handler="on_modified" name="toggled" swapped="no"/>
+                        <signal name="toggled" handler="on_modified" swapped="no"/>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkCheckButton" id="showInTrayCheckbox">
                         <property name="label" translatable="yes">Show in notification icon menu</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
+                        <property name="xalign">0</property>
                         <property name="draw_indicator">True</property>
-                        <signal handler="on_modified" name="toggled" swapped="no"/>
+                        <signal name="toggled" handler="on_modified" swapped="no"/>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
                         <property name="position">1</property>
                       </packing>
                     </child>

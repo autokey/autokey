@@ -19,7 +19,7 @@ if common.USING_QT:
             self.callback(self.macro)
 
 else:
-    import gtk
+    from gi.repository import Gtk
 
 class MacroManager:
     
@@ -37,10 +37,10 @@ class MacroManager:
                 menu.addAction(MacroAction(menu, macro, callback))
         
         else:
-            menu = gtk.Menu()
+            menu = Gtk.Menu()
 
             for macro in self.macros:
-                menuItem = gtk.MenuItem(macro.TITLE)
+                menuItem = Gtk.MenuItem(macro.TITLE)
                 menuItem.connect("activate", callback, macro)
                 menu.append(menuItem)
 

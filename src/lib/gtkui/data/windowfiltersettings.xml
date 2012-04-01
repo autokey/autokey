@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <!-- interface-requires gtk+ 2.10 -->
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkDialog" id="windowfiltersettings">
     <property name="can_focus">False</property>
     <property name="border_width">8</property>
@@ -23,6 +23,7 @@
             <child>
               <object class="GtkButton" id="cancelButton">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -39,6 +40,7 @@
             <child>
               <object class="GtkButton" id="okButton">
                 <property name="label">gtk-ok</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -99,6 +101,7 @@
             <child>
               <object class="GtkCheckButton" id="recursiveButton">
                 <property name="label" translatable="yes">Apply recursively to subfolders and items</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>

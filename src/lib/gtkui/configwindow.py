@@ -16,17 +16,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging, sys, os, webbrowser, re
-import gtk, gtk.glade, gtksourceview2, pango
+#import gtk, Gtk.glade, gtksourceview2, pango
+from gi.repository import Gtk, Pango, GtkSource, Gdk
 
-import gettext
+#import gettext
 import locale
 
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-for module in gtk.glade, gettext:
-    module.bindtextdomain(GETTEXT_DOMAIN)
-    module.textdomain(GETTEXT_DOMAIN)
+#for module in Gtk.glade, gettext:
+#    module.bindtextdomain(GETTEXT_DOMAIN)
+#    module.textdomain(GETTEXT_DOMAIN)
 
 
 from dialogs import *
@@ -45,7 +46,7 @@ PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
 def get_ui(fileName):
-    builder = gtk.Builder()
+    builder = Gtk.Builder()
     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
     builder.add_from_file(uiFile)
     return builder
@@ -61,7 +62,7 @@ def set_linkbutton(button, path):
     button.set_label(text)
     button.set_uri("file://" + path)
     label = button.get_child()
-    label.set_ellipsize(pango.ELLIPSIZE_START)
+    label.set_ellipsize(Pango.EllipsizeMode.START)
     
     
 class RenameDialog:
@@ -92,7 +93,7 @@ class RenameDialog:
         return self.checkButton.get_active()
     
     def set_image(self, stockId):
-        self.image.set_from_stock(stockId, gtk.ICON_SIZE_DIALOG)
+        self.image.set_from_stock(stockId, Gtk.IconSize.DIALOG)
         
     def __getattr__(self, attr):
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
@@ -232,7 +233,7 @@ class SettingsWidget:
         self.abbrDialog.run()
          
     def on_abbr_response(self, res):
-        if res == gtk.RESPONSE_OK:
+        if res == Gtk.ResponseType.OK:
             self.set_dirty()
             self.abbrEnabled = True
             self.abbrLabel.set_text(self.abbrDialog.get_abbrs_readable())
@@ -249,7 +250,7 @@ class SettingsWidget:
         self.hotkeyDialog.run()
         
     def on_hotkey_response(self, res):
-        if res == gtk.RESPONSE_OK:
+        if res == Gtk.ResponseType.OK:
             self.set_dirty()
             self.hotkeyEnabled = True
             key = self.hotkeyDialog.key
@@ -266,7 +267,7 @@ class SettingsWidget:
 
     def on_setFilterButton_clicked(self, widget, data=None):
         self.filterDialog.reset_focus()
-        if self.filterDialog.run() == gtk.RESPONSE_OK:
+        if self.filterDialog.run() == Gtk.ResponseType.OK:
             self.set_dirty()
             filterText = self.filterDialog.get_filter_text()
             if filterText != "":
@@ -336,11 +337,11 @@ class FolderPage:
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
         label = self.linkButton.get_child()
-        label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
+        label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
         
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
-        vbox.pack_start(self.settingsWidget.ui)
+        vbox.pack_start(self.settingsWidget.ui, True, True, 0)
         
     def load(self, theFolder):
         self.currentFolder = theFolder
@@ -379,8 +380,8 @@ class FolderPage:
         
         if errors:
             msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
-            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
-                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg = Gtk.MessageDialog(self.parentWindow.ui, Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                                     Gtk.ButtonsType.OK, PROBLEM_MSG_PRIMARY)
             dlg.format_secondary_text(msg)
             dlg.run()
             dlg.destroy()
@@ -402,24 +403,24 @@ class ScriptPage:
         self.ui = builder.get_object("scriptpage")
         builder.connect_signals(self)
         
-        self.buffer = gtksourceview2.Buffer()
+        self.buffer = GtkSource.Buffer()
         self.buffer.connect("changed", self.on_modified)
-        self.editor = gtksourceview2.View(self.buffer)
+        self.editor = GtkSource.View.new_with_buffer(self.buffer)
         scrolledWindow = builder.get_object("scrolledWindow")
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
         label = self.linkButton.get_child()
-        label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
+        label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
-        vbox.pack_start(self.settingsWidget.ui)
+        vbox.pack_start(self.settingsWidget.ui, False, False, 0)
         
         # Configure script editor
-        self.__m = gtksourceview2.LanguageManager()
-        self.__sm = gtksourceview2.StyleSchemeManager()
+        self.__m = GtkSource.LanguageManager()
+        self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(self.__m.get_language("python"))
         self.buffer.set_style_scheme(self.__sm.get_scheme("kate"))
         self.editor.set_auto_indent(True)
@@ -487,8 +488,8 @@ class ScriptPage:
         
         if errors:
             msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
-            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
-                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg = Gtk.MessageDialog(self.parentWindow.ui, Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                                     Gtk.ButtonsType.OK, PROBLEM_MSG_PRIMARY)
             dlg.format_secondary_text(msg)
             dlg.run()
             dlg.destroy()
@@ -545,23 +546,23 @@ class PhrasePage(ScriptPage):
         self.ui = builder.get_object("phrasepage")
         builder.connect_signals(self)
         
-        self.buffer = gtksourceview2.Buffer()
+        self.buffer = GtkSource.Buffer()
         self.buffer.connect("changed", self.on_modified)
-        self.editor = gtksourceview2.View(self.buffer)
+        self.editor = GtkSource.View.new_with_buffer(self.buffer)
         scrolledWindow = builder.get_object("scrolledWindow")
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
-        self.sendModeCombo = gtk.combo_box_new_text()
+        self.sendModeCombo = Gtk.ComboBoxText()
         self.sendModeCombo.connect("changed", self.on_modified)
         sendModeHbox = builder.get_object("sendModeHbox")
-        sendModeHbox.pack_start(self.sendModeCombo, False, False)
+        sendModeHbox.pack_start(self.sendModeCombo, False, False, 0)
         
         self.linkButton = builder.get_object("linkButton")
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
-        vbox.pack_start(self.settingsWidget.ui)
+        vbox.pack_start(self.settingsWidget.ui, False, False, 0)
 
         # Populate combo
         l = model.SEND_MODES.keys()
@@ -570,8 +571,8 @@ class PhrasePage(ScriptPage):
             self.sendModeCombo.append_text(val)
         
         # Configure script editor
-        #self.__m = gtksourceview2.LanguageManager()
-        self.__sm = gtksourceview2.StyleSchemeManager()
+        #self.__m = GtkSource.LanguageManager()
+        self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(None)
         self.buffer.set_style_scheme(self.__sm.get_scheme("kate"))
         self.buffer.set_highlight_matching_brackets(False)
@@ -637,8 +638,8 @@ class PhrasePage(ScriptPage):
         
         if errors:
             msg = PROBLEM_MSG_SECONDARY % '\n'.join(errors)
-            dlg = gtk.MessageDialog(self.parentWindow.ui, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_ERROR,
-                                     gtk.BUTTONS_OK, PROBLEM_MSG_PRIMARY)
+            dlg = Gtk.MessageDialog(self.parentWindow.ui, Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.ERROR,
+                                     Gtk.ButtonsType.OK, PROBLEM_MSG_PRIMARY)
             dlg.format_secondary_text(msg)
             dlg.run()
             dlg.destroy()
@@ -658,65 +659,65 @@ class ConfigWindow:
         self.ui.set_title(CONFIG_WINDOW_TITLE)
         
         # Menus and Actions
-        self.uiManager = gtk.UIManager()
+        self.uiManager = Gtk.UIManager()
         self.add_accel_group(self.uiManager.get_accel_group())
         
         # Menu Bar
-        actionGroup = gtk.ActionGroup("menu")
+        actionGroup = Gtk.ActionGroup("menu")
         actions = [
                 ("File", None, _("_File")),
                 ("create", None, _("Create...")),
                 ("new-top-folder", "folder-new", _("_New Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
                 ("new-folder", "folder-new", _("New Sub_folder"), "", _("Create a new folder in the current folder"), self.on_new_folder),
-                ("new-phrase", gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
-                ("new-script", gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
-                ("save", gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
-                ("revert", gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
-                ("close-window", gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
-                ("quit", gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
+                ("new-phrase", Gtk.STOCK_NEW, _("New _Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
+                ("new-script", Gtk.STOCK_NEW, _("New _Script"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
+                ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
+                ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
+                ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
+                ("quit", Gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
                 ("Edit", None, _("_Edit")),
-                ("cut-item", gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
-                ("copy-item", gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
-                ("paste-item", gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
-                ("clone-item", gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
-                ("delete-item", gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
+                ("cut-item", Gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
+                ("copy-item", Gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
+                ("paste-item", Gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
+                ("clone-item", Gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
+                ("delete-item", Gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
                 ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
-                ("undo", gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
-                ("redo", gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
+                ("undo", Gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
+                ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
                 ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
-                ("preferences", gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
+                ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
                 ("View", None, _("_View")),
-                ("script-error", gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
+                ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
                 #("Settings", None, _("_Settings"), None, None, None),
-                #("advanced", gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
+                #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
                 ("Help", None, _("_Help")),
                 ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
-                ("help", gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
+                ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
                 ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
-                ("donate", gtk.STOCK_YES, _("Donate"), "", _("Make a Donation"), self.on_donate),
+                ("donate", Gtk.STOCK_YES, _("Donate"), "", _("Make a Donation"), self.on_donate),
                 ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
-                ("about", gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about)
+                ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about)
                 ]
         actionGroup.add_actions(actions)
         
         toggleActions = [
                          #("enable-monitoring", None, _("_Enable Monitoring"), None, _("Toggle monitoring on/off"), self.on_enable_toggled),
                          ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", gtk.STOCK_MEDIA_RECORD, _("R_ecord Script"), None, _("Record a keyboard/mouse script"), self.on_record_keystrokes),
+                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord Script"), None, _("Record a keyboard/mouse script"), self.on_record_keystrokes),
                          ]
         actionGroup.add_toggle_actions(toggleActions)
                 
         self.uiManager.insert_action_group(actionGroup, 0)
         self.uiManager.add_ui_from_file(UI_DESCRIPTION_FILE)
         self.vbox = builder.get_object("vbox")
-        self.vbox.pack_end(self.uiManager.get_widget("/MenuBar"), False, False)
+        self.vbox.pack_end(self.uiManager.get_widget("/MenuBar"), False, False, 0)
         
         # Macro menu
         menu = self.app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro)
         self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
         
         # Toolbar 'create' button 
-        create = gtk.MenuToolButton(gtk.STOCK_NEW)
+        create = Gtk.MenuToolButton(Gtk.STOCK_NEW)
         create.show()
         menu = self.uiManager.get_widget('/NewDropdown')
         create.set_menu(menu)
@@ -735,7 +736,7 @@ class ConfigWindow:
         self.uiManager.get_widget("/Toolbar/save").set_is_important(True)
         self.uiManager.get_widget("/Toolbar/undo").set_is_important(True)
         
-        rootIter = self.treeView.get_model().get_iter_root()        
+        rootIter = self.treeView.get_model().get_iter_first()        
         if rootIter is not None:
             self.treeView.get_selection().select_iter(rootIter)
 
@@ -751,7 +752,7 @@ class ConfigWindow:
         
     def __addToolbar(self):
         toolbar = self.uiManager.get_widget('/Toolbar')
-        self.vbox.pack_end(toolbar, False, False)
+        self.vbox.pack_end(toolbar, False, False, 0)
         self.vbox.reorder_child(toolbar, 1)
         
     def cancel_record(self):
@@ -769,15 +770,15 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
         
     def config_modified(self):
-        gtk.gdk.threads_enter()
+        Gdk.threads_enter()
         msg = _("Changes made in other programs will not be displayed until you\
  close and reopen the AutoKey window.")
-        dlg = gtk.MessageDialog(self.ui, type=gtk.MESSAGE_QUESTION, buttons=gtk.BUTTONS_OK,
+        dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
                                message_format= _("Configuration has been changed on disk."))
         dlg.format_secondary_text(msg)
         
         #if self.dirty:
-        #    checkButton = gtk.CheckButton(_("Save changes before reloading (this may overwrite changes from other programs)"))    
+        #    checkButton = Gtk.CheckButton(_("Save changes before reloading (this may overwrite changes from other programs)"))    
         #    box = dlg.get_content_area()
         #    box.pack_end(checkButton)
             
@@ -787,11 +788,11 @@ class ConfigWindow:
         #            self.on_save()
             
         #    dlg.destroy()
-        #    gtk.gdk.threads_leave()
+        #    Gdk.threads_leave()
         #    return True
                     
         dlg.destroy()
-        gtk.gdk.threads_leave()
+        Gdk.threads_leave()
         #return False
         
     def update_actions(self, items, changed):
@@ -891,19 +892,19 @@ class ConfigWindow:
     # File Menu
     
     def on_new_topfolder(self, widget, data=None):
-        dlg = gtk.FileChooserDialog(_("Create New Folder"), self.ui)
-        dlg.set_action(gtk.FILE_CHOOSER_ACTION_CREATE_FOLDER)
+        dlg = Gtk.FileChooserDialog(_("Create New Folder"), self.ui)
+        dlg.set_action(Gtk.FileChooserAction.CREATE_FOLDER)
         dlg.set_local_only(True)
-        dlg.add_buttons(_("Use Default"), gtk.RESPONSE_NONE, gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, gtk.STOCK_OK, gtk.RESPONSE_OK)
+        dlg.add_buttons(_("Use Default"), Gtk.ResponseType.NONE, Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL, Gtk.STOCK_OK, Gtk.ResponseType.OK)
         
         response = dlg.run()
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             path = dlg.get_filename()
             self.__createFolder(os.path.basename(path), None, path)
             self.app.monitor.add_watch(path)
             dlg.destroy()
             self.app.config_altered(True)
-        elif response == gtk.RESPONSE_NONE:
+        elif response == Gtk.ResponseType.NONE:
             dlg.destroy()
             name = self.__getNewItemName("Folder")
             self.__createFolder(name, None)
@@ -943,7 +944,7 @@ class ConfigWindow:
             
     def __getNewItemName(self, itemType):
         dlg = RenameDialog(self.ui, "New %s" % itemType, True, _("Create New %s") % itemType)
-        dlg.set_image(gtk.STOCK_NEW)
+        dlg.set_image(Gtk.STOCK_NEW)
                 
         if dlg.run() == 1:
             newText = dlg.get_name()
@@ -998,7 +999,7 @@ class ConfigWindow:
         model, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(gtk.TreeRowReference(model, path))
+            refs.append(Gtk.TreeRowReference(model, path))
             
         for ref in refs:
             if ref.valid():
@@ -1006,7 +1007,7 @@ class ConfigWindow:
                 
         if len(selectedPaths) > 1:
             self.treeView.get_selection().unselect_all()        
-            self.treeView.get_selection().select_iter(model.get_iter_root())
+            self.treeView.get_selection().select_iter(model.get_iter_first())
             self.on_tree_selection_changed(self.treeView)
             
         self.app.config_altered(True)    
@@ -1070,7 +1071,7 @@ class ConfigWindow:
         theModel, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(gtk.TreeRowReference(theModel, path))
+            refs.append(Gtk.TreeRowReference(theModel, path))
 
         modified = False
         
@@ -1084,9 +1085,9 @@ class ConfigWindow:
         else:
             msg = _("Are you sure you want to delete the %d selected items?") % len(refs)
             
-        dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO, msg)
+        dlg = Gtk.MessageDialog(self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO, msg)
         dlg.set_title(_("Delete"))
-        if dlg.run() == gtk.RESPONSE_YES:
+        if dlg.run() == Gtk.ResponseType.YES:
             self.app.monitor.suspend()
             for ref in refs:
                 if ref.valid():
@@ -1101,7 +1102,7 @@ class ConfigWindow:
         if modified: 
             if len(selectedPaths) > 1:
                 self.treeView.get_selection().unselect_all()
-                self.treeView.get_selection().select_iter(theModel.get_iter_root())
+                self.treeView.get_selection().select_iter(theModel.get_iter_first())
                 self.on_tree_selection_changed(self.treeView)
             
             self.app.config_altered(True)
@@ -1158,11 +1159,11 @@ class ConfigWindow:
             self.recorder.stop()
             
     def on_rec_response(self, response, recKb, recMouse, delay):
-        if response == gtk.RESPONSE_OK:
+        if response == Gtk.ResponseType.OK:
             self.recorder.set_record_keyboard(recKb)
             self.recorder.set_record_mouse(recMouse)
             self.recorder.start(delay)
-        elif response == gtk.RESPONSE_CANCEL:
+        elif response == Gtk.ResponseType.CANCEL:
             self.uiManager.get_widget("/MenuBar/Edit/record").set_active(False)
         
     # View Menu
@@ -1208,11 +1209,11 @@ class ConfigWindow:
         webbrowser.open(common.BUG_URL, False, True)
         
     def on_show_about(self, widget, data=None):
-        dlg = gtk.AboutDialog()
+        dlg = Gtk.AboutDialog()
         dlg.set_name("AutoKey")
         dlg.set_comments(_("A desktop automation utility for Linux and X11."))
         dlg.set_version(common.VERSION)
-        p = gtk.icon_theme_get_default().load_icon(common.ICON_FILE, 100, 0)
+        p = Gtk.IconTheme.get_default().load_icon(common.ICON_FILE, 100, 0)
         dlg.set_logo(p)
         dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
@@ -1236,7 +1237,7 @@ class ConfigWindow:
             oldName = selectedObject.description
         
         dlg = RenameDialog(self.ui, oldName, False)
-        dlg.set_image(gtk.STOCK_EDIT)
+        dlg.set_image(Gtk.STOCK_EDIT)
                 
         if dlg.run() == 1:
             newText = dlg.get_name()
@@ -1369,7 +1370,7 @@ class ConfigWindow:
             theModel, sourcePaths = selection.get_selected_rows()
             path, position = drop_info
             
-            if position not in (gtk.TREE_VIEW_DROP_INTO_OR_BEFORE, gtk.TREE_VIEW_DROP_INTO_OR_AFTER):
+            if position not in (Gtk.TreeViewDropPosition.INTO_OR_BEFORE, Gtk.TreeViewDropPosition.INTO_OR_AFTER):
                 return True
             
             targetIter = theModel.get_iter(path)
@@ -1406,15 +1407,15 @@ class ConfigWindow:
         self.treeView.set_headers_visible(True)
         self.treeView.set_reorderable(False)
         self.treeView.set_rubber_banding(True)
-        targets = [('MY_TREE_MODEL_ROW', gtk.TARGET_SAME_WIDGET, 0)]
-        self.treeView.enable_model_drag_source(gtk.gdk.BUTTON1_MASK, targets, gtk.gdk.ACTION_DEFAULT|gtk.gdk.ACTION_MOVE)
-        self.treeView.enable_model_drag_dest(targets, gtk.gdk.ACTION_DEFAULT)
-        self.treeView.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        targets = [('MY_TREE_MODEL_ROW', Gtk.TargetFlags.SAME_WIDGET, 0)]
+        self.treeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, targets, Gdk.DragAction.DEFAULT|Gdk.DragAction.MOVE)
+        self.treeView.enable_model_drag_dest(targets, Gdk.DragAction.DEFAULT)
+        self.treeView.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
         
         # Treeview columns
-        column1 = gtk.TreeViewColumn(_("Name"))
-        iconRenderer = gtk.CellRendererPixbuf()
-        textRenderer = gtk.CellRendererText()
+        column1 = Gtk.TreeViewColumn(_("Name"))
+        iconRenderer = Gtk.CellRendererPixbuf()
+        textRenderer = Gtk.CellRendererText()
         #textRenderer.set_property("editable", True)
         #textRenderer.connect("edited", self.on_cell_modified)
         column1.pack_start(iconRenderer, False)
@@ -1425,8 +1426,8 @@ class ConfigWindow:
         column1.set_min_width(150)
         self.treeView.append_column(column1)
 
-        column2 = gtk.TreeViewColumn(_("Abbr."))
-        textRenderer = gtk.CellRendererText()
+        column2 = Gtk.TreeViewColumn(_("Abbr."))
+        textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", False)
         column2.pack_start(textRenderer, True)
         column2.add_attribute(textRenderer, "text", 2)
@@ -1434,8 +1435,8 @@ class ConfigWindow:
         column2.set_min_width(50)
         self.treeView.append_column(column2)
         
-        column3 = gtk.TreeViewColumn(_("Hotkey"))
-        textRenderer = gtk.CellRendererText()
+        column3 = Gtk.TreeViewColumn(_("Hotkey"))
+        textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", False)
         column3.pack_start(textRenderer, True)
         column3.add_attribute(textRenderer, "text", 3)
@@ -1469,10 +1470,10 @@ class ConfigWindow:
         self.folderPage = FolderPage(self)
         self.phrasePage = PhrasePage(self)
         self.scriptPage = ScriptPage(self)
-        self.stack.append_page(self.blankPage.ui)
-        self.stack.append_page(self.folderPage.ui)
-        self.stack.append_page(self.phrasePage.ui)
-        self.stack.append_page(self.scriptPage.ui)
+        self.stack.append_page(self.blankPage.ui, None)
+        self.stack.append_page(self.folderPage.ui, None)
+        self.stack.append_page(self.phrasePage.ui, None)
+        self.stack.append_page(self.scriptPage.ui, None)
         
     def promptToSave(self):
         selectedObject = self.__getTreeSelection()
@@ -1482,15 +1483,15 @@ class ConfigWindow:
  
         if self.dirty:
             if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
-                dlg = gtk.MessageDialog(self.ui, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION, gtk.BUTTONS_YES_NO,
+                dlg = Gtk.MessageDialog(self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
                                         _("There are unsaved changes. Would you like to save them?"))
-                dlg.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
+                dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
                 response = dlg.run()
                  
-                if response == gtk.RESPONSE_YES:
+                if response == Gtk.ResponseType.YES:
                     self.on_save(None)
                     
-                elif response == gtk.RESPONSE_CANCEL:
+                elif response == Gtk.ResponseType.CANCEL:
                     result = True
                 
                 dlg.destroy()
@@ -1512,12 +1513,12 @@ class ConfigWindow:
             return None
 
 
-class AkTreeModel(gtk.TreeStore):
+class AkTreeModel(Gtk.TreeStore):
     
     OBJECT_COLUMN = 4
     
     def __init__(self, folders):
-        gtk.TreeStore.__init__(self, str, str, str, str, object)
+        Gtk.TreeStore.__init__(self, str, str, str, str, object)
         
         for folder in folders:
             iter = self.append(None, folder.get_tuple())
@@ -1525,7 +1526,7 @@ class AkTreeModel(gtk.TreeStore):
             
         self.folders = folders
         self.set_sort_func(AkTreeModel.OBJECT_COLUMN, self.compare)
-        self.set_sort_column_id(AkTreeModel.OBJECT_COLUMN, gtk.SORT_ASCENDING)
+        self.set_sort_column_id(AkTreeModel.OBJECT_COLUMN, Gtk.SortType.ASCENDING)
 
     def populate_store(self, parent, parentFolder):
         for folder in parentFolder.folders:
@@ -1571,7 +1572,7 @@ class AkTreeModel(gtk.TreeStore):
                 updateList.append(itemTuple[n])
             self.set(targetIter, *updateList)
         
-    def compare(self, theModel, iter1, iter2):
+    def compare(self, theModel, iter1, iter2, data=None):
         item1 = theModel.get_value(iter1, AkTreeModel.OBJECT_COLUMN)
         item2 = theModel.get_value(iter2, AkTreeModel.OBJECT_COLUMN)
         
@@ -1581,3 +1582,4 @@ class AkTreeModel(gtk.TreeStore):
             return 1
         else:
             return cmp(str(item1), str(item2))
+

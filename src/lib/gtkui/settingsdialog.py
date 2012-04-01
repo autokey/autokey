@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gtk, shutil, os, sys
+import shutil, os, sys
+from gi.repository import Gtk
 
 from autokey.configmanager import *
 from autokey import iomediator, interface, model, common
@@ -54,9 +55,9 @@ class SettingsDialog:
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
         
-        self.iconStyleCombo = gtk.combo_box_new_text()
+        self.iconStyleCombo = Gtk.ComboBoxText()
         hbox = builder.get_object("hbox4")
-        hbox.pack_start(self.iconStyleCombo, False)
+        hbox.pack_start(self.iconStyleCombo, False, True, 0)
         hbox.show_all()
         
         for key, value in ICON_NAME_MAP.items():
@@ -211,7 +212,7 @@ class SettingsDialog:
         self.showConfigDlg.run()
          
     def on_config_response(self, res):
-        if res == gtk.RESPONSE_OK:
+        if res == Gtk.ResponseType.OK:
             self.useConfigHotkey = True
             key = self.showConfigDlg.key
             modifiers = self.showConfigDlg.build_modifiers()
@@ -228,7 +229,7 @@ class SettingsDialog:
         self.toggleMonitorDlg.run()
         
     def on_monitor_response(self, res):
-        if res == gtk.RESPONSE_OK:
+        if res == Gtk.ResponseType.OK:
             self.useServiceHotkey = True
             key = self.toggleMonitorDlg.key
             modifiers = self.toggleMonitorDlg.build_modifiers()
@@ -245,7 +246,7 @@ class SettingsDialog:
         self.showPopupDlg.run()
         
     def on_popup_response(self, res):
-        if res == gtk.RESPONSE_OK:
+        if res == Gtk.ResponseType.OK:
             self.usePopupHotkey = True
             key = self.showPopupDlg.key
             modifiers = self.showPopupDlg.build_modifiers()

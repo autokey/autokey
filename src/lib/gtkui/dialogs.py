@@ -16,17 +16,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging, sys, os, re
-import gtk, gtk.glade
+#import gtk, Gtk.glade
+from gi.repository import Gtk
 
-import gettext
+#import gettext
 import locale
 
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-for module in gtk.glade, gettext:
-    module.bindtextdomain(GETTEXT_DOMAIN)
-    module.textdomain(GETTEXT_DOMAIN)
+#for module in Gtk.glade, gettext:
+#    module.bindtextdomain(GETTEXT_DOMAIN)
+#    module.textdomain(GETTEXT_DOMAIN)
 
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
@@ -45,8 +46,8 @@ EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
 def validate(expression, message, widget, parent):
     if not expression:
-        dlg = gtk.MessageDialog(parent, gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, gtk.MESSAGE_WARNING,
-                                 gtk.BUTTONS_OK, message)
+        dlg = Gtk.MessageDialog(parent, Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING,
+                                 Gtk.ButtonsType.OK, message)
         dlg.run()
         dlg.destroy()
         if widget is not None:
@@ -62,16 +63,16 @@ class DialogBase:
 
     def on_close(self, widget, data=None):
         self.hide()
-        return gtk.TRUE    
+        return True    
 
     def on_cancel(self, widget, data=None):
         self.load(self.targetItem)
-        self.ui.response(gtk.RESPONSE_CANCEL)
+        self.ui.response(Gtk.ResponseType.CANCEL)
         self.hide()
         
     def on_ok(self, widget, data=None):
         if self.valid():
-            self.response(gtk.RESPONSE_OK)
+            self.response(Gtk.ResponseType.OK)
             self.hide()
         
     def __getattr__(self, attr):
@@ -110,17 +111,17 @@ class AbbrSettingsDialog(DialogBase):
         DialogBase.__init__(self)
         
         # set up list view
-        store = gtk.ListStore(str)
+        store = Gtk.ListStore(str)
         self.abbrList.set_model(store)
         
-        column1 = gtk.TreeViewColumn(_("Abbreviations"))
-        textRenderer = gtk.CellRendererText()
+        column1 = Gtk.TreeViewColumn(_("Abbreviations"))
+        textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", True)
         textRenderer.connect("edited", self.on_cell_modified)
         textRenderer.connect("editing-canceled", self.on_cell_editing_cancelled)
         column1.pack_end(textRenderer, True)
         column1.add_attribute(textRenderer, "text", 0)
-        column1.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        column1.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
         self.abbrList.append_column(column1)
         
         #for item in WORD_CHAR_OPTIONS_ORDERED:
@@ -529,7 +530,7 @@ class RecordDialog(DialogBase):
         self.closure(responseId, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
         
     def on_cancel(self, widget, data=None):
-        self.ui.response(gtk.RESPONSE_CANCEL)
+        self.ui.response(Gtk.ResponseType.CANCEL)
         self.hide()
             
     def valid(self):

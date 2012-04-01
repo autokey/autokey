@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gtk+ 3.0 -->
   <object class="GtkDialog" id="settingsdialog">
     <property name="can_focus">False</property>
     <property name="border_width">8</property>
@@ -22,6 +22,7 @@
             <child>
               <object class="GtkButton" id="button1">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -38,6 +39,7 @@
             <child>
               <object class="GtkButton" id="button2">
                 <property name="label">gtk-ok</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -71,7 +73,7 @@
                 <property name="can_focus">False</property>
                 <property name="yalign">0</property>
                 <property name="yscale">0</property>
-                <property name="top_padding">5</property>
+                <property name="top_padding">10</property>
                 <property name="bottom_padding">5</property>
                 <property name="left_padding">5</property>
                 <property name="right_padding">5</property>
@@ -98,6 +100,7 @@
                                 <child>
                                   <object class="GtkCheckButton" id="autoStartCheckbox">
                                     <property name="label" translatable="yes">Automatically start AutoKey at login</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -113,6 +116,7 @@
                                 <child>
                                   <object class="GtkCheckButton" id="promptToSaveCheckbox">
                                     <property name="label" translatable="yes">Prompt for unsaved changes</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -128,6 +132,7 @@
                                 <child>
                                   <object class="GtkCheckButton" id="showTrayCheckbox">
                                     <property name="label" translatable="yes">Show a notification icon</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -202,6 +207,7 @@
                                 <child>
                                   <object class="GtkCheckButton" id="allowKbNavCheckbox">
                                     <property name="label" translatable="yes">Allow keyboard navigation of popup menu</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -217,6 +223,7 @@
                                 <child>
                                   <object class="GtkCheckButton" id="sortByUsageCheckbox">
                                     <property name="label" translatable="yes">Sort menu items with most frequently used first</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -262,6 +269,7 @@
                             <child>
                               <object class="GtkCheckButton" id="enableUndoCheckbox">
                                 <property name="label" translatable="yes">Enable undo by pressing backspace</property>
+                                <property name="use_action_appearance">False</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
@@ -306,7 +314,7 @@
                 <property name="can_focus">False</property>
                 <property name="yalign">0</property>
                 <property name="yscale">0</property>
-                <property name="top_padding">5</property>
+                <property name="top_padding">10</property>
                 <property name="bottom_padding">5</property>
                 <property name="left_padding">5</property>
                 <property name="right_padding">5</property>
@@ -362,6 +370,7 @@
                                 <child>
                                   <object class="GtkButton" id="setMonitorButton">
                                     <property name="label" translatable="yes">Set</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -378,6 +387,7 @@
                                 <child>
                                   <object class="GtkButton" id="clearMonitorButton">
                                     <property name="label">gtk-clear</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -458,6 +468,7 @@
                                 <child>
                                   <object class="GtkButton" id="setConfigButton">
                                     <property name="label" translatable="yes">Set</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -474,6 +485,7 @@
                                 <child>
                                   <object class="GtkButton" id="clearConfigButton">
                                     <property name="label">gtk-clear</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -554,6 +566,7 @@
                                 <child>
                                   <object class="GtkButton" id="setPopupButton">
                                     <property name="label" translatable="yes">Set</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -570,6 +583,7 @@
                                 <child>
                                   <object class="GtkButton" id="clearPopupButton">
                                     <property name="label">gtk-clear</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="width_request">80</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -625,7 +639,7 @@
               <object class="GtkAlignment" id="alignment2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="top_padding">5</property>
+                <property name="top_padding">10</property>
                 <property name="bottom_padding">5</property>
                 <property name="left_padding">5</property>
                 <property name="right_padding">5</property>
@@ -708,7 +722,7 @@ import by scripts.</property>
                 <property name="can_focus">False</property>
                 <property name="yalign">0</property>
                 <property name="yscale">0</property>
-                <property name="top_padding">5</property>
+                <property name="top_padding">10</property>
                 <property name="bottom_padding">5</property>
                 <property name="left_padding">5</property>
                 <property name="right_padding">5</property>
@@ -756,6 +770,7 @@ it to take effect.</property>
                                 <child>
                                   <object class="GtkRadioButton" id="xRecordButton">
                                     <property name="label" translatable="yes">X Record - for X.org server v1.5 or v1.7.6 and above</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -773,6 +788,7 @@ it to take effect.</property>
                                 <child>
                                   <object class="GtkRadioButton" id="xEvdevButton">
                                     <property name="label" translatable="yes">X EvDev - for X.org server from v1.6 to v1.7.5</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -789,6 +805,7 @@ it to take effect.</property>
                                 <child>
                                   <object class="GtkRadioButton" id="atspiButton">
                                     <property name="label" translatable="yes">AT-SPI - fallback option for Gnome users</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -837,6 +854,7 @@ it to take effect.</property>
                     <child>
                       <object class="GtkCheckButton" id="checkBox">
                         <property name="label" translatable="yes">Enable QT4 workaround</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
                         <property name="use_action_appearance">False</property>
