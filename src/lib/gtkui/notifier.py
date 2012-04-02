@@ -19,16 +19,16 @@
 from gi.repository import Gtk, Notify
 import gettext
 
-import popupmenu, abbrselector
+import popupmenu
 from autokey.configmanager import *
 from autokey import common
 
 HAVE_APPINDICATOR = False
-try:
-    import appindicator
-    HAVE_APPINDICATOR = True
-except ImportError:
-    pass
+#try:
+#    import appindicator
+#    HAVE_APPINDICATOR = True
+#except ImportError:
+#    pass
 
 gettext.install("autokey")
 
