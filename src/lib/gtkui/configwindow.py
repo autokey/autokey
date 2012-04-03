@@ -1421,9 +1421,11 @@ class ConfigWindow:
         self.treeView.set_headers_visible(True)
         self.treeView.set_reorderable(False)
         self.treeView.set_rubber_banding(True)
-        targets = [('MY_TREE_MODEL_ROW', Gtk.TargetFlags.SAME_WIDGET, 0)]
+        targets = []
         self.treeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, targets, Gdk.DragAction.DEFAULT|Gdk.DragAction.MOVE)
         self.treeView.enable_model_drag_dest(targets, Gdk.DragAction.DEFAULT)
+        self.treeView.drag_source_add_text_targets()
+        self.treeView.drag_dest_add_text_targets()
         self.treeView.get_selection().set_mode(Gtk.SelectionMode.MULTIPLE)
         
         # Treeview columns
