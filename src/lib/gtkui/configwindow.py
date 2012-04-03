@@ -17,7 +17,7 @@
 
 import logging, sys, os, webbrowser, re, time
 #import gtk, Gtk.glade, gtksourceview2, pango
-from gi.repository import Gtk, Pango, GtkSource, Gdk
+from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 
 #import gettext
 import locale
@@ -408,6 +408,12 @@ class ScriptPage:
         self.editor = GtkSource.View.new_with_buffer(self.buffer)
         scrolledWindow = builder.get_object("scrolledWindow")
         scrolledWindow.add(self.editor)
+        
+        # Editor font
+        settings = Gio.Settings.new("org.gnome.desktop.interface")
+        fontDesc = Pango.font_description_from_string(settings.get_string("monospace-font-name"))
+        self.editor.modify_font(fontDesc)
+        
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
