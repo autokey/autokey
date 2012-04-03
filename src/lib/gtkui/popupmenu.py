@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time, logging
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 from autokey.configmanager import *
 from autokey.model import Folder # TODO remove later
@@ -86,7 +86,7 @@ class PopupMenu(Gtk.Menu):
     def show_on_desktop(self):
         Gdk.threads_enter()
         time.sleep(0.2)
-        self.popup(None, None, None, 1, 0)
+        self.popup(None, None, None, None, 1, 0)
         Gdk.threads_leave()
         
     def remove_from_desktop(self):

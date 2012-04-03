@@ -726,6 +726,7 @@ class ConfigWindow:
         toolbar = self.uiManager.get_widget('/Toolbar')
         toolbar.insert(create, 0)
         self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(ConfigManager.SETTINGS[SHOW_TOOLBAR])
+        toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
         
         self.treeView = builder.get_object("treeWidget")
         self.__initTreeWidget()
