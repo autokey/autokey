@@ -75,13 +75,14 @@
                 <property name="xscale">0</property>
                 <property name="bottom_padding">10</property>
                 <child>
-                  <object class="GtkButton" id="button1">
+                  <object class="GtkButton" id="detectButton">
                     <property name="label" translatable="yes">Detect Window Properties</property>
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
                     <property name="use_action_appearance">False</property>
+                    <signal name="pressed" handler="on_detectButton_pressed" swapped="no"/>
                   </object>
                 </child>
               </object>

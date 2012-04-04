@@ -16,8 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging, sys, os, re
-#import gtk, Gtk.glade
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 
 #import gettext
 import locale
@@ -474,14 +473,16 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
 class WindowFilterSettingsDialog(DialogBase):
     
-    def __init__(self, parent):
+    def __init__(self, parent, closure):
         builder = configwindow.get_ui("windowfiltersettings.xml")
         self.ui = builder.get_object("windowfiltersettings")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
+        self.closure = closure
         
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
         self.recursiveButton = builder.get_object("recursiveButton")
+        self.detectButton = builder.get_object("detectButton")
         
         DialogBase.__init__(self)
         
@@ -519,7 +520,66 @@ class WindowFilterSettingsDialog(DialogBase):
         return True
     
     def reset_focus(self):
-        self.triggerRegexEntry.grab_focus()        
+        self.triggerRegexEntry.grab_focus()
+        
+    def on_response(self, widget, responseId):
+        self.closure(responseId)
+        
+    def receive_window_info(self, info):
+        Gdk.threads_enter()
+        dlg = DetectDialog(self.ui)
+        dlg.populate(info)
+        response = dlg.run()
+        
+        if response == Gtk.ResponseType.OK:
+            self.triggerRegexEntry.set_text(dlg.get_choice().encode("utf-8"))
+            
+        self.detectButton.set_sensitive(True)
+        Gdk.threads_leave()
+        
+    def on_detectButton_pressed(self, widget, data=None):
+        #self.__dlg = 
+        widget.set_sensitive(False)
+        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber.start()
+    
+        
+
+class DetectDialog(DialogBase):
+
+    def __init__(self, parent):
+        print "entering init"
+        builder = configwindow.get_ui("detectdialog.xml")
+        self.ui = builder.get_object("detectdialog")
+        builder.connect_signals(self)
+        self.ui.set_transient_for(parent)
+        
+        self.classLabel = builder.get_object("classLabel")
+        self.titleLabel = builder.get_object("titleLabel")
+        self.classRadioButton = builder.get_object("classRadioButton")
+        self.titleRadioButton = builder.get_object("titleRadioButton")
+        
+        DialogBase.__init__(self)
+        
+    def populate(self, windowInfo):
+        self.titleLabel.set_text(_("Window title: %s") % windowInfo[0].encode("utf-8"))
+        self.classLabel.set_text(_("Window class: %s") % windowInfo[1].encode("utf-8"))
+        self.windowInfo = windowInfo
+
+    def get_choice(self):
+        if self.classRadioButton.get_active():
+            return self.windowInfo[1]
+        else:
+            return self.windowInfo[0]
+            
+    def on_cancel(self, widget, data=None):
+        self.ui.response(Gtk.ResponseType.CANCEL)
+        self.hide()
+        
+    def on_ok(self, widget, data=None):
+        self.response(Gtk.ResponseType.OK)
+        self.hide()
+
         
 class RecordDialog(DialogBase):
     

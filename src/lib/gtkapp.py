@@ -259,7 +259,9 @@ class Application:
                 
     def main(self):
         logging.info("Entering main()")
+        Gdk.threads_enter()
         Gtk.main()
+        Gdk.threads_leave()
             
     def show_error_dialog(self, message, details=None):
         """

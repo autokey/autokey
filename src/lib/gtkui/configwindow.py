@@ -112,7 +112,7 @@ class SettingsWidget:
         
         self.abbrDialog = AbbrSettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_abbr_response)
         self.hotkeyDialog = HotkeySettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_hotkey_response)
-        self.filterDialog = WindowFilterSettingsDialog(parentWindow.ui)
+        self.filterDialog = WindowFilterSettingsDialog(parentWindow.ui, self.on_filter_dialog_response)
         
         self.abbrLabel = builder.get_object("abbrLabel")
         self.clearAbbrButton = builder.get_object("clearAbbrButton")
@@ -230,7 +230,7 @@ class SettingsWidget:
         
     def on_setAbbrButton_clicked(self, widget, data=None):
         self.abbrDialog.reset_focus()
-        self.abbrDialog.run()
+        self.abbrDialog.show()
          
     def on_abbr_response(self, res):
         if res == Gtk.ResponseType.OK:
@@ -247,7 +247,7 @@ class SettingsWidget:
         self.abbrDialog.reset()
         
     def on_setHotkeyButton_clicked(self, widget, data=None):
-        self.hotkeyDialog.run()
+        self.hotkeyDialog.show()
         
     def on_hotkey_response(self, res):
         if res == Gtk.ResponseType.OK:
@@ -267,7 +267,21 @@ class SettingsWidget:
 
     def on_setFilterButton_clicked(self, widget, data=None):
         self.filterDialog.reset_focus()
-        if self.filterDialog.run() == Gtk.ResponseType.OK:
+        self.filterDialog.show()
+
+    def on_clearFilterButton_clicked(self, widget, data=None):
+        self.set_dirty()
+        self.filterEnabled = False
+        self.clearFilterButton.set_sensitive(False)
+        if self.currentItem.inherits_filter():
+            text = self.currentItem.parent.get_child_filter()
+        else:
+            text = _("(None configured)")
+        self.windowFilterLabel.set_text(text)
+        self.filterDialog.reset()
+        
+    def on_filter_dialog_response(self, res):
+        if res == Gtk.ResponseType.OK:
             self.set_dirty()
             filterText = self.filterDialog.get_filter_text()
             if filterText != "":
@@ -281,18 +295,7 @@ class SettingsWidget:
                     text = self.currentItem.parent.get_child_filter()
                 else:
                     text = _("(None configured)")
-                self.windowFilterLabel.set_text(text)
-
-    def on_clearFilterButton_clicked(self, widget, data=None):
-        self.set_dirty()
-        self.filterEnabled = False
-        self.clearFilterButton.set_sensitive(False)
-        if self.currentItem.inherits_filter():
-            text = self.currentItem.parent.get_child_filter()
-        else:
-            text = _("(None configured)")
-        self.windowFilterLabel.set_text(text)
-        self.filterDialog.reset()
+                self.windowFilterLabel.set_text(text)        
 
     def __getattr__(self, attr):
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
@@ -661,7 +664,6 @@ class ConfigWindow:
         
         builder = get_ui("mainwindow.xml")
         self.ui = builder.get_object("mainwindow")
-        builder.connect_signals(self)
         self.ui.set_title(CONFIG_WINDOW_TITLE)
         
         # Menus and Actions
@@ -744,6 +746,8 @@ class ConfigWindow:
         
         self.uiManager.get_widget("/Toolbar/save").set_is_important(True)
         self.uiManager.get_widget("/Toolbar/undo").set_is_important(True)
+        
+        builder.connect_signals(self)
         
         rootIter = self.treeView.get_model().get_iter_first()        
         if rootIter is not None:
