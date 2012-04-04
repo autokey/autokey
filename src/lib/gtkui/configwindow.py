@@ -1278,6 +1278,9 @@ class ConfigWindow:
     def on_treeWidget_row_activated(self, widget, path, viewColumn, data=None):
         widget.expand_row(path, False)
         
+    def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
+        widget.columns_autosize()
+        
     def on_treeview_buttonpress(self, widget, event, data=None):
         return self.dirty
         

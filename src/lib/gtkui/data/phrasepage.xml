@@ -53,7 +53,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="top_padding">5</property>
-                <property name="bottom_padding">5</property>
                 <property name="left_padding">10</property>
                 <child>
                   <object class="GtkVBox" id="settingsVbox">
@@ -130,7 +129,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">True</property>
-                        <property name="padding">5</property>
+                        <property name="padding">10</property>
                         <property name="position">3</property>
                       </packing>
                     </child>

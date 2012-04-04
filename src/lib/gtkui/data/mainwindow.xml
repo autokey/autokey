@@ -27,12 +27,13 @@
                   <object class="GtkTreeView" id="treeWidget">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <signal name="button-press-event" handler="on_treeview_buttonpress" swapped="no"/>
                     <signal name="drag-drop" handler="on_drag_drop" swapped="no"/>
                     <signal name="drag-data-received" handler="on_drag_data_received" swapped="no"/>
+                    <signal name="button-press-event" handler="on_treeview_buttonpress" swapped="no"/>
                     <signal name="row-activated" handler="on_treeWidget_row_activated" swapped="no"/>
-                    <signal name="button-release-event" handler="on_treeview_buttonrelease" swapped="no"/>
+                    <signal name="row-collapsed" handler="on_treeWidget_row_collapsed" swapped="no"/>
                     <signal name="cursor-changed" handler="on_tree_selection_changed" swapped="no"/>
+                    <signal name="button-release-event" handler="on_treeview_buttonrelease" swapped="no"/>
                     <signal name="drag-begin" handler="on_drag_begin" swapped="no"/>
                     <child internal-child="selection">
                       <object class="GtkTreeSelection" id="treeview-selection1"/>
