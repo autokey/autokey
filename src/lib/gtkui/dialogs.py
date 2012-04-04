@@ -459,7 +459,9 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def valid(self):
         configManager = self.configManager
         modifiers = self.build_modifiers()
-        pattern = self.targetItem.get_applicable_regex().pattern
+        regex = self.targetItem.get_applicable_regex()
+        pattern = None
+        if regex is not None: pattern = regex.pattern
 
         unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
         if not validate(unique, _("The hotkey is already in use for %s.") % conflicting, None,
