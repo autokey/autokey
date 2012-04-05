@@ -1477,6 +1477,8 @@ class ConfigWindow:
     
     def __getTreeSelection(self):
         selection = self.treeView.get_selection()
+        if selection is None: return []        
+        
         model, items = selection.get_selected_rows()
         ret = []
 
