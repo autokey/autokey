@@ -371,6 +371,7 @@ class HotkeySettingsDialog(DialogBase):
         self.setButton.set_sensitive(True)
             
     def set_key(self, key, modifiers=[]):
+        Gdk.threads_enter()
         if self.KEY_MAP.has_key(key):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
@@ -382,10 +383,13 @@ class HotkeySettingsDialog(DialogBase):
         self.hyperButton.set_active(iomediator.Key.HYPER in modifiers)
         
         self.setButton.set_sensitive(True)
+        Gdk.threads_leave()
 
     def cancel_grab(self):
+        Gdk.threads_enter()
         self.setButton.set_sensitive(True)
         self._setKeyLabel(self.key)
+        Gdk.threads_leave()
         
     def build_modifiers(self):
         modifiers = []
