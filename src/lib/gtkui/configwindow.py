@@ -725,7 +725,7 @@ class ConfigWindow:
         self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
         
         # Toolbar 'create' button 
-        create = Gtk.MenuToolButton(Gtk.STOCK_NEW)
+        create = Gtk.MenuToolButton.new_from_stock(Gtk.STOCK_NEW)
         create.show()
         create.set_is_important(True)
         create.connect("clicked", self.on_new_clicked)
