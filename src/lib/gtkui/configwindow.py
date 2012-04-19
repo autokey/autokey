@@ -1439,14 +1439,13 @@ class ConfigWindow:
         column1 = Gtk.TreeViewColumn(_("Name"))
         iconRenderer = Gtk.CellRendererPixbuf()
         textRenderer = Gtk.CellRendererText()
-        #textRenderer.set_property("editable", True)
-        #textRenderer.connect("edited", self.on_cell_modified)
         column1.pack_start(iconRenderer, False)
         column1.pack_end(textRenderer, True)
         column1.add_attribute(iconRenderer, "icon-name", 0)
         column1.add_attribute(textRenderer, "text", 1)
         column1.set_expand(True)
         column1.set_min_width(150)
+        column1.set_sort_column_id(1)
         self.treeView.append_column(column1)
 
         column2 = Gtk.TreeViewColumn(_("Abbr."))
@@ -1550,8 +1549,8 @@ class AkTreeModel(Gtk.TreeStore):
             self.populate_store(iter, folder)
             
         self.folders = folders
-        self.set_sort_func(AkTreeModel.OBJECT_COLUMN, self.compare)
-        self.set_sort_column_id(AkTreeModel.OBJECT_COLUMN, Gtk.SortType.ASCENDING)
+        self.set_sort_func(1, self.compare)
+        self.set_sort_column_id(1, Gtk.SortType.ASCENDING)
 
     def populate_store(self, parent, parentFolder):
         for folder in parentFolder.folders:
