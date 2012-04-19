@@ -459,7 +459,7 @@ class ScriptPage:
     
     def save(self):
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(),
-                                    self.buffer.get_end_iter()).decode("utf-8")
+                                    self.buffer.get_end_iter(), False).decode("utf-8")
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
@@ -488,7 +488,7 @@ class ScriptPage:
         errors = []
         
         # Check script code        
-        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter())
+        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)
         if EMPTY_FIELD_REGEX.match(text):
             errors.append(_("The script code can't be empty"))
             
@@ -623,7 +623,7 @@ class PhrasePage(ScriptPage):
     
     def save(self):
         self.currentItem.phrase = self.buffer.get_text(self.buffer.get_start_iter(),
-                                                        self.buffer.get_end_iter()).decode("utf-8")
+                                                        self.buffer.get_end_iter(), False).decode("utf-8")
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
@@ -638,7 +638,7 @@ class PhrasePage(ScriptPage):
         errors = []
         
         # Check phrase content
-        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter()).decode("utf-8")
+        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False).decode("utf-8")
         if EMPTY_FIELD_REGEX.match(text):
             errors.append(_("The phrase content can't be empty"))
             
@@ -654,6 +654,30 @@ class PhrasePage(ScriptPage):
             dlg.destroy()
                 
         return len(errors) == 0
+        
+    def start_record(self):
+        pass
+        
+    def start_key_sequence(self):
+        pass
+        
+    def end_key_sequence(self):
+        pass        
+    
+    def append_key(self, key):
+        #line, pos = self.buffer.getCursorPosition()
+        self.buffer.insert(self.buffer.get_end_iter(), key)
+        #self.scriptCodeEditor.setCursorPosition(line, pos + len(key))
+        
+    def append_hotkey(self, key, modifiers):
+        #line, pos = self.scriptCodeEditor.getCursorPosition()
+        keyString = self.currentItem.get_hotkey_string(key, modifiers)
+        self.buffer.insert(self.buffer.get_end_iter(), keyString)
+        #self.scriptCodeEditor.setCursorPosition(line, pos + len(keyString))
+        
+    def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
+        pass
+
         
 
 class ConfigWindow:
@@ -711,7 +735,7 @@ class ConfigWindow:
         
         toggleActions = [
                          ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord Script"), None, _("Record a keyboard/mouse script"), self.on_record_keystrokes),
+                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
                          ]
         actionGroup.add_toggle_actions(toggleActions)
                 
@@ -760,8 +784,6 @@ class ConfigWindow:
         width, height = ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE]
         self.set_default_size(width, height)
         self.hpaned.set_position(ConfigManager.SETTINGS[HPANE_POSITION])
-        
-        self.recorder = Recorder(self.scriptPage)
         
     def __addToolbar(self):
         toolbar = self.uiManager.get_widget('/Toolbar')
@@ -818,7 +840,7 @@ class ConfigWindow:
         else:
             canCreate = isinstance(items[0], model.Folder) and len(items) == 1
             canCopy = True
-            canRecord = isinstance(items[0], model.Script) and len(items) == 1
+            canRecord = (not isinstance(items[0], model.Folder)) and len(items) == 1
             canMacro = isinstance(items[0], model.Phrase) and len(items) == 1
             enableAny = True
             for item in items:
@@ -1174,6 +1196,7 @@ class ConfigWindow:
         
     def on_record_keystrokes(self, widget, data=None):
         if widget.get_active():
+            self.recorder = Recorder(self.__getCurrentPage())
             dlg = RecordDialog(self.ui, self.on_rec_response)
             dlg.run()
         else:
