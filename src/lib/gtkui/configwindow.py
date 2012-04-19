@@ -1428,6 +1428,8 @@ class ConfigWindow:
         self.treeView.set_headers_visible(True)
         self.treeView.set_reorderable(False)
         self.treeView.set_rubber_banding(True)
+        self.treeView.set_search_column(1)
+        self.treeView.set_enable_search(True)
         targets = []
         self.treeView.enable_model_drag_source(Gdk.ModifierType.BUTTON1_MASK, targets, Gdk.DragAction.DEFAULT|Gdk.DragAction.MOVE)
         self.treeView.enable_model_drag_dest(targets, Gdk.DragAction.DEFAULT)
