@@ -71,9 +71,12 @@ lib.scripting.QtDialog.calendar	lib.scripting.QtDialog-class.html#calendar
 lib.scripting.QtDialog.choose_directory	lib.scripting.QtDialog-class.html#choose_directory
 lib.scripting.QtDialog.choose_colour	lib.scripting.QtDialog-class.html#choose_colour
 lib.scripting.Store	lib.scripting.Store-class.html
+lib.scripting.Store.set_global_value	lib.scripting.Store-class.html#set_global_value
 lib.scripting.Store.get_value	lib.scripting.Store-class.html#get_value
 lib.scripting.Store.set_value	lib.scripting.Store-class.html#set_value
+lib.scripting.Store.get_global_value	lib.scripting.Store-class.html#get_global_value
 lib.scripting.Store.remove_value	lib.scripting.Store-class.html#remove_value
+lib.scripting.Store.remove_global_value	lib.scripting.Store-class.html#remove_global_value
 lib.scripting.System	lib.scripting.System-class.html
 lib.scripting.System.exec_command	lib.scripting.System-class.html#exec_command
 lib.scripting.System.create_file	lib.scripting.System-class.html#create_file

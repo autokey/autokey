@@ -52,6 +52,7 @@ COLUMN_WIDTHS = "columnWidths"
 SHOW_TOOLBAR = "showToolbar"
 NOTIFICATION_ICON = "notificationIcon"
 WORKAROUND_APP_REGEX = "workAroundApps"
+SCRIPT_GLOBALS = "scriptGlobals"
 
 # TODO - Future functionality
 #TRACK_RECENT_ENTRY = "trackRecentEntry"
@@ -206,12 +207,13 @@ class ConfigManager:
                 COLUMN_WIDTHS : [150, 50, 100],
                 SHOW_TOOLBAR : True,
                 NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
-                WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc"
+                WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc",
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,
                 #RECENT_ENTRY_MINLENGTH : 10,
                 #RECENT_ENTRY_SUGGEST : True
+                SCRIPT_GLOBALS : {}
                 }
                 
     def __init__(self, app):
@@ -551,6 +553,7 @@ dialog.info_dialog("Window information",
         if self.VERSION < "0.82.3":
             self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
             self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
+            self.SETTINGS[SCRIPT_GLOBALS] = {}
         
         self.VERSION = common.VERSION    
         self.config_altered(True)

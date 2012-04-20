@@ -194,7 +194,33 @@ class Store(dict):
         Usage: C{store.remove_value(key)}
         """
         del self[key]
-
+        
+    def set_global_value(self, key, value):
+        """
+        Store a global value
+        
+        Usage: C{store.set_global_value(key, value)}
+        
+        The value stored with this method will be available to all scripts.
+        """
+        Store.GLOBALS[key] = value
+        
+    def get_global_value(self, key):
+        """
+        Get a global value
+        
+        Usage: C{store.get_global_value(key)}
+        """
+        return self.GLOBALS[key]        
+        
+    def remove_global_value(self, key):
+        """
+        Remove a global value
+        
+        Usage: C{store.remove_global_value(key)}
+        """
+        del self.GLOBALS[key]
+        
         
 class QtDialog:
     """
