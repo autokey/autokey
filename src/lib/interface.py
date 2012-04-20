@@ -219,7 +219,7 @@ class XInterfaceBase(threading.Thread):
             lines = output.splitlines()
             
             for line in lines:
-                if "gnome-shell" in line or "mutter" in line:
+                if "gnome-shell" in line or "cinnamon" in line:
                     return True
         except:
             pass # since this is just a nasty workaround, if anything goes wrong just disable it 

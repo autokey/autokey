@@ -412,6 +412,16 @@ class Recorder(KeyGrabber):
         self.startTime = time.time()
         self.delay = delay
         self.delayFinished = False
+        
+    def start_withgrab(self):
+        time.sleep(0.1)
+        IoMediator.listeners.append(self)
+        self.targetParent.start_record()
+        self.startTime = time.time()
+        self.delay = 0
+        self.delayFinished = True
+        CURRENT_INTERFACE.grab_keyboard()
+        
     
     def stop(self):
         if self in IoMediator.listeners:
@@ -419,6 +429,14 @@ class Recorder(KeyGrabber):
             if self.insideKeys:
                 self.targetParent.end_key_sequence()
             self.insideKeys = False
+            
+    def stop_withgrab(self):
+        CURRENT_INTERFACE.ungrab_keyboard()
+        if self in IoMediator.listeners:
+            IoMediator.listeners.remove(self)
+            if self.insideKeys:
+                self.targetParent.end_key_sequence()
+            self.insideKeys = False        
         
     def set_record_keyboard(self, doIt):
         self.recordKeyboard = doIt

@@ -504,6 +504,25 @@ class ScriptPage:
             dlg.destroy()
                 
         return len(errors) == 0
+    
+    def record_keystrokes(self, isActive):    
+        if isActive:
+            self.recorder = Recorder(self)
+            dlg = RecordDialog(self.ui, self.on_rec_response)
+            dlg.run()
+        else:
+            self.recorder.stop()
+            
+    def on_rec_response(self, response, recKb, recMouse, delay):
+        if response == Gtk.ResponseType.OK:
+            self.recorder.set_record_keyboard(recKb)
+            self.recorder.set_record_mouse(recMouse)
+            self.recorder.start(delay)
+        elif response == Gtk.ResponseType.CANCEL:
+            self.parentWindow.record_stopped()
+            
+    def cancel_record(self):
+        self.recorder.stop()
         
     def start_record(self):
         self.buffer.insert(self.buffer.get_end_iter(), "\n")
@@ -655,6 +674,22 @@ class PhrasePage(ScriptPage):
                 
         return len(errors) == 0
         
+    def record_keystrokes(self, isActive):    
+        if isActive:
+            msg = _("AutoKey will now take exclusive use of the keyboard.\n\nClick the mouse anywhere to release the keyboard when you are done.")
+            dlg = Gtk.MessageDialog(self.parentWindow.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.INFO, Gtk.ButtonsType.OK, msg)
+            dlg.set_title(_("Record Keystrokes"))
+            dlg.run()
+            dlg.destroy()
+            self.editor.set_sensitive(False)
+            self.recorder = Recorder(self)
+            self.recorder.set_record_keyboard(True)
+            self.recorder.set_record_mouse(True)
+            self.recorder.start_withgrab()
+        else:
+            self.recorder.stop()
+            self.editor.set_sensitive(True)
+        
     def start_record(self):
         pass
         
@@ -676,8 +711,13 @@ class PhrasePage(ScriptPage):
         #self.scriptCodeEditor.setCursorPosition(line, pos + len(keyString))
         
     def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
-        pass
-
+        self.cancel_record()
+        self.parentWindow.record_stopped()
+        
+    def cancel_record(self):
+        self.recorder.stop_withgrab()
+        self.editor.set_sensitive(True)
+    
         
 
 class ConfigWindow:
@@ -735,7 +775,7 @@ class ConfigWindow:
         
         toggleActions = [
                          ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
+                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord keyboard/mouse"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
                          ]
         actionGroup.add_toggle_actions(toggleActions)
                 
@@ -790,10 +830,13 @@ class ConfigWindow:
         self.vbox.pack_end(toolbar, False, False, 0)
         self.vbox.reorder_child(toolbar, 1)
         
+    def record_stopped(self):
+        self.uiManager.get_widget("/MenuBar/Tools/record").set_active(False)    
+        
     def cancel_record(self):
         if self.uiManager.get_widget("/MenuBar/Tools/record").get_active():
-            self.uiManager.get_widget("/MenuBar/Tools/record").set_active(False)
-            self.recorder.stop()
+            self.record_stopped()
+            self.__getCurrentPage().cancel_record()
             
     def save_completed(self, persistGlobal):
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)        
@@ -1195,20 +1238,7 @@ class ConfigWindow:
         s.show() 
         
     def on_record_keystrokes(self, widget, data=None):
-        if widget.get_active():
-            self.recorder = Recorder(self.__getCurrentPage())
-            dlg = RecordDialog(self.ui, self.on_rec_response)
-            dlg.run()
-        else:
-            self.recorder.stop()
-            
-    def on_rec_response(self, response, recKb, recMouse, delay):
-        if response == Gtk.ResponseType.OK:
-            self.recorder.set_record_keyboard(recKb)
-            self.recorder.set_record_mouse(recMouse)
-            self.recorder.start(delay)
-        elif response == Gtk.ResponseType.CANCEL:
-            self.uiManager.get_widget("/MenuBar/Tools/record").set_active(False)
+        self.__getCurrentPage().record_keystrokes(widget.get_active())        
         
     # Tools Menu
     
