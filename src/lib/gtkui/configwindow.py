@@ -581,7 +581,7 @@ class PhrasePage(ScriptPage):
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
-        self.sendModeCombo = Gtk.ComboBoxText()
+        self.sendModeCombo = Gtk.ComboBoxText.new()
         self.sendModeCombo.connect("changed", self.on_modified)
         sendModeHbox = builder.get_object("sendModeHbox")
         sendModeHbox.pack_start(self.sendModeCombo, False, False, 0)
