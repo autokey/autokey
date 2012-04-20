@@ -19,7 +19,7 @@ import shutil, os, sys
 from gi.repository import Gtk
 
 from autokey.configmanager import *
-from autokey import iomediator, interface, model, common
+from autokey import iomediator, model, common
 from dialogs import GlobalHotkeyDialog
 import configwindow
 
@@ -55,7 +55,7 @@ class SettingsDialog:
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
         
-        self.iconStyleCombo = Gtk.ComboBoxText()
+        self.iconStyleCombo = Gtk.ComboBoxText.new()
         hbox = builder.get_object("hbox4")
         hbox.pack_start(self.iconStyleCombo, False, True, 0)
         hbox.show_all()
@@ -95,24 +95,6 @@ class SettingsDialog:
             self.userModuleChooserButton.set_current_folder(configManager.userCodeDir)
             if configManager.userCodeDir in sys.path:
                 sys.path.remove(configManager.userCodeDir)
-        
-        # Interface Settings - not displayed unless needed
-        self.xRecordButton = builder.get_object("xRecordButton")
-        self.xEvdevButton = builder.get_object("xEvdevButton")
-        self.atspiButton = builder.get_object("atspiButton")
-        self.checkBox = builder.get_object("checkBox")
-        
-        self.xRecordButton.set_active(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE)
-        self.xRecordButton.set_sensitive(interface.HAS_RECORD)
-        self.xEvdevButton.set_active(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
-        self.atspiButton.set_active(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
-        self.atspiButton.set_sensitive(interface.HAS_ATSPI)
-        
-        if interface.HAS_RECORD and self.xRecordButton.get_active():
-            # Already have optimum config - hide the entire tab
-            builder.get_object("notebook1").remove_page(-1)
-        
-        #self.checkBox.set_active(ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND])
 
     def on_save(self, widget, data=None):
         if self.autoStartCheckbox.get_active():
@@ -135,15 +117,6 @@ class SettingsDialog:
         
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)
-        
-        if self.xRecordButton.get_active():
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
-        elif self.xEvdevButton.get_active():
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_EVDEV_INTERFACE
-        else:
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.ATSPI_INTERFACE 
-            
-        #ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] = self.checkBox.get_active()
         
         configHotkey = self.configManager.configHotkey
         toggleHotkey = self.configManager.toggleServiceHotkey

@@ -16,10 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 X_RECORD_INTERFACE = "XRecord"
-X_EVDEV_INTERFACE = "XEvDev"
 ATSPI_INTERFACE = "AT-SPI"
 
-INTERFACES = [X_RECORD_INTERFACE, X_EVDEV_INTERFACE, ATSPI_INTERFACE]
+INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
 CURRENT_INTERFACE = None
 
 # Key codes enumeration

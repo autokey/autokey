@@ -23,20 +23,4 @@ set -e
 
 #DEBHELPER#
 
-# Automatically added by dh_installinit
-if [ -x "/etc/init.d/autokey" ]; then
-    /etc/init.d/autokey status-xrecord
-    if [ $? -eq 0 ]; then
-        update-rc.d autokey disable
-    else
-	    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-		    invoke-rc.d autokey start || exit $?
-	    else
-		    /etc/init.d/autokey start || exit $?
-	    fi
-	fi
-fi
-# End automatically added section
-
-
 exit 0

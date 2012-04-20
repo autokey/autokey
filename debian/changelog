@@ -1,3 +1,9 @@
+autokey (0.90.0-0) testing; urgency=low
+
+  * TODO
+  
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 20 Apr 2012 20:39:11 +1000  
+
 autokey (0.82.2-0~precise) precise; urgency=low
 
   * [GTK] Fix critical bug for issue 185 - unable to save abbreviations

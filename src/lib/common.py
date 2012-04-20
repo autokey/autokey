@@ -27,7 +27,7 @@ LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "autokey"
 CATALOG = ""
-VERSION = "0.82.2"
+VERSION = "0.90.0"
 HOMEPAGE  = "http://autokey.googlecode.com/"
 BUG_EMAIL = "cdekter@gmail.com"
 
@@ -42,12 +42,7 @@ ICON_FILE_NOTIFICATION = "autokey-status"
 ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
-USING_QT = True
-
-# Misc
-DOMAIN_SOCKET_PATH = "/var/run/autokey-daemon"
-PACKET_SIZE = 32
-
+USING_QT = False
 
 class AppService(dbus.service.Object):
 

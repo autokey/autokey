@@ -9,4 +9,3 @@ include /usr/share/cdbs/1/class/python-distutils.mk
 # Add here any variable or target overrides you need.
 DEB_INSTALL_MANPAGES_autokey_qt = debian/autokey-qt.1
 DEB_INSTALL_MANPAGES_autokey_gtk = debian/autokey-gtk.1
-DEB_DH_INSTALLINIT_ARGS := --no-start --init-script=autokey --error-handler=init_failure

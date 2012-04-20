@@ -27,7 +27,7 @@ from autokey.configmanager import *
 from autokey import iomediator, interface, model
 from dialogs import GlobalHotkeyDialog
 
-import generalsettings, specialhotkeysettings, interfacesettings, enginesettings
+import generalsettings, specialhotkeysettings, enginesettings
 
 class GeneralSettings(QWidget, generalsettings.Ui_Form):
     
@@ -164,27 +164,6 @@ class EngineSettings(QWidget, enginesettings.Ui_Form):
             self.folderLabel.setText(self.path)
         
 
-class InterfaceSettings(QWidget, interfacesettings.Ui_Form):
-
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        interfacesettings.Ui_Form.__init__(self)
-        self.setupUi(self)
-        
-        self.xRecordButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE)
-        self.xRecordButton.setEnabled(interface.HAS_RECORD)
-        self.xEvdevButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_EVDEV_INTERFACE)
-        self.atspiButton.setChecked(ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.ATSPI_INTERFACE)
-        self.atspiButton.setEnabled(interface.HAS_ATSPI)
-        
-    def save(self):
-        if self.xRecordButton.isChecked():
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
-        elif self.xEvdevButton.isChecked():
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.X_EVDEV_INTERFACE
-        else:
-            ConfigManager.SETTINGS[INTERFACE_TYPE] = iomediator.ATSPI_INTERFACE 
-
 class SettingsDialog(KPageDialog):
     
     def __init__(self, parent):
@@ -200,12 +179,6 @@ class SettingsDialog(KPageDialog):
         self.ePage = self.addPage(EngineSettings(self, parent.app.configManager), i18n("Script Engine"))
         self.ePage.setIcon(KIcon("text-x-script"))
         
-        if not (interface.HAS_RECORD and ConfigManager.SETTINGS[INTERFACE_TYPE] == iomediator.X_RECORD_INTERFACE):
-            self.iPage = self.addPage(InterfaceSettings(self), i18n("Interface"))
-            self.iPage.setIcon(KIcon("preferences-system"))
-        else:
-            self.iPage = None
-        
         self.setCaption(i18n("Settings"))
         
     def slotButtonClicked(self, button):
@@ -213,8 +186,6 @@ class SettingsDialog(KPageDialog):
             self.genPage.widget().save()
             self.hkPage.widget().save()
             self.ePage.widget().save()
-            if self.iPage:
-                self.iPage.widget().save()
             self.app.configManager.config_altered(True)
             self.app.update_notifier_visibility()
             

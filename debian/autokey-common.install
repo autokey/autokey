@@ -1,6 +1,5 @@
 usr/lib/python*/*-packages/autokey/common.py
 usr/lib/python*/*-packages/autokey/configmanager.py
-usr/lib/python*/*-packages/autokey/daemon.py 
 usr/lib/python*/*-packages/autokey/evdev.py
 usr/lib/python*/*-packages/autokey/__init__.py
 usr/lib/python*/*-packages/autokey/interface.py

@@ -105,37 +105,6 @@ def apply_settings(settings):
     """
     for key, value in settings.iteritems():
         ConfigManager.SETTINGS[key] = value
-        
-def _chooseInterface():
-    # Choose a sensible default interface type. Get Xorg version to determine this:
-    try:
-        p = subprocess.Popen(["Xorg", "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read().split('\n')
-        output += p.stderr.read().split('\n')
-
-        for line in output:
-            if "X Server" in line:
-                versionLine = line.strip()
-                break
-
-        version = versionLine.split(" ")[-1]
-        majorVersion, minorVersion, release = [int(i) for i in version.split(".")]
-    except:
-        minorVersion = None
-        release = None
-        
-    if minorVersion is None:
-        return iomediator.X_RECORD_INTERFACE
-    elif interface.HAS_RECORD:
-        if minorVersion < 6:
-            return iomediator.X_RECORD_INTERFACE
-        elif minorVersion == 7 and release > 5:
-            return iomediator.X_RECORD_INTERFACE
-        elif minorVersion > 7:
-            return iomediator.X_RECORD_INTERFACE
-    
-    return iomediator.X_EVDEV_INTERFACE
 
 def convert_v07_to_v08(configData):
     oldVersion = configData["version"]
@@ -200,7 +169,7 @@ class ConfigManager:
                 PROMPT_TO_SAVE: False,
                 #PREDICTIVE_LENGTH : 5,
                 ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : _chooseInterface(),
+                INTERFACE_TYPE : iomediator.X_RECORD_INTERFACE,
                 UNDO_USING_BACKSPACE : True,
                 WINDOW_DEFAULT_SIZE : (600, 400),
                 HPANE_POSITION : 150,
@@ -541,7 +510,7 @@ dialog.info_dialog("Window information",
         _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
         
         # Always reset interface type when upgrading
-        self.SETTINGS[INTERFACE_TYPE] = _chooseInterface()
+        self.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
         _logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
         
         if self.VERSION < '0.70.0':
