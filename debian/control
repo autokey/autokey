@@ -2,7 +2,8 @@ Source: autokey
 Priority: optional
 Section: utils
 Maintainer: Chris Dekter <cdekter@gmail.com>
-Build-Depends: python (>= 2.6.6-3~), debhelper (>= 7.0.50~)
+Build-Depends: python (>= 2.6), debhelper (>= 7), cdbs (>= 0.4.49)
+Build-Depends-indep: python-central (>= 0.6.0)
 Standards-Version: 3.9.3
 XS-Python-Version: >= 2.6
 Homepage: http://code.google.com/p/autokey/
@@ -12,7 +13,7 @@ Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-xlib, python-simplejson, python-pyinotify, wmctrl
 Replaces: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
 Breaks: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
-Section: utils
+XB-Python-Version: ${python:Versions}
 Description: desktop automation utility - common data
  AutoKey is a desktop automation utility for Linux and X11. It allows the
  automation of virtually any task by responding to typed abbreviations and
@@ -28,6 +29,7 @@ Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-kde4, python-qt4, python-qscintilla2, python-notify, autokey-common
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
+XB-Python-Version: ${python:Versions}
 Description: desktop automation utility - KDE version
  AutoKey is a desktop automation utility for Linux and X11. It allows the
  automation of virtually any task by responding to typed abbreviations and
@@ -43,6 +45,7 @@ Architecture: all
 Depends: ${python:Depends}, ${misc:Depends}, python-gi, gir1.2-gtk-3.0, gir1.2-gtksource-3.0, gir1.2-glib-2.0, gir1.2-notify-0.7, python-dbus, zenity, autokey-common
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
+XB-Python-Version: ${python:Versions}
 Description: desktop automation utility - GTK+ version
  AutoKey is a desktop automation utility for Linux and X11. It allows the
  automation of virtually any task by responding to typed abbreviations and
