@@ -1,0 +1,10 @@
+#!/bin/sh
+
+set -e
+
+update-alternatives --install /usr/bin/autokey autokey \
+  /usr/bin/autokey-qt 60 \
+  --slave /usr/share/man/man1/autokey.1.gz autokey.1.gz  \
+  /usr/share/man/man1/autokey-qt.1.gz
+
+#DEBHELPER#
