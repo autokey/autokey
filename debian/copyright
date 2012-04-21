@@ -1,38 +1,47 @@
-This package was debianized by Chris Dekter <cdekter@gmail.com> on
-Tue, 12 May 2009 19:35:37 +1000.
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: autokey
+Source: http://autokey.googlecode.com/
 
-It was downloaded from http://autokey.googlecode.com/
+Files: *
+Copyright: © 2008-2012 Chris Dekter <cdekter@gmail.com>
+License: GPL-3+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 3 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>.
+ .
+ On Debian systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-3'.
 
-Upstream Authors:
-
-    Chris Dekter <cdekter@gmail.com>
-    Sam Peterson <peabodyenator@gmail.com>
-
-Copyright:
-
-    Copyright © 2011 Chris Dekter
-
-License:
-
-    This package is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This package is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL-3'.
-
-The Debian packaging is 
-
-    Copyright © 2009, Chris Dekter <cdekter@gmail.com> 
-    Copyright © 2009, Luke Faraone <luke@faraone.cc>
-
-and is licensed under the GPL, see above.
+Files: debian/*
+Copyright: © 2009-2012, Chris Dekter <cdekter@gmail.com>
+           © 2009-2012, Luke Faraone <lfaraone@debian.org>
+License: GPL-2+
+ This program is free software; you can redistribute it
+ and/or modify it under the terms of the GNU General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later
+ version.
+ .
+ This program is distributed in the hope that it will be
+ useful, but WITHOUT ANY WARRANTY; without even the implied
+ warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ PURPOSE.  See the GNU General Public License for more
+ details.
+ .
+ You should have received a copy of the GNU General Public
+ License along with this package; if not, write to the Free
+ Software Foundation, Inc., 51 Franklin St, Fifth Floor,
+ Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the full text of the GNU General Public
+ License version 2 can be found in the file
+ `/usr/share/common-licenses/GPL-2'.

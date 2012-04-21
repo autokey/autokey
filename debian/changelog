@@ -1,10 +1,28 @@
-autokey (0.90.0-0) testing; urgency=low
+autokey (0.90.0-0) unreleased; urgency=low
 
-  * TODO
+  * [GTK] Port the GTK UI to GTK3
+  * [GTK] Add a help menu entry for the scripting API
+  * [GTK] Get rid of the Abbreviation Selector as it's unmaintained and unused
+  * [GTK] Add function to run the currently selected script
+  * [GTK] Add a Tools menu, merge with View menu and add some new options
+  * [GTK] Add the ability to enter custom trigger characters for abbreviations
+  * [GTK] Obey desktop setting for monospace font in script editor
+  * [GTK] Add a dialog for automatically configuring window filters
+  * [GTK] Fix for issue 190 - special hotkeys won't save
+  * [GTK] Save and restore the clipboard when using it to send text
+  * [GTK] Allow manual sorting of the treeview on the name column
+  * [GTK] Enable typeahead search in the treeview
+  * [GTK] Add the ability to record keystrokes to phrases
+  * [KDE] Add a help menu entry for scripting API, and enable standard "About
+    KDE" entry
+  * Add ability to store global variables in the script store
+  * Completely remove the EvDev interface and daemon, and all related UIs
+  * Use PNG icons for KDE and SVG icons for GNOME
+  * Add cinnamon to the list of environments using Super key workaround
   
  -- Chris Dekter <cdekter@gmail.com>  Fri, 20 Apr 2012 20:39:11 +1000  
 
-autokey (0.82.2-0~precise) precise; urgency=low
+autokey (0.82.2-0) unreleased; urgency=low
 
   * [GTK] Fix critical bug for issue 185 - unable to save abbreviations
   * [KDE] Add a context menu for the log view
@@ -13,7 +31,7 @@ autokey (0.82.2-0~precise) precise; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 7 Mar 2012 8:32:33 +1100
 
-autokey (0.82.1-0~precise) precise; urgency=low
+autokey (0.82.1-0) unreleased; urgency=low
 
   * Fix critical bug causing GTK version to no longer work
   * [KDE] Add a log view that can be shown/hidden using F4
@@ -21,7 +39,7 @@ autokey (0.82.1-0~precise) precise; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 5 Mar 2012 10:10:04 +1100
 
-autokey (0.82.0-0~precise) precise; urgency=low
+autokey (0.82.0-0) unreleased; urgency=low
 
   * Revive the KDE UI and bring it up to date with features developed since its
     deprecation
@@ -39,13 +57,13 @@ autokey (0.82.0-0~precise) precise; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 3 Mar 2012 22:04:02 +1100
 
-autokey (0.81.4-0~oneiric) oneiric; urgency=low
+autokey (0.81.4-0) unreleased; urgency=low
 
   * Critical bugfix for mutter workaround method breaking on Python < 2.7
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 15 Dec 2011 10:40:02 +1100
 
-autokey (0.81.3-0~oneiric) oneiric; urgency=low
+autokey (0.81.3-0) unreleased; urgency=low
 
   * Handle exceptions during grab/ungrab of hotkeys
   * Prevent the X event loop from terminating if an exception occurs
@@ -59,7 +77,7 @@ autokey (0.81.3-0~oneiric) oneiric; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 14 Dec 2011 17:22:12 +1100
 
-autokey (0.81.2-0~oneiric) oneiric; urgency=low
+autokey (0.81.2-0) unreleased; urgency=low
 
   * Improve compatibility with Gnome Shell by grabbing all hotkeys recursively
   * Set a prettier indicator icon name
@@ -69,14 +87,14 @@ autokey (0.81.2-0~oneiric) oneiric; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 3 Dec 2011 14:55:13 +1100
 
-autokey (0.81.1-0~oneiric) oneiric; urgency=low
+autokey (0.81.1-0) unreleased; urgency=low
 
   * Critical bug fix for error "unknown internal child: selection" on older 
     versions of GTK.
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 25 Nov 2011 09:08:23 +1100
 
-autokey (0.81.0-0~oneiric) oneiric; urgency=low
+autokey (0.81.0-0) unreleased; urgency=low
 
   * Implement issue 154 - external method for triggering scripts/phrases/folders
   * Add auto-mnemonic to the first 9 items in the popup menu
@@ -111,7 +129,7 @@ autokey (0.81.0-0~oneiric) oneiric; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 22 Nov 2011 16:20:55 +1100
 
-autokey (0.80.3-0~oneiric) oneiric; urgency=low
+autokey (0.80.3-0) unreleased; urgency=low
 
   * Fix a bug where Firefox/Thunderbird were not responding to keyboard events
   * Fix for issue 150 - window titles containing unicode characters were not
@@ -123,7 +141,7 @@ autokey (0.80.3-0~oneiric) oneiric; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 12 Oct 2011 11:54:02 +1100
 
-autokey (0.80.2-0~natty) natty; urgency=low
+autokey (0.80.2-0) unreleased; urgency=low
 
   * Rewrite X interface to use a single-threaded queue model
   * Fix a bug where keyboard was not ungrabbed after creating a hotkey
@@ -138,14 +156,14 @@ autokey (0.80.2-0~natty) natty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 8 Oct 2011 14:56:01 +1100
 
-autokey (0.80.1-0~natty) natty; urgency=low
+autokey (0.80.1-0) unreleased; urgency=low
 
   * Fix for issue 143 - deadlocks in python-xlib during high-speed events
   * Fix for issue 144 - handle phrase/script names that have no safe chars
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 30 Sep 2011 09:33:21 +1100
  
-autokey (0.80.0-0~natty) natty; urgency=low
+autokey (0.80.0-0) unreleased; urgency=low
 
   * Rewrite persistence layer - use a real filesystem layout of folders and files
     to persist configuration and allow direct editing in other programs
@@ -191,13 +209,13 @@ autokey (0.80.0-0~natty) natty; urgency=low
   
  -- Chris Dekter <cdekter@gmail.com>  Thu, 22 Sep 2011 14:26:08 +1000
 
-autokey (0.71.3-1~natty) natty; urgency=low
+autokey (0.71.3-1) unreleased; urgency=low
 
   * Documentation change only - license in README
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 16 Jul 2011 10:45:13 +1000
 
-autokey (0.71.3-0~maverick) maverick; urgency=low
+autokey (0.71.3-0) unreleased; urgency=low
 
   * Fix for issue 108 - cannot upgrade a v0.5x config file any more
   * Fix for issue 107 - clipboard get functions are not using unicode
@@ -209,7 +227,7 @@ autokey (0.71.3-0~maverick) maverick; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 1 Apr 2011 11:24:11 +1100
 
-autokey (0.71.2-0~maverick) maverick; urgency=low
+autokey (0.71.2-0) unreleased; urgency=low
 
   * Update all licenses to GPLv3 and add where missing
   * Update package license to GPLv3
@@ -219,13 +237,13 @@ autokey (0.71.2-0~maverick) maverick; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 28 Jan 2011 18:24:11 +1100
 
-autokey (0.71.1-1~maverick) maverick; urgency=low
+autokey (0.71.1-1) unreleased; urgency=low
 
   * Packaging change only, add missing xml data file for GTK UI
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 24 Oct 2010 09:59:23 +1100
 
-autokey (0.71.1-0~maverick) maverick; urgency=low
+autokey (0.71.1-0) unreleased; urgency=low
 
   * [gtk] Handle situation where no folders exist (issue 62)
   * Remove KeyboardInterrupt handling as it didn't work anyway (issue 3)
@@ -235,7 +253,7 @@ autokey (0.71.1-0~maverick) maverick; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 22 Oct 2010 13:21:11 +1100
 
-autokey (0.71.0-0~lucid) lucid; urgency=low
+autokey (0.71.0-0) unreleased; urgency=low
 
   * Add an import/export facility (issue 58)
   * Add support for hotkeys with no modifiers (issue 53)
@@ -250,14 +268,14 @@ autokey (0.71.0-0~lucid) lucid; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 30 Jul 2010 12:33:10 +1000
 
-autokey (0.70.5-1~lucid) lucid; urgency=low
+autokey (0.70.5-1) unreleased; urgency=low
 
   * Packaging fix only - prevent errors with akicon-status.png by specifiying
     replaces and breaks in autokey-common
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 19 Jul 2010 10:57:23 +1000
 
-autokey (0.70.5-0~lucid) lucid; urgency=low
+autokey (0.70.5-0) unreleased; urgency=low
 
   * Improve window name determination by using the FreeDesktop specified atom names
   * Fix handling of Tab key in service and iomediator
@@ -270,7 +288,7 @@ autokey (0.70.5-0~lucid) lucid; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 14 Jul 2010 15:11:15 +1000
 
-autokey (0.70.4-0~karmic) karmic; urgency=low
+autokey (0.70.4-0) unreleased; urgency=low
 
   * Make sending text via keyboard dramatically faster by eliminating 2 RTT per character
   * Remove event replaying code as it is no longer needed and too unreliable
@@ -290,13 +308,13 @@ autokey (0.70.4-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 25 Apr 2010 15:31:15 +1000
 
-autokey (0.70.3-1~karmic) karmic; urgency=low
+autokey (0.70.3-1) unreleased; urgency=low
 
   * Fix tiny oops in interface.py
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 21 Apr 2010 21:28:02 +1000
 
-autokey (0.70.3-0~karmic) karmic; urgency=low
+autokey (0.70.3-0) unreleased; urgency=low
 
   * Automatically adjust keyboard mapping to allow sending of non-mapped
     characters in phrases
@@ -313,7 +331,7 @@ autokey (0.70.3-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 21 Apr 2010 19:28:02 +1000
 
-autokey (0.70.2-0~karmic) karmic; urgency=low
+autokey (0.70.2-0) unreleased; urgency=low
 
   * Fix for issue 35 - Cleared hotkeys show in column
   * Remove send_unicode_char() as it no longer works
@@ -338,7 +356,7 @@ autokey (0.70.2-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 17 Apr 2010 10:23:02 +1000
 
-autokey (0.70.1-0~karmic) karmic; urgency=low
+autokey (0.70.1-0) unreleased; urgency=low
 
   * Add extra columns to treewidget to display abbreviation and/or hotkey
   * Always prompt before deleting anything
@@ -357,7 +375,7 @@ autokey (0.70.1-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 13 Apr 2010 20:26:12 +1000
 
-autokey (0.70.0-0~karmic) karmic; urgency=low
+autokey (0.70.0-0) unreleased; urgency=low
 
   * Persist configuration using json instead of pickle
   * Make hotkeys exclusive - prevent other applications from receiving them
@@ -371,7 +389,7 @@ autokey (0.70.0-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 9 Apr 2010 20:26:12 +1000
 
-autokey (0.61.7-0~karmic) karmic; urgency=low
+autokey (0.61.7-0) unreleased; urgency=low
 
   * Fix incorrect reference to instance variable in KDE version
   * Fix incorrect method signature in KeyGrabber class
@@ -379,7 +397,7 @@ autokey (0.61.7-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 30 Mar 2010 21:30:52 +1000
 
-autokey (0.61.6-0~karmic) karmic; urgency=low
+autokey (0.61.6-0) unreleased; urgency=low
 
   * Fix problem with autostart in GTK version - issue #27
   * Allow system.exec_command to be used with long-running processes
@@ -394,7 +412,7 @@ autokey (0.61.6-0~karmic) karmic; urgency=low
   
  -- Chris Dekter <cdekter@gmail.com>  Thu, 25 Mar 2010 21:30:52 +1000
 
-autokey (0.61.5-0~karmic) karmic; urgency=high
+autokey (0.61.5-0) unreleased; urgency=high
 
   * SECURITY UPDATE: arbitrary file overwriting via symlinks (LP: #538471)
     - Store files for the EvDev daemon in FHS-specified locations
@@ -404,7 +422,7 @@ autokey (0.61.5-0~karmic) karmic; urgency=high
     
  -- Chris Dekter <cdekter@gmail.com>  Sat, 20 Mar 2010 21:30:52 +1000
 
-autokey (0.61.4-0~karmic) karmic; urgency=low
+autokey (0.61.4-0) unreleased; urgency=low
 
   [Chris Dekter]
   * Combine GTK and QT versions into single source tree
@@ -415,7 +433,7 @@ autokey (0.61.4-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 28 Feb 2010 08:49:52 +1000
 
-autokey (0.61.3-0~karmic) karmic; urgency=low
+autokey (0.61.3-0) unreleased; urgency=low
 
   [ Luke Faraone ]
   * Handle invalid or empty pidfiles in src/daemon.py.
@@ -426,7 +444,7 @@ autokey (0.61.3-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 27 Feb 2010 08:49:52 +1000
 
-autokey (0.61.2-0~karmic) karmic; urgency=low
+autokey (0.61.2-0) unreleased; urgency=low
 
   * Bring back cut/copy/paste item menu options
   * Add 'engine' class to scripting framework to enable access to 
@@ -439,7 +457,7 @@ autokey (0.61.2-0~karmic) karmic; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 6 Jan 2010 10:38:05 +1000
 
-autokey (0.61.0b-0~karmic) karmic; urgency=low
+autokey (0.61.0b-0) unreleased; urgency=low
 
   [ Chris Dekter ]
   * Fix bug with sending newlines from scripts
@@ -450,13 +468,13 @@ autokey (0.61.0b-0~karmic) karmic; urgency=low
   
  -- Chris Dekter <cdekter@gmail.com>  Fri, 11 Dec 2009 10:38:05 +1000
 
-autokey (0.61.0a-0~jaunty) jaunty; urgency=low
+autokey (0.61.0a-0) unreleased; urgency=low
 
   * Fix/improve mouse button conversion in EvDev daemon
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 29 Nov 2009 10:38:05 +1000
 
-autokey (0.61.0-0~jaunty) jaunty; urgency=low
+autokey (0.61.0-0) unreleased; urgency=low
 
   * Add mouse click recording and playback capabilities
   * Rework record functionality to work as a full macro facility
@@ -468,14 +486,14 @@ autokey (0.61.0-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 26 Oct 2009 10:38:05 +1000
 
-autokey (0.60.7a-0~jaunty) jaunty; urgency=low
+autokey (0.60.7a-0) unreleased; urgency=low
 
   * Fix syntax error in configwindow.py
   * Fix a few issues with scripting window management library
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 20 Oct 2009 10:38:05 +1000
 
-autokey (0.60.7-0~jaunty) jaunty; urgency=low
+autokey (0.60.7-0) unreleased; urgency=low
 
   * Add window management capabilities to scripting API
   * Minor GUI tweaks to bring into line with GTK version
@@ -484,13 +502,13 @@ autokey (0.60.7-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 19 Oct 2009 12:38:05 +1000
 
-autokey (0.60.6-0~jaunty) jaunty; urgency=low
+autokey (0.60.6-0) unreleased; urgency=low
 
   * Fix bug where html phrases where not loaded as plain text
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 30 Sep 2009 12:38:05 +1000
 
-autokey (0.60.5-0~jaunty) jaunty; urgency=low
+autokey (0.60.5-0) unreleased; urgency=low
 
   * Change to using pickle instead of cPickle due to a bug in the latter
   * Bring in changes to common modules needed for GTK version
@@ -501,13 +519,13 @@ autokey (0.60.5-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 31 Aug 2009 12:38:05 +1000
 
-autokey (0.60.4-0~jaunty) jaunty; urgency=low
+autokey (0.60.4-0) unreleased; urgency=low
 
   * Revert to sending phrases via keyboard rather than X selection
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 23 Aug 2009 12:38:05 +1000
 
-autokey (0.60.3-0~jaunty) jaunty; urgency=low
+autokey (0.60.3-0) unreleased; urgency=low
 
   * Initial version of nogui API
   * Fix some more unicode issues with the new GUI
@@ -515,7 +533,7 @@ autokey (0.60.3-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Fri, 21 Aug 2009 12:38:05 +1000
 
-autokey (0.60.2-0~jaunty) jaunty; urgency=low
+autokey (0.60.2-0) unreleased; urgency=low
 
   * Fix unicode issues when saving and sending keys
   * Fix QT4 workaround current value not being loaded in the settings dialog
@@ -523,7 +541,7 @@ autokey (0.60.2-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 18 Aug 2009 17:38:05 +1000
 
-autokey (0.60.1-0~jaunty) jaunty; urgency=low
+autokey (0.60.1-0) unreleased; urgency=low
 
   [ Chris Dekter ]
   * Point Manual link in Help menu at Wiki index
@@ -537,7 +555,7 @@ autokey (0.60.1-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 18 Aug 2009 17:38:05 +1000
 
-autokey (0.60.0-0~jaunty) jaunty; urgency=low
+autokey (0.60.0-0) unreleased; urgency=low
 
   * Implement scripting interface (ScriptRunner)
   * Rebuild UI using PyKDE/PyQT
@@ -547,7 +565,7 @@ autokey (0.60.0-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 9 Jul 2009 20:38:05 +1000
  
-autokey (0.54.5-0~jaunty) jaunty; urgency=low
+autokey (0.54.5-0) unreleased; urgency=low
 
   * debian/control: Changed Arch:Any to all since we don't build
     platform-specific binaries
@@ -557,7 +575,7 @@ autokey (0.54.5-0~jaunty) jaunty; urgency=low
 
  -- Luke Faraone <luke@faraone.cc>  Sun, 12 Jul 2009 17:55:46 -0400
 
-autokey (0.54.4-0~jaunty) jaunty; urgency=low
+autokey (0.54.4-0) unreleased; urgency=low
 
   [ Chris Dekter ]
   * Add support for numpad keys, and a few other standard keys that were not handled
@@ -588,7 +606,7 @@ autokey (0.54.4-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Wed, 8 Jul 2009 20:38:05 +1000
 
-autokey (0.54.3-0~jaunty) jaunty; urgency=low
+autokey (0.54.3-0) unreleased; urgency=low
 
   * Fix daemon sometimes dying when receiving events with integer code
   * Make daemon find devices using by-path entries instead of relying on HAL
@@ -597,7 +615,7 @@ autokey (0.54.3-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Tue, 7 Jul 2009 08:38:05 +1000
 
-autokey (0.54.2-0~jaunty) jaunty; urgency=low
+autokey (0.54.2-0) unreleased; urgency=low
 
   * Fix daemon dropping connection on mouse clicks
   * Add logging and command line option to set level to debug
@@ -605,7 +623,7 @@ autokey (0.54.2-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 18:38:05 +1000
 
-autokey (0.54.1-0~jaunty) jaunty; urgency=low
+autokey (0.54.1-0) unreleased; urgency=low
 
   * Refactor daemon so it starts successfully during boot
   * Fix problem where daemon exits if run on a PC without a touchpad
@@ -614,7 +632,7 @@ autokey (0.54.1-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sun, 5 Jul 2009 00:11:05 +1000
 
-autokey (0.54.0-0~jaunty) jaunty; urgency=low
+autokey (0.54.0-0) unreleased; urgency=low
 
   * Add new EvDev interface as an alternative where XRecord is not available.
   * Make EvDev the default (changing to XRecord will require hacking the code, for now).
@@ -625,7 +643,7 @@ autokey (0.54.0-0~jaunty) jaunty; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Sat, 4 Jul 2009 12:11:05 +1000
 
-autokey (0.53.1-2~intrepid) intrepid; urgency=low
+autokey (0.53.1-2) unreleased; urgency=low
 
   * Alter cut/copy/paste to release standard key bindings to normal functions
   * Break sub plugin input at line endings, in addition to spaces
@@ -633,7 +651,7 @@ autokey (0.53.1-2~intrepid) intrepid; urgency=low
 
  -- Chris Dekter <cdekter@gmail.com>  Thu, 21 May 2009 19:13:37 +1000
 
-autokey (0.53.0-2) intrepid; urgency=low
+autokey (0.53.0-2) unreleased; urgency=low
 
   * Alter build-depends to allow compatibility with hardy
   * Added a fully functioning distutils-based installer.

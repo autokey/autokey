@@ -554,7 +554,6 @@ class WindowFilterSettingsDialog(DialogBase):
 class DetectDialog(DialogBase):
 
     def __init__(self, parent):
-        print "entering init"
         builder = configwindow.get_ui("detectdialog.xml")
         self.ui = builder.get_object("detectdialog")
         builder.connect_signals(self)
