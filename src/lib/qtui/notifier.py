@@ -19,7 +19,6 @@ from PyKDE4.kdeui import KNotification, KSystemTrayIcon, KIcon, KStandardAction,
 from PyKDE4.kdecore import ki18n, i18n
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QSystemTrayIcon
-import pynotify
 
 import popupmenu
 from autokey.configmanager import *
@@ -30,7 +29,6 @@ TOOLTIP_PAUSED = ki18n("AutoKey - paused")
 class Notifier:
     
     def __init__(self, app):
-        pynotify.init("AutoKey")
         self.app = app
         self.configManager = app.configManager
         
@@ -90,11 +88,7 @@ class Notifier:
             self.icon.hide()
 
     def notify_error(self, message):
-        message = str(message)
-        self.n = pynotify.Notification("AutoKey", message, "autokey")
-        self.n.set_urgency(pynotify.URGENCY_LOW)
-        #self.n.add_action("Details", "Details", self.on_show_error)
-        self.n.show()
+        pass
         
     # ---- Signal handlers ----
 

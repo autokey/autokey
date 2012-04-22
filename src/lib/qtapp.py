@@ -166,7 +166,6 @@ class Application:
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_async)
-        configManager.showPopupHotkey.set_closure(lambda: False)
         
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
