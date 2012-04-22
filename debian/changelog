@@ -1,3 +1,9 @@
+autokey (0.90.1-0) unreleased; urgency=low
+
+  * [KDE] Fix two critical issues causing the application to not start
+    
+ -- Chris Dekter <cdekter@gmail.com>  Sun, 22 Apr 2012 11:35:11 +1000  
+
 autokey (0.90.0-0) unreleased; urgency=low
 
   * [GTK] Port the GTK UI to GTK3
