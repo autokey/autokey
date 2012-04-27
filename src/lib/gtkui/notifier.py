@@ -24,11 +24,11 @@ from autokey.configmanager import *
 from autokey import common
 
 HAVE_APPINDICATOR = False
-#try:
-#    import appindicator
-#    HAVE_APPINDICATOR = True
-#except ImportError:
-#    pass
+try:
+    from gi.repository import AppIndicator3
+    HAVE_APPINDICATOR = True
+except ImportError:
+    pass
 
 gettext.install("autokey")
 
@@ -170,8 +170,8 @@ class IndicatorNotifier:
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
-        self.indicator = appindicator.Indicator("AutoKey", ConfigManager.SETTINGS[NOTIFICATION_ICON],
-                                                appindicator.CATEGORY_APPLICATION_STATUS)
+        self.indicator = AppIndicator3.Indicator.new("AutoKey", ConfigManager.SETTINGS[NOTIFICATION_ICON],
+                                                AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
                                                 
         
         self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
@@ -180,12 +180,12 @@ class IndicatorNotifier:
         
     def update_visible_status(self):
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
-            self.indicator.set_status(appindicator.STATUS_ACTIVE)
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         else:
-            self.indicator.set_status(appindicator.STATUS_PASSIVE)   
+            self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)   
             
     def hide_icon(self):     
-        self.indicator.set_status(appindicator.STATUS_PASSIVE)
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
         
     def rebuild_menu(self):
         # Main Menu items
@@ -203,7 +203,7 @@ class IndicatorNotifier:
         removeMenuItem = Gtk.ImageMenuItem(_("Remove icon"))
         removeMenuItem.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU))
         
-        quitMenuItem = Gtk.ImageMenuItem(Gtk.STOCK_QUIT)
+        quitMenuItem = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_QUIT, None)
                 
         # Menu signals
         enableMenuItem.connect("toggled", self.on_enable_toggled)
@@ -240,7 +240,7 @@ class IndicatorNotifier:
     def notify_error(self, message):
         self.show_notify(message, Gtk.STOCK_DIALOG_ERROR)
         self.errorItem.show()
-        self.indicator.set_status(appindicator.STATUS_ATTENTION)
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.ATTENTION)
         
     def show_notify(self, message, iconName):
         Gdk.threads_enter()
@@ -267,7 +267,7 @@ class IndicatorNotifier:
         self.app.show_configure()
 
     def on_remove_icon(self, widget, data=None):
-        self.indicator.set_status(appindicator.STATUS_PASSIVE)
+        self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
         ConfigManager.SETTINGS[SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
