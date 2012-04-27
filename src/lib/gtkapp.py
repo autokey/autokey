@@ -142,9 +142,7 @@ class Application:
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.dbusService = common.AppService(self)
         
-        if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
-            ConfigManager.SETTINGS[IS_FIRST_RUN] = False
-            self.show_configure()
+        if configure: self.show_configure()
             
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")

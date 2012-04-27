@@ -1,9 +1,9 @@
-# $Id: autokey.desktop 22 2008-01-29 11:29:13Z peabody $
+# $Id: autokey-gtk.desktop 22 2008-01-29 11:29:13Z peabody $
 [Desktop Entry]
 Name=AutoKey
 GenericName=Keyboard Automation
 Comment=Program keyboard shortcuts
-Exec=autokey-gtk
+Exec=autokey-gtk -c
 Terminal=false
 Type=Application
 Icon=autokey

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import shutil, os, sys
+import os, sys
 from gi.repository import Gtk
 
 from autokey.configmanager import *
@@ -100,10 +100,16 @@ class SettingsDialog:
         if self.autoStartCheckbox.get_active():
             if not os.path.exists(AUTOSTART_FILE):
                 try:
-                    os.makedirs(AUTOSTART_DIR)
-                except OSError:
+                    inFile = open(DESKTOP_FILE, 'r')
+                    outFile = open(AUTOSTART_FILE, 'w')
+                    contents = inFile.read()
+                    contents = contents.replace(" -c\n", "\n")
+                    outFile.write(contents)
+                    inFile.close()
+                    outFile.close()
+                except:
                     pass
-                shutil.copy(DESKTOP_FILE, AUTOSTART_FILE)
+                
         else:
             if os.path.exists(AUTOSTART_FILE):
                 os.remove(AUTOSTART_FILE)
