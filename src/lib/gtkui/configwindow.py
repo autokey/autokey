@@ -885,6 +885,7 @@ class ConfigWindow:
             canCopy = True
             canRecord = (not isinstance(items[0], model.Folder)) and len(items) == 1
             canMacro = isinstance(items[0], model.Phrase) and len(items) == 1
+            canPlay = isinstance(items[0], model.Script) and len(items) == 1
             enableAny = True
             for item in items:
                 if isinstance(item, model.Folder):
@@ -905,7 +906,7 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/Edit/rename").set_sensitive(enableAny)
         self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)
         self.uiManager.get_action("/MenuBar/Tools/record").set_sensitive(canRecord)
-        self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canRecord)
+        self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canPlay)
         
         
         if changed:
