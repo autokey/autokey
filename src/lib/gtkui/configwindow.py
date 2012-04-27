@@ -879,6 +879,7 @@ class ConfigWindow:
             canCopy = False
             canRecord = False
             canMacro = False
+            canPlay = False
             enableAny = False
         else:
             canCreate = isinstance(items[0], model.Folder) and len(items) == 1
