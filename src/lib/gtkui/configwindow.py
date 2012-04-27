@@ -1155,7 +1155,7 @@ class ConfigWindow:
         theModel, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(Gtk.TreeRowReference(theModel, path))
+            refs.append(Gtk.TreeRowReference.new(theModel, path))
 
         modified = False
         
