@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
 #import pynotify, gtk, gettext
-from gi.repository import Gtk, Notify
+from gi.repository import Gtk, Gdk, Notify
 import gettext
 
 import popupmenu
