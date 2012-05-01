@@ -1316,7 +1316,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         dlg.destroy()
     
     def on_treeWidget_row_activated(self, widget, path, viewColumn, data=None):
-        widget.expand_row(path, False)
+        if widget.row_expanded(path):
+            widget.collapse_row(path)
+        else:
+            widget.expand_row(path, False)
         
     def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
         widget.columns_autosize()
