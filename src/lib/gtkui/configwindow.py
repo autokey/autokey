@@ -725,6 +725,7 @@ class ConfigWindow:
     def __init__(self, app):
         self.app = app
         self.cutCopiedItems = []
+        self.__warnedOfChanges = False
         
         builder = get_ui("mainwindow.xml")
         self.ui = builder.get_object("mainwindow")
@@ -848,30 +849,20 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
         
     def config_modified(self):
-        Gdk.threads_enter()
-        msg = _("Changes made in other programs will not be displayed until you\
- close and reopen the AutoKey window.")
-        dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
-                               message_format= _("Configuration has been changed on disk."))
-        dlg.format_secondary_text(msg)
+        if not self.__warnedOfChanges:
+            Gdk.threads_enter()
+            msg = _("Changes made in other programs will not be displayed until you\
+close and reopen the AutoKey window.\nThis message is only shown once per session.")
+            dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
+                                   message_format= _("Configuration has been changed on disk."))
+            dlg.format_secondary_text(msg)
+            
+            dlg.run()
+            dlg.destroy()
+            Gdk.threads_leave()
+            self.__warnedOfChanges = True
         
-        #if self.dirty:
-        #    checkButton = Gtk.CheckButton(_("Save changes before reloading (this may overwrite changes from other programs)"))    
-        #    box = dlg.get_content_area()
-        #    box.pack_end(checkButton)
-            
-        dlg.run()
-        #    if self.dirty:
-        #        if checkButton.get_active():
-        #            self.on_save()
-            
-        #    dlg.destroy()
-        #    Gdk.threads_leave()
-        #    return True
-                    
-        dlg.destroy()
-        Gdk.threads_leave()
-        #return False
+        
         
     def update_actions(self, items, changed):
         if len(items) == 0:
@@ -892,12 +883,6 @@ class ConfigWindow:
                 if isinstance(item, model.Folder):
                     canCopy = False
                     break
-        
-        #self.uiManager.get_action("/MenuBar/File/create").set_sensitive(enableAny)
-        #self.uiManager.get_action("/MenuBar/File/create/new-top-folder").set_sensitive(True)
-        #self.uiManager.get_action("/MenuBar/File/create/new-folder").set_sensitive(canCreate)
-        #self.uiManager.get_action("/MenuBar/File/create/new-phrase").set_sensitive(canCreate)
-        #self.uiManager.get_action("/MenuBar/File/create/new-script").set_sensitive(canCreate)
         
         self.uiManager.get_action("/MenuBar/Edit/copy-item").set_sensitive(canCopy)
         self.uiManager.get_action("/MenuBar/Edit/cut-item").set_sensitive(enableAny)

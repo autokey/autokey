@@ -166,19 +166,12 @@ class Application:
         changed = self.configManager.path_created_or_modified(path)
         if changed and self.configWindow is not None: 
             self.configWindow.config_modified()
-            #if doReload:
-            #    self.configWindow.hide()
-            #    self.show_configure_async()
         
     def path_removed(self, path):
         time.sleep(0.5)
         changed = self.configManager.path_removed(path)        
         if changed and self.configWindow is not None: 
             self.configWindow.config_modified()
-            #if doReload:
-            #    self.configWindow.hide()
-            #    self.configWindow = None
-            #    self.show_configure()
         
     def unpause_service(self):
         """
