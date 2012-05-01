@@ -45,13 +45,16 @@ def get_safe_path(basePath, name, ext=""):
     
     if safeName == '':
         path = basePath + '/1' + ext
+        jsonPath = basePath + "/.1.json"
         n = 2
     else:
         path = basePath + '/' + safeName + ext
+        jsonPath = basePath + '/.' + safeName + ".json"
         n = 1
 
-    while os.path.exists(path):
+    while os.path.exists(path) or os.path.exists(jsonPath):
         path = basePath + '/' + safeName + str(n) + ext
+        jsonPath = basePath + '/.' + safeName + str(n) + ".json"
         n += 1
         
     return path
