@@ -1,3 +1,19 @@
+autokey (0.90.2-0) unreleased; urgency=low
+
+  * [GTK] Run action should not be enabled for phrases
+  * [GTK] Bring back support for Unity application indicator
+  * [GTK] Fix a problem deleting items with older GTK3 versions
+  * [GTK] Make showing the main window on startup the default behaviour when
+    using the desktop file.
+  * [GTK] Fix window filter not being applied after clicking OK in the filter 
+    settings dialog
+  * [GTK] Only show one warning per session about externally modified config
+  * Correctly handle scenario where a phrase and script with the same name exist
+  * Add Unity to the list of environments messing with the Super key
+  * [GTK] Enable toggling of tree row collapsed/expanded status
+    
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 1 May 2012 20:27:31 +1000  
+
 autokey (0.90.1-0) unreleased; urgency=low
 
   * [KDE] Fix two critical issues causing the application to not start
