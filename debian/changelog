@@ -1,3 +1,9 @@
+autokey (0.90.2-1) unreleased; urgency=low
+
+  * Packaging change only: fix installation paths for ubuntu-mono-* icons
+    
+ -- Chris Dekter <cdekter@gmail.com>  Wed, 2 May 2012 19:23:02 +1000  
+
 autokey (0.90.2-0) unreleased; urgency=low
 
   * [GTK] Run action should not be enabled for phrases
