@@ -34,9 +34,6 @@ class PopupMenu(Gtk.Menu):
         self.__i = 1
         self.service = service
         
-        if title is not None:
-            self.add_title(title)
-        
         if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -48,7 +45,6 @@ class PopupMenu(Gtk.Menu):
         
         if len(folders) == 1 and len(items) == 0 and onDesktop:
             # Only one folder - create menu with just its folders and items
-            self.add_title(folders[0].title)
             for folder in folders[0].folders:
                 menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
                 menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, onDesktop))
@@ -93,15 +89,6 @@ class PopupMenu(Gtk.Menu):
         Gdk.threads_enter()
         self.popdown()
         Gdk.threads_leave()
-        
-    def add_title(self, title):
-        titleItem = Gtk.MenuItem()
-        button = Gtk.Button(title)
-        #button.set_sensitive(False)
-        titleItem.add(button)
-        titleItem.set_sensitive(False)
-        self.append(titleItem)
-        self.set_property("reserve-toggle-size", False)
         
     def __addItemsToSelf(self, items, service, onDesktop):
         # Create phrase section
