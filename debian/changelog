@@ -1,3 +1,10 @@
+autokey (0.90.3-0) unreleased; urgency=low
+
+  * Remove set_title from IndicatorNotifier, as it isn't supported in all
+    versions of the AppIndicator API.
+    
+ -- Chris Dekter <cdekter@gmail.com>  Fri, 4 May 2012 18:41:03 +1000  
+
 autokey (0.90.2-1) unreleased; urgency=low
 
   * Packaging change only: fix installation paths for ubuntu-mono-* icons

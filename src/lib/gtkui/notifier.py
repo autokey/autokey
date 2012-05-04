@@ -173,8 +173,6 @@ class IndicatorNotifier:
         self.indicator = AppIndicator3.Indicator.new("AutoKey", ConfigManager.SETTINGS[NOTIFICATION_ICON],
                                                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
                                                 
-        
-        self.indicator.set_title("AutoKey")
         self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
         self.update_visible_status()           
         self.rebuild_menu()
