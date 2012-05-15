@@ -281,6 +281,7 @@ class HotkeySettingsDialog(KDialog):
             self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
             self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
             self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -314,6 +315,7 @@ class HotkeySettingsDialog(KDialog):
         self.widget.shiftButton.setChecked(False)
         self.widget.superButton.setChecked(False)
         self.widget.hyperButton.setChecked(False)
+        self.widget.metaButton.setChecked(False)
 
         self._setKeyLabel(i18n("(None)"))
         self.key = None
@@ -329,6 +331,7 @@ class HotkeySettingsDialog(KDialog):
         self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in modifiers)
         self.widget.superButton.setChecked(iomediator.Key.SUPER in modifiers)
         self.widget.hyperButton.setChecked(iomediator.Key.HYPER in modifiers)
+        self.widget.metaButton.setChecked(iomediator.Key.META in modifiers)
 
         self.widget.setButton.setEnabled(True)
             
@@ -348,6 +351,8 @@ class HotkeySettingsDialog(KDialog):
             modifiers.append(iomediator.Key.SUPER)
         if self.widget.hyperButton.isChecked():
             modifiers.append(iomediator.Key.HYPER)
+        if self.widget.metaButton.isChecked():
+            modifiers.append(iomediator.Key.META)
         
         modifiers.sort()
         return modifiers
@@ -381,6 +386,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
             self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
             self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:

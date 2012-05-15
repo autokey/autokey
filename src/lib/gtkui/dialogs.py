@@ -318,6 +318,7 @@ class HotkeySettingsDialog(DialogBase):
         self.shiftButton = builder.get_object("shiftButton")
         self.superButton = builder.get_object("superButton")
         self.hyperButton = builder.get_object("hyperButton")
+        self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
         
@@ -332,6 +333,7 @@ class HotkeySettingsDialog(DialogBase):
             self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
             self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
             self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
+            self.metaButton.set_active(iomediator.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -365,6 +367,7 @@ class HotkeySettingsDialog(DialogBase):
         self.shiftButton.set_active(False)
         self.superButton.set_active(False)
         self.hyperButton.set_active(False)
+        self.metaButton.set_active(False)
 
         self._setKeyLabel(_("(None)"))
         self.key = None
@@ -381,6 +384,7 @@ class HotkeySettingsDialog(DialogBase):
         self.shiftButton.set_active(iomediator.Key.SHIFT in modifiers)
         self.superButton.set_active(iomediator.Key.SUPER in modifiers)
         self.hyperButton.set_active(iomediator.Key.HYPER in modifiers)
+        self.metaButton.set_active(iomediator.Key.META in modifiers)
         
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -403,6 +407,8 @@ class HotkeySettingsDialog(DialogBase):
             modifiers.append(iomediator.Key.SUPER)
         if self.hyperButton.get_active():
             modifiers.append(iomediator.Key.HYPER)
+        if self.metaButton.get_active():
+            modifiers.append(iomediator.Key.META)
         
         modifiers.sort()
         return modifiers
@@ -433,6 +439,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
             self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
             self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
+            self.metaButton.set_active(iomediator.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:

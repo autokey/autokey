@@ -817,15 +817,13 @@ class GtkClipboard:
         @rtype: C{str}
         @raise Exception: if no text was found in the selection
         """
-        self.__execAsync(self.selection.request_text, self.__receive)
-        if self.text is not None:
-            return self.text.decode("utf-8")
+        Gdk.threads_enter()
+        text = self.selection.wait_for_text()
+        Gdk.threads_leave()
+        if text is not None:
+            return text.decode("utf-8")
         else:
             raise Exception("No text found in X selection")
-        
-    def __receive(self, cb, text, data=None):
-        self.text = text
-        self.sem.release()
         
     def fill_clipboard(self, contents):
         """
@@ -835,13 +833,9 @@ class GtkClipboard:
         
         @param contents: string to be placed in the selection
         """
-        self.__fillClipboard(contents)
-        
-    def __fillClipboard(self, string):
         Gdk.threads_enter()
-        self.clipBoard.set_text(string.encode("utf-8"))
-        Gdk.threads_leave()
-        #self.sem.release()        
+        self.clipBoard.set_text(contents.encode("utf-8"))
+        Gdk.threads_leave()      
         
     def get_clipboard(self):
         """
@@ -853,18 +847,13 @@ class GtkClipboard:
         @rtype: C{str}
         @raise Exception: if no text was found on the clipboard
         """
-        self.__execAsync(self.clipBoard.request_text, self.__receive)
-        if self.text is not None:
-            return self.text.decode("utf-8")
+        Gdk.threads_enter()
+        text = self.clipBoard.wait_for_text()
+        Gdk.threads_leave()
+        if text is not None:
+            return text.decode("utf-8")
         else:
             raise Exception("No text found on clipboard")
-        
-    def __execAsync(self, callback, *args):
-        self.sem = threading.Semaphore(0)
-        Gdk.threads_enter()
-        callback(*args)
-        Gdk.threads_leave()
-        self.sem.acquire()
 
         
 class Window:
@@ -1184,6 +1173,7 @@ class Engine:
         <alt>
         <super>
         <hyper>
+        <meta>
         <shift>
         
         The key must be an unshifted character (i.e. lowercase)
