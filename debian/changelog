@@ -1,3 +1,11 @@
+autokey (0.90.4-0) unreleased; urgency=low
+
+  * [GTK] Fix various issues with notifications
+  * [GTK] Fix various issues with clipboard scripting
+  * Apply patch from issue 199 - add support for Meta modifier
+    
+ -- Chris Dekter <cdekter@gmail.com>  Tue, 15 May 2012 21:38:12 +1000  
+
 autokey (0.90.3-0) unreleased; urgency=low
 
   * Remove set_title from IndicatorNotifier, as it isn't supported in all
