@@ -154,8 +154,8 @@ class Notifier:
         
     def show_notify(self, message, iconName):
         Gdk.threads_enter()
-        n = Notify.Notification("AutoKey", message, iconName)
-        n.set_urgency(Notify.URGENCY_LOW)
+        n = Notify.Notification.new("AutoKey", message, iconName)
+        n.set_urgency(Notify.Urgency.LOW)
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
             n.attach_to_status_icon(self.icon)
         n.show()
@@ -243,8 +243,8 @@ class IndicatorNotifier:
         
     def show_notify(self, message, iconName):
         Gdk.threads_enter()
-        n = Notify.Notification("AutoKey", message, iconName)
-        n.set_urgency(Notify.URGENCY_LOW)
+        n = Notify.Notification.new("AutoKey", message, iconName)
+        n.set_urgency(Notify.Urgency.LOW)
         n.show()
         Gdk.threads_leave()
         
