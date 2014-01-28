@@ -18,7 +18,7 @@
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 
-import os, threading, re, time, socket, select, logging, Queue, subprocess
+import os, threading, re, time, socket, select, logging, queue, subprocess
 
 try:
     import pyatspi
@@ -35,7 +35,7 @@ except ImportError:
     
 from Xlib.protocol import rq, event
 
-import common
+from . import common
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
@@ -74,7 +74,7 @@ class XInterfaceBase(threading.Thread):
         
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         
         # Event listener
         self.listenerThread = threading.Thread(target=self.__flushEvents)
@@ -114,7 +114,7 @@ class XInterfaceBase(threading.Thread):
     
             try:
                 method(*args)
-            except Exception, e:
+            except Exception as e:
                 logger.exception("Error in X event loop thread")
                 
             self.queue.task_done()
@@ -153,7 +153,7 @@ class XInterfaceBase(threading.Thread):
         self.modMasks = {}
         mapping = self.localDisplay.get_modifier_mapping()
 
-        for keySym, ak in XK_TO_AK_MAP.iteritems():
+        for keySym, ak in XK_TO_AK_MAP.items():
             if ak in MODIFIERS:
                 keyCodeList = self.localDisplay.keysym_to_keycodes(keySym)
                 found = False
@@ -196,7 +196,7 @@ class XInterfaceBase(threading.Thread):
 
     def keymap_test(self):
         code = self.localDisplay.keycode_to_keysym(108, 0)
-        for attr in XK.__dict__.iteritems():
+        for attr in XK.__dict__.items():
             if attr[0].startswith("XK"):
                 if attr[1] == code:
                     logger.debug("Alt-Grid: %s, %s", attr[0], attr[1])
@@ -205,6 +205,7 @@ class XInterfaceBase(threading.Thread):
         logger.debug("X Server Keymap")
         for char in "\\|`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+            keyCodeList = list(keyCodeList)
             if len(keyCodeList) > 0:
                 logger.debug("[%s] : %s", char, keyCodeList)
             else:
@@ -215,14 +216,15 @@ class XInterfaceBase(threading.Thread):
             return False
     
         try:
-            output = subprocess.check_output(["ps", "-eo", "command"])
+            output = subprocess.check_output(["ps", "-eo", "command"]).decode()
+        except subprocess.CalledProcessError:
+            pass # since this is just a nasty workaround, if anything goes wrong just disable it 
+        else:
             lines = output.splitlines()
             
             for line in lines:
                 if "gnome-shell" in line or "cinnamon" in line or "unity" in line:
                     return True
-        except:
-            pass # since this is just a nasty workaround, if anything goes wrong just disable it 
                 
         return False
 
@@ -354,7 +356,7 @@ class XInterfaceBase(threading.Thread):
             if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
                 window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
 
-        except Exception, e:
+        except Exception as e:
             logger.warn("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
 
     def grab_hotkey(self, item):
@@ -450,7 +452,7 @@ class XInterfaceBase(threading.Thread):
 
             if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
                 window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
-        except Exception, e:
+        except Exception as e:
             logger.warn("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
 
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
@@ -465,11 +467,11 @@ class XInterfaceBase(threading.Thread):
         elif keySym in XK_TO_AK_MAP:
             return XK_TO_AK_MAP[keySym]
         else:
+            index = 0
+            if shifted: index += 1
+            if altGrid: index += 4
             try:
-                index = 0
-                if shifted: index += 1
-                if altGrid: index += 4
-                return unichr(self.localDisplay.keycode_to_keysym(keyCode, index))
+                return chr(self.localDisplay.keycode_to_keysym(keyCode, index))
             except ValueError:
                 return "<code%d>" % keyCode
 
@@ -521,7 +523,8 @@ class XInterfaceBase(threading.Thread):
             self.sem.release()
         else:
             Gdk.threads_enter()
-            self.selection.set_text(string.encode("utf-8"))
+            self.selection.set_text(string)
+            # self.selection.set_text(string.encode("utf-8"))
             Gdk.threads_leave()
 
     def __fillClipboard(self, string):
@@ -534,7 +537,8 @@ class XInterfaceBase(threading.Thread):
             text = self.clipBoard.wait_for_text()
             self.__savedClipboard = ''
             if text is not None: self.__savedClipboard = text
-            self.clipBoard.set_text(string.encode("utf-8"))
+            self.clipBoard.set_text(string)
+            # self.clipBoard.set_text(string.encode("utf-8"))
             Gdk.threads_leave()
 
     def begin_send(self):
@@ -604,7 +608,7 @@ class XInterfaceBase(threading.Thread):
             mapping = self.localDisplay.get_keyboard_mapping(8, 200)
             firstCode = 8
 
-            for i in xrange(len(availCodes) - 1):
+            for i in range(len(availCodes) - 1):
                 code = availCodes[i]
                 sym1 = 0
                 sym2 = 0
@@ -660,7 +664,7 @@ class XInterfaceBase(threading.Thread):
                         self.__releaseKey(Key.SHIFT)
                 else:
                     logger.warn("Unable to send character %r", char)
-            except Exception, e:
+            except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
 
         self.__ignoreRemap = False
@@ -714,7 +718,7 @@ class XInterfaceBase(threading.Thread):
             for mod in modifiers: self.__pressKey(mod)
             self.__sendKeyCode(keyCode, mask)
             for mod in modifiers: self.__releaseKey(mod)
-        except Exception, e:
+        except Exception as e:
             logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
 
     def send_mouse_click(self, xCoord, yCoord, button, relative):
@@ -784,7 +788,7 @@ class XInterfaceBase(threading.Thread):
                     createdWindows = []
                     destroyedWindows = []
                     
-                    for x in xrange(self.localDisplay.pending_events()):
+                    for x in range(self.localDisplay.pending_events()):
                         event = self.localDisplay.next_event()
                         if event.type == X.CreateNotify:
                             createdWindows.append(event.window)
@@ -926,7 +930,7 @@ class XInterfaceBase(threading.Thread):
         else:
             try:
                 return self.localDisplay.keysym_to_keycode(ord(char))
-            except Exception, e:
+            except Exception as e:
                 logger.error("Unknown key name: %s", char)
                 raise
 
@@ -939,17 +943,23 @@ class XInterfaceBase(threading.Thread):
 
             return self.__getWinTitle(windowvar, traverse)
 
-        except:
+        except AttributeError as e:
+            if str(e)=="'int' object has no attribute 'get_property'":
+                return ""
+            raise
+        except error.BadWindow as e:#TODO_PY3
+            print(__name__, repr(e))
             return ""
+        # except:
+        #     return ""
 
 
     def __getWinTitle(self, windowvar, traverse):
         atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
         if atom is None:
             atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
-
         if atom:
-            return atom.value.decode("utf-8")
+            return atom.value #.decode("utf-8")
         elif traverse:
             return self.__getWinTitle(windowvar.query_tree().parent, True)
         else:
@@ -963,8 +973,15 @@ class XInterfaceBase(threading.Thread):
                 windowvar = window
 
             return self.__getWinClass(windowvar, traverse)
-        except:
+        except AttributeError as e:
+            if str(e)=="'int' object has no attribute 'get_wm_class'":
+                return ""
+            raise
+        except error.BadWindow as e:#TODO_PY3
+            print(__name__, repr(e))
             return ""
+        # except:
+        #     return ""
     
     def __getWinClass(self, windowvar, traverse):
         wmclass = windowvar.get_wm_class()
@@ -1031,7 +1048,7 @@ class XRecordInterface(XInterfaceBase):
             return
         if reply.client_swapped:
             return
-        if not len(reply.data) or ord(reply.data[0]) < 2:
+        if not len(reply.data) or reply.data[0] < 2:
             # not an event
             return
 
@@ -1077,8 +1094,10 @@ class AtSpiInterface(XInterfaceBase):
         pyatspi.Registry.pumpQueuedEvents()
         return True
 
-from iomediator import Key, MODIFIERS
-from configmanager import *
+from .iomediator_constants import MODIFIERS
+from .iomediator_Key import Key
+# from .iomediator import Key, MODIFIERS
+from .configmanager import *
 
 XK.load_keysym_group('xkb')
 
@@ -1148,7 +1167,7 @@ XK_TO_AK_MAP = {
            XK.XK_space : ' '
            }
 
-AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.iteritems())
+AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.items())
 
 XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Insert : "0",
@@ -1198,4 +1217,4 @@ if __name__ == "__main__":
     #time.sleep(4.0)
     #x.send_unicode_key([0, 3, 9, 4])
     x.cancel()
-    print "Test completed. Thank you for your assistance in improving AutoKey!"
+    print("Test completed. Thank you for your assistance in improving AutoKey!")

@@ -16,9 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os.path, dbus.service
+import os, dbus.service
 
-CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+# CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
 LOCK_FILE = CONFIG_DIR + "/autokey.pid"
 LOG_FILE = CONFIG_DIR + "/autokey.log"
 MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
@@ -31,11 +32,16 @@ VERSION = "0.90.4"
 HOMEPAGE  = "http://autokey.googlecode.com/"
 BUG_EMAIL = "cdekter@gmail.com"
 
+HOMEPAGE_PY3  = "http://github.com/guoci/autokey-py3"
+# HOMEPAGE_PY3  = "http://github.com/guoci/python3-xlib-trunk"
+BUG_EMAIL_PY3 = "guociz@gmail.com"
+
 FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
 API_URL = "http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html"
 HELP_URL = "http://code.google.com/p/autokey/w/list"
 DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
 BUG_URL = "http://code.google.com/p/autokey/issues/entry"
+BUG_URL = HOMEPAGE_PY3 + "/issues"
 
 ICON_FILE = "autokey"
 ICON_FILE_NOTIFICATION = "autokey-status"

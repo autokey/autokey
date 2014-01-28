@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import common
+from . import common
 common.USING_QT = False
 
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
@@ -25,12 +25,12 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-import service, monitor
-from gtkui.notifier import get_notifier
-from gtkui.popupmenu import PopupMenu
-from gtkui.configwindow import ConfigWindow
-from configmanager import *
-from common import *
+from . import service, monitor
+from .gtkui.notifier import get_notifier
+from .gtkui.popupmenu import PopupMenu
+from .gtkui.configwindow import ConfigWindow
+from .configmanager import *
+from .common import *
 
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
@@ -77,7 +77,7 @@ class Application:
                 
             self.initialise(options.configure)
             
-        except Exception, e:
+        except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
@@ -90,15 +90,13 @@ class Application:
         
     def __verifyNotRunning(self):
         if os.path.exists(LOCK_FILE):
-            f = open(LOCK_FILE, 'r')
-            pid = f.read()
-            f.close()
+            with open(LOCK_FILE, 'r') as f: pid = f.read()
             
             # Check that the found PID is running and is autokey
-            p = subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE)
-            p.wait()
-            output = p.stdout.read()
-            if "autokey" in output:
+            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+                output = p.communicate()[0]
+
+            if "autokey" in output.decode():
                 logging.debug("AutoKey is already running as pid %s", pid)
                 bus = dbus.SessionBus()
                 
@@ -106,7 +104,7 @@ class Application:
                     dbusService = bus.get_object("org.autokey.Service", "/AppService")
                     dbusService.show_configure(dbus_interface = "org.autokey.Service")
                     sys.exit(0)
-                except dbus.DBusException, e:
+                except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
                     self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
                     sys.exit(1)
@@ -129,7 +127,7 @@ class Application:
                 
         try:
             self.service.start()
-        except Exception, e:
+        except Exception as e:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
@@ -273,6 +271,8 @@ class Application:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
+            self.notifier.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+
         else:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))

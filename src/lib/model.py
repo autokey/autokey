@@ -16,9 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re, os, os.path, glob, logging
-from configmanager import *
-from iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
-from scripting import Store
+from .configmanager import *
+from .iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
+from .scripting_Store import Store
 
 _logger = logging.getLogger("model")
 
@@ -121,7 +121,7 @@ class AbstractAbbreviation:
         elif len(self.abbreviations) == 1:
             return self.abbreviations[0]
         else:
-            return u"[%s]" % u','.join(self.abbreviations)
+            return "[%s]" % ','.join(self.abbreviations)
         
     def _should_trigger_abbreviation(self, buffer):
         """
@@ -145,8 +145,7 @@ class AbstractAbbreviation:
         
     def __checkInput(self, buffer, abbr):
         stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
-        
-        if len(typedAbbr) > 0:            
+        if len(typedAbbr) > 0:
             # Check trigger character condition
             if not self.immediate:
                 # If not immediate expansion, check last character
@@ -191,7 +190,7 @@ class AbstractAbbreviation:
             abbrEnd = abbrStart + len(typedAbbr)
             typedAbbr = currentString[abbrStart:abbrEnd]
         else:
-            stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)     
+            stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)
             
         return (stringBefore, typedAbbr, stringAfter)
     
@@ -633,7 +632,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), jsonFile, indent=4)
                 
         with open(self.path, "w") as outFile:
-            outFile.write(self.phrase.encode("utf-8"))
+            outFile.write(self.phrase)
+            # outFile.write(self.phrase.encode("utf-8"))
 
     def get_serializable(self):
         d = {
@@ -657,7 +657,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = parent
         
         with open(self.path, "r") as inFile:
-            self.phrase = inFile.read().decode("utf-8") 
+            self.phrase = inFile.read()
         
         if os.path.exists(self.get_json_path()):           
             self.load_from_serialized()
@@ -918,7 +918,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), jsonFile, indent=4)
                         
         with open(self.path, "w") as outFile:
-            outFile.write(self.code.encode("utf-8"))
+            outFile.write(self.code)
+            # outFile.write(self.code.encode("utf-8"))
 
     def get_serializable(self):
         d = {
@@ -941,7 +942,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.parent = parent
         
         with open(self.path, "r") as inFile:
-            self.code = inFile.read().decode("utf-8")
+            self.code = inFile.read()
         
         if os.path.exists(self.get_json_path()):           
             self.load_from_serialized()

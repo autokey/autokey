@@ -16,21 +16,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import common
+from . import common
 common.USING_QT = True
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, Queue, time, dbus, dbus.mainloop.qt
+import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, queue, time, dbus, dbus.mainloop.qt
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
 from PyKDE4.kdeui import KMessageBox, KApplication
 from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
 from PyQt4.QtGui import QCursor
 
-import service, monitor
-from qtui.notifier import Notifier
-from qtui.popupmenu import PopupMenu
-from qtui.configwindow import ConfigWindow
-from configmanager import *
-from common import *
+from . import service, monitor
+from .qtui.notifier import Notifier
+from .qtui.popupmenu import PopupMenu
+from .qtui.configwindow import ConfigWindow
+from .configmanager import *
+from .common import *
 
 PROGRAM_NAME = ki18n("AutoKey")
 DESCRIPTION = ki18n("Desktop automation utility")
@@ -38,6 +38,12 @@ LICENSE = KAboutData.License_GPL_V3
 COPYRIGHT = ki18n("(c) 2009-2012 Chris Dekter")
 TEXT = ki18n("")
 
+PROGRAM_NAME_PY3 = ki18n("AutoKey-Py3")
+DESCRIPTION_PY3 = ki18n("Python 3 port of AutoKey. Desktop automation utility")
+COPYRIGHT_PY3 = ki18n("""
+(c) 2009-2012 Chris Dekter
+(c) 2014 GuoCi
+""")
 
 class Application:
     """
@@ -54,6 +60,14 @@ class Application:
         aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
         aboutData.setProgramIconName(common.ICON_FILE)
         self.aboutData = aboutData
+
+        aboutData_py3 = KAboutData(APP_NAME, CATALOG, PROGRAM_NAME_PY3, VERSION, DESCRIPTION_PY3,
+                                    LICENSE, COPYRIGHT_PY3, TEXT, HOMEPAGE_PY3, BUG_EMAIL_PY3)
+        aboutData_py3.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
+        aboutData_py3.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
+        aboutData_py3.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
+        aboutData_py3.setProgramIconName(common.ICON_FILE)
+        self.aboutData_py3 = aboutData_py3
         
         KCmdLineArgs.init(sys.argv, aboutData)
         options = KCmdLineOptions()
@@ -89,7 +103,7 @@ class Application:
                 
             self.initialise(args.isSet("configure"))
             
-        except Exception, e:
+        except Exception as e:
             self.show_error_dialog(i18n("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
@@ -107,9 +121,8 @@ class Application:
             f.close()
             
             # Check that the found PID is running and is autokey
-            p = subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE)
-            p.wait()
-            output = p.stdout.read()
+            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+                output = p.communicate()[0].decode()
             if "autokey" in output:
                 logging.debug("AutoKey is already running as pid %s", pid)
                 bus = dbus.SessionBus()
@@ -118,7 +131,7 @@ class Application:
                     dbusService = bus.get_object("org.autokey.Service", "/AppService")
                     dbusService.show_configure(dbus_interface = "org.autokey.Service")
                     sys.exit(0)
-                except dbus.DBusException, e:
+                except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
                     self.show_error_dialog(i18n("AutoKey is already running as pid %1 but is not responding", pid), str(e))
                     sys.exit(1)
@@ -141,7 +154,7 @@ class Application:
         
         try:
             self.service.start()
-        except Exception, e:
+        except Exception as e:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
@@ -245,8 +258,9 @@ class Application:
         logging.info("Displaying configuration window")
         try:
             self.configWindow.showNormal()
-            self.configWindow.activateWindow()            
-        except:
+            self.configWindow.activateWindow()
+        except (AttributeError, RuntimeError):
+            # AttributeError when the main window is shown the first time, RuntimeError subsequently.
             self.configWindow = ConfigWindow(self)
             self.configWindow.show()
             
@@ -291,13 +305,13 @@ class CallbackEventHandler(QObject):
 
     def __init__(self):
         QObject.__init__(self)
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
 
     def customEvent(self, event):
         while True:
             try:
                 callback, args = self.queue.get_nowait()
-            except Queue.Empty:
+            except queue.Empty:
                 break
             try:
                 callback(*args)

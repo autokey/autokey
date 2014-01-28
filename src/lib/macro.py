@@ -1,5 +1,7 @@
-from iomediator import KEY_SPLIT_RE, Key
-import common
+from .iomediator_constants import KEY_SPLIT_RE
+from .iomediator_Key import Key
+# from .iomediator import KEY_SPLIT_RE, Key
+from . import common
 
 if common.USING_QT:
     from PyKDE4.kdecore import ki18n
@@ -95,7 +97,7 @@ class AbstractMacro:
         return ret
         
     def process(self, parts):
-        for i in xrange(len(parts)):
+        for i in range(len(parts)):
             if self._can_process(parts[i]):
                 self.do_process(parts, i)
     

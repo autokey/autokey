@@ -17,16 +17,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time, logging, threading, traceback
-import common
-from iomediator import Key, IoMediator
-from configmanager import *
+from . import common
+# from .iomediator import Key, IoMediator
+from .iomediator_Key import Key
+from .iomediator import IoMediator
+from .configmanager import *
 if common.USING_QT:
-    from qtui.popupmenu import *
+    from .qtui.popupmenu import *
     from PyKDE4.kdecore import i18n
 else:
-    from gtkui.popupmenu import *
-from macro import MacroManager
-import scripting, model
+    from .gtkui.popupmenu import *
+from .macro import MacroManager
+from . import scripting, model
 
 logger = logging.getLogger("service")
 
@@ -113,7 +115,7 @@ class Service:
         self.phraseRunner.clear_last()
         
     def handle_keypress(self, rawKey, modifiers, key, windowName, windowClass):
-        logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key.encode("utf-8"))
+        logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
         logger.debug("Window visible title: %r, Window class: %r" % (windowName, windowClass))
         self.configManager.lock.acquire()
         windowInfo = (windowName, windowClass)
@@ -402,7 +404,7 @@ class PhraseRunner:
         self.lastExpansion = None
         self.lastPhrase = None 
 
-    @synchronized(iomediator.SEND_LOCK)
+    # @synchronized(iomediator.SEND_LOCK) #TODO_PY3 commented this
     def undo_expansion(self):
         logger.info("Undoing last abbreviation expansion")
         replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)
@@ -451,8 +453,8 @@ class ScriptRunner:
         self.mediator.send_backspace(backspaces)
 
         try:
-            exec script.code in scope
-        except Exception, e:
+            exec(script.code, scope)
+        except Exception as e:
             logger.exception("Script error")
             
             if common.USING_QT:
@@ -468,4 +470,4 @@ class ScriptRunner:
     def run_subscript(self, script):
         scope = self.scope.copy()
         scope["store"] = script.store
-        exec script.code in scope
+        exec(script.code, scope)

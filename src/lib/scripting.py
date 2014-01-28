@@ -16,7 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import subprocess, threading, time, re
-import common, model, iomediator
+from . import common, model, iomediator
+
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
@@ -38,8 +39,10 @@ class Keyboard:
         
         @param keyString: string of keys (including special keys) to send
         """
+        # time.sleep(.1) # TODO_PY3
         self.mediator.interface.begin_send()
-        self.mediator.send_string(keyString.decode("utf-8"))
+        assert type(keyString) is str
+        self.mediator.send_string(keyString)
         self.mediator.interface.finish_send()
         
     def send_key(self, key, repeat=1):
@@ -51,8 +54,8 @@ class Keyboard:
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
         """        
-        for x in xrange(repeat):
-            self.mediator.send_key(key.decode("utf-8"))
+        for x in range(repeat):
+            self.mediator.send_key(key)
         self.mediator.flush()
         
     def press_key(self, key):
@@ -64,7 +67,7 @@ class Keyboard:
         The key will be treated as down until a matching release_key() is sent.
         @param key: they key to be pressed (e.g. "s" or "<enter>")
         """
-        self.mediator.press_key(key.decode("utf-8"))
+        self.mediator.press_key(key)
         
     def release_key(self, key):
         """
@@ -76,7 +79,7 @@ class Keyboard:
         ignored.
         @param key: they key to be released (e.g. "s" or "<enter>")
         """
-        self.mediator.release_key(key.decode("utf-8"))        
+        self.mediator.release_key(key)
 
     def fake_keypress(self, key, repeat=1):
         """
@@ -90,8 +93,8 @@ class Keyboard:
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
         """
-        for x in xrange(repeat):
-            self.mediator.fake_keypress(key.decode("utf-8"))
+        for x in range(repeat):
+            self.mediator.fake_keypress(key)
             
     def wait_for_keypress(self, key, modifiers=[], timeOut=10.0):
         """
@@ -166,61 +169,7 @@ class Mouse:
         w.wait()
             
             
-class Store(dict):
-    """
-    Allows persistent storage of values between invocations of the script.
-    """
-    
-    def set_value(self, key, value):
-        """
-        Store a value
-        
-        Usage: C{store.set_value(key, value)}
-        """
-        self[key] = value
-        
-    def get_value(self, key):
-        """
-        Get a value
-        
-        Usage: C{store.get_value(key)}
-        """
-        return self[key]        
-        
-    def remove_value(self, key):
-        """
-        Remove a value
-        
-        Usage: C{store.remove_value(key)}
-        """
-        del self[key]
-        
-    def set_global_value(self, key, value):
-        """
-        Store a global value
-        
-        Usage: C{store.set_global_value(key, value)}
-        
-        The value stored with this method will be available to all scripts.
-        """
-        Store.GLOBALS[key] = value
-        
-    def get_global_value(self, key):
-        """
-        Get a global value
-        
-        Usage: C{store.get_global_value(key)}
-        """
-        return self.GLOBALS[key]        
-        
-    def remove_global_value(self, key):
-        """
-        Remove a global value
-        
-        Usage: C{store.remove_global_value(key)}
-        """
-        del self.GLOBALS[key]
-        
+from .scripting_Store import Store
         
 class QtDialog:
     """
@@ -235,7 +184,7 @@ class QtDialog:
     """
     
     def __runKdialog(self, title, args, kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             args.append("--" + k)
             args.append(v)
 
@@ -466,8 +415,11 @@ class System:
         """
         if getOutput:
             p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
-            retCode = p.wait()
-            output = p.stdout.read()[:-1]
+            output = p.communicate()[0].decode()
+            retCode = p.returncode
+            # possible deadlock if the code below is used, see http://docs.python.org/3/library/subprocess.html for more information
+            # retCode = p.wait()
+            # output = p.stdout.read()[:-1]
             if retCode != 0:
                 raise subprocess.CalledProcessError(retCode, output)
             else:
@@ -501,14 +453,17 @@ class GtkDialog:
     """
     
     def __runZenity(self, title, args, kwargs):
-        for k, v in kwargs.iteritems():
+        for k, v in kwargs.items():
             args.append("--" + k)
             args.append(v)
 
-        p = subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read()[:-1] # Drop trailing newline
-        
+        # p = subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE)
+        # retCode = p.wait()
+        # output = p.stdout.read()[:-1] # Drop trailing newline
+        with subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE) as p:
+            output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+            retCode = p.returncode
+
         return (retCode, output)
     
     def info_dialog(self, title="Information", message="", **kwargs):
@@ -738,7 +693,7 @@ class QtClipboard:
         @rtype: C{str}
         """
         self.__execAsync(self.__getSelection)
-        return unicode(self.text)
+        return str(self.text)
         
     def __getSelection(self):
         self.text = self.clipBoard.text(QClipboard.Selection)
@@ -768,7 +723,7 @@ class QtClipboard:
         @rtype: C{str}
         """
         self.__execAsync(self.__getClipboard)
-        return unicode(self.text)
+        return str(self.text)
         
     def __getClipboard(self):
         self.text = self.clipBoard.text(QClipboard.Clipboard)
@@ -803,7 +758,7 @@ class GtkClipboard:
         
     def __fillSelection(self, string):
         Gdk.threads_enter()
-        self.selection.set_text(string.encode("utf-8"))
+        self.selection.set_text(string)
         Gdk.threads_leave()
         #self.sem.release()
         
@@ -821,7 +776,7 @@ class GtkClipboard:
         text = self.selection.wait_for_text()
         Gdk.threads_leave()
         if text is not None:
-            return text.decode("utf-8")
+            return text
         else:
             raise Exception("No text found in X selection")
         
@@ -834,7 +789,7 @@ class GtkClipboard:
         @param contents: string to be placed in the selection
         """
         Gdk.threads_enter()
-        self.clipBoard.set_text(contents.encode("utf-8"))
+        self.clipBoard.set_text(contents)
         Gdk.threads_leave()      
         
     def get_clipboard(self):
@@ -851,7 +806,7 @@ class GtkClipboard:
         text = self.clipBoard.wait_for_text()
         Gdk.threads_leave()
         if text is not None:
-            return text.decode("utf-8")
+            return text
         else:
             raise Exception("No text found on clipboard")
 
@@ -1051,7 +1006,8 @@ class Window:
                 
         if matchingLine is not None:
             output = matchingLine.split()[2:6]
-            return map(int, output)
+            # return [int(x) for x in output]
+            return list(map(int, output))
         else:
             return None
 
@@ -1078,10 +1034,10 @@ class Window:
         return self.mediator.interface.get_window_class()
         
     def __runWmctrl(self, args):
-        p = subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read()[:-1] # Drop trailing newline
-        
+        with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
+            output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+            retCode = p.returncode
+
         return (retCode, output)
         
         
@@ -1225,7 +1181,7 @@ class Engine:
         
         try:
             self.run_script(args["name"])
-        except Exception, e:
+        except Exception as e:
             self.set_return_value("{ERROR: %s}" % str(e))
             
     def get_macro_arguments(self):

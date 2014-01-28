@@ -16,17 +16,20 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, os.path, shutil, logging, pickle, glob, threading, subprocess
-import iomediator, interface, common, monitor
+# from . import iomediator, interface, common, monitor
+from . import common, monitor
+from .iomediator_constants import X_RECORD_INTERFACE
 
 try:
     import json
     l = json.load
-except:
+except ImportError:
     import simplejson as json
 
 _logger = logging.getLogger("config-manager")
 
-CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+# CONFIG_DIR = os.path.expanduser("~/.config/autokey")
+from .common import CONFIG_DIR
 CONFIG_FILE = os.path.join(CONFIG_DIR, "autokey.json")
 CONFIG_DEFAULT_FOLDER = os.path.join(CONFIG_DIR, "data")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
@@ -44,7 +47,8 @@ PROMPT_TO_SAVE = "promptToSave"
 #PREDICTIVE_LENGTH = "predictiveLength"
 INPUT_SAVINGS = "inputSavings"
 ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
-INTERFACE_TYPE = "interfaceType"
+from .configmanager_constants import INTERFACE_TYPE
+# INTERFACE_TYPE = "interfaceType"
 UNDO_USING_BACKSPACE = "undoUsingBackspace"
 WINDOW_DEFAULT_SIZE = "windowDefaultSize"
 HPANE_POSITION = "hPanePosition"
@@ -66,7 +70,7 @@ def get_config_manager(autoKeyApp, hadError=False):
 
     try:
         configManager = ConfigManager(autoKeyApp)
-    except Exception, e:
+    except Exception as e:
         if hadError or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
             _logger.error("Error while loading configuration. Cannot recover.")
             raise
@@ -90,7 +94,7 @@ def save_config(configManager):
         outFile = open(CONFIG_FILE, "w")
         json.dump(configManager.get_serializable(), outFile, indent=4)
         _logger.info("Finished persisting configuration - no errors")
-    except Exception, e:
+    except Exception as e:
         if os.path.exists(CONFIG_FILE_BACKUP):
             shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
         _logger.exception("Error while saving configuration. Backup has been restored (if found).")
@@ -103,7 +107,7 @@ def apply_settings(settings):
     """
     Allows new settings to be added without users having to lose all their configuration
     """
-    for key, value in settings.iteritems():
+    for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
 
 def convert_v07_to_v08(configData):
@@ -169,7 +173,7 @@ class ConfigManager:
                 PROMPT_TO_SAVE: False,
                 #PREDICTIVE_LENGTH : 5,
                 ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : iomediator.X_RECORD_INTERFACE,
+                INTERFACE_TYPE : X_RECORD_INTERFACE,
                 UNDO_USING_BACKSPACE : True,
                 WINDOW_DEFAULT_SIZE : (600, 400),
                 HPANE_POSITION : 150,
@@ -218,31 +222,31 @@ class ConfigManager:
         
         _logger.info("No configuration found - creating new one")       
         
-        myPhrases = Folder(u"My Phrases")
+        myPhrases = Folder("My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
         myPhrases.set_modes([TriggerMode.HOTKEY])
         myPhrases.persist()
         
-        f = Folder(u"Addresses")
-        adr = Phrase(u"Home Address", u"22 Avenue Street\nBrisbane\nQLD\n4000")
+        f = Folder("Addresses")
+        adr = Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
         adr.set_modes([TriggerMode.ABBREVIATION])
-        adr.add_abbreviation(u"adr")
+        adr.add_abbreviation("adr")
         f.add_item(adr)
         myPhrases.add_folder(f)        
         f.persist()
         adr.persist()
 
-        p = Phrase(u"First phrase", u"Test phrase number one!")
+        p = Phrase("First phrase", "Test phrase number one!")
         p.set_modes([TriggerMode.PREDICTIVE])
         p.set_window_titles(".* - gedit")
         myPhrases.add_item(p)
         
-        myPhrases.add_item(Phrase(u"Second phrase", u"Test phrase number two!"))
-        myPhrases.add_item(Phrase(u"Third phrase", u"Test phrase number three!"))
+        myPhrases.add_item(Phrase("Second phrase", "Test phrase number two!"))
+        myPhrases.add_item(Phrase("Third phrase", "Test phrase number three!"))
         self.folders.append(myPhrases)
         [p.persist() for p in myPhrases.items]
         
-        sampleScripts = Folder(u"Sample Scripts")
+        sampleScripts = Folder("Sample Scripts")
         sampleScripts.persist()
         dte = Script("Insert Date", "")
         dte.code = """output = system.exec_command("date")
@@ -337,7 +341,7 @@ dialog.info_dialog("Window information",
                 try:
                     convert_v07_to_v08(data)
                     self.config_altered(True)
-                except Exception, e:
+                except Exception as e:
                     _logger.exception("Problem occurred during conversion.")
                     _logger.error("Existing config file has been saved as %s%s",
                                   CONFIG_FILE, version)
@@ -510,7 +514,7 @@ dialog.info_dialog("Window information",
         _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
         
         # Always reset interface type when upgrading
-        self.SETTINGS[INTERFACE_TYPE] = iomediator.X_RECORD_INTERFACE
+        self.SETTINGS[INTERFACE_TYPE] = X_RECORD_INTERFACE
         _logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
         
         if self.VERSION < '0.70.0':
@@ -600,7 +604,7 @@ dialog.info_dialog("Window information",
             
     # TODO Future functionality
     def add_recent_entry(self, entry):
-        if not self.folders.has_key(RECENT_ENTRIES_FOLDER):
+        if RECENT_ENTRIES_FOLDER not in self.folders:
             folder = Folder(RECENT_ENTRIES_FOLDER)
             folder.set_hotkey(["<super>"], "<f7>")
             folder.set_modes([TriggerMode.HOTKEY])
@@ -709,7 +713,7 @@ dialog.info_dialog("Window information",
         return True, None
     
 # This import placed here to prevent circular import conflicts
-from model import *
+from .model import *
 
 class GlobalHotkey(AbstractHotkey):
     """
