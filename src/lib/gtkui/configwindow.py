@@ -30,11 +30,11 @@ locale.setlocale(locale.LC_ALL, '')
 #    module.textdomain(GETTEXT_DOMAIN)
 
 
-from dialogs import *
-from settingsdialog import SettingsDialog
-from autokey.configmanager import *
-from autokey.iomediator import Recorder
-from autokey import model, common
+from .dialogs import *
+from .settingsdialog import SettingsDialog
+from ..configmanager import *
+from ..iomediator import Recorder
+from .. import model, common
 
 CONFIG_WINDOW_TITLE = "AutoKey"
 
@@ -45,11 +45,12 @@ _logger = logging.getLogger("configwindow")
 PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
-def get_ui(fileName):
-    builder = Gtk.Builder()
-    uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
-    builder.add_from_file(uiFile)
-    return builder
+from .configwindow0 import get_ui
+# def get_ui(fileName):
+#     builder = Gtk.Builder()
+#     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
+#     builder.add_from_file(uiFile)
+#     return builder
 
 def set_linkbutton(button, path):
     button.set_sensitive(True)
@@ -77,7 +78,8 @@ class RenameDialog:
         self.checkButton = builder.get_object("checkButton")
         self.image = builder.get_object("image")
         
-        self.nameEntry.set_text(oldName.encode("utf-8"))
+        self.nameEntry.set_text(oldName)
+        # self.nameEntry.set_text(oldName.encode("utf-8"))
         self.checkButton.set_active(True)
         
         if isNew:
@@ -87,7 +89,7 @@ class RenameDialog:
             self.set_title(title % oldName)
         
     def get_name(self):
-        return self.nameEntry.get_text().decode("utf-8")
+        return self.nameEntry.get_text()#.decode("utf-8")
     
     def get_update_fs(self):
         return self.checkButton.get_active()
@@ -366,7 +368,7 @@ class FolderPage:
         return not self.currentFolder.path.startswith(CONFIG_DEFAULT_FOLDER)
         
     def set_item_title(self, newTitle):
-        self.currentFolder.title = newTitle.decode("utf-8")
+        self.currentFolder.title = newTitle#.decode("utf-8")
         
     def rebuild_item_path(self):
         self.currentFolder.rebuild_path()
@@ -443,7 +445,8 @@ class ScriptPage:
         self.currentItem = theScript
         
         self.buffer.begin_not_undoable_action()
-        self.buffer.set_text(theScript.code.encode("utf-8"))
+        self.buffer.set_text(theScript.code)
+        # self.buffer.set_text(theScript.code.encode("utf-8"))
         self.buffer.end_not_undoable_action()
         self.buffer.place_cursor(self.buffer.get_start_iter())
         
@@ -459,7 +462,7 @@ class ScriptPage:
     
     def save(self):
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(),
-                                    self.buffer.get_end_iter(), False).decode("utf-8")
+                                    self.buffer.get_end_iter(), False)#.decode("utf-8")
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
@@ -471,7 +474,7 @@ class ScriptPage:
         return False
         
     def set_item_title(self, newTitle):
-        self.currentItem.description = newTitle.decode("utf-8")
+        self.currentItem.description = newTitle#.decode("utf-8")
 
     def rebuild_item_path(self):
         self.currentItem.rebuild_path()
@@ -593,7 +596,7 @@ class PhrasePage(ScriptPage):
         vbox.pack_start(self.settingsWidget.ui, False, False, 0)
 
         # Populate combo
-        l = model.SEND_MODES.keys()
+        l = list(model.SEND_MODES.keys())
         l.sort()
         for val in l:
             self.sendModeCombo.append_text(val)
@@ -612,13 +615,15 @@ class PhrasePage(ScriptPage):
         self.ui.show_all()
         
     def insert_text(self, text):
-        self.buffer.insert_at_cursor(text.encode("utf-8"))
+        self.buffer.insert_at_cursor(text)
+        # self.buffer.insert_at_cursor(text.encode("utf-8"))
 
     def load(self, thePhrase):
         self.currentItem = thePhrase
         
         self.buffer.begin_not_undoable_action()
-        self.buffer.set_text(thePhrase.phrase.encode("utf-8"))
+        self.buffer.set_text(thePhrase.phrase)
+        # self.buffer.set_text(thePhrase.phrase.encode("utf-8"))
         self.buffer.end_not_undoable_action()
         self.buffer.place_cursor(self.buffer.get_start_iter())
         
@@ -632,9 +637,9 @@ class PhrasePage(ScriptPage):
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
 
-        l = model.SEND_MODES.keys()
+        l = list(model.SEND_MODES.keys())
         l.sort()
-        for k, v in model.SEND_MODES.iteritems():
+        for k, v in model.SEND_MODES.items():
             if v == thePhrase.sendMode:
                 self.sendModeCombo.set_active(l.index(k))
                 break
@@ -642,7 +647,7 @@ class PhrasePage(ScriptPage):
     
     def save(self):
         self.currentItem.phrase = self.buffer.get_text(self.buffer.get_start_iter(),
-                                                        self.buffer.get_end_iter(), False).decode("utf-8")
+                                                        self.buffer.get_end_iter(), False)#.decode("utf-8")
     
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
@@ -657,7 +662,7 @@ class PhrasePage(ScriptPage):
         errors = []
         
         # Check phrase content
-        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False).decode("utf-8")
+        text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)#.decode("utf-8")
         if EMPTY_FIELD_REGEX.match(text):
             errors.append(_("The phrase content can't be empty"))
             
@@ -770,7 +775,8 @@ class ConfigWindow:
                 ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
                 ("donate", Gtk.STOCK_YES, _("Donate"), "", _("Make a Donation"), self.on_donate),
                 ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
-                ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about)
+                ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
+                ("about-py3", Gtk.STOCK_ABOUT, _("About AutoKey-Py3"), None, _("Show program information"), self.on_show_about_py3),
                 ]
         actionGroup.add_actions(actions)
         
@@ -1280,6 +1286,21 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         dlg.run()
         dlg.destroy()
         
+    def on_show_about_py3(self, widget, data=None):
+        dlg = Gtk.AboutDialog()
+        dlg.set_name("AutoKey-Py3")
+        dlg.set_comments(_("Python 3 port of AutoKey. A desktop automation utility for Linux and X11."))
+        dlg.set_version(common.VERSION)
+        p = Gtk.IconTheme.get_default().load_icon(common.ICON_FILE, 100, 0)
+        dlg.set_logo(p)
+        dlg.set_website(common.HOMEPAGE_PY3)
+        dlg.set_authors(["GuoCi (Python 3 port maintainer) <guociz@gmail.com>",
+                         "Chris Dekter (Developer) <cdekter@gmail.com>",
+                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
+        dlg.set_transient_for(self.ui)
+        dlg.run()
+        dlg.destroy()
+
     # Tree widget
     
     def on_rename(self, widget, data=None):
@@ -1650,5 +1671,7 @@ class AkTreeModel(Gtk.TreeStore):
         elif isinstance(item2, model.Folder) and (isinstance(item1, model.Phrase) or isinstance(item1, model.Script)):
             return 1
         else:
-            return cmp(str(item1), str(item2))
+            # return cmp(str(item1), str(item2))
+            a, b = str(item1), str(item2)
+            return (a > b) - (a < b)
 

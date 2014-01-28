@@ -19,9 +19,11 @@
 from gi.repository import Gtk, Gdk, Notify
 import gettext
 
-import popupmenu
-from autokey.configmanager import *
-from autokey import common
+from . import popupmenu
+from ..configmanager import *
+from .. import common
+
+from .configwindow0 import get_ui
 
 HAVE_APPINDICATOR = False
 try:
@@ -148,16 +150,24 @@ class Notifier:
         self.icon.set_from_icon_name(common.ICON_FILE_NOTIFICATION_ERROR)
         
     def on_show_error(self, widget, data=None):
-        self.app.show_script_error()
-        self.errorItem = None
-        self.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+        self.app.show_script_error(get_ui("mainwindow.xml").get_object("mainwindow"))
+        # self.app.show_script_error()
+        self.errorItem.hide()
+        self.update_visible_status()
+        # self.errorItem = None
+        # self.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
         
     def show_notify(self, message, iconName):
+        # subprocess.check_call(["notify-send", "--icon", iconName, message])
+        # return
         Gdk.threads_enter()
         n = Notify.Notification.new("AutoKey", message, iconName)
         n.set_urgency(Notify.Urgency.LOW)
+        n.set_urgency(Notify.Urgency.CRITICAL)
+        ## TODO_PY3: Does method "attach_to_status_icon" exists?
         if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
-            n.attach_to_status_icon(self.icon)
+            if hasattr(n, 'attach_to_status_icon'):
+                n.attach_to_status_icon(self.icon)
         n.show()
         Gdk.threads_leave()
         
@@ -288,16 +298,16 @@ class UnityLauncher(IndicatorNotifier):
         
     def rebuild_menu(self):
         IndicatorNotifier.rebuild_menu(self)
-        print threading.currentThread().name
+        print(threading.currentThread().name)
         
         #try:
         from gi.repository import Unity, Dbusmenu
         HAVE_UNITY = True
-        print "have unity"
+        print("have unity")
         #except ImportError:
         #    return
 
-        print "rebuild unity menu"
+        print("rebuild unity menu")
         self.launcher = Unity.LauncherEntry.get_for_desktop_id ("autokey-gtk.desktop")   
     
         # Main Menu items

@@ -18,8 +18,8 @@
 import time, logging
 from gi.repository import Gtk, Gdk
 
-from autokey.configmanager import *
-from autokey.model import Folder # TODO remove later
+from ..configmanager import *
+from ..model import Folder # TODO remove later
 
 _logger = logging.getLogger("phrase-menu")
 
@@ -121,7 +121,7 @@ class MockPhrase:
 class MockExpansionService:
 
     def phrase_selected(self, event, phrase):
-        print phrase.description
+        print(phrase.description)
 
 
 if __name__ == "__main__":

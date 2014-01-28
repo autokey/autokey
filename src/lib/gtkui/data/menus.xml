@@ -44,6 +44,7 @@
 			<menuitem action="report-bug"/>
                         <separator />
 			<menuitem action="about" />
+			<menuitem action="about-py3" />
 		</menu>
 	</menubar>
         <toolbar name="Toolbar">

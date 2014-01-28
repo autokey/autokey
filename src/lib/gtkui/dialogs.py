@@ -31,8 +31,9 @@ locale.setlocale(locale.LC_ALL, '')
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-from autokey import model, iomediator
-import configwindow
+from .. import model, iomediator
+# from . import configwindow
+from .configwindow0 import get_ui
 
 WORD_CHAR_OPTIONS = {
                      "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
@@ -88,7 +89,7 @@ class DialogBase:
 class AbbrSettingsDialog(DialogBase):
     
     def __init__(self, parent, configManager, closure):
-        builder = configwindow.get_ui("abbrsettings.xml")
+        builder = get_ui("abbrsettings.xml")
         self.ui = builder.get_object("abbrsettings")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
@@ -132,7 +133,8 @@ class AbbrSettingsDialog(DialogBase):
         
         if model.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
-                self.abbrList.get_model().append((abbr.encode("utf-8"),))
+                self.abbrList.get_model().append((abbr,))
+                # self.abbrList.get_model().append((abbr.encode("utf-8"),))
             self.removeButton.set_sensitive(True)
             firstIter = self.abbrList.get_model().get_iter_first()  
             self.abbrList.get_selection().select_iter(firstIter)
@@ -145,9 +147,9 @@ class AbbrSettingsDialog(DialogBase):
         self.__resetWordCharCombo()
 
         wordCharRegex = item.get_word_chars()
-        if wordCharRegex in WORD_CHAR_OPTIONS.values():
+        if wordCharRegex in list(WORD_CHAR_OPTIONS.values()):
             # Default wordchar regex used
-            for desc, regex in WORD_CHAR_OPTIONS.iteritems():
+            for desc, regex in WORD_CHAR_OPTIONS.items():
                 if item.get_word_chars() == regex:
                     self.wordCharCombo.set_active(WORD_CHAR_OPTIONS_ORDERED.index(desc))
                     break
@@ -221,7 +223,8 @@ class AbbrSettingsDialog(DialogBase):
         try:
             while True:
                 text = model.get_value(i.next().iter, 0)
-                ret.append(text.decode("utf-8"))
+                ret.append(text)
+                # ret.append(text.decode("utf-8"))
         except StopIteration:
             pass
             
@@ -230,9 +233,10 @@ class AbbrSettingsDialog(DialogBase):
     def get_abbrs_readable(self):
         abbrs = self.get_abbrs()
         if len(abbrs) == 1:
-            return abbrs[0].encode("utf-8")
+            return abbrs[0]#.encode("utf-8")
         else:
-            return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])
+            return "[%s]" % ','.join(a for a in abbrs)
+            # return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])
             
     def valid(self):
         if not validate(len(self.get_abbrs()) > 0, _("You must specify at least one abbreviation"),
@@ -301,11 +305,11 @@ class HotkeySettingsDialog(DialogBase):
                }
     
     REVERSE_KEY_MAP = {}
-    for key, value in KEY_MAP.iteritems():
+    for key, value in KEY_MAP.items():
         REVERSE_KEY_MAP[value] = key
         
     def __init__(self, parent, configManager, closure):
-        builder = configwindow.get_ui("hotkeysettings.xml")
+        builder = get_ui("hotkeysettings.xml")
         self.ui = builder.get_object("hotkeysettings")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
@@ -375,7 +379,7 @@ class HotkeySettingsDialog(DialogBase):
             
     def set_key(self, key, modifiers=[]):
         Gdk.threads_enter()
-        if self.KEY_MAP.has_key(key):
+        if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
@@ -487,7 +491,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 class WindowFilterSettingsDialog(DialogBase):
     
     def __init__(self, parent, closure):
-        builder = configwindow.get_ui("windowfiltersettings.xml")
+        builder = get_ui("windowfiltersettings.xml")
         self.ui = builder.get_object("windowfiltersettings")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
@@ -523,7 +527,7 @@ class WindowFilterSettingsDialog(DialogBase):
         self.recursiveButton.set_active(False)
         
     def get_filter_text(self):
-        return self.triggerRegexEntry.get_text().decode("utf-8")
+        return self.triggerRegexEntry.get_text()#.decode("utf-8")
         
     def get_is_recursive(self):
         return self.recursiveButton.get_active()
@@ -561,7 +565,7 @@ class WindowFilterSettingsDialog(DialogBase):
 class DetectDialog(DialogBase):
 
     def __init__(self, parent):
-        builder = configwindow.get_ui("detectdialog.xml")
+        builder = get_ui("detectdialog.xml")
         self.ui = builder.get_object("detectdialog")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
@@ -597,7 +601,7 @@ class RecordDialog(DialogBase):
     
     def __init__(self, parent, closure):
         self.closure = closure
-        builder = configwindow.get_ui("recorddialog.xml")
+        builder = get_ui("recorddialog.xml")
         self.ui = builder.get_object("recorddialog")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)

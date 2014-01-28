@@ -18,10 +18,11 @@
 import os, sys
 from gi.repository import Gtk
 
-from autokey.configmanager import *
-from autokey import iomediator, model, common
-from dialogs import GlobalHotkeyDialog
-import configwindow
+from ..configmanager import *
+from .. import iomediator, model, common
+from .dialogs import GlobalHotkeyDialog
+# from . import configwindow
+from .configwindow0 import get_ui
 
 DESKTOP_FILE = "/usr/share/applications/autokey-gtk.desktop"
 AUTOSTART_DIR = os.path.expanduser("~/.config/autostart")
@@ -40,7 +41,7 @@ class SettingsDialog:
     REVERSE_KEY_MAP = GlobalHotkeyDialog.REVERSE_KEY_MAP
     
     def __init__(self, parent, configManager):
-        builder = configwindow.get_ui("settingsdialog.xml")
+        builder = get_ui("settingsdialog.xml")
         self.ui = builder.get_object("settingsdialog")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
@@ -60,7 +61,7 @@ class SettingsDialog:
         hbox.pack_start(self.iconStyleCombo, False, True, 0)
         hbox.show_all()
         
-        for key, value in ICON_NAME_MAP.items():
+        for key, value in list(ICON_NAME_MAP.items()):
             self.iconStyleCombo.append_text(key)
             ICON_NAME_LIST.append(value)
         self.iconStyleCombo.set_sensitive(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
