@@ -50,4 +50,4 @@ class Ui_FolderPage(object):
         self.showInTrayCheckbox.setText(kdecore.i18n(_fromUtf8("Show in notification icon menu")))
 
 from PyKDE4.kdeui import KUrlLabel, KSeparator
-from configwindow import SettingsWidget
+from .configwindow import SettingsWidget

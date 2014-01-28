@@ -70,4 +70,4 @@ class Ui_PhrasePage(object):
         self.label.setText(kdecore.i18n(_fromUtf8("Paste using")))
 
 from PyKDE4.kdeui import KUrlLabel, KSeparator, KTextEdit
-from configwindow import SettingsWidget
+from .configwindow import SettingsWidget

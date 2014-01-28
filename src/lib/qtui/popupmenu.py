@@ -22,7 +22,7 @@ from PyKDE4.kdeui import KMenu, KAction, KActionMenu, KApplication
 from PyQt4.QtGui import QCursor
 from PyQt4.QtCore import SIGNAL, Qt
 
-from autokey.configmanager import *
+from ..configmanager import *
 
 _logger = logging.getLogger("phrase-menu")
 
@@ -152,7 +152,7 @@ class MockExpansionService:
         self.app = app
 
     def item_selected(self, item):
-        print item.description
+        print(item.description)
         self.app.quit()
         
 
@@ -190,7 +190,7 @@ if __name__ == "__main__":
     #menu.show()
     time.sleep(3)
     menu.exec_(QCursor.pos())
-    print "shown"
+    print("shown")
     
     #app.exec_()
     #print "done"

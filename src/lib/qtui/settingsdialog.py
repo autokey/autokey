@@ -23,11 +23,11 @@ from PyKDE4.kdecore import i18n, KAutostart
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, Qt
 
-from autokey.configmanager import *
-from autokey import iomediator, interface, model
-from dialogs import GlobalHotkeyDialog
+from ..configmanager import *
+from .. import iomediator, interface, model
+from .dialogs import GlobalHotkeyDialog
 
-import generalsettings, specialhotkeysettings, enginesettings
+from . import generalsettings, specialhotkeysettings, enginesettings
 
 class GeneralSettings(QWidget, generalsettings.Ui_Form):
     
@@ -74,7 +74,8 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
     def __loadHotkey(self, item, label, dialog, clearButton):
         dialog.load(item)
         if item.enabled:
-            key = str(item.hotKey.encode("utf-8"))
+            # key = str(item.hotKey.encode("utf-8"))
+            key = item.hotKey
             label.setText(item.get_hotkey_string(key, item.modifiers))
             clearButton.setEnabled(True)
             return True

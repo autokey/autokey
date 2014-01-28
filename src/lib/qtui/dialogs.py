@@ -25,8 +25,8 @@ from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
-from autokey import model, iomediator
+from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
+from .. import model, iomediator
 
 WORD_CHAR_OPTIONS = {
                      "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
@@ -138,9 +138,9 @@ class AbbrSettingsDialog(KDialog):
         self.__resetWordCharCombo()
 
         wordCharRegex = item.get_word_chars()
-        if wordCharRegex in WORD_CHAR_OPTIONS.values():
+        if wordCharRegex in list(WORD_CHAR_OPTIONS.values()):
             # Default wordchar regex used
-            for desc, regex in WORD_CHAR_OPTIONS.iteritems():
+            for desc, regex in WORD_CHAR_OPTIONS.items():
                 if item.get_word_chars() == regex:
                     self.widget.wordCharCombo.setCurrentIndex(WORD_CHAR_OPTIONS_ORDERED.index(desc))
                     break
@@ -172,7 +172,7 @@ class AbbrSettingsDialog(KDialog):
         
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
         
-        option = unicode(self.widget.wordCharCombo.currentText())
+        option = str(self.widget.wordCharCombo.currentText())
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
@@ -209,7 +209,7 @@ class AbbrSettingsDialog(KDialog):
         ret = []
         for i in range(self.widget.abbrListWidget.count()):
             text = self.widget.abbrListWidget.item(i).text()
-            ret.append(unicode(text))
+            ret.append(str(text))
             
         return ret
 
@@ -260,7 +260,7 @@ class HotkeySettingsDialog(KDialog):
                }
     
     REVERSE_KEY_MAP = {}
-    for key, value in KEY_MAP.iteritems():
+    for key, value in KEY_MAP.items():
         REVERSE_KEY_MAP[value] = key
 
     def __init__(self, parent):
@@ -322,7 +322,7 @@ class HotkeySettingsDialog(KDialog):
         self.widget.setButton.setEnabled(True)
 
     def set_key(self, key, modifiers=[]):
-        if self.KEY_MAP.has_key(key):
+        if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
@@ -470,7 +470,7 @@ class WindowFilterSettingsDialog(KDialog):
         self.widget.triggerRegexLineEdit.setFocus()
         
     def get_filter_text(self):
-        return unicode(self.widget.triggerRegexLineEdit.text())
+        return str(self.widget.triggerRegexLineEdit.text())
 
     def receive_window_info(self, info):
         self.parentWidget().topLevelWidget().app.exec_in_main(self.__receiveWindowInfo, info)

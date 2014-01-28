@@ -84,4 +84,4 @@ class Ui_CentralWidget(object):
         self.treeWidget.headerItem().setText(1, kdecore.i18n(_fromUtf8("Abbr.")))
         self.treeWidget.headerItem().setText(2, kdecore.i18n(_fromUtf8("Hotkey")))
 
-from configwindow import AkTreeWidget, PhrasePage, ScriptPage, FolderPage
+from .configwindow import AkTreeWidget, PhrasePage, ScriptPage, FolderPage

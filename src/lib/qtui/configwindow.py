@@ -20,20 +20,20 @@ from PyKDE4.kio import *
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n, ki18n, KUrl
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, QVariant, Qt
+from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4 import Qsci
-from autokey import common
+from .. import common
 
 #CONFIG_WINDOW_TITLE = i18n(common.CONFIG_WINDOW_TITLE)
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
 
-from dialogs import *
-from settingsdialog import SettingsDialog
-from autokey.configmanager import *
-from autokey.iomediator import Recorder
-from autokey import model
+from .dialogs import *
+from .settingsdialog import SettingsDialog
+from ..configmanager import *
+from ..iomediator import Recorder
+from .. import model
 
 PROBLEM_MSG_PRIMARY = ki18n("Some problems were found")
 PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
@@ -54,7 +54,7 @@ def set_url_label(button, path):
 
 # ---- Internal widgets
 
-import settingswidget
+from . import settingswidget
 
 class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
     
@@ -239,7 +239,7 @@ class SettingsWidget(QWidget, settingswidget.Ui_SettingsWidget):
         self.windowFilterLabel.setText(text)
         self.filterDialog.reset()
 
-import scriptpage
+from . import scriptpage
 
 class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
 
@@ -286,7 +286,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
 
     def save(self):
         self.settingsWidget.save()
-        self.currentScript.code = unicode(self.scriptCodeEditor.text())
+        self.currentScript.code = str(self.scriptCodeEditor.text())
         self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         
         self.currentScript.persist()
@@ -341,7 +341,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         errors = []
         
         # Check script code        
-        code = unicode(self.scriptCodeEditor.text())
+        code = str(self.scriptCodeEditor.text())
         if EMPTY_FIELD_REGEX.match(code):
             errors.append(i18n("The script code can't be empty"))
             
@@ -371,7 +371,7 @@ class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
         if url: subprocess.Popen(["/usr/bin/xdg-open", url])
 
 
-import phrasepage
+from . import phrasepage
 
 class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
 
@@ -381,7 +381,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.setupUi(self)
 
         self.initialising = True
-        l = model.SEND_MODES.keys()
+        l = list(model.SEND_MODES.keys())
         l.sort()
         for val in l:
             self.sendModeCombo.addItem(val)
@@ -392,7 +392,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
 
-        for k, v in model.SEND_MODES.iteritems():
+        for k, v in model.SEND_MODES.items():
             if v == phrase.sendMode:
                 self.sendModeCombo.setCurrentIndex(self.sendModeCombo.findText(k))
                 break
@@ -411,7 +411,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         
     def save(self):
         self.settingsWidget.save()
-        self.currentPhrase.phrase = unicode(self.phraseText.toPlainText())
+        self.currentPhrase.phrase = str(self.phraseText.toPlainText())
         self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
 
         self.currentPhrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
@@ -442,7 +442,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         errors = []
         
         # Check phrase content
-        phrase = unicode(self.phraseText.toPlainText())
+        phrase = str(self.phraseText.toPlainText())
         if EMPTY_FIELD_REGEX.match(phrase):
             errors.append(i18n("The phrase content can't be empty"))
             
@@ -494,7 +494,7 @@ class PhrasePage(QWidget, phrasepage.Ui_PhrasePage):
         if url: subprocess.Popen(["/usr/bin/xdg-open", url])
 
 
-import folderpage
+from . import folderpage
 
 class FolderPage(QWidget, folderpage.Ui_FolderPage):
 
@@ -598,7 +598,7 @@ class AkTreeWidget(QTreeWidget):
         self.parentWidget().parentWidget().move_items(sources, target)
                 
 
-import centralwidget
+from . import centralwidget
 
 class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
 
@@ -663,7 +663,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         
     def on_treeWidget_itemChanged(self, item, column):
         if item is self.treeWidget.selectedItems()[0] and column == 0:
-            newText = unicode(item.text(0))
+            newText = str(item.text(0))
             if validate(not EMPTY_FIELD_REGEX.match(newText), i18n("The name can't be empty."),
                         None, self.topLevelWidget()):
 
@@ -718,7 +718,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             path = KFileDialog.getExistingDirectory(KUrl(), self.topLevelWidget())
 
             if path != "":
-                path = unicode(path)
+                path = str(path)
                 name = os.path.basename(path)
                 folder = model.Folder(name, path=path)
                 newItem = FolderWidgetItem(None, folder)
@@ -836,7 +836,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         self.topLevelWidget().app.monitor.suspend()
         
         sourceItems = self.treeWidget.selectedItems()
-        result = filter(lambda f: f.parent() not in sourceItems, sourceItems)
+        result = [f for f in sourceItems if f.parent() not in sourceItems]
         for item in result:
             self.__removeItem(item)
 
@@ -947,7 +947,7 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
         targetModelItem = self.__extractData(target)
         
         # Filter out any child objects that belong to a parent already in the list
-        result = filter(lambda f: f.parent() not in sourceItems, sourceItems)
+        result = [f for f in sourceItems if f.parent() not in sourceItems]
         
         self.parentWidget().app.monitor.suspend()
         
@@ -992,12 +992,12 @@ class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
             ret.append(self.__extractData(item))
             
         # Filter out any child objects that belong to a parent already in the list
-        result = filter(lambda f: f.parent not in ret, ret)
+        result = [f for f in ret if f.parent not in ret]
         return result
         
     def __extractData(self, item):
         variant = item.data(3, Qt.UserRole)
-        return variant.toPyObject()
+        return variant#.toPyObject()
         
     def __removeItem(self, widgetItem):
         parent = widgetItem.parent()
@@ -1110,6 +1110,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.__createAction("donate", i18n("Donate"), "face-smile", self.on_donate)
         self.__createAction("report-bug", i18n("Report a Bug"), "tools-report-bug", self.on_report_bug)
         self.__createAction("about", i18n("About AutoKey"), "help-about", self.on_about)
+        self.__createAction("about-py3", i18n("About AutoKey-Py3"), "help-about", self.on_about_py3)
 
         self.setHelpMenuEnabled(True)
 
@@ -1230,7 +1231,7 @@ class ConfigWindow(KXmlGuiWindow):
     def queryClose(self):
         ConfigManager.SETTINGS[HPANE_POSITION] = self.centralWidget.splitter.sizes()[0] + 4
         l = []
-        for x in xrange(3):
+        for x in range(3):
             l.append(self.centralWidget.treeWidget.columnWidth(x))
         ConfigManager.SETTINGS[COLUMN_WIDTHS] = l
         
@@ -1321,6 +1322,10 @@ class ConfigWindow(KXmlGuiWindow):
         dlg = KAboutApplicationDialog(self.app.aboutData, self)
         dlg.show()
 
+    def on_about_py3(self):
+        dlg = KAboutApplicationDialog(self.app.aboutData_py3, self)
+        dlg.show()
+
 # ---- TreeWidget and helper functions
 
 class WidgetItemFactory:
@@ -1364,7 +1369,8 @@ class FolderWidgetItem(QTreeWidgetItem):
         self.setText(0, folder.title)
         self.setText(1, folder.get_abbreviations())
         self.setText(2, folder.get_hotkey_string())
-        self.setData(3, Qt.UserRole, QVariant(folder))
+        # self.setData(3, Qt.UserRole, QVariant(folder))
+        self.setData(3, Qt.UserRole, folder)
         if parent is not None:
             parent.addChild(self)
             
@@ -1397,7 +1403,8 @@ class PhraseWidgetItem(QTreeWidgetItem):
         self.setText(0, phrase.description)
         self.setText(1, phrase.get_abbreviations())
         self.setText(2, phrase.get_hotkey_string())
-        self.setData(3, Qt.UserRole, QVariant(phrase))
+        # self.setData(3, Qt.UserRole, QVariant(phrase))
+        self.setData(3, Qt.UserRole, phrase)
         if parent is not None:
             parent.addChild(self)      
             
@@ -1430,7 +1437,8 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.setText(0, script.description)
         self.setText(1, script.get_abbreviations())
         self.setText(2, script.get_hotkey_string())
-        self.setData(3, Qt.UserRole, QVariant(script))
+        # self.setData(3, Qt.UserRole, QVariant(script))
+        self.setData(3, Qt.UserRole, script)
         if parent is not None:
             parent.addChild(self)
             

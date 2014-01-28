@@ -20,8 +20,8 @@ from PyKDE4.kdecore import ki18n, i18n
 from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QSystemTrayIcon
 
-import popupmenu
-from autokey.configmanager import *
+from . import popupmenu
+from ..configmanager import *
 
 TOOLTIP_RUNNING = ki18n("AutoKey - running")
 TOOLTIP_PAUSED = ki18n("AutoKey - paused")
