@@ -32,7 +32,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     bus = dbus.SessionBus()
-    
+
     try:
         dbusService = bus.get_object("org.autokey.Service", "/AppService")
         if options.script:
@@ -41,9 +41,9 @@ if __name__ == "__main__":
             dbusService.run_phrase(options.phrase, dbus_interface = "org.autokey.Service")
         elif options.folder:
             dbusService.run_folder(options.folder, dbus_interface = "org.autokey.Service")
-            
+
         sys.exit(0)
-        
-    except dbus.DBusException, e:
-        print >> sys.stderr, str(e) 
+
+    except dbus.DBusException as e:
+        print(str(e), file=sys.stderr)
         sys.exit(1)
