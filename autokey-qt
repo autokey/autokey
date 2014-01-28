@@ -16,10 +16,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-from autokey.qtapp import Application
+import os, sys
+import faulthandler;faulthandler.enable()
+
+# put a symlink into the search path for the .rc file
+# kde4-config --path data
+uirc_dir = os.path.expanduser("~/.local/share/kde4/apps/autokey")
+target_dir = os.path.expanduser("~/.kde/share/apps/autokey")
+if os.path.isdir(uirc_dir):
+    try: os.symlink(uirc_dir, target_dir)
+    except FileExistsError: pass
+    else:
+        print("symlink from " + uirc_dir + " to " + target_dir + " created.")
+
+# remove WINDOWID environment variable so that zenity is not tied to the window from which it was launched.
+try: del os.environ['WINDOWID']
+except KeyError: pass
+
+# make this work with “pip install -e”
+try:
+    from autokey.qtapp import Application
+except ImportError:
+    print("installed with “pip install -e”")
+    from src.lib.qtapp import Application
 
 a = Application()
 a.main()
-sys.exit(0)
 
+if os.path.islink(target_dir):
+    print("deleting symlink " + target_dir)
+    os.remove(target_dir)
+
+sys.exit(0)
