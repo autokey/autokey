@@ -54,6 +54,7 @@
       <Action name="report-bug" />
       <separator />
       <Action name="about" />
+      <Action name="about-py3" />
       <Action name="help_about_kde"/>
     </Menu>
   </MenuBar>
