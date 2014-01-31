@@ -271,6 +271,7 @@ class Application:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
+            # revert the tray icon
             self.notifier.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
 
         else:
