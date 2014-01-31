@@ -51,12 +51,7 @@ def delete_symlink():
 try: del os.environ['WINDOWID']
 except KeyError: pass
 
-# make this work with “pip install -e”
-try:
-    from autokey.qtapp import Application
-except ImportError:
-    print("installed with “pip install -e”")
-    from src.lib.qtapp import Application
+from autokey.qtapp import Application
 
 a = Application()
 a.main()
