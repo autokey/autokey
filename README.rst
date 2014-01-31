@@ -77,7 +77,7 @@ Bug reports
 ===========
 Please use the `GitHub Issue Tracker`_.
 
-.. _GitHub Issue Tracker: ./issues
+.. _GitHub Issue Tracker: https://github.com/guoci/autokey-py3/issues
 
 Changelog
 =========
