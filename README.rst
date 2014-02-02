@@ -5,7 +5,7 @@ AutoKey-Py3
 
 About
 =====
-This is a Python 3 port of `AutoKey`__, a desktop automation utility for Linux and X11.
+AutoKey-Py3 is a Python 3 port of `AutoKey`__, a desktop automation utility for Linux and X11.
 
 __ https://code.google.com/p/autokey/
 
@@ -29,6 +29,9 @@ Debian
    apt-get install python3-pykde4 python3-pyqt4.qsci python3-dbus.mainloop.qt kde-baseapps-bin
    # execute as non root
    pip3 install --user python3-xlib
+   # install AutoKey-Py3 from PyPI or …
+   pip3 install --user autokey-py3
+   # get the development version from GitHub
    pip3 install --user git+https://github.com/guoci/autokey-py3
 
 Arch Linux
@@ -42,6 +45,9 @@ Arch Linux
    pacman -S --needed python-qscintilla kdebindings-python
    # execute as non root
    pip3 install --user python3-xlib
+   # install AutoKey-Py3 from PyPI or …
+   pip3 install --user autokey-py3
+   # get the development version from GitHub
    pip3 install --user git+https://github.com/guoci/autokey-py3
 
 Starting AutoKey-Py3
@@ -83,7 +89,8 @@ Changelog
 =========
 Here__.
 
-__ CHANGELOG.rst
+.. PyPI doesn't accept relative links.
+__ https://github.com/guoci/autokey-py3/blob/master/CHANGELOG.rst
 
 License
 =======

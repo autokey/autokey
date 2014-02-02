@@ -17,8 +17,14 @@
 
 from distutils.core import setup
 
+long_description = ''
+try:
+    with open('README.rst') as f:
+        long_description = f.read()
+except OSError: pass
+
 setup(
-      name="autokey",
+      name="autokey-py3",
       version="0.90.4",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
@@ -27,11 +33,8 @@ setup(
       url='https://github.com/guoci/autokey-py3',
       # url="http://autokey.googlecode.com/",
       license="GPL v3",
-      description="Desktop automation utility",
-      long_description="""AutoKey is a desktop automation utility for Linux and X11. It allows
-the automation of virtually any task by responding to typed abbreviations and hotkeys. It 
-offers a full-featured GUI that makes it highly accessible for novices, as well as a scripting 
-interface offering the full flexibility and power of the Python language.""",
+      description="Python 3 port of AutoKey",
+      long_description=long_description,
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
       package_dir={"autokey": "src/lib"},
