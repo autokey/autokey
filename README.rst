@@ -81,7 +81,14 @@ Some guides on porting code to Python 3:
 
 Bug reports
 ===========
-Please use the `GitHub Issue Tracker`_.
+Logging information can be obtained by starting the launcher with the “-l” option.
+
+.. code:: sh
+
+   autokey-gtk -l # or
+   autokey-qt -l
+
+Please use the `GitHub Issue Tracker`_ for bug reports.
 
 .. _GitHub Issue Tracker: https://github.com/guoci/autokey-py3/issues
 
