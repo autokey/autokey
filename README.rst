@@ -5,8 +5,9 @@ AutoKey-Py3
 
 About
 =====
-AutoKey-Py3 is a Python 3 port of `AutoKey`__, a desktop automation utility for Linux and X11.
+AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`__, a desktop automation utility for Linux and X11.
 
+.. _GitHub: https://github.com/guoci/autokey-py3/
 __ https://code.google.com/p/autokey/
 
 Installation
@@ -22,7 +23,7 @@ Debian
 .. code:: sh
 
    # common dependencies
-   apt-get install python3-pyinotify wmctrl
+   apt-get install python3-pyinotify wmctrl xautomation imagemagick
    # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
    apt-get install python3-gi gir1.2-gtk-3.0 gir1.2-gtksource-3.0 gir1.2-glib-2.0 gir1.2-notify-0.7 python3-dbus zenity
    # dependencies for QT GUI, install only if you intend to use the QT GUI.
@@ -38,7 +39,7 @@ Arch Linux
 ++++++++++
 .. code:: sh
 
-   pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity
+   pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity xautomation imagemagick
    # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
    pacman -S --needed python-gobject gtksourceview3 libnotify
    # dependencies for QT GUI, install only if you intend to use the QT GUI.
@@ -62,8 +63,7 @@ Starting AutoKey-Py3
 
 Documentation
 =============
-Documentation for new features `here`_.
-Please refer to the original AutoKey's `scripting API`_, `wiki`_ and `Stack Overflow`_.
+Documentation for new features `here`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_ and `Stack Overflow`_.
 
 .. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
