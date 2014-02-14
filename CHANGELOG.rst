@@ -3,6 +3,13 @@ Changelog
 =========
 .. contents::
 
+Version 0.91.0 <2014-02-14 Fri>
+===============================
+Added a new function “click_on_pat” for use in user scripts. See `this`_ for more details.
+
+.. _this: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+
+
 First release <2014-01-31 Fri>
 ==============================
 This describes some of the changes to the original AutoKey source code.
