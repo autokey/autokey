@@ -62,8 +62,11 @@ Starting AutoKey-Py3
 
 Documentation
 =============
-Please refer to the original AutoKey's `scripting API`_ and `wiki`_.
+Documentation for new features `here`_.
+Please refer to the original AutoKey's `scripting API`_, `wiki`_ and `Stack Overflow`_.
 
+.. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _scripting API: http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html
 .. _wiki: https://code.google.com/p/autokey/w/list
 

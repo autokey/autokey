@@ -427,6 +427,7 @@ class ScriptRunner:
         self.app = app
         self.error = ''
         self.scope = globals()
+        self.scope["highlevel"]= scripting.highlevel
         self.scope["keyboard"]= scripting.Keyboard(mediator)
         self.scope["mouse"]= scripting.Mouse(mediator)
         self.scope["system"] = scripting.System()

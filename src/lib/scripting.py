@@ -23,6 +23,8 @@ if common.USING_QT:
 else:
     from gi.repository import Gtk, Gdk
 
+from . import scripting_highlevel as highlevel
+
 class Keyboard:
     """
     Provides access to the keyboard for event generation.
