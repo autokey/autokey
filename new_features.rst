@@ -1,16 +1,29 @@
+============
+New features
+============
+This page documents new features built on top of the Python 3 port of the original AutoKey.
+
+.. contents::
+
 Click on an area that can be identified with an image
 =====================================================
-
 Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 .. _xautomation: http://hoopajoo.net/projects/xautomation.html
 .. _ImageMagick®: http://www.imagemagick.org/
 
+`Source code`_.
+
+.. _Source code: https://github.com/guoci/autokey-py3/blob/master/src/lib/scripting_highlevel.py
+
 .. code:: python
 
+   # click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0) -> None
+   
    hl = highlevel
    LEFT = hl.LEFT; MIDDLE = hl.MIDDLE; RIGHT = hl.RIGHT
    click_on_pat = hl.click_on_pat
+   PatternNotFound = hl.PatternNotFound
 
    click_on_pat("pattern.png")
 
@@ -44,8 +57,8 @@ Running AutoKey scripts on a interpreter
 
 We use autokey-gtk as the launcher. If you are using autokey-qt, replace “-gtk” with “-qt”.
 
-1. start the autokey launcher autokey-gtk.
-2. run the launcher with the interpreter. The main window will show up, close it or switch back to the interpreter.
+1. Start the autokey launcher autokey-gtk.
+2. Run the launcher with the interpreter. The main window will show up, close it or switch back to the interpreter.
 
 .. code:: sh
 
@@ -59,10 +72,12 @@ We use autokey-gtk as the launcher. If you are using autokey-qt, replace “-gtk
    system = autokey.scripting.System()
    hl = autokey.scripting.highlevel
 
-test it:
+Run some functions provided by AutoKey-Py3:
 
 .. code:: python
 
    system.exec_command('ls')
+   help(hl.click_on_pat)
+   help(hl.visgrep)
    hl.click_on_pat("pattern.png")
 
