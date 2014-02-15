@@ -42,8 +42,8 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
    # left click of top left of the pattern
    click_on_pat("pat.png",LEFT,(0,0))
     
-   # left click of bottom right of the pattern
-   click_on_pat("pat.png",1,(100,100))
+   # left click of bottom right of the pattern, with tolerance for “fuzzy” matches set to 1.
+   click_on_pat("pat.png",1,(100,100),1)
     
    try:
        click_on_pat("pat1.png")
@@ -52,8 +52,8 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 
 
-Running AutoKey scripts on a interpreter
-========================================
+Running AutoKey scripts on an interpreter
+=========================================
 
 We use autokey-gtk as the launcher. If you are using autokey-qt, replace “-gtk” with “-qt”.
 
@@ -72,7 +72,7 @@ We use autokey-gtk as the launcher. If you are using autokey-qt, replace “-gtk
    system = autokey.scripting.System()
    hl = autokey.scripting.highlevel
 
-Run some functions provided by AutoKey-Py3:
+Test some functions provided by AutoKey-Py3:
 
 .. code:: python
 
