@@ -56,10 +56,20 @@ def get_png_dim(filepath:str) -> (int,int):
     head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
+def mousemove(x:int, y:int, display:str=''):
+    subprocess.call(['xte', '-x', display, "mousemove {x} {y}".format(x=int(x),y=int(y))])
+
+def mouseclick(button:int, display:str=''):
+    subprocess.call(['xte', '-x', display, "mouseclick {i}".format(i=int(button))])
+
+def mousepos():
+    tmp = subprocess.check_output("xmousepos").decode().split()
+    return list(map(int, tmp))[:2]
+
 def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None:
     """
     Requires imagemagick, xautomation.
-    Click on a pattern at a specified offset (b,h) in percent of the patterns dimensions. b is the distance below the top left corner, h is the distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
+    Click on a pattern at a specified offset (x,y) in percent of the patterns dimensions. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
     Exception PatternNotFound is raised when the pattern is not found on the screen.
     :param pat: path of pattern image (PNG) to click on.
     :param mousebutton: mouse button number used for the click
@@ -77,12 +87,9 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
         x, y = [l + ps//2 for l,ps in zip(loc,pat_size)]
     else:
         x, y = [l + ps*(off/100) for off,l,ps in zip(offset,loc,pat_size)]
-    x0, y0 = subprocess.check_output("xmousepos").decode().split()[:2]
-    subprocess.call('''
-xte -x :0 "mousemove {x} {y}"
-xte -x :0 "mouseclick {button}"
-'''.format(x=int(x),y=int(y), # must be cast to int
-           button=mousebutton), shell=True)
+    x0, y0 = mousepos()
+    mousemove(x,y)
+    mouseclick(mousebutton)
     if restore_pos:
-        subprocess.call('''xte -x :0 "mousemove {x0} {y0}"'''.format(x0=x0,y0=y0), shell=True)
+        mousemove(x0,y0)
 
