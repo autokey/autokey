@@ -18,7 +18,7 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 .. code:: python
 
-   # click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0) -> None
+   click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None
    
    hl = highlevel
    LEFT = hl.LEFT; MIDDLE = hl.MIDDLE; RIGHT = hl.RIGHT
@@ -39,8 +39,8 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
    click_on_pat("pat.png",3)
    click_on_pat("pat.png",RIGHT)
     
-   # left click of top left of the pattern
-   click_on_pat("pat.png",LEFT,(0,0))
+   # left click of top left of the pattern and return to the original mouse position after clicking.
+   click_on_pat("pat.png",LEFT,(0,0), restore_pos=True)
     
    # left click of bottom right of the pattern, with tolerance for “fuzzy” matches set to 1.
    click_on_pat("pat.png",1,(100,100),1)

@@ -65,6 +65,11 @@ Documentation
 =============
 Documentation for new features `here`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_ and `Stack Overflow`_.
 
+Examples of AutoKey scripts can be found `GitHub`__ and at AutoKey's `wiki`__ `pages`__.
+
+__ https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
+__ https://code.google.com/p/autokey/wiki/ContributedScripts
+__ https://code.google.com/p/autokey/wiki/SampleScripts
 .. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _scripting API: http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html

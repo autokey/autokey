@@ -44,9 +44,9 @@ def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int,int):
         raise PatternNotFound(str([x.decode() for x in out]) + '\n\t' + repr(e))
     return coord
 
-def get_png_dims(filepath:str) -> (int,int):
+def get_png_dim(filepath:str) -> (int,int):
     '''
-    get_png_dims(filepath:str) -> (int,int)
+    get_png_dim(filepath:str) -> (int,int)
     Finds the dimension of a PNG.
     :param filepath: file path of the PNG.
     :returns: (width, height).
@@ -56,7 +56,7 @@ def get_png_dims(filepath:str) -> (int,int):
     head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
-def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0) -> None:
+def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None:
     """
     Requires imagemagick, xautomation.
     Click on a pattern at a specified offset (b,h) in percent of the patterns dimensions. b is the distance below the top left corner, h is the distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
@@ -65,13 +65,14 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
     :param mousebutton: mouse button number used for the click
     :param offset: offset from the top left point of the match. (float,float)
     :param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
+    :param restore_pos: return to the initial mouse position after the click.
     """
     with tempfile.NamedTemporaryFile() as f:
         subprocess.call('''
         xwd -root -silent -display :0 | 
         convert xwd:- png:''' + f.name, shell=True)
         loc = visgrep(f.name, pat, tolerance)
-    pat_size = get_png_dims(pat)
+    pat_size = get_png_dim(pat)
     if offset is None:
         x, y = [l + ps//2 for l,ps in zip(loc,pat_size)]
     else:
@@ -80,8 +81,8 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
     subprocess.call('''
 xte -x :0 "mousemove {x} {y}"
 xte -x :0 "mouseclick {button}"
-# xte -x :0 "mousemove {x0} {y0}"
 '''.format(x=int(x),y=int(y), # must be cast to int
-           x0=x0,y0=y0,
            button=mousebutton), shell=True)
+    if restore_pos:
+        subprocess.call('''xte -x :0 "mousemove {x0} {y0}"'''.format(x0=x0,y0=y0), shell=True)
 
