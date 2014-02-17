@@ -39,7 +39,7 @@ Arch Linux
 ++++++++++
 .. code:: sh
 
-   pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity xautomation imagemagick
+   pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity xautomation imagemagick xorg-xwd
    # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
    pacman -S --needed python-gobject gtksourceview3 libnotify
    # dependencies for QT GUI, install only if you intend to use the QT GUI.
