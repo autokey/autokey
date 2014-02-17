@@ -25,7 +25,7 @@ except OSError: pass
 
 setup(
       name="autokey-py3",
-      version="0.91.0",
+      version="0.91.1",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       maintainer='GuoCi',

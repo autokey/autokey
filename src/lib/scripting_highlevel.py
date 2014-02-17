@@ -68,8 +68,8 @@ def mousepos():
 
 def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None:
     """
-    Requires imagemagick, xautomation.
-    Click on a pattern at a specified offset (x,y) in percent of the patterns dimensions. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
+    Requires imagemagick, xautomation, xwd.
+    Click on a pattern at a specified offset (x,y) in percent of the pattern dimension. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
     Exception PatternNotFound is raised when the pattern is not found on the screen.
     :param pat: path of pattern image (PNG) to click on.
     :param mousebutton: mouse button number used for the click
