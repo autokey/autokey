@@ -18,12 +18,15 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 .. code:: python
 
-   click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None
+   # click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None
    
    hl = highlevel
    LEFT = hl.LEFT; MIDDLE = hl.MIDDLE; RIGHT = hl.RIGHT
    click_on_pat = hl.click_on_pat
    PatternNotFound = hl.PatternNotFound
+   # or use
+   # from autokey.scripting_highlevel import *
+   # to import all functions
 
    click_on_pat("pattern.png")
 
@@ -52,22 +55,15 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 
 
-Running AutoKey scripts on an interpreter
-=========================================
+Running AutoKey scripts interactively on a shell
+================================================
 
-We use autokey-gtk as the launcher. If you are using autokey-qt, replace “-gtk” with “-qt”.
-
-1. Start the autokey launcher autokey-gtk.
-2. Run the launcher with the interpreter. The main window will show up, close it or switch back to the interpreter.
-
-.. code:: sh
-
-   python3 -i `which autokey-gtk`
-
-3. Then run the following in the interpreter. Currently, not all functions can be used.
+1. Start a Python 3 shell (e.g. python3, ipython3).
+2. Then run the following in the interpreter. Currently, only functions from “System” and “highlevel” modules can be used.
 
 .. code:: python
 
+   import autokey.configmanager
    import autokey.scripting
    system = autokey.scripting.System()
    hl = autokey.scripting.highlevel
