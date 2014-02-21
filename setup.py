@@ -25,7 +25,7 @@ except OSError: pass
 
 setup(
       name="autokey-py3",
-      version="0.91.1",
+      version="0.92.0",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       maintainer='GuoCi',
@@ -48,7 +48,7 @@ setup(
                   ("share/applications", ["config/autokey-qt.desktop", "config/autokey-gtk.desktop"]),
                   ('share/man/man1/', ['doc/man/autokey-qt.1', 'doc/man/autokey-gtk.1', 'doc/man/autokey-run.1']),
                   ('share/kde4/apps/autokey' , ['config/autokeyui.rc'])],
-      scripts=['autokey-qt', 'autokey-gtk', 'autokey-run'],
+      scripts=['autokey-qt', 'autokey-gtk', 'autokey-run', 'autokey-shell'],
       classifiers = [
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',

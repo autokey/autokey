@@ -58,21 +58,13 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 Running AutoKey scripts interactively on a shell
 ================================================
 
-1. Start a Python 3 shell (e.g. python3, ipython3).
-2. Then run the following in the interpreter. Currently, only functions from “System” and “highlevel” modules can be used.
+Start “autokey-shell”. Currently, only functions from “system” and “highlevel” modules are exported to the shell. 
+
+In the shell you can use functions provided by AutoKey-Py3:
 
 .. code:: python
 
-   import autokey.configmanager
-   import autokey.scripting
-   system = autokey.scripting.System()
-   hl = autokey.scripting.highlevel
-
-Test some functions provided by AutoKey-Py3:
-
-.. code:: python
-
-   system.exec_command('ls')
+   print(system.exec_command('ls'))
    help(hl.click_on_pat)
    help(hl.visgrep)
    hl.click_on_pat("pattern.png")
