@@ -33,7 +33,7 @@ setup(
       url='https://github.com/guoci/autokey-py3',
       # url="http://autokey.googlecode.com/",
       license="GPL v3",
-      description="Python 3 port of AutoKey",
+      description="Python 3 port of AutoKey. New features have been implemented after the initial porting.",
       long_description=long_description,
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],

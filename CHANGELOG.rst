@@ -3,6 +3,11 @@ Changelog
 =========
 .. contents::
 
+Version 0.92.0 <2014-02-21 Fri>
+===============================
+Added an interactive shell launcher, “autokey-shell”. “autokey-shell” allows you to run some AutoKey-Py3 functions interactively. Read `this`_ for more details.
+
+
 Version 0.91.0 <2014-02-14 Fri>
 ===============================
 Added a new function “click_on_pat” for use in user scripts. See `this`_ for more details.

@@ -7,8 +7,11 @@ About
 =====
 AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`__, a desktop automation utility for Linux and X11.
 
+New features have since been added to AutoKey-Py3 after the initial porting. Read `this`__ for details.
+
 .. _GitHub: https://github.com/guoci/autokey-py3/
 __ https://code.google.com/p/autokey/
+__ https://github.com/guoci/autokey-py3/blob/master/new_features.rst
 
 Installation
 ============
@@ -87,16 +90,16 @@ Some guides on porting code to Python 3:
 
 .. _2to3: http://docs.python.org/dev/library/2to3.html
 
-Bug reports
-===========
+Bug reports and Pull Requests
+=============================
+Bug reports and Pull Requests are welcomed. Please use the `GitHub Issue Tracker`_ for bug reports.
+
 Logging information can be obtained by starting the launcher with the “-l” option.
 
 .. code:: sh
 
    autokey-gtk -l # or
    autokey-qt -l
-
-Please use the `GitHub Issue Tracker`_ for bug reports.
 
 .. _GitHub Issue Tracker: https://github.com/guoci/autokey-py3/issues
 
