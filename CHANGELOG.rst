@@ -3,6 +3,13 @@ Changelog
 =========
 .. contents::
 
+Version 0.93.0 <2014-02-27 Thu>
+===============================
+
+Added functions “acknowledge_gnome_notification” and “move_to_pat”, more details `here`_.
+
+.. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+
 Version 0.92.0 <2014-02-21 Fri>
 ===============================
 Added an interactive shell launcher, “autokey-shell”. “autokey-shell” allows you to run some AutoKey-Py3 functions interactively. Read `this`_ for more details.

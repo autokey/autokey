@@ -1,3 +1,4 @@
+import time
 import os
 import subprocess
 import tempfile
@@ -56,13 +57,16 @@ def get_png_dim(filepath:str) -> (int,int):
     head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
-def mousemove(x:int, y:int, display:str=''):
-    subprocess.call(['xte', '-x', display, "mousemove {x} {y}".format(x=int(x),y=int(y))])
+def mouse_move(x:int, y:int, display:str=''):
+    subprocess.call(['xte', '-x', display, "mousemove {} {}".format(int(x), int(y))])
 
-def mouseclick(button:int, display:str=''):
-    subprocess.call(['xte', '-x', display, "mouseclick {i}".format(i=int(button))])
+def mouse_rmove(x:int, y:int, display:str=''):
+    subprocess.call(['xte', '-x', display, "mousermove {} {}".format(int(x), int(y))])
 
-def mousepos():
+def mouse_click(button:int, display:str=''):
+    subprocess.call(['xte', '-x', display, "mouseclick {}".format(int(button))])
+
+def mouse_pos():
     tmp = subprocess.check_output("xmousepos").decode().split()
     return list(map(int, tmp))[:2]
 
@@ -77,6 +81,14 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
     :param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
     :param restore_pos: return to the initial mouse position after the click.
     """
+    x0, y0 = mouse_pos()
+    move_to_pat(pat, offset, tolerance)
+    mouse_click(mousebutton)
+    if restore_pos:
+        mouse_move(x0,y0)
+
+def move_to_pat(pat:str, offset:(float,float)=None, tolerance:int=0) -> None:
+    '''See help for click_on_pat'''
     with tempfile.NamedTemporaryFile() as f:
         subprocess.call('''
         xwd -root -silent -display :0 | 
@@ -87,9 +99,18 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
         x, y = [l + ps//2 for l,ps in zip(loc,pat_size)]
     else:
         x, y = [l + ps*(off/100) for off,l,ps in zip(offset,loc,pat_size)]
-    x0, y0 = mousepos()
-    mousemove(x,y)
-    mouseclick(mousebutton)
-    if restore_pos:
-        mousemove(x0,y0)
+    mouse_move(x,y)
+
+
+def acknowledge_gnome_notification():
+    '''Moves mouse pointer to the bottom center of the screen and clicks on it.
+    '''
+    x0, y0 = mouse_pos()
+    mouse_move(10000, 10000)
+    x, y = mouse_pos()
+    mouse_rmove(-x/2, 0)
+    # mouse_move(x/2, y)
+    mouse_click(LEFT)
+    time.sleep(.2)
+    mouse_move(x0, y0)
 

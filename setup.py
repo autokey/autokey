@@ -25,7 +25,7 @@ except OSError: pass
 
 setup(
       name="autokey-py3",
-      version="0.92.0",
+      version="0.93.0",
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       maintainer='GuoCi',
@@ -33,7 +33,7 @@ setup(
       url='https://github.com/guoci/autokey-py3',
       # url="http://autokey.googlecode.com/",
       license="GPL v3",
-      description="Python 3 port of AutoKey. New features have been implemented after the initial porting.",
+      description="Python 3 port of AutoKey. New features have been implemented since the initial porting.",
       long_description=long_description,
       #py_modules=["autokey", "configurationmanager", "expansionservice", "interface",
       #            "iomediator", "phrase", "phrasemenu", "ui"],
