@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time, logging, threading, traceback
+import time, logging, threading, traceback, collections
 from . import common
 # from .iomediator import Key, IoMediator
 from .iomediator_Key import Key
@@ -72,7 +72,7 @@ class Service:
         ConfigManager.SETTINGS[SERVICE_RUNNING] = False
         self.mediator = None
         self.app = app
-        self.inputStack = []
+        self.inputStack = collections.deque(maxlen=MAX_STACK_LENGTH)
         self.lastStackState = ''
         self.lastMenu = None
         
@@ -105,7 +105,7 @@ class Service:
             
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         logger.debug("Received mouse click - resetting buffer")        
-        self.inputStack = []
+        self.inputStack.clear()
         
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
@@ -169,7 +169,7 @@ class Service:
             modifierCount = len(modifiers)
             
             if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
-                self.inputStack = []
+                self.inputStack.clear()
                 self.__tryReleaseLock()
                 return
                 
@@ -275,21 +275,24 @@ class Service:
                 self.phraseRunner.undo_expansion()
             else:
                 # handle backspace by dropping the last saved character
-                self.inputStack = self.inputStack[:-1]
+                try:
+                    self.inputStack.pop()
+                except IndexError:
+                    # in case self.inputStack is empty
+                    pass
             
             return False
             
         elif len(key) > 1:
             # non-simple key
-            self.inputStack = []
+            self.inputStack.clear()
             self.phraseRunner.clear_last()
             return False
         else:
             # Key is a character
             self.phraseRunner.clear_last()
+            # if len(self.inputStack) == MAX_STACK_LENGTH, front items will removed for appending new items.
             self.inputStack.append(key)
-            if len(self.inputStack) > MAX_STACK_LENGTH:
-                self.inputStack.pop(0)
             return True
             
     def __checkTextMatches(self, folders, items, buffer, windowInfo, immediate=False):
@@ -332,7 +335,7 @@ class Service:
         return windowInfo[0] != "Set Abbreviations" and self.is_running()
     
     def __processItem(self, item, buffer=''):
-        self.inputStack = []
+        self.inputStack.clear()
         self.lastStackState = ''
         
         if isinstance(item, model.Phrase):
