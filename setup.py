@@ -23,9 +23,14 @@ try:
         long_description = f.read()
 except OSError: pass
 
+MAJOR = 0
+MINOR = 93
+MICRO = 1
+VERSION = '{}.{}.{}'.format(MAJOR, MINOR, MICRO)
+
 setup(
       name="autokey-py3",
-      version="0.93.0",
+      version=VERSION,
       author="Chris Dekter",
       author_email="cdekter@gmail.com",
       maintainer='GuoCi',
