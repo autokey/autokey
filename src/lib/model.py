@@ -941,7 +941,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def load(self, parent):
         self.parent = parent
         
-        with open(self.path, "r") as inFile:
+        with open(self.path, "r", encoding='UTF-8') as inFile:
             self.code = inFile.read()
         
         if os.path.exists(self.get_json_path()):           
