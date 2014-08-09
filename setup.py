@@ -21,11 +21,11 @@ long_description = ''
 try:
     with open('README.rst') as f:
         long_description = f.read()
-except OSError: pass
+except FileNotFoundError: pass
 
 MAJOR = 0
 MINOR = 93
-MICRO = 1
+MICRO = 2
 VERSION = '{}.{}.{}'.format(MAJOR, MINOR, MICRO)
 
 setup(
