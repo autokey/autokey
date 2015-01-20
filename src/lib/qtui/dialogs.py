@@ -51,7 +51,7 @@ class AbbrListItem(QListWidgetItem):
         self.setFlags(self.flags() | Qt.ItemFlags(Qt.ItemIsEditable))
 
     def setData(self, role, value):
-        if value.toString() == "":
+        if value == "":
             self.listWidget().itemChanged.emit(self)
         else:
             QListWidgetItem.setData(self, role, value)
