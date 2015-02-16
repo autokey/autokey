@@ -791,7 +791,10 @@ class GtkClipboard:
         @param contents: string to be placed in the selection
         """
         Gdk.threads_enter()
-        self.clipBoard.set_text(contents)
+        if Gtk.get_major_version() >= 3:
+            self.clipBoard.set_text(contents, -1)
+        else:
+            self.clipBoard.set_text(contents)
         Gdk.threads_leave()      
         
     def get_clipboard(self):

@@ -537,7 +537,10 @@ class XInterfaceBase(threading.Thread):
             text = self.clipBoard.wait_for_text()
             self.__savedClipboard = ''
             if text is not None: self.__savedClipboard = text
-            self.clipBoard.set_text(string)
+            if Gtk.get_major_version() >= 3:
+                self.clipBoard.set_text(string, -1)
+            else:
+                self.clipBoard.set_text(string)
             # self.clipBoard.set_text(string.encode("utf-8"))
             Gdk.threads_leave()
 
