@@ -25,7 +25,7 @@ except FileNotFoundError: pass
 
 MAJOR = 0
 MINOR = 93
-MICRO = 3
+MICRO = 4
 VERSION = '{}.{}.{}'.format(MAJOR, MINOR, MICRO)
 
 setup(
