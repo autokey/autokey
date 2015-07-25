@@ -40,6 +40,13 @@ Debian
 
 Arch Linux
 ++++++++++
+
+Available in AUR_.
+
+.. _AUR: https://aur4.archlinux.org/packages/autokey-py3
+
+To install from PyPI:
+
 .. code:: sh
 
    pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity xautomation imagemagick xorg-xwd
