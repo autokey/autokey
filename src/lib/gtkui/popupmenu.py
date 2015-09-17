@@ -43,6 +43,14 @@ class PopupMenu(Gtk.Menu):
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
+        if ConfigManager.SETTINGS[TRIGGER_BY_INITIAL]:
+            _logger.debug("Triggering menu item by first initial")
+            self.triggerInitial = 1
+        else:
+            _logger.debug("Triggering menu item by position in list")
+            self.triggerInitial = 0
+
+
         if len(folders) == 1 and len(items) == 0 and onDesktop:
             # Only one folder - create menu with just its folders and items
             for folder in folders[0].folders:
@@ -73,7 +81,10 @@ class PopupMenu(Gtk.Menu):
         
     def __getMnemonic(self, desc, onDesktop):
         if 1 < 10 and '_' not in desc and onDesktop:
-            ret = "_%d - %s" % (self.__i, desc)
+            if self.triggerInitial:
+                ret = "%s" % (desc)
+            else:
+                ret = "_%d - %s" % (self.__i, desc)
             self.__i += 1
             return ret
         else:

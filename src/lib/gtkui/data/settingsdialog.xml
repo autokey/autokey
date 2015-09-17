@@ -236,6 +236,22 @@
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
+                                <child>
+                                 <object class="GtkCheckButton" id="triggerItemByInitial">
+                                    <property name="label" translatable="yes">Trigger menu item by first initial</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>                                                                                                                                                                                                  
+                                  <packing>                                                                                                                                                                                                  
+                                    <property name="expand">True</property>                                                                                                                                                                  
+                                    <property name="fill">True</property>                                                                                                                                                                    
+                                    <property name="position">2</property>                                                                                                                                                                   
+                                  </packing>                                
+                                </child>
                               </object>
                             </child>
                           </object>
