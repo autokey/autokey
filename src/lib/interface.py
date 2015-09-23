@@ -953,9 +953,8 @@ class XInterfaceBase(threading.Thread):
         except error.BadWindow as e:#TODO_PY3
             print(__name__, repr(e))
             return ""
-        # except:
-        #     return ""
-
+        except:  # Default handler
+            return ""
 
     def __getWinTitle(self, windowvar, traverse):
         atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)

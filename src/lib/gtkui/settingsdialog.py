@@ -54,6 +54,8 @@ class SettingsDialog:
         self.allowKbNavCheckbox = builder.get_object("allowKbNavCheckbox")
         self.allowKbNavCheckbox.hide()
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
+        # Added by Trey Blancher (ectospasm) 2015-09-16
+        self.triggerItemByInitial = builder.get_object("triggerItemByInitial")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
         
         self.iconStyleCombo = Gtk.ComboBoxText.new()
@@ -71,6 +73,8 @@ class SettingsDialog:
         self.promptToSaveCheckbox.set_active(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
         #self.allowKbNavCheckbox.set_active(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        # Added by Trey Blancher (ectospasm) 2015-09-16
+        self.triggerItemByInitial.set_active(ConfigManager.SETTINGS[TRIGGER_BY_INITIAL])
         self.sortByUsageCheckbox.set_active(ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT])
         self.enableUndoCheckbox.set_active(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
         
@@ -119,6 +123,8 @@ class SettingsDialog:
         ConfigManager.SETTINGS[SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
         #ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
+        # Added by Trey Blancher (ectospasm) 2015-09-16
+        ConfigManager.SETTINGS[TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
         ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
         ConfigManager.SETTINGS[NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
         

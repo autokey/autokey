@@ -56,6 +56,9 @@ COLUMN_WIDTHS = "columnWidths"
 SHOW_TOOLBAR = "showToolbar"
 NOTIFICATION_ICON = "notificationIcon"
 WORKAROUND_APP_REGEX = "workAroundApps"
+# Added by Trey Blancher (ectospasm) 2015-09-16
+TRIGGER_BY_INITIAL = "triggerItemByInitial"
+
 SCRIPT_GLOBALS = "scriptGlobals"
 
 # TODO - Future functionality
@@ -181,6 +184,7 @@ class ConfigManager:
                 SHOW_TOOLBAR : True,
                 NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
                 WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc",
+                TRIGGER_BY_INITIAL : False,
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY : True,
                 #RECENT_ENTRY_COUNT : 5,
