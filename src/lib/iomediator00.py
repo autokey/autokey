@@ -263,7 +263,7 @@ class Waiter:
             self.modifiers.sort()
 
     def wait(self):
-        self.event.wait(self.timeOut)
+        return self.event.wait(self.timeOut)
         
     def handle_keypress(self, rawKey, modifiers, key, *args):
         if rawKey == self.rawKey and modifiers == self.modifiers:

@@ -111,7 +111,7 @@ class Keyboard:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         w = iomediator.Waiter(key, modifiers, None, timeOut)
-        w.wait()
+        return w.wait()
         
 
 class Mouse:
