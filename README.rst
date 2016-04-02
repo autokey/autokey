@@ -43,7 +43,7 @@ Arch Linux
 
 Available in AUR_.
 
-.. _AUR: https://aur4.archlinux.org/packages/autokey-py3
+.. _AUR: https://aur.archlinux.org/packages/autokey-py3
 
 To install from PyPI:
 
