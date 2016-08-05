@@ -17,6 +17,10 @@
 
 import logging, sys, os, webbrowser, re, time
 #import gtk, Gtk.glade, gtksourceview2, pango
+
+from gi import require_version
+require_version('GtkSource', '3.0')
+
 from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 
 #import gettext
