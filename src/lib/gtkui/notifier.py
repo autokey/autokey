@@ -16,6 +16,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
 #import pynotify, gtk, gettext
+from gi import require_version
+require_version('Gtk', '3.0')
+require_version('Notify', '0.7')
+
 from gi.repository import Gtk, Gdk, Notify
 import gettext
 
