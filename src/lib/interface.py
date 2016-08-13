@@ -57,6 +57,31 @@ MASK_INDEXES = [
 CAPSLOCK_LEDMASK = 1<<0
 NUMLOCK_LEDMASK = 1<<1
 
+from typing import Union
+
+
+def str_or_bytes_to_str(x: Union[str, bytes]) -> str:
+    if type(x) == bytes:
+        logger.debug("using official python-xlib")
+        return x.decode("utf8")
+    if type(x) == str:
+        # logger.info("using LiuLang's python3-xlib")
+        return x
+    raise RuntimeError("x must be str or bytes object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
+
+
+def str_or_bytes_to_bytes(x: Union[str, bytes, memoryview]) -> bytes:
+    if type(x) == bytes:
+        # logger.info("using LiuLang's python3-xlib")
+        return x
+    if type(x) == str:
+        logger.debug("using official python-xlib")
+        return x.encode("utf8")
+    if type(x) == memoryview:
+        logger.debug("using official python-xlib")
+        return x.tobytes()
+    raise RuntimeError("x must be str or bytes or memoryview object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
+
 class XInterfaceBase(threading.Thread):
     """
     Encapsulates the common functionality for the two X interface classes.
@@ -868,8 +893,7 @@ class XInterfaceBase(threading.Thread):
         windowName = self.get_window_title(focus)
         windowClass = self.get_window_class(focus)
         w = self.app.configManager.workAroundApps
-
-        if w.match(windowName) or w.match(windowClass):
+        if w.match(str_or_bytes_to_str(windowName)) or w.match(windowClass):
             self.__enableQT4Workaround = True
         else:
             self.__enableQT4Workaround = False
@@ -1050,7 +1074,7 @@ class XRecordInterface(XInterfaceBase):
             return
         if reply.client_swapped:
             return
-        if not len(reply.data) or reply.data[0] < 2:
+        if not len(reply.data) or str_or_bytes_to_bytes(reply.data)[0] < 2:
             # not an event
             return
 
