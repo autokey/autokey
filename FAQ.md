@@ -1,13 +1,13 @@
 ### What are the dependency packages for AutoKey?
 On Debian or Ubuntu you can get the dependencies by typing:
 
-	`sudo apt-get install python-gtk2`
-	`sudo apt-get install python-gtksourceview2`
-	`sudo apt-get install python-glade2`
-	`sudo apt-get install python-xlib`
-	`sudo apt-get install python-notify`
-	`sudo apt-get install python-pyinotify`
-	`sudo apt-get install wmctrl`
+	sudo apt-get install python-gtk2
+	sudo apt-get install python-gtksourceview2
+	sudo apt-get install python-glade2
+	sudo apt-get install python-xlib
+	sudo apt-get install python-notify
+	sudo apt-get install python-pyinotify
+	sudo apt-get install wmctrl
 
 Note that if you installed AutoKey from a .deb or using apt-get, these dependencies will automatically be installed for you.
 
