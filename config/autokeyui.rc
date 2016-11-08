@@ -50,7 +50,6 @@
       <Action name="online-faq" />
       <Action name="online-api" />
       <separator />
-      <Action name="donate" />
       <Action name="report-bug" />
       <separator />
       <Action name="about" />

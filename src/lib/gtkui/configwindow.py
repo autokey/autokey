@@ -777,7 +777,6 @@ class ConfigWindow:
                 ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
                 ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
                 ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
-                ("donate", Gtk.STOCK_YES, _("Donate"), "", _("Make a Donation"), self.on_donate),
                 ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
                 ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
                 ("about-py3", Gtk.STOCK_ABOUT, _("About AutoKey-Py3"), None, _("Show program information"), self.on_show_about_py3),
@@ -1269,9 +1268,6 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_show_api(self, widget, data=None):
         webbrowser.open(common.API_URL, False, True)
-        
-    def on_donate(self, widget, data=None):
-        webbrowser.open(common.DONATE_URL, False, True)
         
     def on_report_bug(self, widget, data=None):
         webbrowser.open(common.BUG_URL, False, True)

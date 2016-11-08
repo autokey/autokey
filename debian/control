@@ -6,7 +6,7 @@ Build-Depends: python (>= 2.6), debhelper (>= 7), cdbs (>= 0.4.49)
 Build-Depends-indep: python-central (>= 0.6.0)
 Standards-Version: 3.9.3
 XS-Python-Version: >= 2.6
-Homepage: http://code.google.com/p/autokey/
+Homepage: https://github.com/autokey-py3/autokey-py3
 
 Package: autokey-common
 Architecture: all

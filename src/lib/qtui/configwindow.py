@@ -1107,7 +1107,6 @@ class ConfigWindow(KXmlGuiWindow):
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
         self.__createAction("online-faq", i18n("F.A.Q."), "help-faq", self.on_show_faq)
         self.__createAction("online-api", i18n("Scripting Help"), None, self.on_show_api)
-        self.__createAction("donate", i18n("Donate"), "face-smile", self.on_donate)
         self.__createAction("report-bug", i18n("Report a Bug"), "tools-report-bug", self.on_report_bug)
         self.__createAction("about", i18n("About AutoKey"), "help-about", self.on_about)
         self.__createAction("about-py3", i18n("About AutoKey-Py3"), "help-about", self.on_about_py3)
@@ -1312,9 +1311,6 @@ class ConfigWindow(KXmlGuiWindow):
     def on_show_api(self):
         webbrowser.open(common.API_URL, False, True)
         
-    def on_donate(self):
-        webbrowser.open(common.DONATE_URL, False, True)
-
     def on_report_bug(self):
         webbrowser.open(common.BUG_URL, False, True)
 

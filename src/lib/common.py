@@ -18,7 +18,6 @@
 
 import os, dbus.service
 
-# CONFIG_DIR = os.path.expanduser("~/.config/autokey")
 CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
 LOCK_FILE = CONFIG_DIR + "/autokey.pid"
 LOG_FILE = CONFIG_DIR + "/autokey.log"
@@ -36,11 +35,10 @@ HOMEPAGE_PY3  = "http://github.com/guoci/autokey-py3"
 # HOMEPAGE_PY3  = "http://github.com/guoci/python3-xlib-trunk"
 BUG_EMAIL_PY3 = "guociz@gmail.com"
 
-FAQ_URL = "http://code.google.com/p/autokey/wiki/FAQ"
+FAQ_URL = "https://github.com/autokey-py3/autokey-py3/wiki/FAQ"
 API_URL = "http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html"
-HELP_URL = "http://code.google.com/p/autokey/w/list"
-DONATE_URL = "https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=L333CPRZ6J8JC"
-BUG_URL = "http://code.google.com/p/autokey/issues/entry"
+HELP_URL = "https://github.com/autokey-py3/autokey-py3/wiki/Troubleshooting"
+BUG_URL = "https://github.com/autokey-py3/autokey-py3/issues"
 BUG_URL = HOMEPAGE_PY3 + "/issues"
 
 ICON_FILE = "autokey"
