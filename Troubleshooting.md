@@ -1,8 +1,8 @@
-Introduction
+# Introduction
 
 This page contains solutions to problems frequently experienced by users of AutoKey.
 
-Feature X is not working correctly for me. How do I post useful debugging information on the list?
+## Feature X is not working correctly for me. How do I post useful debugging information on the list?
 
 Start by opening a terminal. Then start AutoKey with the debug logging turned on:
 
@@ -10,7 +10,7 @@ autokey-gtk -l
 
 Next, perform whatever action is causing the problem. Lastly, capture the output and include it with your posting.
 
-How do I know which interface to use? (Settings->Advanced Settings->Device Interface)
+## How do I know which interface to use? (Settings->Advanced Settings->Device Interface)
 
 When you start AutoKey for the first time, it attempts to choose the best possible option for you. For most people, this should work fine. As the dialog states, only change the setting if AutoKey is not responding to hotkeys and abbreviations. In that case, you can simply try the various options and see which works best for you. Note that some of the interfaces don't work at all, depending on your distribution. To summarise:
 
@@ -27,12 +27,12 @@ sudo apt-get install python-pyatspi
 
 You must then enable accessible technologies via the Gnome Accessibility Settings applet. Another way to get this interface up and running is to install an application called Accersizer. The first time you start Accersizer, it will enable the correct settings for you.
 
-When I start AutoKey I get the message "Unable to connect to EvDev daemon"
+## When I start AutoKey I get the message "Unable to connect to EvDev daemon"
 
 Ensure that the AutoKey EvDev daemon is running by running the following command:
 
 sudo invoke-rc.d autokey restart
 
-I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
+## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
 
 Simply start AutoKey again while it is already running, and this will cause the configuration window to be shown.
