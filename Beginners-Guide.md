@@ -34,7 +34,7 @@ AutoKey is very useful if you write or edit business documents, novels, document
 
 ## What Is AutoKey and How Does It Work?
 
-It is a trigger or selection activated, automation utility program for Linux and X11. When a trigger is detected by !Autokey, one of three things can happen; a script is activated, text is inserted at the cursor position or a pop-up menu is displayed allowing a script or phrase to be activated by selecting it.
+It is a trigger or selection activated, automation utility program for Linux and X11. When a trigger is detected by Autokey, one of three things can happen; a script is activated, text is inserted at the cursor position or a pop-up menu is displayed allowing a script or phrase to be activated by selecting it.
 
 AutoKey scripts can literally do almost anything that can be coded as a Python program. Python scripts are user created and can be shared between users. AutoKey includes a range of sample Python scripts, and there are countless Python scripting resources on-line for learning how to write scripts.
 
