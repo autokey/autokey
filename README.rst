@@ -9,9 +9,9 @@ AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`__, a desktop automation 
 
 New features have since been added to AutoKey-Py3 after the initial porting. Read `this`__ for details.
 
-.. _GitHub: https://github.com/guoci/autokey-py3/
-__ https://code.google.com/p/autokey/
-__ https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+.. _GitHub: https://github.com/autokey-py3/autokey-py3/
+__ https://github.com/autokey-py3/autokey-py3
+__ https://github.com/autokey-py3/autokey-py3/blob/master/new_features.rst
 
 Installation
 ============
@@ -36,7 +36,7 @@ Debian
    # install AutoKey-Py3 from PyPI or …
    pip3 install --user autokey-py3
    # get the development version from GitHub
-   pip3 install --user git+https://github.com/guoci/autokey-py3
+   pip3 install --user git+https://github.com/autokey-py3/autokey-py3
 
 Arch Linux
 ++++++++++
@@ -59,7 +59,22 @@ To install from PyPI:
    # install AutoKey-Py3 from PyPI or …
    pip3 install --user autokey-py3
    # get the development version from GitHub
-   pip3 install --user git+https://github.com/guoci/autokey-py3
+   pip3 install --user git+https://github.com/autokey-py3/autokey-py3
+
+Gentoo
+++++++
+
+Available via layman_, thanks to y2kbadbug.
+
+.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
+
+To install:
+
+.. code:: sh
+
+   layman -a y2kbadbug
+   emerge --sync
+   emerge -av autokey-py3
 
 Starting AutoKey-Py3
 ++++++++++++++++++++
@@ -78,12 +93,10 @@ Documentation for new features `here`_. For older features, please refer to the 
 Examples of AutoKey scripts can be found at `GitHub`__ and at AutoKey's `wiki`__ `pages`__.
 
 __ https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
-__ https://code.google.com/p/autokey/wiki/ContributedScripts
-__ https://code.google.com/p/autokey/wiki/SampleScripts
-.. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+.. _here: https://github.com/autokey-py3/autokey-py3/blob/master/new_features.rst
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
-.. _scripting API: http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html
-.. _wiki: https://code.google.com/p/autokey/w/list
+.. _scripting API: https://autokey-py3.github.io/index.html
+.. _wiki: https://github.com/autokey-py3/autokey-py3/wiki
 
 Porting your scripts
 ====================
@@ -108,14 +121,14 @@ Logging information can be obtained by starting the launcher with the “-l” o
    autokey-gtk -l # or
    autokey-qt -l
 
-.. _GitHub Issue Tracker: https://github.com/guoci/autokey-py3/issues
+.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey-py3/issues
 
 Changelog
 =========
 Here__.
 
 .. PyPI doesn't accept relative links.
-__ https://github.com/guoci/autokey-py3/blob/master/CHANGELOG.rst
+__ https://github.com/autokey-py3/autokey-py3/blob/master/CHANGELOG.rst
 
 License
 =======
