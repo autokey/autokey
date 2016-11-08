@@ -6,7 +6,7 @@ For specific details on the custom functions available to AutoKey scripts, see t
 
 # Basic Scripts
 
-## Display Active Window Information
+### Display Active Window Information
 
 Displays the information of the active window after 2 seconds
 
@@ -16,14 +16,14 @@ Displays the information of the active window after 2 seconds
     winClass = window.get_active_class()
     dialog.info_dialog("Window information", "Active window information:\\nTitle: '%s'\\nClass: '%s'" % (winTitle, winClass))
 
-## Insert Current Date/Time
+### Insert Current Date/Time
 
 This script uses the simplified system.exec_command() function to execute the Unix date program, get the output, and send it via keyboard output
 
     output = system.exec_command("date")
     keyboard.send_keys(output)
 
-## List Menu
+### List Menu
 
 This script shows a simple list menu, grabs the chosen option and sends it via keyboard output.
 
@@ -40,7 +40,7 @@ This script grabs the current mouse selection, then erases it, and inserts it ag
     keyboard.send_key("<delete>")
     keyboard.send_keys("The text %s was here previously" % text)
 
-## Persistent Value
+### Persistent Value
 
 This script demonstrates 'remembering' a value in the store between separate invocations of the script.
 
@@ -54,7 +54,7 @@ This script demonstrates 'remembering' a value in the store between separate inv
 
         keyboard.send_keys("I've been run %d times!" % store.get_value("runs")) ```
 
-## Create new abbreviation
+### Create new abbreviation
 
 This script creates a new phrase with an associated abbreviation from the current contents of the X mouse selection (although you could easily change it to use the clipboard instead by using clipboard.get_clipboard()).
 
@@ -71,7 +71,7 @@ This script creates a new phrase with an associated abbreviation from the curren
             folder = engine.get_folder("My Phrases")
             engine.create_abbreviation(folder, title, abbr, contents)
 
-## Create new phrase
+### Create new phrase
 
 This is similar to the above script, but just creates the phrase without an abbreviation.
 
@@ -88,353 +88,458 @@ This is similar to the above script, but just creates the phrase without an abbr
 
 
 
-------------------------
-
-
-
 # Advanced Scripts
 
-This page contains user contributed scripts to demonstrate the advanced capabilities of AutoKey's scripting service.
+This page contains user contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
 
 Feel free to use the scripts presented for your own purpose. However, if you significantly modify them or come up with something new as a result of using them please post them into our forums so one of the wiki moderators can install them here for all to benefit.
 
-All submitted scripts are publicly licensed as GNU GPL v3
+All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
 
-For specific details on the custom functions available to AutoKey scripts, see the API reference.
+For specific details on the custom functions available to AutoKey scripts, see the [API reference](http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html).
 
-Choose Browser On Link Selection
+### Choose Browser On Link Selection ###
 
-Discovered at: Linux Journal
+**Discovered at**: [Linux Journal](http://www.linuxjournal.com/content/autokey-desktop-automation-utility-linux)
 
-Author: Mike Diehl
+**Author**: [Mike Diehl](http://www.linuxjournal.com/users/mike-diehl)
 
-Description: This Autokey script takes a highlighted url from any program and triggers a selection of browsers from which you can choose to load the page.
+**Description**: This Autokey script takes a highlighted url from any program and triggers a selection of browsers from which you can choose to load the page.
 
-choices = ["konqueror", "firefox", "chrome"] retCode, choice = dialog.list_menu(choices) if retCode == 0: system.exec_command(choice + " " + clipboard.get_selection())
+```python
+choices = ["konqueror", "firefox", "chrome"]
+retCode, choice = dialog.list_menu(choices)
+if retCode == 0:
+  system.exec_command(choice + " " + clipboard.get_selection())
+```
 
-Table Of Content
+### Health Potion Drinker ###
 
-Health Potion Drinker
+**Author**: [Itscool - Al](http://www.bowierocks.com)
 
-Author: Itscool - Al
+**Description**: I created this Autokey script to help me manage the drinking of health potions. The game lacks a mechanism to quickly imbibe a potion without some difficulty. It is far easier to hit one key that does it for you. In the case of this script, you are also taken back to safe zone if you are out of health potions. All you have to do is make sure you have pot in all of your slots. It will work even if you don’t have pot in all of the slots. For use with the flash client at [Realm of the Mad God](http://www.realmofthemadgod.com).
 
-Description: I created this Autokey script to help me manage the drinking of health potions. The game lacks a mechanism to quickly imbibe a potion without some difficulty. It is far easier to hit one key that does it for you. In the case of this script, you are also taken back to safe zone if you are out of health potions. All you have to do is make sure you have pot in all of your slots. It will work even if you don’t have pot in all of the slots. For use with the flash client at Realm of the Mad God.
-
-``` if not store.has_key("heal"):
-
-set the key 'persistant variable' if we don’t have it already
-
+```python
+if not store.has_key("heal"):
+# set the key 'persistant variable' if we don’t have it already
 store.set_value("heal",1)
 
-pot = store.get_value("heal") if pot > 8: # also send us back to the nexus pot = 1 keyboard.send_key("")
+pot = store.get_value("heal")
+if pot > 8:
+  # also send us back to the nexus
+  pot = 1
+  keyboard.send_key("<f5>")
 
-do the pot thing
-
-output = str(pot) keyboard.send_key(output)
-
-increment the pot
+#do the pot thing
+output = str(pot)
+keyboard.send_key(output)
+#increment the pot
 
 pot = pot + 1
 
-store.set_value("heal",pot) ``` Table Of Content
+store.set_value("heal",pot)
+```
 
-Ask For Assistance
+### Ask For Assistance ###
 
-Author: Itscool - Al
+**Author**: [Itscool - Al](http://www.bowierocks.com)
 
-Description: I created this Autokey script to do two things. 1) Generate a randomized shout message to gain assistance and 2) drink a manna pot from one of the bottom four inventory slots. For use with the flash client at Realm of the Mad God.
+**Description**: I created this Autokey script to do two things. 1) Generate a randomized shout message to gain assistance and 2) drink a manna pot from one of the bottom four inventory slots. For use with the flash client at [Realm of the Mad God](http://www.realmofthemadgod.com).
 
-``` from random import randrange announcement = ["OMG","","DARN","","OH BOY","","COME HERE","","TP ME","","MESHUGANA","","OY",""] declaration = ["I could seriously use some help here","The devs must be crazy","How many minions did Oryx say he had to feed?","Dodge bullets? Sure. But this","MONSTERS"] expletives = ["!","!!","!!!","!!!!1","!!!1!","!!1!1!"]
+```python
+from random import randrange
+announcement = ["OMG","","DARN","","OH BOY","","COME HERE","","TP ME","","MESHUGANA","","OY",""]
+declaration = ["I could seriously use some help here","The devs must be crazy","How many minions did Oryx say he had to feed?","Dodge bullets? Sure. But this","MONSTERS"]
+expletives = ["!","!!","!!!","!!!!1","!!!1!","!!1!1!"]
 
-if not store.has_key("mana"): # set the key 'persistant variable' if we don't have it already # or if the value is greater than 8 reset it to 5 store.set_value("mana",5)
+if not store.has_key("mana"):
+    # set the key 'persistant variable' if we don't have it already
+    # or if the value is greater than 8 reset it to 5
+    store.set_value("mana",5)
 
-mana = store.get_value("mana") if mana > 8: mana = 5
+mana = store.get_value("mana")
+if mana > 8:
+    mana = 5
 
-part1 = announcement[randrange(len(announcement))] part2 = declaration[randrange(len(declaration))]
+part1 = announcement[randrange(len(announcement))]
+part2 = declaration[randrange(len(declaration))]
 
-if part1 != "": part1 = part1 + expletives[randrange(len(expletives))] if part2 != "": part2 = part2 + expletives[randrange(len(expletives))]
+if part1 != "":
+    part1 = part1 + expletives[randrange(len(expletives))]
+if part2 != "":
+    part2 = part2 + expletives[randrange(len(expletives))]
 
-output = "/yell " + part1 + " " + part2 + "\n" keyboard.send_keys(output)
+output = "/yell " + part1 + " " + part2 + "\n"
+keyboard.send_keys(output)
 
-do the mana thing
+#do the mana thing
+output = str(mana)
+keyboard.send_key(output)
+#increment the mana
+mana = mana + 1
+store.set_value("mana",mana)
+```
 
-output = str(mana) keyboard.send_key(output)
+### Ask For A Cleric ###
 
-increment the mana
+**Author**: [Itscool - Al](http://www.bowierocks.com)
 
-mana = mana + 1 store.set_value("mana",mana) ``` Table Of Content
+**Description**: I created this Autokey script will help you manage drinking health potions in the top four inventory slots. Additionally it'll generate a random yell asking for some type of healing support. For use with the flash client at [Realm of the Mad God](http://www.realmofthemadgod.com).
 
-Ask For A Cleric
+```python
+from random import randrange
+announcement = ["HELP","","HP","","HEAL","","MEDIC","","DR. WHO","","1-800-PRIEST",""]
+declaration = ["I could use some professional help here","Anyone in the businesses of hp","Bring lots of that RED STUFF in a jar","I don't wanna die","Mommy","You can leave a msg at GHOSTBUSTERS","I'm going to meet the maker","Great, I'm another Father Dowling Mystery","Agatha Christi?! Posh","Should've listened to Momma","I don't want this chocolate","..."]
+expletives = ["!","!!","!!!","!!!!1","!!!1!","!!1!1!"]
 
-Author: Itscool - Al
+if not store.has_key("pot"):
+    # set the key 'persistant variable' if we don't have it already
+    # or if the value is greater than 4 reset it to 1
+    store.set_value("pot",1)
 
-Description: I created this Autokey script will help you manage drinking health potions in the top four inventory slots. Additionally it'll generate a random yell asking for some type of healing support. For use with the flash client at Realm of the Mad God.
+pot = store.get_value("pot")
+if pot > 4:
+    pot = 1
 
-``` from random import randrange announcement = ["HELP","","HP","","HEAL","","MEDIC","","DR. WHO","","1-800-PRIEST",""] declaration = ["I could use some professional help here","Anyone in the businesses of hp","Bring lots of that RED STUFF in a jar","I don't wanna die","Mommy","You can leave a msg at GHOSTBUSTERS","I'm going to meet the maker","Great, I'm another Father Dowling Mystery","Agatha Christi?! Posh","Should've listened to Momma","I don't want this chocolate","..."] expletives = ["!","!!","!!!","!!!!1","!!!1!","!!1!1!"]
+part1 = announcement[randrange(len(announcement))]
+part2 = declaration[randrange(len(declaration))]
 
-if not store.has_key("pot"): # set the key 'persistant variable' if we don't have it already # or if the value is greater than 4 reset it to 1 store.set_value("pot",1)
+if part1 != "":
+    part1 = part1 + expletives[randrange(len(expletives))]
 
-pot = store.get_value("pot") if pot > 4: pot = 1
+if part2 != "":
+    part2 = part2 + expletives[randrange(len(expletives))]
 
-part1 = announcement[randrange(len(announcement))] part2 = declaration[randrange(len(declaration))]
+output = "/yell " + part1 + " " + part2 + "\n"
+keyboard.send_keys(output)
 
-if part1 != "": part1 = part1 + expletives[randrange(len(expletives))]
+#do the pot thing
+output = str(pot)
+keyboard.send_key(output)
+#increment the pot
+pot = pot + 1
+store.set_value("pot",pot)
+```
 
-if part2 != "": part2 = part2 + expletives[randrange(len(expletives))]
+### Gnome Screenshot ###
 
-output = "/yell " + part1 + " " + part2 + "\n" keyboard.send_keys(output)
+**Author**: [Dave](http://groups.google.com/groups/profile?enc_user=gy_J_BYAAABLTVwIPyUi9oJFSRwGwC70o4cocwWvDVg2RHsu8f1bCg)
 
-do the pot thing
+**Description**: The Autokey script created here will allow you to quickly screenshot your desktop while moving your mouse off to the right. Dave had originally submitted it to the group forums there and at least 4 of us helped him to modify it and make it faster.
 
-output = str(pot) keyboard.send_key(output)
+```python
+#
+# replace ~/Downloads with the location of where you told gnome-screenshot to save the pic
+#
+system.exec_command("bash -c 'rm ~/Downloads/today.png'",False)
+system.exec_command("gnome-screenshot -w", False)
+window.wait_for_exist("Save Screenshot", timeOut=5)
+system.exec_command("xte 'mousemove 725 399'", False)
+window.activate("Save Screenshot", switchDesktop=False)
+keyboard.send_keys("today")
+```
 
-increment the pot
+### Switch Or Start Firefox ###
 
-pot = pot + 1 store.set_value("pot",pot) ``` Table Of Content
+**Author**: Jack
 
-Gnome Screenshot
+**Description**: this script switches to the Firefox window. if Firefox is not already running, the script starts it. i use similar scripts for the applications i use most.
 
-Author: Dave
+```python
+#
+#start firefox or switch to firefox
+import subprocess
+command = 'wmctrl -l'
+output = system.exec_command(command, getOutput=True)
 
-Description: The Autokey script created here will allow you to quickly screenshot your desktop while moving your mouse off to the right. Dave had originally submitted it to the group forums there and at least 4 of us helped him to modify it and make it faster.
+if 'Firefox' in output:
+    window.activate(‘Firefox’,switchDesktop=True)
 
-``` #
+else:
+    subprocess.Popen(["/usr/bin/firefox"])
+#
+```
 
-replace ~/Downloads with the location of where you told gnome-screenshot to save the pic
+### RSS Zoomer ###
 
-# system.exec_command("bash -c 'rm ~/Downloads/today.png'",False) system.exec_command("gnome-screenshot -w", False) window.wait_for_exist("Save Screenshot", timeOut=5) system.exec_command("xte 'mousemove 725 399'", False) window.activate("Save Screenshot", switchDesktop=False) keyboard.send_keys("today") ``` Table Of Content
+**Author**: Jack
 
-Switch Or Start Firefox
+**Description**: several actions to go on the same key… i have this on this script sends `'^+'` when in Firefox or Chromium to do a zoom in. when i'm reading RSS feeds in Akregator, it sends `'='` to move to the next unread item.
 
-Author: Jack
-
-Description: this script switches to the Firefox window. if Firefox is not already running, the script starts it. i use similar scripts for the applications i use most.
-
-``` #
-
-start firefox or switch to firefox
-
-import subprocess command = 'wmctrl -l' output = system.exec_command(command, getOutput=True)
-
-if 'Firefox' in output: window.activate(‘Firefox’,switchDesktop=True)
-
-else: subprocess.Popen(["/usr/bin/firefox"]) # ``` Table Of Content
-
-RSS Zoomer
-
-Author: Jack
-
-Description: several actions to go on the same key… i have this on this script sends '^+' when in Firefox or Chromium to do a zoom in. when i'm reading RSS feeds in Akregator, it sends '=' to move to the next unread item.
-
-``` #
+```python
+#
 
 winTitle = window.get_active_title()
 
-if 'Mozilla Firefox' in winTitle: output = "+" keyboard.send_keys(output)
+if 'Mozilla Firefox' in winTitle:
+    output = "+"
+    keyboard.send_keys(output)
 
-elif 'Chromium' in winTitle: output = "+" keyboard.send_keys(output)
+elif 'Chromium' in winTitle:
+    output = "+"
+    keyboard.send_keys(output)
 
-elif 'Akregator' in winTitle: output = "=" keyboard.send_keys(output)
+elif 'Akregator' in winTitle:
+    output = "="
+    keyboard.send_keys(output)
 
-else: output = "" keyboard.send_keys(output)
+else:
+    output = ""
+    keyboard.send_keys(output)
 
-# ``` Table Of Content
-
-Move Active Window
-
-Author: Jack
-
-Description: here are 4 tiny scripts to move the active window left, right, up, down. fwiw i have them on !Super+AppropriateArrow.
-
-Move Window Left: ```
-
-move active window left
-
-thisWin = window.get_active_title() windetails = window.get_active_geometry() # returns tuple of: x, y, width, height newX = windetails[0] - 40 window.resize_move(thisWin, xOrigin=newX, yOrigin=-1, width=-1, height=-1, matchClass=False) ```
-
-Move Window Right: ```
-
-move active window right
-
-thisWin = window.get_active_title() windetails = window.get_active_geometry() # returns tuple of: x, y, width, height newX = windetails[0] + 40 window.resize_move(thisWin, xOrigin=newX, yOrigin=-1, width=-1, height=-1, matchClass=False) ```
-
-Move Window Up: ```
-
-move active window up
-
-thisWin = window.get_active_title() windetails = window.get_active_geometry() # returns tuple of: x, y, width, height newY=windetails[1] - 80 # must bigger than approx 40, otherwise window moves down! window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False) ```
-
-Move Window Down: ```
-
-move active window down
-
-thisWin = window.get_active_title() windetails = window.get_active_geometry() # returns tuple of: x, y, width, height oldY = windetails[1] newY=windetails[1] + 20 window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False) ``` Table Of Content
-
-Offline Print Queue
-
-Author: Joe
-
-Description: Changes <ctrl>+p for Mozilla applications to print to a file in a special offline print queue using incremented file names, intended for use with duplexpr.
-
+#
 ```
 
-print2file
+### Move Active Window ###
 
-import time import os
+**Author**: Jack
 
-Copyleft 2012/02/27 - JPmicrosystems GPL
+**Description**: here are 4 tiny scripts to move the active window left, right, up, down. fwiw i have them on !Super+AppropriateArrow.
 
-Change +p for Firefox and Thunderbird
+**Move Window Left**:
+```python
+# move active window left
+thisWin = window.get_active_title()
+windetails = window.get_active_geometry() # returns tuple of: x, y, width, height
+newX = windetails[0] - 40
+window.resize_move(thisWin, xOrigin=newX, yOrigin=-1, width=-1, height=-1, matchClass=False)
+```
 
-to print to file in a special print queue using
+**Move Window Right**:
+```python
+# move active window right
+thisWin = window.get_active_title()
+windetails = window.get_active_geometry() # returns tuple of: x, y, width, height
+newX = windetails[0] + 40
+window.resize_move(thisWin, xOrigin=newX, yOrigin=-1, width=-1, height=-1, matchClass=False)
+```
 
-numbered file names, 01, 02, ... so the print jobs stay in order
+**Move Window Up**:
+```python
+# move active window up
+thisWin = window.get_active_title()
+windetails = window.get_active_geometry() # returns tuple of: x, y, width, height
+newY=windetails[1] - 80 # must bigger than approx 40, otherwise window moves down!
+window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False)
+```
 
-Intended for use with duplexpr
+**Move Window Down**:
+```python
+# move active window down
+thisWin = window.get_active_title()
+windetails = window.get_active_geometry() # returns tuple of: x, y, width, height
+oldY = windetails[1]
+newY=windetails[1] + 20
+window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False)
+```
 
-http://sourceforge.net/projects/duplexpr/
+### Offline Print Queue ###
 
-User must manually create print queue folder (~/pq)
+**Author**: [Joe](http://groups.google.com/groups/profile?enc_user=wEhtURIAAAD4aTgqVkoh5XFntZCWEVBLD1eZzMt9YX5JjiuRxhHx-A)
 
-and set all *.print_to_filename variables in prefs.js (about:config)
+**Description**: Changes `<ctrl>+p` for Mozilla applications to print to a file in a special offline print queue using incremented file names, intended for use with duplexpr.
 
-to path to print queue/01.ps
+```python
+# print2file
 
-e.g. /home/shelelia/pq/01.ps
+import time
+import os
 
-Hotkey +p
+## Copyleft 2012/02/27 - JPmicrosystems GPL
+## Change <ctrl>+p for Firefox and Thunderbird
+## to print to file in a special print queue using
+## numbered file names, 01, 02, ... so the print jobs stay in order
+## Intended for use with duplexpr
+## http://sourceforge.net/projects/duplexpr/
+## User must manually create print queue folder (~/pq)
+## and set all *.print_to_filename variables in prefs.js (about:config)
+## to path to print queue/01.ps
+## e.g. /home/shelelia/pq/01.ps
 
-Window Filter .Mozilla.
+## Hotkey <ctrl>+p
+## Window Filter .*Mozilla.*
 
-Changes +p to
+## Changes <ctrl>+p to
+## Print to file and looks at the print queue (~/pq)
+## Finds the last print file number and increments it by one
+## Doesn't send final <Enter> so additional options like Print Selection
+## can be set by the user
+##Fails if Loading file to print takes longer than the second delay
 
-Print to file and looks at the print queue (~/pq)
+def filenum ():
+    ## Gets next file number
+    ## Set path to print queue
+    path = os.getenv("HOME") + '/pq'
+    ## Get all the files in the print queue in a list
+    ## Handle filesystem error
+    try:
+        dirlist=os.listdir(path)
+    except:
+        return "EE"
 
-Finds the last print file number and increments it by one
+    ## And sort it in reverse order
+    ## So the largest numbered file is first
+    dirlist.sort(reverse=True)
 
-Doesn't send final so additional options like Print Selection
+    ## If there aren't any files then
+    ## Set last file to 0
+    ## else, set it to the last file with a valid number
+    ## Defend script against non-numeric file names
+    ## go down the reverse sorted list until a numeric one is found
+    fn=""
+    if len(dirlist) == 0:
+      fn = "00"
+    else:
+        files = len(dirlist)
+        i = 0
+        while (i < files) and (fn == ""):
+            name = dirlist[i]
+            if name.isdigit():
+                fn = str(int(name) + 1)
+            i += 1
 
-can be set by the user
+    if fn == "":
+      fn = "01"
 
-Fails if Loading file to print takes longer than the second delay
+    ## If it's less than 2 characters long,
+    ## Left pad it with a zero
+    ## To maintain the sorting order
+    if len(fn) < 2:
+      fn = '0' + fn
 
-def filenum (): ## Gets next file number ## Set path to print queue path = os.getenv("HOME") + '/pq' ## Get all the files in the print queue in a list ## Handle filesystem error try: dirlist=os.listdir(path) except: return "EE"
+    return fn
 
-## And sort it in reverse order
-## So the largest numbered file is first
-dirlist.sort(reverse=True)
 
-## If there aren't any files then
-## Set last file to 0
-## else, set it to the last file with a valid number
-## Defend script against non-numeric file names
-## go down the reverse sorted list until a numeric one is found
-fn=""
-if len(dirlist) == 0:
-  fn = "00"
-else:
-    files = len(dirlist)
-    i = 0
-    while (i < files) and (fn == ""):
-        name = dirlist[i]
-        if name.isdigit():
-            fn = str(int(name) + 1)
-        i += 1
-
-if fn == "":
-  fn = "01"
-
-## If it's less than 2 characters long,
-## Left pad it with a zero
-## To maintain the sorting order
-if len(fn) < 2:
-  fn = '0' + fn
-
-return fn
-Open the File menu
-
-(can't use +p because that's the hotkey)
-
-keyboard.send_keys("+f") time.sleep(1.0)
-
-Select Print
-
-keyboard.send_keys("p") time.sleep(2.0)
-
-tab to the printer selection list, then to the top of the list
-
-which is the Print to File selection
-
-keyboard.send_keys("") time.sleep(2.0)
-
-tab to the file name field and enter the print queue directory path
-
-keyboard.send_keys("")
+## Open the File menu
+## (can't use <ctrl>+p because that's the hotkey)
+keyboard.send_keys("<alt>+f")
+time.sleep(1.0)
+## Select Print
+keyboard.send_keys("p")
+time.sleep(2.0)
+## tab to the printer selection list, then to the top of the list
+## which is the Print to File selection
+keyboard.send_keys("<tab><home>")
+time.sleep(2.0)
+## tab to the file name field and enter the print queue directory path
+keyboard.send_keys("<tab>")
 
 output = filenum()
 
-complete the file name field in the print dialog
-
-But don't send an enter so the user can select
-
-options before printing
-
+## complete the file name field in the print dialog
+## But don't send an enter so the user can select
+## options before printing
 keyboard.send_keys(output)
 
-``` Table Of Content
 
-Key Wrapper
+```
 
-Author: tpower21
+### Key Wrapper ###
 
-Description: Wrap selected text with one or two keys/sets of keys, or output them if nothing's selected, and keep your current clipboard. Can call it using engine.run_script(description) then bind whatever's calling it to something.
+**Author**: [tpower21](http://groups.google.com/groups/profile?enc_user=x6tfARIAAAAifj82FffFIj7Xx_wp_F3B8rhlH0Pnl47z4AZhN98BFg)
 
-Real World Use: Highlight a load of text and that you need wrapped in something. Possibly say quotes, brackets, braces, parens, pipes, asterisks etc ... That is why the script is in two parts so you can have multiple assignments to the same engine.
+**Description**: Wrap selected text with one or two keys/sets of keys, or
+output them if nothing's selected, and keep your current clipboard.
+Can call it using engine.run\_script(description) then bind
+whatever's calling it to something.
 
-Alternate Use: Wrapping a load of text with words or phrases like you would use in html, xml, etc ... where wrap could be <div> and wrap_close could be </div>.
+**Real World Use**: Highlight a load of text and that you need wrapped in something. Possibly say quotes, brackets, braces, parens, pipes, asterisks etc ... That is why the script is in two parts so you can have multiple assignments to the same engine.
 
-binder script: wrap = "<shift>+9" wrap_close = "<shift>+0" engine.run_script("wrap_selection")
+**Alternate Use**: Wrapping a load of text with words or phrases like you would use in html, xml, etc ... where _wrap_ could be `<div>` and _`wrap_close`_ could be `</div>`.
 
-script: wrap_selection ```
+**binder script**:
+```python
+wrap = "<shift>+9" 
+wrap_close = "<shift>+0" 
+engine.run_script("wrap_selection")
+```
 
-wrap_selection
+**script**: wrap\_selection
+```python
+# wrap_selection 
+# get keys 
+try: 
+    wrap 
+except NameError: 
+    dialog.info_dialog("Need at least one key to wrap selection with.") 
+try: 
+    wrap_close 
+except NameError: 
+    wrap_close = wrap 
+# below needed to get working in some apps, otherwise 
+# clipboard.get_selection() quicker/better 
+# get clipboard/selection 
+try: 
+    clip_board = clipboard.get_clipboard() 
+except: 
+    clip_board = "" 
+keyboard.send_keys("<ctrl>+x") 
+time.sleep(0.01) 
+try: 
+    selection = clipboard.get_clipboard() 
+except: 
+    selection = "" 
+# clipboard won't update if selection empty 
+if clip_board == selection: 
+    selection = "" # problem if clipboard and selection are the same 
+# and not empty, but not the end of the world 
+# wrap and clean up 
+keyboard.send_keys(wrap+selection+wrap_close+"<left>")
+#tpower21 added the following two lines on February 7 2012
+for s in selection:
+   keyboard.send_keys("<shift>+<left>") 
+clipboard.fill_clipboard(clip_board) 
+del clip_board, selection, wrap, wrap_close 
+```
 
-get keys
+### WordPress Hebrew Concordance Linker ###
 
-try: wrap except NameError: dialog.info_dialog("Need at least one key to wrap selection with.") try: wrap_close except NameError: wrap_close = wrap
+**Author**: [Itscool - Al](http://www.bowierocks.com)
 
-below needed to get working in some apps, otherwise
+**Description**: This AutoKey script takes a selected entry in your WordPress article that may or may not contain parens "()", extracts the number enclosed and converts that to a link to the concordance at eliyah.com. The number is assumed to be a HEBREW lexicon indicator as pertains to the Strong's Concordance that is keyed to the New King James Bible. I have my hot-key combo set to "`<alt>+<shift>+h`". With no further ado I present the following Python script for AutoKey that does what I claim.
 
-clipboard.get_selection() quicker/better
+```python
+selection = clipboard.get_selection()
+if selection[0] == "(":
+    selection = selection[1:-1]
+ 
+if selection[-1] == ")":
+    selection = selection[0:-2]
+    
+keyboard.send_keys("<alt>+<shift>+a")
+ 
+keyboard.send_keys("http://www.eliyah.com/cgi-bin/strongs.cgi?file=hebrewlexicon&isindex=%s" % selection)
+keyboard.send_keys("<tab>")
+keyboard.send_keys("Strong's Concordance HEBREW %s" % selection)
+keyboard.send_keys("<enter>")
+```
 
-get clipboard/selection
+### Function to Type Text Slowly ###
 
-try: clip_board = clipboard.get_clipboard() except: clip_board = "" keyboard.send_keys("+x") time.sleep(0.01) try: selection = clipboard.get_clipboard() except: selection = ""
+**Author**: Joseph Pollock - JPmicrosystems
 
-clipboard won't update if selection empty
+**Description:***
+Normally, AutoKey will emit characters from a phrase or macro as fast as the system will allow. This is quite a bit faster than typing and some applications may not be able to keep up.
 
-if clip_board == selection: selection = "" # problem if clipboard and selection are the same
+The following macro emits/types a string of characters one at a time with a delay between each one.
 
-and not empty, but not the end of the world
+The first parameter is the string of characters to type. The second optional parameter is the number of seconds to delay between each keypress. It defaults to 0.1 seconds.
 
-wrap and clean up
+**type_slow()**:
+```python
+# Filename: typing_aids.py
 
-keyboard.send_keys(wrap+selection+wrap_close+"")
+import time
+import scripting
 
-tpower21 added the following two lines on February 7 2012
+## Type a string character by character
+##   from within AutoKey
+##   with a small delay between characters
+def type_slow(string, delay=0.1):
+  if delay < 0:
+    delay = 0
 
-for s in selection: keyboard.send_keys("+") clipboard.fill_clipboard(clip_board) del clip_board, selection, wrap, wrap_close ``` Table Of Content
-
-WordPress Hebrew Concordance Linker
-
-Author: Itscool - Al
-
-Description: This AutoKey script takes a selected entry in your WordPress article that may or may not contain parens "()", extracts the number enclosed and converts that to a link to the concordance at eliyah.com. The number is assumed to be a HEBREW lexicon indicator as pertains to the Strong's Concordance that is keyed to the New King James Bible. I have my hot-key combo set to "<alt>+<shift>+h". With no further ado I present the following Python script for AutoKey that does what I claim.
-
-``` selection = clipboard.get_selection() if selection[0] == "(": selection = selection[1:-1]
-
-if selection[-1] == ")": selection = selection[0:-2]
-
-keyboard.send_keys("++a")
-
-keyboard.send_keys("http://www.eliyah.com/cgi-bin/strongs.cgi?file=hebrewlexicon&isindex=%s" % selection) keyboard.send_keys("") keyboard.send_keys("Strong's Concordance HEBREW %s" % selection) keyboard.send_keys("") ``` Table Of Content
+  for c in string:
+    scripting.keyboard.send_key(c)
+    time.sleep(delay)
+```
