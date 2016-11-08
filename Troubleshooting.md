@@ -6,7 +6,7 @@ This page contains solutions to problems frequently experienced by users of Auto
 
 Start by opening a terminal. Then start AutoKey with the debug logging turned on:
 
-autokey-gtk -l
+`autokey-gtk -l`
 
 Next, perform whatever action is causing the problem. Lastly, capture the output and include it with your posting.
 
@@ -23,7 +23,7 @@ To enable this interface, you must have the AT-SPI packages installed and be run
 
 To enable it, run the following:
 
-sudo apt-get install python-pyatspi
+`sudo apt-get install python-pyatspi`
 
 You must then enable accessible technologies via the Gnome Accessibility Settings applet. Another way to get this interface up and running is to install an application called Accersizer. The first time you start Accersizer, it will enable the correct settings for you.
 
@@ -31,7 +31,7 @@ You must then enable accessible technologies via the Gnome Accessibility Setting
 
 Ensure that the AutoKey EvDev daemon is running by running the following command:
 
-sudo invoke-rc.d autokey restart
+`sudo invoke-rc.d autokey restart`
 
 ## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
 
