@@ -1,1 +1,0 @@
-INTERFACE_TYPE = "interfaceType"
