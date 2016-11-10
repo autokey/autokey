@@ -1,0 +1,1 @@
+INTERFACE_TYPE = "interfaceType"
