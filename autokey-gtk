@@ -23,12 +23,7 @@ import faulthandler;faulthandler.enable()
 try: del os.environ['WINDOWID']
 except KeyError: pass
 
-# make this work with “pip install -e”
-try:
-    from autokey.gtkapp import Application
-except ImportError:
-    print("installed with “pip install -e”")
-    from src.lib.gtkapp import Application
+from autokey.gtkapp import Application
 
 a = Application()
 a.main()
