@@ -16,9 +16,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
 #import pynotify, gtk, gettext
-from gi import require_version
-require_version('Gtk', '3.0')
-require_version('Notify', '0.7')
+import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Notify', '0.7')
 
 from gi.repository import Gtk, Gdk, Notify
 import gettext
@@ -27,10 +27,11 @@ from . import popupmenu
 from ..configmanager import *
 from .. import common
 
-from .configwindow0 import get_ui
+from autokey.gtkui.configwindow0 import get_ui
 
 HAVE_APPINDICATOR = False
 try:
+    gi.require_version('AppIndicator3', '0.1')
     from gi.repository import AppIndicator3
     HAVE_APPINDICATOR = True
 except ImportError:

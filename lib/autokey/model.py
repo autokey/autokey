@@ -238,7 +238,7 @@ class AbstractWindowFilter:
         
     def get_child_filter(self):
         if self.isRecursive and self.windowInfoRegex is not None:
-            return self.get_filter_regex() + _(" (Inherited)")
+            return self.get_filter_regex()
         elif self.parent is not None:
             return self.parent.get_child_filter()
         else:
@@ -250,7 +250,7 @@ class AbstractWindowFilter:
         """
         if self.windowInfoRegex is not None:
             if self.isRecursive:
-                return self.windowInfoRegex.pattern + _(" (Recursive)")
+                return self.windowInfoRegex.pattern
             else:
                 return self.windowInfoRegex.pattern
         elif self.parent is not None:

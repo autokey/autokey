@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+
+# -*- coding: utf-8 -*-
 # -*- mode: python -*-
 
 # Copyright (C) 2011 Chris Dekter
@@ -45,5 +47,5 @@ if __name__ == "__main__":
         sys.exit(0)
 
     except dbus.DBusException as e:
-        print(str(e), file=sys.stderr)
+        print >>sys.stderr, str(e)
         sys.exit(1)
