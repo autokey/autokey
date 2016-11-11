@@ -15,14 +15,48 @@ New features have since been added to AutoKey-Py3 after the initial porting. Rea
 
 Installation
 ============
+
+Dependencies
+++++++++++++
 There are two GUIs for AutoKey-Py3, GTK and QT, and they have different dependencies. If you use the GTK GUI, there is no need to install dependencies for the QT GUI and vice versa.
+
+Python modules (common):
+
+- dbus-python
+- pyinotify
+- python-xlib
+- typing
+
+GTK GUI:
+
+- PyGTK
+- GtkSourceView
+
+QT GUI:
+
+- PyQt4
+- PyKDE4
+
+pip
++++
+.. code:: sh
+
+   pip install --user git+https://github.com/autokey-py3/autokey-py3
 
 The "--user" option for pip may be removed if you intend to do a system-wide install. You can also add the "-e" option to pip to install in `editable mode`__. Editable installs currently work only with the GTK GUI.
 
 __ https://pip.pypa.io/en/latest/reference/pip_install/#editable-installs
 
-Debian
-++++++
+Virtualenv
+++++++++++
+.. code:: sh
+
+   virtualenv --system-site-packages ~/autokey
+   . ~/autokey/bin/activate
+   pip install git+https://github.com/autokey-py3/autokey-py3
+
+Ubuntu/Debian
++++++++++++++
 .. code:: sh
 
    # common dependencies
@@ -37,6 +71,9 @@ Debian
    pip3 install --user autokey-py3
    # get the development version from GitHub
    pip3 install --user git+https://github.com/autokey-py3/autokey-py3
+
+Fedora/CentOS
++++++++++++++
 
 Arch Linux
 ++++++++++
