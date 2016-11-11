@@ -760,7 +760,7 @@ class GtkClipboard:
         
     def __fillSelection(self, string):
         Gdk.threads_enter()
-        self.selection.set_text(string)
+        self.selection.set_text(string, -1)
         Gdk.threads_leave()
         #self.sem.release()
         
