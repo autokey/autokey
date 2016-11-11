@@ -21,6 +21,8 @@ common.USING_QT = False
 import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
 import gettext, dbus, dbus.service, dbus.mainloop.glib
 
+import gi
+gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
