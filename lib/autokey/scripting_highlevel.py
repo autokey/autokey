@@ -14,9 +14,9 @@ MIDDLE = 2
 RIGHT = 3
 
 
-def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int,int):
+def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int):
     """
-    visgrep(scr:str, pat:str, tolerance:int = 0) -> (int,int)
+    visgrep(scr:str, pat:str, tolerance:int = 0) -> (int)
     Visual grep of scr for pattern pat.
     Requires xautomation (http://hoopajoo.net/projects/xautomation.html).
     visgrep("screen.png", "pat.png")
@@ -45,9 +45,9 @@ def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int,int):
         raise PatternNotFound(str([x.decode() for x in out]) + '\n\t' + repr(e))
     return coord
 
-def get_png_dim(filepath:str) -> (int,int):
+def get_png_dim(filepath:str) -> (int):
     '''
-    get_png_dim(filepath:str) -> (int,int)
+    get_png_dim(filepath:str) -> (int)
     Finds the dimension of a PNG.
     :param filepath: file path of the PNG.
     :returns: (width, height).
