@@ -69,9 +69,9 @@ setup(
                  ['config/autokeyui.rc'])
                 ],
     entry_points = {
-        'console_scripts': ['funny=autokey.__main__:main']
+        'console_scripts': ['autokey-gtk=autokey.gtkui.__main__:main']
     },
-    scripts=['autokey-gtk', 'autokey-run', 'autokey-shell'],
+    scripts=['autokey-qt', 'autokey-run', 'autokey-shell'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
