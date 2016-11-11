@@ -1109,7 +1109,6 @@ class ConfigWindow(KXmlGuiWindow):
         self.__createAction("online-api", i18n("Scripting Help"), None, self.on_show_api)
         self.__createAction("report-bug", i18n("Report a Bug"), "tools-report-bug", self.on_report_bug)
         self.__createAction("about", i18n("About AutoKey"), "help-about", self.on_about)
-        self.__createAction("about-py3", i18n("About AutoKey-Py3"), "help-about", self.on_about_py3)
 
         self.setHelpMenuEnabled(True)
 

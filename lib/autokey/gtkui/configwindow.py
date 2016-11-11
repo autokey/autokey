@@ -780,7 +780,6 @@ class ConfigWindow:
                 ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
                 ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
                 ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
-                ("about-py3", Gtk.STOCK_ABOUT, _("About AutoKey-Py3"), None, _("Show program information"), self.on_show_about_py3),
                 ]
         actionGroup.add_actions(actions)
         
@@ -1281,20 +1280,6 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         p = Gtk.IconTheme.get_default().load_icon(common.ICON_FILE, 100, 0)
         dlg.set_logo(p)
         dlg.set_website(common.HOMEPAGE)
-        dlg.set_authors(["Chris Dekter (Developer) <cdekter@gmail.com>",
-                        "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
-        dlg.set_transient_for(self.ui)
-        dlg.run()
-        dlg.destroy()
-        
-    def on_show_about_py3(self, widget, data=None):
-        dlg = Gtk.AboutDialog()
-        dlg.set_name("AutoKey-Py3")
-        dlg.set_comments(_("Python 3 port of AutoKey. A desktop automation utility for Linux and X11."))
-        dlg.set_version(common.VERSION)
-        p = Gtk.IconTheme.get_default().load_icon(common.ICON_FILE, 100, 0)
-        dlg.set_logo(p)
-        dlg.set_website(common.HOMEPAGE_PY3)
         dlg.set_authors(["GuoCi (Python 3 port maintainer) <guociz@gmail.com>",
                          "Chris Dekter (Developer) <cdekter@gmail.com>",
                          "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])

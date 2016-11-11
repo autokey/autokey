@@ -19,7 +19,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('lib'))
-import autokey.release as R
+import autokey.common as R
 
 try:
     from setuptools import setup
@@ -30,12 +30,12 @@ except ImportError:
 
 setup(
     name='autokey-py3',
-    version=R.__version__,
+    version=R.VERSION,
     description='Python 3 port of AutoKey.',
-    author=R.__author__,
-    author_email=R.__author__,
-    maintainer=R.__maintainer__,
-    maintainer_email=R.__maint_email__,
+    author=R.AUTHOR,
+    author_email=R.AUTHOR_EMAIL,
+    maintainer=R.MAINTAINER,
+    maintainer_email=R.MAINTAINER_EMAIL,
     url='https://github.com/autokey-py3/autokey-py3',
     license='GPLv3',
     install_requires=['dbus-python', 'pyinotify', 'python-xlib', 'typing'],

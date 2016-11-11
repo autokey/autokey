@@ -27,19 +27,18 @@ LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "autokey"
 CATALOG = ""
-VERSION = "0.90.4"
-HOMEPAGE  = "http://autokey.googlecode.com/"
-BUG_EMAIL = "cdekter@gmail.com"
-
-HOMEPAGE_PY3  = "http://github.com/guoci/autokey-py3"
-# HOMEPAGE_PY3  = "http://github.com/guoci/python3-xlib-trunk"
-BUG_EMAIL_PY3 = "guociz@gmail.com"
+VERSION = "0.93.7"
+HOMEPAGE  = "https://github.com/autokey-py3/autokey-py3"
+AUTHOR = 'Chris Dekter'
+AUTHOR_EMAIL = 'cdekter@gmail.com'
+MAINTAINER = 'GuoCi'
+MAINTAINER_EMAIL = 'guociz@gmail.com'
+BUG_EMAIL = "guociz@gmail.com"
 
 FAQ_URL = "https://github.com/autokey-py3/autokey-py3/wiki/FAQ"
-API_URL = "http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html"
+API_URL = "https://autokey-py3.github.io/"
 HELP_URL = "https://github.com/autokey-py3/autokey-py3/wiki/Troubleshooting"
-BUG_URL = "https://github.com/autokey-py3/autokey-py3/issues"
-BUG_URL = HOMEPAGE_PY3 + "/issues"
+BUG_URL = HOMEPAGE + "/issues"
 
 ICON_FILE = "autokey"
 ICON_FILE_NOTIFICATION = "autokey-status"
