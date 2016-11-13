@@ -1039,9 +1039,12 @@ class Window:
         return self.mediator.interface.get_window_class()
         
     def __runWmctrl(self, args):
-        with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
-            output = p.communicate()[0].decode()[:-1] # Drop trailing newline
-            retCode = p.returncode
+        try:
+            with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
+                output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+                retCode = p.returncode
+        except FileNotFoundError:
+            return (1, 'ERROR: Please install wmctrl')
 
         return (retCode, output)
         
