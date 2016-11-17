@@ -35,15 +35,10 @@ from .common import *
 PROGRAM_NAME = ki18n("AutoKey")
 DESCRIPTION = ki18n("Desktop automation utility")
 LICENSE = KAboutData.License_GPL_V3
-COPYRIGHT = ki18n("(c) 2009-2012 Chris Dekter")
-TEXT = ki18n("")
-
-PROGRAM_NAME_PY3 = ki18n("AutoKey-Py3")
-DESCRIPTION_PY3 = ki18n("Python 3 port of AutoKey. Desktop automation utility")
-COPYRIGHT_PY3 = ki18n("""
-(c) 2009-2012 Chris Dekter
+COPYRIGHT = ki18n("""(c) 2009-2012 Chris Dekter
 (c) 2014 GuoCi
 """)
+TEXT = ki18n("")
 
 class Application:
     """
@@ -56,19 +51,12 @@ class Application:
         aboutData = KAboutData(APP_NAME, CATALOG, PROGRAM_NAME, VERSION, DESCRIPTION,
                                     LICENSE, COPYRIGHT, TEXT, HOMEPAGE, BUG_EMAIL)
 
+        aboutData.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
         aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
         aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
         aboutData.setProgramIconName(common.ICON_FILE)
         self.aboutData = aboutData
 
-        aboutData_py3 = KAboutData(APP_NAME, CATALOG, PROGRAM_NAME_PY3, VERSION, DESCRIPTION_PY3,
-                                    LICENSE, COPYRIGHT_PY3, TEXT, HOMEPAGE_PY3, BUG_EMAIL_PY3)
-        aboutData_py3.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
-        aboutData_py3.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
-        aboutData_py3.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
-        aboutData_py3.setProgramIconName(common.ICON_FILE)
-        self.aboutData_py3 = aboutData_py3
-        
         KCmdLineArgs.init(sys.argv, aboutData)
         options = KCmdLineOptions()
         options.add("l").add("verbose", ki18n("Enable verbose logging"))

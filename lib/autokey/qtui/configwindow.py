@@ -1317,10 +1317,6 @@ class ConfigWindow(KXmlGuiWindow):
         dlg = KAboutApplicationDialog(self.app.aboutData, self)
         dlg.show()
 
-    def on_about_py3(self):
-        dlg = KAboutApplicationDialog(self.app.aboutData_py3, self)
-        dlg.show()
-
 # ---- TreeWidget and helper functions
 
 class WidgetItemFactory:
