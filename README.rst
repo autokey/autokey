@@ -150,14 +150,21 @@ Bug reports and Pull Requests
 =============================
 Bug reports and Pull Requests are welcome. Please use the `GitHub Issue Tracker`_ for bug reports.
 
-Logging information can be obtained by starting the launcher with the "-l" option.
+If applicable, please include logging information obtained by starting the launcher with the "-l" option. e.g.
 
 .. code:: sh
 
-   autokey-gtk -l # or
+   # GTK:
+   autokey-gtk -l
+
+   # KDE/QT:
    autokey-qt -l
 
 .. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey-py3/issues
+
+For all other discussion around AutoKey, head over to the autokey-users `Google Groups`_ forum.
+
+.. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
 
 Changelog
 =========
