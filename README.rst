@@ -37,8 +37,8 @@ QT GUI:
 - PyQt4
 - PyKDE4
 
-pip
-+++
+pip (recommended)
++++++++++++++++++
 .. code:: sh
 
    pip install --user git+https://github.com/autokey-py3/autokey-py3
@@ -146,31 +146,29 @@ Some guides on porting code to Python 3:
 
 .. _2to3: http://docs.python.org/dev/library/2to3.html
 
-Bug reports and Pull Requests
-=============================
-Bug reports and Pull Requests are welcome. Please use the `GitHub Issue Tracker`_ for bug reports.
+Support
+=======
 
-If applicable, please include logging information obtained by starting the launcher with the "-l" option. e.g.
-
-.. code:: sh
-
-   # GTK:
-   autokey-gtk -l
-
-   # KDE/QT:
-   autokey-qt -l
-
-.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey-py3/issues
-
-For all other discussion around AutoKey, head over to the autokey-users `Google Groups`_ forum.
+Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, or on `IRC`_ (#autokey on Freenode).
 
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
+.. _IRC: irc://irc.freenode.net/#autokey
+
+Bug reports and Pull Requests
+=============================
+Bug reports and pull requests are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please test against latest ``git HEAD`` and make sure to include as much information as possible to expedite troubleshooting and resolution. For example,
+
+* **required:** How to reproduce the issue you are experiencing
+* **required:** The exact version of Autokey that you're using
+* Python tracebacks
+* Verbose logging information obtained by starting the frontend (``autokey-gtk`` or ``autokey-qt``) from terminal with the ``--verbose`` option.
+
+.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey-py3/issues
 
 Changelog
 =========
 Here__.
 
-.. PyPI doesn't accept relative links.
 __ https://github.com/autokey-py3/autokey-py3/blob/master/CHANGELOG.rst
 
 License
