@@ -27,12 +27,12 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-from . import service, monitor
-from .gtkui.notifier import get_notifier
-from .gtkui.popupmenu import PopupMenu
-from .gtkui.configwindow import ConfigWindow
-from .configmanager import *
-from .common import *
+from autokey import service, monitor
+from autokey.gtkui.notifier import get_notifier
+from autokey.gtkui.popupmenu import PopupMenu
+from autokey.gtkui.configwindow import ConfigWindow
+from autokey.configmanager import *
+from autokey.common import *
 
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")

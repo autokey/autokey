@@ -17,18 +17,18 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time, logging, threading, traceback, collections
-from . import common
+from autokey import common
 # from .iomediator import Key, IoMediator
-from .iomediator_Key import Key
-from .iomediator import IoMediator
-from .configmanager import *
+from autokey.iomediator_Key import Key
+from autokey.iomediator import IoMediator
+from autokey.configmanager import *
 if common.USING_QT:
-    from .qtui.popupmenu import *
+    from autokey.qtui.popupmenu import *
     from PyKDE4.kdecore import i18n
 else:
-    from .gtkui.popupmenu import *
-from .macro import MacroManager
-from . import scripting, model
+    from autokey.gtkui.popupmenu import *
+from autokey.macro import MacroManager
+from autokey import scripting, model
 
 logger = logging.getLogger("service")
 
