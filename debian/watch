@@ -1,0 +1,3 @@
+version=3
+opts=filenamemangle=s/.+\/v?(\d\S+)\.tar\.gz/autokey-$1\.tar\.gz/ \
+  https://github.com/autokey-py3/autokey/tags .*/v?(\d\S+)\.tar\.gz

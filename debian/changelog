@@ -1,4 +1,4 @@
-autokey (0.93.7) unreleased; urgency=low
+autokey (0.93.7-1) unreleased; urgency=low
 
   * [GTK] Add missing gi.require_version() calls to fix warnings
   * Update debian/ packaging files for Python 3
