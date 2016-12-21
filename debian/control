@@ -4,7 +4,7 @@ Priority: optional
 Standards-Version: 3.9.7
 Maintainer: Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>
 Build-Depends: python3-all, python3-setuptools, python3-dbus, dh-python
-Homepage: https://github.com/autokey-py3/autokey-py3
+Homepage: https://github.com/autokey-py3/autokey
 X-Python3-Version: >= 3.5
 
 Package: autokey-common

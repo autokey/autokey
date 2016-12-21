@@ -8,7 +8,7 @@ Version 0.93.0 <2014-02-27 Thu>
 
 Added functions “acknowledge_gnome_notification” and “move_to_pat”, more details `here`_.
 
-.. _here: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+.. _here: https://github.com/autokey-py3/autokey/blob/master/new_features.rst
 
 Version 0.92.0 <2014-02-21 Fri>
 ===============================
@@ -19,7 +19,7 @@ Version 0.91.0 <2014-02-14 Fri>
 ===============================
 Added a new function “click_on_pat” for use in user scripts. See `this`_ for more details.
 
-.. _this: https://github.com/guoci/autokey-py3/blob/master/new_features.rst
+.. _this: https://github.com/autokey-py3/autokey/blob/master/new_features.rst
 
 
 First release <2014-01-31 Fri>

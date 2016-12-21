@@ -36,7 +36,7 @@ setup(
     author_email=R.AUTHOR_EMAIL,
     maintainer=R.MAINTAINER,
     maintainer_email=R.MAINTAINER_EMAIL,
-    url='https://github.com/autokey-py3/autokey-py3',
+    url='https://github.com/autokey-py3/autokey',
     license='GPLv3',
     packages=['autokey', 'autokey.gtkui', 'autokey.qtui'],
     package_dir={'': 'lib'},

@@ -9,9 +9,9 @@ AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation u
 
 New features have since been added to AutoKey-Py3 after the initial porting. Read `new features`_ for details.
 
-.. _GitHub: https://github.com/autokey-py3/autokey-py3
+.. _GitHub: https://github.com/autokey-py3/autokey
 .. _AutoKey: https://code.google.com/archive/p/autokey/
-.. _new features: https://github.com/autokey-py3/autokey-py3/blob/master/new_features.rst
+.. _new features: https://github.com/autokey-py3/autokey/blob/master/new_features.rst
 
 Installation
 ============
@@ -41,7 +41,7 @@ pip (recommended)
 +++++++++++++++++
 .. code:: sh
 
-   pip install --user git+https://github.com/autokey-py3/autokey-py3
+   pip install --user git+https://github.com/autokey-py3/autokey
 
 The "--user" option for pip may be removed if you intend to do a system-wide install. You can also add the "-e" option to pip to install in `editable mode`__. Editable installs currently work only with the GTK GUI.
 
@@ -53,7 +53,7 @@ Virtualenv
 
    virtualenv --system-site-packages ~/autokey
    . ~/autokey/bin/activate
-   pip install git+https://github.com/autokey-py3/autokey-py3
+   pip install git+https://github.com/autokey-py3/autokey
 
 Ubuntu/Debian
 +++++++++++++
@@ -70,7 +70,7 @@ Ubuntu/Debian
    # install AutoKey-Py3 from PyPI or
    pip3 install --user autokey-py3
    # get the development version from GitHub
-   pip3 install --user git+https://github.com/autokey-py3/autokey-py3
+   pip3 install --user git+https://github.com/autokey-py3/autokey
 
 Fedora/CentOS
 +++++++++++++
@@ -96,7 +96,7 @@ To install from PyPI:
    # install AutoKey-Py3 from PyPI or
    pip3 install --user autokey-py3
    # get the development version from GitHub
-   pip3 install --user git+https://github.com/autokey-py3/autokey-py3
+   pip3 install --user git+https://github.com/autokey-py3/autokey
 
 Gentoo
 ++++++
@@ -132,7 +132,7 @@ Examples of AutoKey scripts can be found by `searching GitHub`_ and reading Auto
 .. _scripting API: https://autokey-py3.github.io/index.html
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
-.. _wiki: https://github.com/autokey-py3/autokey-py3/wiki
+.. _wiki: https://github.com/autokey-py3/autokey/wiki
 
 Porting your scripts
 ====================
@@ -163,13 +163,13 @@ Bug reports and pull requests are welcome. Please use the `GitHub Issue Tracker`
 * Python tracebacks
 * Verbose logging information obtained by starting the frontend (``autokey-gtk`` or ``autokey-qt``) from terminal with the ``--verbose`` option.
 
-.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey-py3/issues
+.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey/issues
 
 Changelog
 =========
 Here__.
 
-__ https://github.com/autokey-py3/autokey-py3/blob/master/CHANGELOG.rst
+__ https://github.com/autokey-py3/autokey/blob/master/CHANGELOG.rst
 
 License
 =======

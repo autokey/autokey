@@ -24,7 +24,7 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 `Source code`_.
 
-.. _Source code: https://github.com/guoci/autokey-py3/blob/master/src/lib/scripting_highlevel.py
+.. _Source code: https://github.com/autokey-py3/autokey/blob/master/src/lib/scripting_highlevel.py
 
 .. code:: python
 
