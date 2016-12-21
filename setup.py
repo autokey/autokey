@@ -29,16 +29,15 @@ except ImportError:
     sys.exit(1)
 
 setup(
-    name='autokey-py3',
+    name='autokey',
     version=R.VERSION,
-    description='Python 3 port of AutoKey.',
+    description='AutoKey (Python 3)',
     author=R.AUTHOR,
     author_email=R.AUTHOR_EMAIL,
     maintainer=R.MAINTAINER,
     maintainer_email=R.MAINTAINER_EMAIL,
     url='https://github.com/autokey-py3/autokey-py3',
     license='GPLv3',
-    install_requires=['dbus-python', 'pyinotify', 'python-xlib', 'typing'],
     packages=['autokey', 'autokey.gtkui', 'autokey.qtui'],
     package_dir={'': 'lib'},
     package_data={'autokey.qtui': ['data/*'],
@@ -79,7 +78,6 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
     ],
 )
