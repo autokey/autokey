@@ -1,7 +1,7 @@
-usr/lib/python*/*-packages/autokey/qtui/
-usr/lib/python*/*-packages/autokey/qtapp.py
-usr/share/icons/hicolor/scalable/apps/autokey.png
 usr/bin/autokey-qt
+usr/lib/python*/*-packages/autokey/qtapp.py
+usr/lib/python*/*-packages/autokey/qtui/
 usr/share/applications/autokey-qt.desktop
-usr/share/man/man1/autokey-qt.1
+usr/share/icons/hicolor/scalable/apps/autokey.png
 usr/share/kde4/apps/autokey/autokeyui.rc
+usr/share/man/man1/autokey-qt.1

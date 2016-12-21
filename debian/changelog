@@ -1,3 +1,13 @@
+autokey (0.93.7) unreleased; urgency=low
+
+  * [GTK] Add missing gi.require_version() calls to fix warnings
+  * Update debian/ packaging files for Python 3
+  * Fix freeze when using clipboard.fill_selection()
+  * Update documentation
+  * Update setup.py to use setuptools
+
+ -- Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>  Tue, 20 Dec 2016 23:48:12 -0600
+
 autokey (0.90.4-0) unreleased; urgency=low
 
   * [GTK] Fix various issues with notifications

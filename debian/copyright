@@ -1,6 +1,6 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: autokey
-Source: http://autokey.googlecode.com/
+Source: http://github.com/autokey-py3/autokey-py3
 
 Files: *
 Copyright: © 2008-2012 Chris Dekter <cdekter@gmail.com>
