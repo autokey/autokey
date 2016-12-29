@@ -151,8 +151,11 @@ Support
 
 Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, or on `IRC`_ (#autokey on Freenode).
 
+We'd appreciate it if you take a look at `Problem reporting guide`_ before posting. By providing as much information as you can, you'll have a much better chance of getting a good answer in less time.
+
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
 .. _IRC: irc://irc.freenode.net/#autokey
+.. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
 =============================
