@@ -51,10 +51,10 @@ pip (recommended)
 
 The "--user" option for pip may be removed if you intend to do a system-wide install.
 
-Ubuntu/Mint (16.04 or above)
-++++++++++++++++++++++++++++
+Ubuntu/Mint/Debian
+++++++++++++++++++
 
-Try the (experimental) PPA!
+Try the (experimental) PPA! Note that Ubuntu 16.04 or Mint 18 is required as they provide Python 3.5 by default. Earlier minor versions of 3.4 require the 'typing' module be installed separately.
 
 .. code:: sh
 
