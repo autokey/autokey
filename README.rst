@@ -18,21 +18,22 @@ Installation
 
 Dependencies
 ++++++++++++
-There are two GUIs for AutoKey-Py3, GTK and QT, and they have different dependencies. If you use the GTK GUI, there is no need to install dependencies for the QT GUI and vice versa.
+
+Python: 3.5
 
 Python modules (common):
 
 - dbus-python
 - pyinotify
 - python-xlib
-- typing
 
-GTK GUI:
+GTK frontend only:
 
+- GObject Introspection
 - PyGTK
 - GtkSourceView
 
-QT GUI:
+QT frontend only:
 
 - PyQt4
 - PyKDE4
@@ -43,60 +44,44 @@ pip (recommended)
 
    pip install --user git+https://github.com/autokey-py3/autokey
 
-The "--user" option for pip may be removed if you intend to do a system-wide install. You can also add the "-e" option to pip to install in `editable mode`__. Editable installs currently work only with the GTK GUI.
+The "--user" option for pip may be removed if you intend to do a system-wide install.
 
-__ https://pip.pypa.io/en/latest/reference/pip_install/#editable-installs
+Ubuntu/Mint (16.04 or above)
+++++++++++++++++++++++++++++
 
-Virtualenv
-++++++++++
+Try the (experimental) PPA!
+
 .. code:: sh
 
-   virtualenv --system-site-packages ~/autokey
-   . ~/autokey/bin/activate
-   pip install git+https://github.com/autokey-py3/autokey
+   sudo add-apt-repository ppa:troxor/autokey
+   sudo apt update
+   sudo apt install autokey-gtk
 
-Ubuntu/Debian
-+++++++++++++
+Otherwise,
+
 .. code:: sh
 
    # common dependencies
    apt-get install python3-pyinotify wmctrl xautomation imagemagick
+
    # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
    apt-get install python3-gi gir1.2-gtk-3.0 gir1.2-gtksource-3.0 gir1.2-glib-2.0 gir1.2-notify-0.7 python3-dbus zenity
+
    # dependencies for QT GUI, install only if you intend to use the QT GUI.
    apt-get install python3-pykde4 python3-pyqt4.qsci python3-dbus.mainloop.qt kde-baseapps-bin
+
    # execute as non root
    pip3 install --user python3-xlib
-   # install AutoKey-Py3 from PyPI or
-   pip3 install --user autokey-py3
+
    # get the development version from GitHub
    pip3 install --user git+https://github.com/autokey-py3/autokey
-
-Fedora/CentOS
-+++++++++++++
 
 Arch Linux
 ++++++++++
 
-Available in the `AUR`_.
+Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
 
 .. _AUR: https://aur.archlinux.org/packages/autokey-py3
-
-To install from PyPI:
-
-.. code:: sh
-
-   pacman -S --needed wmctrl hicolor-icon-theme python-dbus python-pyinotify zenity xautomation imagemagick xorg-xwd
-   # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
-   pacman -S --needed python-gobject gtksourceview3 libnotify
-   # dependencies for QT GUI, install only if you intend to use the QT GUI.
-   pacman -S --needed python-qscintilla kdebindings-python
-   # execute as non root
-   pip3 install --user python3-xlib
-   # install AutoKey-Py3 from PyPI or
-   pip3 install --user autokey-py3
-   # get the development version from GitHub
-   pip3 install --user git+https://github.com/autokey-py3/autokey
 
 Gentoo
 ++++++
@@ -134,8 +119,8 @@ Examples of AutoKey scripts can be found by `searching GitHub`_ and reading Auto
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _wiki: https://github.com/autokey-py3/autokey/wiki
 
-Porting your scripts
-====================
+Porting your scripts from Python 2
+==================================
 Changes were made to source code to keep the scripting API stable. system.exec_command() returns a string. But if you use functions from the standard library you will have to fix that, as your script runs on a Python 3 interpreter. For example, expect subprocess.check_output() to return a bytes object.
 
 `2to3`_ can be used to do automatically translate source code.
@@ -149,21 +134,21 @@ Some guides on porting code to Python 3:
 Support
 =======
 
-Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, or on `IRC`_ (#autokey on Freenode).
+Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, on `IRC`_ (#autokey on Freenode), or `Gitter`_.
 
 We'd appreciate it if you take a look at `Problem reporting guide`_ before posting. By providing as much information as you can, you'll have a much better chance of getting a good answer in less time.
 
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
 .. _IRC: irc://irc.freenode.net/#autokey
+.. _Gitter: https://gitter.im/autokey-py3
 .. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
 =============================
-Bug reports and pull requests are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please test against latest ``git HEAD`` and make sure to include as much information as possible to expedite troubleshooting and resolution. For example,
+Bug reports and PRs are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please test against latest ``git HEAD`` and make sure to include as much information as possible to expedite troubleshooting and resolution. For example,
 
 * **required:** How to reproduce the issue you are experiencing
-* **required:** The exact version of Autokey that you're using
-* Python tracebacks
+* Python tracebacks, if any
 * Verbose logging information obtained by starting the frontend (``autokey-gtk`` or ``autokey-qt``) from terminal with the ``--verbose`` option.
 
 .. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey/issues
