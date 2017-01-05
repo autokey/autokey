@@ -20,7 +20,17 @@ __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 import os, threading, re, time, socket, select, logging, queue, subprocess
 
+from autokey import common
+
+if common.USING_QT:
+    from PyQt4.QtGui import QClipboard, QApplication
+else:
+    import gi
+    gi.require_version('Gtk', '3.0')
+    from gi.repository import Gtk, Gdk
+
 try:
+    gi.require_version('Atspi', '2.0')
     import pyatspi
     HAS_ATSPI = True
 except ImportError:
@@ -35,13 +45,6 @@ except ImportError:
     
 from Xlib.protocol import rq, event
 
-from . import common
-if common.USING_QT:
-    from PyQt4.QtGui import QClipboard, QApplication
-else:
-    import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, Gdk
 
 logger = logging.getLogger("interface")
 
