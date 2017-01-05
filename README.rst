@@ -6,7 +6,7 @@ AutoKey-Py3
     :target: https://webchat.freenode.net/?channels=autokey
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
-    :target: https://gitter.im/autokey-py3/autokey
+    :target: https://gitter.im/autokey-py3
 
 About
 =====
