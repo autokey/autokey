@@ -71,6 +71,7 @@ setup(
         'console_scripts': ['autokey-gtk=autokey.gtkui.__main__:main']
     },
     scripts=['autokey-qt', 'autokey-run', 'autokey-shell'],
+    install_requires=['dbus-python', 'pyinotify', 'python3-xlib'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
