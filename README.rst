@@ -37,6 +37,7 @@ GTK frontend only:
 - GObject Introspection
 - PyGTK
 - GtkSourceView
+- libappindicator
 
 QT frontend only:
 

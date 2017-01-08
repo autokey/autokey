@@ -274,14 +274,16 @@ class Application:
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
             # revert the tray icon
-            self.notifier.icon.set_from_icon_name(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+            self.notifier.set_icon(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+            self.notifier.errorItem.hide()
+            self.notifier.update_visible_status()
 
         else:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))
         
         dlg.set_title(_("View script error"))
-        dlg.set_transient_for(parent) 
+        dlg.set_transient_for(parent)
         dlg.run()
         dlg.destroy()        
         

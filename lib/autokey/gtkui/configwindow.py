@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging, sys, os, webbrowser, re, time
-#import gtk, Gtk.glade, gtksourceview2, pango
 
 from gi import require_version
 require_version('Gtk', '3.0')
@@ -84,7 +83,6 @@ class RenameDialog:
         self.image = builder.get_object("image")
         
         self.nameEntry.set_text(oldName)
-        # self.nameEntry.set_text(oldName.encode("utf-8"))
         self.checkButton.set_active(True)
         
         if isNew:
