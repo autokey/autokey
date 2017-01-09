@@ -1,3 +1,10 @@
+autokey (0.93.8-1) xenial; urgency=low
+
+  * [GTK] Fix traceback for "View script error" dialog
+  * Update documentation
+
+ -- Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>  Mon, 9 Jan 2016 10:52:59 -0600
+
 autokey (0.93.7-1) xenial; urgency=low
 
   * [GTK] Add missing gi.require_version() calls to fix warnings
