@@ -21,6 +21,8 @@ New features have since been added to AutoKey-Py3 after the initial porting. Rea
 Installation
 ============
 
+**Please remove previous installations of both AutoKey and AutoKey-Py3 fully before installing!**
+
 Dependencies
 ++++++++++++
 
@@ -44,43 +46,27 @@ QT frontend only:
 - PyQt4
 - PyKDE4
 
-pip (recommended)
-+++++++++++++++++
+Manual install via pip
+++++++++++++++++++++++
+
+pip will automatically dependencies, but dbus-python requires dbus headers be present on your system.
+
 .. code:: sh
 
-   pip install --user git+https://github.com/autokey-py3/autokey
+   pip3 install --user git+https://github.com/autokey-py3/autokey
 
 The "--user" option for pip may be removed if you intend to do a system-wide install.
 
 Ubuntu/Mint/Debian
 ++++++++++++++++++
 
-Try the (experimental) PPA! Note that Ubuntu 16.04 or Mint 18 is required as they provide Python 3.5 by default. Earlier versions of Python <= 3.4 require the 'typing' module be installed separately.
+Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above is required as they provide Python 3.5 by default. Earlier versions of Python <= 3.4 require the ``typing`` module be installed separately.
 
 .. code:: sh
 
    sudo add-apt-repository ppa:troxor/autokey
    sudo apt update
    sudo apt install autokey-gtk
-
-Otherwise,
-
-.. code:: sh
-
-   # common dependencies
-   apt-get install python3-pyinotify wmctrl xautomation imagemagick
-
-   # dependencies for GTK GUI, install only if you intend to use the GTK GUI.
-   apt-get install python3-gi gir1.2-gtk-3.0 gir1.2-gtksource-3.0 gir1.2-glib-2.0 gir1.2-notify-0.7 python3-dbus zenity
-
-   # dependencies for QT GUI, install only if you intend to use the QT GUI.
-   apt-get install python3-pykde4 python3-pyqt4.qsci python3-dbus.mainloop.qt kde-baseapps-bin
-
-   # execute as non root
-   pip3 install --user python3-xlib
-
-   # get the development version from GitHub
-   pip3 install --user git+https://github.com/autokey-py3/autokey
 
 Arch Linux
 ++++++++++
@@ -92,7 +78,7 @@ Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python 
 Gentoo
 ++++++
 
-Available via layman_, thanks to y2kbadbug.
+Available via layman_.
 
 .. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
 
@@ -127,7 +113,7 @@ Examples of AutoKey scripts can be found by `searching GitHub`_ and reading Auto
 
 Porting your scripts from Python 2
 ==================================
-Changes were made to source code to keep the scripting API stable. system.exec_command() returns a string. But if you use functions from the standard library you will have to fix that, as your script runs on a Python 3 interpreter. For example, expect subprocess.check_output() to return a bytes object.
+Changes were made to source code to keep the scripting API stable. ``system.exec_command()`` returns a string. But if you use functions from the standard library you will have to fix that, as your script runs on a Python 3 interpreter. For example, expect subprocess.check_output() to return a bytes object.
 
 `2to3`_ can be used to do automatically translate source code.
 
@@ -140,7 +126,7 @@ Some guides on porting code to Python 3:
 Support
 =======
 
-Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, on `IRC`_ (#autokey on Freenode), or `Gitter`_.
+Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, on `IRC`_ (#autokey on Freenode), or `Gitter`_ web-based chat.
 
 We'd appreciate it if you take a look at `Problem reporting guide`_ before posting. By providing as much information as you can, you'll have a much better chance of getting a good answer in less time.
 
