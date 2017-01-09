@@ -82,8 +82,6 @@ Available via layman_.
 
 .. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
 
-To install:
-
 .. code:: sh
 
    layman -a y2kbadbug
