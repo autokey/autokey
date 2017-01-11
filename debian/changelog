@@ -1,4 +1,4 @@
-autokey (0.93.8-2) xenial; urgency=low
+autokey (0.93.9-1) xenial; urgency=low
 
   * Fix regression with setuptools install_requires
 
