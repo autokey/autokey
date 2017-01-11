@@ -1,15 +1,26 @@
 Source: autokey
 Section: utils
 Priority: optional
-Standards-Version: 3.9.7
 Maintainer: Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>
-Build-Depends: python3-all, python3-setuptools, python3-dbus, dh-python, debhelper
-Homepage: https://github.com/autokey-py3/autokey
+Build-Depends:
+	python3-all,
+	python3-setuptools,
+	python3-dbus,
+	dh-python,
+	debhelper,
+Standards-Version: 3.9.7
 X-Python3-Version: >= 3.5
 
 Package: autokey-common
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-dbus, python3-xlib, python3-pyinotify, wmctrl
+Homepage: https://github.com/autokey-py3/autokey
+Depends:
+	${python3:Depends},
+	${misc:Depends},
+	python3-dbus,
+	python3-xlib,
+	python3-pyinotify,
+	wmctrl
 Suggests: python3-pyatspi
 Replaces: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
 Breaks: autokey (<<0.61.4-0~0), autokey-gtk (<<0.70.4-0~0)
