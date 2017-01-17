@@ -41,7 +41,6 @@ class Keyboard:
         
         @param keyString: string of keys (including special keys) to send
         """
-        # time.sleep(.1) # TODO_PY3
         self.mediator.interface.begin_send()
         assert type(keyString) is str
         self.mediator.send_string(keyString)
