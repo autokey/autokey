@@ -2,7 +2,7 @@
 AutoKey-Py3
 ===========
 
-.. image:: https://img.shields.io/badge/IRC-%23AppImage%20on%20freenode-blue.svg
+.. image:: https://img.shields.io/badge/IRC-%23autokey%20on%20freenode-blue.svg
     :target: https://webchat.freenode.net/?channels=autokey
 
 .. image:: https://badges.gitter.im/Join%20Chat.svg
