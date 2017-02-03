@@ -28,6 +28,10 @@ except ImportError:
           "manager (python-setuptools) or via pip (pip install setuptools)")
     sys.exit(1)
 
+if sys.version_info < (3,5,0):
+    print("Autokey requires Python 3.5 or later. You are using %s " % (".".join(map(str, sys.version_info[:3]))))
+    sys.exit(1)
+
 setup(
     name='autokey',
     version=R.VERSION,
