@@ -17,7 +17,7 @@ class Store(dict):
         
         Usage: C{store.get_value(key)}
         """
-        return self[key]        
+        return self.get(key, None)        
         
     def remove_value(self, key):
         """
@@ -43,7 +43,7 @@ class Store(dict):
         
         Usage: C{store.get_global_value(key)}
         """
-        return self.GLOBALS[key]        
+        return self.GLOBALS.get(key, None)        
         
     def remove_global_value(self, key):
         """
