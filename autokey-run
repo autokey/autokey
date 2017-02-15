@@ -47,5 +47,6 @@ if __name__ == "__main__":
         sys.exit(0)
 
     except dbus.DBusException as e:
-        print >>sys.stderr, str(e)
+        print(str(e), file=sys.stderr)
+        print("Autokey must be running to use autokey-run")
         sys.exit(1)
