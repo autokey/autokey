@@ -1,3 +1,11 @@
+autokey (0.93.10-1) xenial; urgency=low
+
+  * [QT] Package fixes
+  * Scripting bug fix
+  * Small clarification fixes
+
+ -- Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>  Thu, 16 Feb 2017 22:03:47 -0600
+
 autokey (0.93.9-1) xenial; urgency=low
 
   * Fix regression with setuptools install_requires
