@@ -1,6 +1,11 @@
 # Ubuntu:
 
+Install Prerequisites:
+
     apt-get install build-essential debhelper dpkg-dev
+
+Build package from a tag
+
     git clone https://github.com/autokey-py3/autokey
     cd autokey
     uscan -dd
