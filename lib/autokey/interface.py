@@ -29,12 +29,12 @@ else:
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk, Gdk
 
-try:
-    gi.require_version('Atspi', '2.0')
-    import pyatspi
-    HAS_ATSPI = True
-except ImportError:
-    HAS_ATSPI = False
+    try:
+        gi.require_version('Atspi', '2.0')
+        import pyatspi
+        HAS_ATSPI = True
+    except ImportError:
+        HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
 try:

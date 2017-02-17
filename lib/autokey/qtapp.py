@@ -19,7 +19,8 @@
 from . import common
 common.USING_QT = True
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, queue, time, dbus, dbus.mainloop.qt
+import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, queue, time, dbus
+import dbus.mainloop.qt
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
 from PyKDE4.kdeui import KMessageBox, KApplication
 from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent

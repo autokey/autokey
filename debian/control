@@ -51,7 +51,7 @@ Description: desktop automation utility - GTK+ version
 Package: autokey-qt
 Section: kde
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pykde4, python3-pyqt4, kde-baseapps-bin, autokey-common
+Depends: ${python3:Depends}, ${misc:Depends}, python3-pykde4, python3-dbus.mainloop.qt, python3-pyqt4, python3-pyqt4.qsci kde-baseapps-bin, autokey-common
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)
 Description: desktop automation utility - KDE version
