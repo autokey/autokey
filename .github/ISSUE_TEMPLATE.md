@@ -1,6 +1,10 @@
-Classification: (Pick one of: Bug, Crash/Hang/Data Loss, Performance, UI/Usability, Feature (New), Enhancement)
+## Classification:
 
-Reproducibility: (Pick one of: Always, Sometimes, Rarely, Unable, I Didn't Try, Not Applicable - N/A applies for Feature and Enhancement requests)
+(Pick one of: Bug, Crash/Hang/Data Loss, Performance, UI/Usability, Feature (New), Enhancement)
+
+## Reproducibility:
+
+(Pick one of: Always, Sometimes, Rarely, Unable, I Didn't Try)
 
 ## Summary
 
