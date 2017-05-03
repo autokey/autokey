@@ -12,16 +12,16 @@ Summary of the problem.
 
 ## Steps to Reproduce
 
-1. I do this
-2. I do that
+- I do this
+- I do that
 
 ## Expected Results
 
-3. This should happen.
+- This should happen.
 
 ## Actual Results
 
-3. Instead, this happens. :(
+- Instead, this happens. :(
 
 If helpful, submit screenshots of the issue to help debug. `autokey-gtk --verbose` output is also useful.
 
