@@ -11,7 +11,7 @@ AutoKey-Py3
 
 About
 =====
-AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation utility for Linux and X11.
+AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`_, a text expansion and desktop automation utility for Linux and X11. It is comparable to TextExpander on MacOS and Breevy on Windows.
 
 New features have since been added to AutoKey-Py3 after the initial porting. Read `new features`_ for details.
 
@@ -22,82 +22,7 @@ New features have since been added to AutoKey-Py3 after the initial porting. Rea
 Installation
 ============
 
-**Please remove previous installations of both AutoKey and AutoKey-Py3 fully before installing!**
-
-Dependencies
-++++++++++++
-
-Python: 3.5
-
-Python modules (common):
-
-- dbus-python
-- pyinotify
-- python-xlib
-
-GTK frontend only:
-
-- GObject Introspection
-- PyGTK
-- GtkSourceView
-- libappindicator
-
-QT frontend only:
-
-- PyQt4
-- PyKDE4
-
-Manual install via pip
-++++++++++++++++++++++
-
-pip will automatically dependencies, but dbus-python requires dbus headers be present on your system.
-
-.. code:: sh
-
-   pip3 install --user git+https://github.com/autokey-py3/autokey
-
-The "--user" option for pip may be removed if you intend to do a system-wide install.
-
-Ubuntu/Mint/Debian
-++++++++++++++++++
-
-Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above are supported as they provide Python 3.5 by default. Earlier versions of Python <= 3.4 require the ``typing`` module be installed separately.
-
-.. code:: sh
-
-   sudo add-apt-repository ppa:troxor/autokey
-   sudo apt update
-   sudo apt install autokey-gtk
-
-Arch Linux
-++++++++++
-
-Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
-
-.. _AUR: https://aur.archlinux.org/packages/autokey-py3
-
-Gentoo
-++++++
-
-Available via layman_.
-
-.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
-
-.. code:: sh
-
-   layman -a y2kbadbug
-   emerge --sync
-   emerge -av autokey-py3
-
-Starting AutoKey-Py3
-++++++++++++++++++++
-
-.. code:: sh
-
-   # make sure that autokey is in your search path.
-   PATH="$HOME/.local/bin/:$PATH" # if installed with the --user option
-   autokey-gtk # to start with the GTK3 GUI *OR*
-   autokey-qt # to start with the QT4 GUI
+See the Wiki for detailed installation instructions.
 
 Documentation
 =============
