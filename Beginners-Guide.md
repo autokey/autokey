@@ -4,14 +4,14 @@ This page contains a basic introduction on what AutoKey is and what it does.
 
 We are including the glossary of AutoKey terms at the beginning of the users manual because understanding our definitions of the terms, as they apply to AutoKey, will make understanding the AutoKey much easier.
 
-- The AutoKey icon is the letter "A" that appears in the notification area or system tray when AutoKey is started. Clicking on the icon opens a pop-up menu that gives you access to AutoKey's features. The icon can be changed--either by an icon theme or in the preferences menu.
-- The "tray menu" is the pop-up menu that appears when the AutoKey icon is clicked.
-- "Triggers" are hotkeys and typed abbreviations.
-- A "hotkey" is a key or combination of keys that, when pressed, will trigger AutoKey to do something; run a script, insert a phrase or display a menu. A hotkey can be created using any key on the keyboard (within reason), with or without one or more modifier keys. The modifier keys are Shift, Control, Alt and Super (a.k.a. Windows).
-- An "abbreviation" is a short sequence of letters, numbers or symbols that when typed will trigger AutoKey to do something (run a script, insert a phrase, display a menu).
-- A "script" is a small program written in Python. It can start other programs, send commands to a running window, re-size your window, reposition your cursor after execution, etc.
-- A "phrase" is a text string or block of text. Phrases can include one or more scripts and their output can add content to the text (ex: current time) or modify it in other ways (ex: position, format, footnotes, etc.).
-- "Folders" are displayed in the left column of the main window. They can contain sub-folders, scripts and phrases. You can add sub-folders or create new folders as needed.
+- **AutoKey icon** - the letter "A" icon that appears in the notification area or system tray when AutoKey is started. Clicking on the icon opens a pop-up menu that gives you access to AutoKey's features. The icon can be changed--either by an icon theme or in the preferences menu.
+- **tray menu** - pop-up menu that appears when the AutoKey icon is clicked.
+- **triggers** - hotkeys and typed abbreviations.
+- **hotkey** - a key or combination of keys that, when pressed, will trigger AutoKey to do something; run a script, insert a phrase or display a menu. A hotkey can be created using any key on the keyboard (within reason), with or without one or more modifier keys. The modifier keys are Shift, Control, Alt and Super (a.k.a. Windows).
+- **abbreviation** is a short sequence of letters, numbers or symbols that when typed will trigger AutoKey to do something (run a script, insert a phrase, display a menu).
+- **script** - a small program written in Python. It can start other programs, send commands to a running window, re-size your window, reposition your cursor after execution, etc.
+- **phrase** - a text string or block of text. Phrases can include one or more scripts and their output can add content to the text (ex: current time) or modify it in other ways (ex: position, format, footnotes, etc.).
+- **folders** are displayed in the left column of the main window. They can contain sub-folders, scripts and phrases. You can add sub-folders or create new folders as needed.
 
 
 ## Why Would You Use AutoKey And What Does It Do For You?
