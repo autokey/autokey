@@ -1,5 +1,3 @@
-# Beginners Guide
-
 This page contains a basic introduction on what AutoKey is and what it does.
 
 ## Glossary of AutoKey Terms
