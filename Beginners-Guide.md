@@ -58,7 +58,11 @@ Next press the tab key to get to the big dialog window to enter the contents of 
 
 In this example, we'll set the "Match phrase case to typed abbreviation" - this option and "Ignore case of typed abbreviation" work in concert to let your abbreviation expand with case sensitivity:
 
-| Abbreviation | You See | |:-----------------|:------------| | tp | the patient | | Tp | The patient | | TP | THE PATIENT |
+| Abbreviation | You See | 
+|:-----------------|:------------| 
+| tp | the patient | 
+| Tp | The patient | 
+| TP | THE PATIENT |
 
 Click "OK" or type Alt to accept the abbreviation settings. One last step - click "Save" or Control + S to save the changes to the phrase.
 
