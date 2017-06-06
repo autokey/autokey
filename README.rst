@@ -50,7 +50,7 @@ QT frontend only:
 Manual install via pip
 ++++++++++++++++++++++
 
-pip will automatically dependencies, but dbus-python requires dbus headers be present on your system.
+pip will automatically resolve and install dependencies, but dbus-python requires the dbus headers be present on your system. These are usually installed with your package manager.
 
 .. code:: sh
 
