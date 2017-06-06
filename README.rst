@@ -61,13 +61,15 @@ The "--user" option for pip may be removed if you intend to do a system-wide ins
 Ubuntu/Mint/Debian
 ++++++++++++++++++
 
-Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above are supported as they provide Python 3.5 by default. Earlier versions of Python <= 3.4 require the ``typing`` module be installed separately.
+Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above are supported for now as they supply Python 3.5 by default. Earlier versions of Python <= 3.4 require the ``typing`` module be installed separately.
 
 .. code:: sh
 
    sudo add-apt-repository ppa:troxor/autokey
    sudo apt update
    sudo apt install autokey-gtk
+
+Packages for other Debian-based distros can be built using files under ``debian/``
 
 Arch Linux
 ++++++++++
