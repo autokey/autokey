@@ -9,6 +9,11 @@ AutoKey-Py3
    :alt: Join the chat at https://gitter.im/autokey-py3/autokey
    :target: https://gitter.im/autokey-py3/autokey
 
+.. image:: http://img.shields.io/badge/stackoverflow-autokey-blue.svg
+   :alt: Ask and answer questions on StackOverflow
+   :target: http://stackoverflow.com/questions/tagged/autokey
+
+
 About
 =====
 AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation utility for Linux and X11.
@@ -103,14 +108,14 @@ Starting AutoKey-Py3
 
 Documentation
 =============
-Documentation for `new features`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_ and `Stack Overflow`_.
+Documentation for `new features`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_, and `Stack Overflow`_.
 
 Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `wiki`_.
 
 .. _scripting API: https://autokey-py3.github.io/index.html
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
-.. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _wiki: https://github.com/autokey-py3/autokey/wiki
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 
 Porting your scripts from Python 2
 ==================================
@@ -127,11 +132,12 @@ Some guides on porting code to Python 3:
 Support
 =======
 
-Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, on `IRC`_ (#autokey on Freenode), or `Gitter`_ web-based chat.
+Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, `StackOverflow`_, on `IRC`_ (#autokey on Freenode), or `Gitter`_ web-based chat.
 
 We'd appreciate it if you take a look at `Problem reporting guide`_ before posting. By providing as much information as you can, you'll have a much better chance of getting a good answer in less time.
 
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
+.. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: irc://irc.freenode.net/#autokey
 .. _Gitter: https://gitter.im/autokey-py3
 .. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
