@@ -11,7 +11,7 @@ AutoKey-Py3
 
 .. image:: http://img.shields.io/badge/stackoverflow-autokey-blue.svg
    :alt: Ask and answer questions on StackOverflow
-   :target: http://stackoverflow.com/questions/tagged/autokey
+   :target: https://stackoverflow.com/questions/tagged/autokey
 
 
 About
