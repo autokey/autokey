@@ -37,3 +37,10 @@ Ensure that the AutoKey EvDev daemon is running by running the following command
 ## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
 
 Simply start AutoKey again while it is already running, and this will cause the configuration window to be shown.
+
+## How can one send an 'mdash' with keyboard.send_keys() in a script? 
+I tried:
+`mdash = "\u2014"`
+`keyboard.send_keys(mdash)`
+and nothing gets printed. However, when I activate `Autokey-qt --verbose` in the terminal, it indicates the — mdashin the eterminal.
+
