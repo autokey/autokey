@@ -86,6 +86,18 @@ This is similar to the above script, but just creates the phrase without an abbr
         folder = engine.get_folder("My Phrases")
         engine.create_phrase(folder, title, contents)
 
+### Start external scripts
+
+In case you've some bash-scripts or just want to start a program with shortcuts
+To start a script
+
+    import subprocess 
+    subprocess.Popen(["/bin/bash", "/home/foobar/bin/startfooscript.sh"])
+
+To start a program with wine. 
+
+    import subprocess 
+    subprocess.Popen(["wine", "/home/foobar/wine/program/some.exe"])
 
 
 # Advanced Scripts
