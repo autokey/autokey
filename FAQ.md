@@ -26,5 +26,23 @@ To toggle !Autokey from suspend/resume, use the hotkey which you have specified 
 ### What are the trigger characters?
 The default trigger characters are dependent on your locale. They are any characters that are not normally considered part of a word. For English locales, these are characters like Enter (Return), Tab, Space and punctuation, among others.
 
+### Can I use Caps Lock in Autokey?
+1.  Disable caps lock:
+
+`xmodmap -e 'clear Lock'`
+
+2. Use xcape to assign a key sequence e.g. Left super+f
+
+`xcape -e '#66=Super_L|f'`
+
+3. Attach autokey script to the assigned key sequence.
+
+4. Reassign capslock to (say) pressing both shift keys.
+
+`setxkbmap -option "caps:none"`
+`setxkbmap -option "shift:both_capslock"`
+
+Caps lock key is really out of autokey's scope, you just need to use other utilities to get the desired effect.
+
 ### Where is my configuration information stored? Can I move those to other machines?
 By default AutoKey stores your settings under ~/.config/autokey. You can of course create AutoKey folders anywhere you wish as well, using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favourite file manager, or synchronised using a program such as Dropbox.
