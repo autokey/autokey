@@ -58,10 +58,11 @@ Manual install via pip
 pip will automatically resolve and install dependencies, but dbus-python requires the dbus headers be present on your system. These are usually installed through your package manager, and usually are named dbus-devel or libdbus-dev or similar.
 
 .. code:: sh
+   pip3 install autokey
+   # or, if you want the latest from this repository,
+   pip3 install git+https://github.com/autokey-py3/autokey
 
-   pip3 install --user git+https://github.com/autokey-py3/autokey
-
-The "--user" option for pip may be removed if you intend to do a system-wide install.
+The "--user" option for pip may be added to install for the current user only.
 
 Ubuntu/Mint/Debian
 ++++++++++++++++++
