@@ -45,7 +45,7 @@ If you don't know what a PPA is you can learn about them [here][ppa].
     $ sudo apt install autokey-gtk
   
 **Note:** As of 10/2017, the PPA only supports Ubuntu 16.04 and derivatives.
-If you are using another release of Ubuntu, then install using [`pip`][pip].
+If you are using another release of Ubuntu, then install using [`pip` Installation](#pip-installation).
 
 ### Arch
 
