@@ -4,6 +4,7 @@
 # -*- mode: python -*-
 
 # Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2017 Thomas Hess
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -18,35 +19,61 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys, dbus, optparse
+import sys
+import dbus
+import argparse
+
+
+def generate_argument_parser():
+    description = "Run an AutoKey function by sending a command to a running AutoKey instance over dbus."
+
+    argument_parser = argparse.ArgumentParser(description=description)
+    mode_group = argument_parser.add_mutually_exclusive_group(required=True)
+    mode_group.add_argument("-s", "--script",
+                            action="store_const",
+                            const="script",
+                            dest="mode",
+                            help="Run a script")
+    mode_group.add_argument("-p", "--phrase",
+                            action="store_const",
+                            const="phrase",
+                            dest="mode",
+                            help="Paste a phrase")
+    mode_group.add_argument("-f", "--folder",
+                            action="store_const",
+                            const="folder",
+                            dest="mode",
+                            help="Show a folder popup menu")
+    argument_parser.add_argument("name",
+                                 help="The name of the script, phrase or folder.")
+    return argument_parser
+
 
 if __name__ == "__main__":
 
-    p = optparse.OptionParser()
-    p.add_option("-s", "--script", help="Run a script", action="store", type="string")
-    p.add_option("-p", "--phrase", help="Paste a phrase", action="store", type="string")
-    p.add_option("-f", "--folder", help="Show a folder popup menu", action="store", type="string")
-    p.set_usage("autokey-run -[s|p|f] [name]")
-    options, args = p.parse_args()
-
-    if (not options.script) and (not options.phrase) and (not options.folder):
-        p.print_usage()
-        sys.exit(1)
+    parser = generate_argument_parser()
+    arguments = parser.parse_args()
 
     bus = dbus.SessionBus()
+    try:
+        dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+    except dbus.DBusException as e:
+        print("AutoKey must be running to use autokey-run.\n", file=sys.stderr)
+        print(str(e), file=sys.stderr)
+        sys.exit(1)
+
+    if arguments.mode == "script":
+        dbus_function = dbus_service.run_script
+    elif arguments.mode == "phrase":
+        dbus_function = dbus_service.run_phrase
+    elif arguments.mode == "folder":
+        dbus_function = dbus_service.run_folder
+    else:
+        print("BUG: Unknown run mode encountered: {}".format(arguments.mode), file=sys.stderr)
+        sys.exit(1)
 
     try:
-        dbusService = bus.get_object("org.autokey.Service", "/AppService")
-        if options.script:
-            dbusService.run_script(options.script, dbus_interface = "org.autokey.Service")
-        elif options.phrase:
-            dbusService.run_phrase(options.phrase, dbus_interface = "org.autokey.Service")
-        elif options.folder:
-            dbusService.run_folder(options.folder, dbus_interface = "org.autokey.Service")
-
-        sys.exit(0)
-
+        dbus_function(arguments.name, dbus_interface="org.autokey.Service")
     except dbus.DBusException as e:
-        print(str(e), file=sys.stderr)
-        print("Autokey must be running to use autokey-run")
+        print(e.get_dbus_message(), file=sys.stderr)
         sys.exit(1)
