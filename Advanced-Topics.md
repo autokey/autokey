@@ -33,6 +33,6 @@ Another tool which may help is Xautomation (Xaut). It's kind of like a single-us
 
 Here, you would be using it externally, but access to it is also built into AutoKey 93.x (autokey-py3).
 
-So, yes, you can probably do what you want to do. You have a number of powerful tools to help you, but you will have to assemble them them into a solution yourself.
+So, yes, you can probably do what you want to do. You have a number of powerful tools to help you, but you will have to assemble them into a solution yourself.
 
 If this hasn't scared you off, we'll be glad to help you on the [support list](https://groups.google.com/forum/#!forum/autokey-users) to figure out the details as you dive into it. We don't have any example code for these sorts of things and would love to add some to our wiki. (If we get into xdotool or other non-AutoKey issues, we'll have to take the discussion off list.)
