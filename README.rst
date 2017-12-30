@@ -102,16 +102,6 @@ Fedora
 
 Build package using provided .spec file (may be outdated)
 
-Starting AutoKey
-++++++++++++++++
-
-.. code:: sh
-
-   # make sure that autokey is in your search path.
-   PATH="$HOME/.local/bin/:$PATH" # if installed with the --user option
-   autokey-gtk # to start with the GTK3 GUI *OR*
-   autokey-qt # to start with the QT4 GUI
-
 Documentation
 =============
 Documentation for `new features`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_, and `Stack Overflow`_.
