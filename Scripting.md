@@ -4,6 +4,16 @@ This page contains some script examples to demonstrate the capabilities of AutoK
 
 For specific details on the custom functions available to AutoKey scripts, see the API reference.
 
+Porting your scripts from Python 2
+==================================
+Changes were made to source code to keep the scripting API stable. ``system.exec_command()`` returns a string. But if you use functions from the standard library you will have to fix that, as your script runs on a Python 3 interpreter. For example, expect subprocess.check_output() to return a bytes object.
+
+[2to3](http://docs.python.org/dev/library/2to3.html) can be used to do automatically translate source code.
+
+Some guides on porting code to Python 3:
+ - http://python3porting.com/
+ - http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
+
 # Basic Scripts
 
 ### Display Active Window Information
