@@ -16,13 +16,10 @@ AutoKey
 
 About
 =====
-AutoKey (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation utility for Linux and X11.
+`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted at `OldAutoKey`_. Updated to run on Python 3.
 
-New features have since been added to AutoKey after the initial porting. Read `new features`_ for details.
-
-.. _GitHub: https://github.com/autokey/autokey
-.. _AutoKey: https://code.google.com/archive/p/autokey/
-.. _new features: https://github.com/autokey/autokey/blob/master/new_features.rst
+.. _AutoKey: https://github.com/autokey/autokey
+.. _OldAutoKey: https://code.google.com/archive/p/autokey/
 
 Installation
 ============
@@ -118,6 +115,7 @@ Examples of AutoKey scripts can be found by `searching GitHub`_ and reading Auto
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
 .. _wiki: https://github.com/autokey/autokey/wiki
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
+.. _new features: https://github.com/autokey/autokey/blob/master/new_features.rst
 
 Support
 =======
@@ -151,5 +149,3 @@ __ https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 License
 =======
 GNU GPL v3.
-
-
