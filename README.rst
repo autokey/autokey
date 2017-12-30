@@ -59,13 +59,9 @@ pip will automatically resolve and install dependencies, but dbus-python require
 
 .. code:: sh
 
-<<<<<<< HEAD
    pip3 install autokey
    # or, if you want the latest from this repository,
-   pip3 install git+https://github.com/autokey-py3/autokey
-=======
-   pip3 install --user git+https://github.com/autokey/autokey
->>>>>>> AutoKey has become the official AutoKey
+   pip3 install git+https://github.com/autokey3/autokey
 
 The "--user" option for pip may be added to install for the current user only.
 
