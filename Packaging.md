@@ -1,5 +1,7 @@
 # Ubuntu:
 
+http://packaging.ubuntu.com/html/packaging-new-software.html
+
 Install Prerequisites:
 
     # Packaging dependencies
