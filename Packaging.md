@@ -2,7 +2,7 @@
 
 Install Prerequisites:
 
-    sudo apt install build-essential debhelper dpkg-dev
+    sudo apt install build-essential debhelper dpkg-dev git
 
 Build package from a tag
 
