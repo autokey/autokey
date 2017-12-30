@@ -6,7 +6,7 @@ Install Prerequisites:
 
 Build package from a tag
 
-    git clone https://github.com/autokey-py3/autokey
+    git clone https://github.com/autokey/autokey
     cd autokey
     uscan -dd
     git checkout v0.93.10
