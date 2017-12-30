@@ -17,13 +17,20 @@ Build package from a tag
     git checkout $VERSION
     dpkg-buildpackage -b
 
-Updating PPA with latest version
+Updating PPA with latest version (for maintainers)
 
-    # change things...
-    dch / vim debian/changelog
-    git commit,push
+    # change things with either
+    dch
+    # or
+    vim debian/changelog
+
+    git commit; git push
+
     # tag release in github
-    git checkout $VERSION or git fetch/rebase
+
+    git checkout $VERSION
+
+    # Build the package with Debian utils
     uscan -dd
     debuild -S
     dput ppa:troxor/autokey-testing ../autokey_${VERSION}-1_source.changes
