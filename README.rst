@@ -6,8 +6,8 @@ AutoKey
     :target: https://webchat.freenode.net/?channels=autokey
 
 .. image:: https://badges.gitter.im/autokey/autokey.svg
-   :alt: Join the chat at https://gitter.im/autokey/autokey
-   :target: https://gitter.im/autokey/autokey
+   :alt: Join the chat at https://gitter.im/autokey-py3/autokey
+   :target: https://gitter.im/autokey-py3/autokey
 
 .. image:: http://img.shields.io/badge/stackoverflow-autokey-blue.svg
    :alt: Ask and answer questions on StackOverflow
@@ -129,7 +129,7 @@ We'd appreciate it if you take a look at `Problem reporting guide`_ before posti
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
 .. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: irc://irc.freenode.net/#autokey
-.. _Gitter: https://gitter.im/autokey
+.. _Gitter: https://gitter.im/autokey-py3/autokey
 .. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
