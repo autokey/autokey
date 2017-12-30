@@ -25,3 +25,7 @@ Updating PPA with latest version
     # test it then go live if it works
     rm ../autokey_0.93.10-1_source.ppa.upload
     dput ppa:troxor/autokey-testing ../autokey_0.93.10-1_source.changes
+
+# Fedora:
+
+FIXME
