@@ -73,7 +73,9 @@ Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above are s
    sudo apt update
    sudo apt install autokey-gtk
 
-Packages for other Debian-based distros can be built using files under ``debian/``
+Distro package not provided? Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
+
+.. _Packaging: https://github.com/autokey/autokey/wiki/Packaging
 
 Arch Linux
 ++++++++++
@@ -94,6 +96,11 @@ Available via layman_.
    layman -a y2kbadbug
    emerge --sync
    emerge -av autokey
+
+Fedora
+++++++
+
+Build package using provided .spec file (may be outdated)
 
 Starting AutoKey
 ++++++++++++++++
