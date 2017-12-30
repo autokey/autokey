@@ -14,6 +14,12 @@ Note that if you installed AutoKey from a .deb or using apt-get, these dependenc
 ### What is the license of AutoKey?
 AutoKey is published under GNU GPL v3 license.
 
+### X protocol errors on launch! 
+```X protocol error:
+<class 'Xlib.error.BadAccess'>: code = 10, resource_id = 260, sequence_number = 17, major_opcode = 33, minor_opcode = 0
+```
+Most likely Autokey has indeed started, and these are just benign messages from python-xlib. Verify that autokey is running with `ps aux | grep autokey`
+
 ### Does AutoKey work with scripts which were written with the popular AutoHotKey Windows application?
 No. AutoKey's built-in Python scripting is arguably much more powerful than the AHK language and makes it possible to do many of the things that AutoHotKey? scripts can do on Windows, in addition to some things AHK doesn't support.
 
