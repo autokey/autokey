@@ -1,3 +1,12 @@
+autokey (0.94.0-1) artful; urgency=low
+
+  * Python 3 version is official
+  * Ported autokey-run from the legacy optparse module to the new Python 3
+    argparse module (luziferius)
+  * Use XDG_RUNTIME_DIR and XDG_DATA_HOME for lock and log file (founderio)
+
+ -- Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>  Sat, 30 Dec 2017 00:06:07 -0600
+
 autokey (0.93.10-1) xenial; urgency=low
 
   * [QT] Package fixes
