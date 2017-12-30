@@ -1,8 +1,10 @@
 # Ubuntu:
 
 Install Prerequisites:
-
+    # Packaging dependencies
     sudo apt install build-essential debhelper dpkg-dev devscripts git
+    # Build dependencies
+    sudo apt install python3-all python3-setuptools
 
 Build package from a tag
 
