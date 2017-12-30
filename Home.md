@@ -1,1 +1,1 @@
-Welcome to the autokey-py3 wiki!
+Welcome to the Autokey wiki!
