@@ -34,16 +34,16 @@ LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 APP_NAME = "autokey"
 CATALOG = ""
 VERSION = "0.93.10"
-HOMEPAGE  = "https://github.com/autokey-py3/autokey"
+HOMEPAGE  = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'
 MAINTAINER = 'GuoCi'
 MAINTAINER_EMAIL = 'guociz@gmail.com'
 BUG_EMAIL = "guociz@gmail.com"
 
-FAQ_URL = "https://github.com/autokey-py3/autokey-py3/wiki/FAQ"
-API_URL = "https://autokey-py3.github.io/"
-HELP_URL = "https://github.com/autokey-py3/autokey-py3/wiki/Troubleshooting"
+FAQ_URL = "https://github.com/autokey/autokey/wiki/FAQ"
+API_URL = "https://autokey.github.io/"
+HELP_URL = "https://github.com/autokey/autokey/wiki/Troubleshooting"
 BUG_URL = HOMEPAGE + "/issues"
 
 ICON_FILE = "autokey"

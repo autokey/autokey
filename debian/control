@@ -13,7 +13,7 @@ X-Python3-Version: >= 3.5
 
 Package: autokey-common
 Architecture: all
-Homepage: https://github.com/autokey-py3/autokey
+Homepage: https://github.com/autokey/autokey
 Depends:
 	${python3:Depends},
 	${misc:Depends},

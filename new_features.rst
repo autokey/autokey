@@ -24,7 +24,7 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 `Source code`_.
 
-.. _Source code: https://github.com/autokey-py3/autokey/blob/master/src/lib/scripting_highlevel.py
+.. _Source code: https://github.com/autokey/autokey/blob/master/src/lib/scripting_highlevel.py
 
 .. code:: python
 
@@ -72,7 +72,7 @@ Running AutoKey scripts interactively on a shell
 
 Start “autokey-shell”. Currently, only functions from “system” and “highlevel” modules are exported to the shell.
 
-In the shell you can use functions provided by AutoKey-Py3:
+In the shell you can use functions provided by AutoKey:
 
 .. code:: python
 

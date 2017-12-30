@@ -1,13 +1,13 @@
-===========
-AutoKey-Py3
-===========
+=======
+AutoKey
+=======
 
 .. image:: https://img.shields.io/badge/IRC-%23autokey%20on%20freenode-blue.svg
     :target: https://webchat.freenode.net/?channels=autokey
 
-.. image:: https://badges.gitter.im/autokey-py3/autokey.svg
-   :alt: Join the chat at https://gitter.im/autokey-py3/autokey
-   :target: https://gitter.im/autokey-py3/autokey
+.. image:: https://badges.gitter.im/autokey/autokey.svg
+   :alt: Join the chat at https://gitter.im/autokey/autokey
+   :target: https://gitter.im/autokey/autokey
 
 .. image:: http://img.shields.io/badge/stackoverflow-autokey-blue.svg
    :alt: Ask and answer questions on StackOverflow
@@ -16,18 +16,18 @@ AutoKey-Py3
 
 About
 =====
-AutoKey-Py3 (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation utility for Linux and X11.
+AutoKey (`GitHub`_) is a Python 3 port of `AutoKey`_, a desktop automation utility for Linux and X11.
 
-New features have since been added to AutoKey-Py3 after the initial porting. Read `new features`_ for details.
+New features have since been added to AutoKey after the initial porting. Read `new features`_ for details.
 
-.. _GitHub: https://github.com/autokey-py3/autokey
+.. _GitHub: https://github.com/autokey/autokey
 .. _AutoKey: https://code.google.com/archive/p/autokey/
-.. _new features: https://github.com/autokey-py3/autokey/blob/master/new_features.rst
+.. _new features: https://github.com/autokey/autokey/blob/master/new_features.rst
 
 Installation
 ============
 
-**Please remove previous installations of both AutoKey and AutoKey-Py3 fully before installing!**
+**Please remove previous installations of both AutoKey and AutoKey fully before installing!**
 
 Dependencies
 ++++++++++++
@@ -59,9 +59,13 @@ pip will automatically resolve and install dependencies, but dbus-python require
 
 .. code:: sh
 
+<<<<<<< HEAD
    pip3 install autokey
    # or, if you want the latest from this repository,
    pip3 install git+https://github.com/autokey-py3/autokey
+=======
+   pip3 install --user git+https://github.com/autokey/autokey
+>>>>>>> AutoKey has become the official AutoKey
 
 The "--user" option for pip may be added to install for the current user only.
 
@@ -83,23 +87,23 @@ Arch Linux
 
 Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
 
-.. _AUR: https://aur.archlinux.org/packages/autokey-py3
+.. _AUR: https://aur.archlinux.org/packages/autokey
 
 Gentoo
 ++++++
 
 Available via layman_.
 
-.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
+.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey
 
 .. code:: sh
 
    layman -a y2kbadbug
    emerge --sync
-   emerge -av autokey-py3
+   emerge -av autokey
 
-Starting AutoKey-Py3
-++++++++++++++++++++
+Starting AutoKey
+++++++++++++++++
 
 .. code:: sh
 
@@ -114,22 +118,10 @@ Documentation for `new features`_. For older features, please refer to the origi
 
 Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `wiki`_.
 
-.. _scripting API: https://autokey-py3.github.io/index.html
+.. _scripting API: https://autokey.github.io/index.html
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
-.. _wiki: https://github.com/autokey-py3/autokey/wiki
+.. _wiki: https://github.com/autokey/autokey/wiki
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
-
-Porting your scripts from Python 2
-==================================
-Changes were made to source code to keep the scripting API stable. ``system.exec_command()`` returns a string. But if you use functions from the standard library you will have to fix that, as your script runs on a Python 3 interpreter. For example, expect subprocess.check_output() to return a bytes object.
-
-`2to3`_ can be used to do automatically translate source code.
-
-Some guides on porting code to Python 3:
- - http://python3porting.com/
- - http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
-
-.. _2to3: http://docs.python.org/dev/library/2to3.html
 
 Support
 =======
@@ -141,7 +133,7 @@ We'd appreciate it if you take a look at `Problem reporting guide`_ before posti
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
 .. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: irc://irc.freenode.net/#autokey
-.. _Gitter: https://gitter.im/autokey-py3
+.. _Gitter: https://gitter.im/autokey
 .. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
@@ -152,13 +144,13 @@ Bug reports and PRs are welcome. Please use the `GitHub Issue Tracker`_ for bug 
 * Python tracebacks, if any
 * Verbose logging information obtained by starting the frontend (``autokey-gtk`` or ``autokey-qt``) from terminal with the ``--verbose`` option.
 
-.. _GitHub Issue Tracker: https://github.com/autokey-py3/autokey/issues
+.. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
 
 Changelog
 =========
 Here__.
 
-__ https://github.com/autokey-py3/autokey/blob/master/CHANGELOG.rst
+__ https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 
 License
 =======
