@@ -146,3 +146,8 @@ __ https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 License
 =======
 GNU GPL v3.
+
+
+.. image:: https://badges.gitter.im/autokey/autokey.svg
+   :alt: Join the chat at https://gitter.im/autokey/autokey
+   :target: https://gitter.im/autokey/autokey?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
