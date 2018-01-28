@@ -84,8 +84,7 @@ Arch Linux
 
 Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
 
-.. _AUR: https://aur.archlinux.org/packages/autokey
-
+.. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
 Gentoo
 ++++++
 
