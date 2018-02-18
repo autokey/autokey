@@ -180,20 +180,7 @@ class AbbrSettingsDialog(KDialog):
             KDialog.slotButtonClicked(self, button)
 
 
-class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
-
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        hotkeysettings.Ui_Form.__init__(self)
-        self.setupUi(self)
-
-    # ---- Signal handlers
-
-    def on_setButton_pressed(self):
-        self.setButton.setEnabled(False)
-        self.keyLabel.setText(i18n("Press a key or combination..."))
-        self.grabber = iomediator.KeyGrabber(self.parentWidget())
-        self.grabber.start()  
+HotkeySettings = hotkeysettings.HotkeySettings
 
 class HotkeySettingsDialog(KDialog):
     

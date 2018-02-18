@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="/ui">
       <file alias="abbrsettings.ui">ui/abbrsettings.ui</file>
+      <file alias="hotkeysettings.ui">ui/hotkeysettings.ui</file>
   </qresource>
 </RCC>
 
