@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="/ui">
+      <file alias="abbrsettings.ui">ui/abbrsettings.ui</file>
+  </qresource>
+</RCC>
+
