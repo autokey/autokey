@@ -16,6 +16,7 @@
 import re
 
 from PyQt4.QtCore import QFile
+from PyQt4 import uic
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
@@ -38,3 +39,28 @@ def get_ui_qfile(name: str):
         raise FileNotFoundError("UI file not found: " + file_path)
     file.open(QFile.ReadOnly)
     return file
+
+
+def load_ui_from_file(name: str):
+    """
+    Returns a tuple from uic.loadUiType(), loading the ui file with the given name.
+    :param name:
+    :return:
+    """
+    ui_file = get_ui_qfile(name)
+    base_type = uic.loadUiType(ui_file)
+    ui_file.close()
+    return base_type
+
+"""
+This renamed function is supposed to be used during class definition to make the intention clear.
+Usage example:
+
+class SomeWidget(*inherits_from_ui_file_with_name("SomeWidgetUiFileName")):
+    def __init__(self, parent):
+        super(SomeWidget, self).__init__(parent)
+        self.setupUi(self)
+
+
+"""
+inherits_from_ui_file_with_name = load_ui_from_file

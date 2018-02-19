@@ -14,16 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4 import uic
 from PyQt4 import QtCore, Qt
 from PyQt4.QtGui import QListWidgetItem
 
 
-from .common import get_ui_qfile, EMPTY_FIELD_REGEX
-
-ui_file = get_ui_qfile("abbrsettings")
-AbbrSettingsBase = uic.loadUiType(ui_file)
-ui_file.close()
+from .common import inherits_from_ui_file_with_name, EMPTY_FIELD_REGEX
 
 
 WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
@@ -41,7 +36,7 @@ class AbbrListItem(QListWidgetItem):
             QListWidgetItem.setData(self, role, value)
 
 
-class AbbrSettings(*AbbrSettingsBase):
+class AbbrSettings(*inherits_from_ui_file_with_name("abbrsettings")):
 
     def __init__(self, parent):
         super().__init__(parent)

@@ -14,16 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4 import uic
-
-from .common import get_ui_qfile
-
-ui_file = get_ui_qfile("detectdialog")
-DetectDialogBase = uic.loadUiType(ui_file)
-ui_file.close()
+from .common import inherits_from_ui_file_with_name
 
 
-class DetectDialog(*DetectDialogBase):
+class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
 
     def __init__(self, parent):
         super(DetectDialog, self).__init__(parent)

@@ -14,19 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-
-from PyQt4 import uic
-
-from .common import get_ui_qfile
+from .common import inherits_from_ui_file_with_name
 
 from .. import iomediator
 
-ui_file = get_ui_qfile("hotkeysettings")
-HotkeySettingsBase = uic.loadUiType(ui_file)
-ui_file.close()
 
-
-class HotkeySettings(*HotkeySettingsBase):
+class HotkeySettings(*inherits_from_ui_file_with_name("hotkeysettings")):
 
     def __init__(self, parent):
         super(HotkeySettings, self).__init__(parent)
