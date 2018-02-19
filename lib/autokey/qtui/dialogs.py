@@ -40,7 +40,7 @@ from .common import EMPTY_FIELD_REGEX
 
 def validate(expression, message, widget, parent):
     if not expression:
-        KMessageBox.error(parent, message)
+        QMessageBox.error(parent, message)
         if widget is not None:
             widget.setFocus()
     return expression
@@ -345,85 +345,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         item.set_hotkey(modifiers, key)
         
         
-class WindowFilterSettings(QWidget, windowfiltersettings.Ui_Form):
-    
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        windowfiltersettings.Ui_Form.__init__(self)
-        self.setupUi(self)
-        m = QFontMetrics(QApplication.font())
-        self.triggerRegexLineEdit.setMinimumWidth(m.width("windowclass.WindowClass"))
-
-    # ---- Signal handlers
-
-    def on_detectButton_pressed(self):
-        self.detectButton.setEnabled(False)
-        self.grabber = iomediator.WindowGrabber(self.parentWidget())
-        self.grabber.start()
-
-
-class WindowFilterSettingsDialog(KDialog):
-
-    def __init__(self, parent):
-        KDialog.__init__(self, parent)
-        self.widget = WindowFilterSettings(self)
-        self.setMainWidget(self.widget)
-        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
-        self.setPlainCaption(i18n("Set Window Filter"))
-        self.setModal(True)
-        
-    def load(self, item):
-        self.targetItem = item
-        
-        if not isinstance(item, model.Folder):
-            self.widget.recursiveCheckBox.hide()
-        else:
-            self.widget.recursiveCheckBox.show()
-
-        if not item.has_filter():
-            self.reset()
-        else:
-            self.widget.triggerRegexLineEdit.setText(item.get_filter_regex())
-            self.widget.recursiveCheckBox.setChecked(item.isRecursive)
-            
-    def save(self, item):
-        item.set_window_titles(self.get_filter_text())
-        item.set_filter_recursive(self.get_is_recursive())
-
-    def get_is_recursive(self):
-        return self.widget.recursiveCheckBox.isChecked()
-            
-    def reset(self):
-        self.widget.triggerRegexLineEdit.setText("")
-        self.widget.recursiveCheckBox.setChecked(False)
-    
-    def reset_focus(self):
-        self.widget.triggerRegexLineEdit.setFocus()
-        
-    def get_filter_text(self):
-        return str(self.widget.triggerRegexLineEdit.text())
-
-    def receive_window_info(self, info):
-        self.parentWidget().topLevelWidget().app.exec_in_main(self.__receiveWindowInfo, info)
-
-    def __receiveWindowInfo(self, info):
-        dlg = DetectDialog(self)
-        dlg.populate(info)
-        dlg.exec_()
-
-        if dlg.result() == QDialog.Accepted:
-            self.widget.triggerRegexLineEdit.setText(dlg.get_choice())
-
-        self.widget.detectButton.setEnabled(True)
-
-    # --- event handlers ---
-
-    def slotButtonClicked(self, button):
-        if button == KDialog.Cancel:
-            self.load(self.targetItem)
-            
-        KDialog.slotButtonClicked(self, button)
-
+from .windowfiltersettings import WindowFilterSettingsDialog
 from .detectdialog import DetectDialog
 
 
