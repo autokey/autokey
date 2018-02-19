@@ -411,7 +411,6 @@ class WindowFilterSettingsDialog(KDialog):
         dlg.populate(info)
         dlg.exec_()
 
-
         if dlg.result() == QDialog.Accepted:
             self.widget.triggerRegexLineEdit.setText(dlg.get_choice())
 
@@ -425,30 +424,8 @@ class WindowFilterSettingsDialog(KDialog):
             
         KDialog.slotButtonClicked(self, button)
 
-from .detectdialog import DetectSettings
+from .detectdialog import DetectDialog
 
-class DetectDialog(KDialog):
-
-    def __init__(self, parent):
-        KDialog.__init__(self, parent)
-        self.widget = DetectSettings(self)
-        self.setMainWidget(self.widget)
-        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
-        self.setPlainCaption(i18n("Window Information"))
-        self.setModal(True)
-
-    def populate(self, windowInfo):
-
-        self.widget.detected_title.setText(windowInfo[0])
-        self.widget.detected_class.setText(windowInfo[1])
-        self.windowInfo = windowInfo
-
-    def get_choice(self):
-        # This relies on autoExclusive being set to true in the ui file.
-        if self.widget.classButton.isChecked():
-            return self.windowInfo[1]
-        else:
-            return self.windowInfo[0]
 
         
 class RecordSettings(QWidget, recorddialog.Ui_Form):

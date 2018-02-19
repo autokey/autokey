@@ -23,8 +23,22 @@ DetectDialogBase = uic.loadUiType(ui_file)
 ui_file.close()
 
 
-class DetectSettings(*DetectDialogBase):
+class DetectDialog(*DetectDialogBase):
 
     def __init__(self, parent):
-        super(DetectSettings, self).__init__()
+        super(DetectDialog, self).__init__(parent)
         self.setupUi(self)
+        self.window_info = None
+
+    def populate(self, window_info):
+
+        self.detected_title.setText(window_info[0])
+        self.detected_class.setText(window_info[1])
+        self.window_info = window_info
+
+    def get_choice(self):
+        # This relies on autoExclusive being set to true in the ui file.
+        if self.classButton.isChecked():
+            return self.window_info[1]
+        else:
+            return self.window_info[0]
