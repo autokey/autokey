@@ -7,14 +7,14 @@
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>240</height>
+    <height>250</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
     <widget class="QGroupBox" name="groupBox">
      <property name="layoutDirection">
       <enum>Qt::LeftToRight</enum>
@@ -37,11 +37,24 @@
         </property>
        </widget>
       </item>
+      <item>
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
      </layout>
     </widget>
    </item>
-   <item>
-    <widget class="KButtonGroup" name="kbuttongroup">
+   <item row="1" column="0">
+    <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Window property selection</string>
      </property>
@@ -49,30 +62,35 @@
       <item>
        <widget class="QRadioButton" name="classButton">
         <property name="text">
-         <string>Window class (entire application)</string>
+         <string>Window &amp;class (entire application)</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QRadioButton" name="titleButton">
         <property name="text">
-         <string>Window title</string>
+         <string>Window &amp;title</string>
         </property>
        </widget>
+      </item>
+      <item>
+       <spacer name="verticalSpacer_2">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
       </item>
      </layout>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KButtonGroup</class>
-   <extends>QGroupBox</extends>
-   <header>kbuttongroup.h</header>
-   <container>1</container>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
