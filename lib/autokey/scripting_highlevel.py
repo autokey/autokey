@@ -2,7 +2,8 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr, struct
+import imghdr
+import struct
 
 
 class PatternNotFound(Exception):
@@ -106,7 +107,7 @@ def acknowledge_gnome_notification():
     '''Moves mouse pointer to the bottom center of the screen and clicks on it.
     '''
     x0, y0 = mouse_pos()
-    mouse_move(10000, 10000)
+    mouse_move(10000, 10000)  # TODO: What if the screen is larger? Loop until mouse position does not change anymore?
     x, y = mouse_pos()
     mouse_rmove(-x/2, 0)
     # mouse_move(x/2, y)

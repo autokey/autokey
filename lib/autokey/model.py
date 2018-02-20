@@ -15,8 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, os, os.path, glob, logging
-from .configmanager import *
+import re
+import os
+import os.path
+import glob
+import logging
+
+from .configmanager import *  # TODO: Replace with explicit imports
 from .iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from .scripting_Store import Store
 

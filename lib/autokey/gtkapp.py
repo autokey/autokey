@@ -18,8 +18,20 @@
 from . import common
 common.USING_QT = False
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
-import gettext, dbus, dbus.service, dbus.mainloop.glib
+import sys
+import traceback
+import os.path
+import signal
+import logging
+import logging.handlers
+import subprocess
+import optparse
+import time
+
+import gettext
+import dbus
+import dbus.service
+import dbus.mainloop.glib
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -31,10 +43,10 @@ from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
-from autokey.configmanager import *
-from autokey.common import *
+from autokey.configmanager import *  # TODO: Replace with explicit import
+from autokey.common import *  # TODO: Replace with explicit import
 
-PROGRAM_NAME = _("AutoKey")
+PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
@@ -89,7 +101,6 @@ class Application:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
-
 
     def __createLockFile(self):
         f = open(LOCK_FILE, 'w')
@@ -299,4 +310,3 @@ class Application:
 
     def hide_menu(self):
         self.menu.remove_from_desktop()
-

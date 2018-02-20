@@ -19,7 +19,17 @@
 from . import common
 common.USING_QT = True
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, queue, time, dbus
+import sys
+import traceback
+import os.path
+import signal
+import logging
+import logging.handlers
+import subprocess
+import queue
+import time
+import dbus
+
 import dbus.mainloop.qt
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
 from PyKDE4.kdeui import KMessageBox, KApplication
@@ -30,8 +40,8 @@ from . import service, monitor
 from .qtui.notifier import Notifier
 from .qtui.popupmenu import PopupMenu
 from .qtui.configwindow import ConfigWindow
-from .configmanager import *
-from .common import *
+from .configmanager import *  # TODO: Replace with explicit import
+from .common import *  # TODO: Replace with explicit import
 
 PROGRAM_NAME = ki18n("AutoKey")
 DESCRIPTION = ki18n("Desktop automation utility")
@@ -40,6 +50,7 @@ COPYRIGHT = ki18n("""(c) 2009-2012 Chris Dekter
 (c) 2014 GuoCi
 """)
 TEXT = ki18n("")
+
 
 class Application:
     """
@@ -93,7 +104,6 @@ class Application:
             handler.setFormatter(logging.Formatter(LOG_FORMAT))
             rootLogger.addHandler(handler)
 
-
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
@@ -103,7 +113,6 @@ class Application:
             self.show_error_dialog(i18n("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
-
 
     def __createLockFile(self):
         f = open(LOCK_FILE, 'w')

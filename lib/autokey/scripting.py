@@ -15,7 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess, threading, time, re
+import subprocess
+import threading
+import time
+import re
+
 from . import common, model, iomediator
 
 if common.USING_QT:

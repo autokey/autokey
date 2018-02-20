@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from .iomediator_constants import X_RECORD_INTERFACE
-# X_RECORD_INTERFACE = "XRecord"
 ATSPI_INTERFACE = "AT-SPI"
 
 INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
@@ -24,21 +23,23 @@ INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
 
 from .iomediator_Key import Key
 
-import datetime, time, threading, queue, re, logging
+import datetime
+import time
+import threading
+import queue
+import re
+import logging
 
 # from .iomediator_constants import MODIFIERS, HELD_MODIFIERS
 # MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
 # HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
-#KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
 from .iomediator_constants import KEY_SPLIT_RE
-# KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
 SEND_LOCK = threading.Lock()
 
-# from .interface import *
-# from .configmanager import *
 from .iomediator00 import IoMediator, Waiter, KeyGrabber, Recorder
+
 
 class WindowGrabber:
 

@@ -18,7 +18,15 @@
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 
-import os, threading, re, time, socket, select, logging, queue, subprocess
+import os
+import threading
+import re
+import time
+import socket
+import select
+import logging
+import queue
+import subprocess
 
 from autokey import common
 

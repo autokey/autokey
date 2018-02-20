@@ -15,8 +15,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, os.path, shutil, logging, pickle, glob, threading, subprocess
-# from . import iomediator, interface, common, monitor
+import os
+import os.path
+import shutil
+import logging
+import pickle
+import glob
+import threading
+import subprocess
+
 from . import common, monitor
 from .iomediator_constants import X_RECORD_INTERFACE
 

@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, dbus.service
+import os
+import dbus.service
 
 CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
@@ -52,6 +53,7 @@ ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 USING_QT = False
+
 
 class AppService(dbus.service.Object):
 
