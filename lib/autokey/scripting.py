@@ -29,6 +29,7 @@ else:
 
 from . import scripting_highlevel as highlevel
 
+
 class Keyboard:
     """
     Provides access to the keyboard for event generation.
@@ -177,7 +178,8 @@ class Mouse:
             
             
 from .scripting_Store import Store
-        
+
+
 class QtDialog:
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
@@ -197,7 +199,7 @@ class QtDialog:
 
         p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
         retCode = p.wait()
-        output = p.stdout.read()[:-1] # Drop trailing newline
+        output = p.stdout.read()[:-1]  # Drop trailing newline
         
         return retCode, output
 
@@ -471,7 +473,7 @@ class GtkDialog:
         # retCode = p.wait()
         # output = p.stdout.read()[:-1] # Drop trailing newline
         with subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE) as p:
-            output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+            output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
             retCode = p.returncode
 
         return retCode, output
@@ -861,7 +863,7 @@ class Window:
                 return True
             
             if timeOut == 0:
-                break # zero length timeout, if not matched go straight to end
+                break  # zero length timeout, if not matched go straight to end
                 
             time.sleep(0.3)
             waited += 0.3
@@ -890,7 +892,7 @@ class Window:
                     return True
                     
             if timeOut == 0:
-                break # zero length timeout, if not matched go straight to end
+                break  # zero length timeout, if not matched go straight to end
 
             time.sleep(0.3)
             waited += 0.3
@@ -955,7 +957,6 @@ class Window:
             xArgs = []
         self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
         
-        
     def move_to_desktop(self, title, deskNum, matchClass=False):
         """
         Move the specified window to the given desktop
@@ -971,8 +972,7 @@ class Window:
         else:
             xArgs = []
         self.__runWmctrl(["-r", title, "-t", str(deskNum)] + xArgs)
-        
-        
+
     def switch_desktop(self, deskNum):
         """
         Switch to the specified desktop
@@ -1052,7 +1052,7 @@ class Window:
     def __runWmctrl(self, args):
         try:
             with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+                output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
                 retCode = p.returncode
         except FileNotFoundError:
             return 1, 'ERROR: Please install wmctrl'

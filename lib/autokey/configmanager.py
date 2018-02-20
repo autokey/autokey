@@ -74,6 +74,7 @@ SCRIPT_GLOBALS = "scriptGlobals"
 #RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
 #RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
+
 def get_config_manager(autoKeyApp, hadError=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
         os.mkdir(CONFIG_DEFAULT_FOLDER)
@@ -92,6 +93,7 @@ def get_config_manager(autoKeyApp, hadError=False):
     
     _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return configManager
+
 
 def save_config(configManager):
     _logger.info("Persisting configuration")
@@ -112,13 +114,15 @@ def save_config(configManager):
     finally:
         outFile.close()
         configManager.app.monitor.unsuspend() 
-        
+
+
 def apply_settings(settings):
     """
     Allows new settings to be added without users having to lose all their configuration
     """
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
+
 
 def convert_v07_to_v08(configData):
     oldVersion = configData["version"]
@@ -161,6 +165,7 @@ def _convertFolder(folderData, parent):
             i.parent = f
             i.persist()
 
+
 class ConfigManager:
     """
     Contains all application configuration, and provides methods for updating and 
@@ -174,30 +179,30 @@ class ConfigManager:
     CLASS_VERSION = common.VERSION
     
     SETTINGS = {
-                IS_FIRST_RUN : True,
-                SERVICE_RUNNING : True,
-                MENU_TAKES_FOCUS : False,
-                SHOW_TRAY_ICON : True,
-                SORT_BY_USAGE_COUNT : True,
-                #DETECT_UNWANTED_ABBR : False,
-                PROMPT_TO_SAVE: False,
-                #PREDICTIVE_LENGTH : 5,
-                ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : X_RECORD_INTERFACE,
-                UNDO_USING_BACKSPACE : True,
-                WINDOW_DEFAULT_SIZE : (600, 400),
-                HPANE_POSITION : 150,
-                COLUMN_WIDTHS : [150, 50, 100],
-                SHOW_TOOLBAR : True,
-                NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
-                WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc",
-                TRIGGER_BY_INITIAL : False,
+                IS_FIRST_RUN :True,
+                SERVICE_RUNNING :True,
+                MENU_TAKES_FOCUS :False,
+                SHOW_TRAY_ICON :True,
+                SORT_BY_USAGE_COUNT :True,
+                #DETECT_UNWANTED_ABBR :False,
+                PROMPT_TO_SAVE:False,
+                #PREDICTIVE_LENGTH :5,
+                ENABLE_QT4_WORKAROUND :False,
+                INTERFACE_TYPE :X_RECORD_INTERFACE,
+                UNDO_USING_BACKSPACE :True,
+                WINDOW_DEFAULT_SIZE :(600, 400),
+                HPANE_POSITION :150,
+                COLUMN_WIDTHS :[150, 50, 100],
+                SHOW_TOOLBAR :True,
+                NOTIFICATION_ICON :common.ICON_FILE_NOTIFICATION,
+                WORKAROUND_APP_REGEX :".*VirtualBox.*|krdc.Krdc",
+                TRIGGER_BY_INITIAL :False,
                 # TODO - Future functionality
-                #TRACK_RECENT_ENTRY : True,
-                #RECENT_ENTRY_COUNT : 5,
-                #RECENT_ENTRY_MINLENGTH : 10,
-                #RECENT_ENTRY_SUGGEST : True
-                SCRIPT_GLOBALS : {}
+                #TRACK_RECENT_ENTRY :True,
+                #RECENT_ENTRY_COUNT :5,
+                #RECENT_ENTRY_MINLENGTH :10,
+                #RECENT_ENTRY_SUGGEST :True
+                SCRIPT_GLOBALS :{}
                 }
                 
     def __init__(self, app):
@@ -624,8 +629,7 @@ dialog.info_dialog("Window information",
         
         folder = self.folders[RECENT_ENTRIES_FOLDER]
         
-        
-        if not entry in self.recentEntries:
+        if entry not in self.recentEntries:
             self.recentEntries.append(entry)
             while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]:
                 self.recentEntries.pop(0)
@@ -645,7 +649,6 @@ dialog.info_dialog("Window information",
                 folder.add_item(p)
                 
             self.config_altered(False)
-        
         
     def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
         """
@@ -725,6 +728,7 @@ dialog.info_dialog("Window information",
     
 # This import placed here to prevent circular import conflicts
 from .model import *
+
 
 class GlobalHotkey(AbstractHotkey):
     """

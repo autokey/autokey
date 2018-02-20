@@ -1,7 +1,10 @@
-import os, sys
-import faulthandler;faulthandler.enable()
+import os
+import sys
+import faulthandler
+faulthandler.enable()
 
 from autokey.gtkapp import Application
+
 
 def main():
     a = Application()

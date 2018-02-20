@@ -15,9 +15,9 @@ MIDDLE = 2
 RIGHT = 3
 
 
-def visgrep(scr:str, pat:str, tolerance:int = 0) -> int:
+def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
     """
-    visgrep(scr:str, pat:str, tolerance:int = 0) -> (int)
+    visgrep(scr: str, pat: str, tolerance: int = 0) -> int
     Visual grep of scr for pattern pat.
     Requires xautomation (http://hoopajoo.net/projects/xautomation.html).
     visgrep("screen.png", "pat.png")
@@ -31,47 +31,54 @@ def visgrep(scr:str, pat:str, tolerance:int = 0) -> int:
     tol = int(tolerance)
     if tol < 0:
         raise ValueError("tolerance must be ≥ 0.")
-    with open(scr), open(pat): pass
+    with open(scr), open(pat):
+        pass
     with tempfile.NamedTemporaryFile() as f:
-        subprocess.call(['png2pat',pat], stdout=f)
+        subprocess.call(['png2pat', pat], stdout=f)
         # don't use check_call, some versions (1.05) have a missing return statement in png2pat.c so the exit status ≠ 0
         f.flush()
         os.fsync(f.fileno())
         vg = subprocess.Popen(['visgrep', '-t' + str(tol), scr, f.name], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out = vg.communicate()
-    coord_str =  out[0].decode().split(' ')[0].split(',')
+    coord_str = out[0].decode().split(' ')[0].split(',')
     try:
         coord = [int(coord_str[0]), int(coord_str[1])]
     except (ValueError, IndexError) as e:
         raise PatternNotFound(str([x.decode() for x in out]) + '\n\t' + repr(e))
     return coord
 
-def get_png_dim(filepath:str) -> int:
-    '''
+
+def get_png_dim(filepath: str) -> int:
+    """
     get_png_dim(filepath:str) -> (int)
     Finds the dimension of a PNG.
     :param filepath: file path of the PNG.
     :returns: (width, height).
-    '''
-    if not imghdr.what(filepath)=='png':
+    """
+    if not imghdr.what(filepath) == 'png':
         raise Exception("not PNG")
     head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
-def mouse_move(x:int, y:int, display:str=''):
+
+def mouse_move(x: int, y: int, display: str=''):
     subprocess.call(['xte', '-x', display, "mousemove {} {}".format(int(x), int(y))])
 
-def mouse_rmove(x:int, y:int, display:str=''):
+
+def mouse_rmove(x: int, y: int, display: str=''):
     subprocess.call(['xte', '-x', display, "mousermove {} {}".format(int(x), int(y))])
 
-def mouse_click(button:int, display:str=''):
+
+def mouse_click(button: int, display: str=''):
     subprocess.call(['xte', '-x', display, "mouseclick {}".format(int(button))])
+
 
 def mouse_pos():
     tmp = subprocess.check_output("xmousepos").decode().split()
     return list(map(int, tmp))[:2]
 
-def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, tolerance:int=0, restore_pos:bool = False) -> None:
+
+def click_on_pat(pat: str, mousebutton: int=1, offset: (float, float)=None, tolerance: int=0, restore_pos: bool=False) -> None:
     """
     Requires imagemagick, xautomation, xwd.
     Click on a pattern at a specified offset (x,y) in percent of the pattern dimension. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
@@ -86,10 +93,11 @@ def click_on_pat(pat:str, mousebutton:int=1, offset:(float,float)=None, toleranc
     move_to_pat(pat, offset, tolerance)
     mouse_click(mousebutton)
     if restore_pos:
-        mouse_move(x0,y0)
+        mouse_move(x0, y0)
 
-def move_to_pat(pat:str, offset:(float,float)=None, tolerance:int=0) -> None:
-    '''See help for click_on_pat'''
+
+def move_to_pat(pat: str, offset: (float, float)=None, tolerance: int=0) -> None:
+    """See help for click_on_pat"""
     with tempfile.NamedTemporaryFile() as f:
         subprocess.call('''
         xwd -root -silent -display :0 | 
@@ -97,20 +105,20 @@ def move_to_pat(pat:str, offset:(float,float)=None, tolerance:int=0) -> None:
         loc = visgrep(f.name, pat, tolerance)
     pat_size = get_png_dim(pat)
     if offset is None:
-        x, y = [l + ps//2 for l,ps in zip(loc,pat_size)]
+        x, y = [l + ps//2 for l, ps in zip(loc, pat_size)]
     else:
-        x, y = [l + ps*(off/100) for off,l,ps in zip(offset,loc,pat_size)]
-    mouse_move(x,y)
+        x, y = [l + ps*(off/100) for off, l, ps in zip(offset, loc, pat_size)]
+    mouse_move(x, y)
 
 
 def acknowledge_gnome_notification():
-    '''Moves mouse pointer to the bottom center of the screen and clicks on it.
-    '''
+    """
+    Moves mouse pointer to the bottom center of the screen and clicks on it.
+    """
     x0, y0 = mouse_pos()
     mouse_move(10000, 10000)  # TODO: What if the screen is larger? Loop until mouse position does not change anymore?
     x, y = mouse_pos()
     mouse_rmove(-x/2, 0)
-    # mouse_move(x/2, y)
     mouse_click(LEFT)
     time.sleep(.2)
     mouse_move(x0, y0)
