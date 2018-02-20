@@ -1,5 +1,3 @@
-import os
-import sys
 import faulthandler
 faulthandler.enable()
 

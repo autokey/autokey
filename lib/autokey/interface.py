@@ -18,11 +18,7 @@
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 
-import os
 import threading
-import re
-import time
-import socket
 import select
 import logging
 import queue

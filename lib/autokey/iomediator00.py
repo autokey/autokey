@@ -2,7 +2,6 @@ import datetime
 import time
 import threading
 import queue
-import re
 import logging
 
 from .configmanager import ConfigManager

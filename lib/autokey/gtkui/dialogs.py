@@ -31,7 +31,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-from .. import model, iomediator
+from .. import model, iomediator, iomediator_Key
 # from . import configwindow
 from .configwindow0 import get_ui
 
@@ -332,12 +332,12 @@ class HotkeySettingsDialog(DialogBase):
         self.targetItem = item
         self.setButton.set_sensitive(True)
         if model.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.set_active(iomediator.Key.CONTROL in item.modifiers)
-            self.altButton.set_active(iomediator.Key.ALT in item.modifiers)
-            self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
-            self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
-            self.metaButton.set_active(iomediator.Key.META in item.modifiers)
+            self.controlButton.set_active(iomediator_Key.Key.CONTROL in item.modifiers)
+            self.altButton.set_active(iomediator_Key.Key.ALT in item.modifiers)
+            self.shiftButton.set_active(iomediator_Key.Key.SHIFT in item.modifiers)
+            self.superButton.set_active(iomediator_Key.Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(iomediator_Key.Key.HYPER in item.modifiers)
+            self.metaButton.set_active(iomediator_Key.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -385,12 +385,12 @@ class HotkeySettingsDialog(DialogBase):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.controlButton.set_active(iomediator.Key.CONTROL in modifiers)
-        self.altButton.set_active(iomediator.Key.ALT in modifiers)
-        self.shiftButton.set_active(iomediator.Key.SHIFT in modifiers)
-        self.superButton.set_active(iomediator.Key.SUPER in modifiers)
-        self.hyperButton.set_active(iomediator.Key.HYPER in modifiers)
-        self.metaButton.set_active(iomediator.Key.META in modifiers)
+        self.controlButton.set_active(iomediator_Key.Key.CONTROL in modifiers)
+        self.altButton.set_active(iomediator_Key.Key.ALT in modifiers)
+        self.shiftButton.set_active(iomediator_Key.Key.SHIFT in modifiers)
+        self.superButton.set_active(iomediator_Key.Key.SUPER in modifiers)
+        self.hyperButton.set_active(iomediator_Key.Key.HYPER in modifiers)
+        self.metaButton.set_active(iomediator_Key.Key.META in modifiers)
         
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -404,17 +404,17 @@ class HotkeySettingsDialog(DialogBase):
     def build_modifiers(self):
         modifiers = []
         if self.controlButton.get_active():
-            modifiers.append(iomediator.Key.CONTROL) 
+            modifiers.append(iomediator_Key.Key.CONTROL) 
         if self.altButton.get_active():
-            modifiers.append(iomediator.Key.ALT)
+            modifiers.append(iomediator_Key.Key.ALT)
         if self.shiftButton.get_active():
-            modifiers.append(iomediator.Key.SHIFT)
+            modifiers.append(iomediator_Key.Key.SHIFT)
         if self.superButton.get_active():
-            modifiers.append(iomediator.Key.SUPER)
+            modifiers.append(iomediator_Key.Key.SUPER)
         if self.hyperButton.get_active():
-            modifiers.append(iomediator.Key.HYPER)
+            modifiers.append(iomediator_Key.Key.HYPER)
         if self.metaButton.get_active():
-            modifiers.append(iomediator.Key.META)
+            modifiers.append(iomediator_Key.Key.META)
         
         modifiers.sort()
         return modifiers
@@ -431,7 +431,7 @@ class HotkeySettingsDialog(DialogBase):
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
         self.keyLabel.set_text(_("Press a key..."))
-        self.grabber = iomediator.KeyGrabber(self)
+        self.grabber = iomediator_Key.KeyGrabber(self)
         self.grabber.start()
         
 
@@ -440,12 +440,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item):
         self.targetItem = item
         if item.enabled:
-            self.controlButton.set_active(iomediator.Key.CONTROL in item.modifiers)
-            self.altButton.set_active(iomediator.Key.ALT in item.modifiers)
-            self.shiftButton.set_active(iomediator.Key.SHIFT in item.modifiers)
-            self.superButton.set_active(iomediator.Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(iomediator.Key.HYPER in item.modifiers)
-            self.metaButton.set_active(iomediator.Key.META in item.modifiers)
+            self.controlButton.set_active(iomediator_Key.Key.CONTROL in item.modifiers)
+            self.altButton.set_active(iomediator_Key.Key.ALT in item.modifiers)
+            self.shiftButton.set_active(iomediator_Key.Key.SHIFT in item.modifiers)
+            self.superButton.set_active(iomediator_Key.Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(iomediator_Key.Key.HYPER in item.modifiers)
+            self.metaButton.set_active(iomediator_Key.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:

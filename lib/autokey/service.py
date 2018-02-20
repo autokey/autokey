@@ -16,22 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
-import logging
-import threading
 import traceback
 import collections
 
-from autokey import common
-from autokey.iomediator_Key import Key
-from autokey.iomediator import IoMediator
+from . import common
+from .iomediator_Key import Key
+from .iomediator import IoMediator
 if common.USING_QT:
     from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
     from PyKDE4.kdecore import i18n
 else:
     from autokey.gtkui.popupmenu import *  # TODO: Replace with explicit import
-from autokey.macro import MacroManager
-from autokey import scripting, model
+from .macro import MacroManager
+
+from . import scripting, model, scripting_Store, scripting_highlevel
 
 logger = logging.getLogger("service")
 
@@ -88,7 +86,7 @@ class Service:
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
+        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
         logger.info("Service now marked as running")
 
     def unpause(self):
@@ -434,7 +432,7 @@ class ScriptRunner:
         self.app = app
         self.error = ''
         self.scope = globals()
-        self.scope["highlevel"]= scripting.highlevel
+        self.scope["highlevel"]= scripting_highlevel
         self.scope["keyboard"]= scripting.Keyboard(mediator)
         self.scope["mouse"]= scripting.Mouse(mediator)
         self.scope["system"] = scripting.System()

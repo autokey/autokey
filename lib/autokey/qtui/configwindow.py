@@ -15,16 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, sys, os, webbrowser, subprocess, time
+import os, webbrowser, subprocess, time
 from PyKDE4.kio import *
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n, ki18n, KUrl
 from PyQt4.QtGui import *
 from PyQt4.QtCore import SIGNAL, Qt
 from PyQt4 import Qsci
-from .. import common
 
-#CONFIG_WINDOW_TITLE = i18n(common.CONFIG_WINDOW_TITLE)
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
@@ -32,7 +30,7 @@ API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.tx
 from .dialogs import *
 from .settingsdialog import SettingsDialog
 from ..configmanager import *
-from ..iomediator import Recorder
+from ..iomediator00 import Recorder
 from .. import model
 
 PROBLEM_MSG_PRIMARY = ki18n("Some problems were found")

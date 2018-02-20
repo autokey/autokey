@@ -104,3 +104,6 @@ class Key(str, enum.Enum):
             return lowered_key_string.startswith("<code")
         else:
             return True
+
+
+NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]

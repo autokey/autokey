@@ -21,23 +21,15 @@ ATSPI_INTERFACE = "AT-SPI"
 INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
 # CURRENT_INTERFACE = None
 
-from .iomediator_Key import Key
-
-import datetime
 import time
 import threading
-import queue
-import re
-import logging
 
 # MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
 # HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
-NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
 
-from .iomediator_constants import KEY_SPLIT_RE
 SEND_LOCK = threading.Lock()
 
-from .iomediator00 import IoMediator, Waiter, KeyGrabber, Recorder
+from .iomediator00 import IoMediator
 
 
 class WindowGrabber:
@@ -55,4 +47,3 @@ class WindowGrabber:
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
         IoMediator.listeners.remove(self)
         self.dialog.receive_window_info(windowInfo)
-

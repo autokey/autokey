@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, sys, os, webbrowser, re, time
+import logging, os, webbrowser, time
+import threading
 
 from gi import require_version
 require_version('Gtk', '3.0')
@@ -23,7 +24,6 @@ require_version('GtkSource', '3.0')
 
 from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 
-#import gettext
 import locale
 
 GETTEXT_DOMAIN = 'autokey'
@@ -34,9 +34,9 @@ locale.setlocale(locale.LC_ALL, '')
 #    module.textdomain(GETTEXT_DOMAIN)
 
 
-from .dialogs import *
+from . import dialogs
 from .settingsdialog import SettingsDialog
-from ..configmanager import *
+from .. import configmanager as cm
 from ..iomediator import Recorder
 from .. import model, common
 
@@ -59,8 +59,8 @@ from .configwindow0 import get_ui
 def set_linkbutton(button, path):
     button.set_sensitive(True)
 
-    if path.startswith(CONFIG_DEFAULT_FOLDER):
-        text = path.replace(CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
+    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
     else:
         text = path.replace(os.path.expanduser("~"), "~")
 
@@ -106,8 +106,8 @@ class RenameDialog:
 
 
 class SettingsWidget:
-    KEY_MAP = HotkeySettingsDialog.KEY_MAP
-    REVERSE_KEY_MAP = HotkeySettingsDialog.REVERSE_KEY_MAP
+    KEY_MAP = dialogs.HotkeySettingsDialog.KEY_MAP
+    REVERSE_KEY_MAP = dialogs.HotkeySettingsDialog.REVERSE_KEY_MAP
 
     def __init__(self, parentWindow):
         self.parentWindow = parentWindow
@@ -115,9 +115,9 @@ class SettingsWidget:
         self.ui = builder.get_object("settingswidget")
         builder.connect_signals(self)
 
-        self.abbrDialog = AbbrSettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_abbr_response)
-        self.hotkeyDialog = HotkeySettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_hotkey_response)
-        self.filterDialog = WindowFilterSettingsDialog(parentWindow.ui, self.on_filter_dialog_response)
+        self.abbrDialog = dialogs.AbbrSettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_abbr_response)
+        self.hotkeyDialog = dialogs.HotkeySettingsDialog(parentWindow.ui, parentWindow.app.configManager, self.on_hotkey_response)
+        self.filterDialog = dialogs.WindowFilterSettingsDialog(parentWindow.ui, self.on_filter_dialog_response)
 
         self.abbrLabel = builder.get_object("abbrLabel")
         self.clearAbbrButton = builder.get_object("clearAbbrButton")
@@ -366,7 +366,7 @@ class FolderPage:
         self.currentFolder.persist()
         set_linkbutton(self.linkButton, self.currentFolder.path)
 
-        return not self.currentFolder.path.startswith(CONFIG_DEFAULT_FOLDER)
+        return not self.currentFolder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
 
     def set_item_title(self, newTitle):
         self.currentFolder.title = newTitle
@@ -497,7 +497,7 @@ class ScriptPage:
 
         # Check script code        
         text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)
-        if EMPTY_FIELD_REGEX.match(text):
+        if dialogs.EMPTY_FIELD_REGEX.match(text):
             errors.append(_("The script code can't be empty"))
 
         # Check settings
@@ -521,7 +521,7 @@ class ScriptPage:
     def record_keystrokes(self, isActive):
         if isActive:
             self.recorder = Recorder(self)
-            dlg = RecordDialog(self.ui, self.on_rec_response)
+            dlg = dialogs.RecordDialog(self.ui, self.on_rec_response)
             dlg.run()
         else:
             self.recorder.stop()
@@ -673,7 +673,7 @@ class PhrasePage(ScriptPage):
 
         # Check phrase content
         text = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)#.decode("utf-8")
-        if EMPTY_FIELD_REGEX.match(text):
+        if dialogs.EMPTY_FIELD_REGEX.match(text):
             errors.append(_("The phrase content can't be empty"))
 
         # Check settings
@@ -812,7 +812,7 @@ class ConfigWindow:
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
         toolbar.insert(create, 0)
-        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(ConfigManager.SETTINGS[SHOW_TOOLBAR])
+        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR])
         toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
 
         self.treeView = builder.get_object("treeWidget")
@@ -836,9 +836,9 @@ class ConfigWindow:
 
         self.treeView.columns_autosize()
 
-        width, height = ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE]
+        width, height = cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE]
         self.set_default_size(width, height)
-        self.hpaned.set_position(ConfigManager.SETTINGS[HPANE_POSITION])
+        self.hpaned.set_position(cm.ConfigManager.SETTINGS[cm.HPANE_POSITION])
 
     def __addToolbar(self):
         toolbar = self.uiManager.get_widget('/Toolbar')
@@ -876,8 +876,6 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             Gdk.threads_leave()
             self.__warnedOfChanges = True
 
-
-
     def update_actions(self, items, changed):
         if len(items) == 0:
             canCreate = False
@@ -907,7 +905,6 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)
         self.uiManager.get_action("/MenuBar/Tools/record").set_sensitive(canRecord)
         self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canPlay)
-
 
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
@@ -955,8 +952,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         return False
 
     def on_close(self, widget, data=None):
-        ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE] = self.get_size()
-        ConfigManager.SETTINGS[HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
         self.cancel_record()
         if self.queryClose():
             return True
@@ -968,8 +965,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
-        ConfigManager.SETTINGS[WINDOW_DEFAULT_SIZE] = self.get_size()
-        ConfigManager.SETTINGS[HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
         self.app.shutdown()
 
     # File Menu
@@ -1031,7 +1028,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
         if dlg.run() == 1:
             newText = dlg.get_name()
-            if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
+            if dialogs.validate(not dialogs.EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
                              None, self.ui):
                 dlg.destroy()
                 return newText
@@ -1249,7 +1246,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         else:
             self.vbox.remove(self.uiManager.get_widget('/Toolbar'))
 
-        ConfigManager.SETTINGS[SHOW_TOOLBAR] = widget.get_active()
+        cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR] = widget.get_active()
 
     def on_show_error(self, widget, data=None):
         self.app.show_script_error(self.ui)
@@ -1311,7 +1308,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
         if dlg.run() == 1:
             newText = dlg.get_name()
-            if validate(not EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
+            if dialogs.validate(not dialogs.EMPTY_FIELD_REGEX.match(newText), _("The name can't be empty"),
                              None, self.ui):
                 self.__getCurrentPage().set_item_title(newText)
 
@@ -1563,7 +1560,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         result = False
 
         if self.dirty:
-            if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
+            if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
                 dlg = Gtk.MessageDialog(self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
                                         _("There are unsaved changes. Would you like to save them?"))
                 dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)

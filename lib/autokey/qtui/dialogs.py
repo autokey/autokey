@@ -26,7 +26,7 @@ from PyQt4.QtCore import SIGNAL, Qt, QRegExp
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
-from .. import model, iomediator
+from .. import model, iomediator, iomediator00, iomediator_Key
 
 WORD_CHAR_OPTIONS = {
                      "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
@@ -250,7 +250,7 @@ class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
     def on_setButton_pressed(self):
         self.setButton.setEnabled(False)
         self.keyLabel.setText(i18n("Press a key or combination..."))
-        self.grabber = iomediator.KeyGrabber(self.parentWidget())
+        self.grabber = iomediator00.KeyGrabber(self.parentWidget())
         self.grabber.start()  
 
 class HotkeySettingsDialog(KDialog):
@@ -276,12 +276,12 @@ class HotkeySettingsDialog(KDialog):
         self.targetItem = item
         self.widget.setButton.setEnabled(True)
         if model.TriggerMode.HOTKEY in item.modes:
-            self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
-            self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
-            self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
-            self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
-            self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
-            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
+            self.widget.controlButton.setChecked(iomediator_Key.Key.CONTROL in item.modifiers)
+            self.widget.altButton.setChecked(iomediator_Key.Key.ALT in item.modifiers)
+            self.widget.shiftButton.setChecked(iomediator_Key.Key.SHIFT in item.modifiers)
+            self.widget.superButton.setChecked(iomediator_Key.Key.SUPER in item.modifiers)
+            self.widget.hyperButton.setChecked(iomediator_Key.Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(iomediator_Key.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -328,12 +328,12 @@ class HotkeySettingsDialog(KDialog):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.widget.controlButton.setChecked(iomediator.Key.CONTROL in modifiers)
-        self.widget.altButton.setChecked(iomediator.Key.ALT in modifiers)
-        self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in modifiers)
-        self.widget.superButton.setChecked(iomediator.Key.SUPER in modifiers)
-        self.widget.hyperButton.setChecked(iomediator.Key.HYPER in modifiers)
-        self.widget.metaButton.setChecked(iomediator.Key.META in modifiers)
+        self.widget.controlButton.setChecked(iomediator_Key.Key.CONTROL in modifiers)
+        self.widget.altButton.setChecked(iomediator_Key.Key.ALT in modifiers)
+        self.widget.shiftButton.setChecked(iomediator_Key.Key.SHIFT in modifiers)
+        self.widget.superButton.setChecked(iomediator_Key.Key.SUPER in modifiers)
+        self.widget.hyperButton.setChecked(iomediator_Key.Key.HYPER in modifiers)
+        self.widget.metaButton.setChecked(iomediator_Key.Key.META in modifiers)
 
         self.widget.setButton.setEnabled(True)
             
@@ -344,17 +344,17 @@ class HotkeySettingsDialog(KDialog):
     def build_modifiers(self):
         modifiers = []
         if self.widget.controlButton.isChecked():
-            modifiers.append(iomediator.Key.CONTROL) 
+            modifiers.append(iomediator_Key.Key.CONTROL) 
         if self.widget.altButton.isChecked():
-            modifiers.append(iomediator.Key.ALT)
+            modifiers.append(iomediator_Key.Key.ALT)
         if self.widget.shiftButton.isChecked():
-            modifiers.append(iomediator.Key.SHIFT)
+            modifiers.append(iomediator_Key.Key.SHIFT)
         if self.widget.superButton.isChecked():
-            modifiers.append(iomediator.Key.SUPER)
+            modifiers.append(iomediator_Key.Key.SUPER)
         if self.widget.hyperButton.isChecked():
-            modifiers.append(iomediator.Key.HYPER)
+            modifiers.append(iomediator_Key.Key.HYPER)
         if self.widget.metaButton.isChecked():
-            modifiers.append(iomediator.Key.META)
+            modifiers.append(iomediator_Key.Key.META)
         
         modifiers.sort()
         return modifiers
@@ -383,12 +383,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item):
         self.targetItem = item
         if item.enabled:
-            self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
-            self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
-            self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
-            self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
-            self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
-            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
+            self.widget.controlButton.setChecked(iomediator_Key.Key.CONTROL in item.modifiers)
+            self.widget.altButton.setChecked(iomediator_Key.Key.ALT in item.modifiers)
+            self.widget.shiftButton.setChecked(iomediator_Key.Key.SHIFT in item.modifiers)
+            self.widget.superButton.setChecked(iomediator_Key.Key.SUPER in item.modifiers)
+            self.widget.hyperButton.setChecked(iomediator_Key.Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(iomediator_Key.Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:

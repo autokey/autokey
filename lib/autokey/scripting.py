@@ -20,14 +20,13 @@ import threading
 import time
 import re
 
-from . import common, model, iomediator
+from . import common, model, iomediator00
+
 
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
     from gi.repository import Gtk, Gdk
-
-from . import scripting_highlevel as highlevel
 
 
 class Keyboard:
@@ -116,7 +115,7 @@ class Keyboard:
         """
         if modifiers is None:
             modifiers = []
-        w = iomediator.Waiter(key, modifiers, None, timeOut)
+        w = iomediator00.Waiter(key, modifiers, None, timeOut)
         return w.wait()
         
 
@@ -173,11 +172,8 @@ class Mouse:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)
-        w = iomediator.Waiter(None, None, button, timeOut)
+        w = iomediator00.Waiter(None, None, button, timeOut)
         w.wait()
-            
-            
-from .scripting_Store import Store
 
 
 class QtDialog:
