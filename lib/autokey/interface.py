@@ -395,7 +395,7 @@ class XInterfaceBase(threading.Thread):
                 window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
 
         except Exception as e:
-            logger.warn("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
+            logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
 
     def grab_hotkey(self, item):
         """
@@ -491,7 +491,7 @@ class XInterfaceBase(threading.Thread):
             if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
                 window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
         except Exception as e:
-            logger.warn("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
+            logger.warning("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
 
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
@@ -704,7 +704,7 @@ class XInterfaceBase(threading.Thread):
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
                         self.__releaseKey(Key.SHIFT)
                 else:
-                    logger.warn("Unable to send character %r", char)
+                    logger.warning("Unable to send character %r", char)
             except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
 
@@ -760,7 +760,7 @@ class XInterfaceBase(threading.Thread):
             self.__sendKeyCode(keyCode, mask)
             for mod in modifiers: self.__releaseKey(mod)
         except Exception as e:
-            logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
+            logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
 
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)

@@ -462,7 +462,7 @@ dialog.info_dialog("Window information",
                             loaded = True
                             
             if not loaded:
-                _logger.warn("No action taken for create/update event at %s", path)
+                _logger.warning("No action taken for create/update event at %s", path)
             else:
                 self.config_altered(False)
             return loaded
@@ -490,7 +490,7 @@ dialog.info_dialog("Window information",
             deleted = True
             
         if not deleted:
-            _logger.warn("No action taken for delete event at %s", path)
+            _logger.warning("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
         return deleted
