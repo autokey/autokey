@@ -82,13 +82,13 @@ class PopupMenu(Gtk.Menu):
     def __getMnemonic(self, desc, onDesktop):
         if 1 < 10 and '_' not in desc and onDesktop:
             if self.triggerInitial:
-                ret = "%s" % (desc)
+                ret = str(desc)
             else:
-                ret = "_%d - %s" % (self.__i, desc)
+                ret = "_{} - {}".format(self.__i, desc)
             self.__i += 1
             return ret
         else:
-            return desc        
+            return desc
 
     def show_on_desktop(self):
         Gdk.threads_enter()

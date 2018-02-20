@@ -197,7 +197,7 @@ class QtDialog:
         retCode = p.wait()
         output = p.stdout.read()[:-1] # Drop trailing newline
         
-        return (retCode, output)
+        return retCode, output
 
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -469,7 +469,7 @@ class GtkDialog:
             output = p.communicate()[0].decode()[:-1] # Drop trailing newline
             retCode = p.returncode
 
-        return (retCode, output)
+        return retCode, output
     
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -1047,9 +1047,9 @@ class Window:
                 output = p.communicate()[0].decode()[:-1] # Drop trailing newline
                 retCode = p.returncode
         except FileNotFoundError:
-            return (1, 'ERROR: Please install wmctrl')
+            return 1, 'ERROR: Please install wmctrl'
 
-        return (retCode, output)
+        return retCode, output
         
         
 class Engine:

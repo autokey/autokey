@@ -202,7 +202,7 @@ class AbstractAbbreviation:
         else:
             stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)
             
-        return (stringBefore, typedAbbr, stringAfter)
+        return stringBefore, typedAbbr, stringAfter
     
             
 class AbstractWindowFilter:
@@ -477,7 +477,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 pass
         
     def get_tuple(self):
-        return ("folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self
     
     def set_modes(self, modes):
         self.modes = modes
@@ -727,7 +727,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
         
     def set_modes(self, modes):
         self.modes = modes
@@ -744,7 +744,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             #if TriggerMode.PREDICTIVE in self.modes:
             #    predict = self._should_trigger_predictive(buffer)
             
-            return (abbr or predict)
+            return abbr or predict
             
         return False
     
@@ -1006,7 +1006,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(theScript)
 
     def get_tuple(self):
-        return ("text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
     def set_modes(self, modes):
         self.modes = modes

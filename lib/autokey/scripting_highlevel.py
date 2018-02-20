@@ -15,7 +15,7 @@ MIDDLE = 2
 RIGHT = 3
 
 
-def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int):
+def visgrep(scr:str, pat:str, tolerance:int = 0) -> int:
     """
     visgrep(scr:str, pat:str, tolerance:int = 0) -> (int)
     Visual grep of scr for pattern pat.
@@ -46,7 +46,7 @@ def visgrep(scr:str, pat:str, tolerance:int = 0) -> (int):
         raise PatternNotFound(str([x.decode() for x in out]) + '\n\t' + repr(e))
     return coord
 
-def get_png_dim(filepath:str) -> (int):
+def get_png_dim(filepath:str) -> int:
     '''
     get_png_dim(filepath:str) -> (int)
     Finds the dimension of a PNG.

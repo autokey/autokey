@@ -253,7 +253,7 @@ class Service:
         else:
             extraBs = 0
             extraKeys = ''
-        return (extraBs, extraKeys)
+        return extraBs, extraKeys
 
     def __updateStack(self, key):
         """
@@ -313,7 +313,7 @@ class Service:
         for item in items:
             if item.check_input(buffer, windowInfo):
                 if not item.prompt and immediate:
-                    return (item, None)
+                    return item, None
                 else:
                     itemMatches.append(item)
 
@@ -325,12 +325,12 @@ class Service:
         if self.__menuRequired(folderMatches, itemMatches, buffer):
             self.lastStackState = buffer
             #return (None, PopupMenu(self, folderMatches, itemMatches))
-            return (None, (folderMatches, itemMatches))
+            return None, (folderMatches, itemMatches)
         elif len(itemMatches) == 1:
             self.lastStackState = buffer
-            return (itemMatches[0], None)
+            return itemMatches[0], None
         else:
-            return (None, None)
+            return None, None
 
 
     def __shouldProcess(self, windowInfo):
