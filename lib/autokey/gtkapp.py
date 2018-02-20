@@ -130,9 +130,6 @@ class Application:
 
         return True
 
-    def main(self):
-        Gtk.main()
-
     def initialise(self, configure):
         logging.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
