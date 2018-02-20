@@ -377,7 +377,9 @@ class HotkeySettingsDialog(DialogBase):
         self.key = None
         self.setButton.set_sensitive(True)
             
-    def set_key(self, key, modifiers=[]):
+    def set_key(self, key, modifiers: list=None):
+        if modifiers is None:
+            modifiers = []
         Gdk.threads_enter()
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]

@@ -28,7 +28,11 @@ _logger = logging.getLogger("phrase-menu")
 
 class MenuBase:
     
-    def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
+    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.service = service
         self.__i = 1
         self._onDesktop = onDesktop
@@ -96,22 +100,30 @@ class MenuBase:
         
 class PopupMenu(KMenu, MenuBase):
     
-    def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
+    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
         KMenu.__init__(self)
         MenuBase.__init__(self, service, folders, items, onDesktop, title)
-
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         #if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
+
         self.setFocusPolicy(Qt.StrongFocus)
         # TODO - this doesn't always work - do something about this
             
 
 class SubMenu(KActionMenu, MenuBase):
     
-    def __init__(self, title, parent, service, folders=[], items=[], onDesktop=True):
+    def __init__(self, title, parent, service, folders: list=None, items: list=None, onDesktop=True):
         KActionMenu.__init__(self, title, parent)
         MenuBase.__init__(self, service, folders, items, onDesktop)
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
 
-        
+
 class ItemAction(KAction):
     
     def __init__(self, parent, description, item, target):
@@ -166,8 +178,8 @@ if __name__ == "__main__":
     myPhrases = []
     myPhrases.append(MockPhrase("phrase 1"))
     myPhrases.append(MockPhrase("phrase 2"))
-    myPhrases.append(MockPhrase("phrase 3"))    
-    
+    myPhrases.append(MockPhrase("phrase 3"))
+
     appName     = "KApplication"
     catalog     = ""
     programName = ki18n ("KApplication")

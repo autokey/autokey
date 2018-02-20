@@ -28,9 +28,13 @@ class PopupMenu(Gtk.Menu):
     A popup menu that allows the user to select a phrase.
     """
 
-    def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
+    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
         Gtk.Menu.__init__(self)
         #self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.__i = 1
         self.service = service
         

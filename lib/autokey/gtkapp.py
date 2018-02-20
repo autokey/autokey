@@ -301,7 +301,11 @@ class Application:
         dlg.run()
         dlg.destroy()
 
-    def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
+    def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.menu = PopupMenu(self.service, folders, items, onDesktop, title)
         self.menu.show_on_desktop()
 

@@ -101,7 +101,7 @@ class Keyboard:
         for x in range(repeat):
             self.mediator.fake_keypress(key)
             
-    def wait_for_keypress(self, key, modifiers=[], timeOut=10.0):
+    def wait_for_keypress(self, key, modifiers: list=None, timeOut=10.0):
         """
         Wait for a keypress or key combination
         
@@ -113,6 +113,8 @@ class Keyboard:
         @param modifiers: list of modifiers that should be pressed with the key
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
+        if modifiers is None:
+            modifiers = []
         w = iomediator.Waiter(key, modifiers, None, timeOut)
         return w.wait()
         
@@ -283,7 +285,8 @@ class QtDialog:
         
         return retCode, choice        
         
-    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs):
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
+                        defaults: list=None, **kwargs):
         """
         Show a multiple-selection list menu
         
@@ -296,7 +299,9 @@ class QtDialog:
         @return: a tuple containing the exit code and user choice
         @rtype: C{tuple(int, str)}
         """
-        
+
+        if defaults is None:
+            defaults = []
         choices = []
         optionNum = 0
         for option in options:
@@ -553,7 +558,8 @@ class GtkDialog:
         
         #return retCode, choice    
         
-    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs):
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
+                        defaults: list=None, **kwargs):
         """
         Show a multiple-selection list menu
         
@@ -566,7 +572,9 @@ class GtkDialog:
         @return: a tuple containing the exit code and user choice
         @rtype: C{tuple(int, str)}
         """
-        
+
+        if defaults is None:
+            defaults = []
         choices = []
         #optionNum = 0
         for option in options:

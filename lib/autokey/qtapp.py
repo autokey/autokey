@@ -291,7 +291,11 @@ class Application:
         else:
             KMessageBox.information(None, i18n("No error information available"), i18n("View Script Error Details"))
 
-    def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
+    def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.exec_in_main(self.__createMenu, folders, items, onDesktop, title)
 
     def hide_menu(self):
