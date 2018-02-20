@@ -1,13 +1,15 @@
+import datetime
+from abc import abstractmethod
+
 from .iomediator_constants import KEY_SPLIT_RE
 from .iomediator_Key import Key
-# from .iomediator import KEY_SPLIT_RE, Key
 from . import common
 
 if common.USING_QT:
     from PyKDE4.kdecore import ki18n
-    from PyKDE4.kdeui import KMenu, KAction
+    from PyKDE4.kdeui import KAction
     from PyQt4.QtCore import SIGNAL
-    _ = ki18n
+    _ = ki18n  # TODO: WHY??
 
     class MacroAction(KAction):
 
@@ -15,7 +17,7 @@ if common.USING_QT:
             KAction.__init__(self, macro.TITLE.toString(), menu)
             self.macro = macro
             self.callback = callback
-            self.connect(self, SIGNAL("triggered()"), self.on_triggered)
+            self.connect(self, SIGNAL("triggered()"), self.on_triggered)  # TODO: SIGNAL deprecated and removed in PyQt5
 
         def on_triggered(self):
             self.callback(self.macro)
@@ -63,16 +65,9 @@ class AbstractMacro:
 
     def get_token(self):
         ret = "<%s" % self.ID
-        
-        if len(self.ARGS) == 0:
-            ret += ">"
-        else:
-            for k, v in self.ARGS:
-                ret += " "
-                ret += k
-                ret += "="
-            ret += ">"
-        
+        # TODO: v not used in initial implementation? This results in something like "<%s a= b= c=>"
+        ret += "".join((" " + k + "=" for k, v in self.ARGS))
+        ret += ">"
         return ret
             
     def _can_process(self, token):
@@ -92,7 +87,7 @@ class AbstractMacro:
 
         for k, v in self.ARGS:
             if k not in ret:
-                raise Exception("Missing mandatory argument '%s' for macro '%s'" % (k, self.ID))
+                raise Exception("Missing mandatory argument '{}' for macro '{}'".format(k, self.ID))
         
         return ret
         
@@ -100,6 +95,11 @@ class AbstractMacro:
         for i in range(len(parts)):
             if self._can_process(parts[i]):
                 self.do_process(parts, i)
+
+    @abstractmethod
+    def do_process(self, parts, i):
+        pass
+
     
 
 class CursorMacro(AbstractMacro):
