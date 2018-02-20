@@ -10,11 +10,12 @@ from .configmanager_constants import INTERFACE_TYPE
 from .iomediator_Key import Key
 from .iomediator_constants import X_RECORD_INTERFACE, KEY_SPLIT_RE
 
-from .interface import XRecordInterface
+from .interface import XRecordInterface, AtSpiInterface
 
 CURRENT_INTERFACE = None
 _logger = logging.getLogger("iomediator")
 from .iomediator_constants import MODIFIERS, HELD_MODIFIERS
+
 
 class IoMediator(threading.Thread):
     """
@@ -36,21 +37,19 @@ class IoMediator(threading.Thread):
         
         # Modifier tracking
         self.modifiers = {
-                          Key.CONTROL : False,
-                          Key.ALT : False,
+                          Key.CONTROL: False,
+                          Key.ALT: False,
                           Key.ALT_GR: False,
-                          Key.SHIFT : False,
-                          Key.SUPER : False,
-                          Key.HYPER : False,
-                          Key.META  : False,
-                          Key.CAPSLOCK : False,
-                          Key.NUMLOCK : False
+                          Key.SHIFT: False,
+                          Key.SUPER: False,
+                          Key.HYPER: False,
+                          Key.META : False,
+                          Key.CAPSLOCK: False,
+                          Key.NUMLOCK: False
                           }
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
-        elif self.interfaceType == X_EVDEV_INTERFACE:
-            self.interface = EvDevInterface(self, service.app)    
         else:
             self.interface = AtSpiInterface(self, service.app)
 
