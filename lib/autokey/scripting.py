@@ -631,6 +631,7 @@ class GtkDialog:
         Usage: C{dialog.choose_directory(title="Select Directory", **kwargs)}
         
         @param title: window title for the dialog
+        @param initialDir:
         @return: a tuple containing the exit code and path
         @rtype: C{tuple(int, str)}
         """

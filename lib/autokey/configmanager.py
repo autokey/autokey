@@ -546,7 +546,7 @@ dialog.info_dialog("Window information",
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders. 
         
-        @param persist: save the global configuration at the end of the process
+        @param persistGlobal: save the global configuration at the end of the process
         """
         _logger.info("Configuration changed - rebuilding in-memory structures")
         
@@ -649,6 +649,7 @@ dialog.info_dialog("Window information",
         Checks that the given abbreviation is not already in use.
         
         @param abbreviation: the abbreviation to check
+        @param newFilterPattern:
         @param targetItem: the phrase for which the abbreviation to be used 
         """
         for item in self.allFolders:
@@ -701,6 +702,7 @@ dialog.info_dialog("Window information",
         
         @param modifiers: modifiers for the hotkey
         @param hotKey: the hotkey to check
+        @param newFilterPattern:
         @param targetItem: the phrase for which the hotKey to be used        
         """
         for item in self.allFolders:

@@ -25,6 +25,7 @@ if common.USING_QT:
 else:
     from gi.repository import Gtk
 
+
 class MacroManager:
     
     def __init__(self, engine):
@@ -100,7 +101,6 @@ class AbstractMacro:
     def do_process(self, parts, i):
         pass
 
-    
 
 class CursorMacro(AbstractMacro):
 
@@ -156,4 +156,3 @@ class FileContentsMacro(AbstractMacro):
         
         with open(name, "r") as inputFile:
             parts[i] = inputFile.read()
-    
