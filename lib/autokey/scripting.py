@@ -382,7 +382,7 @@ class QtDialog:
         """
         return self.__runKdialog(title, ["--getcolor"], kwargs)
 
-    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today", **kwargs):
+    def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
         Show a calendar dialog
 
@@ -391,7 +391,7 @@ class QtDialog:
         Note: the format and date parameters are not currently used
 
         @param title: window title for the dialog
-        @param format: format of date to be returned
+        @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
         @rtype: C{tuple(int, str)}
@@ -643,14 +643,14 @@ class GtkDialog:
         """
         #return self.__runZenity(title, ["--getcolor"])
         
-    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today", **kwargs):
+    def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
         Show a calendar dialog
         
         Usage: C{dialog.calendar_dialog(title="Choose a date", format="%Y-%m-%d", date="YYYY-MM-DD", **kwargs)}
         
         @param title: window title for the dialog
-        @param format: format of date to be returned
+        @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
         @rtype: C{tuple(int, str)}
@@ -662,7 +662,7 @@ class GtkDialog:
             date_args = ["--year=" + year, "--month=" + month, "--day=" + day]
         else:
             date_args = []
-        return self.__runZenity(title, ["--calendar", "--date-format=" + format] + date_args, kwargs)
+        return self.__runZenity(title, ["--calendar", "--date-format=" + format_str] + date_args, kwargs)
 
     
 class QtClipboard:

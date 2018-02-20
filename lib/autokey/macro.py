@@ -140,8 +140,8 @@ class DateMacro(AbstractMacro):
     ARGS = [("format", _("Format"))]
     
     def do_process(self, parts, i):
-        format = self._get_args(parts[i])["format"]
-        date = datetime.datetime.now().strftime(format)
+        format_ = self._get_args(parts[i])["format"]
+        date = datetime.datetime.now().strftime(format_)
         parts[i] = date
 
 

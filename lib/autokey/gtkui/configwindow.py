@@ -1120,8 +1120,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.treeView.get_selection().select_iter(newIters[0])
         self.cutCopiedItems = []
         self.on_tree_selection_changed(self.treeView)        
-        for iter in newIters:
-            self.treeView.get_selection().select_iter(iter)        
+        for iterator in newIters:
+            self.treeView.get_selection().select_iter(iterator)
         self.app.config_altered(True)
         
     def on_clone_item(self, widget, data=None):
@@ -1416,8 +1416,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.app.monitor.unsuspend()                
         self.treeView.expand_to_path(theModel.get_path(newIters[-1]))
         selection.unselect_all()
-        for iter in newIters:
-            selection.select_iter(iter)
+        for iterator in newIters:
+            selection.select_iter(iterator)
         self.on_tree_selection_changed(self.treeView)
         self.app.config_altered(True)
         
@@ -1595,8 +1595,8 @@ class AkTreeModel(Gtk.TreeStore):
         Gtk.TreeStore.__init__(self, str, str, str, str, object)
         
         for folder in folders:
-            iter = self.append(None, folder.get_tuple())
-            self.populate_store(iter, folder)
+            iterator = self.append(None, folder.get_tuple())
+            self.populate_store(iterator, folder)
             
         self.folders = folders
         self.set_sort_func(1, self.compare)
@@ -1604,8 +1604,8 @@ class AkTreeModel(Gtk.TreeStore):
 
     def populate_store(self, parent, parentFolder):
         for folder in parentFolder.folders:
-            iter = self.append(parent, folder.get_tuple())
-            self.populate_store(iter, folder)
+            iterator = self.append(parent, folder.get_tuple())
+            self.populate_store(iterator, folder)
         
         for item in parentFolder.items:
             self.append(parent, item.get_tuple())
@@ -1624,8 +1624,8 @@ class AkTreeModel(Gtk.TreeStore):
             
             return self.append(parentIter, item.get_tuple())
             
-    def remove_item(self, iter):
-        item = self.get_value(iter, self.OBJECT_COLUMN)
+    def remove_item(self, iterator):
+        item = self.get_value(iterator, self.OBJECT_COLUMN)
         item.remove_data()
         if item.parent is None:
             self.folders.remove(item)
@@ -1635,7 +1635,7 @@ class AkTreeModel(Gtk.TreeStore):
             else:
                 item.parent.remove_item(item)
             
-        self.remove(iter)
+        self.remove(iterator)
         
     def update_item(self, targetIter, items):
         for item in items:

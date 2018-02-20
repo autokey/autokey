@@ -224,9 +224,9 @@ class AbstractWindowFilter:
         else:
             self.set_window_titles(data)
         
-    def copy_window_filter(self, filter):
-        self.windowInfoRegex = filter.windowInfoRegex
-        self.isRecursive = filter.isRecursive
+    def copy_window_filter(self, window_filter):
+        self.windowInfoRegex = window_filter.windowInfoRegex
+        self.isRecursive = window_filter.isRecursive
     
     def set_window_titles(self, regex):
         if regex is not None:
