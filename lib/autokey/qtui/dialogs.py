@@ -306,7 +306,7 @@ class HotkeySettingsDialog(KDialog):
         else:
             key = keyText
 
-        assert key != None, "Attempt to set hotkey with no key"
+        assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
     def reset(self):
@@ -410,7 +410,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         else:
             key = keyText
 
-        assert key != None, "Attempt to set hotkey with no key"
+        assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
         

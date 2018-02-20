@@ -1025,7 +1025,7 @@ class XInterfaceBase(threading.Thread):
     def __getWinClass(self, windowvar, traverse):
         wmclass = windowvar.get_wm_class()
 
-        if (wmclass == None or wmclass == ""):
+        if wmclass is None or not wmclass:
             if traverse:
                 return self.__getWinClass(windowvar.query_tree().parent, True)
             else:
