@@ -1,5 +1,8 @@
 # Key codes enumeration
-class Key:
+import enum
+
+@enum.unique
+class Key(str, enum.Enum):
 
     LEFT = "<left>"
     RIGHT = "<right>"
@@ -87,7 +90,16 @@ class Key:
     NP_5 = "<np_5>"
 
     @classmethod
-    def is_key(klass, keyString):
+    def is_key(cls, key_string: str) -> bool:
+        """
+        Returns if a string represents a key.
+        """
         # Key strings must be treated as case insensitive - always convert to lowercase
         # before doing any comparisons
-        return keyString.lower() in list(klass.__dict__.values()) or keyString.startswith("<code")
+        lowered_key_string = key_string.lower()
+        try:
+            cls(lowered_key_string)
+        except ValueError:
+            return lowered_key_string.startswith("<code")
+        else:
+            return True
