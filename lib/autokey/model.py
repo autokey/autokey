@@ -506,9 +506,6 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         #del self.phrases[phrase.description]
         self.items.remove(item)
         
-    def set_modes(self, modes):
-        self.modes = modes
-        
     def check_input(self, buffer, windowInfo):
         if TriggerMode.ABBREVIATION in self.modes:
             return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(windowInfo)
