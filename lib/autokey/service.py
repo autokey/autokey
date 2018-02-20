@@ -25,7 +25,6 @@ import collections
 from autokey import common
 from autokey.iomediator_Key import Key
 from autokey.iomediator import IoMediator
-from autokey.configmanager import *  # TODO: Replace with explicit import
 if common.USING_QT:
     from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
     from PyKDE4.kdecore import i18n
@@ -352,9 +351,9 @@ class Service:
 
     def __haveMatch(self, data):
         folderMatch, itemMatches = data
-        if folder is not None:
+        if folderMatch is not None:
             return True
-        if len(items) > 0:
+        if len(itemMatches) > 0:
             return True
 
         return False

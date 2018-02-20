@@ -36,12 +36,12 @@ from PyKDE4.kdeui import KMessageBox, KApplication
 from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
 from PyQt4.QtGui import QCursor
 
+
 from . import service, monitor
 from .qtui.notifier import Notifier
 from .qtui.popupmenu import PopupMenu
 from .qtui.configwindow import ConfigWindow
-from .configmanager import *  # TODO: Replace with explicit import
-from .common import *  # TODO: Replace with explicit import
+from . import configmanager as cm
 
 PROGRAM_NAME = ki18n("AutoKey")
 DESCRIPTION = ki18n("Desktop automation utility")
@@ -60,8 +60,8 @@ class Application:
 
     def __init__(self):
 
-        aboutData = KAboutData(APP_NAME, CATALOG, PROGRAM_NAME, VERSION, DESCRIPTION,
-                                    LICENSE, COPYRIGHT, TEXT, HOMEPAGE, BUG_EMAIL)
+        aboutData = KAboutData(common.APP_NAME, common.CATALOG, PROGRAM_NAME, common.VERSION, DESCRIPTION,
+                                    LICENSE, COPYRIGHT, TEXT, common.HOMEPAGE, common.BUG_EMAIL)
 
         aboutData.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
         aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
@@ -76,19 +76,18 @@ class Application:
         KCmdLineArgs.addCmdLineOptions(options)
         args = KCmdLineArgs.parsedArgs()
 
-
         self.app = KApplication()
 
         try:
             # Create configuration directory
-            if not os.path.exists(CONFIG_DIR):
-                os.makedirs(CONFIG_DIR)
+            if not os.path.exists(common.CONFIG_DIR):
+                os.makedirs(common.CONFIG_DIR)
             # Create data directory (for log file)
-            if not os.path.exists(DATA_DIR):
-                os.makedirs(DATA_DIR)
+            if not os.path.exists(common.DATA_DIR):
+                os.makedirs(common.DATA_DIR)
             # Create run directory (for lock file)
-            if not os.path.exists(RUN_DIR):
-                os.makedirs(RUN_DIR)
+            if not os.path.exists(common.RUN_DIR):
+                os.makedirs(common.RUN_DIR)
 
             # Initialise logger
             rootLogger = logging.getLogger()
@@ -97,11 +96,11 @@ class Application:
             if args.isSet("verbose"):
                 handler = logging.StreamHandler(sys.stdout)
             else:
-                handler = logging.handlers.RotatingFileHandler(LOG_FILE,
-                                        maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
+                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
+                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
                 handler.setLevel(logging.INFO)
 
-            handler.setFormatter(logging.Formatter(LOG_FORMAT))
+            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
             rootLogger.addHandler(handler)
 
             if self.__verifyNotRunning():
@@ -115,13 +114,15 @@ class Application:
             sys.exit(1)
 
     def __createLockFile(self):
-        f = open(LOCK_FILE, 'w')
+        # TODO: with-statement
+        f = open(common.LOCK_FILE, 'w')
         f.write(str(os.getpid()))
         f.close()
 
     def __verifyNotRunning(self):
-        if os.path.exists(LOCK_FILE):
-            f = open(LOCK_FILE, 'r')
+        if os.path.exists(common.LOCK_FILE):
+            # TODO: with-statement
+            f = open(common.LOCK_FILE, 'r')
             pid = f.read()
             f.close()
 
@@ -149,7 +150,7 @@ class Application:
     def initialise(self, configure):
         logging.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
-        self.configManager = get_config_manager(self)
+        self.configManager = cm.get_config_manager(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
 
@@ -172,8 +173,8 @@ class Application:
         dbus.mainloop.qt.DBusQtMainLoop(set_as_default=True)
         self.dbusService = common.AppService(self)
 
-        if ConfigManager.SETTINGS[IS_FIRST_RUN] or configure:
-            ConfigManager.SETTINGS[IS_FIRST_RUN] = False
+        if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] or configure:
+            cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
             self.show_configure()
 
         self.handler = CallbackEventHandler()
@@ -242,7 +243,7 @@ class Application:
         self.service.shutdown()
         self.monitor.stop()
         self.app.quit()
-        os.remove(LOCK_FILE)
+        os.remove(common.LOCK_FILE)
         logging.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):

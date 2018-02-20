@@ -21,7 +21,7 @@ from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QSystemTrayIcon
 
 from . import popupmenu
-from ..configmanager import *
+from .. import configmanager as cm
 
 TOOLTIP_RUNNING = ki18n("AutoKey - running")
 TOOLTIP_PAUSED = ki18n("AutoKey - paused")
@@ -32,17 +32,17 @@ class Notifier:
         self.app = app
         self.configManager = app.configManager
         
-        self.icon = KSystemTrayIcon(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+        self.icon = KSystemTrayIcon(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON])
         self.icon.connect(self.icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.on_activate)
 
         self.build_menu()
         self.update_tool_tip()
 
-        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             self.icon.show()
                         
     def update_tool_tip(self):
-        if ConfigManager.SETTINGS[SERVICE_RUNNING]:
+        if cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING]:
             self.icon.setToolTip(TOOLTIP_RUNNING.toString())
             self.toggleAction.setChecked(True)
         else:
@@ -50,7 +50,7 @@ class Notifier:
             self.toggleAction.setChecked(False)
             
     def build_menu(self):
-        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             # Get phrase folders to add to main menu
             folders = []
             items = []
@@ -80,11 +80,11 @@ class Notifier:
             self.icon.setContextMenu(menu)
 
     def update_visible_status(self):
-        self.icon.setVisible(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
+        self.icon.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
         self.build_menu()
 
     def hide_icon(self):
-        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             self.icon.hide()
 
     def notify_error(self, message):
@@ -113,4 +113,4 @@ class Notifier:
             
     def on_hide_icon(self):
         self.icon.hide()
-        ConfigManager.SETTINGS[SHOW_TRAY_ICON] = False
+        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = False

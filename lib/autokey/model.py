@@ -20,8 +20,10 @@ import os
 import os.path
 import glob
 import logging
+import json
+import shutil
 
-from .configmanager import *  # TODO: Replace with explicit imports
+from . import configmanager as cm
 from .iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
 from .scripting_Store import Store
 
@@ -343,8 +345,8 @@ class AbstractHotkey(AbstractWindowFilter):
             ret += key
 
         return ret
-    
-        
+
+
 class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Manages a collection of subfolders/phrases/scripts, which may be associated 
@@ -371,7 +373,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if self.parent is not None:
             self.path = get_safe_path(self.parent.path, baseName)
         else:
-            self.path = get_safe_path(CONFIG_DEFAULT_FOLDER, baseName)
+            self.path = get_safe_path(cm.CONFIG_DEFAULT_FOLDER, baseName)
     
     def persist(self):
         if self.path is None:
@@ -1045,7 +1047,6 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             backspaces = self.parent.get_backspace_count(buffer)
             
         return backspaces, string
-        
 
     def should_prompt(self, buffer):
         return self.prompt

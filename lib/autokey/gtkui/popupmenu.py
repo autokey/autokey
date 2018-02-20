@@ -18,8 +18,7 @@
 import time, logging
 from gi.repository import Gtk, Gdk
 
-from ..configmanager import *
-from ..model import Folder # TODO remove later
+from .. import configmanager as cm
 
 _logger = logging.getLogger("phrase-menu")
 
@@ -30,7 +29,7 @@ class PopupMenu(Gtk.Menu):
 
     def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
         Gtk.Menu.__init__(self)
-        #self.set_take_focus(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        #self.set_take_focus(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         if items is None:
             items = []
         if folders is None:
@@ -38,7 +37,7 @@ class PopupMenu(Gtk.Menu):
         self.__i = 1
         self.service = service
         
-        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -47,7 +46,7 @@ class PopupMenu(Gtk.Menu):
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
-        if ConfigManager.SETTINGS[TRIGGER_BY_INITIAL]:
+        if cm.ConfigManager.SETTINGS[cm.TRIGGER_BY_INITIAL]:
             _logger.debug("Triggering menu item by first initial")
             self.triggerInitial = 1
         else:
@@ -55,7 +54,7 @@ class PopupMenu(Gtk.Menu):
             self.triggerInitial = 0
 
 
-        if len(folders) == 1 and len(items) == 0 and onDesktop:
+        if len(folders) == 1 and not items and onDesktop:
             # Only one folder - create menu with just its folders and items
             for folder in folders[0].folders:
                 menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
@@ -84,7 +83,7 @@ class PopupMenu(Gtk.Menu):
         self.show_all()
         
     def __getMnemonic(self, desc, onDesktop):
-        if 1 < 10 and '_' not in desc and onDesktop:
+        if 1 < 10 and '_' not in desc and onDesktop:  # TODO: if 1 < 10 ??
             if self.triggerInitial:
                 ret = str(desc)
             else:
@@ -107,7 +106,7 @@ class PopupMenu(Gtk.Menu):
         
     def __addItemsToSelf(self, items, service, onDesktop):
         # Create phrase section
-        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))
@@ -124,35 +123,3 @@ class PopupMenu(Gtk.Menu):
             
     def __itemSelected(self, widget, item):
         self.service.item_selected(item)
-
-# Testing stuff - remove later ----
-
-class MockPhrase:
-
-    def __init__(self, description):
-        self.description = description
-
-
-class MockExpansionService:
-
-    def phrase_selected(self, event, phrase):
-        print(phrase.description)
-
-
-if __name__ == "__main__":
-    Gdk.threads_init()
-    
-    myFolder = PhraseFolder("Some phrases")
-    myFolder.add_phrase(MockPhrase("phrase 1"))
-    myFolder.add_phrase(MockPhrase("phrase 2"))
-    myFolder.add_phrase(MockPhrase("phrase 3"))
-
-    myPhrases = []
-    myPhrases.append(MockPhrase("phrase 1"))
-    myPhrases.append(MockPhrase("phrase 2"))
-    myPhrases.append(MockPhrase("phrase 3"))
-
-    menu = PhraseMenu(MockExpansionService(), [myFolder], myPhrases)
-    menu.show_on_desktop()
-    
-    Gtk.main()

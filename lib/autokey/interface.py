@@ -619,7 +619,7 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         # Determine if workaround is needed
-        if not ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+        if not cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND]:
             self.__checkWorkaroundNeeded()
 
         # First find out if any chars need remapping
@@ -896,7 +896,7 @@ class XInterfaceBase(threading.Thread):
         return None
 
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
-        if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
+        if cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
@@ -1136,7 +1136,7 @@ class AtSpiInterface(XInterfaceBase):
 from .iomediator_constants import MODIFIERS
 from .iomediator_Key import Key
 # from .iomediator import Key, MODIFIERS
-from .configmanager import *
+from . import configmanager as cm
 
 XK.load_keysym_group('xkb')
 
