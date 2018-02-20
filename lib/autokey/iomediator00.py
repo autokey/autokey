@@ -118,15 +118,13 @@ class IoMediator(threading.Thread):
         
     # Methods for expansion service ----
 
-    def send_string(self, string):
+    def send_string(self, string: str):
         """
         Sends the given string for output.
         """
-        if len(string) == 0:
+        if not string:
             return
 
-        k = Key()
-        
         string = string.replace('\n', "<enter>")
         string = string.replace('\t', "<tab>")
         
@@ -135,14 +133,14 @@ class IoMediator(threading.Thread):
         modifiers = []            
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
-                if k.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
                     # Section is a modifier application (modifier followed by '+')
                     modifiers.append(section[:-1])
                     
                 else:
                     if len(modifiers) > 0:
                         # Modifiers ready for application - send modified key
-                        if k.is_key(section):
+                        if Key.is_key(section):
                             self.interface.send_modified_key(section, modifiers)
                             modifiers = []
                         else:
@@ -151,8 +149,8 @@ class IoMediator(threading.Thread):
                                 self.interface.send_string(section[1:])
                             modifiers = []
                     else:
-                        # Normal string/key operation                    
-                        if k.is_key(section):
+                        # Normal string/key operation
+                        if Key.is_key(section):
                             self.interface.send_key(section)
                         else:
                             self.interface.send_string(section)
@@ -166,10 +164,9 @@ class IoMediator(threading.Thread):
         
     def remove_string(self, string):
         backspaces = -1 # Start from -1 to discount the backspace already pressed by the user
-        k = Key()
         
         for section in KEY_SPLIT_RE.split(string):
-            if k.is_key(section):
+            if Key.is_key(section):
                 backspaces += 1
             else:
                 backspaces += len(section)

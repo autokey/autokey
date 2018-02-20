@@ -869,9 +869,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     break
             
             if not foundNavigationKey:
-                k = Key()
                 for section in KEY_SPLIT_RE.split(secondpart):
-                    if not k.is_key(section) or section in [' ', '\n']:
+                    if not Key.is_key(section) or section in [' ', '\n']:
                         expansion.lefts += len(section)
             
             expansion.string = firstpart + secondpart
