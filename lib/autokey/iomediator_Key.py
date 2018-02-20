@@ -1,6 +1,7 @@
 # Key codes enumeration
 import enum
 
+
 @enum.unique
 class Key(str, enum.Enum):
 

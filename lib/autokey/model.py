@@ -32,18 +32,22 @@ DEFAULT_WORDCHAR_REGEX = '[\w]'
 JSON_FILE_PATTERN = "%s/.%s.json"
 SPACES_RE = re.compile(r"^ | $")
 
+
 def make_wordchar_re(wordChars):
     return "[^%s]" % wordChars
 
+
 def extract_wordchars(regex):
     return regex[2:-1]
+
 
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
         return jsonData[key]
     else:
         return default
-    
+
+
 def get_safe_path(basePath, name, ext=""):
     name = SPACES_RE.sub('_', name)
     safeName = ''.join([char for char in name if char.isalnum() or char in "_ -."])
@@ -63,6 +67,7 @@ def get_safe_path(basePath, name, ext=""):
         n += 1
         
     return path
+
 
 class AbstractAbbreviation:
     """
@@ -285,10 +290,8 @@ class AbstractWindowFilter:
             return r.match(interface.str_or_bytes_to_str(windowInfo[0])) or r.match(windowInfo[1])
         else:
             return True
-            
-          
-            
-            
+
+
 class AbstractHotkey(AbstractWindowFilter):
     
     def __init__(self):
@@ -854,7 +857,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def parsePositionTokens(self, expansion):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
-        if CURSOR_POSITION_TOKEN in expansion.string:
+        if CURSOR_POSITION_TOKEN in expansion.string:  # TODO: Undefined local variable?
             firstpart, secondpart = expansion.string.split(CURSOR_POSITION_TOKEN)
             foundNavigationKey = False
             
