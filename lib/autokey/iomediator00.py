@@ -6,7 +6,7 @@ import logging
 
 from .configmanager import ConfigManager
 from .configmanager_constants import INTERFACE_TYPE
-from .iomediator_Key import Key
+from .iomediator.key import Key
 from .iomediator.constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 
 from .interface import XRecordInterface, AtSpiInterface

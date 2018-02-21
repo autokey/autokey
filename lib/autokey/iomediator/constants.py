@@ -1,6 +1,6 @@
 import re
 
-from ..iomediator_Key import Key
+from .key import Key
 
 X_RECORD_INTERFACE = "XRecord"
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")

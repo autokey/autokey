@@ -20,7 +20,7 @@ import traceback
 import collections
 
 from . import common
-from .iomediator_Key import Key
+from .iomediator.key import Key
 from .iomediator00 import IoMediator
 if common.USING_QT:
     from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import

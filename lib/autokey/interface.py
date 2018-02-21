@@ -1131,8 +1131,7 @@ class AtSpiInterface(XInterfaceBase):
 
 
 from .iomediator.constants import MODIFIERS
-from .iomediator_Key import Key
-# from .iomediator import Key, MODIFIERS
+from .iomediator.key import Key
 from . import configmanager as cm
 
 XK.load_keysym_group('xkb')

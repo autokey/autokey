@@ -2,7 +2,7 @@ import datetime
 from abc import abstractmethod
 
 from .iomediator.constants import KEY_SPLIT_RE
-from .iomediator_Key import Key
+from .iomediator.key import Key
 from . import common
 
 if common.USING_QT:
