@@ -18,7 +18,7 @@
 import time
 import threading
 
-from .iomediator00 import IoMediator
+from autokey.iomediator00 import IoMediator
 
 SEND_LOCK = threading.Lock()
 
