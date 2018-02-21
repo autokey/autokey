@@ -26,7 +26,8 @@ from PyQt4.QtCore import Qt
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
-from .. import model, iomediator, iomediator00
+from .. import model, iomediator
+from ..iomediator import iomediator00
 from ..iomediator.key import Key
 
 WORD_CHAR_OPTIONS = {

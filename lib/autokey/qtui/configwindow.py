@@ -30,7 +30,7 @@ API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.tx
 from .dialogs import *
 from .settingsdialog import SettingsDialog
 from ..configmanager import *
-from ..iomediator00 import Recorder
+from ..iomediator.iomediator00 import Recorder
 from .. import model
 
 PROBLEM_MSG_PRIMARY = ki18n("Some problems were found")

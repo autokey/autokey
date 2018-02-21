@@ -4,12 +4,12 @@ import threading
 import queue
 import logging
 
-from .configmanager import ConfigManager
-from .configmanager_constants import INTERFACE_TYPE
-from .iomediator.key import Key
-from .iomediator.constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from ..configmanager import ConfigManager
+from ..configmanager_constants import INTERFACE_TYPE
+from .key import Key
+from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 
-from .interface import XRecordInterface, AtSpiInterface
+from ..interface import XRecordInterface, AtSpiInterface
 
 CURRENT_INTERFACE = None
 _logger = logging.getLogger("iomediator")

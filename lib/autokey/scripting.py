@@ -20,8 +20,8 @@ import threading
 import time
 import re
 
-from . import common, model, iomediator00
-
+from . import common, model
+from .iomediator import iomediator00
 
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
