@@ -17,6 +17,6 @@
 IoMediator public interface
 """
 
-from .windowgrabber import WindowGrabber
+from ._windowgrabber import WindowGrabber
 from ._waiter import Waiter
 from ._keygrabber import Recorder, KeyGrabber
