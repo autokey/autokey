@@ -18,3 +18,4 @@ IoMediator public interface
 """
 
 from .windowgrabber import WindowGrabber
+from ._waiter import Waiter
