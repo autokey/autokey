@@ -15,21 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .iomediator_constants import X_RECORD_INTERFACE
-ATSPI_INTERFACE = "AT-SPI"
-
-INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
-# CURRENT_INTERFACE = None
-
 import time
 import threading
 
-# MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
-# HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
+from .iomediator00 import IoMediator
 
 SEND_LOCK = threading.Lock()
-
-from .iomediator00 import IoMediator
 
 
 class WindowGrabber:
