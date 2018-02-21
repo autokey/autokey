@@ -21,7 +21,7 @@ import collections
 
 from . import common
 from .iomediator.key import Key
-from .iomediator.iomediator00 import IoMediator
+from .iomediator import IoMediator
 if common.USING_QT:
     from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
     from PyKDE4.kdecore import i18n

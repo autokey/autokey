@@ -1,6 +1,6 @@
 import threading
 
-from .iomediator00 import IoMediator
+from ._iomediator import IoMediator
 
 
 class Waiter:

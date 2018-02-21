@@ -2,7 +2,7 @@ import datetime
 import time
 
 from .constants import MODIFIERS
-from .iomediator00 import IoMediator, CURRENT_INTERFACE
+from ._iomediator import IoMediator, CURRENT_INTERFACE
 from .key import Key
 
 

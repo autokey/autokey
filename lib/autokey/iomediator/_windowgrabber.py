@@ -18,7 +18,7 @@
 import time
 import threading
 
-from .iomediator00 import IoMediator
+from ._iomediator import IoMediator
 
 SEND_LOCK = threading.Lock()  # TODO: This is never accessed anywhere. Does creating this lock do anything?
 
