@@ -53,9 +53,12 @@ class IoMediator(threading.Thread):
         CURRENT_INTERFACE = self.interface
         
     def shutdown(self):
+        _logger.debug("IoMediator shutting down")
         self.interface.cancel()
         self.queue.put_nowait((None, None, None))
+        _logger.debug("Waiting for IoMediator thread to end")
         self.join()
+        _logger.debug("IoMediator shutdown completed")
 
     # Callback methods for Interfaces ----
 

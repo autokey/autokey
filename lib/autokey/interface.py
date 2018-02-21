@@ -23,6 +23,7 @@ import select
 import logging
 import queue
 import subprocess
+import time
 
 from autokey import common
 
@@ -817,6 +818,7 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
     def __flushEvents(self):
+        logger.debug("__flushEvents: Entering event loop.")
         while True:
             try:
                 readable, w, e = select.select([self.localDisplay], [], [], 1)
@@ -838,8 +840,10 @@ class XInterfaceBase(threading.Thread):
 
                 if self.shutdown:
                     break
-            except:
+            except Exception:
+                logger.exception("__flushEvents: Some exception occured:")
                 pass
+        logger.debug("__flushEvents: Left event loop.")
 
     def handle_keypress(self, keyCode):
         self.__enqueue(self.__handleKeyPress, keyCode)
@@ -1032,6 +1036,7 @@ class XInterfaceBase(threading.Thread):
     def cancel(self):
         self.queue.put_nowait((None, None))
         self.shutdown = True
+        logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
         self.listenerThread.join()
         self.eventThread.join()
         self.localDisplay.flush()
