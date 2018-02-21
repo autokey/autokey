@@ -326,7 +326,7 @@ class CallbackEventHandler(QObject):
             try:
                 callback(*args)
             except Exception:
-                logging.warning("callback event failed: %r %r", callback, args, exc_info=True)
+                logging.exception("callback event failed: %r %r", callback, args, exc_info=True)
 
     def postEventWithCallback(self, callback, *args):
         self.queue.put((callback, args))

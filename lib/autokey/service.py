@@ -206,7 +206,7 @@ class Service:
         try:
             self.configManager.lock.release()
         except:
-            logger.debug("Ignored locking error in handle_keypress")
+            logger.exception("Ignored locking error in handle_keypress")
 
     def run_folder(self, name):
         folder = None

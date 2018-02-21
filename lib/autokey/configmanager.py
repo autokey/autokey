@@ -76,7 +76,7 @@ def get_config_manager(autoKeyApp, hadError=False):
         configManager = ConfigManager(autoKeyApp)
     except Exception as e:
         if hadError or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
-            _logger.error("Error while loading configuration. Cannot recover.")
+            _logger.exception("Error while loading configuration. Cannot recover.")
             raise
 
         _logger.exception("Error while loading configuration. Backup has been restored.")
