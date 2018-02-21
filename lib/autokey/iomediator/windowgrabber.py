@@ -18,9 +18,9 @@
 import time
 import threading
 
-from autokey.iomediator00 import IoMediator
+from ..iomediator00 import IoMediator
 
-SEND_LOCK = threading.Lock()
+SEND_LOCK = threading.Lock()  # TODO: This is never accessed anywhere. Does creating this lock do anything?
 
 
 class WindowGrabber:

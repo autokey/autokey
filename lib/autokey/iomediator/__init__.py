@@ -17,4 +17,4 @@
 IoMediator public interface
 """
 
-from .iomediator import WindowGrabber
+from .windowgrabber import WindowGrabber
