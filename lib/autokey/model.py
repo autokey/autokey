@@ -25,8 +25,8 @@ import shutil
 
 from . import configmanager as cm
 from .iomediator_Key import Key
-from .iomediator_constants import KEY_SPLIT_RE
-from autokey.iomediator_Key import NAVIGATION_KEYS
+from .iomediator.constants import KEY_SPLIT_RE
+from .iomediator_Key import NAVIGATION_KEYS
 from .scripting_Store import Store
 
 _logger = logging.getLogger("model")

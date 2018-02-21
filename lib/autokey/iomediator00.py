@@ -7,13 +7,12 @@ import logging
 from .configmanager import ConfigManager
 from .configmanager_constants import INTERFACE_TYPE
 from .iomediator_Key import Key
-from .iomediator_constants import X_RECORD_INTERFACE, KEY_SPLIT_RE
+from .iomediator.constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 
 from .interface import XRecordInterface, AtSpiInterface
 
 CURRENT_INTERFACE = None
 _logger = logging.getLogger("iomediator")
-from .iomediator_constants import MODIFIERS, HELD_MODIFIERS
 
 
 class IoMediator(threading.Thread):

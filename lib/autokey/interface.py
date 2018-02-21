@@ -1129,7 +1129,8 @@ class AtSpiInterface(XInterfaceBase):
         pyatspi.Registry.pumpQueuedEvents()
         return True
 
-from .iomediator_constants import MODIFIERS
+
+from .iomediator.constants import MODIFIERS
 from .iomediator_Key import Key
 # from .iomediator import Key, MODIFIERS
 from . import configmanager as cm

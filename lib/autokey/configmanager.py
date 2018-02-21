@@ -24,7 +24,7 @@ import threading
 import re
 
 from . import common
-from .iomediator_constants import X_RECORD_INTERFACE
+from .iomediator.constants import X_RECORD_INTERFACE
 
 import json
 

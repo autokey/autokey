@@ -1,7 +1,7 @@
 import datetime
 from abc import abstractmethod
 
-from .iomediator_constants import KEY_SPLIT_RE
+from .iomediator.constants import KEY_SPLIT_RE
 from .iomediator_Key import Key
 from . import common
 
