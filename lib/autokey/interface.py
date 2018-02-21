@@ -25,6 +25,15 @@ import queue
 import subprocess
 import time
 
+# Imported to enable threading in Xlib. See module description. Not an unused import statement.
+import Xlib.threaded as xlib_threaded
+
+# Delete again, as the reference is not needed anymore after the import side-effect has done it’s work.
+# This (hopefully) also prevents automatic code cleanup software from deleting an "unused" import and re-introduce
+# issues.
+del xlib_threaded
+
+
 from autokey import common
 
 if common.USING_QT:
@@ -146,13 +155,15 @@ class XInterfaceBase(threading.Thread):
             
             if method is None and args is None:
                 break
-    
+            elif method is not None and args is None:
+                logger.debug("__eventLoop: Got method {} with None arguments!".format(method))
             try:
                 method(*args)
             except Exception as e:
                 logger.exception("Error in X event loop thread")
-                
+
             self.queue.task_done()
+            logger.debug("__eventLoop: (Approximated) Remaining enqueued events: {}".format(self.queue.qsize()))
     
     def __enqueue(self, method, *args):
         self.queue.put_nowait((method, args))
@@ -1034,7 +1045,9 @@ class XInterfaceBase(threading.Thread):
         return wmclass[0] + '.' + wmclass[1]
     
     def cancel(self):
+        logger.debug("XInterfaceBase: Try to exit event thread.")
         self.queue.put_nowait((None, None))
+        logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
         self.shutdown = True
         logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
         self.listenerThread.join()
