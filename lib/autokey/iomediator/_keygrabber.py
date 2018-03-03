@@ -2,8 +2,10 @@ import datetime
 import time
 
 from .constants import MODIFIERS
-from ._iomediator import IoMediator, CURRENT_INTERFACE
+from ._iomediator import IoMediator
 from .key import Key
+from . import _iomediator
+
 
 
 class KeyGrabber:
@@ -19,17 +21,17 @@ class KeyGrabber:
         # sleep slightly to prevent this
         time.sleep(0.1)
         IoMediator.listeners.append(self)
-        CURRENT_INTERFACE.grab_keyboard()
+        _iomediator.CURRENT_INTERFACE.grab_keyboard()
 
     def handle_keypress(self, rawKey, modifiers, key, *args):
         if not rawKey in MODIFIERS:
             IoMediator.listeners.remove(self)
             self.targetParent.set_key(rawKey, modifiers)
-            CURRENT_INTERFACE.ungrab_keyboard()
+            _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
         IoMediator.listeners.remove(self)
-        CURRENT_INTERFACE.ungrab_keyboard()
+        _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
         self.targetParent.cancel_grab()
 
 
@@ -57,7 +59,7 @@ class Recorder(KeyGrabber):
         self.startTime = time.time()
         self.delay = 0
         self.delayFinished = True
-        CURRENT_INTERFACE.grab_keyboard()
+        _iomediator.CURRENT_INTERFACE.grab_keyboard()
 
 
     def stop(self):
@@ -68,7 +70,7 @@ class Recorder(KeyGrabber):
             self.insideKeys = False
 
     def stop_withgrab(self):
-        CURRENT_INTERFACE.ungrab_keyboard()
+        _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
         if self in IoMediator.listeners:
             IoMediator.listeners.remove(self)
             if self.insideKeys:

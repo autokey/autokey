@@ -18,6 +18,8 @@
 
 import traceback
 import collections
+import time
+import logging
 
 from . import common
 from .iomediator.key import Key
@@ -30,7 +32,8 @@ else:
 from .macro import MacroManager
 
 from . import scripting, model, scripting_Store, scripting_highlevel
-
+from .configmanager import ConfigManager, SERVICE_RUNNING, SCRIPT_GLOBALS, save_config, UNDO_USING_BACKSPACE
+import threading
 logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150

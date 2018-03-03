@@ -49,6 +49,8 @@ else:
         HAS_ATSPI = True
     except ImportError:
         HAS_ATSPI = False
+    except ValueError:
+        HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
 try:

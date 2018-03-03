@@ -27,6 +27,7 @@ class IoMediator(threading.Thread):
     
     def __init__(self, service):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
+
         self.queue = queue.Queue()
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
@@ -51,6 +52,7 @@ class IoMediator(threading.Thread):
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
+        _logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
         
     def shutdown(self):
         _logger.debug("IoMediator shutting down")

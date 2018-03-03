@@ -32,7 +32,7 @@ locale.setlocale(locale.LC_ALL, '')
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from .. import model, iomediator
-from ..iomediator import key
+from ..iomediator.key import Key
 # from . import configwindow
 from .configwindow0 import get_ui
 
@@ -220,7 +220,7 @@ class AbbrSettingsDialog(DialogBase):
         ret = []
         model = self.abbrList.get_model()
         i = iter(model)
-        
+        # TODO: list comprehension or for loop, instead of manual loop
         try:
             while True:
                 text = model.get_value(i.next().iter, 0)
@@ -333,12 +333,12 @@ class HotkeySettingsDialog(DialogBase):
         self.targetItem = item
         self.setButton.set_sensitive(True)
         if model.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.set_active(key.Key.CONTROL in item.modifiers)
-            self.altButton.set_active(key.Key.ALT in item.modifiers)
-            self.shiftButton.set_active(key.Key.SHIFT in item.modifiers)
-            self.superButton.set_active(key.Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(key.Key.HYPER in item.modifiers)
-            self.metaButton.set_active(key.Key.META in item.modifiers)
+            self.controlButton.set_active(Key.CONTROL in item.modifiers)
+            self.altButton.set_active(Key.ALT in item.modifiers)
+            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
+            self.superButton.set_active(Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(Key.HYPER in item.modifiers)
+            self.metaButton.set_active(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -386,12 +386,12 @@ class HotkeySettingsDialog(DialogBase):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.controlButton.set_active(key.Key.CONTROL in modifiers)
-        self.altButton.set_active(key.Key.ALT in modifiers)
-        self.shiftButton.set_active(key.Key.SHIFT in modifiers)
-        self.superButton.set_active(key.Key.SUPER in modifiers)
-        self.hyperButton.set_active(key.Key.HYPER in modifiers)
-        self.metaButton.set_active(key.Key.META in modifiers)
+        self.controlButton.set_active(Key.CONTROL in modifiers)
+        self.altButton.set_active(Key.ALT in modifiers)
+        self.shiftButton.set_active(Key.SHIFT in modifiers)
+        self.superButton.set_active(Key.SUPER in modifiers)
+        self.hyperButton.set_active(Key.HYPER in modifiers)
+        self.metaButton.set_active(Key.META in modifiers)
         
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -405,17 +405,17 @@ class HotkeySettingsDialog(DialogBase):
     def build_modifiers(self):
         modifiers = []
         if self.controlButton.get_active():
-            modifiers.append(key.Key.CONTROL)
+            modifiers.append(Key.CONTROL)
         if self.altButton.get_active():
-            modifiers.append(key.Key.ALT)
+            modifiers.append(Key.ALT)
         if self.shiftButton.get_active():
-            modifiers.append(key.Key.SHIFT)
+            modifiers.append(Key.SHIFT)
         if self.superButton.get_active():
-            modifiers.append(key.Key.SUPER)
+            modifiers.append(Key.SUPER)
         if self.hyperButton.get_active():
-            modifiers.append(key.Key.HYPER)
+            modifiers.append(Key.HYPER)
         if self.metaButton.get_active():
-            modifiers.append(key.Key.META)
+            modifiers.append(Key.META)
         
         modifiers.sort()
         return modifiers
@@ -424,15 +424,15 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
         
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
+        if not validate(self.key is not None, _("You must specify a key for the hot"),
                             None, self.ui): return False
         
         return True
         
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
-        self.keyLabel.set_text(_("Press a key..."))
-        self.grabber = key.KeyGrabber(self)
+        self.keyLabel.set_text(_("Press a .."))
+        self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
         
 
@@ -441,12 +441,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item):
         self.targetItem = item
         if item.enabled:
-            self.controlButton.set_active(key.Key.CONTROL in item.modifiers)
-            self.altButton.set_active(key.Key.ALT in item.modifiers)
-            self.shiftButton.set_active(key.Key.SHIFT in item.modifiers)
-            self.superButton.set_active(key.Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(key.Key.HYPER in item.modifiers)
-            self.metaButton.set_active(key.Key.META in item.modifiers)
+            self.controlButton.set_active(Key.CONTROL in item.modifiers)
+            self.altButton.set_active(Key.ALT in item.modifiers)
+            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
+            self.superButton.set_active(Key.SUPER in item.modifiers)
+            self.hyperButton.set_active(Key.HYPER in item.modifiers)
+            self.metaButton.set_active(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -485,7 +485,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         if not validate(unique, _("The hotkey is already in use for %s.") % conflicting, None,
                             self.ui): return False
 
-        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
+        if not validate(self.key is not None, _("You must specify a key for the hot"),
                             None, self.ui): return False
         
         return True        
