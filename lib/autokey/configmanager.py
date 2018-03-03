@@ -757,6 +757,7 @@ class GlobalHotkey(model.AbstractHotkey):
         self.closure = closure
         
     def check_hotkey(self, modifiers, key, windowTitle):
+        # TODO: Doesn’t this always return False? (as long as no exceptions are thrown)
         if model.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
             _logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
             self.closure()
