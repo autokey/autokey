@@ -236,7 +236,7 @@ This script does the following:
 #### Save As dialog script ####
 
 
-	retCode, fName = dialog.open_file(title='Overwrite existing file')
+	retCode, fName = dialog.open_file(title='Save As')
 
 	if retCode:
 		myMessage = 'Dialog exit code was: ' + str(retCode)
@@ -245,7 +245,7 @@ This script does the following:
 		width='200') # width is extra zenity parameter. See the zenity manpage for details.
 
 	else:
-		dialog.info_dialog(title='You chose to overwrite file', message=fName)
+		dialog.info_dialog(title='You chose to save file', message=fName)
 
 
 ### Directory Chooser dialog ###
