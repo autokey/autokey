@@ -1,5 +1,8 @@
 # API Examples #
-Currently there are examples for dialogs. Other types of example to follow.
+Currently there are examples for dialogs and windows. Other types of example to follow.
+
+- [Dialogs](#dialogs)
+- [Window](#window)
 
 # Dialogs #
 
@@ -313,3 +316,121 @@ This script does the following:
 		width='200')  # width is extra zenity parameter. See the zenity manpage for details.
 	else:
 		dialog.info_dialog(title='The date you chose was', message=date)
+
+
+
+
+# Window #
+
+- [Get class of active window](#get-class-of-active-window)
+- [Get title of active window](#get-title-of-active-window)
+- [Get window geometry](#get-window-geometry)
+- [Move window to different desktop](#move-window-to-different-desktop)
+- [Resize or move window](#resize-or-move-window) 
+- [Set window property](#set-window-property)
+- [Switch to different desktop](#switch-to-different-desktop)
+- [Wait for window to exist](#wait-for-window-to-exist)
+- [Wait for window to have focus](#wait-for-window-to-have-focus)
+
+
+
+### Get class of active window ###
+
+This script gets the class of the active window and then displays it in an info dialog.
+
+
+#### Get class of active window script ####
+
+	winClass = window.get_active_class()
+	dialog.info_dialog(title='Window class', message=winClass)
+
+
+###  Get title of active window ###
+
+This script gets the title of the active window and then displays it in an info dialog.
+
+
+#### Get title of active window script ####
+
+	winTitle = window.get_active_title()
+	dialog.info_dialog(title='Window title', message=winTitle)
+
+
+### Get window geometry ###
+
+This script gets the geometry of the active window and then displays an info dialog that shows the values.
+
+
+#### Get window geometry script ####
+
+	winGeometry = 'X-origin: %s\nY-origin: %s\nWidth: %s\nHeight: %s'  %(winXOrigin, winYOrigin, winWidth, winHeight)
+	dialog.info_dialog(title='Window geometry', message=winGeometry)
+
+
+### Move window to different desktop ###
+
+This script moves the 'Unsaved Document' window to desktop three.
+
+
+#### Move window to different desktop script ####
+
+	window.move_to_desktop('Unsaved Document', 3, matchClass=False) # desktop number is an integer. The first desktop is 0.
+
+
+### Set window property ###
+
+This script maximizes horizontally the 'Unsaved Document' window.
+
+
+#### Set window property script ####
+
+	window.set_property('Unsaved Document', 'add','maximized_horz', matchClass=False)
+
+
+### Switch to different desktop ###
+
+This script switches focus to desktop two.
+
+
+#### Switch to different desktop script ####
+
+	window.switch_desktop(2) # The first desktop is 0.
+
+
+### Wait for window to exist ###
+
+This script waits up to five seconds for a specified window to exist and then displays an info dialog that shows the exit code.
+
+The exit code is **True*** if the window has focus, **False** if the script times out.
+
+#### Wait for window to exist script ####
+
+	retCode = window.wait_for_exist('Unsaved Document', timeOut=5)
+	myMessage = 'Exit code was: ' + str(retCode)
+	dialog.info_dialog(title='Exit code', message=myMessage)
+
+
+### Wait for window to have focus ###
+
+This script waits five seconds for the Thunderbird window to have focus and then displays an info dialog that shows the exit code. 
+
+The exit code is **True** if the window has focus, **False** if the script times out.
+
+
+#### Wait for window to have focus script ####
+
+	retCode = window.wait_for_focus('.*Thunderbird', timeOut=5)
+	myMessage = 'Exit code was: ' + str(retCode)
+	dialog.info_dialog(title='Exit code', message=myMessage)
+
+
+### Resize or move window ###
+
+This script resizes the 'Unsaved Document' window.
+
+
+#### Resize or move window script ####
+
+	window.resize_move('Unsaved Document', xOrigin=20, yOrigin=20, width=200, height=200, matchClass=False)
+
+
