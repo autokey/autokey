@@ -1,10 +1,17 @@
 # API Examples #
 Currently there are examples for dialogs and windows. Other types of example to follow.
 
+## Introduction ##
+
+The API examples shown here are for AutoKey-GTK. 
+
+The examples show how to use the various API calls that AutoKey provides. 
+
+The example types are as follows:
 - [Dialogs](#dialogs)
 - [Window](#window)
 
-# Dialogs #
+## Dialogs ##
 
 - [Calendar dialog](#calendar-dialog)
 - [Directory Chooser dialog](#directory-chooser-dialog)
@@ -15,13 +22,6 @@ Currently there are examples for dialogs and windows. Other types of example to 
 - [Password input dialog](#password-input-dialog)
 - [Save As dialog](#save-as-dialog)
 - [Single-selection list menu](#single-selection-list-menu)
-
-
-## Introduction ##
-
-The API examples shown here are for AutoKey-GTK. 
-
-The examples show how to use the various API calls that AutoKey provides. 
 
 
 ### Calendar dialog ###
