@@ -1,5 +1,5 @@
 # API Examples #
-Currently there are examples for dialogs and windows. Other types of example to follow.
+Currently there are examples for dialogs, keyboard, and windows. Other types of example to follow.
 
 ## Introduction ##
 
@@ -8,7 +8,9 @@ The API examples shown here are for AutoKey-GTK.
 The examples show how to use the various API calls that AutoKey provides. 
 
 The example types are as follows:
+
 - [Dialogs](#dialogs)
+- [Keyboard](#keyboard)
 - [Window](#window)
 
 ## Dialogs ##
@@ -321,6 +323,116 @@ This script does the following:
 		dialog.info_dialog(title='Your choice was', message=choice)
 
 
+
+  	
+## Keyboard ##
+	
+- [Fake key press](#fake-key-press)	
+- [Press key](#press-key)	
+- [Release key](#releases-key)	
+- [Send key](#send-key)	
+- [Send keys](#send-keys)	
+- [Wait for key press](#wait-for-key-press)	
+
+
+
+
+### Fake key press ###
+
+Fake key presses can be useful to send key presses if an application does not respond to [Send key](#send-key).
+
+This script sends '\<down>' five times.
+
+
+
+#### Fake key press script ###
+
+    keyboard.fake_keypress('<down>', repeat=5**)
+
+
+### Press key ###
+
+**press_key* makes AutoKey hold down a key until it is specifically released. 
+
+This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl>.
+
+[See Release key](#release-key)
+
+#### Press key script ###
+
+
+    keyboard.press_key('<ctrl>')
+    keyboard.send_keys('d', repeat=5)
+    keyboard.release_key('<ctrl>'**)
+
+
+### Release key ###
+
+**release_key** releases a key that has previously been pressed by **press_key**.
+
+See [See Press_key](#press-key)
+
+### Release key script ###
+
+    keyboard.press_key('<ctrl>')
+    keyboard.fake_keypress('d', repeat=5)
+    keyboard.release_key('<ctrl>'**)
+
+### Send key ###
+
+**send_key** sends a single keystroke one or more times.
+
+The script sends 'z' three times.
+
+### Send key script ###
+
+    keyboard.send_key('z',repeat=3)
+
+### Send keys ###
+
+**send_keys** sends a sequence of keystrokes.
+
+The scripts sends 'Hello World!'.
+
+### Send keys ###
+
+    keyboard.send_keys('Hello World!')
+
+
+### Wait for key press ###
+
+This script does the following:
+
+1.  Waits for the user to press \<ctrl>+d.
+
+    The function returns a boolean.
+
+2. Displays an information dialog to show one of the following:
+
+   - The error code, if any, from the **wait_for_keypress** function.
+
+   - A message to say that you have pressed \<ctrl>+d.
+
+You cannot use this function to wait for modifier keys, such as \<ctrl>, on their own
+
+
+### Wait for key press script ###
+
+	retCode = keyboard.wait_for_keypress('d',modifiers=['<ctrl>'],timeOut=5)
+
+	if retCode:
+		myMessage = 'Wait for keypress exit code was: ' + str(retCode)
+		dialog.info_dialog(title='You pressed <ctrl>+d', 
+		message=myMessage, 
+		width='200') # width is extra Zenity parameter.  See the zenity manpage for details.
+	else:
+		myMessage = 'Wait for keypress exit code was: ' + str(retCode)
+		dialog.info_dialog(title='Timeout', message=myMessage)
+
+
+
+
+
 # Window #
 
 - [Get class of active window](#get-class-of-active-window)
@@ -334,7 +446,7 @@ This script does the following:
 - [Wait for window to have focus](#wait-for-window-to-have-focus)
 
 
-
+	
 ### Get class of active window ###
 
 This script gets the class of the active window and then displays it in an info dialog.
@@ -433,6 +545,3 @@ This script resizes the 'Unsaved Document' window.
 #### Resize or move window script ####
 
 	window.resize_move('Unsaved Document', xOrigin=20, yOrigin=20, width=200, height=200, matchClass=False)
-
-
-
