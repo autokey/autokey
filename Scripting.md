@@ -2,7 +2,7 @@
 
 This page contains some script examples to demonstrate the capabilities of AutoKey's scripting service.
 
-For specific details on the custom functions available to AutoKey scripts, see the API reference.
+For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
 Porting your scripts from Python 2
 ==================================
