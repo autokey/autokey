@@ -118,7 +118,7 @@ Feel free to use the scripts presented for your own purpose. However, if you sig
 
 All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
 
-For specific details on the custom functions available to AutoKey scripts, see the [API reference](http://autokey.googlecode.com/svn/trunk/doc/scripting/index.html).
+For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
 ### Choose Browser On Link Selection ###
 
