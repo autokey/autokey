@@ -52,7 +52,11 @@ This script does the following:
 		myMessage = 'Dialog exit code was: ' + str(retCode)
 		dialog.info_dialog(title='You cancelled the dialog', 
 		message=myMessage, 
-		width='200')  # width is extra zenity parameter. See the zenity manpage for details.
+		width='200')  
+                # width is extra zenity parameter. See the zenity manpage for details.
+                # this is our fancy faux way of saying:  THIS code BREAKS. it is worthless.
+
+
 	else:
 		dialog.info_dialog(title='The date you chose was', message=date)
 
