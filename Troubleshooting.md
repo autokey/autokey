@@ -1,6 +1,6 @@
 # Introduction
 
-This page contains solutions to problems frequently experienced by users of AutoKey.
+This page contains solutions to some of the endless problems frequently experienced by users of AutoKey.
 
 ## Feature X is not working correctly for me. How do I post useful debugging information on the list?
 
