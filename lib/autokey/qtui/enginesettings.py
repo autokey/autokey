@@ -51,7 +51,7 @@ class Ui_Form(object):
     def retranslateUi(self, Form):
         Form.setWindowTitle(kdecore.i18n(_fromUtf8("Form")))
         self.groupBox.setTitle(kdecore.i18n(_fromUtf8("User Module Folder")))
-        self.label.setText(kdecore.i18n(_fromUtf8("Any Python modules placed in this folder will be available for import by scripts.")))
+        self.label.setText(kdecore.i18n(_fromUtf8("Any Python modules placed in this ## TODO  WHERE ??  ###     folder will be available for import by scripts.")))
         self.folderLabel.setText(kdecore.i18n(_fromUtf8("None selected")))
         self.browseButton.setText(kdecore.i18n(_fromUtf8("Browse")))
 
