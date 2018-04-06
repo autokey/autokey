@@ -25,6 +25,8 @@ Usually though, it creates a lot of stress during install which needs tons of ma
 trial / error iterations, since deployment of python even after 20 yrs of existence is pretty
 much a catastophe.
 
+The second you start to modify AK even trivially, it will break right away.
+
 ### Some examples:
 
 There are certain things you type over and over; your address, your company name or your custom signature. AutoKey's abbreviations can automatically expand a few characters into any of your commonly used text blocks. For programmers, AutoKey's text insertion features can let you easily insert code tags, dividers, etc. at the cursor position.
