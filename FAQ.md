@@ -11,6 +11,8 @@ On Debian or Ubuntu you can get the dependencies by typing:
 
 Note that if you installed AutoKey from a .deb or using apt-get, these dependencies will automatically be installed for you.
 
+It is quite possible that you get more runtime errors requiring you to further add packs manually.
+
 ### What is the license of AutoKey?
 AutoKey is published under GNU GPL v3 license.
 
