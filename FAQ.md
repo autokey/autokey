@@ -1,3 +1,9 @@
+### What quality is Autokey?
+
+AK is very low pre-alpha ware. You can build + run pristine master sources,
+but it will break even during a full rebuild with uic, let alone after modding.
+
+
 ### What are the dependency packages for AutoKey?
 On Debian or Ubuntu you can get the dependencies by typing:
 
