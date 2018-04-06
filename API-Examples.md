@@ -139,7 +139,7 @@ This script does the following:
 		dialog.info_dialog(title='You cancelled the dialog', 
 		message=myMessage, width='200') # width is extra zenity parameter 
 	else:
-		dialog.info_dialog(title='The string you entered', message=userInput**
+		dialog.info_dialog(title='The string you entered', message=userInput)  # **
 
 
 ### Multiple-selection list menu ###
