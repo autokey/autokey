@@ -20,7 +20,7 @@ When you start AutoKey for the first time, it attempts to choose the best possib
 
 ## The AT-SPI device interface option is greyed out/disabled.
 
-To enable this interface, you must have the AT-SPI packages installed and be running a GNOME-based distribution. The AT-SPI interface is a last-ditch option in case the other two options don't work. It only works in certain applications (to be exact, GTK-based applications that have the ATK bridge compiled in).
+To enable this (assistive tech) interface, you must have the AT-SPI packages installed and be running a GNOME-based distribution. The AT-SPI interface is a last-ditch option in case the other two options don't work. It only works in certain applications (to be exact, GTK-based applications that have the ATK bridge compiled in).
 
 To enable it, run the following:
 
@@ -33,6 +33,8 @@ You must then enable accessible technologies via the Gnome Accessibility Setting
 Ensure that the AutoKey EvDev daemon is running by running the following command:
 
 `sudo invoke-rc.d autokey restart`
+
+/etc/init.d/autokey   must contain sth. that makes sense, whatever that may be.
 
 ## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
 
