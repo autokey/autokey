@@ -173,30 +173,30 @@ class ConfigManager:
     CLASS_VERSION = common.VERSION
     
     SETTINGS = {
-                IS_FIRST_RUN :True,
-                SERVICE_RUNNING :True,
-                MENU_TAKES_FOCUS :False,
-                SHOW_TRAY_ICON :True,
-                SORT_BY_USAGE_COUNT :True,
-                #DETECT_UNWANTED_ABBR :False,
+                IS_FIRST_RUN: True,
+                SERVICE_RUNNING: True,
+                MENU_TAKES_FOCUS: False,
+                SHOW_TRAY_ICON: True,
+                SORT_BY_USAGE_COUNT: True,
+                #DETECT_UNWANTED_ABBR: False,
                 PROMPT_TO_SAVE:False,
-                #PREDICTIVE_LENGTH :5,
-                ENABLE_QT4_WORKAROUND :False,
-                INTERFACE_TYPE :X_RECORD_INTERFACE,
-                UNDO_USING_BACKSPACE :True,
-                WINDOW_DEFAULT_SIZE :(600, 400),
-                HPANE_POSITION :150,
-                COLUMN_WIDTHS :[150, 50, 100],
-                SHOW_TOOLBAR :True,
-                NOTIFICATION_ICON :common.ICON_FILE_NOTIFICATION,
-                WORKAROUND_APP_REGEX :".*VirtualBox.*|krdc.Krdc",
-                TRIGGER_BY_INITIAL :False,
+                #PREDICTIVE_LENGTH: 5,
+                ENABLE_QT4_WORKAROUND: False,
+                INTERFACE_TYPE: X_RECORD_INTERFACE,
+                UNDO_USING_BACKSPACE: True,
+                WINDOW_DEFAULT_SIZE: (600, 400),
+                HPANE_POSITION: 150,
+                COLUMN_WIDTHS: [150, 50, 100],
+                SHOW_TOOLBAR: True,
+                NOTIFICATION_ICON: common.ICON_FILE_NOTIFICATION,
+                WORKAROUND_APP_REGEX: ".*VirtualBox.*|krdc.Krdc",
+                TRIGGER_BY_INITIAL: False,
                 # TODO - Future functionality
-                #TRACK_RECENT_ENTRY :True,
-                #RECENT_ENTRY_COUNT :5,
-                #RECENT_ENTRY_MINLENGTH :10,
-                #RECENT_ENTRY_SUGGEST :True
-                SCRIPT_GLOBALS :{}
+                #TRACK_RECENT_ENTRY: True,
+                #RECENT_ENTRY_COUNT: 5,
+                #RECENT_ENTRY_MINLENGTH: 10,
+                #RECENT_ENTRY_SUGGEST: True
+                SCRIPT_GLOBALS: {}
                 }
                 
     def __init__(self, app):
