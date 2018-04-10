@@ -20,7 +20,8 @@ from PyQt4 import uic
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
-def get_ui_qfile(name: str):
+
+def _get_ui_qfile(name: str):
     """
     Returns an opened, read-only QFile for the given QtDesigner UI file name. Expects a plain name like "centralwidget".
     The file ending and resource path is added automatically.
@@ -47,10 +48,11 @@ def load_ui_from_file(name: str):
     :param name:
     :return:
     """
-    ui_file = get_ui_qfile(name)
+    ui_file = _get_ui_qfile(name)
     base_type = uic.loadUiType(ui_file)
     ui_file.close()
     return base_type
+
 
 """
 This renamed function is supposed to be used during class definition to make the intention clear.
