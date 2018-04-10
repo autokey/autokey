@@ -17,12 +17,10 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-#from PyKDE4.kdeui import KApplication, KXmlGuiWindow, KStandardAction, KIcon, KTextEdit, KAction, KStandardShortcut
-from PyKDE4.kdeui import *
+from PyKDE4.kdeui import KDialog
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
 from PyQt4.QtCore import Qt
-
 
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
@@ -52,7 +50,6 @@ def validate(expression, message, widget, parent):
 AbbrSettings = abbrsettings.AbbrSettings
 AbbrListItem = abbrsettings.AbbrListItem
 WORD_CHAR_OPTIONS_ORDERED = abbrsettings.WORD_CHAR_OPTIONS_ORDERED
-
 
 
 class AbbrSettingsDialog(KDialog):
@@ -350,41 +347,8 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         
 from .windowfiltersettings import WindowFilterSettingsDialog
 from .detectdialog import DetectDialog
+from .recorddialog import RecordDialog
 
+        
 
-        
-class RecordSettings(QWidget, recorddialog.Ui_Form):
-    
-    def __init__(self, parent):
-        QWidget.__init__(self, parent)
-        recorddialog.Ui_Form.__init__(self)
-        self.setupUi(self)
-        
-class RecordDialog(KDialog):
-
-    def __init__(self, parent, closure):
-        KDialog.__init__(self, parent)
-        self.widget = RecordSettings(self)
-        self.setMainWidget(self.widget)
-        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
-        self.setPlainCaption(i18n("Record Script"))
-        self.setModal(True)
-        self.closure = closure
-        
-    def get_record_keyboard(self):
-        return self.widget.recKeyboardButton.isChecked()
-        
-    def get_record_mouse(self):
-        return self.widget.recMouseButton.isChecked()
-
-    def get_delay(self):
-        return self.widget.secondsSpinBox.value()
-        
-    def slotButtonClicked(self, button):
-        if button == KDialog.Ok:
-            KDialog.slotButtonClicked(self, button)
-            self.closure(True, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
-        else:
-            self.closure(False, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
-            KDialog.slotButtonClicked(self, button)
 

@@ -4,6 +4,7 @@
       <file alias="hotkeysettings.ui">ui/hotkeysettings.ui</file>
       <file alias="detectdialog.ui">ui/detectdialog.ui</file>
       <file alias="window_filter_settings_dialog.ui">ui/window_filter_settings_dialog.ui</file>
+      <file alias="record_dialog.ui">ui/record_dialog.ui</file>
   </qresource>
 </RCC>
 

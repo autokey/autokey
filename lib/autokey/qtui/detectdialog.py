@@ -18,6 +18,11 @@ from .common import inherits_from_ui_file_with_name
 
 
 class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
+    """
+    The DetectDialog lets the user detect window properties of a chosen window.
+    The dialog shows the window title and window class of the chosen window
+    and lets the user select one of those two options.
+    """
 
     def __init__(self, parent):
         super(DetectDialog, self).__init__(parent)
