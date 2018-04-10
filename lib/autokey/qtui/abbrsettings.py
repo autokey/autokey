@@ -14,7 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4 import QtCore, Qt
+"""
+This module contains the abbreviation settings dialog and used components.
+This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
+
+"""
+
+from PyQt4 import QtCore
 from PyQt4.QtGui import QListWidgetItem
 
 
@@ -23,11 +29,16 @@ from .common import inherits_from_ui_file_with_name, EMPTY_FIELD_REGEX
 
 WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
 
+
 class AbbrListItem(QListWidgetItem):
+    """
+    This is a list item used in the abbreviation QListWidget list.
+    It simply holds a string value i.e. the user defined abbreviation string.
+    """
 
     def __init__(self, text):
         QListWidgetItem.__init__(self, text)
-        self.setFlags(self.flags() | Qt.ItemFlags(Qt.ItemIsEditable))
+        self.setFlags(self.flags() | QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEditable))
 
     def setData(self, role, value):
         if value == "":

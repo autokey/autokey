@@ -24,6 +24,7 @@ from PyQt4.QtGui import *
 from PyQt4.QtCore import Qt
 
 
+
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
@@ -38,9 +39,10 @@ WORD_CHAR_OPTIONS = {
 
 from .common import EMPTY_FIELD_REGEX
 
+
 def validate(expression, message, widget, parent):
     if not expression:
-        QMessageBox.error(parent, message)
+        QMessageBox.critical(parent, message, message)
         if widget is not None:
             widget.setFocus()
     return expression
@@ -48,6 +50,7 @@ def validate(expression, message, widget, parent):
 
 
 AbbrSettings = abbrsettings.AbbrSettings
+AbbrListItem = abbrsettings.AbbrListItem
 WORD_CHAR_OPTIONS_ORDERED = abbrsettings.WORD_CHAR_OPTIONS_ORDERED
 
 
