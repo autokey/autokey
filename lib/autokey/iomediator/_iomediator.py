@@ -40,7 +40,7 @@ class IoMediator(threading.Thread):
                           Key.SHIFT: False,
                           Key.SUPER: False,
                           Key.HYPER: False,
-                          Key.META : False,
+                          Key.META: False,
                           Key.CAPSLOCK: False,
                           Key.NUMLOCK: False
                           }
@@ -87,7 +87,7 @@ class IoMediator(threading.Thread):
         """
         _logger.debug("%s released", modifier)
         # Caps and num lock are handled on key down only
-        if not modifier in (Key.CAPSLOCK, Key.NUMLOCK):
+        if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
     def handle_keypress(self, keyCode, windowName, windowClass):
@@ -132,7 +132,7 @@ class IoMediator(threading.Thread):
         
         _logger.debug("Send via event interface")
         self.__clearModifiers()
-        modifiers = []            
+        modifiers = []
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
                 if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
@@ -163,9 +163,9 @@ class IoMediator(threading.Thread):
         if len(string) > 0:
             _logger.debug("Send via clipboard")
             self.interface.send_string_clipboard(string, pasteCommand)
-        
+
     def remove_string(self, string):
-        backspaces = -1 # Start from -1 to discount the backspace already pressed by the user
+        backspaces = -1  # Start from -1 to discount the backspace already pressed by the user
         
         for section in KEY_SPLIT_RE.split(string):
             if Key.is_key(section):
@@ -174,15 +174,15 @@ class IoMediator(threading.Thread):
                 backspaces += len(section)
                 
         self.send_backspace(backspaces)
-        
+
     def send_key(self, keyName):
         keyName = keyName.replace('\n', "<enter>")
         self.interface.send_key(keyName)
-        
+
     def press_key(self, keyName):
         keyName = keyName.replace('\n', "<enter>")
         self.interface.fake_keydown(keyName)
-        
+
     def release_key(self, keyName):
         keyName = keyName.replace('\n', "<enter>")
         self.interface.fake_keyup(keyName)                
@@ -197,7 +197,7 @@ class IoMediator(threading.Thread):
         """
         for i in range(count):
             self.interface.send_key(Key.LEFT)
-        
+
     def send_right(self, count):
         for i in range(count):
             self.interface.send_key(Key.RIGHT)
@@ -208,20 +208,20 @@ class IoMediator(threading.Thread):
         """        
         for i in range(count):
             self.interface.send_key(Key.UP)
-        
+
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
         for i in range(count):
             self.interface.send_key(Key.BACKSPACE)
-        
+
     def send_mouse_click(self, x, y, button, relative):
         self.interface.send_mouse_click(x, y, button, relative)
-        
+
     def send_mouse_click_relative(self, x, y, button):
         self.interface.send_mouse_click_relative(x, y, button)
-            
+
     def flush(self):
         self.interface.flush()
         
@@ -231,14 +231,14 @@ class IoMediator(threading.Thread):
         self.releasedModifiers = []
         
         for modifier in list(self.modifiers.keys()):
-            if self.modifiers[modifier] and not modifier in (Key.CAPSLOCK, Key.NUMLOCK):
+            if self.modifiers[modifier] and modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
                 self.releasedModifiers.append(modifier)
                 self.interface.release_key(modifier)
-        
+
     def __reapplyModifiers(self):
         for modifier in self.releasedModifiers:
             self.interface.press_key(modifier)
-            
+
     def __getModifiersOn(self):
         modifiers = []
         for modifier in HELD_MODIFIERS:

@@ -7,7 +7,6 @@ from .key import Key
 from . import _iomediator
 
 
-
 class KeyGrabber:
     """
     Keygrabber used by the hotkey settings dialog to grab the key pressed
@@ -24,7 +23,7 @@ class KeyGrabber:
         _iomediator.CURRENT_INTERFACE.grab_keyboard()
 
     def handle_keypress(self, rawKey, modifiers, key, *args):
-        if not rawKey in MODIFIERS:
+        if rawKey not in MODIFIERS:
             IoMediator.listeners.remove(self)
             self.targetParent.set_key(rawKey, modifiers)
             _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
@@ -60,7 +59,6 @@ class Recorder(KeyGrabber):
         self.delay = 0
         self.delayFinished = True
         _iomediator.CURRENT_INTERFACE.grab_keyboard()
-
 
     def stop(self):
         if self in IoMediator.listeners:
@@ -103,7 +101,7 @@ class Recorder(KeyGrabber):
                     (Key.SHIFT in modifiers and len(rawKey) > 1):
                 self.targetParent.append_hotkey(rawKey, modifiers)
 
-            elif not key in MODIFIERS:
+            elif key not in MODIFIERS:
                 self.targetParent.append_key(key)
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):

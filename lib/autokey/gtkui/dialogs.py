@@ -37,18 +37,24 @@ from ..iomediator.key import Key
 from .configwindow0 import get_ui
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
-                     "Space and Enter" : r"[^ \n]",
-                     "Tab" : r"[^\t]"
+                     "All non-word": model.DEFAULT_WORDCHAR_REGEX,
+                     "Space and Enter": r"[^ \n]",
+                     "Tab": r"[^\t]"
                      }
 WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
+
 def validate(expression, message, widget, parent):
     if not expression:
-        dlg = Gtk.MessageDialog(parent, Gtk.DialogFlags.MODAL|Gtk.DialogFlags.DESTROY_WITH_PARENT, Gtk.MessageType.WARNING,
-                                 Gtk.ButtonsType.OK, message)
+        dlg = Gtk.MessageDialog(
+            parent,
+            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+            Gtk.MessageType.WARNING,
+            Gtk.ButtonsType.OK,
+            message
+        )
         dlg.run()
         dlg.destroy()
         if widget is not None:
@@ -141,8 +147,7 @@ class AbbrSettingsDialog(DialogBase):
             self.abbrList.get_selection().select_iter(firstIter)
         else:
             self.removeButton.set_sensitive(False)
-            
-            
+
         self.removeTypedCheckbox.set_active(item.backspace)
         
         self.__resetWordCharCombo()
@@ -234,14 +239,17 @@ class AbbrSettingsDialog(DialogBase):
     def get_abbrs_readable(self):
         abbrs = self.get_abbrs()
         if len(abbrs) == 1:
-            return abbrs[0]#.encode("utf-8")
+            return abbrs[0]
         else:
-            return "[%s]" % ','.join(a for a in abbrs)
-            # return "[%s]" % ','.join([a.encode("utf-8") for a in abbrs])
+            return "[" + ",".join(abbrs) + "]"
             
     def valid(self):
-        if not validate(len(self.get_abbrs()) > 0, _("You must specify at least one abbreviation"),
-                            self.addButton, self.ui): return False
+        if not validate(
+                len(self.get_abbrs()) > 0,
+                _("You must specify at least one abbreviation"),
+                self.addButton,
+                self.ui):
+            return False
 
         return True
     
@@ -277,7 +285,6 @@ class AbbrSettingsDialog(DialogBase):
         else:
             self.abbrList.get_selection().select_iter(model.get_iter_first())
         
-        
     def on_abbrList_cursorchanged(self, widget, data=None):
         pass
     
@@ -302,7 +309,7 @@ class AbbrSettingsDialog(DialogBase):
 class HotkeySettingsDialog(DialogBase):
     
     KEY_MAP = {
-               ' ' : "<space>",
+               ' ': "<space>",
                }
     
     REVERSE_KEY_MAP = {}
@@ -424,14 +431,14 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
         
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hot"),
-                            None, self.ui): return False
+        if not validate(self.key is not None, _("You must specify a key for the hotkey."), None, self.ui):
+            return False
         
         return True
         
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
-        self.keyLabel.set_text(_("Press a .."))
+        self.keyLabel.set_text(_("Press a key..."))
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
         
@@ -459,7 +466,6 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         else:
             self.reset()
         
-        
     def save(self, item):
         # Build modifier list
         modifiers = self.build_modifiers()
@@ -473,20 +479,27 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
-        
     def valid(self):
         configManager = self.configManager
         modifiers = self.build_modifiers()
         regex = self.targetItem.get_applicable_regex()
         pattern = None
-        if regex is not None: pattern = regex.pattern
+        if regex is not None:
+            pattern = regex.pattern
 
         unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
-        if not validate(unique, _("The hotkey is already in use for %s.") % conflicting, None,
-                            self.ui): return False
+        if not validate(unique,
+                        _("The hotkey is already in use for %s.") % conflicting,
+                        None,
+                        self.ui):
+            return False
 
-        if not validate(self.key is not None, _("You must specify a key for the hot"),
-                            None, self.ui): return False
+        if not validate(
+                self.key is not None,
+                _("You must specify a key for the hotkey."),
+                None,
+                self.ui):
+            return False
         
         return True        
 
@@ -520,7 +533,6 @@ class WindowFilterSettingsDialog(DialogBase):
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
             
-            
     def save(self, item):
         item.set_window_titles(self.get_filter_text())
         item.set_filter_recursive(self.get_is_recursive())
@@ -530,12 +542,11 @@ class WindowFilterSettingsDialog(DialogBase):
         self.recursiveButton.set_active(False)
         
     def get_filter_text(self):
-        return self.triggerRegexEntry.get_text()#.decode("utf-8")
+        return self.triggerRegexEntry.get_text()
         
     def get_is_recursive(self):
         return self.recursiveButton.get_active()
         
-    
     def valid(self):
         return True
     
@@ -564,7 +575,6 @@ class WindowFilterSettingsDialog(DialogBase):
         self.grabber.start()
     
         
-
 class DetectDialog(DialogBase):
 
     def __init__(self, parent):
