@@ -424,14 +424,14 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
         
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hot"),
+        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
                             None, self.ui): return False
         
         return True
         
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
-        self.keyLabel.set_text(_("Press a .."))
+        self.keyLabel.set_text(_("Press a key..."))
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
         
@@ -485,7 +485,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         if not validate(unique, _("The hotkey is already in use for %s.") % conflicting, None,
                             self.ui): return False
 
-        if not validate(self.key is not None, _("You must specify a key for the hot"),
+        if not validate(self.key is not None, _("You must specify a key for the hotkey."),
                             None, self.ui): return False
         
         return True        
