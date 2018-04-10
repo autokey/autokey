@@ -16,7 +16,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import threading, logging, os.path, time
+import threading
+import logging
+import os.path
+import time
 
 from pyinotify import WatchManager, Notifier, EventsCodes, ProcessEvent
 
@@ -76,7 +79,6 @@ class FileMonitor(threading.Thread):
         self.event = threading.Event()
         self.setDaemon(True)
         self.watches = []
-        #self.suspended = []
         self.__isSuspended = False
         
     def suspend(self):
@@ -129,4 +131,3 @@ class FileMonitor(threading.Thread):
     def stop(self):
         self.event.set()
         self.join()
-        

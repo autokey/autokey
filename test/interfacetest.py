@@ -1,4 +1,5 @@
-import unittest, time
+import unittest
+import time
 
 from lib import interface, iomediator
 
@@ -66,5 +67,4 @@ class MockService:
     def handle_keypress(self, key):
         self.key = key
 
-    
     

@@ -15,23 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, os.path, shutil, logging, pickle, glob, threading, subprocess
-# from . import iomediator, interface, common, monitor
-from . import common, monitor
-from .iomediator_constants import X_RECORD_INTERFACE
+import os
+import os.path
+import shutil
+import logging
+import glob
+import threading
+import re
 
-try:
-    import json
-    l = json.load
-except ImportError:
-    import simplejson as json
+from . import common
+from .iomediator.constants import X_RECORD_INTERFACE
+
+import json
 
 _logger = logging.getLogger("config-manager")
 
-# CONFIG_DIR = os.path.expanduser("~/.config/autokey")
-from .common import CONFIG_DIR
-CONFIG_FILE = os.path.join(CONFIG_DIR, "autokey.json")
-CONFIG_DEFAULT_FOLDER = os.path.join(CONFIG_DIR, "data")
+CONFIG_FILE = os.path.join(common.CONFIG_DIR, "autokey.json")
+CONFIG_DEFAULT_FOLDER = os.path.join(common.CONFIG_DIR, "data")
 CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
 DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
@@ -67,6 +67,7 @@ SCRIPT_GLOBALS = "scriptGlobals"
 #RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
 #RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
+
 def get_config_manager(autoKeyApp, hadError=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
         os.mkdir(CONFIG_DEFAULT_FOLDER)
@@ -75,7 +76,7 @@ def get_config_manager(autoKeyApp, hadError=False):
         configManager = ConfigManager(autoKeyApp)
     except Exception as e:
         if hadError or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
-            _logger.error("Error while loading configuration. Cannot recover.")
+            _logger.exception("Error while loading configuration. Cannot recover.")
             raise
 
         _logger.exception("Error while loading configuration. Backup has been restored.")
@@ -86,10 +87,12 @@ def get_config_manager(autoKeyApp, hadError=False):
     _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return configManager
 
+
 def save_config(configManager):
     _logger.info("Persisting configuration")
     configManager.app.monitor.suspend() 
     # Back up configuration if it exists
+    # TODO: maybe use with-statement instead of try-except?
     if os.path.exists(CONFIG_FILE):
         _logger.info("Backing up existing config file")
         shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
@@ -105,13 +108,15 @@ def save_config(configManager):
     finally:
         outFile.close()
         configManager.app.monitor.unsuspend() 
-        
+
+
 def apply_settings(settings):
     """
     Allows new settings to be added without users having to lose all their configuration
     """
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
+
 
 def convert_v07_to_v08(configData):
     oldVersion = configData["version"]
@@ -132,7 +137,7 @@ def convert_v07_to_v08(configData):
         
         
 def _convertFolder(folderData, parent):
-    f = Folder("")
+    f = model.Folder("")
     f.inject_json_data(folderData)
     f.parent = parent
     f.persist()    
@@ -143,16 +148,17 @@ def _convertFolder(folderData, parent):
     for itemData in folderData["items"]:
         i = None
         if itemData["type"] == "script":
-            i = Script("", "")
+            i = model.Script("", "")
             i.code = itemData["code"]
         elif itemData["type"] == "phrase":
-            i = Phrase("", "")
+            i = model.Phrase("", "")
             i.phrase = itemData["phrase"]
         
         if i is not None:
             i.inject_json_data(itemData)
             i.parent = f
             i.persist()
+
 
 class ConfigManager:
     """
@@ -167,30 +173,30 @@ class ConfigManager:
     CLASS_VERSION = common.VERSION
     
     SETTINGS = {
-                IS_FIRST_RUN : True,
-                SERVICE_RUNNING : True,
-                MENU_TAKES_FOCUS : False,
-                SHOW_TRAY_ICON : True,
-                SORT_BY_USAGE_COUNT : True,
-                #DETECT_UNWANTED_ABBR : False,
-                PROMPT_TO_SAVE: False,
-                #PREDICTIVE_LENGTH : 5,
-                ENABLE_QT4_WORKAROUND : False,
-                INTERFACE_TYPE : X_RECORD_INTERFACE,
-                UNDO_USING_BACKSPACE : True,
-                WINDOW_DEFAULT_SIZE : (600, 400),
-                HPANE_POSITION : 150,
-                COLUMN_WIDTHS : [150, 50, 100],
-                SHOW_TOOLBAR : True,
-                NOTIFICATION_ICON : common.ICON_FILE_NOTIFICATION,
-                WORKAROUND_APP_REGEX : ".*VirtualBox.*|krdc.Krdc",
-                TRIGGER_BY_INITIAL : False,
+                IS_FIRST_RUN: True,
+                SERVICE_RUNNING: True,
+                MENU_TAKES_FOCUS: False,
+                SHOW_TRAY_ICON: True,
+                SORT_BY_USAGE_COUNT: True,
+                #DETECT_UNWANTED_ABBR: False,
+                PROMPT_TO_SAVE:False,
+                #PREDICTIVE_LENGTH: 5,
+                ENABLE_QT4_WORKAROUND: False,
+                INTERFACE_TYPE: X_RECORD_INTERFACE,
+                UNDO_USING_BACKSPACE: True,
+                WINDOW_DEFAULT_SIZE: (600, 400),
+                HPANE_POSITION: 150,
+                COLUMN_WIDTHS: [150, 50, 100],
+                SHOW_TOOLBAR: True,
+                NOTIFICATION_ICON: common.ICON_FILE_NOTIFICATION,
+                WORKAROUND_APP_REGEX: ".*VirtualBox.*|krdc.Krdc",
+                TRIGGER_BY_INITIAL: False,
                 # TODO - Future functionality
-                #TRACK_RECENT_ENTRY : True,
-                #RECENT_ENTRY_COUNT : 5,
-                #RECENT_ENTRY_MINLENGTH : 10,
-                #RECENT_ENTRY_SUGGEST : True
-                SCRIPT_GLOBALS : {}
+                #TRACK_RECENT_ENTRY: True,
+                #RECENT_ENTRY_COUNT: 5,
+                #RECENT_ENTRY_MINLENGTH: 10,
+                #RECENT_ENTRY_SUGGEST: True
+                SCRIPT_GLOBALS: {}
                 }
                 
     def __init__(self, app):
@@ -217,7 +223,7 @@ class ConfigManager:
         self.load_global_config()
                 
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
-        self.app.monitor.add_watch(CONFIG_DIR)
+        self.app.monitor.add_watch(common.CONFIG_DIR)
         
         if self.folders:
             return
@@ -226,38 +232,38 @@ class ConfigManager:
         
         _logger.info("No configuration found - creating new one")       
         
-        myPhrases = Folder("My Phrases")
+        myPhrases = model.Folder("My Phrases")
         myPhrases.set_hotkey(["<ctrl>"], "<f7>")
-        myPhrases.set_modes([TriggerMode.HOTKEY])
+        myPhrases.set_modes([model.TriggerMode.HOTKEY])
         myPhrases.persist()
-        
-        f = Folder("Addresses")
-        adr = Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
-        adr.set_modes([TriggerMode.ABBREVIATION])
+
+        f = model.Folder("Addresses")
+        adr = model.Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
+        adr.set_modes([model.TriggerMode.ABBREVIATION])
         adr.add_abbreviation("adr")
         f.add_item(adr)
         myPhrases.add_folder(f)        
         f.persist()
         adr.persist()
 
-        p = Phrase("First phrase", "Test phrase number one!")
-        p.set_modes([TriggerMode.PREDICTIVE])
+        p = model.Phrase("First phrase", "Test phrase number one!")
+        p.set_modes([model.TriggerMode.PREDICTIVE])
         p.set_window_titles(".* - gedit")
         myPhrases.add_item(p)
         
-        myPhrases.add_item(Phrase("Second phrase", "Test phrase number two!"))
-        myPhrases.add_item(Phrase("Third phrase", "Test phrase number three!"))
+        myPhrases.add_item(model.Phrase("Second phrase", "Test phrase number two!"))
+        myPhrases.add_item(model.Phrase("Third phrase", "Test phrase number three!"))
         self.folders.append(myPhrases)
         [p.persist() for p in myPhrases.items]
         
-        sampleScripts = Folder("Sample Scripts")
+        sampleScripts = model.Folder("Sample Scripts")
         sampleScripts.persist()
-        dte = Script("Insert Date", "")
+        dte = model.Script("Insert Date", "")
         dte.code = """output = system.exec_command("date")
 keyboard.send_keys(output)"""
         sampleScripts.add_item(dte)
         
-        lMenu = Script("List Menu", "")
+        lMenu = model.Script("List Menu", "")
         lMenu.code = """choices = ["something", "something else", "a third thing"]
 
 retCode, choice = dialog.list_menu(choices)
@@ -265,13 +271,13 @@ if retCode == 0:
     keyboard.send_keys("You chose " + choice)"""
         sampleScripts.add_item(lMenu)
         
-        sel = Script("Selection Test", "")
+        sel = model.Script("Selection Test", "")
         sel.code = """text = clipboard.get_selection()
 keyboard.send_key("<delete>")
 keyboard.send_keys("The text %s was here previously" % text)"""
         sampleScripts.add_item(sel)
         
-        abbrc = Script("Abbreviation from selection", "")
+        abbrc = model.Script("Abbreviation from selection", "")
         abbrc.code = """import time
 time.sleep(0.25)
 contents = clipboard.get_selection()
@@ -285,7 +291,7 @@ if retCode == 0:
     engine.create_abbreviation(folder, title, abbr, contents)"""
         sampleScripts.add_item(abbrc)
         
-        phrasec = Script("Phrase from selection", "")
+        phrasec = model.Script("Phrase from selection", "")
         phrasec.code = """import time
 time.sleep(0.25)
 contents = clipboard.get_selection()
@@ -297,7 +303,7 @@ folder = engine.get_folder("My Phrases")
 engine.create_phrase(folder, title, contents)"""
         sampleScripts.add_item(phrasec)
         
-        win = Script("Display window info", "")
+        win = model.Script("Display window info", "")
         win.code = """# Displays the information of the next window to be left-clicked
 import time
 mouse.wait_for_click(1)
@@ -360,12 +366,12 @@ dialog.info_dialog("Window information",
             for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
                 if os.path.isdir(entryPath):
                     _logger.debug("Loading folder at '%s'", entryPath)
-                    f = Folder("", path=entryPath)
+                    f = model.Folder("", path=entryPath)
                     f.load(None)
                     self.folders.append(f)
 
             for folderPath in data["folders"]:
-                f = Folder("", path=folderPath)
+                f = model.Folder("", path=folderPath)
                 f.load()
                 self.folders.append(f)
 
@@ -400,12 +406,12 @@ dialog.info_dialog("Window information",
         if path == CONFIG_FILE:
             self.reload_global_config()
             
-        elif directory != CONFIG_DIR:  # ignore all other changes in top dir
+        elif directory != common.CONFIG_DIR:  # ignore all other changes in top dir
             
             # --- handle directories added
             
             if os.path.isdir(path):
-                f = Folder("", path=path)
+                f = model.Folder("", path=path)
                 
                 if directory == CONFIG_DEFAULT_FOLDER:
                     self.folders.append(f)
@@ -427,9 +433,9 @@ dialog.info_dialog("Window information",
                 if i is None:
                     isNew = True
                     if baseName.endswith(".txt"):
-                        i = Phrase("", "", path=path)
+                        i = model.Phrase("", "", path=path)
                     elif baseName.endswith(".py"):
-                        i = Script("", "", path=path)       
+                        i = model.Script("", "", path=path)
                                  
                 if i is not None:
                     folder = self.__checkExistingFolder(directory)
@@ -455,7 +461,7 @@ dialog.info_dialog("Window information",
                             loaded = True
                             
             if not loaded:
-                _logger.warn("No action taken for create/update event at %s", path)
+                _logger.warning("No action taken for create/update event at %s", path)
             else:
                 self.config_altered(False)
             return loaded
@@ -464,7 +470,7 @@ dialog.info_dialog("Window information",
         directory, baseName = os.path.split(path)
         deleted = False
         
-        if directory == CONFIG_DIR: # ignore all deletions in top dir
+        if directory == common.CONFIG_DIR: # ignore all deletions in top dir
             return 
         
         folder = self.__checkExistingFolder(path)
@@ -483,7 +489,7 @@ dialog.info_dialog("Window information",
             deleted = True
             
         if not deleted:
-            _logger.warn("No action taken for delete event at %s", path)
+            _logger.warning("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
         return deleted
@@ -504,7 +510,7 @@ dialog.info_dialog("Window information",
 
         for folderPath in data["folders"]:
             if folderPath not in existingPaths:             
-                f = Folder("", path=folderPath)
+                f = model.Folder("", path=folderPath)
                 f.load()
                 self.folders.append(f)
 
@@ -524,8 +530,8 @@ dialog.info_dialog("Window information",
         if self.VERSION < '0.70.0':
             _logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
-                if isinstance(item, Phrase):
-                    item.sendMode = SendMode.KEYBOARD
+                if isinstance(item, model.Phrase):
+                    item.sendMode = model.SendMode.KEYBOARD
 
         if self.VERSION < "0.82.3":
             self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
@@ -540,7 +546,7 @@ dialog.info_dialog("Window information",
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders. 
         
-        @param persist: save the global configuration at the end of the process
+        @param persistGlobal: save the global configuration at the end of the process
         """
         _logger.info("Configuration changed - rebuilding in-memory structures")
         
@@ -560,7 +566,7 @@ dialog.info_dialog("Window information",
         self.allItems = []
         
         for folder in self.folders:
-            if TriggerMode.HOTKEY in folder.modes:
+            if model.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
             
@@ -590,7 +596,7 @@ dialog.info_dialog("Window information",
             self.app.monitor.add_watch(parentFolder.path)
         
         for folder in parentFolder.folders:
-            if TriggerMode.HOTKEY in folder.modes:
+            if model.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
             
@@ -600,25 +606,24 @@ dialog.info_dialog("Window information",
             self.__processFolder(folder)
             
         for item in parentFolder.items:
-            if TriggerMode.HOTKEY in item.modes:
+            if model.TriggerMode.HOTKEY in item.modes:
                 self.hotKeys.append(item)
-            if TriggerMode.ABBREVIATION in item.modes:
+            if model.TriggerMode.ABBREVIATION in item.modes:
                 self.abbreviations.append(item)
             self.allItems.append(item)
             
     # TODO Future functionality
     def add_recent_entry(self, entry):
         if RECENT_ENTRIES_FOLDER not in self.folders:
-            folder = Folder(RECENT_ENTRIES_FOLDER)
+            folder = model.Folder(RECENT_ENTRIES_FOLDER)
             folder.set_hotkey(["<super>"], "<f7>")
-            folder.set_modes([TriggerMode.HOTKEY])
+            folder.set_modes([model.TriggerMode.HOTKEY])
             self.folders[RECENT_ENTRIES_FOLDER] = folder
             self.recentEntries = []
         
         folder = self.folders[RECENT_ENTRIES_FOLDER]
         
-        
-        if not entry in self.recentEntries:
+        if entry not in self.recentEntries:
             self.recentEntries.append(entry)
             while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]:
                 self.recentEntries.pop(0)
@@ -631,29 +636,29 @@ dialog.info_dialog("Window information",
                 else:
                     description = theEntry
             
-                p = Phrase(description, theEntry)
+                p = model.Phrase(description, theEntry)
                 if self.SETTINGS[RECENT_ENTRY_SUGGEST]:
-                    p.set_modes([TriggerMode.PREDICTIVE])
+                    p.set_modes([model.TriggerMode.PREDICTIVE])
             
                 folder.add_item(p)
                 
             self.config_altered(False)
-        
         
     def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
         """
         Checks that the given abbreviation is not already in use.
         
         @param abbreviation: the abbreviation to check
+        @param newFilterPattern:
         @param targetItem: the phrase for which the abbreviation to be used 
         """
         for item in self.allFolders:
-            if TriggerMode.ABBREVIATION in item.modes:
+            if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
             
         for item in self.allItems:
-            if TriggerMode.ABBREVIATION in item.modes:
+            if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
 
@@ -661,12 +666,12 @@ dialog.info_dialog("Window information",
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
-            if TriggerMode.ABBREVIATION in item.modes:
+            if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
                     return item is targetItem, item.title       
 
         for item in self.allItems:
-            if TriggerMode.ABBREVIATION in item.modes:
+            if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
                     return item is targetItem, item.description
 
@@ -675,10 +680,10 @@ dialog.info_dialog("Window information",
     def __checkSubstringAbbr(self, item1, item2, abbr):
         # Check if the given abbreviation is a substring match for the given item
         # If it is, check a few other rules to see if it matters
-        print "substring check %s against %s" % (item.abbreviation, abbr)
+        print ("substring check {} against {}".format(item.abbreviation, abbr))
         try:
             index = item.abbreviation.index(abbr)
-            print index
+            print (index)
             if index == 0 and len(abbr) < len(item.abbreviation):
                 return item.immediate
             elif (index + len(abbr)) == len(item.abbreviation):
@@ -697,15 +702,16 @@ dialog.info_dialog("Window information",
         
         @param modifiers: modifiers for the hotkey
         @param hotKey: the hotkey to check
+        @param newFilterPattern:
         @param targetItem: the phrase for which the hotKey to be used        
         """
         for item in self.allFolders:
-            if TriggerMode.HOTKEY in item.modes:
+            if model.TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
             
         for item in self.allItems:
-            if TriggerMode.HOTKEY in item.modes:
+            if model.TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
 
@@ -717,16 +723,17 @@ dialog.info_dialog("Window information",
         return True, None
     
 # This import placed here to prevent circular import conflicts
-from .model import *
+from . import model
 
-class GlobalHotkey(AbstractHotkey):
+
+class GlobalHotkey(model.AbstractHotkey):
     """
     A global application hotkey, configured from the advanced settings dialog.
     Allows a method call to be attached to the hotkey.
     """
     
     def __init__(self):
-        AbstractHotkey.__init__(self)
+        model.AbstractHotkey.__init__(self)
         self.enabled = False
         self.windowInfoRegex = None
         self.isRecursive = False
@@ -736,11 +743,11 @@ class GlobalHotkey(AbstractHotkey):
         d = {
             "enabled": self.enabled
             }
-        d.update(AbstractHotkey.get_serializable(self))
+        d.update(model.AbstractHotkey.get_serializable(self))
         return d
 
     def load_from_serialized(self, data):
-        AbstractHotkey.load_from_serialized(self, data)
+        model.AbstractHotkey.load_from_serialized(self, data)
         self.enabled = data["enabled"]
     
     def set_closure(self, closure):
@@ -750,7 +757,8 @@ class GlobalHotkey(AbstractHotkey):
         self.closure = closure
         
     def check_hotkey(self, modifiers, key, windowTitle):
-        if AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
+        # TODO: Doesn’t this always return False? (as long as no exceptions are thrown)
+        if model.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
             _logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
             self.closure()
         return False
@@ -777,4 +785,4 @@ class GlobalHotkey(AbstractHotkey):
         return ret
         
     def __str__(self):
-        return _("AutoKey global hotkeys")
+        return "AutoKey global hotkeys"  # TODO: i18n

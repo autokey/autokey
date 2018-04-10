@@ -16,23 +16,28 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time, logging, threading, traceback, collections
-from autokey import common
-# from .iomediator import Key, IoMediator
-from autokey.iomediator_Key import Key
-from autokey.iomediator import IoMediator
-from autokey.configmanager import *
+import traceback
+import collections
+import time
+import logging
+
+from . import common
+from .iomediator.key import Key
+from .iomediator import IoMediator
 if common.USING_QT:
-    from autokey.qtui.popupmenu import *
+    from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
     from PyKDE4.kdecore import i18n
 else:
-    from autokey.gtkui.popupmenu import *
-from autokey.macro import MacroManager
-from autokey import scripting, model
+    from autokey.gtkui.popupmenu import *  # TODO: Replace with explicit import
+from .macro import MacroManager
 
+from . import scripting, model, scripting_Store, scripting_highlevel
+from .configmanager import ConfigManager, SERVICE_RUNNING, SCRIPT_GLOBALS, save_config, UNDO_USING_BACKSPACE
+import threading
 logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150
+
 
 def threaded(f):
 
@@ -84,7 +89,7 @@ class Service:
         ConfigManager.SETTINGS[SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
+        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
         logger.info("Service now marked as running")
 
     def unpause(self):
@@ -102,6 +107,7 @@ class Service:
         logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
         if save: save_config(self.configManager)
+        logger.debug("Service shutdown completed.")
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         logger.debug("Received mouse click - resetting buffer")
@@ -203,7 +209,7 @@ class Service:
         try:
             self.configManager.lock.release()
         except:
-            logger.debug("Ignored locking error in handle_keypress")
+            logger.exception("Ignored locking error in handle_keypress")
 
     def run_folder(self, name):
         folder = None
@@ -248,7 +254,7 @@ class Service:
         else:
             extraBs = 0
             extraKeys = ''
-        return (extraBs, extraKeys)
+        return extraBs, extraKeys
 
     def __updateStack(self, key):
         """
@@ -308,7 +314,7 @@ class Service:
         for item in items:
             if item.check_input(buffer, windowInfo):
                 if not item.prompt and immediate:
-                    return (item, None)
+                    return item, None
                 else:
                     itemMatches.append(item)
 
@@ -320,12 +326,12 @@ class Service:
         if self.__menuRequired(folderMatches, itemMatches, buffer):
             self.lastStackState = buffer
             #return (None, PopupMenu(self, folderMatches, itemMatches))
-            return (None, (folderMatches, itemMatches))
+            return None, (folderMatches, itemMatches)
         elif len(itemMatches) == 1:
             self.lastStackState = buffer
-            return (itemMatches[0], None)
+            return itemMatches[0], None
         else:
-            return (None, None)
+            return None, None
 
 
     def __shouldProcess(self, windowInfo):
@@ -347,9 +353,9 @@ class Service:
 
     def __haveMatch(self, data):
         folderMatch, itemMatches = data
-        if folder is not None:
+        if folderMatch is not None:
             return True
-        if len(items) > 0:
+        if len(itemMatches) > 0:
             return True
 
         return False
@@ -430,7 +436,7 @@ class ScriptRunner:
         self.app = app
         self.error = ''
         self.scope = globals()
-        self.scope["highlevel"]= scripting.highlevel
+        self.scope["highlevel"]= scripting_highlevel
         self.scope["keyboard"]= scripting.Keyboard(mediator)
         self.scope["mouse"]= scripting.Mouse(mediator)
         self.scope["system"] = scripting.System()

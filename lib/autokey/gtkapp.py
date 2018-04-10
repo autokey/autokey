@@ -18,8 +18,21 @@
 from . import common
 common.USING_QT = False
 
-import sys, traceback, os.path, signal, logging, logging.handlers, subprocess, optparse, time
-import gettext, dbus, dbus.service, dbus.mainloop.glib
+import sys
+import traceback
+import os.path
+import signal
+import logging
+import logging.handlers
+import subprocess
+import optparse
+import time
+import threading
+
+import gettext
+import dbus
+import dbus.service
+import dbus.mainloop.glib
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -27,14 +40,14 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
+
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
-from autokey.configmanager import *
-from autokey.common import *
+from . import configmanager as cm
 
-PROGRAM_NAME = _("AutoKey")
+PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
@@ -56,14 +69,14 @@ class Application:
 
         try:
             # Create configuration directory
-            if not os.path.exists(CONFIG_DIR):
-                os.makedirs(CONFIG_DIR)
+            if not os.path.exists(common.CONFIG_DIR):
+                os.makedirs(common.CONFIG_DIR)
             # Create data directory (for log file)
-            if not os.path.exists(DATA_DIR):
-                os.makedirs(DATA_DIR)
+            if not os.path.exists(common.DATA_DIR):
+                os.makedirs(common.DATA_DIR)
             # Create run directory (for lock file)
-            if not os.path.exists(RUN_DIR):
-                os.makedirs(RUN_DIR)
+            if not os.path.exists(common.RUN_DIR):
+                os.makedirs(common.RUN_DIR)
 
             # Initialise logger
             rootLogger = logging.getLogger()
@@ -73,12 +86,11 @@ class Application:
                 handler = logging.StreamHandler(sys.stdout)
             else:
                 rootLogger.setLevel(logging.INFO)
-                handler = logging.handlers.RotatingFileHandler(LOG_FILE,
-                                        maxBytes=MAX_LOG_SIZE, backupCount=MAX_LOG_COUNT)
+                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
+                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
 
-            handler.setFormatter(logging.Formatter(LOG_FORMAT))
+            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
             rootLogger.addHandler(handler)
-
 
             if self.__verifyNotRunning():
                 self.__createLockFile()
@@ -90,15 +102,16 @@ class Application:
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-
     def __createLockFile(self):
-        f = open(LOCK_FILE, 'w')
+        # TODO: with-statement
+        f = open(common.LOCK_FILE, 'w')
         f.write(str(os.getpid()))
         f.close()
 
     def __verifyNotRunning(self):
-        if os.path.exists(LOCK_FILE):
-            with open(LOCK_FILE, 'r') as f: pid = f.read()
+        if os.path.exists(common.LOCK_FILE):
+            with open(common.LOCK_FILE, 'r') as f:
+                pid = f.read()
 
             # Check that the found PID is running and is autokey
             with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
@@ -119,13 +132,10 @@ class Application:
 
         return True
 
-    def main(self):
-        Gtk.main()
-
     def initialise(self, configure):
         logging.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
-        self.configManager = get_config_manager(self)
+        self.configManager = cm.get_config_manager(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
 
@@ -224,7 +234,7 @@ class Application:
         Gdk.threads_enter()
         Gtk.main_quit()
         Gdk.threads_leave()
-        os.remove(LOCK_FILE)
+        os.remove(common.LOCK_FILE)
         logging.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):
@@ -280,7 +290,7 @@ class Application:
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
             # revert the tray icon
-            self.notifier.set_icon(ConfigManager.SETTINGS[NOTIFICATION_ICON])
+            self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON])
             self.notifier.errorItem.hide()
             self.notifier.update_visible_status()
 
@@ -293,10 +303,13 @@ class Application:
         dlg.run()
         dlg.destroy()
 
-    def show_popup_menu(self, folders=[], items=[], onDesktop=True, title=None):
+    def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.menu = PopupMenu(self.service, folders, items, onDesktop, title)
         self.menu.show_on_desktop()
 
     def hide_menu(self):
         self.menu.remove_from_desktop()
-

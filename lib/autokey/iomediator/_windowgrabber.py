@@ -15,30 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from .iomediator_constants import X_RECORD_INTERFACE
-# X_RECORD_INTERFACE = "XRecord"
-ATSPI_INTERFACE = "AT-SPI"
+import time
+import threading
 
-INTERFACES = [X_RECORD_INTERFACE, ATSPI_INTERFACE]
-# CURRENT_INTERFACE = None
+from ._iomediator import IoMediator
 
-from .iomediator_Key import Key
+SEND_LOCK = threading.Lock()  # TODO: This is never accessed anywhere. Does creating this lock do anything?
 
-import datetime, time, threading, queue, re, logging
-
-# from .iomediator_constants import MODIFIERS, HELD_MODIFIERS
-# MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
-# HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
-NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
-
-#KEY_SPLIT_RE = re.compile("(<.+?>\+{0,1})", re.UNICODE)
-from .iomediator_constants import KEY_SPLIT_RE
-# KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)", re.UNICODE)
-SEND_LOCK = threading.Lock()
-
-# from .interface import *
-# from .configmanager import *
-from .iomediator00 import IoMediator, Waiter, KeyGrabber, Recorder
 
 class WindowGrabber:
 
@@ -55,4 +38,3 @@ class WindowGrabber:
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
         IoMediator.listeners.remove(self)
         self.dialog.receive_window_info(windowInfo)
-

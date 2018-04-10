@@ -16,17 +16,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, sys, os, re
+import re
 #from PyKDE4.kdeui import KApplication, KXmlGuiWindow, KStandardAction, KIcon, KTextEdit, KAction, KStandardShortcut
 from PyKDE4.kdeui import *
 from PyKDE4.kdecore import i18n
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, Qt, QRegExp
+from PyQt4.QtCore import Qt
+
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
 from .. import model, iomediator
+from ..iomediator.key import Key
 
 WORD_CHAR_OPTIONS = {
                      "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
@@ -57,12 +59,12 @@ class AbbrListItem(QListWidgetItem):
             QListWidgetItem.setData(self, role, value)
 
 class AbbrSettings(QWidget, abbrsettings.Ui_Form):
-    
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         abbrsettings.Ui_Form.__init__(self)
         self.setupUi(self)
-        
+
         for item in WORD_CHAR_OPTIONS_ORDERED:
             self.wordCharCombo.addItem(item)
 
@@ -85,21 +87,21 @@ class AbbrSettings(QWidget, abbrsettings.Ui_Form):
             row = self.abbrListWidget.row(item)
             self.abbrListWidget.takeItem(row)
             del item
-            
+
         if self.abbrListWidget.count() == 0:
             self.removeButton.setEnabled(False)
 
     def on_abbrListWidget_itemDoubleClicked(self, item):
         self.abbrListWidget.editItem(item)
-        
+
     def on_ignoreCaseCheckbox_stateChanged(self, state):
         if not self.ignoreCaseCheckbox.isChecked():
             self.matchCaseCheckbox.setChecked(False)
-            
+
     def on_matchCaseCheckbox_stateChanged(self, state):
         if self.matchCaseCheckbox.isChecked():
             self.ignoreCaseCheckbox.setChecked(True)
-            
+
     def on_immediateCheckbox_stateChanged(self, state):
         if self.immediateCheckbox.isChecked():
             self.omitTriggerCheckbox.setChecked(False)
@@ -120,7 +122,7 @@ class AbbrSettingsDialog(KDialog):
         self.setPlainCaption(i18n("Set Abbreviations"))
         self.setModal(True)
         #self.connect(self, SIGNAL("okClicked()"), self.on_okClicked)
-        
+
     def load(self, item):
         self.targetItem = item
         self.widget.abbrListWidget.clear()
@@ -132,7 +134,7 @@ class AbbrSettingsDialog(KDialog):
             self.widget.abbrListWidget.setCurrentRow(0)
         else:
             self.widget.removeButton.setEnabled(False)
-        
+
         self.widget.removeTypedCheckbox.setChecked(item.backspace)
 
         self.__resetWordCharCombo()
@@ -148,46 +150,46 @@ class AbbrSettingsDialog(KDialog):
             # Custom wordchar regex used
             self.widget.wordCharCombo.addItem(model.extract_wordchars(wordCharRegex))
             self.widget.wordCharCombo.setCurrentIndex(len(WORD_CHAR_OPTIONS))
-        
+
         if isinstance(item, model.Folder):
             self.widget.omitTriggerCheckbox.setVisible(False)
         else:
             self.widget.omitTriggerCheckbox.setVisible(True)
             self.widget.omitTriggerCheckbox.setChecked(item.omitTrigger)
-        
+
         if isinstance(item, model.Phrase):
             self.widget.matchCaseCheckbox.setVisible(True)
             self.widget.matchCaseCheckbox.setChecked(item.matchCase)
         else:
             self.widget.matchCaseCheckbox.setVisible(False)
-        
+
         self.widget.ignoreCaseCheckbox.setChecked(item.ignoreCase)
         self.widget.triggerInsideCheckbox.setChecked(item.triggerInside)
         self.widget.immediateCheckbox.setChecked(item.immediate)
-        
+
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
-        
+
         item.backspace = self.widget.removeTypedCheckbox.isChecked()
-        
+
         option = str(self.widget.wordCharCombo.currentText())
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
             item.set_word_chars(model.make_wordchar_re(option))
-        
+
         if not isinstance(item, model.Folder):
             item.omitTrigger = self.widget.omitTriggerCheckbox.isChecked()
-            
+
         if isinstance(item, model.Phrase):
             item.matchCase = self.widget.matchCaseCheckbox.isChecked()
-            
+
         item.ignoreCase = self.widget.ignoreCaseCheckbox.isChecked()
         item.triggerInside = self.widget.triggerInsideCheckbox.isChecked()
         item.immediate = self.widget.immediateCheckbox.isChecked()
-        
+
     def reset(self):
         self.widget.removeButton.setEnabled(False)
         self.widget.abbrListWidget.clear()
@@ -204,13 +206,13 @@ class AbbrSettingsDialog(KDialog):
         for item in WORD_CHAR_OPTIONS_ORDERED:
             self.widget.wordCharCombo.addItem(item)
         self.widget.wordCharCombo.setCurrentIndex(0)
-        
+
     def get_abbrs(self):
         ret = []
         for i in range(self.widget.abbrListWidget.count()):
             text = self.widget.abbrListWidget.item(i).text()
             ret.append(str(text))
-            
+
         return ret
 
     def get_abbrs_readable(self):
@@ -228,7 +230,7 @@ class AbbrSettingsDialog(KDialog):
                             self.widget.addButton, self): return False
 
         return True
-        
+
     def slotButtonClicked(self, button):
         if button == KDialog.Ok:
             if self.__valid():
@@ -239,14 +241,14 @@ class AbbrSettingsDialog(KDialog):
 
 
 class HotkeySettings(QWidget, hotkeysettings.Ui_Form):
-    
+
     def __init__(self, parent):
         QWidget.__init__(self, parent)
         hotkeysettings.Ui_Form.__init__(self)
-        self.setupUi(self)    
+        self.setupUi(self)
 
     # ---- Signal handlers
-    
+
     def on_setButton_pressed(self):
         self.setButton.setEnabled(False)
         self.keyLabel.setText(i18n("Press a key or combination..."))
@@ -276,12 +278,12 @@ class HotkeySettingsDialog(KDialog):
         self.targetItem = item
         self.widget.setButton.setEnabled(True)
         if model.TriggerMode.HOTKEY in item.modes:
-            self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
-            self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
-            self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
-            self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
-            self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
-            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
+            self.widget.controlButton.setChecked(Key.CONTROL in item.modifiers)
+            self.widget.altButton.setChecked(Key.ALT in item.modifiers)
+            self.widget.shiftButton.setChecked(Key.SHIFT in item.modifiers)
+            self.widget.superButton.setChecked(Key.SUPER in item.modifiers)
+            self.widget.hyperButton.setChecked(Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -306,7 +308,7 @@ class HotkeySettingsDialog(KDialog):
         else:
             key = keyText
 
-        assert key != None, "Attempt to set hotkey with no key"
+        assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
     def reset(self):
@@ -321,17 +323,19 @@ class HotkeySettingsDialog(KDialog):
         self.key = None
         self.widget.setButton.setEnabled(True)
 
-    def set_key(self, key, modifiers=[]):
+    def set_key(self, key, modifiers: list=None):
+        if modifiers is None:
+            modifiers = []
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.widget.controlButton.setChecked(iomediator.Key.CONTROL in modifiers)
-        self.widget.altButton.setChecked(iomediator.Key.ALT in modifiers)
-        self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in modifiers)
-        self.widget.superButton.setChecked(iomediator.Key.SUPER in modifiers)
-        self.widget.hyperButton.setChecked(iomediator.Key.HYPER in modifiers)
-        self.widget.metaButton.setChecked(iomediator.Key.META in modifiers)
+        self.widget.controlButton.setChecked(Key.CONTROL in modifiers)
+        self.widget.altButton.setChecked(Key.ALT in modifiers)
+        self.widget.shiftButton.setChecked(Key.SHIFT in modifiers)
+        self.widget.superButton.setChecked(Key.SUPER in modifiers)
+        self.widget.hyperButton.setChecked(Key.HYPER in modifiers)
+        self.widget.metaButton.setChecked(Key.META in modifiers)
 
         self.widget.setButton.setEnabled(True)
             
@@ -342,17 +346,17 @@ class HotkeySettingsDialog(KDialog):
     def build_modifiers(self):
         modifiers = []
         if self.widget.controlButton.isChecked():
-            modifiers.append(iomediator.Key.CONTROL) 
+            modifiers.append(Key.CONTROL)
         if self.widget.altButton.isChecked():
-            modifiers.append(iomediator.Key.ALT)
+            modifiers.append(Key.ALT)
         if self.widget.shiftButton.isChecked():
-            modifiers.append(iomediator.Key.SHIFT)
+            modifiers.append(Key.SHIFT)
         if self.widget.superButton.isChecked():
-            modifiers.append(iomediator.Key.SUPER)
+            modifiers.append(Key.SUPER)
         if self.widget.hyperButton.isChecked():
-            modifiers.append(iomediator.Key.HYPER)
+            modifiers.append(Key.HYPER)
         if self.widget.metaButton.isChecked():
-            modifiers.append(iomediator.Key.META)
+            modifiers.append(Key.META)
         
         modifiers.sort()
         return modifiers
@@ -381,12 +385,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item):
         self.targetItem = item
         if item.enabled:
-            self.widget.controlButton.setChecked(iomediator.Key.CONTROL in item.modifiers)
-            self.widget.altButton.setChecked(iomediator.Key.ALT in item.modifiers)
-            self.widget.shiftButton.setChecked(iomediator.Key.SHIFT in item.modifiers)
-            self.widget.superButton.setChecked(iomediator.Key.SUPER in item.modifiers)
-            self.widget.hyperButton.setChecked(iomediator.Key.HYPER in item.modifiers)
-            self.widget.metaButton.setChecked(iomediator.Key.META in item.modifiers)
+            self.widget.controlButton.setChecked(Key.CONTROL in item.modifiers)
+            self.widget.altButton.setChecked(Key.ALT in item.modifiers)
+            self.widget.shiftButton.setChecked(Key.SHIFT in item.modifiers)
+            self.widget.superButton.setChecked(Key.SUPER in item.modifiers)
+            self.widget.hyperButton.setChecked(Key.HYPER in item.modifiers)
+            self.widget.metaButton.setChecked(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
@@ -410,7 +414,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         else:
             key = keyText
 
-        assert key != None, "Attempt to set hotkey with no key"
+        assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
         
         

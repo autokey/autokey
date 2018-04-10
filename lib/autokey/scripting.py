@@ -15,15 +15,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import subprocess, threading, time, re
-from . import common, model, iomediator
+import subprocess
+import threading
+import time
+import re
+
+from . import common, model
+from . import iomediator
 
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
     from gi.repository import Gtk, Gdk
 
-from . import scripting_highlevel as highlevel
 
 class Keyboard:
     """
@@ -97,7 +101,7 @@ class Keyboard:
         for x in range(repeat):
             self.mediator.fake_keypress(key)
             
-    def wait_for_keypress(self, key, modifiers=[], timeOut=10.0):
+    def wait_for_keypress(self, key, modifiers: list=None, timeOut=10.0):
         """
         Wait for a keypress or key combination
         
@@ -109,6 +113,8 @@ class Keyboard:
         @param modifiers: list of modifiers that should be pressed with the key
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
+        if modifiers is None:
+            modifiers = []
         w = iomediator.Waiter(key, modifiers, None, timeOut)
         return w.wait()
         
@@ -168,10 +174,8 @@ class Mouse:
         button = int(button)
         w = iomediator.Waiter(None, None, button, timeOut)
         w.wait()
-            
-            
-from .scripting_Store import Store
-        
+
+
 class QtDialog:
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
@@ -191,9 +195,9 @@ class QtDialog:
 
         p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
         retCode = p.wait()
-        output = p.stdout.read()[:-1] # Drop trailing newline
+        output = p.stdout.read()[:-1]  # Drop trailing newline
         
-        return (retCode, output)
+        return retCode, output
 
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -279,7 +283,8 @@ class QtDialog:
         
         return retCode, choice        
         
-    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs):
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
+                        defaults: list=None, **kwargs):
         """
         Show a multiple-selection list menu
         
@@ -292,7 +297,9 @@ class QtDialog:
         @return: a tuple containing the exit code and user choice
         @rtype: C{tuple(int, str)}
         """
-        
+
+        if defaults is None:
+            defaults = []
         choices = []
         optionNum = 0
         for option in options:
@@ -378,7 +385,7 @@ class QtDialog:
         """
         return self.__runKdialog(title, ["--getcolor"], kwargs)
 
-    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today", **kwargs):
+    def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
         Show a calendar dialog
 
@@ -387,7 +394,7 @@ class QtDialog:
         Note: the format and date parameters are not currently used
 
         @param title: window title for the dialog
-        @param format: format of date to be returned
+        @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
         @rtype: C{tuple(int, str)}
@@ -462,10 +469,10 @@ class GtkDialog:
         # retCode = p.wait()
         # output = p.stdout.read()[:-1] # Drop trailing newline
         with subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE) as p:
-            output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+            output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
             retCode = p.returncode
 
-        return (retCode, output)
+        return retCode, output
     
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -549,7 +556,8 @@ class GtkDialog:
         
         #return retCode, choice    
         
-    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs):
+    def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
+                        defaults: list=None, **kwargs):
         """
         Show a multiple-selection list menu
         
@@ -562,7 +570,9 @@ class GtkDialog:
         @return: a tuple containing the exit code and user choice
         @rtype: C{tuple(int, str)}
         """
-        
+
+        if defaults is None:
+            defaults = []
         choices = []
         #optionNum = 0
         for option in options:
@@ -621,6 +631,7 @@ class GtkDialog:
         Usage: C{dialog.choose_directory(title="Select Directory", **kwargs)}
         
         @param title: window title for the dialog
+        @param initialDir:
         @return: a tuple containing the exit code and path
         @rtype: C{tuple(int, str)}
         """
@@ -639,14 +650,14 @@ class GtkDialog:
         """
         #return self.__runZenity(title, ["--getcolor"])
         
-    def calendar(self, title="Choose a date", format="%Y-%m-%d", date="today", **kwargs):
+    def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
         Show a calendar dialog
         
         Usage: C{dialog.calendar_dialog(title="Choose a date", format="%Y-%m-%d", date="YYYY-MM-DD", **kwargs)}
         
         @param title: window title for the dialog
-        @param format: format of date to be returned
+        @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
         @rtype: C{tuple(int, str)}
@@ -658,7 +669,7 @@ class GtkDialog:
             date_args = ["--year=" + year, "--month=" + month, "--day=" + day]
         else:
             date_args = []
-        return self.__runZenity(title, ["--calendar", "--date-format=" + format] + date_args, kwargs)
+        return self.__runZenity(title, ["--calendar", "--date-format=" + format_str] + date_args, kwargs)
 
     
 class QtClipboard:
@@ -849,7 +860,7 @@ class Window:
                 return True
             
             if timeOut == 0:
-                break # zero length timeout, if not matched go straight to end
+                break  # zero length timeout, if not matched go straight to end
                 
             time.sleep(0.3)
             waited += 0.3
@@ -878,7 +889,7 @@ class Window:
                     return True
                     
             if timeOut == 0:
-                break # zero length timeout, if not matched go straight to end
+                break  # zero length timeout, if not matched go straight to end
 
             time.sleep(0.3)
             waited += 0.3
@@ -943,7 +954,6 @@ class Window:
             xArgs = []
         self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
         
-        
     def move_to_desktop(self, title, deskNum, matchClass=False):
         """
         Move the specified window to the given desktop
@@ -959,8 +969,7 @@ class Window:
         else:
             xArgs = []
         self.__runWmctrl(["-r", title, "-t", str(deskNum)] + xArgs)
-        
-        
+
     def switch_desktop(self, deskNum):
         """
         Switch to the specified desktop
@@ -1040,12 +1049,12 @@ class Window:
     def __runWmctrl(self, args):
         try:
             with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+                output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
                 retCode = p.returncode
         except FileNotFoundError:
-            return (1, 'ERROR: Please install wmctrl')
+            return 1, 'ERROR: Please install wmctrl'
 
-        return (retCode, output)
+        return retCode, output
         
         
 class Engine:

@@ -15,7 +15,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
-#import pynotify, gtk, gettext
+import threading
+
 import gi
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
@@ -24,11 +25,10 @@ gi.require_version('AppIndicator3', '0.1')
 from gi.repository import Gtk, Gdk, Notify, AppIndicator3
 import gettext
 
-from autokey.gtkui import popupmenu
-from autokey.configmanager import *
-from autokey import common
+from . import popupmenu
+from .. import configmanager as cm
+from .. import common
 
-from autokey.gtkui.configwindow0 import get_ui
 
 gettext.install("autokey")
 
@@ -45,7 +45,7 @@ class IndicatorNotifier:
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
-        self.indicator = AppIndicator3.Indicator.new("AutoKey", ConfigManager.SETTINGS[NOTIFICATION_ICON],
+        self.indicator = AppIndicator3.Indicator.new("AutoKey", cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
                                                 AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
                                                 
         self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
@@ -53,7 +53,7 @@ class IndicatorNotifier:
         self.rebuild_menu()
         
     def update_visible_status(self):
-        if ConfigManager.SETTINGS[SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         else:
             self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)   
@@ -145,12 +145,12 @@ class IndicatorNotifier:
 
     def on_remove_icon(self, widget, data=None):
         self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
-        ConfigManager.SETTINGS[SHOW_TRAY_ICON] = False
+        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()
-        
-        
+
+
 class UnityLauncher(IndicatorNotifier):
 
     SHOW_ITEM_STRING = _("Add to quicklist/notification menu")
@@ -159,6 +159,7 @@ class UnityLauncher(IndicatorNotifier):
     #    IndicatorNotifier.__init__(self, autokeyApp)
         
     def __getQuickItem(self, label):
+        from gi.repository import Dbusmenu
         item = Dbusmenu.Menuitem.new()
         item.property_set(Dbusmenu.MENUITEM_PROP_LABEL, label)
         item.property_set_bool(Dbusmenu.MENUITEM_PROP_VISIBLE, True)
@@ -216,7 +217,8 @@ class UnityLauncher(IndicatorNotifier):
         self.launcher.set_property ("quicklist", quicklist)        
         
     def on_ql_enable_toggled(self, menuitem, data=None):
-        if menuitem.property_get_int(Menuitem.MENUITEM_PROP_TOGGLE_STATE) == Menuitem.MENUITEM_TOGGLE_STATE_CHECKED:
+        from gi.repository import Dbusmenu
+        if menuitem.property_get_int(Dbusmenu.Menuitem.MENUITEM_PROP_TOGGLE_STATE) == Dbusmenu.Menuitem.MENUITEM_TOGGLE_STATE_CHECKED:
             self.app.unpause_service()
         else:
             self.app.pause_service()

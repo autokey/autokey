@@ -15,9 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re, os, os.path, glob, logging
-from .configmanager import *
-from .iomediator import Key, NAVIGATION_KEYS, KEY_SPLIT_RE
+import re
+import os
+import os.path
+import glob
+import logging
+import json
+import shutil
+
+from . import configmanager as cm
+from .iomediator.key import Key, NAVIGATION_KEYS
+from .iomediator.constants import KEY_SPLIT_RE
 from .scripting_Store import Store
 
 _logger = logging.getLogger("model")
@@ -27,18 +35,22 @@ DEFAULT_WORDCHAR_REGEX = '[\w]'
 JSON_FILE_PATTERN = "%s/.%s.json"
 SPACES_RE = re.compile(r"^ | $")
 
+
 def make_wordchar_re(wordChars):
     return "[^%s]" % wordChars
 
+
 def extract_wordchars(regex):
     return regex[2:-1]
+
 
 def get_value_or_default(jsonData, key, default):
     if key in jsonData:
         return jsonData[key]
     else:
         return default
-    
+
+
 def get_safe_path(basePath, name, ext=""):
     name = SPACES_RE.sub('_', name)
     safeName = ''.join([char for char in name if char.isalnum() or char in "_ -."])
@@ -58,6 +70,7 @@ def get_safe_path(basePath, name, ext=""):
         n += 1
         
     return path
+
 
 class AbstractAbbreviation:
     """
@@ -192,7 +205,7 @@ class AbstractAbbreviation:
         else:
             stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)
             
-        return (stringBefore, typedAbbr, stringAfter)
+        return stringBefore, typedAbbr, stringAfter
     
             
 class AbstractWindowFilter:
@@ -214,9 +227,9 @@ class AbstractWindowFilter:
         else:
             self.set_window_titles(data)
         
-    def copy_window_filter(self, filter):
-        self.windowInfoRegex = filter.windowInfoRegex
-        self.isRecursive = filter.isRecursive
+    def copy_window_filter(self, window_filter):
+        self.windowInfoRegex = window_filter.windowInfoRegex
+        self.isRecursive = window_filter.isRecursive
     
     def set_window_titles(self, regex):
         if regex is not None:
@@ -280,10 +293,8 @@ class AbstractWindowFilter:
             return r.match(interface.str_or_bytes_to_str(windowInfo[0])) or r.match(windowInfo[1])
         else:
             return True
-            
-          
-            
-            
+
+
 class AbstractHotkey(AbstractWindowFilter):
     
     def __init__(self):
@@ -335,8 +346,8 @@ class AbstractHotkey(AbstractWindowFilter):
             ret += key
 
         return ret
-    
-        
+
+
 class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Manages a collection of subfolders/phrases/scripts, which may be associated 
@@ -363,7 +374,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if self.parent is not None:
             self.path = get_safe_path(self.parent.path, baseName)
         else:
-            self.path = get_safe_path(CONFIG_DEFAULT_FOLDER, baseName)
+            self.path = get_safe_path(cm.CONFIG_DEFAULT_FOLDER, baseName)
     
     def persist(self):
         if self.path is None:
@@ -469,7 +480,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 pass
         
     def get_tuple(self):
-        return ("folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self
     
     def set_modes(self, modes):
         self.modes = modes
@@ -497,9 +508,6 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         """
         #del self.phrases[phrase.description]
         self.items.remove(item)
-        
-    def set_modes(self, modes):
-        self.modes = modes
         
     def check_input(self, buffer, windowInfo):
         if TriggerMode.ABBREVIATION in self.modes:
@@ -722,7 +730,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(thePhrase)
 
     def get_tuple(self):
-        return ("text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
         
     def set_modes(self, modes):
         self.modes = modes
@@ -739,7 +747,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             #if TriggerMode.PREDICTIVE in self.modes:
             #    predict = self._should_trigger_predictive(buffer)
             
-            return (abbr or predict)
+            return abbr or predict
             
         return False
     
@@ -849,7 +857,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         
     def parsePositionTokens(self, expansion):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
-        if CURSOR_POSITION_TOKEN in expansion.string:
+        if CURSOR_POSITION_TOKEN in expansion.string:  # TODO: Undefined local variable?
             firstpart, secondpart = expansion.string.split(CURSOR_POSITION_TOKEN)
             foundNavigationKey = False
             
@@ -860,9 +868,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     break
             
             if not foundNavigationKey:
-                k = Key()
                 for section in KEY_SPLIT_RE.split(secondpart):
-                    if not k.is_key(section) or section in [' ', '\n']:
+                    if not Key.is_key(section) or section in [' ', '\n']:
                         expansion.lefts += len(section)
             
             expansion.string = firstpart + secondpart
@@ -1001,7 +1008,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.copy_window_filter(theScript)
 
     def get_tuple(self):
-        return ("text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self)
+        return "text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
     def set_modes(self, modes):
         self.modes = modes
@@ -1040,7 +1047,6 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             backspaces = self.parent.get_backspace_count(buffer)
             
         return backspaces, string
-        
 
     def should_prompt(self, buffer):
         return self.prompt

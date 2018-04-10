@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, dbus.service
+import os
+import dbus.service
 
 CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
@@ -27,14 +28,14 @@ DATA_DIR = os.path.join(os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.l
 LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
 LOG_FILE = os.path.join(DATA_DIR, "autokey.log")
 
-MAX_LOG_SIZE = 5 * 1024 * 1024 # 5 megabytes
+MAX_LOG_SIZE = 5 * 1024 * 1024  # 5 megabytes
 MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "autokey"
 CATALOG = ""
 VERSION = "0.94.0"
-HOMEPAGE  = "https://github.com/autokey/autokey"
+HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'
 MAINTAINER = 'GuoCi'
@@ -52,6 +53,7 @@ ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 USING_QT = False
+
 
 class AppService(dbus.service.Object):
 

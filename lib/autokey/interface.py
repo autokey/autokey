@@ -18,7 +18,21 @@
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 
-import os, threading, re, time, socket, select, logging, queue, subprocess
+import threading
+import select
+import logging
+import queue
+import subprocess
+import time
+
+# Imported to enable threading in Xlib. See module description. Not an unused import statement.
+import Xlib.threaded as xlib_threaded
+
+# Delete again, as the reference is not needed anymore after the import side-effect has done it’s work.
+# This (hopefully) also prevents automatic code cleanup software from deleting an "unused" import and re-introduce
+# issues.
+del xlib_threaded
+
 
 from autokey import common
 
@@ -34,6 +48,8 @@ else:
         import pyatspi
         HAS_ATSPI = True
     except ImportError:
+        HAS_ATSPI = False
+    except ValueError:
         HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
@@ -141,13 +157,15 @@ class XInterfaceBase(threading.Thread):
             
             if method is None and args is None:
                 break
-    
+            elif method is not None and args is None:
+                logger.debug("__eventLoop: Got method {} with None arguments!".format(method))
             try:
                 method(*args)
             except Exception as e:
                 logger.exception("Error in X event loop thread")
-                
+
             self.queue.task_done()
+            logger.debug("__eventLoop: (Approximated) Remaining enqueued events: {}".format(self.queue.qsize()))
     
     def __enqueue(self, method, *args):
         self.queue.put_nowait((method, args))
@@ -237,7 +255,7 @@ class XInterfaceBase(threading.Thread):
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
             keyCodeList = list(keyCodeList)
             if len(keyCodeList) > 0:
-                logger.debug("[%s] : %s", char, keyCodeList)
+                logger.debug("[%s]: %s", char, keyCodeList)
             else:
                 logger.debug("No mapping for [%s]", char)
                 
@@ -387,7 +405,7 @@ class XInterfaceBase(threading.Thread):
                 window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
 
         except Exception as e:
-            logger.warn("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
+            logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
 
     def grab_hotkey(self, item):
         """
@@ -483,7 +501,7 @@ class XInterfaceBase(threading.Thread):
             if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
                 window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
         except Exception as e:
-            logger.warn("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
+            logger.warning("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
 
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
@@ -611,7 +629,7 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         # Determine if workaround is needed
-        if not ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND]:
+        if not cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND]:
             self.__checkWorkaroundNeeded()
 
         # First find out if any chars need remapping
@@ -696,7 +714,7 @@ class XInterfaceBase(threading.Thread):
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
                         self.__releaseKey(Key.SHIFT)
                 else:
-                    logger.warn("Unable to send character %r", char)
+                    logger.warning("Unable to send character %r", char)
             except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
 
@@ -752,7 +770,7 @@ class XInterfaceBase(threading.Thread):
             self.__sendKeyCode(keyCode, mask)
             for mod in modifiers: self.__releaseKey(mod)
         except Exception as e:
-            logger.warn("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
+            logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
 
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)
@@ -813,6 +831,7 @@ class XInterfaceBase(threading.Thread):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
     def __flushEvents(self):
+        logger.debug("__flushEvents: Entering event loop.")
         while True:
             try:
                 readable, w, e = select.select([self.localDisplay], [], [], 1)
@@ -834,8 +853,10 @@ class XInterfaceBase(threading.Thread):
 
                 if self.shutdown:
                     break
-            except:
+            except Exception:
+                logger.exception("__flushEvents: Some exception occured:")
                 pass
+        logger.debug("__flushEvents: Left event loop.")
 
     def handle_keypress(self, keyCode):
         self.__enqueue(self.__handleKeyPress, keyCode)
@@ -888,7 +909,7 @@ class XInterfaceBase(threading.Thread):
         return None
 
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
-        if ConfigManager.SETTINGS[ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
+        if cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
@@ -1017,7 +1038,7 @@ class XInterfaceBase(threading.Thread):
     def __getWinClass(self, windowvar, traverse):
         wmclass = windowvar.get_wm_class()
 
-        if (wmclass == None or wmclass == ""):
+        if wmclass is None or not wmclass:
             if traverse:
                 return self.__getWinClass(windowvar.query_tree().parent, True)
             else:
@@ -1026,8 +1047,11 @@ class XInterfaceBase(threading.Thread):
         return wmclass[0] + '.' + wmclass[1]
     
     def cancel(self):
+        logger.debug("XInterfaceBase: Try to exit event thread.")
         self.queue.put_nowait((None, None))
+        logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
         self.shutdown = True
+        logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
         self.listenerThread.join()
         self.eventThread.join()
         self.localDisplay.flush()
@@ -1125,121 +1149,121 @@ class AtSpiInterface(XInterfaceBase):
         pyatspi.Registry.pumpQueuedEvents()
         return True
 
-from .iomediator_constants import MODIFIERS
-from .iomediator_Key import Key
-# from .iomediator import Key, MODIFIERS
-from .configmanager import *
+
+from .iomediator.constants import MODIFIERS
+from .iomediator.key import Key
+from . import configmanager as cm
 
 XK.load_keysym_group('xkb')
 
 XK_TO_AK_MAP = {
-           XK.XK_Shift_L : Key.SHIFT,
-           XK.XK_Shift_R : Key.SHIFT,
-           XK.XK_Caps_Lock : Key.CAPSLOCK,
-           XK.XK_Control_L : Key.CONTROL,
-           XK.XK_Control_R : Key.CONTROL,
-           XK.XK_Alt_L : Key.ALT,
-           XK.XK_Alt_R : Key.ALT,
-           XK.XK_ISO_Level3_Shift : Key.ALT_GR,
-           XK.XK_Super_L : Key.SUPER,
-           XK.XK_Super_R : Key.SUPER,
-           XK.XK_Hyper_L : Key.HYPER,
-           XK.XK_Hyper_R : Key.HYPER,
-           XK.XK_Meta_L : Key.META,
-           XK.XK_Meta_R : Key.META,
-           XK.XK_Num_Lock : Key.NUMLOCK,
-           #SPACE : Key.SPACE,
-           XK.XK_Tab : Key.TAB,
-           XK.XK_Left : Key.LEFT,
-           XK.XK_Right : Key.RIGHT,
-           XK.XK_Up : Key.UP,
-           XK.XK_Down : Key.DOWN,
-           XK.XK_Return : Key.ENTER,
-           XK.XK_BackSpace : Key.BACKSPACE,
-           XK.XK_Scroll_Lock : Key.SCROLL_LOCK,
-           XK.XK_Print : Key.PRINT_SCREEN,
-           XK.XK_Pause : Key.PAUSE,
-           XK.XK_Menu : Key.MENU,
-           XK.XK_F1 : Key.F1,
-           XK.XK_F2 : Key.F2,
-           XK.XK_F3 : Key.F3,
-           XK.XK_F4 : Key.F4,
-           XK.XK_F5 : Key.F5,
-           XK.XK_F6 : Key.F6,
-           XK.XK_F7 : Key.F7,
-           XK.XK_F8 : Key.F8,
-           XK.XK_F9 : Key.F9,
-           XK.XK_F10 : Key.F10,
-           XK.XK_F11 : Key.F11,
-           XK.XK_F12 : Key.F12,
-           XK.XK_F13 : Key.F13,
-           XK.XK_F14 : Key.F14,
-           XK.XK_F15 : Key.F15,
-           XK.XK_F16 : Key.F16,
-           XK.XK_F17 : Key.F17,
-           XK.XK_F18 : Key.F18,
-           XK.XK_F19 : Key.F19,
-           XK.XK_F20 : Key.F20,
-           XK.XK_F21 : Key.F21,
-           XK.XK_F22 : Key.F22,
-           XK.XK_F23 : Key.F23,
-           XK.XK_F24 : Key.F24,
-           XK.XK_F25 : Key.F25,
-           XK.XK_F26 : Key.F26,
-           XK.XK_F27 : Key.F27,
-           XK.XK_F28 : Key.F28,
-           XK.XK_F29 : Key.F29,
-           XK.XK_F30 : Key.F30,
-           XK.XK_F31 : Key.F31,
-           XK.XK_F32 : Key.F32,
-           XK.XK_F33 : Key.F33,
-           XK.XK_F34 : Key.F34,
-           XK.XK_F35 : Key.F35,
-           XK.XK_Escape : Key.ESCAPE,
-           XK.XK_Insert : Key.INSERT,
-           XK.XK_Delete : Key.DELETE,
-           XK.XK_Home : Key.HOME,
-           XK.XK_End : Key.END,
-           XK.XK_Page_Up : Key.PAGE_UP,
-           XK.XK_Page_Down : Key.PAGE_DOWN,
-           XK.XK_KP_Insert : Key.NP_INSERT,
-           XK.XK_KP_Delete : Key.NP_DELETE,
-           XK.XK_KP_End : Key.NP_END,
-           XK.XK_KP_Down : Key.NP_DOWN,
-           XK.XK_KP_Page_Down : Key.NP_PAGE_DOWN,
-           XK.XK_KP_Left : Key.NP_LEFT,
-           XK.XK_KP_Begin : Key.NP_5,
-           XK.XK_KP_Right : Key.NP_RIGHT,
-           XK.XK_KP_Home : Key.NP_HOME,
+           XK.XK_Shift_L: Key.SHIFT,
+           XK.XK_Shift_R: Key.SHIFT,
+           XK.XK_Caps_Lock: Key.CAPSLOCK,
+           XK.XK_Control_L: Key.CONTROL,
+           XK.XK_Control_R: Key.CONTROL,
+           XK.XK_Alt_L: Key.ALT,
+           XK.XK_Alt_R: Key.ALT,
+           XK.XK_ISO_Level3_Shift: Key.ALT_GR,
+           XK.XK_Super_L: Key.SUPER,
+           XK.XK_Super_R: Key.SUPER,
+           XK.XK_Hyper_L: Key.HYPER,
+           XK.XK_Hyper_R: Key.HYPER,
+           XK.XK_Meta_L: Key.META,
+           XK.XK_Meta_R: Key.META,
+           XK.XK_Num_Lock: Key.NUMLOCK,
+           #SPACE: Key.SPACE,
+           XK.XK_Tab: Key.TAB,
+           XK.XK_Left: Key.LEFT,
+           XK.XK_Right: Key.RIGHT,
+           XK.XK_Up: Key.UP,
+           XK.XK_Down: Key.DOWN,
+           XK.XK_Return: Key.ENTER,
+           XK.XK_BackSpace: Key.BACKSPACE,
+           XK.XK_Scroll_Lock: Key.SCROLL_LOCK,
+           XK.XK_Print: Key.PRINT_SCREEN,
+           XK.XK_Pause: Key.PAUSE,
+           XK.XK_Menu: Key.MENU,
+           XK.XK_F1: Key.F1,
+           XK.XK_F2: Key.F2,
+           XK.XK_F3: Key.F3,
+           XK.XK_F4: Key.F4,
+           XK.XK_F5: Key.F5,
+           XK.XK_F6: Key.F6,
+           XK.XK_F7: Key.F7,
+           XK.XK_F8: Key.F8,
+           XK.XK_F9: Key.F9,
+           XK.XK_F10: Key.F10,
+           XK.XK_F11: Key.F11,
+           XK.XK_F12: Key.F12,
+           XK.XK_F13: Key.F13,
+           XK.XK_F14: Key.F14,
+           XK.XK_F15: Key.F15,
+           XK.XK_F16: Key.F16,
+           XK.XK_F17: Key.F17,
+           XK.XK_F18: Key.F18,
+           XK.XK_F19: Key.F19,
+           XK.XK_F20: Key.F20,
+           XK.XK_F21: Key.F21,
+           XK.XK_F22: Key.F22,
+           XK.XK_F23: Key.F23,
+           XK.XK_F24: Key.F24,
+           XK.XK_F25: Key.F25,
+           XK.XK_F26: Key.F26,
+           XK.XK_F27: Key.F27,
+           XK.XK_F28: Key.F28,
+           XK.XK_F29: Key.F29,
+           XK.XK_F30: Key.F30,
+           XK.XK_F31: Key.F31,
+           XK.XK_F32: Key.F32,
+           XK.XK_F33: Key.F33,
+           XK.XK_F34: Key.F34,
+           XK.XK_F35: Key.F35,
+           XK.XK_Escape: Key.ESCAPE,
+           XK.XK_Insert: Key.INSERT,
+           XK.XK_Delete: Key.DELETE,
+           XK.XK_Home: Key.HOME,
+           XK.XK_End: Key.END,
+           XK.XK_Page_Up: Key.PAGE_UP,
+           XK.XK_Page_Down: Key.PAGE_DOWN,
+           XK.XK_KP_Insert: Key.NP_INSERT,
+           XK.XK_KP_Delete: Key.NP_DELETE,
+           XK.XK_KP_End: Key.NP_END,
+           XK.XK_KP_Down: Key.NP_DOWN,
+           XK.XK_KP_Page_Down: Key.NP_PAGE_DOWN,
+           XK.XK_KP_Left: Key.NP_LEFT,
+           XK.XK_KP_Begin: Key.NP_5,
+           XK.XK_KP_Right: Key.NP_RIGHT,
+           XK.XK_KP_Home: Key.NP_HOME,
            XK.XK_KP_Up: Key.NP_UP,
-           XK.XK_KP_Page_Up : Key.NP_PAGE_UP,
-           XK.XK_KP_Divide : Key.NP_DIVIDE,
-           XK.XK_KP_Multiply : Key.NP_MULTIPLY,
-           XK.XK_KP_Add : Key.NP_ADD,
-           XK.XK_KP_Subtract : Key.NP_SUBTRACT,
-           XK.XK_KP_Enter : Key.ENTER,
-           XK.XK_space : ' '
+           XK.XK_KP_Page_Up: Key.NP_PAGE_UP,
+           XK.XK_KP_Divide: Key.NP_DIVIDE,
+           XK.XK_KP_Multiply: Key.NP_MULTIPLY,
+           XK.XK_KP_Add: Key.NP_ADD,
+           XK.XK_KP_Subtract: Key.NP_SUBTRACT,
+           XK.XK_KP_Enter: Key.ENTER,
+           XK.XK_space: ' '
            }
 
 AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.items())
 
 XK_TO_AK_NUMLOCKED = {
-           XK.XK_KP_Insert : "0",
-           XK.XK_KP_Delete : ".",
-           XK.XK_KP_End : "1",
-           XK.XK_KP_Down : "2",
-           XK.XK_KP_Page_Down : "3",
-           XK.XK_KP_Left : "4",
-           XK.XK_KP_Begin : "5",
-           XK.XK_KP_Right : "6",
-           XK.XK_KP_Home : "7",
+           XK.XK_KP_Insert: "0",
+           XK.XK_KP_Delete: ".",
+           XK.XK_KP_End: "1",
+           XK.XK_KP_Down: "2",
+           XK.XK_KP_Page_Down: "3",
+           XK.XK_KP_Left: "4",
+           XK.XK_KP_Begin: "5",
+           XK.XK_KP_Right: "6",
+           XK.XK_KP_Home: "7",
            XK.XK_KP_Up: "8",
-           XK.XK_KP_Page_Up : "9",
-           XK.XK_KP_Divide : "/",
-           XK.XK_KP_Multiply : "*",
-           XK.XK_KP_Add : "+",
-           XK.XK_KP_Subtract : "-",
-           XK.XK_KP_Enter : Key.ENTER
+           XK.XK_KP_Page_Up: "9",
+           XK.XK_KP_Divide: "/",
+           XK.XK_KP_Multiply: "*",
+           XK.XK_KP_Add: "+",
+           XK.XK_KP_Subtract: "-",
+           XK.XK_KP_Enter: Key.ENTER
            }
 
 

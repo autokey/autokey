@@ -21,10 +21,8 @@ from PyKDE4.kdeui import *
 from PyKDE4.kio import KFileDialog
 from PyKDE4.kdecore import i18n, KAutostart
 from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, Qt
 
-from ..configmanager import *
-from .. import iomediator, interface, model
+from .. import configmanager as cm
 from .dialogs import GlobalHotkeyDialog
 
 from . import generalsettings, specialhotkeysettings, enginesettings
@@ -36,19 +34,19 @@ class GeneralSettings(QWidget, generalsettings.Ui_Form):
         generalsettings.Ui_Form.__init__(self)
         self.setupUi(self)
 
-        self.promptToSaveCheckbox.setChecked(ConfigManager.SETTINGS[PROMPT_TO_SAVE])
-        self.showTrayCheckbox.setChecked(ConfigManager.SETTINGS[SHOW_TRAY_ICON])
-        #self.allowKbNavCheckbox.setChecked(ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        self.promptToSaveCheckbox.setChecked(cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
+        self.showTrayCheckbox.setChecked(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        #self.allowKbNavCheckbox.setChecked(cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS])
         self.allowKbNavCheckbox.setVisible(False)
-        self.sortByUsageCheckbox.setChecked(ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT])
-        self.enableUndoCheckbox.setChecked(ConfigManager.SETTINGS[UNDO_USING_BACKSPACE])
+        self.sortByUsageCheckbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
+        self.enableUndoCheckbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
         
     def save(self):
-        ConfigManager.SETTINGS[PROMPT_TO_SAVE] = self.promptToSaveCheckbox.isChecked()
-        ConfigManager.SETTINGS[SHOW_TRAY_ICON] = self.showTrayCheckbox.isChecked()
-        #ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.isChecked()
-        ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.isChecked()
-        ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.showTrayCheckbox.isChecked()
+        #cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.isChecked()
 
 
 class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):

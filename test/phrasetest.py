@@ -1,4 +1,5 @@
-import re, unittest
+import re
+import unittest
 
 from lib.phrase import *
 

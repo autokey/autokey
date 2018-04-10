@@ -28,7 +28,11 @@ _logger = logging.getLogger("phrase-menu")
 
 class MenuBase:
     
-    def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
+    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         self.service = service
         self.__i = 1
         self._onDesktop = onDesktop
@@ -96,22 +100,30 @@ class MenuBase:
         
 class PopupMenu(KMenu, MenuBase):
     
-    def __init__(self, service, folders=[], items=[], onDesktop=True, title=None):
+    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
         KMenu.__init__(self)
         MenuBase.__init__(self, service, folders, items, onDesktop, title)
-
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
         #if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
+
         self.setFocusPolicy(Qt.StrongFocus)
         # TODO - this doesn't always work - do something about this
             
 
 class SubMenu(KActionMenu, MenuBase):
     
-    def __init__(self, title, parent, service, folders=[], items=[], onDesktop=True):
+    def __init__(self, title, parent, service, folders: list=None, items: list=None, onDesktop=True):
         KActionMenu.__init__(self, title, parent)
         MenuBase.__init__(self, service, folders, items, onDesktop)
+        if items is None:
+            items = []
+        if folders is None:
+            folders = []
 
-        
+
 class ItemAction(KAction):
     
     def __init__(self, parent, description, item, target):
@@ -122,76 +134,3 @@ class ItemAction(KAction):
 
     def on_triggered(self):
         self.emit(SIGNAL("actionSig"), self.item)
-
-        
-# ---- TODO Testing stuff - remove later  
-
-class MockFolder:
-
-    def __init__(self, title):
-        self.title = title
-        self.items = []
-        self.folders = []
-
-    def add_item(self, item):
-        self.items.append(item)
-
-class MockPhrase:
-
-    def __init__(self, description):
-        self.description = description
-
-    def get_description(self, buffer):
-        return self.description
-
-
-class MockExpansionService:
-
-    lastStackState = ""
-    def __init__(self, app):
-        self.app = app
-
-    def item_selected(self, item):
-        print(item.description)
-        self.app.quit()
-        
-
-if __name__ == "__main__":
-    
-    myFolder = MockFolder("Some phrases")
-    myFolder.add_item(MockPhrase("phrase 1"))
-    myFolder.add_item(MockPhrase("phrase 2"))
-    myFolder.add_item(MockPhrase("phrase 3"))
-
-    myPhrases = []
-    myPhrases.append(MockPhrase("phrase 1"))
-    myPhrases.append(MockPhrase("phrase 2"))
-    myPhrases.append(MockPhrase("phrase 3"))    
-    
-    appName     = "KApplication"
-    catalog     = ""
-    programName = ki18n ("KApplication")
-    version     = "1.0"
-    description = ki18n ("KApplication/KMainWindow/KAboutData example")
-    license     = KAboutData.License_GPL
-    copyright   = ki18n ("(c) 2007 Jim Bublitz")
-    text        = ki18n ("none")
-    homePage    = "www.riverbankcomputing.com"
-    bugEmail    = "jbublitz@nwinternet.com"
-    
-    aboutData   = KAboutData (appName, catalog, programName, version, description,
-                                license, copyright, text, homePage, bugEmail)
-    
-        
-    KCmdLineArgs.init (sys.argv, aboutData)
-    app = KApplication()
-    
-    menu = PopupMenu(MockExpansionService(app), [myFolder], myPhrases)
-    #menu.show()
-    time.sleep(3)
-    menu.exec_(QCursor.pos())
-    print("shown")
-    
-    #app.exec_()
-    #print "done"
-    sys.exit()    
