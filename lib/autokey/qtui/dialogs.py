@@ -28,22 +28,13 @@ __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySetting
 from . import abbrsettings, hotkeysettings, windowfiltersettings, recorddialog, detectdialog
 from .. import model, iomediator
 from ..iomediator.key import Key
+from .common import EMPTY_FIELD_REGEX, validate
 
 WORD_CHAR_OPTIONS = {
                      "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter" : r"[^ \n]",
                      "Tab" : r"[^\t]"
                      }
-
-from .common import EMPTY_FIELD_REGEX
-
-
-def validate(expression, message, widget, parent):
-    if not expression:
-        QMessageBox.critical(parent, message, message)
-        if widget is not None:
-            widget.setFocus()
-    return expression
 
 
 
@@ -180,131 +171,8 @@ class AbbrSettingsDialog(KDialog):
             KDialog.slotButtonClicked(self, button)
 
 
-HotkeySettings = hotkeysettings.HotkeySettings
+HotkeySettingsDialog = hotkeysettings.HotkeySettingsDialog
 
-class HotkeySettingsDialog(KDialog):
-    
-    KEY_MAP = {
-               ' ' : "<space>",
-               }
-    
-    REVERSE_KEY_MAP = {}
-    for key, value in KEY_MAP.items():
-        REVERSE_KEY_MAP[value] = key
-
-    def __init__(self, parent):
-        KDialog.__init__(self, parent)
-        self.widget = HotkeySettings(self)
-        self.setMainWidget(self.widget)
-        self.setButtons(KDialog.ButtonCodes(KDialog.ButtonCode(KDialog.Ok | KDialog.Cancel)))
-        self.setPlainCaption(i18n("Set Hotkey"))
-        self.setModal(True)
-        self.key = None
-
-    def load(self, item):
-        self.targetItem = item
-        self.widget.setButton.setEnabled(True)
-        if model.TriggerMode.HOTKEY in item.modes:
-            self.widget.controlButton.setChecked(Key.CONTROL in item.modifiers)
-            self.widget.altButton.setChecked(Key.ALT in item.modifiers)
-            self.widget.shiftButton.setChecked(Key.SHIFT in item.modifiers)
-            self.widget.superButton.setChecked(Key.SUPER in item.modifiers)
-            self.widget.hyperButton.setChecked(Key.HYPER in item.modifiers)
-            self.widget.metaButton.setChecked(Key.META in item.modifiers)
-
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
-            
-        else:
-            self.reset()
-            
-    def save(self, item):
-        item.modes.append(model.TriggerMode.HOTKEY)
-        
-        # Build modifier list
-        modifiers = self.build_modifiers()
-            
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
-        
-    def reset(self):
-        self.widget.controlButton.setChecked(False)
-        self.widget.altButton.setChecked(False)
-        self.widget.shiftButton.setChecked(False)
-        self.widget.superButton.setChecked(False)
-        self.widget.hyperButton.setChecked(False)
-        self.widget.metaButton.setChecked(False)
-
-        self._setKeyLabel(i18n("(None)"))
-        self.key = None
-        self.widget.setButton.setEnabled(True)
-
-    def set_key(self, key, modifiers: list=None):
-        if modifiers is None:
-            modifiers = []
-        if key in self.KEY_MAP:
-            key = self.KEY_MAP[key]
-        self._setKeyLabel(key)
-        self.key = key
-        self.widget.controlButton.setChecked(Key.CONTROL in modifiers)
-        self.widget.altButton.setChecked(Key.ALT in modifiers)
-        self.widget.shiftButton.setChecked(Key.SHIFT in modifiers)
-        self.widget.superButton.setChecked(Key.SUPER in modifiers)
-        self.widget.hyperButton.setChecked(Key.HYPER in modifiers)
-        self.widget.metaButton.setChecked(Key.META in modifiers)
-
-        self.widget.setButton.setEnabled(True)
-            
-    def cancel_grab(self):
-        self.widget.setButton.setEnabled(True)
-        self._setKeyLabel(self.key)
-        
-    def build_modifiers(self):
-        modifiers = []
-        if self.widget.controlButton.isChecked():
-            modifiers.append(Key.CONTROL)
-        if self.widget.altButton.isChecked():
-            modifiers.append(Key.ALT)
-        if self.widget.shiftButton.isChecked():
-            modifiers.append(Key.SHIFT)
-        if self.widget.superButton.isChecked():
-            modifiers.append(Key.SUPER)
-        if self.widget.hyperButton.isChecked():
-            modifiers.append(Key.HYPER)
-        if self.widget.metaButton.isChecked():
-            modifiers.append(Key.META)
-        
-        modifiers.sort()
-        return modifiers
-        
-                
-    def slotButtonClicked(self, button):
-        if button == KDialog.Ok:
-            if self.__valid():
-                KDialog.slotButtonClicked(self, button)
-        else:
-            self.load(self.targetItem)
-            KDialog.slotButtonClicked(self, button)
-            
-    def _setKeyLabel(self, key):
-        self.widget.keyLabel.setText(i18n("Key: ") + key)
-        
-    def __valid(self):
-        if not validate(self.key is not None, i18n("You must specify a key for the hotkey."),
-                            None, self): return False
-        
-        return True
         
         
 class GlobalHotkeyDialog(HotkeySettingsDialog):
