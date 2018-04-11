@@ -92,7 +92,7 @@ _Both_ versions need
 * pyinotify
 * python-xlib
 
-[Installing Dependencies for Debian](#Debian-dependencies)
+[Installing Dependencies for Debian](#Installing-Debian-dependencies)
 
 Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user only:
 
@@ -117,7 +117,7 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
     $ autokey-gtk
     $ autokey-qt
     
-# Debian dependencies
+## Installing Debian dependencies<a name="Installing-Debian-dependencies"></a>
 
 (Under construction)
 
