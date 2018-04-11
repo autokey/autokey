@@ -1,10 +1,9 @@
-<RCC>
-  <qresource prefix="/ui">
-      <file alias="abbrsettings.ui">ui/abbrsettings.ui</file>
-      <file alias="hotkeysettings.ui">ui/hotkeysettings.ui</file>
-      <file alias="detectdialog.ui">ui/detectdialog.ui</file>
-      <file alias="window_filter_settings_dialog.ui">ui/window_filter_settings_dialog.ui</file>
-      <file alias="record_dialog.ui">ui/record_dialog.ui</file>
-  </qresource>
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>ui/abbrsettings.ui</file>
+    <file>ui/hotkeysettings.ui</file>
+    <file>ui/detectdialog.ui</file>
+    <file>ui/window_filter_settings_dialog.ui</file>
+    <file>ui/record_dialog.ui</file>
+</qresource>
 </RCC>
-
