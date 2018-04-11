@@ -92,7 +92,7 @@ _Both_ versions need
 * pyinotify
 * python-xlib
 
-See [Installing dependencies for Debian and Derivatives](#Installing-debian-dependencies)
+See [Installing Dependencies for Debian](#Installing-debian-dependencies)
 
 Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user only:
 
