@@ -92,7 +92,7 @@ _Both_ versions need
 * pyinotify
 * python-xlib
 
-Install AutoKey from the Python [AutoKey GitHub repository][autorepo] for your user only:
+Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user only:
 
     $ pip3 install --user git+https://github.com/autokey/autokey
     
