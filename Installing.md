@@ -92,6 +92,8 @@ _Both_ versions need
 * pyinotify
 * python-xlib
 
+See [Installing dependencies for Debian and Derivatives](#Installing-debian-dependencies)
+
 Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user only:
 
     $ pip3 install --user git+https://github.com/autokey/autokey
@@ -115,6 +117,10 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
     $ autokey-gtk
     $ autokey-qt
     
+##Installing-debian-dependencies
+(Under construction)
+`apt install gir1.2-appindicator3-0.1`
+
 November 2011
 Original author, Keith W. Daniels
 Edited by Joseph Pollock, troxor, and ersanchez
