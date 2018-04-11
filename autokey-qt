@@ -53,7 +53,10 @@ def delete_symlink():
 try: del os.environ['WINDOWID']
 except KeyError: pass
 
+from PyQt4 import QtCore
+QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
 from autokey.qtapp import Application
+
 
 a = Application()
 a.main()
