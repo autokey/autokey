@@ -117,7 +117,7 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
     $ autokey-gtk
     $ autokey-qt
     
-## Debian-dependencies
+# Debian dependencies
 
 (Under construction)
 
