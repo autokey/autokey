@@ -117,8 +117,10 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
     $ autokey-gtk
     $ autokey-qt
     
-##Installing-debian-dependencies
+#Installing-debian-dependencies
+
 (Under construction)
+
 `apt install gir1.2-appindicator3-0.1`
 
 November 2011
