@@ -14,11 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from .common import inherits_from_ui_file_with_name, validate
+from ..common import inherits_from_ui_file_with_name, validate
 
-from .. import iomediator
-from .. import model
-from ..iomediator.key import Key
+from ... import iomediator
+from ... import model
+from ...iomediator.key import Key
 
 
 class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
@@ -35,6 +35,8 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         super(HotkeySettingsDialog, self).__init__(parent)
         self.setupUi(self)
         self.key = None
+        self.target_item = None
+        self.grabber = None
 
     def on_setButton_pressed(self):
         self.setButton.setEnabled(False)
@@ -43,7 +45,7 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         self.grabber.start()
 
     def load(self, item):
-        self.targetItem = item
+        self.target_item = item
         self.setButton.setEnabled(True)
         if model.TriggerMode.HOTKEY in item.modes:
             self.controlButton.setChecked(Key.CONTROL in item.modifiers)
@@ -134,7 +136,7 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
             super().accept()
 
     def reject(self):
-        self.load(self.targetItem)
+        self.load(self.target_item)
         super().reject()
 
     def _setKeyLabel(self, key):
@@ -149,3 +151,40 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
             return False
 
         return True
+
+
+class GlobalHotkeyDialog(HotkeySettingsDialog):
+
+    def load(self, item):
+        self.target_item = item
+        if item.enabled:
+            self.controlButton.setChecked(Key.CONTROL in item.modifiers)
+            self.altButton.setChecked(Key.ALT in item.modifiers)
+            self.shiftButton.setChecked(Key.SHIFT in item.modifiers)
+            self.superButton.setChecked(Key.SUPER in item.modifiers)
+            self.hyperButton.setChecked(Key.HYPER in item.modifiers)
+            self.metaButton.setChecked(Key.META in item.modifiers)
+
+            key = item.hotKey
+            if key in self.KEY_MAP:
+                key_text = self.KEY_MAP[key]
+            else:
+                key_text = key
+            self._setKeyLabel(key_text)
+            self.key = key_text
+
+        else:
+            self.reset()
+
+    def save(self, item):
+        # Build modifier list
+        modifiers = self.build_modifiers()
+
+        keyText = self.key
+        if keyText in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[keyText]
+        else:
+            key = keyText
+
+        assert key is not None, "Attempt to set hotkey with no key"
+        item.set_hotkey(modifiers, key)

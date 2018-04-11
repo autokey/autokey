@@ -17,26 +17,26 @@
 """
 This module contains the abbreviation settings dialog and used components.
 This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
-
 """
 
 from PyQt4 import QtCore
 from PyQt4.QtGui import QListWidgetItem, QDialogButtonBox
 
 
-from .common import inherits_from_ui_file_with_name, EMPTY_FIELD_REGEX
-from .. import model
+from ..common import inherits_from_ui_file_with_name, EMPTY_FIELD_REGEX
+from autokey import model
 
 import logging
 logger = logging.getLogger("root").getChild("Qt-GUI").getChild("Abbreviation Settings Dialog")  # type: logging.Logger
 
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word" : model.DEFAULT_WORDCHAR_REGEX,
-                     "Space and Enter" : r"[^ \n]",
-                     "Tab" : r"[^\t]"
+                     "All non-word": model.DEFAULT_WORDCHAR_REGEX,
+                     "Space and Enter": r"[^ \n]",
+                     "Tab": r"[^\t]"
                      }
 WORD_CHAR_OPTIONS_ORDERED = tuple(sorted(WORD_CHAR_OPTIONS.keys()))
+
 
 class AbbrListItem(QListWidgetItem):
     """

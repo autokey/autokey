@@ -18,11 +18,11 @@ from PyQt4.QtGui import QDialog
 from PyQt4.QtGui import QFontMetrics
 from PyQt4.QtGui import QApplication
 
-from .common import inherits_from_ui_file_with_name
+from ..common import inherits_from_ui_file_with_name
 from .detectdialog import DetectDialog
 
-from .. import iomediator
-from .. import model
+from ... import iomediator
+from ... import model
 
 
 # TODO: Once the port to Qt5 is done, enable the clearButtonEnable property for the line edit in the UI editor.

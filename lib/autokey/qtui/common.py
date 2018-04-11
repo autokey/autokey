@@ -21,12 +21,14 @@ from PyQt4 import uic
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
+
 def validate(expression, message, widget, parent):
     if not expression:
         QMessageBox.critical(parent, message, message)
         if widget is not None:
             widget.setFocus()
     return expression
+
 
 def _get_ui_qfile(name: str):
     """
