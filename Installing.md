@@ -120,7 +120,7 @@ Original author, Keith W. Daniels
 Edited by Joseph Pollock, troxor, and ersanchez
 
 [aur]: https://aur.archlinux.org/packages/autokey-py3
-[autorepo]: https://github.com/autokey-py3/autokey
+[autorepo]: https://github.com/autokey/autokey
 [installgit]: https://git-scm.com/download/linux
 [installpip]: https://packaging.python.org/install_requirements_linux/#installing-pip-setuptools-wheel-with-linux-package-managers
 [layman]: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey-py3
