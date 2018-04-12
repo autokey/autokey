@@ -15,14 +15,40 @@
 
 import re
 import logging
+import os.path
 
 from PyQt4.QtCore import QFile
-from PyQt4.QtGui import QMessageBox
+from PyQt4.QtGui import QMessageBox, QFont
 from PyQt4 import uic
+
+from .. import configmanager as cm
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
 logger = logging.getLogger("root").getChild("Qt-GUI")  # type: logging.Logger
+
+
+def monospace_font() -> QFont:
+    """
+    Returns a monospace font used in the code editor widgets.
+    :return: QFont instance having a monospace font.
+    """
+    font = QFont("monospace")
+    font.setStyleHint(QFont.Monospace)
+    return font
+
+
+def set_url_label(button, path):
+    button.setEnabled(True)
+
+    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)")
+    else:
+        text = path.replace(os.path.expanduser("~"), "~")
+    url = "file://" + path
+    # TODO elide text?
+    button.setText("""<a href="{url}">{text}</a>""".format(url=url, text=text))
+
 
 def validate(expression, message, widget, parent):
     if not expression:
@@ -60,7 +86,7 @@ def load_ui_from_file(name: str):
     :return:
     """
     ui_file = _get_ui_qfile(name)
-    base_type = uic.loadUiType(ui_file)
+    base_type = uic.loadUiType(ui_file, from_imports=True)
     ui_file.close()
     return base_type
 

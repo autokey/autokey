@@ -25,7 +25,6 @@ from PyQt4 import Qsci
 
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
-API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
 
 from .dialogs import *
 from .settingsdialog import SettingsDialog
@@ -38,150 +37,25 @@ PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
 
 _logger = logging.getLogger("configwindow")
 
-def set_url_label(button, path):
+
+def set_url_label(button, path):   # TODO: phase out in favour of fixed version in common
+    import warnings
+    warnings.warn("Usage of old set_url_label", DeprecationWarning)
     button.setEnabled(True)
-    
+
     if path.startswith(CONFIG_DEFAULT_FOLDER):
-        text = path.replace(CONFIG_DEFAULT_FOLDER, i18n("(Default folder)"))
+        text = path.replace(CONFIG_DEFAULT_FOLDER, "(Default folder)")
     else:
         text = path.replace(os.path.expanduser("~"), "~")
-    
+
     button.setText(text)
     # TODO elide text?
     button.setUrl("file://" + path)
 
 # ---- Internal widgets
 
-from . import scriptpage
+from .scriptpage import ScriptPage
 
-class ScriptPage(QWidget, scriptpage.Ui_ScriptPage):
-
-    def __init__(self):
-        QWidget.__init__(self)
-        scriptpage.Ui_ScriptPage.__init__(self)
-        self.setupUi(self)
-        
-        self.scriptCodeEditor.setUtf8(1)
-
-        lex = Qsci.QsciLexerPython(self)
-        api = Qsci.QsciAPIs(lex)
-        api.load(API_FILE)
-        api.prepare()
-
-        self.scriptCodeEditor.setLexer(lex)
-
-        self.scriptCodeEditor.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
-        self.scriptCodeEditor.setAutoIndent(True)
-        self.scriptCodeEditor.setBackspaceUnindents(True)
-        self.scriptCodeEditor.setIndentationWidth(4)
-        self.scriptCodeEditor.setIndentationGuides(True)
-        self.scriptCodeEditor.setIndentationsUseTabs(False)
-        self.scriptCodeEditor.setAutoCompletionThreshold(3)
-        self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
-        self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNoContext)
-        lex.setFont(KGlobalSettings.fixedFont())
-        
-    def load(self, script):
-        self.currentScript = script
-        self.scriptCodeEditor.clear()
-        self.scriptCodeEditor.append(script.code)
-        self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
-        self.promptCheckbox.setChecked(script.prompt)
-        self.settingsWidget.load(script)
-        self.topLevelWidget().set_undo_available(False)
-        self.topLevelWidget().set_redo_available(False)
-        
-        if self.is_new_item():
-            self.urlLabel.setEnabled(False)
-            self.urlLabel.setText(i18n("(Unsaved)"))
-        else:
-            set_url_label(self.urlLabel, self.currentScript.path)
-
-    def save(self):
-        self.settingsWidget.save()
-        self.currentScript.code = str(self.scriptCodeEditor.text())
-        self.currentScript.showInTrayMenu = self.showInTrayCheckbox.isChecked()
-        
-        self.currentScript.persist()
-        set_url_label(self.urlLabel, self.currentScript.path)
-        return False
-
-    def set_item_title(self, title):
-        self.currentScript.description = title
-        
-    def rebuild_item_path(self):
-        self.currentScript.rebuild_path()
-        
-    def is_new_item(self):
-        return self.currentScript.path is None
-    
-    def reset(self):
-        self.load(self.currentScript)
-        self.topLevelWidget().set_undo_available(False)
-        self.topLevelWidget().set_redo_available(False)
-    
-    def set_dirty(self):
-        self.topLevelWidget().set_dirty()  
-        
-    def start_record(self):
-        self.scriptCodeEditor.append("\n")
-        
-    def start_key_sequence(self):
-        self.scriptCodeEditor.append("keyboard.send_keys(\"")
-        
-    def end_key_sequence(self):
-        self.scriptCodeEditor.append("\")\n")        
-    
-    def append_key(self, key):
-        self.scriptCodeEditor.append(key)
-        
-    def append_hotkey(self, key, modifiers):
-        keyString = self.currentScript.get_hotkey_string(key, modifiers)
-        self.scriptCodeEditor.append(keyString)
-        
-    def append_mouseclick(self, xCoord, yCoord, button, windowTitle):
-        self.scriptCodeEditor.append("mouse.click_relative(%d, %d, %d) # %s\n" % (xCoord, yCoord, int(button), windowTitle))
-        
-    def undo(self):
-        self.scriptCodeEditor.undo()
-        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
-        
-    def redo(self):
-        self.scriptCodeEditor.redo()
-        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
-        
-    def validate(self):
-        errors = []
-        
-        # Check script code        
-        code = str(self.scriptCodeEditor.text())
-        if EMPTY_FIELD_REGEX.match(code):
-            errors.append(i18n("The script code can't be empty"))
-            
-        # Check settings
-        errors += self.settingsWidget.validate()
-        
-        if errors:
-            msg = i18n(PROBLEM_MSG_SECONDARY, '\n'.join([str(e) for e in errors]))
-            KMessageBox.detailedError(self.topLevelWidget(), PROBLEM_MSG_PRIMARY.toString(), msg)
-                
-        return len(errors) == 0
-        
-    # --- Signal handlers
-
-    def on_scriptCodeEditor_textChanged(self):
-        self.set_dirty()
-        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
-        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
-
-    def on_promptCheckbox_stateChanged(self, state):
-        self.set_dirty()
-
-    def on_showInTrayCheckbox_stateChanged(self, state):
-        self.set_dirty()
-        
-    def on_urlLabel_leftClickedUrl(self, url=None):
-        if url: subprocess.Popen(["/usr/bin/xdg-open", url])
 
 
 from . import phrasepage

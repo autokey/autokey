@@ -6,5 +6,6 @@
     <file>ui/window_filter_settings_dialog.ui</file>
     <file>ui/record_dialog.ui</file>
     <file>ui/settingswidget.ui</file>
+    <file>ui/scriptpage.ui</file>
 </qresource>
 </RCC>
