@@ -7,5 +7,6 @@
     <file>ui/record_dialog.ui</file>
     <file>ui/settingswidget.ui</file>
     <file>ui/scriptpage.ui</file>
+    <file>ui/phrasepage.ui</file>
 </qresource>
 </RCC>

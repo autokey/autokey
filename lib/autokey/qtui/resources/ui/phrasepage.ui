@@ -15,20 +15,29 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="KUrlLabel" name="urlLabel">
+    <widget class="QLabel" name="urlLabel">
+     <property name="toolTip">
+      <string>Open the phrase in the default text editor.</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <property name="tipText">
-      <string>Open the phrase in the default text editor</string>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextBrowserInteraction</set>
+     </property>
+     <property name="tipText" stdset="0">
+      <string/>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="KTextEdit" name="phraseText">
-     <property name="tabChangesFocus">
-      <bool>true</bool>
-     </property>
+    <widget class="QTextEdit" name="phraseText">
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>
      </property>
@@ -42,52 +51,52 @@
      <property name="title">
       <string>Phrase Settings</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="3">
        <widget class="QCheckBox" name="promptCheckbox">
         <property name="text">
          <string>Always prompt before pasting this phrase</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>Paste using</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="3" column="1">
+       <widget class="QComboBox" name="sendModeCombo"/>
+      </item>
+      <item row="1" column="0" colspan="3">
        <widget class="QCheckBox" name="showInTrayCheckbox">
         <property name="text">
          <string>Show in notification icon menu</string>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>Paste using</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QComboBox" name="sendModeCombo"/>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
+      <item row="4" column="0" colspan="3">
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
-      <item>
-       <widget class="KSeparator" name="kseparator"/>
-      </item>
-      <item>
+      <item row="5" column="0" colspan="3">
        <widget class="SettingsWidget" name="settingsWidget" native="true"/>
       </item>
      </layout>
@@ -97,24 +106,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KSeparator</class>
-   <extends>QFrame</extends>
-   <header>kseparator.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KUrlLabel</class>
-   <extends>QLabel</extends>
-   <header>kurllabel.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KTextEdit</class>
-   <extends>QTextEdit</extends>
-   <header>ktextedit.h</header>
-  </customwidget>
-  <customwidget>
    <class>SettingsWidget</class>
    <extends>QWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.settingswidget</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
