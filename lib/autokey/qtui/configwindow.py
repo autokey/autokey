@@ -56,68 +56,7 @@ def set_url_label(button, path):   # TODO: phase out in favour of fixed version 
 
 from .scriptpage import ScriptPage
 from .phrasepage import PhrasePage
-
-
-
-from . import folderpage
-
-class FolderPage(QWidget, folderpage.Ui_FolderPage):
-
-    def __init__(self):
-        QWidget.__init__(self)
-        folderpage.Ui_FolderPage.__init__(self)
-        self.setupUi(self)
-        
-    def load(self, folder):
-        self.currentFolder = folder
-        self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
-        self.settingsWidget.load(folder)
-
-        if self.is_new_item():
-            self.urlLabel.setEnabled(False)
-            self.urlLabel.setText(i18n("(Unsaved)"))
-        else:
-            set_url_label(self.urlLabel, self.currentFolder.path)
-        
-    def save(self):
-        self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
-        self.settingsWidget.save()
-        self.currentFolder.persist()
-        set_url_label(self.urlLabel, self.currentFolder.path)
-        
-        return not self.currentFolder.path.startswith(CONFIG_DEFAULT_FOLDER)
-        
-    def set_item_title(self, title):
-        self.currentFolder.title = title
-        
-    def rebuild_item_path(self):
-        self.currentFolder.rebuild_path()
-        
-    def is_new_item(self):
-        return self.currentFolder.path is None
-        
-    def reset(self):
-        self.load(self.currentFolder)        
-        
-    def validate(self):
-        # Check settings
-        errors = self.settingsWidget.validate()
-        
-        if errors:
-            msg = i18n(PROBLEM_MSG_SECONDARY, '\n'.join([str(e) for e in errors]))
-            KMessageBox.detailedError(self.topLevelWidget(), PROBLEM_MSG_PRIMARY.toString(), msg)
-                
-        return len(errors) == 0
-        
-    def set_dirty(self):
-        self.topLevelWidget().set_dirty()  
-        
-    # --- Signal handlers
-    def on_showInTrayCheckbox_stateChanged(self, state):
-        self.set_dirty()
-        
-    def on_urlLabel_leftClickedUrl(self, url=None):
-        if url: subprocess.Popen(["/usr/bin/xdg-open", url])
+from .folderpage import FolderPage
 
 
 class AkTreeWidget(QTreeWidget):

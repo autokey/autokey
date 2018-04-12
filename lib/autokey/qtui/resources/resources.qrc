@@ -8,5 +8,6 @@
     <file>ui/settingswidget.ui</file>
     <file>ui/scriptpage.ui</file>
     <file>ui/phrasepage.ui</file>
+    <file>ui/folderpage.ui</file>
 </qresource>
 </RCC>
