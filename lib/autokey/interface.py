@@ -34,7 +34,7 @@ import Xlib.threaded as xlib_threaded
 del xlib_threaded
 
 
-from autokey import common
+from . import common
 
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
@@ -165,8 +165,7 @@ class XInterfaceBase(threading.Thread):
                 logger.exception("Error in X event loop thread")
 
             self.queue.task_done()
-            logger.debug("__eventLoop: (Approximated) Remaining enqueued events: {}".format(self.queue.qsize()))
-    
+
     def __enqueue(self, method, *args):
         self.queue.put_nowait((method, args))
 
@@ -1265,34 +1264,3 @@ XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Subtract: "-",
            XK.XK_KP_Enter: Key.ENTER
            }
-
-
-class MockMediator:
-    """
-    Mock IoMediator for testing purposes.
-    """
-
-    def handle_modifier_down(self, modifier):
-        pass
-
-    def handle_modifier_up(self, modifier):
-        pass
-
-    def handle_keypress(self, keyCode, windowName):
-        pass
-
-    def handle_mouse_click(self):
-        pass
-
-
-
-if __name__ == "__main__":
-    import time
-    x = XLibInterface(MockMediator(), True)
-    x.start()
-    x.keymap_test()
-    time.sleep(10.0)
-    #time.sleep(4.0)
-    #x.send_unicode_key([0, 3, 9, 4])
-    x.cancel()
-    print("Test completed. Thank you for your assistance in improving AutoKey!")
