@@ -14,10 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+from .. import common
 from ..common import inherits_from_ui_file_with_name
 
 import logging
-logger = logging.getLogger("root").getChild("Qt-GUI").getChild("Record Dialog")  # type: logging.Logger
+logger = common.logger.getChild("Record Dialog")  # type: logging.Logger
 
 
 class RecordDialog(*inherits_from_ui_file_with_name("record_dialog")):

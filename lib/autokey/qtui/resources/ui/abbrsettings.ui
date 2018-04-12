@@ -9,38 +9,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>734</width>
-    <height>394</height>
+    <width>566</width>
+    <height>467</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Set Abbreviations</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="8" column="3">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="9" column="1">
-    <widget class="QPushButton" name="removeButton">
+   <item row="1" column="0" rowspan="8" colspan="2">
+    <widget class="QListWidget" name="abbrListWidget">
      <property name="toolTip">
-      <string>Delete the selected abbreviation.</string>
+      <string>These abbreviations are already assigned. After editing, press &lt;Enter&gt; or select another element to save.</string>
      </property>
-     <property name="text">
-      <string/>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
-     <property name="icon">
-      <iconset theme="list-remove">
-       <normaloff>.</normaloff>.</iconset>
+     <property name="uniformItemSizes">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -55,94 +41,10 @@ If unchecked, the abbreviation text is kept.</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="2" colspan="3">
-    <widget class="QCheckBox" name="matchCaseCheckbox">
-     <property name="text">
-      <string>Match phrase case to typed abbreviation</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="2" colspan="3">
-    <widget class="QCheckBox" name="omitTriggerCheckbox">
-     <property name="text">
-      <string>Omit trigger character</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QComboBox" name="wordCharCombo">
-     <property name="editable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="2" colspan="3">
-    <widget class="QCheckBox" name="ignoreCaseCheckbox">
-     <property name="text">
-      <string>Ignore case of typed abbreviation</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QLabel" name="triggerOnLabel">
-     <property name="text">
-      <string>Trigger on:</string>
-     </property>
-    </widget>
-   </item>
    <item row="6" column="2" colspan="3">
     <widget class="QCheckBox" name="triggerInsideCheckbox">
      <property name="text">
       <string>Trigger when typed as part of a word</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>360</width>
-       <height>29</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="10" column="0" colspan="5">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2" colspan="3">
-    <widget class="QCheckBox" name="immediateCheckbox">
-     <property name="text">
-      <string>Trigger immediately (don't require a trigger character)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="0" rowspan="8" colspan="2">
-    <widget class="QListWidget" name="abbrListWidget">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="toolTip">
-      <string>These abbreviations are already assigned. After editing, press &lt;Enter&gt; or select another element to save.</string>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-     <property name="uniformItemSizes">
-      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -159,6 +61,98 @@ If unchecked, the abbreviation text is kept.</string>
       <bool>false</bool>
      </property>
     </widget>
+   </item>
+   <item row="5" column="2" colspan="3">
+    <widget class="QCheckBox" name="ignoreCaseCheckbox">
+     <property name="text">
+      <string>Ignore case of typed abbreviation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QComboBox" name="wordCharCombo">
+     <property name="editable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="2" colspan="3">
+    <widget class="QCheckBox" name="matchCaseCheckbox">
+     <property name="text">
+      <string>Match phrase case to typed abbreviation</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>360</width>
+       <height>29</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="2">
+    <widget class="QLabel" name="triggerOnLabel">
+     <property name="text">
+      <string>Trigger on:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2" colspan="3">
+    <widget class="QCheckBox" name="omitTriggerCheckbox">
+     <property name="text">
+      <string>Omit trigger character</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2" colspan="3">
+    <widget class="QCheckBox" name="immediateCheckbox">
+     <property name="text">
+      <string>Trigger immediately (don't require a trigger character)</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0" colspan="5">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1">
+    <widget class="QPushButton" name="removeButton">
+     <property name="toolTip">
+      <string>Delete the selected abbreviation.</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset theme="list-remove">
+       <normaloff>.</normaloff>.</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="3">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item row="0" column="0" colspan="5">
     <widget class="QLabel" name="label">

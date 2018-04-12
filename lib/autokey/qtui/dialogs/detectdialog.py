@@ -14,7 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+
+from .. import common
 from ..common import inherits_from_ui_file_with_name
+
+logger = common.logger.getChild("DetectDialog")
 
 
 class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
@@ -33,11 +37,16 @@ class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
 
         self.detected_title.setText(window_info[0])
         self.detected_class.setText(window_info[1])
+        logger.info(
+            "Detected window with properties title: {}, window class: {}".format(window_info[0], window_info[1])
+        )
         self.window_info = window_info
 
     def get_choice(self):
         # This relies on autoExclusive being set to true in the ui file.
         if self.classButton.isChecked():
+            logger.debug("User has chosen the window class: {}".format(self.window_info[1]))
             return self.window_info[1]
         else:
+            logger.debug("User has chosen the window title: {}".format(self.window_info[0]))
             return self.window_info[0]

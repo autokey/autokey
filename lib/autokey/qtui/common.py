@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import re
+import logging
 
 from PyQt4.QtCore import QFile
 from PyQt4.QtGui import QMessageBox
@@ -21,6 +22,7 @@ from PyQt4 import uic
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
+logger = logging.getLogger("root").getChild("Qt-GUI")  # type: logging.Logger
 
 def validate(expression, message, widget, parent):
     if not expression:

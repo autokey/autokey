@@ -19,16 +19,17 @@ This module contains the abbreviation settings dialog and used components.
 This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
 """
 
+import logging
+
 from PyQt4 import QtCore
 from PyQt4.QtGui import QListWidgetItem, QDialogButtonBox
 
+from .. import common
+from ..common import inherits_from_ui_file_with_name
 
-from ..common import inherits_from_ui_file_with_name, EMPTY_FIELD_REGEX
 from autokey import model
 
-import logging
-logger = logging.getLogger("root").getChild("Qt-GUI").getChild("Abbreviation Settings Dialog")  # type: logging.Logger
-
+logger = common.logger.getChild("Abbreviation Settings Dialog")  # type: logging.Logger
 
 WORD_CHAR_OPTIONS = {
                      "All non-word": model.DEFAULT_WORDCHAR_REGEX,
@@ -85,9 +86,10 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
             self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def on_abbrListWidget_itemChanged(self, item):
-        if EMPTY_FIELD_REGEX.match(item.text()):
+        if common.EMPTY_FIELD_REGEX.match(item.text()):
             row = self.abbrListWidget.row(item)
             self.abbrListWidget.takeItem(row)
+            logger.debug("User deleted abbreviation content. Deleted empty list element.")
             del item
         else:
             # The item is non-empty. Therefore there is at least one element in the list, thus input is valid.
@@ -95,6 +97,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
             self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(True)
 
         if self.abbrListWidget.count() == 0:
+            logger.debug("Last abbreviation deleted, disabling delete and OK buttons.")
             self.removeButton.setEnabled(False)
             # The user can only accept the dialog if the content is valid
             self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)

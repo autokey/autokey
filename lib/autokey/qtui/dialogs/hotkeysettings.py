@@ -14,11 +14,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from ..common import inherits_from_ui_file_with_name, validate
+import logging
+
+from .. import common
+from ..common import inherits_from_ui_file_with_name
 
 from ... import iomediator
 from ... import model
 from ...iomediator.key import Key
+
+logger = common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger
 
 
 class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
@@ -41,6 +46,7 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
     def on_setButton_pressed(self):
         self.setButton.setEnabled(False)
         self.keyLabel.setText("Press a key or combination...")  # TODO: i18n
+        logger.debug("User starts to record a key combination.")
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
 
@@ -57,12 +63,12 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
 
             key = item.hotKey
             if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
+                key_text = self.KEY_MAP[key]
             else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
-
+                key_text = key
+            self._setKeyLabel(key_text)
+            self.key = key_text
+            logger.debug("Loaded item {}, key: {}, modifiers: {}".format(item, key_text, item.modifiers))
         else:
             self.reset()
 
@@ -72,13 +78,14 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         # Build modifier list
         modifiers = self.build_modifiers()
 
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
+        key_text = self.key
+        if key_text in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[key_text]
         else:
-            key = keyText
+            key = key_text
 
         assert key is not None, "Attempt to set hotkey with no key"
+        logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
         item.set_hotkey(modifiers, key)
 
     def reset(self):
@@ -110,6 +117,7 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         self.setButton.setEnabled(True)
 
     def cancel_grab(self):
+        logger.debug("User canceled hotkey recording.")
         self.setButton.setEnabled(True)
         self._setKeyLabel(self.key)
 
@@ -143,7 +151,7 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         self.keyLabel.setText("Key: " + key)  # TODO: i18n
 
     def __valid(self):
-        if not validate(
+        if not common.validate(
                 self.key is not None,
                 "You must specify a key for the hotkey.",
                 None,
@@ -180,11 +188,11 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         # Build modifier list
         modifiers = self.build_modifiers()
 
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
+        key_text = self.key
+        if key_text in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[key_text]
         else:
-            key = keyText
+            key = key_text
 
         assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
