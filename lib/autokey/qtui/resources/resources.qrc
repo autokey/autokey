@@ -5,5 +5,6 @@
     <file>ui/detectdialog.ui</file>
     <file>ui/window_filter_settings_dialog.ui</file>
     <file>ui/record_dialog.ui</file>
+    <file>ui/settingswidget.ui</file>
 </qresource>
 </RCC>

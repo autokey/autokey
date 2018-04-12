@@ -58,4 +58,4 @@ class Ui_ScriptPage(object):
 
 from PyQt4 import Qsci
 from PyKDE4.kdeui import KUrlLabel, KSeparator
-from .configwindow import SettingsWidget
+from .settingswidget import SettingsWidget
