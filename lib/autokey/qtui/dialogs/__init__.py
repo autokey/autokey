@@ -19,9 +19,17 @@ This package contains all user dialogs. All these dialogs subclass QDialog.
 They perform various input tasks.
 """
 
-__all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
+__all__ = [
+    "validate",
+    "EMPTY_FIELD_REGEX",
+    "AbbrSettingsDialog",
+    "HotkeySettingsDialog",
+    "GlobalHotkeyDialog",
+    "WindowFilterSettingsDialog",
+    "RecordDialog"
+]
 
-from ..common import EMPTY_FIELD_REGEX, validate
+from autokey.qtui.common import EMPTY_FIELD_REGEX, validate
 
 
 from .abbrsettings import AbbrSettingsDialog
