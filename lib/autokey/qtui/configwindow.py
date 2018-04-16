@@ -45,21 +45,6 @@ PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
 _logger = autokey.qtui.common.logger.getChild("configwindow")  # type: logging.Logger
 
 
-def set_url_label(button, path):   # TODO: phase out in favour of fixed version in common
-    import warnings
-    warnings.warn("Usage of old set_url_label", DeprecationWarning)
-    button.setEnabled(True)
-
-    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)")
-    else:
-        text = path.replace(os.path.expanduser("~"), "~")
-
-    button.setText(text)
-    # TODO elide text?
-    button.setUrl("file://" + path)
-
-
 # ---- Configuration window
 from . import centralwidget
 
