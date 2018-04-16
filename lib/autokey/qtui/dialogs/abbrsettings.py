@@ -46,7 +46,7 @@ class AbbrListItem(QListWidgetItem):
     """
 
     def __init__(self, text):
-        QListWidgetItem.__init__(self, text)
+        super(AbbrListItem, self).__init__(text)
         self.setFlags(self.flags() | QtCore.Qt.ItemFlags(QtCore.Qt.ItemIsEditable))
 
     def setData(self, role, value):
@@ -61,8 +61,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
     def __init__(self, parent):
         super().__init__(parent)
         self.setupUi()
-        for item in WORD_CHAR_OPTIONS_ORDERED:
-            self.wordCharCombo.addItem(item)
+        self._reset_word_char_combobox()
 
     def setupUi(self):
         self.setObjectName("Form")  # TODO: needed? Maybe use a better name than 'Form'
@@ -106,15 +105,15 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
         self.abbrListWidget.editItem(item)
 
     def on_ignoreCaseCheckbox_stateChanged(self, state):
-        if not self.ignoreCaseCheckbox.isChecked():
+        if not state:
             self.matchCaseCheckbox.setChecked(False)
 
     def on_matchCaseCheckbox_stateChanged(self, state):
-        if self.matchCaseCheckbox.isChecked():
+        if state:
             self.ignoreCaseCheckbox.setChecked(True)
 
     def on_immediateCheckbox_stateChanged(self, state):
-        if self.immediateCheckbox.isChecked():
+        if state:
             self.omitTriggerCheckbox.setChecked(False)
             self.omitTriggerCheckbox.setEnabled(False)
             self.wordCharCombo.setEnabled(False)
@@ -136,7 +135,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
 
         self.removeTypedCheckbox.setChecked(item.backspace)
 
-        self.__resetWordCharCombo()
+        self._reset_word_char_combobox()
 
         wordCharRegex = item.get_word_chars()
         if wordCharRegex in list(WORD_CHAR_OPTIONS.values()):
@@ -195,7 +194,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
     def reset(self):
         self.removeButton.setEnabled(False)
         self.abbrListWidget.clear()
-        self.__resetWordCharCombo()
+        self._reset_word_char_combobox()
         self.omitTriggerCheckbox.setChecked(False)
         self.removeTypedCheckbox.setChecked(True)
         self.matchCaseCheckbox.setChecked(False)
@@ -203,7 +202,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
         self.triggerInsideCheckbox.setChecked(False)
         self.immediateCheckbox.setChecked(False)
 
-    def __resetWordCharCombo(self):
+    def _reset_word_char_combobox(self):
         self.wordCharCombo.clear()
         for item in WORD_CHAR_OPTIONS_ORDERED:
             self.wordCharCombo.addItem(item)
