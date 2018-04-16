@@ -22,7 +22,7 @@
      <widget class="AkTreeWidget" name="treeWidget">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>1</horstretch>
+        <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
@@ -66,31 +66,19 @@
        </property>
       </column>
      </widget>
-     <widget class="QWidget" name="qwidget_1" native="true">
+     <widget class="QStackedWidget" name="stack">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>2</horstretch>
+        <horstretch>1</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QStackedWidget" name="stack">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>1</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="currentIndex">
-          <number>0</number>
-         </property>
-         <widget class="FolderPage" name="folderPage"/>
-         <widget class="PhrasePage" name="phrasePage"/>
-         <widget class="ScriptPage" name="scriptPage"/>
-        </widget>
-       </item>
-      </layout>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="FolderPage" name="folderPage"/>
+      <widget class="PhrasePage" name="phrasePage"/>
+      <widget class="ScriptPage" name="scriptPage"/>
      </widget>
     </widget>
    </item>
@@ -119,25 +107,25 @@
   <customwidget>
    <class>FolderPage</class>
    <extends>QWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.folderpage</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>PhrasePage</class>
    <extends>QWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.phrasepage</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>ScriptPage</class>
    <extends>QWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.scriptpage</header>
    <container>1</container>
   </customwidget>
   <customwidget>
    <class>AkTreeWidget</class>
    <extends>QTreeWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.autokey_treewidget</header>
   </customwidget>
  </customwidgets>
  <resources/>

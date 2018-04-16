@@ -15,27 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, webbrowser, subprocess, time
-from PyKDE4.kio import *
-from PyKDE4.kdeui import *
-from PyKDE4.kdecore import i18n, ki18n, KUrl
-from PyQt4.QtGui import *
-from PyQt4.QtCore import SIGNAL, Qt
-from PyQt4 import Qsci
+import os.path
+import webbrowser
+import time
+import logging
+import threading
+
+from PyKDE4.kdeui import *  # TODO: Remove
+from PyKDE4.kdecore import i18n, ki18n  # TODO: Remove
+
+import PyQt4.QtGui
+from PyQt4.QtCore import SIGNAL
+
+import autokey.common
+from autokey import model
+from autokey import configmanager as cm
+
+import autokey.qtui.common
+from . import dialogs
+from .settingsdialog import SettingsDialog
 
 
 ACTION_DESCRIPTION_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/gui.xml")
 
-from .dialogs import *
-from .settingsdialog import SettingsDialog
-from ..configmanager import *
-from ..iomediator import Recorder
-from .. import model
 
 PROBLEM_MSG_PRIMARY = ki18n("Some problems were found")
 PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
 
-_logger = logging.getLogger("configwindow")
+_logger = autokey.qtui.common.logger.getChild("configwindow")  # type: logging.Logger
 
 
 def set_url_label(button, path):   # TODO: phase out in favour of fixed version in common
@@ -43,8 +50,8 @@ def set_url_label(button, path):   # TODO: phase out in favour of fixed version 
     warnings.warn("Usage of old set_url_label", DeprecationWarning)
     button.setEnabled(True)
 
-    if path.startswith(CONFIG_DEFAULT_FOLDER):
-        text = path.replace(CONFIG_DEFAULT_FOLDER, "(Default folder)")
+    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)")
     else:
         text = path.replace(os.path.expanduser("~"), "~")
 
@@ -52,509 +59,16 @@ def set_url_label(button, path):   # TODO: phase out in favour of fixed version 
     # TODO elide text?
     button.setUrl("file://" + path)
 
-# ---- Internal widgets
-
-from .scriptpage import ScriptPage
-from .phrasepage import PhrasePage
-from .folderpage import FolderPage
-
-
-class AkTreeWidget(QTreeWidget):
-
-    def edit(self, index, trigger, event):
-        if index.column() == 0:
-            return QTreeWidget.edit(self, index, trigger, event)
-        return False
-    
-    def keyPressEvent(self, event):
-        if self.topLevelWidget().is_dirty() and \
-            (event.matches(QKeySequence.MoveToNextLine) or event.matches(QKeySequence.MoveToPreviousLine)):
-            veto = self.parentWidget().parentWidget().promptToSave()
-            if not veto:
-                QTreeWidget.keyPressEvent(self, event)
-            else:
-                event.ignore()
-        else:
-            QTreeWidget.keyPressEvent(self, event)        
-    
-    def mousePressEvent(self, event):
-        if self.topLevelWidget().is_dirty():
-            veto = self.parentWidget().parentWidget().promptToSave()
-            if not veto:
-                QTreeWidget.mousePressEvent(self, event)
-                QTreeWidget.mouseReleaseEvent(self, event)
-            else:
-                event.ignore()
-        else:
-            QTreeWidget.mousePressEvent(self, event)
-            
-            
-    def dragMoveEvent(self, event):
-        target = self.itemAt(event.pos())
-        if isinstance(target, FolderWidgetItem):
-            QTreeWidget.dragMoveEvent(self, event)
-        else:
-            event.ignore()
-            
-    def dropEvent(self, event):
-        target = self.itemAt(event.pos())
-        sources = self.selectedItems()
-        self.parentWidget().parentWidget().move_items(sources, target)
-                
-
-from . import centralwidget
-
-class CentralWidget(QWidget, centralwidget.Ui_CentralWidget):
-
-    def __init__(self, parent, app):
-        QWidget.__init__(self, parent)
-        centralwidget.Ui_CentralWidget.__init__(self)
-        self.setupUi(self)
-
-        self.set_dirty(False)
-        self.configManager = app.configManager
-        self.recorder = Recorder(self.scriptPage)
-        
-        self.cutCopiedItems = []
-
-        [self.treeWidget.setColumnWidth(x, ConfigManager.SETTINGS[COLUMN_WIDTHS][x]) for x in range(3)]
-        hView = self.treeWidget.header()
-        hView.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive|QHeaderView.ResizeToContents))
-
-        self.logHandler = ListWidgetHandler(self.listWidget, app)
-        self.listWidget.hide()
-
-        # Log view context menu
-        
-                                
-    def populate_tree(self, config):
-        factory = WidgetItemFactory(config.folders)
-        
-        rootFolders = factory.get_root_folder_list()
-        for item in rootFolders:
-            self.treeWidget.addTopLevelItem(item)
-        
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0))
-        self.on_treeWidget_itemSelectionChanged()
-
-    def set_splitter(self, winSize):
-        pos = ConfigManager.SETTINGS[HPANE_POSITION]
-        self.splitter.setSizes([pos, winSize.width() - pos])
-        
-    def set_dirty(self, dirty):
-        self.dirty = dirty
-
-    def promptToSave(self):
-        if ConfigManager.SETTINGS[PROMPT_TO_SAVE]:
-            result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
-                        i18n("There are unsaved changes. Would you like to save them?"))
-        
-            if result == KMessageBox.Yes:
-                return self.on_save()
-            elif result == KMessageBox.Cancel:
-                return True
-        else:
-            # don't prompt, just save
-            return self.on_save()
-            
-    # ---- Signal handlers
-    
-    def on_treeWidget_customContextMenuRequested(self, position):
-        factory = self.topLevelWidget().guiFactory()
-        menu = factory.container("Context", self.topLevelWidget())
-        menu.popup(QCursor.pos())
-        
-    def on_treeWidget_itemChanged(self, item, column):
-        if item is self.treeWidget.selectedItems()[0] and column == 0:
-            newText = str(item.text(0))
-            if validate(not EMPTY_FIELD_REGEX.match(newText), i18n("The name can't be empty."),
-                        None, self.topLevelWidget()):
-
-                self.parentWidget().app.monitor.suspend()
-                self.stack.currentWidget().set_item_title(newText)
-                self.stack.currentWidget().rebuild_item_path()
-
-                persistGlobal = self.stack.currentWidget().save()
-                self.parentWidget().app.monitor.unsuspend()
-                self.parentWidget().app.config_altered(persistGlobal)
-
-                self.treeWidget.sortItems(0, Qt.AscendingOrder)
-            else:
-                item.update()
-        
-    def on_treeWidget_itemSelectionChanged(self):
-        modelItems = self.__getSelection()
-        
-        if len(modelItems) == 1:
-            modelItem = modelItems[0]
-            if isinstance(modelItem, model.Folder):
-                self.stack.setCurrentIndex(0)
-                self.folderPage.load(modelItem)
-                
-            elif isinstance(modelItem, model.Phrase):
-                self.stack.setCurrentIndex(1)
-                self.phrasePage.load(modelItem)
-                
-            elif isinstance(modelItem, model.Script):
-                self.stack.setCurrentIndex(2)
-                self.scriptPage.load(modelItem)
-                
-            self.topLevelWidget().update_actions(modelItems, True)
-            self.set_dirty(False)
-            self.parentWidget().cancel_record()
-            
-        else:
-            self.topLevelWidget().update_actions(modelItems, False)
-        
-    def on_new_topfolder(self):
-        result = KMessageBox.questionYesNoCancel(self.topLevelWidget(),
-                    i18n("Create folder in the default location?"),
-                    "Create Folder", KStandardGuiItem.yes(),
-                    KGuiItem(i18n("Create Elsewhere")))
-        
-        self.topLevelWidget().app.monitor.suspend()
-
-        if result == KMessageBox.Yes:
-            self.__createFolder(None)
-
-        elif result != KMessageBox.Cancel:
-            path = KFileDialog.getExistingDirectory(KUrl(), self.topLevelWidget())
-
-            if path != "":
-                path = str(path)
-                name = os.path.basename(path)
-                folder = model.Folder(name, path=path)
-                newItem = FolderWidgetItem(None, folder)
-                self.treeWidget.addTopLevelItem(newItem)
-                self.configManager.folders.append(folder)
-                self.topLevelWidget().app.config_altered(True)
-
-            self.topLevelWidget().app.monitor.unsuspend()
-        else:
-            self.topLevelWidget().app.monitor.unsuspend()
-
-    
-    def on_new_folder(self):
-        parentItem = self.treeWidget.selectedItems()[0]
-        self.__createFolder(parentItem)
-
-    def __createFolder(self, parentItem):
-        folder = model.Folder("New Folder")
-        newItem = FolderWidgetItem(parentItem, folder)
-        self.topLevelWidget().app.monitor.suspend()
-
-        if parentItem is not None:
-            parentFolder = self.__extractData(parentItem)
-            parentFolder.add_folder(folder)
-        else:
-            self.treeWidget.addTopLevelItem(newItem)
-            self.configManager.folders.append(folder)
-        
-        folder.persist()
-        self.topLevelWidget().app.monitor.unsuspend()
-
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.on_treeWidget_itemSelectionChanged()
-        self.on_rename()
-        
-    def on_new_phrase(self):
-        self.topLevelWidget().app.monitor.suspend()
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
-        
-        phrase = model.Phrase("New Phrase", "Enter phrase contents")
-        newItem = PhraseWidgetItem(parentItem, phrase)
-        parent.add_item(phrase)
-        phrase.persist()
-
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
-        self.on_treeWidget_itemSelectionChanged()
-        self.on_rename()      
-        
-    def on_new_script(self):
-        self.topLevelWidget().app.monitor.suspend()
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
-        
-        script = model.Script("New Script", "#Enter script code")
-        newItem = ScriptWidgetItem(parentItem, script)
-        parent.add_item(script)
-        script.persist()
-
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
-        self.on_treeWidget_itemSelectionChanged()
-        self.on_rename()  
-        
-    def on_undo(self):
-        self.stack.currentWidget().undo()
-
-    def on_redo(self):
-        self.stack.currentWidget().redo()
-        
-    def on_copy(self):
-        sourceObjects = self.__getSelection()
-        
-        for source in sourceObjects:        
-            if isinstance(source, model.Phrase):
-                newObj = model.Phrase('', '')
-            else:
-                newObj = model.Script('', '')
-            newObj.copy(source)
-            self.cutCopiedItems.append(newObj)
-
-    def on_clone(self):
-        sourceObject = self.__getSelection()[0]
-        parentItem = self.treeWidget.selectedItems()[0].parent()
-        parent = self.__extractData(parentItem)
-
-        if isinstance(sourceObject, model.Phrase):
-            newObj = model.Phrase('', '')
-            newObj.copy(sourceObject)
-            newItem = PhraseWidgetItem(parentItem, newObj)
-        else:
-            newObj = model.Script('', '')
-            newObj.copy(sourceObject)
-            newItem = ScriptWidgetItem(parentItem, newObj)
-
-        parent.add_item(newObj)
-        self.topLevelWidget().app.monitor.suspend()
-        newObj.persist()
-        
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
-        self.on_treeWidget_itemSelectionChanged()
-        self.parentWidget().app.config_altered(False)
-
-    def on_cut(self):
-        self.cutCopiedItems = self.__getSelection()
-        self.topLevelWidget().app.monitor.suspend()
-        
-        sourceItems = self.treeWidget.selectedItems()
-        result = [f for f in sourceItems if f.parent() not in sourceItems]
-        for item in result:
-            self.__removeItem(item)
-
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.parentWidget().app.config_altered(False)
-        
-    def on_paste(self):
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
-        self.topLevelWidget().app.monitor.suspend()
-        
-        newItems = []
-        for item in self.cutCopiedItems:
-            if isinstance(item, model.Folder):
-                f = WidgetItemFactory(None)
-                newItem = FolderWidgetItem(parentItem, item)
-                f.processFolder(newItem, item)
-                parent.add_folder(item)
-            elif isinstance(item, model.Phrase):
-                newItem = PhraseWidgetItem(parentItem, item)
-                parent.add_item(item)
-            else:
-                newItem = ScriptWidgetItem(parentItem, item)
-                parent.add_item(item)
-
-            item.persist()
-                
-            newItems.append(newItem)
-
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItems[-1])
-        self.on_treeWidget_itemSelectionChanged()
-        self.cutCopiedItems = []
-        for item in newItems:
-            self.treeWidget.setItemSelected(item, True)
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.parentWidget().app.config_altered(False)
-
-    def on_delete(self):
-        widgetItems = self.treeWidget.selectedItems()
-        self.topLevelWidget().app.monitor.suspend()
-
-        if len(widgetItems) == 1:
-            widgetItem = widgetItems[0]
-            data = self.__extractData(widgetItem)
-            if isinstance(data, model.Folder):
-                msg = i18n("Are you sure you want to delete the '%1' folder and all the items in it?", data.title)
-            else:
-                msg = i18n("Are you sure you want to delete '%1'?", data.description)
-        else:
-            msg = i18n("Are you sure you want to delete the %1 selected folders/items?", str(len(widgetItems)))
-
-        result = KMessageBox.questionYesNo(self.topLevelWidget(), msg)
-
-        if result == KMessageBox.Yes:
-            for widgetItem in widgetItems:
-                self.__removeItem(widgetItem)
-
-        self.topLevelWidget().app.monitor.unsuspend()
-        if result == KMessageBox.Yes:
-            self.parentWidget().app.config_altered(False)
-            
-    def on_rename(self):
-        widgetItem = self.treeWidget.selectedItems()[0]
-        self.treeWidget.editItem(widgetItem, 0)
-        
-    def on_save(self):
-        if self.stack.currentWidget().validate():
-            self.parentWidget().app.monitor.suspend()
-            persistGlobal = self.stack.currentWidget().save()
-            self.topLevelWidget().save_completed(persistGlobal)
-            self.set_dirty(False)
-            
-            item = self.treeWidget.selectedItems()[0]
-            item.update()
-            self.treeWidget.update()
-            self.treeWidget.sortItems(0, Qt.AscendingOrder)
-            self.parentWidget().app.monitor.unsuspend()
-            return False
-
-        return True
-        
-    def on_reset(self):
-        self.stack.currentWidget().reset()
-        self.set_dirty(False)
-        self.parentWidget().cancel_record()
-
-    def on_save_log(self):
-        fileName = KFileDialog.getSaveFileName(KUrl(), "", self.parentWidget(),
-                    "Save log file")
-
-        if fileName != "":
-            try:
-                f = open(fileName, 'w')
-                for i in range(self.listWidget.count()):
-                    text = self.listWidget.item(i).text()
-                    f.write(text)
-                    f.write('\n')
-            except:
-                logging.getLogger().exception("Error saving log file")
-            finally:
-                f.close()
-
-    def on_clear_log(self):
-        self.listWidget.clear()
-        
-    def move_items(self, sourceItems, target):
-        targetModelItem = self.__extractData(target)
-        
-        # Filter out any child objects that belong to a parent already in the list
-        result = [f for f in sourceItems if f.parent() not in sourceItems]
-        
-        self.parentWidget().app.monitor.suspend()
-        
-        for source in result:
-            self.__removeItem(source)
-            sourceModelItem = self.__extractData(source)
-            
-            if isinstance(sourceModelItem, model.Folder):
-                targetModelItem.add_folder(sourceModelItem)
-                self.__moveRecurseUpdate(sourceModelItem)
-            else:
-                targetModelItem.add_item(sourceModelItem)
-                sourceModelItem.path = None
-                sourceModelItem.persist()
-                
-            target.addChild(source)
-        
-        self.parentWidget().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.parentWidget().app.config_altered(True)  
-        
-    def __moveRecurseUpdate(self, folder):
-        folder.path = None
-        folder.persist()
-        
-        for subfolder in folder.folders:
-            self.__moveRecurseUpdate(subfolder)
-        
-        for child in folder.items:
-            child.path = None
-            child.persist()
-        
-    # ---- Private methods
-
-    def get_selected_item(self):
-        return self.__getSelection()
-    
-    def __getSelection(self):
-        items = self.treeWidget.selectedItems()
-        ret = []
-        for item in items:
-            ret.append(self.__extractData(item))
-            
-        # Filter out any child objects that belong to a parent already in the list
-        result = [f for f in ret if f.parent not in ret]
-        return result
-        
-    def __extractData(self, item):
-        variant = item.data(3, Qt.UserRole)
-        return variant#.toPyObject()
-        
-    def __removeItem(self, widgetItem):
-        parent = widgetItem.parent()
-        item = self.__extractData(widgetItem)
-        self.__deleteHotkeys(item)
-        
-        if parent is None:
-            removedIndex = self.treeWidget.indexOfTopLevelItem(widgetItem)
-            self.treeWidget.takeTopLevelItem(removedIndex)
-            self.configManager.folders.remove(item)
-        else:
-            removedIndex = parent.indexOfChild(widgetItem)
-            parent.removeChild(widgetItem)
-        
-            if isinstance(item, model.Folder):
-                item.parent.remove_folder(item)
-            else:
-                item.parent.remove_item(item)
-        
-        item.remove_data()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-
-        if parent is not None:
-            if parent.childCount() > 0:
-                newIndex = min([removedIndex, parent.childCount() - 1])
-                self.treeWidget.setCurrentItem(parent.child(newIndex))
-            else:
-                self.treeWidget.setCurrentItem(parent)
-        else:
-            newIndex = min([removedIndex, self.treeWidget.topLevelItemCount() - 1])
-            self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(newIndex))
-            
-    def __deleteHotkeys(self, theItem):
-        if model.TriggerMode.HOTKEY in theItem.modes:
-            self.topLevelWidget().app.hotkey_removed(theItem)
-
-        if isinstance(theItem, model.Folder):
-            for subFolder in theItem.folders:
-                self.__deleteHotkeys(subFolder)
-
-            for item in theItem.items:
-                if model.TriggerMode.HOTKEY in item.modes:
-                    self.topLevelWidget().app.hotkey_removed(item)
-        
-        
 
 # ---- Configuration window
-    
+from . import centralwidget
+
+
 class ConfigWindow(KXmlGuiWindow):
 
     def __init__(self, app):
         KXmlGuiWindow.__init__(self)
-        self.centralWidget = CentralWidget(self, app)
+        self.centralWidget = centralwidget.CentralWidget(self, app)
         self.setCentralWidget(self.centralWidget)
         self.app = app
         
@@ -566,7 +80,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.newFolder = self.__createAction("new-folder", i18n("Sub-folder"), "folder-new", self.centralWidget.on_new_folder)
         self.newPhrase = self.__createAction("new-phrase", i18n("Phrase"), "text-x-generic", self.centralWidget.on_new_phrase, KStandardShortcut.New)
         self.newScript = self.__createAction("new-script", i18n("Script"), "text-x-python", self.centralWidget.on_new_script)
-        self.newScript.setShortcut(QKeySequence("Ctrl+Shift+n"))
+        self.newScript.setShortcut(PyQt4.QtGui.QKeySequence("Ctrl+Shift+n"))
         self.save = self.__createAction("save", i18n("Save"), "document-save", self.centralWidget.on_save, KStandardShortcut.Save)
         
         self.create.addAction(self.newTopFolder)
@@ -582,21 +96,21 @@ class ConfigWindow(KXmlGuiWindow):
         self.copy = self.__createAction("copy-item", i18n("Copy Item"), "edit-copy", self.centralWidget.on_copy)
         self.paste = self.__createAction("paste-item", i18n("Paste Item"), "edit-paste", self.centralWidget.on_paste)
         self.clone = self.__createAction("clone-item", i18n("Clone Item"), "edit-copy", self.centralWidget.on_clone)
-        #self.cut.setShortcut(QKeySequence("Ctrl+Shift+x"))
-        #self.copy.setShortcut(QKeySequence("Ctrl+Shift+c"))
-        self.clone.setShortcut(QKeySequence("Ctrl+Shift+c"))
+        #self.cut.setShortcut(PyQt4.QtGui.QKeySequence("Ctrl+Shift+x"))
+        #self.copy.setShortcut(PyQt4.QtGui.QKeySequence("Ctrl+Shift+c"))
+        self.clone.setShortcut(PyQt4.QtGui.QKeySequence("Ctrl+Shift+c"))
         
         self.undo = self.__createAction("undo", i18n("Undo"), "edit-undo", self.centralWidget.on_undo, KStandardShortcut.Undo)
         self.redo = self.__createAction("redo", i18n("Redo"), "edit-redo", self.centralWidget.on_redo, KStandardShortcut.Redo)
         
         rename = self.__createAction("rename", i18n("Rename"), None, self.centralWidget.on_rename)
-        rename.setShortcut(QKeySequence("f2"))
+        rename.setShortcut(PyQt4.QtGui.QKeySequence("f2"))
         
         self.delete = self.__createAction("delete-item", i18n("Delete"), "edit-delete", self.centralWidget.on_delete)
-        self.delete.setShortcut(QKeySequence("Ctrl+d"))
+        self.delete.setShortcut(PyQt4.QtGui.QKeySequence("Ctrl+d"))
         self.record = self.__createToggleAction("record", i18n("Record Script"), self.on_record, "media-record")
         self.run = self.__createAction("run", i18n("Run Script"), "media-playback-start", self.on_run_script)
-        self.run.setShortcut(QKeySequence("f8"))
+        self.run.setShortcut(PyQt4.QtGui.QKeySequence("f8"))
         self.insertMacro = self.__createMenuAction("insert-macro", i18n("Insert Macro"), None, None)
         menu = app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro, self.insertMacro.menu())
         
@@ -605,7 +119,7 @@ class ConfigWindow(KXmlGuiWindow):
         self.advancedSettings = self.__createAction("advanced-settings", i18n("Configure AutoKey"), "configure", self.on_advanced_settings)
         self.__createAction("script-error", i18n("View script error"), "dialog-error", self.on_show_error)
         self.showLog = self.__createToggleAction("show-log-view", i18n("Show log view"), self.on_show_log)
-        self.showLog.setShortcut(QKeySequence("f4"))
+        self.showLog.setShortcut(PyQt4.QtGui.QKeySequence("f4"))
         
         # Help Menu
         self.__createAction("online-help", i18n("Online Manual"), "help-contents", self.on_show_help)
@@ -681,9 +195,10 @@ class ConfigWindow(KXmlGuiWindow):
     def set_redo_available(self, state):
         self.redo.setEnabled(state)
 
-    def save_completed(self, persistGlobal):
+    def save_completed(self, persist_global):
+        _logger.debug("Saving completed. persist_global: {}".format(persist_global))
         self.save.setEnabled(False)
-        self.app.config_altered(persistGlobal)
+        self.app.config_altered(persist_global)
         
     def __createAction(self, actionName, name, iconName=None, target=None, shortcut=None):
         if iconName is not None:
@@ -731,11 +246,11 @@ class ConfigWindow(KXmlGuiWindow):
     # ---- Signal handlers ----
     
     def queryClose(self):
-        ConfigManager.SETTINGS[HPANE_POSITION] = self.centralWidget.splitter.sizes()[0] + 4
+        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.centralWidget.splitter.sizes()[0] + 4
         l = []
         for x in range(3):
             l.append(self.centralWidget.treeWidget.columnWidth(x))
-        ConfigManager.SETTINGS[COLUMN_WIDTHS] = l
+        cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS] = l
         
         if self.is_dirty():
             if self.centralWidget.promptToSave():
@@ -763,7 +278,7 @@ class ConfigWindow(KXmlGuiWindow):
             
     def on_record(self):
         if self.record.isChecked():
-            dlg = RecordDialog(self, self.__doRecord)
+            dlg = dialogs.RecordDialog(self, self.__doRecord)
             dlg.show()
         else:
             self.centralWidget.recorder.stop()
@@ -806,195 +321,18 @@ class ConfigWindow(KXmlGuiWindow):
     # Help Menu
             
     def on_show_faq(self):
-        webbrowser.open(common.FAQ_URL, False, True)
+        webbrowser.open(autokey.common.FAQ_URL, False, True)
         
     def on_show_help(self):
-        webbrowser.open(common.HELP_URL, False, True)
+        webbrowser.open(autokey.common.HELP_URL, False, True)
 
     def on_show_api(self):
-        webbrowser.open(common.API_URL, False, True)
+        webbrowser.open(autokey.common.API_URL, False, True)
         
     def on_report_bug(self):
-        webbrowser.open(common.BUG_URL, False, True)
+        webbrowser.open(autokey.common.BUG_URL, False, True)
 
     def on_about(self):
         dlg = KAboutApplicationDialog(self.app.aboutData, self)
         dlg.show()
 
-# ---- TreeWidget and helper functions
-
-class WidgetItemFactory:
-    
-    def __init__(self, rootFolders):
-        self.folders = rootFolders
-    
-    def get_root_folder_list(self):
-        rootItems = []
-        
-        for folder in self.folders:
-            item = self.__buildItem(None, folder)
-            rootItems.append(item)
-            self.processFolder(item, folder)
-            
-        return rootItems
-        
-    def processFolder(self, parentItem, parentFolder):
-        for folder in parentFolder.folders:
-            item = self.__buildItem(parentItem, folder)
-            self.processFolder(item, folder)
-        
-        for childModelItem in parentFolder.items:
-            self.__buildItem(parentItem, childModelItem)
-    
-    def __buildItem(self, parent, item):
-        if isinstance(item, model.Folder):
-            return FolderWidgetItem(parent, item)
-        elif isinstance(item, model.Phrase):
-            return PhraseWidgetItem(parent, item)
-        elif isinstance(item, model.Script):
-            return ScriptWidgetItem(parent, item)
-
-
-class FolderWidgetItem(QTreeWidgetItem):
-    
-    def __init__(self, parent, folder):
-        QTreeWidgetItem.__init__(self)
-        self.folder = folder
-        self.setIcon(0, KIcon("folder"))
-        self.setText(0, folder.title)
-        self.setText(1, folder.get_abbreviations())
-        self.setText(2, folder.get_hotkey_string())
-        # self.setData(3, Qt.UserRole, QVariant(folder))
-        self.setData(3, Qt.UserRole, folder)
-        if parent is not None:
-            parent.addChild(self)
-            
-        self.setFlags(self.flags() | Qt.ItemIsEditable)
-            
-    def update(self):
-        self.setText(0, self.folder.title)
-        self.setText(1, self.folder.get_abbreviations())
-        self.setText(2, self.folder.get_hotkey_string())        
-        
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return False
-            
-    def __lt__(self, other):
-        if isinstance(other, FolderWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return True
-            
-
-class PhraseWidgetItem(QTreeWidgetItem):
-    
-    def __init__(self, parent, phrase):
-        QTreeWidgetItem.__init__(self)
-        self.phrase = phrase
-        self.setIcon(0, KIcon("text-x-generic"))
-        self.setText(0, phrase.description)
-        self.setText(1, phrase.get_abbreviations())
-        self.setText(2, phrase.get_hotkey_string())
-        # self.setData(3, Qt.UserRole, QVariant(phrase))
-        self.setData(3, Qt.UserRole, phrase)
-        if parent is not None:
-            parent.addChild(self)      
-            
-        self.setFlags(self.flags() | Qt.ItemIsEditable)
-            
-    def update(self):
-        self.setText(0, self.phrase.description)
-        self.setText(1, self.phrase.get_abbreviations())
-        self.setText(2, self.phrase.get_hotkey_string())
-        
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return True
-            
-    def __lt__(self, other):
-        if isinstance(other, PhraseWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return False
-            
-
-class ScriptWidgetItem(QTreeWidgetItem):
-    
-    def __init__(self, parent, script):
-        QTreeWidgetItem.__init__(self)
-        self.script = script
-        self.setIcon(0, KIcon("text-x-python"))
-        self.setText(0, script.description)
-        self.setText(1, script.get_abbreviations())
-        self.setText(2, script.get_hotkey_string())
-        # self.setData(3, Qt.UserRole, QVariant(script))
-        self.setData(3, Qt.UserRole, script)
-        if parent is not None:
-            parent.addChild(self)
-            
-        self.setFlags(self.flags() | Qt.ItemIsEditable)
-            
-    def update(self):
-        self.setText(0, self.script.description)
-        self.setText(1, self.script.get_abbreviations())
-        self.setText(2, self.script.get_hotkey_string())
-        
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return True
-            
-    def __lt__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return False
-
-    
-class ListWidgetHandler(logging.Handler):
-
-    def __init__(self, listWidget, app):
-        logging.Handler.__init__(self)
-        self.widget = listWidget
-        self.app = app
-        self.level = logging.DEBUG
-
-        rootLogger = logging.getLogger()
-        logFormat = "%(message)s"
-        rootLogger.addHandler(self)
-        self.setFormatter(logging.Formatter(logFormat))
-
-    def flush(self):
-        pass
-
-    def emit(self, record):
-        try:
-            item = QListWidgetItem(self.format(record))
-            if record.levelno > logging.INFO:
-                item.setIcon(KIcon("dialog-warning"))
-                item.setForeground(QBrush(Qt.red))
-                
-            else:
-                item.setIcon(KIcon("dialog-information"))
-
-            self.app.exec_in_main(self.__addItem, item)
-                
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            self.handleError(record)
-
-    def __addItem(self, item):
-        self.widget.addItem(item)
-
-        if self.widget.count() > 50:
-            delItem = self.widget.takeItem(0)
-            del delItem
-
-        self.widget.scrollToBottom()
