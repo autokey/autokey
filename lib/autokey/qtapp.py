@@ -34,7 +34,7 @@ import dbus.mainloop.qt
 from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
 from PyKDE4.kdeui import KMessageBox, KApplication
 from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
-from PyQt4.QtGui import QCursor
+from PyQt4.QtGui import QCursor, QMessageBox
 
 
 from . import service, monitor
@@ -109,7 +109,7 @@ class Application:
             self.initialise(args.isSet("configure"))
 
         except Exception as e:
-            self.show_error_dialog(i18n("Fatal error starting AutoKey.\n") + str(e))
+            self.show_error_dialog(i18n("Fatal error starting AutoKey."), str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
@@ -245,7 +245,7 @@ class Application:
         self.service.shutdown()
         self.monitor.stop()
         self.app.quit()
-        os.remove(common.LOCK_FILE)
+        os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logging.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):
@@ -275,24 +275,34 @@ class Application:
     def show_configure_async(self):
         self.exec_in_main(self.show_configure)
 
-    def show_error_dialog(self, message, details=None):
+    @staticmethod
+    def show_error_dialog(message: str, details: str=None):
         """
         Convenience method for showing an error dialog.
         """
-        if details is None:
-            KMessageBox.error(None, message)
-        else:
-            KMessageBox.detailedError(None, message, details)
+        # TODO: i18n
+        message_box = QMessageBox(
+            QMessageBox.Critical,
+            "Error",
+            message,
+            QMessageBox.Ok,
+            None
+        )
+        if details:
+            message_box.setDetailedText(details)
+        message_box.exec_()
 
     def show_script_error(self):
         """
         Show the last script error (if any)
         """
-        if self.service.scriptRunner.error != '':
-            KMessageBox.information(None, self.service.scriptRunner.error, i18n("View Script Error Details"))
+        # TODO: i18n
+        if self.service.scriptRunner.error:
+            details = self.service.scriptRunner.error
             self.service.scriptRunner.error = ''
         else:
-            KMessageBox.information(None, i18n("No error information available"), i18n("View Script Error Details"))
+            details = "No error information available"
+        QMessageBox.information(None, "View Script Error Details", details)
 
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:
