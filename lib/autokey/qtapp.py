@@ -114,17 +114,19 @@ class Application:
             sys.exit(1)
 
     def __createLockFile(self):
-        # TODO: with-statement
-        f = open(common.LOCK_FILE, 'w')
-        f.write(str(os.getpid()))
-        f.close()
+        with open(common.LOCK_FILE, "w") as lock_file:
+            lock_file.write(str(os.getpid()))
 
     def __verifyNotRunning(self):
         if os.path.exists(common.LOCK_FILE):
-            # TODO: with-statement
-            f = open(common.LOCK_FILE, 'r')
-            pid = f.read()
-            f.close()
+            with open(common.LOCK_FILE, "r") as lock_file:
+                pid = lock_file.read()
+            try:
+                # Check if the pid file contains garbage
+                int(pid)
+            except ValueError:
+                logging.exception("AutoKey pid file contains garbage instead of a usable process id: {}.".format(pid))
+                sys.exit(1)
 
             # Check that the found PID is running and is autokey
             with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
@@ -135,7 +137,7 @@ class Application:
 
                 try:
                     dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface = "org.autokey.Service")
+                    dbusService.show_configure(dbus_interface="org.autokey.Service")
                     sys.exit(0)
                 except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
