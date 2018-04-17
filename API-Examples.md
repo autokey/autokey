@@ -1,5 +1,5 @@
 # API Examples #
-Currently there are examples for dialogs, keyboard, and windows. Other types of example to follow.
+Currently there are examples for dialogs, keyboard, store, and windows. Other types of example to follow.
 
 ## Introduction ##
 
@@ -11,6 +11,7 @@ The example types are as follows:
 
 - [Dialogs](#dialogs)
 - [Keyboard](#keyboard)
+- [Store](#store)
 - [Window](#window)
 
 ## Dialogs ##
@@ -434,6 +435,142 @@ You cannot use this function to wait for modifier keys, such as \<ctrl>, on thei
 		dialog.info_dialog(title='Timeout', message=myMessage)
 
 
+
+## Store ##
+
+- [Get global value](#get-global-value)
+- [Get value](#get-value)
+- [Remove global value](#remove-global-value)
+- [Remove value](#remove-value)
+- [Set global value](#set-global-value)
+- [Set value](#set-value)
+
+
+### Get global value ###
+
+This script sets global value "myValue" to "hello" and then gets the value that has been set and displays it in an info dialog.
+
+Global values can be accessed by all AutoKey scripts. The values are available in future AutoKey sessions.
+
+
+### Get global value script ###
+
+    store.set_global_value("myValue","hello")
+    x = store.get_global_value("myValue")
+    dialog.info_dialog(title='Value of global value myValue', 
+        message=x, width='200') 
+
+
+### Get value ###
+
+This script sets local value "myLocalValue" to "My local value" and then gets the value that has been set and displays it in an info dialog.
+
+Local script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
+
+Script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
+
+### Get value script ###
+
+    store.set_value("myValue","hello")
+    x = store.get_value("myValue")
+    dialog.info_dialog(title='Value of local value myValue', 
+        message=x, width='200') 
+
+
+### Remove global value ###
+
+This script does the following:
+
+1. Sets global value "myValue" to "hello" 
+
+2. Gets the value that has been set and displays it in an info dialog
+
+3. Removes global value "myValue"
+
+4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
+
+
+### Remove global value script ###
+
+    store.set_global_value("myValue","hello")
+    x = store.get_global_value("myValue")
+
+    dialog.info_dialog(title='Value of global value myValue', 
+        message=x, width='200') # width is extra Zenity parameter 
+
+    store.remove_global_value("myValue")
+
+    try:
+        y = store.get_global_value("myValue")
+        dialog.info_dialog(title='Value of global value myValue', 
+            message=y, width='200') # width is extra Zenity parameter 
+
+    except TypeError:
+        dialog.info_dialog(title='Global value myValue', 
+            message="myValue does not exist", width='200') # width is extra Zenity parameter 
+
+
+### Remove value ###
+
+This script does the following:
+
+1. Sets local value "myValue" to "hello" 
+
+2. Gets the value that has been set and displays it in an info dialog
+
+3. Removes local value "myValue"
+
+4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
+
+
+### Remove value script ###
+
+    store.set_value("myValue","hello")
+    x = store.get_value("myValue")
+
+    dialog.info_dialog(title='Value of local value myValue', 
+        message=x, width='200') # width is extra Zenity parameter 
+
+    store.remove_value("myValue")
+
+    try:
+        y = store.get_value("myValue")
+        dialog.info_dialog(title='Value of local value myValue', 
+            message=y, width='200') # width is extra Zenity parameter 
+
+    except TypeError:
+        dialog.info_dialog(title='Local value myValue', 
+            message="myValue does not exist", width='200') # width is extra Zenity parameter 
+
+
+
+
+### Set global value ###
+
+This script sets global value "myValue" to "hello" and then gets the value that has been set and displays it in an info dialog.
+
+
+### Set global value script ###
+    
+    store.set_global_value("myValue","hello")
+    x = store.get_global_value("myValue")
+    dialog.info_dialog(title='Value of global value myValue', 
+        message=x, width='200') 
+
+
+### Set value ###
+
+This script sets local value "myLocalValue" to "My local value" and then gets the value that has been set and displays it in an info dialog.
+
+Local script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
+
+
+### Set value script ###
+
+    store.set_value("myValue","hello")
+    x = store.get_value("myValue")
+    dialog.info_dialog(title='Value of local value myValue', 
+        message=x, width='200') 
 
 
 
