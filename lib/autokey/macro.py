@@ -7,17 +7,16 @@ from autokey import common
 
 if common.USING_QT:
     from PyKDE4.kdecore import ki18n
-    from PyKDE4.kdeui import KAction
-    from PyQt4.QtCore import SIGNAL
+    from PyQt4.QtGui import QAction
     _ = ki18n  # TODO: WHY??
 
-    class MacroAction(KAction):
+    class MacroAction(QAction):
 
         def __init__(self, menu, macro, callback):
-            KAction.__init__(self, macro.TITLE.toString(), menu)
+            super(MacroAction, self).__init__(macro.TITLE.toString(), menu)
             self.macro = macro
             self.callback = callback
-            self.connect(self, SIGNAL("triggered()"), self.on_triggered)  # TODO: SIGNAL deprecated and removed in PyQt5
+            self.triggered.connect(self.on_triggered)
 
         def on_triggered(self):
             self.callback(self.macro)
