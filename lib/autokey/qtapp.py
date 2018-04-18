@@ -59,7 +59,7 @@ class Application:
     """
 
     def __init__(self):
-
+        self.handler = CallbackEventHandler()
         aboutData = KAboutData(common.APP_NAME, common.CATALOG, PROGRAM_NAME, common.VERSION, DESCRIPTION,
                                     LICENSE, COPYRIGHT, TEXT, common.HOMEPAGE, common.BUG_EMAIL)
 
@@ -179,7 +179,6 @@ class Application:
             cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
             self.show_configure()
 
-        self.handler = CallbackEventHandler()
         kbChangeFilter = KeyboardChangeFilter(self.service.mediator.interface)
         self.app.installEventFilter(kbChangeFilter)
 
