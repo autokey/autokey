@@ -41,8 +41,9 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.recorder = iomediator.Recorder(self.scriptPage)
 
         self.cutCopiedItems = []
+        for column_index in range(3):
+            self.treeWidget.setColumnWidth(column_index, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][column_index])
 
-        [self.treeWidget.setColumnWidth(x, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][x]) for x in range(3)]
         hView = self.treeWidget.header()
         hView.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
 
@@ -351,7 +352,8 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
                 msg = "Are you sure you want to delete the '{deleted_folder}' folder and all the items in it?".format(
                     deleted_folder=data.title)
             else:
-                header = "Delete Script/Phrase?"  # TODO: Determine actual type
+                entity_type = "Script" if isinstance(data, model.Script) else "Phrase"
+                header = "Delete {}?".format(entity_type)
                 msg = "Are you sure you want to delete '{element}'?".format(element=data.description)
         else:
             item_count = len(widgetItems)
