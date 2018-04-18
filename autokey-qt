@@ -32,13 +32,18 @@ if os.path.isdir(uirc_dir):
         dotkde_path = os.path.join(HOME_DIR, ".kde")
     elif ".kde4" in os.listdir(HOME_DIR):
         dotkde_path = os.path.join(HOME_DIR, ".kde4")
-    else: raise RuntimeError("cannot find “~/.kde*”")
+    else:
+        raise RuntimeError("cannot find “~/.kde*”")
     kde_data_path = os.path.join(dotkde_path,'share','apps')
     target_dir = os.path.join(kde_data_path,"autokey")
-    try: os.makedirs(kde_data_path)
-    except FileExistsError: pass
-    try: os.symlink(uirc_dir, target_dir)
-    except FileExistsError: pass
+    try:
+        os.makedirs(kde_data_path)
+    except FileExistsError:
+        pass
+    try:
+        os.symlink(uirc_dir, target_dir)
+    except FileExistsError:
+        pass
     else:
         print("symlink from " + uirc_dir + " to " + target_dir + " created.")
 
@@ -49,9 +54,12 @@ def delete_symlink():
         print("deleting symlink " + target_dir)
         os.remove(target_dir)
 
+
 # remove WINDOWID environment variable so that zenity is not tied to the window from which it was launched.
-try: del os.environ['WINDOWID']
-except KeyError: pass
+try:
+    del os.environ['WINDOWID']
+except KeyError:
+    pass
 
 from PyQt4 import QtCore
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
