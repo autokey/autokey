@@ -10,5 +10,6 @@
     <file>ui/phrasepage.ui</file>
     <file>ui/folderpage.ui</file>
     <file>ui/centralwidget.ui</file>
+    <file>ui/mainwindow.ui</file>
 </qresource>
 </RCC>
