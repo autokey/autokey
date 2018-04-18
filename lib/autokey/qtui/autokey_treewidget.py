@@ -17,7 +17,7 @@
 import logging
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QTreeWidget, QKeySequence, QTreeWidgetItem, QIcon, QListWidgetItem, QBrush
+from PyQt4.QtGui import QTreeWidget, QKeySequence, QTreeWidgetItem, QIcon, QListWidgetItem, QBrush, QWidget, QMenu
 
 from autokey import model
 
@@ -78,6 +78,10 @@ class WidgetItemFactory:
             self.processFolder(item, folder)
 
         return rootItems
+
+    def container(self, title: str, parent: QWidget):
+        # TODO: This method is called by the tree widget. It expects a QMenu containing context menu items.
+        return QMenu(title, parent)
 
     def processFolder(self, parentItem, parentFolder):
         for folder in parentFolder.folders:
