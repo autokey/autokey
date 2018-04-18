@@ -83,10 +83,8 @@ from typing import Union
 
 def str_or_bytes_to_str(x: Union[str, bytes]) -> str:
     if type(x) == bytes:
-        logger.debug("using official python-xlib")
         return x.decode("utf8")
     if type(x) == str:
-        # logger.info("using LiuLang's python3-xlib")
         return x
     raise RuntimeError("x must be str or bytes object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
 
