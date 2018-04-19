@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>engine_settings</class>
+ <widget class="QWidget" name="engine_settings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -19,40 +19,42 @@
      <property name="title">
       <string>User Module Folder</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="0" colspan="2">
        <widget class="QLabel" name="label">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Technical information&lt;/span&gt;: This places the selected directory on the Python module search path.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
-         <string>Any Python modules placed in this folder will be available for import by scripts.</string>
+         <string>Any Python modules and packages placed in this folder will be available for import by scripts.</string>
         </property>
         <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
-      <item>
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <widget class="QLabel" name="folderLabel">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="text">
-           <string>None selected</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="browseButton">
-          <property name="text">
-           <string>Browse</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+      <item row="1" column="0">
+       <widget class="QLabel" name="folderLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="text">
+         <string>None selected</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="browseButton">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+        <property name="icon">
+         <iconset theme="folder"/>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
