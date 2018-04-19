@@ -11,5 +11,6 @@
     <file>ui/folderpage.ui</file>
     <file>ui/centralwidget.ui</file>
     <file>ui/mainwindow.ui</file>
+    <file>ui/enginesettings.ui</file>
 </qresource>
 </RCC>

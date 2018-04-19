@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>325</width>
+    <height>200</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>325</width>
+    <height>200</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -20,8 +26,49 @@
       <string>User Module Folder</string>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="label">
+      <item row="2" column="0">
+       <widget class="QLabel" name="folder_header_label">
+        <property name="text">
+         <string>Currently selected:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QPushButton" name="browse_button">
+        <property name="text">
+         <string>Browse</string>
+        </property>
+        <property name="icon">
+         <iconset theme="folder">
+          <normaloff>.</normaloff>.</iconset>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QPushButton" name="clear_button">
+        <property name="text">
+         <string>Clear selection</string>
+        </property>
+        <property name="icon">
+         <iconset theme="edit-clear"/>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2">
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QLabel" name="header_label">
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-style:italic;&quot;&gt;Technical information&lt;/span&gt;: This places the selected directory on the Python module search path.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -33,8 +80,8 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="folderLabel">
+      <item row="2" column="1" colspan="2">
+       <widget class="QLabel" name="folder_label">
         <property name="sizePolicy">
          <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
           <horstretch>0</horstretch>
@@ -46,17 +93,13 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QPushButton" name="browseButton">
-        <property name="text">
-         <string>Browse</string>
-        </property>
-        <property name="icon">
-         <iconset theme="folder"/>
-        </property>
-       </widget>
-      </item>
      </layout>
+     <zorder>header_label</zorder>
+     <zorder>browse_button</zorder>
+     <zorder>folder_header_label</zorder>
+     <zorder>clear_button</zorder>
+     <zorder>horizontalSpacer</zorder>
+     <zorder>folder_label</zorder>
     </widget>
    </item>
    <item>

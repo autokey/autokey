@@ -136,32 +136,8 @@ class SpecialHotkeySettings(QWidget, specialhotkeysettings.Ui_Form):
         self.monitorKeyLabel.setText(i18n("(None configured)"))
         self.toggleMonitorDlg.reset()
 
-class EngineSettings(QWidget, enginesettings.Ui_Form):
+from .enginesettings import EngineSettings
 
-    def __init__(self, parent, configManager):
-        QWidget.__init__(self, parent)
-        enginesettings.Ui_Form.__init__(self)
-        self.setupUi(self)
-        self.configManager = configManager
-        
-        if configManager.userCodeDir is not None:
-            self.folderLabel.setText(configManager.userCodeDir)
-            if configManager.userCodeDir in sys.path:
-                sys.path.remove(configManager.userCodeDir)
-        
-        self.path = configManager.userCodeDir
-                
-    def save(self):
-        if self.path is not None:
-            self.configManager.userCodeDir = self.path
-            sys.path.append(self.path)
-        
-    def on_browseButton_pressed(self):
-        path = KFileDialog.getExistingDirectory(self.parentWidget(), i18n("Choose Directory"))
-        if path != '':
-            self.path = path
-            self.folderLabel.setText(self.path)
-        
 
 class SettingsDialog(KPageDialog):
     
