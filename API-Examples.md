@@ -1,5 +1,5 @@
 # API Examples #
-Currently there are examples for dialogs, keyboard, store, and windows. Other types of example to follow.
+Currently there are examples for dialogs, keyboard, mouse, store, and windows. Other types of example to follow.
 
 ## Introduction ##
 
@@ -11,6 +11,7 @@ The example types are as follows:
 
 - [Dialogs](#dialogs)
 - [Keyboard](#keyboard)
+- [Mouse](#mouse)
 - [Store](#store)
 - [Window](#window)
 
@@ -433,6 +434,70 @@ You cannot use this function to wait for modifier keys, such as \<ctrl>, on thei
 	else:
 		myMessage = 'Wait for keypress exit code was: ' + str(retCode)
 		dialog.info_dialog(title='Timeout', message=myMessage)
+
+
+## Mouse ##
+
+- [Click_absolute](#click_absolute)
+- [Click_relative](#click_relative)
+- [Click_relative_self](#click_relative_self)
+- [Wait_for_click](#wait_for_click)
+
+
+### Click_absolute ###
+
+click_absolute sends a mouse click relative to the whole screen.
+
+The script clicks the left mouse button at position x=200, y=300 relative to the screen.
+
+
+### Click_absolute script ###
+
+    # mouse buttons: left=1, middle=2, right=3
+    mouse.click_absolute(200, 300, 1)
+
+
+### Click_relative ###
+
+click_relative sends a mouse click relative to the active window.
+
+The script clicks the left mouse button at position x=200, y=300 on the current window.
+
+### Click_relative script ###
+
+    # mouse buttons: left=1, middle=2, right=3
+    mouse.click_relative(200, 300, 1)
+
+
+### Click_relative_self ###
+
+click_relative sends a mouse click relative to the current mouse cursor position.
+
+The script waits for 4 seconds and then clicks the left mouse button at position x=100, y=150 relative to the current mouse cursor position.
+
+### Click_relative_self script ###
+
+    import time
+    time.sleep(4)
+    # mouse buttons: left=1, middle=2, right=3
+    mouse.click_relative_self(100, 150, 1)
+
+
+### Wait for click ###
+
+wait_for_click waits for a mouse button to be clicked. You specify which mouse button to wait for and the maximum time to wait.
+
+The script waits for a maximum of 10 seconds for a left click. When the click is detected the script displays a dialog.
+
+
+### Wait for click script ###
+
+    # mouse buttons: left=1, middle=2, right=3
+    mouse.wait_for_click(1, timeOut=10)
+    dialog.info_dialog(title='Click detected', message='You clicked the left button')
+
+
+
 
 
 
