@@ -1,5 +1,5 @@
 # API Examples #
-Currently there are examples for dialogs, keyboard, mouse, store, and windows. Other types of example to follow.
+Currently there are examples for dialogs, keyboard, mouse, store, system, and windows. Other types of example to follow.
 
 ## Introduction ##
 
@@ -13,6 +13,7 @@ The example types are as follows:
 - [Keyboard](#keyboard)
 - [Mouse](#mouse)
 - [Store](#store)
+- [System](#system)
 - [Window](#window)
 
 ## Dialogs ##
@@ -639,7 +640,40 @@ Local script variables can be accessed only by the script that wrote them. The v
 
 
 
-# Window #
+## System ##
+
+- [Create_file](#create_file)
+- [Exec_command](#exec_command)
+
+
+### Create_file ###
+
+create_file creates a file in the file system with the specified contents, if any.
+
+The script creates file /tmp/myFile.txt with the contents "Hello World".
+
+
+### Create_file script ###
+
+    system.create_file('/tmp/myFile.txt', contents='Hello World')
+
+
+### Exec_command ###
+
+exec_command executes a system command.
+
+The script executes the command 'ls /tmp' and captures the output. The script then saves the listing to file '/tmp/myListing.txt'.
+
+### Exec_command script ###
+
+    output = system.exec_command('ls /tmp/', getOutput=True)
+    system.create_file('/tmp/myListing.txt', contents=output)
+
+
+
+
+
+## Window ##
 
 - [Get class of active window](#get-class-of-active-window)
 - [Get title of active window](#get-title-of-active-window)
