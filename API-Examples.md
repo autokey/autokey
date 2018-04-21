@@ -483,14 +483,14 @@ The script waits for 4 seconds and then clicks the left mouse button at position
     mouse.click_relative_self(100, 150, 1)
 
 
-### Wait for click ###
+### Wait_for_click ###
 
 wait_for_click waits for a mouse button to be clicked. You specify which mouse button to wait for and the maximum time to wait.
 
 The script waits for a maximum of 10 seconds for a left click. When the click is detected the script displays a dialog.
 
 
-### Wait for click script ###
+### Wait_for_click script ###
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.wait_for_click(1, timeOut=10)
