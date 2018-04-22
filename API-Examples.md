@@ -352,7 +352,7 @@ This script sends '\<down>' five times.
 
 
 
-#### Fake key press script ###
+#### Fake key press script ####
 
     keyboard.fake_keypress('<down>', repeat=5**)
 
@@ -365,7 +365,7 @@ This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl
 
 [See Release key](#release-key)
 
-#### Press key script ###
+#### Press key script ####
 
 
     keyboard.press_key('<ctrl>')
@@ -379,7 +379,7 @@ This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl
 
 See [See Press_key](#press-key)
 
-### Release key script ###
+#### Release key script ####
 
     keyboard.press_key('<ctrl>')
     keyboard.fake_keypress('d', repeat=5)
@@ -391,7 +391,7 @@ See [See Press_key](#press-key)
 
 The script sends 'z' three times.
 
-### Send key script ###
+#### Send key script ####
 
     keyboard.send_key('z',repeat=3)
 
@@ -423,7 +423,7 @@ This script does the following:
 You cannot use this function to wait for modifier keys, such as \<ctrl>, on their own
 
 
-### Wait for key press script ###
+#### Wait for key press script ####
 
 	retCode = keyboard.wait_for_keypress('d',modifiers=['<ctrl>'],timeOut=5)
 
@@ -452,7 +452,7 @@ click_absolute sends a mouse click relative to the whole screen.
 The script clicks the left mouse button at position x=200, y=300 relative to the screen.
 
 
-### Click_absolute script ###
+#### Click_absolute script ####
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.click_absolute(200, 300, 1)
@@ -464,7 +464,7 @@ click_relative sends a mouse click relative to the active window.
 
 The script clicks the left mouse button at position x=200, y=300 on the current window.
 
-### Click_relative script ###
+#### Click_relative script ####
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.click_relative(200, 300, 1)
@@ -476,7 +476,7 @@ click_relative sends a mouse click relative to the current mouse cursor position
 
 The script waits for 4 seconds and then clicks the left mouse button at position x=100, y=150 relative to the current mouse cursor position.
 
-### Click_relative_self script ###
+#### Click_relative_self script ####
 
     import time
     time.sleep(4)
@@ -491,7 +491,7 @@ wait_for_click waits for a mouse button to be clicked. You specify which mouse b
 The script waits for a maximum of 10 seconds for a left click. When the click is detected the script displays a dialog.
 
 
-### Wait_for_click script ###
+#### Wait_for_click script ####
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.wait_for_click(1, timeOut=10)
@@ -519,7 +519,7 @@ This script sets global value "myValue" to "hello" and then gets the value that 
 Global values can be accessed by all AutoKey scripts. The values are available in future AutoKey sessions.
 
 
-### Get global value script ###
+#### Get global value script ####
 
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -535,7 +535,7 @@ Local script variables can be accessed only by the script that wrote them. The v
 
 Script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
 
-### Get value script ###
+#### Get value script ####
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -556,7 +556,7 @@ This script does the following:
 4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
 
 
-### Remove global value script ###
+#### Remove global value script ####
 
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -589,7 +589,7 @@ This script does the following:
 4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
 
 
-### Remove value script ###
+#### Remove value script ####
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -616,7 +616,7 @@ This script does the following:
 This script sets global value "myValue" to "hello" and then gets the value that has been set and displays it in an info dialog.
 
 
-### Set global value script ###
+#### Set global value script ####
     
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -631,7 +631,7 @@ This script sets local value "myLocalValue" to "My local value" and then gets th
 Local script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
 
 
-### Set value script ###
+#### Set value script ####
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -653,7 +653,7 @@ create_file creates a file in the file system with the specified contents, if an
 The script creates file /tmp/myFile.txt with the contents "Hello World".
 
 
-### Create_file script ###
+#### Create_file script ####
 
     system.create_file('/tmp/myFile.txt', contents='Hello World')
 
@@ -664,7 +664,7 @@ exec_command executes a system command.
 
 The script executes the command 'ls /tmp' and captures the output. The script then saves the listing to file '/tmp/myListing.txt'.
 
-### Exec_command script ###
+#### Exec_command script ####
 
     output = system.exec_command('ls /tmp/', getOutput=True)
     system.create_file('/tmp/myListing.txt', contents=output)
