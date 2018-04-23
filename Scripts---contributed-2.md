@@ -7,6 +7,7 @@ If you use the 'preview pane' view in Gmail, you will note that you cannot then 
 * run the script below (I run it from the Autokey system tray menu)
 * the correct URL replace the popup's URL in your clipboard
 
+script:
 ```python
 import re
 url = clipboard.get_selection()
@@ -26,6 +27,7 @@ is returned as
 
 > unexpected-window-title:-focusproxy
 
+script:
 ```python
 text = clipboard.get_selection()
 clipboard.fill_clipboard(text.lower().replace(' ', '-'))
@@ -41,6 +43,7 @@ example:
 > Browser: Mozilla Firefox 59.0.1  
 > Date Tested :Wed 28 Mar 14:46:48 BST 2018  
 
+script:
 ```python
 import platform
 output = ""
@@ -51,3 +54,32 @@ output += "Date Tested :" + system.exec_command("date")
 keyboard.send_keys(output)
 ```
 
+## Insert current DateTime in the format YYYY.MM.DD HH:MM:SS
+example:
+> 2018.04.23 23:47:00 
+
+script:
+```python
+from datetime import datetime
+keyboard.send_keys(datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
+```
+
+## Insert current Time in the format HH:MM:SS
+example:
+> 23:47:00 
+
+script:
+```python
+from datetime import datetime
+keyboard.send_keys(datetime.now().strftime('%H:%M:%S'))
+```
+
+## Insert current Date only in the format YYYY.MM.DD
+example:
+> 2018.04.23
+
+script:
+```python
+from datetime import datetime
+keyboard.send_keys(datetime.now().strftime('%Y.%m.%d'))
+```
