@@ -37,11 +37,8 @@ Useful for making bug reports especially on web applications where the platform 
 example:
 
 > Platform: Linux-4.13.0-37-generic-x86_64-with-LinuxMint-18.3-sylvia
-
 > Browser: Google Chrome 65.0.3325.181 
-
 > Browser: Mozilla Firefox 59.0.1
-
 > Date Tested :Wed 28 Mar 14:46:48 BST 2018
 
 ```python
