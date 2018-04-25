@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>general_settings</class>
+ <widget class="QWidget" name="general_settings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -21,14 +21,14 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QCheckBox" name="promptToSaveCheckbox">
+       <widget class="QCheckBox" name="prompt_to_save_checkbox">
         <property name="text">
          <string>Prompt for unsaved changes</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="showTrayCheckbox">
+       <widget class="QCheckBox" name="show_tray_checkbox">
         <property name="text">
          <string>Show a notification icon</string>
         </property>
@@ -44,14 +44,17 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
-       <widget class="QCheckBox" name="allowKbNavCheckbox">
+       <widget class="QCheckBox" name="allow_kb_nav_checkbox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
          <string>Allow keyboard navigation of popup menu</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="sortByUsageCheckbox">
+       <widget class="QCheckBox" name="sort_by_usage_checkbox">
         <property name="text">
          <string>Sort menu items with most frequently used first</string>
         </property>
@@ -67,7 +70,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
-       <widget class="QCheckBox" name="enableUndoCheckbox">
+       <widget class="QCheckBox" name="enable_undo_checkbox">
         <property name="text">
          <string>Enable undo by pressing backspace</string>
         </property>

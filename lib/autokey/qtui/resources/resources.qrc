@@ -12,5 +12,7 @@
     <file>ui/centralwidget.ui</file>
     <file>ui/mainwindow.ui</file>
     <file>ui/enginesettings.ui</file>
+    <file>ui/generalsettings.ui</file>
+    <file>ui/specialhotkeysettings.ui</file>
 </qresource>
 </RCC>

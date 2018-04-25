@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>special_hotkey_settings</class>
+ <widget class="QWidget" name="special_hotkey_settings">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -15,27 +15,27 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="toggle_monitoring_group_box">
      <property name="title">
       <string>Toggle monitoring using a hotkey</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout_2">
       <item>
-       <widget class="QLabel" name="label">
+       <widget class="QLabel" name="toggle_monitoring_hotkey_label">
         <property name="text">
          <string>Hotkey: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="monitorKeyLabel">
+       <widget class="QLabel" name="monitor_key_label">
         <property name="text">
          <string>$hotkey</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="clear_horizontal_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -48,14 +48,14 @@
        </spacer>
       </item>
       <item>
-       <widget class="KPushButton" name="setMonitorButton">
+       <widget class="QPushButton" name="set_monitor_button">
         <property name="text">
          <string>Set</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="KPushButton" name="clearMonitorButton">
+       <widget class="QPushButton" name="clear_monitor_button">
         <property name="text">
          <string>Clear</string>
         </property>
@@ -65,27 +65,27 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="show_config_window_hotkey_config_group_box">
      <property name="title">
       <string>Show configuration window using a hotkey</string>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="show_config_window_hotkey_config_hotkey_label">
         <property name="text">
          <string>Hotkey: </string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="configKeyLabel">
+       <widget class="QLabel" name="config_key_label">
         <property name="text">
          <string>$hotkey</string>
         </property>
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer_2">
+       <spacer name="config_horizontal_spacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -98,14 +98,14 @@
        </spacer>
       </item>
       <item>
-       <widget class="KPushButton" name="setConfigButton">
+       <widget class="QPushButton" name="set_config_button">
         <property name="text">
          <string>Set</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="KPushButton" name="clearConfigButton">
+       <widget class="QPushButton" name="clear_config_button">
         <property name="text">
          <string>Clear</string>
         </property>
@@ -115,27 +115,20 @@
     </widget>
    </item>
    <item>
-    <spacer name="verticalSpacer">
+    <spacer name="vertical_spacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>224</height>
+       <height>40</height>
       </size>
      </property>
     </spacer>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KPushButton</class>
-   <extends>QPushButton</extends>
-   <header>kpushbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
