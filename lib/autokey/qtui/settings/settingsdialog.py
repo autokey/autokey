@@ -1,6 +1,5 @@
 # Copyright (C) 2011 Chris Dekter
 # Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
-
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +19,7 @@ from PyQt4.QtCore import pyqtSlot
 
 from autokey.configmanager import ConfigManager
 
-from . import common
+from autokey.qtui import common
 
 logger = common.logger.getChild("Settings Dialog")  # type: logging.Logger
 

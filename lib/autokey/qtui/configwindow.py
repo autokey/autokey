@@ -14,21 +14,19 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import webbrowser
-import time
 import logging
 import threading
+import time
+import webbrowser
 
 from PyQt4.QtGui import QKeySequence, QMessageBox
 
 import autokey.common
-from autokey import model
-from autokey import configmanager as cm
-
 import autokey.qtui.common
+from autokey import configmanager as cm
+from autokey import model
+from .settings import SettingsDialog
 from . import dialogs
-from .settingsdialog import SettingsDialog
-
 
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
