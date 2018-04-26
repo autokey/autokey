@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>784</width>
-     <height>32</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -513,5 +513,22 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>action_show_toolbar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolBar</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>48</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
