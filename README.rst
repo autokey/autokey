@@ -101,7 +101,15 @@ Available via layman_.
 Fedora
 ++++++
 
-Build package using provided .spec file (may be outdated)
+Avaiable from Fedora_ 27 onwards.
+
+.. _Fedora: https://apps.fedoraproject.org/packages/autokey
+
+.. code:: sh
+
+   sudo dnf install autokey-gtk
+   # or for kde
+   sudo dnf install autokey-kde
 
 Documentation
 =============
