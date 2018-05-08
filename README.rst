@@ -60,7 +60,7 @@ pip will automatically resolve and install dependencies, but dbus-python require
 
    pip3 install autokey
    # or, if you want the latest from this repository,
-   pip3 install git+https://github.com/autokey3/autokey
+   pip3 install git+https://github.com/autokey/autokey
 
 The "--user" option for pip may be added to install for the current user only.
 
