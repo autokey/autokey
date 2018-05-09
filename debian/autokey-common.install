@@ -6,10 +6,7 @@ usr/lib/python*/*-packages/autokey/configmanager_constants.py
 usr/lib/python*/*-packages/autokey-*.egg-info
 usr/lib/python*/*-packages/autokey/__init__.py
 usr/lib/python*/*-packages/autokey/interface.py
-usr/lib/python*/*-packages/autokey/iomediator.py
-usr/lib/python*/*-packages/autokey/iomediator00.py
-usr/lib/python*/*-packages/autokey/iomediator_Key.py
-usr/lib/python*/*-packages/autokey/iomediator_constants.py
+usr/lib/python*/*-packages/autokey/iomediator/*.py
 usr/lib/python*/*-packages/autokey/macro.py
 usr/lib/python*/*-packages/autokey/model.py
 usr/lib/python*/*-packages/autokey/monitor.py
