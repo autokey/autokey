@@ -1,3 +1,9 @@
+autokey (0.94.0-1ubuntu1~bionicppa1) bionic; urgency=medium
+
+  * Rebuild for bionic
+
+ -- Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>  Wed, 09 May 2018 17:05:29 -0500
+
 autokey (0.94.0-1) artful; urgency=low
 
   * Python 3 version is official
