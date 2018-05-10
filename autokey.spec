@@ -8,7 +8,7 @@
 %{!?python_sitearch: %global python_sitearch %(%{__python} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib(1))")}
 
 Name:           autokey
-Version:        0.94.0
+Version:        0.94.1
 Release:        1
 License:        GPLv3
 Summary:        Desktop automation utility
