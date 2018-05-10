@@ -42,7 +42,7 @@ setup(
     maintainer_email=R.MAINTAINER_EMAIL,
     url='https://github.com/autokey/autokey',
     license='GPLv3',
-    packages=['autokey', 'autokey.gtkui', 'autokey.qtui'],
+    packages=['autokey', 'autokey.gtkui', 'autokey.qtui', 'autokey.iomediator'],
     package_dir={'': 'lib'},
     package_data={'autokey.qtui': ['data/*'],
                   'autokey.gtkui': ['data/*']},
