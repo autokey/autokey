@@ -23,10 +23,10 @@ import logging
 import json
 import shutil
 
-from . import configmanager as cm
-from .iomediator.key import Key, NAVIGATION_KEYS
-from .iomediator.constants import KEY_SPLIT_RE
-from .scripting_Store import Store
+from autokey import configmanager as cm
+from autokey.iomediator.key import Key, NAVIGATION_KEYS
+from autokey.iomediator.constants import KEY_SPLIT_RE
+from autokey.scripting_Store import Store
 
 _logger = logging.getLogger("model")
 

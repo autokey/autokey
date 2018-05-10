@@ -23,8 +23,8 @@ import glob
 import threading
 import re
 
-from . import common
-from .iomediator.constants import X_RECORD_INTERFACE
+from autokey import common
+from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 import json
 

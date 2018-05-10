@@ -1,9 +1,9 @@
 import datetime
 from abc import abstractmethod
 
-from .iomediator.constants import KEY_SPLIT_RE
-from .iomediator.key import Key
-from . import common
+from autokey.iomediator.constants import KEY_SPLIT_RE
+from autokey.iomediator.key import Key
+from autokey import common
 
 if common.USING_QT:
     from PyKDE4.kdecore import ki18n

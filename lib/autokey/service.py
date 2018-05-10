@@ -21,9 +21,9 @@ import collections
 import time
 import logging
 
-from . import common
-from .iomediator.key import Key
-from .iomediator import IoMediator
+from autokey import common
+from autokey.iomediator.key import Key
+from autokey.iomediator import IoMediator
 if common.USING_QT:
     from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
     from PyKDE4.kdecore import i18n
