@@ -51,7 +51,7 @@ QT frontend only:
 - PyQt4
 - PyKDE4
 
-Manual install via pip
+Install via pip
 ++++++++++++++++++++++
 
 pip will automatically resolve and install dependencies, but dbus-python requires the dbus headers be present on your system. These are usually installed through your package manager, and usually are named dbus-devel or libdbus-dev or similar.
@@ -60,7 +60,7 @@ pip will automatically resolve and install dependencies, but dbus-python require
 
    pip3 install autokey
    # or, if you want the latest from this repository,
-   pip3 install git+https://github.com/autokey/autokey
+   pip3 install --user git+https://github.com/autokey/autokey
 
 The "--user" option for pip may be added to install for the current user only.
 
