@@ -67,15 +67,7 @@ The "--user" option for pip may be added to install for the current user only.
 Ubuntu/Mint/Debian
 ++++++++++++++++++
 
-Try the (experimental) PPA! Note that only Ubuntu 16.04, Mint 18, or above are supported for now as they supply Python 3.5 by default. Earlier versions of Python <= 3.4 require the ``typing`` module be installed separately.
-
-.. code:: sh
-
-   sudo add-apt-repository ppa:troxor/autokey
-   sudo apt update
-   sudo apt install autokey-gtk
-
-Distro package not provided? Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
+Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
 
 .. _Packaging: https://github.com/autokey/autokey/wiki/Packaging
 
@@ -85,6 +77,7 @@ Arch Linux
 Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
 
 .. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
+
 Gentoo
 ++++++
 
