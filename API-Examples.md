@@ -1,5 +1,5 @@
 # API Examples #
-Currently there are examples for dialogs, keyboard, mouse, store, system, and windows. Other types of example to follow.
+
 
 ## Introduction ##
 
@@ -8,13 +8,112 @@ The API examples shown here are for AutoKey-GTK.
 The examples show how to use the various API calls that AutoKey provides. 
 
 The example types are as follows:
-
+- [Clipboard](#clipboard)
 - [Dialogs](#dialogs)
 - [Keyboard](#keyboard)
 - [Mouse](#mouse)
 - [Store](#store)
 - [System](#system)
 - [Window](#window)
+
+
+## Clipboard ##
+
+- [fill_clipboard](#fill_clipboard)
+- [fill_selection](#fill_selection)
+- [get_clipboard](#get_clipboard)
+- [get_selection](#get_selection)
+
+
+### fill_clipboard ###
+
+fill_clipboard copies supplied text into the clipboard.
+
+The script does the following:
+
+1. Copies the text 'Hello World' to the clipboard.
+
+2. Waits 0.2 seconds for the clipboard operation to finish. This wait is unlikely to be necessary for small amounts of text, but clipboard operations can be slow.
+
+3. Fetches the text from the clipboard and displays it in an info dialog.
+
+
+#### fill_clipboard script ####
+
+    import time
+    toClip = 'Hello World'
+    clipboard.fill_clipboard(toClip)
+
+    time.sleep(0.2)
+    fromClip = clipboard.get_clipboard()
+
+    dialog.info_dialog(title='Clipboard contents', 
+        message=fromClip, width='200') # width is extra Zenity parameter 
+
+
+### fill_selection ###
+
+fill_selection copies text into the X selection.
+
+The script does the following:
+
+1. Takes the text 'Hello World' and copies it to the clipboard as the upper case text 'HELLO WORLD'.
+
+2. Waits 0.2 seconds for the clipboard operation to finish. This wait is unlikely to be necessary for small amounts of text, but clipboard operations can be slow.
+
+3. Sends the keys ctrl+v to paste the text from the clipboard.
+
+
+#### fill_selection script ####
+
+    import time
+    cb = 'hello world'
+    clipboard.fill_selection(cb.upper())
+    time.sleep(0.2)
+    keyboard.send_keys('<ctrl>+v')
+
+
+### get_clipboard ###
+
+The script does the following:
+
+1. Uses get_clipboard to copy the text that is on the clipboard.
+
+2. Waits 0.2 seconds for the clipboard operation to finish. This wait is unlikely to be necessary for small amounts of text, but clipboard operations can be slow.
+
+3. Sends the text the current application as upper case text.
+
+
+#### get_clipboard script ####
+
+    import time
+    cb = clipboard.get_clipboard()
+    time.sleep(0.2)
+    keyboard.send_keys(cb.upper())
+
+
+### get_selection ###
+
+The script does the following:
+
+1. Copies the selected text from the current application. If there is an error, the script displays an info dialog that says 'No text selected'.
+
+2. Waits 0.2 seconds for the clipboard operation to finish. This wait is unlikely to be necessary for small amounts of text, but clipboard operations can be slow.
+
+3. Shows the copied text in an info dialog.
+
+
+#### get_selection script ####
+
+    import time
+    try:
+        selText = clipboard.get_selection()
+        time.sleep(0.2)
+        dialog.info_dialog(title='Text from selection', message=selText) 
+
+    except:
+        dialog.info_dialog(title='No text selected', 
+        message='No text in X selection') 
 
 ## Dialogs ##
 
@@ -31,7 +130,7 @@ The example types are as follows:
 
 ### Calendar dialog ###
 
-This script does the following:
+The script does the following:
 
 1.  Displays a save as file dialog.
 
