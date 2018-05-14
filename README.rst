@@ -66,8 +66,15 @@ The "--user" option for pip may be added to install for the current user only.
 
 Ubuntu/Mint/Debian
 ++++++++++++++++++
+There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives, such as Kubuntu):
 
-Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
+.. code:: sh
+
+   sudo add-apt-repository ppa:sporkwitch/autokey
+   sudo apt update
+   sudo apt install autokey-gtk
+
+Distro package not provided? Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
 
 .. _Packaging: https://github.com/autokey/autokey/wiki/Packaging
 
