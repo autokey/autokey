@@ -6,14 +6,19 @@ from autokey.iomediator.key import Key
 from autokey import common
 
 if common.USING_QT:
-    from PyKDE4.kdecore import ki18n
     from PyQt4.QtGui import QAction
-    _ = ki18n  # TODO: WHY??
+
+    def _(text: str, args: tuple=None):
+        """localisation function, currently returns the identity. If args are given, those are used to format
+        text using the old-style % formatting."""
+        if args:
+            text = text % args
+        return text
 
     class MacroAction(QAction):
 
         def __init__(self, menu, macro, callback):
-            super(MacroAction, self).__init__(macro.TITLE.toString(), menu)
+            super(MacroAction, self).__init__(macro.TITLE, menu)
             self.macro = macro
             self.callback = callback
             self.triggered.connect(self.on_triggered)
