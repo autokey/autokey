@@ -422,15 +422,15 @@ class System:
         @raise subprocess.CalledProcessError: if the command returns a non-zero exit code
         """
         if getOutput:
-            p = subprocess.Popen(command, shell=True, bufsize=-1, stdout=subprocess.PIPE)
-            output = p.communicate()[0].decode()
-            retCode = p.returncode
-            # possible deadlock if the code below is used, see http://docs.python.org/3/library/subprocess.html for more information
-            # retCode = p.wait()
-            # output = p.stdout.read()[:-1]
-            if retCode != 0:
-                raise subprocess.CalledProcessError(retCode, output)
-            else:
+            with subprocess.Popen(
+                    command,
+                    shell=True,
+                    bufsize=-1,
+                    stdout=subprocess.PIPE,
+                    universal_newlines=True) as p:
+                output = p.communicate()[0][:-1]  # Drop the trailing newline character
+                if p.returncode:
+                    raise subprocess.CalledProcessError(p.returncode, output)
                 return output
         else:
             subprocess.Popen(command, shell=True, bufsize=-1)
@@ -444,11 +444,10 @@ class System:
         @param fileName: full path to the file to be created
         @param contents: contents to insert into the file
         """
-        f = open(fileName, "w")
-        f.write(contents)
-        f.close()
-        
-        
+        with open(fileName, "w") as written_file:
+            written_file.write(contents)
+
+
 class GtkDialog:
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
