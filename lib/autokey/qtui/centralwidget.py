@@ -403,18 +403,15 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
             QUrl(),
             ""  # TODO: File type filter. Maybe "*.log"?
         )
-        # TODO: with-statement instead of try-except
         if file_name != "":
             try:
-                f = open(file_name, 'w')
-                for i in range(self.listWidget.count()):
-                    text = self.listWidget.item(i).text()
-                    f.write(text)
-                    f.write('\n')
-            except:
+                with open(file_name, "w") as log_file:
+                    for i in range(self.listWidget.count()):
+                        text = self.listWidget.item(i).text()
+                        log_file.write(text)
+                        log_file.write('\n')
+            except IOError:
                 logger.exception("Error saving log file")
-            finally:
-                f.close()
 
     def on_clear_log(self):
         self.listWidget.clear()
