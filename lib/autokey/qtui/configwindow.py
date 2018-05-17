@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import logging
 import threading
 import time
 import webbrowser
 
+from PyQt4.QtGui import QApplication
 from PyQt4.QtGui import QKeySequence, QMessageBox
 
 import autokey.common
@@ -50,7 +52,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self._set_platform_specific_keyboard_shortcuts()
 
         self.central_widget.populate_tree(self.app.configManager)
-        # self.central_widget.set_splitter(self.size())  # TODO: needed?
 
         # self.setAutoSaveSettings()  # TODO: KDE4 function?
 
@@ -96,11 +97,12 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_show_api.triggered.connect(self.on_show_api)
         self.action_report_bug.triggered.connect(self.on_report_bug)
         self.action_about_autokey.triggered.connect(self.on_about)
-        self.action_about_qt.triggered.connect(self._none_action)  # TODO
+        self.action_about_qt.triggered.connect(QApplication.aboutQt)  # TODO, does this work?
 
     def _initialise_action_states(self):
         """
-        Perform all non-trivial action state initialisations.
+        Some menu actions have a on/off state that have to be initialised. Perform all non-trivial action state
+        initialisations.
         Trivial ones (i.e. setting to some constant) are done in the Qt UI file,
         so only perform those that require some run-time state or configuration value here.
         """

@@ -22,19 +22,18 @@ common.USING_QT = True
 import sys
 import traceback
 import os.path
-import signal
 import logging
 import logging.handlers
 import subprocess
 import queue
 import time
 import dbus
+import argparse
+from typing import NamedTuple, Iterable
 
 import dbus.mainloop.qt
-from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
-from PyKDE4.kdeui import KMessageBox, KApplication
-from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
-from PyQt4.QtGui import QCursor, QMessageBox
+from PyQt4.QtCore import QObject, QEvent
+from PyQt4.QtGui import QApplication, QCursor, QMessageBox, QIcon
 
 
 from . import service, monitor
@@ -43,13 +42,55 @@ from .qtui.popupmenu import PopupMenu
 from .qtui.configwindow import ConfigWindow
 from . import configmanager as cm
 
-PROGRAM_NAME = ki18n("AutoKey")
-DESCRIPTION = ki18n("Desktop automation utility")
-LICENSE = KAboutData.License_GPL_V3
-COPYRIGHT = ki18n("""(c) 2009-2012 Chris Dekter
+AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
+AboutData = NamedTuple("AboutData", (
+    ("program_name", str),
+    ("version", str),
+    ("program_description", str),
+    ("license_text", str),
+    ("copyright_notice", str),
+    ("homepage_url", str),
+    ("bug_report_email", str),
+    ("author_list", Iterable[AuthorData])
+))
+
+COPYRIGHT = """(c) 2009-2012 Chris Dekter
 (c) 2014 GuoCi
-""")
-TEXT = ki18n("")
+(c) 2017, 2018 Thomas Hess
+"""
+
+author_data = (
+    AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
+    AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
+    AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
+    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com")
+)
+about_data = AboutData(
+   program_name="AutoKey",
+   version=common.VERSION,
+   program_description="Desktop automation utility",
+   license_text="GPL v3",  # TODO: load actual license text from disk somewhere
+   copyright_notice=COPYRIGHT,
+   homepage_url=common.HOMEPAGE,
+   bug_report_email=common.BUG_EMAIL,
+   author_list=author_data
+)
+
+
+def generate_argument_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Desktop automation ")
+    parser.add_argument(
+        "-l", "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    parser.add_argument(
+        "-c", "--configure",
+        action="store_true",
+        dest="show_config_window",
+        help="Show the configuration window on startup"
+    )
+    return parser
 
 
 class Application:
@@ -60,24 +101,11 @@ class Application:
 
     def __init__(self):
         self.handler = CallbackEventHandler()
-        aboutData = KAboutData(common.APP_NAME, common.CATALOG, PROGRAM_NAME, common.VERSION, DESCRIPTION,
-                                    LICENSE, COPYRIGHT, TEXT, common.HOMEPAGE, common.BUG_EMAIL)
+        parser = generate_argument_parser()
+        args = parser.parse_args()
 
-        aboutData.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
-        aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
-        aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
-        aboutData.setProgramIconName(common.ICON_FILE)
-        self.aboutData = aboutData
-
-        KCmdLineArgs.init(sys.argv, aboutData)
-        options = KCmdLineOptions()
-        options.add("l").add("verbose", ki18n("Enable verbose logging"))
-        options.add("c").add("configure", ki18n("Show the configuration window on startup"))
-        KCmdLineArgs.addCmdLineOptions(options)
-        args = KCmdLineArgs.parsedArgs()
-
-        self.app = KApplication()
-
+        self.app = QApplication(sys.argv)
+        self.app.setWindowIcon(QIcon.fromTheme(common.ICON_FILE))
         try:
             # Create configuration directory
             if not os.path.exists(common.CONFIG_DIR):
@@ -93,11 +121,14 @@ class Application:
             rootLogger = logging.getLogger()
             rootLogger.setLevel(logging.DEBUG)
 
-            if args.isSet("verbose"):
+            if args.verbose:
                 handler = logging.StreamHandler(sys.stdout)
             else:
-                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
-                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
+                handler = logging.handlers.RotatingFileHandler(
+                    common.LOG_FILE,
+                    maxBytes=common.MAX_LOG_SIZE,
+                    backupCount=common.MAX_LOG_COUNT
+                )
                 handler.setLevel(logging.INFO)
 
             handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
@@ -106,10 +137,10 @@ class Application:
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
-            self.initialise(args.isSet("configure"))
+            self.initialise(args.show_config_window)
 
         except Exception as e:
-            self.show_error_dialog(i18n("Fatal error starting AutoKey."), str(e))
+            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
@@ -125,14 +156,14 @@ class Application:
                 # Check if the pid file contains garbage
                 int(pid)
             except ValueError:
-                logging.exception("AutoKey pid file contains garbage instead of a usable process id: {}.".format(pid))
+                logging.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
                 sys.exit(1)
 
             # Check that the found PID is running and is autokey
             with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
                 output = p.communicate()[0].decode()
             if "autokey" in output:
-                logging.debug("AutoKey is already running as pid %s", pid)
+                logging.debug("AutoKey is already running as pid " + pid)
                 bus = dbus.SessionBus()
 
                 try:
@@ -141,7 +172,9 @@ class Application:
                     sys.exit(0)
                 except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(i18n("AutoKey is already running as pid %1 but is not responding", pid), str(e))
+                    self.show_error_dialog(
+                        message="AutoKey is already running as pid {} but is not responding".format(pid),
+                        details=str(e))
                     sys.exit(1)
 
         return True
@@ -165,8 +198,8 @@ class Application:
         except Exception as e:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration."), str(e))
+            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
+                                   "Check your system/configuration.", str(e))
 
         self.notifier = Notifier(self)
         self.configWindow = None
@@ -341,7 +374,7 @@ class CallbackEventHandler(QObject):
 
     def postEventWithCallback(self, callback, *args):
         self.queue.put((callback, args))
-        app = KApplication.kApplication()
+        app = QApplication.instance()
         app.postEvent(self, QEvent(QEvent.User))
 
 
@@ -356,4 +389,3 @@ class KeyboardChangeFilter(QObject):
             self.interface.on_keys_changed()
 
         return QObject.eventFilter(obj, event)
-
