@@ -16,8 +16,8 @@
 import os.path
 import logging
 
-from PyQt4.QtCore import Qt, QUrl
-from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog
+from PyQt4.QtCore import Qt
+from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QIcon
 
 from autokey import iomediator
 from autokey import model
@@ -52,18 +52,17 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
 
         self.factory = None  # type: ak_tree.WidgetItemFactory
 
-        # TODO: Move into the CentralWidget class. This configures CentralWidget component, so should be moved there.
-        """
-        # Log view context menu
-        action_clear_log = QAction()
-        self.listWidget
+        self.action_clear_log = self._create_action("edit-clear-history", "Clear Log", None, self.on_clear_log)
+        self.listWidget.addAction(self.action_clear_log)
+        self.action_save_log = self._create_action("edit-clear-history", "Save Log As…", None, self.on_save_log)
+        self.listWidget.addAction(self.action_save_log)
 
-        act = self.__createAction("clear-log", i18n("Clear Log"), None, self.centralWidget.on_clear_log)
-        self.centralWidget.listWidget.addAction(act)
-        act = self.__createAction("clear-log", i18n("Save Log As..."), None, self.centralWidget.on_save_log)
-        self.centralWidget.listWidget.addAction(act)
-        """
-        # TODO Up until here
+    @staticmethod
+    def _create_action(icon_name: str, text: str, parent: QWidget=None, to_be_called_slot_function=None) -> QAction:
+        icon = QIcon.fromTheme(icon_name)
+        action = QAction(icon, text, parent)
+        action.triggered.connect(to_be_called_slot_function)
+        return action
 
     def init(self, app):
         self.configManager = app.configManager
@@ -400,7 +399,7 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         file_name = QFileDialog.getSaveFileName(
             self.topLevelWidget(),
             "Save log file",
-            QUrl(),
+            "",
             ""  # TODO: File type filter. Maybe "*.log"?
         )
         if file_name != "":
