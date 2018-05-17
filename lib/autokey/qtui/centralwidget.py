@@ -23,14 +23,14 @@ from autokey import iomediator
 from autokey import model
 from autokey import configmanager as cm
 
-from . import common
+from . import common as ui_common
 from . import autokey_treewidget as ak_tree
 
 
-logger = common.logger.getChild("CentralWidget")  # type: logging.Logger
+logger = ui_common.logger.getChild("CentralWidget")  # type: logging.Logger
 
 
-class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
+class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget")):
 
     def __init__(self, parent):
         super(CentralWidget, self).__init__(parent)
@@ -44,8 +44,8 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         for column_index in range(3):
             self.treeWidget.setColumnWidth(column_index, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][column_index])
 
-        hView = self.treeWidget.header()
-        hView.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
+        h_view = self.treeWidget.header()
+        h_view.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
 
         self.logHandler = None
         self.listWidget.hide()
@@ -114,8 +114,8 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
     def on_treeWidget_itemChanged(self, item, column):
         if item is self.treeWidget.selectedItems()[0] and column == 0:
             newText = str(item.text(0))
-            if common.validate(
-                    not common.EMPTY_FIELD_REGEX.match(newText),
+            if ui_common.validate(
+                    not ui_common.EMPTY_FIELD_REGEX.match(newText),
                     "The name can't be empty.",
                     None,
                     self.topLevelWidget()):
@@ -132,28 +132,28 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
                 item.update()
 
     def on_treeWidget_itemSelectionChanged(self):
-        modelItems = self.__getSelection()
+        model_items = self.__getSelection()
 
-        if len(modelItems) == 1:
-            modelItem = modelItems[0]
-            if isinstance(modelItem, model.Folder):
+        if len(model_items) == 1:
+            model_item = model_items[0]
+            if isinstance(model_item, model.Folder):
                 self.stack.setCurrentIndex(0)
-                self.folderPage.load(modelItem)
+                self.folderPage.load(model_item)
 
-            elif isinstance(modelItem, model.Phrase):
+            elif isinstance(model_item, model.Phrase):
                 self.stack.setCurrentIndex(1)
-                self.phrasePage.load(modelItem)
+                self.phrasePage.load(model_item)
 
-            elif isinstance(modelItem, model.Script):
+            elif isinstance(model_item, model.Script):
                 self.stack.setCurrentIndex(2)
-                self.scriptPage.load(modelItem)
+                self.scriptPage.load(model_item)
 
-            self.topLevelWidget().update_actions(modelItems, True)
+            self.topLevelWidget().update_actions(model_items, True)
             self.set_dirty(False)
             self.topLevelWidget().cancel_record()
 
         else:
-            self.topLevelWidget().update_actions(modelItems, False)
+            self.topLevelWidget().update_actions(model_items, False)
 
     def on_new_topfolder(self):
         logger.info("User initiates top-level folder creation")
@@ -184,8 +184,8 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
                 path = str(path)
                 name = os.path.basename(path)
                 folder = model.Folder(name, path=path)
-                newItem = ak_tree.FolderWidgetItem(None, folder)
-                self.treeWidget.addTopLevelItem(newItem)
+                new_item = ak_tree.FolderWidgetItem(None, folder)
+                self.treeWidget.addTopLevelItem(new_item)
                 self.configManager.folders.append(folder)
                 self.topLevelWidget().app.config_altered(True)
 
@@ -194,62 +194,61 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
             logger.debug("User canceled top-level folder creation.")
             self.topLevelWidget().app.monitor.unsuspend()
 
-
     def on_new_folder(self):
-        parentItem = self.treeWidget.selectedItems()[0]
-        self.__createFolder(parentItem)
+        parent_item = self.treeWidget.selectedItems()[0]
+        self.__createFolder(parent_item)
 
-    def __createFolder(self, parentItem):
+    def __createFolder(self, parent_item):
         folder = model.Folder("New Folder")
-        newItem = ak_tree.FolderWidgetItem(parentItem, folder)
+        new_item = ak_tree.FolderWidgetItem(parent_item, folder)
         self.topLevelWidget().app.monitor.suspend()
 
-        if parentItem is not None:
-            parentFolder = self.__extractData(parentItem)
+        if parent_item is not None:
+            parentFolder = self.__extractData(parent_item)
             parentFolder.add_folder(folder)
         else:
-            self.treeWidget.addTopLevelItem(newItem)
+            self.treeWidget.addTopLevelItem(new_item)
             self.configManager.folders.append(folder)
 
         folder.persist()
         self.topLevelWidget().app.monitor.unsuspend()
 
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
+        self.treeWidget.setCurrentItem(new_item)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
 
     def on_new_phrase(self):
         self.topLevelWidget().app.monitor.suspend()
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
+        parent_item = self.treeWidget.selectedItems()[0]
+        parent = self.__extractData(parent_item)
 
         phrase = model.Phrase("New Phrase", "Enter phrase contents")
-        newItem = ak_tree.PhraseWidgetItem(parentItem, phrase)
+        new_item = ak_tree.PhraseWidgetItem(parent_item, phrase)
         parent.add_item(phrase)
         phrase.persist()
 
         self.topLevelWidget().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
+        self.treeWidget.setCurrentItem(new_item)
+        self.treeWidget.setItemSelected(parent_item, False)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
 
     def on_new_script(self):
         self.topLevelWidget().app.monitor.suspend()
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
+        parent_item = self.treeWidget.selectedItems()[0]
+        parent = self.__extractData(parent_item)
 
         script = model.Script("New Script", "#Enter script code")
-        newItem = ak_tree.ScriptWidgetItem(parentItem, script)
+        new_item = ak_tree.ScriptWidgetItem(parent_item, script)
         parent.add_item(script)
         script.persist()
 
         self.topLevelWidget().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
+        self.treeWidget.setCurrentItem(new_item)
+        self.treeWidget.setItemSelected(parent_item, False)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
 
@@ -260,38 +259,38 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.stack.currentWidget().redo()
 
     def on_copy(self):
-        sourceObjects = self.__getSelection()
+        source_objects = self.__getSelection()
 
-        for source in sourceObjects:
+        for source in source_objects:
             if isinstance(source, model.Phrase):
-                newObj = model.Phrase('', '')
+                new_obj = model.Phrase('', '')
             else:
-                newObj = model.Script('', '')
-            newObj.copy(source)
-            self.cutCopiedItems.append(newObj)
+                new_obj = model.Script('', '')
+            new_obj.copy(source)
+            self.cutCopiedItems.append(new_obj)
 
     def on_clone(self):
-        sourceObject = self.__getSelection()[0]
-        parentItem = self.treeWidget.selectedItems()[0].parent()
-        parent = self.__extractData(parentItem)
+        source_object = self.__getSelection()[0]
+        parent_item = self.treeWidget.selectedItems()[0].parent()
+        parent = self.__extractData(parent_item)
 
-        if isinstance(sourceObject, model.Phrase):
-            newObj = model.Phrase('', '')
-            newObj.copy(sourceObject)
-            newItem = ak_tree.PhraseWidgetItem(parentItem, newObj)
+        if isinstance(source_object, model.Phrase):
+            new_obj = model.Phrase('', '')
+            new_obj.copy(source_object)
+            new_item = ak_tree.PhraseWidgetItem(parent_item, new_obj)
         else:
-            newObj = model.Script('', '')
-            newObj.copy(sourceObject)
-            newItem = ak_tree.ScriptWidgetItem(parentItem, newObj)
+            new_obj = model.Script('', '')
+            new_obj.copy(source_object)
+            new_item = ak_tree.ScriptWidgetItem(parent_item, new_obj)
 
-        parent.add_item(newObj)
+        parent.add_item(new_obj)
         self.topLevelWidget().app.monitor.suspend()
-        newObj.persist()
+        new_obj.persist()
 
         self.topLevelWidget().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItem)
-        self.treeWidget.setItemSelected(parentItem, False)
+        self.treeWidget.setCurrentItem(new_item)
+        self.treeWidget.setItemSelected(parent_item, False)
         self.on_treeWidget_itemSelectionChanged()
         self.topLevelWidget().app.config_altered(False)
 
@@ -299,8 +298,8 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.cutCopiedItems = self.__getSelection()
         self.topLevelWidget().app.monitor.suspend()
 
-        sourceItems = self.treeWidget.selectedItems()
-        result = [f for f in sourceItems if f.parent() not in sourceItems]
+        source_items = self.treeWidget.selectedItems()
+        result = [f for f in source_items if f.parent() not in source_items]
         for item in result:
             self.__removeItem(item)
 
@@ -308,44 +307,44 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.topLevelWidget().app.config_altered(False)
 
     def on_paste(self):
-        parentItem = self.treeWidget.selectedItems()[0]
-        parent = self.__extractData(parentItem)
+        parent_item = self.treeWidget.selectedItems()[0]
+        parent = self.__extractData(parent_item)
         self.topLevelWidget().app.monitor.suspend()
 
-        newItems = []
+        new_items = []
         for item in self.cutCopiedItems:
             if isinstance(item, model.Folder):
                 f = ak_tree.WidgetItemFactory(None)
-                newItem = ak_tree.FolderWidgetItem(parentItem, item)
-                f.processFolder(newItem, item)
+                new_item = ak_tree.FolderWidgetItem(parent_item, item)
+                f.processFolder(new_item, item)
                 parent.add_folder(item)
             elif isinstance(item, model.Phrase):
-                newItem = ak_tree.PhraseWidgetItem(parentItem, item)
+                new_item = ak_tree.PhraseWidgetItem(parent_item, item)
                 parent.add_item(item)
             else:
-                newItem = ak_tree.ScriptWidgetItem(parentItem, item)
+                new_item = ak_tree.ScriptWidgetItem(parent_item, item)
                 parent.add_item(item)
 
             item.persist()
 
-            newItems.append(newItem)
+            new_items.append(new_item)
 
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(newItems[-1])
+        self.treeWidget.setCurrentItem(new_items[-1])
         self.on_treeWidget_itemSelectionChanged()
         self.cutCopiedItems = []
-        for item in newItems:
+        for item in new_items:
             self.treeWidget.setItemSelected(item, True)
         self.topLevelWidget().app.monitor.unsuspend()
         self.topLevelWidget().app.config_altered(False)
 
     def on_delete(self):
-        widgetItems = self.treeWidget.selectedItems()
+        widget_items = self.treeWidget.selectedItems()
         self.topLevelWidget().app.monitor.suspend()
 
-        if len(widgetItems) == 1:
-            widgetItem = widgetItems[0]
-            data = self.__extractData(widgetItem)
+        if len(widget_items) == 1:
+            widget_item = widget_items[0]
+            data = self.__extractData(widget_item)
             if isinstance(data, model.Folder):
                 header = "Delete Folder?"
                 msg = "Are you sure you want to delete the '{deleted_folder}' folder and all the items in it?".format(
@@ -355,23 +354,23 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
                 header = "Delete {}?".format(entity_type)
                 msg = "Are you sure you want to delete '{element}'?".format(element=data.description)
         else:
-            item_count = len(widgetItems)
+            item_count = len(widget_items)
             header = "Delete {item_count} selected items?".format(item_count=item_count)
             msg = "Are you sure you want to delete the {item_count} selected folders/items?".format(
                 item_count=item_count)
         result = QMessageBox.question(self.topLevelWidget(), header, msg, QMessageBox.Yes | QMessageBox.No)
 
         if result == QMessageBox.Yes:
-            for widgetItem in widgetItems:
-                self.__removeItem(widgetItem)
+            for widget_item in widget_items:
+                self.__removeItem(widget_item)
 
         self.topLevelWidget().app.monitor.unsuspend()
         if result == QMessageBox.Yes:
             self.topLevelWidget().app.config_altered(False)
 
     def on_rename(self):
-        widgetItem = self.treeWidget.selectedItems()[0]
-        self.treeWidget.editItem(widgetItem, 0)
+        widget_item = self.treeWidget.selectedItems()[0]
+        self.treeWidget.editItem(widget_item, 0)
 
     def on_save(self):
         logger.info("User requested file save.")
@@ -416,7 +415,7 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.listWidget.clear()
 
     def move_items(self, sourceItems, target):
-        targetModelItem = self.__extractData(target)
+        target_model_item = self.__extractData(target)
 
         # Filter out any child objects that belong to a parent already in the list
         result = [f for f in sourceItems if f.parent() not in sourceItems]
@@ -425,15 +424,15 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
 
         for source in result:
             self.__removeItem(source)
-            sourceModelItem = self.__extractData(source)
+            source_model_item = self.__extractData(source)
 
-            if isinstance(sourceModelItem, model.Folder):
-                targetModelItem.add_folder(sourceModelItem)
-                self.__moveRecurseUpdate(sourceModelItem)
+            if isinstance(source_model_item, model.Folder):
+                target_model_item.add_folder(source_model_item)
+                self.__moveRecurseUpdate(source_model_item)
             else:
-                targetModelItem.add_item(sourceModelItem)
-                sourceModelItem.path = None
-                sourceModelItem.persist()
+                target_model_item.add_item(source_model_item)
+                source_model_item.path = None
+                source_model_item.persist()
 
             target.addChild(source)
 
@@ -459,15 +458,14 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
 
     def __getSelection(self):
         items = self.treeWidget.selectedItems()
-        ret = []
-        for item in items:
-            ret.append(self.__extractData(item))
+        ret = [self.__extractData(item) for item in items]
 
         # Filter out any child objects that belong to a parent already in the list
         result = [f for f in ret if f.parent not in ret]
         return result
 
-    def __extractData(self, item):
+    @staticmethod
+    def __extractData(item):
         variant = item.data(3, Qt.UserRole)
         return variant
 
@@ -477,11 +475,11 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
         self.__deleteHotkeys(item)
 
         if parent is None:
-            removedIndex = self.treeWidget.indexOfTopLevelItem(widgetItem)
-            self.treeWidget.takeTopLevelItem(removedIndex)
+            removed_index = self.treeWidget.indexOfTopLevelItem(widgetItem)
+            self.treeWidget.takeTopLevelItem(removed_index)
             self.configManager.folders.remove(item)
         else:
-            removedIndex = parent.indexOfChild(widgetItem)
+            removed_index = parent.indexOfChild(widgetItem)
             parent.removeChild(widgetItem)
 
             if isinstance(item, model.Folder):
@@ -494,13 +492,13 @@ class CentralWidget(*common.inherits_from_ui_file_with_name("centralwidget")):
 
         if parent is not None:
             if parent.childCount() > 0:
-                newIndex = min([removedIndex, parent.childCount() - 1])
-                self.treeWidget.setCurrentItem(parent.child(newIndex))
+                new_index = min((removed_index, parent.childCount() - 1))
+                self.treeWidget.setCurrentItem(parent.child(new_index))
             else:
                 self.treeWidget.setCurrentItem(parent)
         else:
-            newIndex = min([removedIndex, self.treeWidget.topLevelItemCount() - 1])
-            self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(newIndex))
+            new_index = min((removed_index, self.treeWidget.topLevelItemCount() - 1))
+            self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(new_index))
 
     def __deleteHotkeys(self, theItem):
         if model.TriggerMode.HOTKEY in theItem.modes:
