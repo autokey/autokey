@@ -56,7 +56,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         # self.setAutoSaveSettings()  # TODO: KDE4 function?
 
     def _connect_all_file_menu_signals(self):
-
         self.action_new_top_folder.triggered.connect(self.central_widget.on_new_topfolder)
         self.action_new_sub_folder.triggered.connect(self.central_widget.on_new_folder)
         self.action_new_phrase.triggered.connect(self.central_widget.on_new_phrase)
@@ -97,11 +96,11 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_show_api.triggered.connect(self.on_show_api)
         self.action_report_bug.triggered.connect(self.on_report_bug)
         self.action_about_autokey.triggered.connect(self.on_about)
-        self.action_about_qt.triggered.connect(QApplication.aboutQt)  # TODO, does this work?
+        self.action_about_qt.triggered.connect(QApplication.aboutQt)
 
     def _initialise_action_states(self):
         """
-        Some menu actions have a on/off state that have to be initialised. Perform all non-trivial action state
+        Some menu actions have on/off states that have to be initialised. Perform all non-trivial action state
         initialisations.
         Trivial ones (i.e. setting to some constant) are done in the Qt UI file,
         so only perform those that require some run-time state or configuration value here.
@@ -178,10 +177,9 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
     
     def queryClose(self):
         cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.central_widget.splitter.sizes()[0] + 4
-        l = []  # TODO: list comprehension
-        for x in range(3):
-            l.append(self.central_widget.treeWidget.columnWidth(x))
-        cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS] = l
+        cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS] = [
+            self.central_widget.treeWidget.columnWidth(column_index) for column_index in range(3)
+        ]
         
         if self.is_dirty():
             if self.central_widget.promptToSave():
