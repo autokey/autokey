@@ -20,8 +20,9 @@ import threading
 import time
 import webbrowser
 
-from PyQt4.QtGui import QApplication
-from PyQt4.QtGui import QKeySequence, QMessageBox
+from PyQt4.QtCore import QPoint
+from PyQt4.QtGui import QApplication, QToolButton
+from PyQt4.QtGui import QKeySequence, QMessageBox, QAction, QMenu, QIcon
 
 import autokey.common
 import autokey.qtui.common
@@ -43,6 +44,8 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.setupUi(self)
         self.central_widget.init(app)
         self.app = app
+        self.action_create = self._create_action_create()
+        self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
         self._connect_all_file_menu_signals()
         self._connect_all_edit_menu_signals()
         self._connect_all_tools_menu_signals()
@@ -54,6 +57,38 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.central_widget.populate_tree(self.app.configManager)
 
         # self.setAutoSaveSettings()  # TODO: KDE4 function?
+
+    def _show_action_create_popup(self):
+        """
+        Wrapper slot that is called by clicking on action_create. It causes the action to show its popup menu.
+        Reasoning: The Action is shown as "[<icon>]v" . Clicking on the downwards arrow opens the popup menu as
+        expected, but clicking on the larger icon does nothing, because no action is associated.
+        The intention is to show the popup regardless of where the user places the click, so call exec_ on the menu.
+        Simply using action_create.triggered.connect(action_create.menu().exec_) does not properly set the popup
+        position, instead it uses the last known position instead of positioning below the icon.
+        So use the way recommended in the Qt documentation.
+        """
+        toolbar_button = self.toolbar.widgetForAction(self.action_create)  # type:QToolButton
+        self.action_create.menu().popup(toolbar_button.mapToGlobal(QPoint(0, toolbar_button.height())))
+
+    def _create_action_create(self) -> QAction:
+        """
+        The action_create action contains a menu with all four "new" actions. It is inserted into the main window
+        tool bar and lets the user create new items in the file tree.
+        QtCreator currently does not support defining such actions that open a menu with choices, so do it in code.
+        """
+        icon = QIcon.fromTheme("document-new")
+        action_create = QAction(icon, "New…", self)
+        create_menu = QMenu(self)
+        create_menu.insertActions(None, (  # "Insert before None", so append all items to the (empty) action list
+            self.action_new_top_folder,
+            self.action_new_sub_folder,
+            self.action_new_phrase,
+            self.action_new_script
+        ))
+        action_create.setMenu(create_menu)
+        action_create.triggered.connect(self._show_action_create_popup)
+        return action_create
 
     def _connect_all_file_menu_signals(self):
         self.action_new_top_folder.triggered.connect(self.central_widget.on_new_topfolder)
@@ -132,22 +167,21 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         
     def update_actions(self, items, changed):
         if len(items) > 0:
-            canCreate = isinstance(items[0], model.Folder) and len(items) == 1
-            canCopy = True
+            can_create = isinstance(items[0], model.Folder) and len(items) == 1
+            can_copy = True
             for item in items:
                 if isinstance(item, model.Folder):
-                    canCopy = False
+                    can_copy = False
                     break        
             
-            #self.create.setEnabled(True)  # TODO: This is used in the toolbar to create a menu having all 4 options.
             self.action_new_top_folder.setEnabled(True)
-            self.action_new_sub_folder.setEnabled(canCreate)
-            self.action_new_phrase.setEnabled(canCreate)
-            self.action_new_script.setEnabled(canCreate)
+            self.action_new_sub_folder.setEnabled(can_create)
+            self.action_new_phrase.setEnabled(can_create)
+            self.action_new_script.setEnabled(can_create)
             
-            self.action_copy_item.setEnabled(canCopy)
-            self.action_clone_item.setEnabled(canCopy)
-            self.action_paste_item.setEnabled(canCreate and len(self.central_widget.cutCopiedItems) > 0)
+            self.action_copy_item.setEnabled(can_copy)
+            self.action_clone_item.setEnabled(can_copy)
+            self.action_paste_item.setEnabled(can_create and len(self.central_widget.cutCopiedItems) > 0)
             self.action_record_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
             self.action_run_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
             # self.insertMacro.setEnabled(isinstance(items[0], model.Phrase) and len(items) == 1)  # TODO: fixme
@@ -207,24 +241,24 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
             
     def on_record(self):
         if self.action_record_script.isChecked():
-            dlg = dialogs.RecordDialog(self, self.__doRecord)
+            dlg = dialogs.RecordDialog(self, self._do_record)
             dlg.show()
         else:
             self.central_widget.recorder.stop()
             
-    def __doRecord(self, ok, recKb, recMouse, delay):
+    def _do_record(self, ok: bool, record_keyboard: bool, record_mouse: bool, delay: float):
         if ok:
-            self.central_widget.recorder.set_record_keyboard(recKb)
-            self.central_widget.recorder.set_record_mouse(recMouse)
+            self.central_widget.recorder.set_record_keyboard(record_keyboard)
+            self.central_widget.recorder.set_record_mouse(record_mouse)
             self.central_widget.recorder.start(delay)
         else:
             self.action_record_script.setChecked(False)
 
     def on_run_script(self):
-        t = threading.Thread(target=self.__runScript)
+        t = threading.Thread(target=self._run_script)
         t.start()
 
-    def __runScript(self):
+    def _run_script(self):
         script = self.central_widget.get_selected_item()[0]
         time.sleep(2)  # Fix the GUI tooltip for action_run_script when changing this!
         self.app.service.scriptRunner.execute(script)

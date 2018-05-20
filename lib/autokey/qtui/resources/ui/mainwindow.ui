@@ -112,7 +112,7 @@
    <addaction name="menu_settings"/>
    <addaction name="menu_help"/>
   </widget>
-  <widget class="QToolBar" name="toolBar">
+  <widget class="QToolBar" name="toolbar">
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -517,7 +517,7 @@
   <connection>
    <sender>action_show_toolbar</sender>
    <signal>toggled(bool)</signal>
-   <receiver>toolBar</receiver>
+   <receiver>toolbar</receiver>
    <slot>setVisible(bool)</slot>
    <hints>
     <hint type="sourcelabel">
