@@ -938,7 +938,11 @@ class XInterfaceBase(threading.Thread):
     def handle_mouseclick(self, button, x, y):
         self.__enqueue(self.__handleMouseclick, button, x, y)
         
-    def __handleMouseclick(self, button, x, y):        
+    def __handleMouseclick(self, button, x, y):
+        # Sleep a bit to timing issues. A mouse click might change the active application.
+        # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
+        # causing the queried window title (and maybe the window class or even none of those) to be invalid.
+        time.sleep(0.001)  # TODO: may need some tweaking
         title = self.get_window_title()
         klass = self.get_window_class()
         info = (title, klass)
