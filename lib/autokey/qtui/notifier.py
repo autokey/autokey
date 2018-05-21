@@ -29,6 +29,7 @@ TOOLTIP_PAUSED = "AutoKey - paused"
 class Notifier:
     
     def __init__(self, app):
+        self.action_enable_monitoring = None  # type: QAction
         self.app = app
         self.configManager = app.configManager
         
@@ -37,10 +38,9 @@ class Notifier:
         self.icon.connect(self.icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.on_activate)
 
         self.build_menu()
-        self.update_tool_tip()
-        self.action_enable_monitoring = None  # type: QAction
 
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+            self.update_tool_tip()
             self.icon.show()
                         
     def update_tool_tip(self):
