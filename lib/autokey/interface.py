@@ -1009,7 +1009,9 @@ class XInterfaceBase(threading.Thread):
         if atom is None:
             atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
         if atom:
-            return atom.value #.decode("utf-8")
+            value = atom.value
+            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
+            return value.decode("utf-8") if isinstance(value, bytes) else value
         elif traverse:
             return self.__getWinTitle(windowvar.query_tree().parent, True)
         else:
