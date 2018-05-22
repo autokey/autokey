@@ -93,33 +93,24 @@ def generate_argument_parser() -> argparse.ArgumentParser:
     return parser
 
 
-class Application:
+class Application(QApplication):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
     """
 
-    def __init__(self):
+    def __init__(self, argv: list=sys.argv):
+        super().__init__(argv)
         self.handler = CallbackEventHandler()
         parser = generate_argument_parser()
         args = parser.parse_args()
 
-        self.app = QApplication(sys.argv)
-        self.app.setWindowIcon(QIcon.fromTheme(common.ICON_FILE))
+        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE))
         try:
-            # Create configuration directory
-            if not os.path.exists(common.CONFIG_DIR):
-                os.makedirs(common.CONFIG_DIR)
-            # Create data directory (for log file)
-            if not os.path.exists(common.DATA_DIR):
-                os.makedirs(common.DATA_DIR)
-            # Create run directory (for lock file)
-            if not os.path.exists(common.RUN_DIR):
-                os.makedirs(common.RUN_DIR)
-
+            self._create_storage_directories()
             # Initialise logger
-            rootLogger = logging.getLogger()
-            rootLogger.setLevel(logging.DEBUG)
+            root_logger = logging.getLogger()
+            root_logger.setLevel(logging.DEBUG)
 
             if args.verbose:
                 handler = logging.StreamHandler(sys.stdout)
@@ -132,7 +123,7 @@ class Application:
                 handler.setLevel(logging.INFO)
 
             handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-            rootLogger.addHandler(handler)
+            root_logger.addHandler(handler)
 
             if self.__verifyNotRunning():
                 self.__createLockFile()
@@ -140,9 +131,24 @@ class Application:
             self.initialise(args.show_config_window)
 
         except Exception as e:
-            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
+            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
+        else:
+            sys.exit(self.exec_())
+
+    @staticmethod
+    def _create_storage_directories():
+        """Create various storage directories, if those do not exist."""
+        # Create configuration directory
+        if not os.path.exists(common.CONFIG_DIR):
+            os.makedirs(common.CONFIG_DIR)
+        # Create data directory (for log file)
+        if not os.path.exists(common.DATA_DIR):
+            os.makedirs(common.DATA_DIR)
+        # Create run directory (for lock file)
+        if not os.path.exists(common.RUN_DIR):
+            os.makedirs(common.RUN_DIR)
 
     def __createLockFile(self):
         with open(common.LOCK_FILE, "w") as lock_file:
@@ -179,20 +185,16 @@ class Application:
 
         return True
 
-    def main(self):
-        self.app.exec_()
-
-    def initialise(self, configure):
+    def initialise(self, configure: bool):
         logging.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
         self.configManager = cm.get_config_manager(self)
         self.service = service.Service(self)
-        self.serviceDisabled = False
+
 
         # Initialise user code dir
         if self.configManager.userCodeDir is not None:
             sys.path.append(self.configManager.userCodeDir)
-
         try:
             self.service.start()
         except Exception as e:
@@ -200,7 +202,8 @@ class Application:
             self.serviceDisabled = True
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
-
+        else:
+            self.serviceDisabled = False
         self.notifier = Notifier(self)
         self.configWindow = None
         self.monitor.start()
@@ -213,7 +216,7 @@ class Application:
             self.show_configure()
 
         kbChangeFilter = KeyboardChangeFilter(self.service.mediator.interface)
-        self.app.installEventFilter(kbChangeFilter)
+        self.installEventFilter(kbChangeFilter)
 
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
@@ -250,6 +253,7 @@ class Application:
         """
         self.service.unpause()
         self.notifier.update_tool_tip()
+        # TODO: Notify the main window to sync the "Enable Monitoring« checkbox in the settings menu.
 
     def pause_service(self):
         """
@@ -257,6 +261,7 @@ class Application:
         """
         self.service.pause()
         self.notifier.update_tool_tip()
+        # TODO: Notify the main window to sync the "Enable Monitoring« checkbox in the settings menu.
 
     def toggle_service(self):
         """
@@ -272,11 +277,11 @@ class Application:
         Shut down the entire application.
         """
         logging.info("Shutting down")
-        self.app.closeAllWindows()
+        self.closeAllWindows()
         self.notifier.hide_icon()
         self.service.shutdown()
         self.monitor.stop()
-        self.app.quit()
+        self.quit()
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logging.debug("All shutdown tasks complete... quitting")
 

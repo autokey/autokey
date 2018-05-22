@@ -66,7 +66,5 @@ QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
 from autokey.qtapp import Application
 
 
-a = Application()
-a.main()
-
-sys.exit(0)
+Application()
+sys.exit(1)
