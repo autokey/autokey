@@ -456,7 +456,7 @@ class QtDialog:
         @return: a tuple containing the exit code and date
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--calendar"], kwargs)
+        return self._run_kdialog(title, ["--calendar", title], kwargs)
         
         
 class System:
