@@ -15,15 +15,18 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 
-from PyQt4.QtCore import SIGNAL
 from PyQt4.QtGui import QSystemTrayIcon, QIcon, QAction
 
-from . import popupmenu
-from .. import configmanager as cm
+from autokey.qtui import popupmenu
+import autokey.qtui.common
+from autokey import configmanager as cm
 
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
+
+logger = autokey.qtui.common.logger.getChild("System-tray-notifier")  # type: logging.Logger
 
 
 class Notifier:
@@ -34,9 +37,8 @@ class Notifier:
         self.configManager = app.configManager
         
         self.icon = QSystemTrayIcon(QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]))
-        # TODO: New style connect()
-        self.icon.connect(self.icon, SIGNAL("activated(QSystemTrayIcon::ActivationReason)"), self.on_activate)
-
+        self.icon.activated.connect(self.on_activate)
+        logger.info("Notifier created.")
         self.build_menu()
 
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
@@ -52,7 +54,9 @@ class Notifier:
             self.action_enable_monitoring.setChecked(False)
             
     def build_menu(self):
+        logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+
             # Get phrase folders to add to main menu
 
             folders = [folder for folder in self.configManager.allFolders if folder.showInTrayMenu]
@@ -77,6 +81,7 @@ class Notifier:
             menu.addAction(QIcon.fromTheme("application-quit"), "Exit AutoKey", self.on_quit)
             self.icon.setContextMenu(menu)
 
+
     def update_visible_status(self):
         self.icon.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
         self.build_menu()
@@ -97,6 +102,7 @@ class Notifier:
         self.app.shutdown()
 
     def on_activate(self, reason):
+        logger.debug("on_activate called with reason: {}".format(reason))
         if reason == QSystemTrayIcon.ActivationReason(QSystemTrayIcon.Trigger):
             self.on_configure()
 
