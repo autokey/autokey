@@ -440,7 +440,11 @@ class QtDialog:
         @return: a tuple containing the exit code and colour
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--getcolor"], kwargs)
+        return_data = self._run_kdialog(title, ["--getcolor"], kwargs)
+        if return_data.successful:
+            return DialogData(return_data.return_code, ColourData.from_html(return_data.data))
+        else:
+            return DialogData(return_data.return_code, None)
 
     def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
