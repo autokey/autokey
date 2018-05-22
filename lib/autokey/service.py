@@ -24,11 +24,7 @@ import logging
 from autokey import common
 from autokey.iomediator.key import Key
 from autokey.iomediator import IoMediator
-if common.USING_QT:
-    from autokey.qtui.popupmenu import *  # TODO: Replace with explicit import
-    from PyKDE4.kdecore import i18n
-else:
-    from autokey.gtkui.popupmenu import *  # TODO: Replace with explicit import
+
 from .macro import MacroManager
 
 from . import scripting, model, scripting_Store, scripting_highlevel
@@ -466,14 +462,8 @@ class ScriptRunner:
             exec(script.code, scope)
         except Exception as e:
             logger.exception("Script error")
-
-            if common.USING_QT:
-                self.error = i18n("Script name: '%1'\n%2", script.description, traceback.format_exc())
-                self.app.notify_error(i18n("The script '%1' encountered an error", script.description))
-
-            else:
-                self.error = _("Script name: '%s'\n%s") % (script.description, traceback.format_exc())
-                self.app.notify_error(_("The script '%s' encountered an error") % script.description)
+            self.error = "Script name: '{}'\n{}".format(script.description, traceback.format_exc())
+            self.app.notify_error("The script '{}' encountered an error".format(script.description))
 
         self.mediator.send_string(stringAfter)
 
