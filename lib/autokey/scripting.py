@@ -19,14 +19,70 @@ import subprocess
 import threading
 import time
 import re
+from typing import NamedTuple, Union, List
 
-from . import common, model
-from . import iomediator
+from autokey import common, model
+from autokey import iomediator
 
 if common.USING_QT:
     from PyQt4.QtGui import QClipboard, QApplication
 else:
     from gi.repository import Gtk, Gdk
+
+
+class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int)))):
+    """Colour data type for colour chooser dialogs."""
+    @property
+    def hex_code(self) -> str:
+        return "{0:02x}{1:02x}{2:02x}".format(self.r, self.g, self.b)
+
+    @property
+    def html_code(self) -> str:
+        """Converts the ColourData into a HTML-style colour, equivalent to the KDialog output."""
+        return "#" + self.hex_code
+
+    @property
+    def zenity_tuple_str(self) -> str:
+        """Converts the ColourData into a tuple-like string, equivalent to the Zenity output. ("rgb(R, G, B)")"""
+        return "rgb({})".format(",".join(map(str,self)))
+
+    @staticmethod
+    def from_html(html_style_colour_str: str):
+        """
+        Parser for KDialog output, which outputs a HTML style hex code like #55aa00
+        @param html_style_colour_str: HTML style hex string encoded colour. (#rrggbb)
+        @return: ColourData instance
+        @rtype: ColourData
+        """
+        html_style_colour_str = html_style_colour_str.lstrip("#")
+        components = list(map("".join, zip(*[iter(html_style_colour_str)]*2)))
+        return ColourData(*(int(colour, 16) for colour in components))
+
+    @staticmethod
+    def from_zenity_tuple_str(zenity_tuple_str: str):
+        """
+        Parser for Zenity output, which outputs a named tuple-like string: "rgb(R, G, B)", where R, G, B are base10
+        integers.
+        @param zenity_tuple_str: tuple-like string: "rgb(r, g, b), where r, g, b are base10 integers.
+        @return: ColourData instance
+        @rtype: ColourData
+        """
+        components = zenity_tuple_str.strip("rgb()").split(",")
+        return ColourData(*map(int, components))
+
+
+class DialogData(NamedTuple("DialogData", (("return_code", int), ("data", Union[ColourData, str, List[str], None])))):
+    """"""
+    @property
+    def successful(self) -> bool:
+        """
+        Returns True, if the dialog execution was successful, i.e. KDialog or Zenity exited with a zero return value.
+        This includes:
+        - Command line parameters are correct
+        - Execution is otherwise successful (Can open X Display, load shared libraries, etc.)
+        - The user clicked on OK or otherwise 'accepted' the dialog.
+        """
+        return self.return_code == 0
 
 
 class Keyboard:
@@ -188,16 +244,19 @@ class QtDialog:
     A note on exit codes: an exit code of 0 indicates that the user clicked OK.
     """
     
-    def __runKdialog(self, title, args, kwargs):
+    def _run_kdialog(self, title, args, kwargs) -> DialogData:
         for k, v in kwargs.items():
             args.append("--" + k)
             args.append(v)
 
-        p = subprocess.Popen(["kdialog", "--title", title] + args, stdout=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read()[:-1]  # Drop trailing newline
+        with subprocess.Popen(
+                ["kdialog", "--title", title] + args,
+                stdout=subprocess.PIPE,
+                universal_newlines=True) as p:
+            output = p.communicate()[0][:-1]  # type: str # Drop trailing newline
+            return_code = p.returncode
         
-        return retCode, output
+        return DialogData(return_code, output)
 
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -208,9 +267,9 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed in the dialog
         @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--msgbox", message], kwargs)
+        return self._run_kdialog(title, ["--msgbox", message], kwargs)
         
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -222,9 +281,9 @@ class QtDialog:
         @param message: message displayed above the input box
         @param default: default value for the input box
         @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--inputbox", message, default], kwargs)
+        return self._run_kdialog(title, ["--inputbox", message, default], kwargs)
         
     def password_dialog(self, title="Enter password", message="Enter password", **kwargs):
         """
@@ -235,9 +294,9 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed above the password input box
         @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--password", message], kwargs)        
+        return self._run_kdialog(title, ["--password", message], kwargs)
         
     def combo_menu(self, options, title="Choose an option", message="Choose an option", **kwargs):
         """
@@ -249,9 +308,9 @@ class QtDialog:
         @param title: window title for the dialog
         @param message: message displayed above the combobox
         @return: a tuple containing the exit code and user choice
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--combobox", message] + options, kwargs)
+        return self._run_kdialog(title, ["--combobox", message] + options, kwargs)
         
     def list_menu(self, options, title="Choose a value", message="Choose a value", default=None, **kwargs):
         """
@@ -264,7 +323,7 @@ class QtDialog:
         @param message: message displayed above the list
         @param default: default value to be selected
         @return: a tuple containing the exit code and user choice
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         
         choices = []
@@ -278,10 +337,10 @@ class QtDialog:
                 choices.append("off")
             optionNum += 1
             
-        retCode, result = self.__runKdialog(title, ["--radiolist", message] + choices, kwargs)
+        return_code, result = self._run_kdialog(title, ["--radiolist", message] + choices, kwargs)
         choice = options[int(result)]
         
-        return retCode, choice        
+        return DialogData(return_code, choice)
         
     def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
                         defaults: list=None, **kwargs):
@@ -295,7 +354,7 @@ class QtDialog:
         @param message: message displayed above the list
         @param defaults: list of default values to be selected
         @return: a tuple containing the exit code and user choice
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, List[str])}
         """
 
         if defaults is None:
@@ -311,14 +370,12 @@ class QtDialog:
                 choices.append("off")
             optionNum += 1
             
-        retCode, output = self.__runKdialog(title, ["--separate-output", "--checklist", message] + choices, kwargs)
+        return_code, output = self._run_kdialog(title, ["--separate-output", "--checklist", message] + choices, kwargs)
         results = output.split()
-    
-        choices = []
-        for index in results:
-            choices.append(options[int(index)])
+
+        choices = [options[int(choice_index)] for choice_index in results]
         
-        return retCode, choices
+        return DialogData(return_code, choices)
         
     def open_file(self, title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
         """
@@ -331,12 +388,12 @@ class QtDialog:
         @param fileTypes: file type filter expression
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
         @return: a tuple containing the exit code and file path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
-            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
+            return self._run_kdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
         else:
-            return self.__runKdialog(title, ["--getopenfilename", initialDir, fileTypes], kwargs)
+            return self._run_kdialog(title, ["--getopenfilename", initialDir, fileTypes], kwargs)
         
     def save_file(self, title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
         """
@@ -349,12 +406,12 @@ class QtDialog:
         @param fileTypes: file type filter expression
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
         @return: a tuple containing the exit code and file path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
-            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
+            return self._run_kdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
         else:
-            return self.__runKdialog(title, ["--getsavefilename", initialDir, fileTypes], kwargs)
+            return self._run_kdialog(title, ["--getsavefilename", initialDir, fileTypes], kwargs)
 
     def choose_directory(self, title="Select Directory", initialDir="~", rememberAs=None, **kwargs):
         """
@@ -366,12 +423,12 @@ class QtDialog:
         @param initialDir: starting directory for the directory chooser dialog
         @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
         @return: a tuple containing the exit code and chosen path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
-            return self.__runKdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs], kwargs)
+            return self._run_kdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs], kwargs)
         else:
-            return self.__runKdialog(title, ["--getexistingdirectory", initialDir], kwargs)
+            return self._run_kdialog(title, ["--getexistingdirectory", initialDir], kwargs)
         
     def choose_colour(self, title="Select Colour", **kwargs):
         """
@@ -381,9 +438,13 @@ class QtDialog:
         
         @param title: window title for the dialog
         @return: a tuple containing the exit code and colour
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--getcolor"], kwargs)
+        return_data = self._run_kdialog(title, ["--getcolor"], kwargs)
+        if return_data.successful:
+            return DialogData(return_data.return_code, ColourData.from_html(return_data.data))
+        else:
+            return DialogData(return_data.return_code, None)
 
     def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
@@ -397,9 +458,9 @@ class QtDialog:
         @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runKdialog(title, ["--calendar"], kwargs)
+        return self._run_kdialog(title, ["--calendar", title], kwargs)
         
         
 class System:
@@ -459,19 +520,19 @@ class GtkDialog:
     A note on exit codes: an exit code of 0 indicates that the user clicked OK.
     """
     
-    def __runZenity(self, title, args, kwargs):
+    def _run_zenity(self, title, args, kwargs) -> DialogData:
         for k, v in kwargs.items():
             args.append("--" + k)
             args.append(v)
 
-        # p = subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE)
-        # retCode = p.wait()
-        # output = p.stdout.read()[:-1] # Drop trailing newline
-        with subprocess.Popen(["zenity", "--title", title] + args, stdout=subprocess.PIPE) as p:
-            output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
-            retCode = p.returncode
+        with subprocess.Popen(
+                        ["zenity", "--title", title] + args,
+                        stdout=subprocess.PIPE,
+                        universal_newlines=True) as p:
+            output = p.communicate()[0][:-1]  # type: str # Drop trailing newline
+            return_code = p.returncode
 
-        return retCode, output
+        return DialogData(return_code, output)
     
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -484,7 +545,7 @@ class GtkDialog:
         @return: a tuple containing the exit code and user input
         @rtype: C{tuple(int, str)}
         """
-        return self.__runZenity(title, ["--info", "--text", message], kwargs)
+        return self._run_zenity(title, ["--info", "--text", message], kwargs)
         
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -496,9 +557,9 @@ class GtkDialog:
         @param message: message displayed above the input box
         @param default: default value for the input box
         @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runZenity(title, ["--entry", "--text", message, "--entry-text", default], kwargs)
+        return self._run_zenity(title, ["--entry", "--text", message, "--entry-text", default], kwargs)
         
     def password_dialog(self, title="Enter password", message="Enter password", **kwargs):
         """
@@ -509,9 +570,9 @@ class GtkDialog:
         @param title: window title for the dialog
         @param message: message displayed above the password input box
         @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
-        return self.__runZenity(title, ["--entry", "--text", message, "--hide-text"], kwargs)
+        return self._run_zenity(title, ["--entry", "--text", message, "--hide-text"], kwargs)
         
     #def combo_menu(self, options, title="Choose an option", message="Choose an option"):
         """
@@ -523,7 +584,7 @@ class GtkDialog:
         @param title: window title for the dialog
         @param message: message displayed above the combobox      
         """
-        #return self.__runZenity(title, ["--combobox", message] + options)
+        #return self._run_zenity(title, ["--combobox", message] + options)
         
     def list_menu(self, options, title="Choose a value", message="Choose a value", default=None, **kwargs):
         """
@@ -536,24 +597,22 @@ class GtkDialog:
         @param message: message displayed above the list
         @param default: default value to be selected
         @return: a tuple containing the exit code and user choice
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         
         choices = []
-        #optionNum = 0
         for option in options:
             if option == default:
                 choices.append("TRUE")
             else:
                 choices.append("FALSE")
                 
-            #choices.append(str(optionNum))
             choices.append(option)
-            #optionNum += 1
-            
-        return self.__runZenity(title, ["--list", "--radiolist", "--text", message, "--column", " ", "--column", "Options"] + choices, kwargs)
-        
-        #return retCode, choice    
+
+        return self._run_zenity(
+            title,
+            ["--list", "--radiolist", "--text", message, "--column", " ", "--column", "Options"] + choices,
+            kwargs)
         
     def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
                         defaults: list=None, **kwargs):
@@ -567,31 +626,26 @@ class GtkDialog:
         @param message: message displayed above the list
         @param defaults: list of default values to be selected
         @return: a tuple containing the exit code and user choice
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, List[str])}
         """
 
         if defaults is None:
             defaults = []
         choices = []
-        #optionNum = 0
         for option in options:
             if option in defaults:
                 choices.append("TRUE")
             else:
                 choices.append("FALSE")
                 
-            #choices.append(str(optionNum))
             choices.append(option)
-            #optionNum += 1
-            
-        retCode, output = self.__runZenity(title, ["--list", "--checklist", "--text", message, "--column", " ", "--column", "Options"] + choices, kwargs)
+        return_code, output = self._run_zenity(
+            title,
+            ["--list", "--checklist", "--text", message, "--column", " ", "--column", "Options"] + choices,
+            kwargs)
         results = output.split('|')
-    
-        #choices = []
-        #for choice in results:
-        #    choices.append(choice)
-        
-        return retCode, results
+
+        return DialogData(return_code, results)
         
     def open_file(self, title="Open File", **kwargs):
         """
@@ -601,12 +655,12 @@ class GtkDialog:
         
         @param title: window title for the dialog
         @return: a tuple containing the exit code and file path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
-        #    return self.__runZenity(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
+        #    return self._run_zenity(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
         #else:
-        return self.__runZenity(title, ["--file-selection"], kwargs)
+        return self._run_zenity(title, ["--file-selection"], kwargs)
         
     def save_file(self, title="Save As", **kwargs):
         """
@@ -616,12 +670,12 @@ class GtkDialog:
         
         @param title: window title for the dialog
         @return: a tuple containing the exit code and file path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
-        #    return self.__runZenity(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
+        #    return self._run_zenity(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
         #else:
-        return self.__runZenity(title, ["--file-selection", "--save"], kwargs)
+        return self._run_zenity(title, ["--file-selection", "--save"], kwargs)
         
     def choose_directory(self, title="Select Directory", initialDir="~", **kwargs):
         """
@@ -632,22 +686,29 @@ class GtkDialog:
         @param title: window title for the dialog
         @param initialDir:
         @return: a tuple containing the exit code and path
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
-        #    return self.__runZenity(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
+        #    return self._run_zenity(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
         #else:
-        return self.__runZenity(title, ["--file-selection", "--directory"], kwargs)
-        
-    #def choose_colour(self, title="Select Colour"):
+        return self._run_zenity(title, ["--file-selection", "--directory"], kwargs)
+
+    def choose_colour(self, title="Select Colour", **kwargs):
         """
-        Show a Colour Chooser dialog - not supported by zenity
+        Show a Colour Chooser dialog
         
         Usage: C{dialog.choose_colour(title="Select Colour")}
         
         @param title: window title for the dialog
+        @return:
+        @rtype: C{DialogData(int, Optional[ColourData])}
         """
-        #return self.__runZenity(title, ["--getcolor"])
+        return_data = self._run_zenity(title, ["--color-selection"], kwargs)
+        if return_data.successful:
+            converted_colour = ColourData.from_zenity_tuple_str(return_data.data)
+            return DialogData(return_data.return_code, converted_colour)
+        else:
+            return DialogData(return_data.return_code, None)
         
     def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
@@ -659,7 +720,7 @@ class GtkDialog:
         @param format_str: format of date to be returned
         @param date: initial date as YYYY-MM-DD, otherwise today
         @return: a tuple containing the exit code and date
-        @rtype: C{tuple(int, str)}
+        @rtype: C{DialogData(int, str)}
         """
         if re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date):
             year = date[0:4]
@@ -668,7 +729,7 @@ class GtkDialog:
             date_args = ["--year=" + year, "--month=" + month, "--day=" + day]
         else:
             date_args = []
-        return self.__runZenity(title, ["--calendar", "--date-format=" + format_str] + date_args, kwargs)
+        return self._run_zenity(title, ["--calendar", "--date-format=" + format_str] + date_args, kwargs)
 
     
 class QtClipboard:
@@ -882,7 +943,7 @@ class Window:
         regex = re.compile(title)
         waited = 0
         while waited <= timeOut:
-            retCode, output = self.__runWmctrl(["-l"])
+            retCode, output = self._run_wmctrl(["-l"])
             for line in output.split('\n'):
                 if regex.match(line[14:].split(' ', 1)[-1]):
                     return True
@@ -914,7 +975,7 @@ class Window:
             args = ["-R", title]
         if matchClass:
             args += ["-x"]
-        self.__runWmctrl(args)
+        self._run_wmctrl(args)
         
     def close(self, title, matchClass=False):
         """
@@ -926,9 +987,9 @@ class Window:
         @param matchClass: if True, match on the window class instead of the title
         """
         if matchClass:
-            self.__runWmctrl(["-c", title, "-x"])
+            self._run_wmctrl(["-c", title, "-x"])
         else:
-            self.__runWmctrl(["-c", title])
+            self._run_wmctrl(["-c", title])
         
     def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False):
         """
@@ -951,7 +1012,7 @@ class Window:
             xArgs = ["-x"]
         else:
             xArgs = []
-        self.__runWmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
+        self._run_wmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
         
     def move_to_desktop(self, title, deskNum, matchClass=False):
         """
@@ -967,7 +1028,7 @@ class Window:
             xArgs = ["-x"]
         else:
             xArgs = []
-        self.__runWmctrl(["-r", title, "-t", str(deskNum)] + xArgs)
+        self._run_wmctrl(["-r", title, "-t", str(deskNum)] + xArgs)
 
     def switch_desktop(self, deskNum):
         """
@@ -977,7 +1038,7 @@ class Window:
         
         @param deskNum: desktop to switch to (note: zero based)
         """
-        self.__runWmctrl(["-s", str(deskNum)])
+        self._run_wmctrl(["-s", str(deskNum)])
         
     def set_property(self, title, action, prop, matchClass=False):
         """
@@ -998,7 +1059,7 @@ class Window:
             xArgs = ["-x"]
         else:
             xArgs = []
-        self.__runWmctrl(["-r", title, "-b" + action + ',' + prop] + xArgs)
+        self._run_wmctrl(["-r", title, "-b" + action + ',' + prop] + xArgs)
         
     def get_active_geometry(self):
         """
@@ -1010,7 +1071,7 @@ class Window:
         @rtype: C{tuple(int, int, int, int)}
         """
         active = self.mediator.interface.get_window_title()
-        result, output = self.__runWmctrl(["-l", "-G"])
+        result, output = self._run_wmctrl(["-l", "-G"])
         matchingLine = None
         for line in output.split('\n'):
             if active in line[34:].split(' ', 1)[-1]:
@@ -1045,15 +1106,15 @@ class Window:
         """
         return self.mediator.interface.get_window_class()
         
-    def __runWmctrl(self, args):
+    def _run_wmctrl(self, args):
         try:
             with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
                 output = p.communicate()[0].decode()[:-1]  # Drop trailing newline
-                retCode = p.returncode
+                returncode = p.returncode
         except FileNotFoundError:
             return 1, 'ERROR: Please install wmctrl'
 
-        return retCode, output
+        return returncode, output
         
         
 class Engine:
@@ -1227,5 +1288,3 @@ class Engine:
         ret = self.__returnValue
         self.__returnValue = ''
         return ret
-
-
