@@ -98,6 +98,8 @@ class Application(QApplication):
     from here, together with some interactions from the tray icon.
     """
 
+    monitoring_disabled = pyqtSignal(bool, name="monitoring_enabled")
+
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
         self.handler = CallbackEventHandler()
@@ -253,7 +255,6 @@ class Application(QApplication):
         """
         self.service.unpause()
         self.notifier.update_tool_tip()
-        # TODO: Notify the main window to sync the "Enable Monitoring« checkbox in the settings menu.
 
     def pause_service(self):
         """
@@ -261,12 +262,12 @@ class Application(QApplication):
         """
         self.service.pause()
         self.notifier.update_tool_tip()
-        # TODO: Notify the main window to sync the "Enable Monitoring« checkbox in the settings menu.
 
     def toggle_service(self):
         """
-        Convenience method for toggling the expansion service on or off.
+        Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
+        self.monitoring_disabled.emit(not self.service.is_running())
         if self.service.is_running():
             self.pause_service()
         else:
