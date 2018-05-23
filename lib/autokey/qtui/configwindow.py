@@ -56,8 +56,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
         self.central_widget.populate_tree(self.app.configManager)
 
-        # self.setAutoSaveSettings()  # TODO: KDE4 function?
-
     def _show_action_create_popup(self):
         """
         Wrapper slot that is called by clicking on action_create. It causes the action to show its popup menu.
@@ -118,7 +116,11 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def _connect_all_settings_menu_signals(self):
         # TODO: Connect unconnected actions
-        self.action_enable_monitoring.triggered.connect(self.on_enable_toggled)
+        # Sync the action_enable_monitoring checkbox with the global state. Prevents a desync when the global hotkey
+        # is used
+        app = QApplication.instance()
+        app.monitoring_disabled.connect(self.action_enable_monitoring.setChecked)
+        self.action_enable_monitoring.triggered.connect(app.toggle_service)
         self.action_show_toolbar.triggered.connect(self._none_action)
         self.action_show_log_view.triggered.connect(self.on_show_log)
         self.action_configure_shortcuts.triggered.connect(self._none_action)
@@ -275,12 +277,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.app.service.scriptRunner.execute(script)
     
     # Settings Menu
-        
-    def on_enable_toggled(self):
-        if self.action_enable_monitoring.isChecked():
-            self.app.unpause_service()
-        else:
-            self.app.pause_service()
             
     def on_advanced_settings(self):
         s = SettingsDialog(self)
