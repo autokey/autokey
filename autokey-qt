@@ -22,6 +22,10 @@ import os, sys
 import atexit
 import faulthandler;faulthandler.enable()
 
+from PyQt4 import QtCore
+from autokey.qtapp import Application
+QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+
 # put a symlink into the search path for the ui.rc file
 # kde4-config --path data
 uirc_dir = os.path.expanduser("~/.local/share/kde4/apps/autokey")
@@ -60,11 +64,6 @@ try:
     del os.environ['WINDOWID']
 except KeyError:
     pass
-
-from PyQt4 import QtCore
-QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
-from autokey.qtapp import Application
-
 
 Application()
 sys.exit(1)

@@ -159,6 +159,17 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.central_widget.set_dirty(True)
         self.action_save.setEnabled(True)
 
+    def closeEvent(self, event):
+        """
+        This function is automatically called when the window is closed using the close [X] button in the window
+        decorations or by right clicking in the system window list and using the close action, or similar ways to close
+        the window.
+        Just ignore this event and simulate that the user used the action_close_window instead.
+        """
+        event.ignore()
+        # Be safe and emit this signal, because it might be connected to multiple slots.
+        self.action_close_window.triggered.emit(True)
+
     def config_modified(self):
         pass
         
@@ -220,7 +231,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
                 return False
 
         self.hide()
-        logging.getLogger().removeHandler(self.central_widget.logHandler)
+        # logging.getLogger().removeHandler(self.central_widget.logHandler)
         return True
     
     # File Menu

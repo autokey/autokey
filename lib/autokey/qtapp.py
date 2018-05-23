@@ -20,7 +20,6 @@ from . import common
 common.USING_QT = True
 
 import sys
-import traceback
 import os.path
 import logging
 import logging.handlers
@@ -32,15 +31,15 @@ import argparse
 from typing import NamedTuple, Iterable
 
 import dbus.mainloop.qt
-from PyQt4.QtCore import QObject, QEvent
+from PyQt4.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt4.QtGui import QApplication, QCursor, QMessageBox, QIcon
 
 
-from . import service, monitor
-from .qtui.notifier import Notifier
-from .qtui.popupmenu import PopupMenu
-from .qtui.configwindow import ConfigWindow
-from . import configmanager as cm
+from autokey import service, monitor
+from autokey.qtui.notifier import Notifier
+from autokey.qtui.popupmenu import PopupMenu
+from autokey.qtui.configwindow import ConfigWindow
+from autokey import configmanager as cm
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
@@ -103,8 +102,9 @@ class Application(QApplication):
         super().__init__(argv)
         self.handler = CallbackEventHandler()
         parser = generate_argument_parser()
-        args = parser.parse_args()
-
+        self.args = parser.parse_args()
+        self._configure_root_logger()
+        logging.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE))
         try:
             self._create_storage_directories()
@@ -112,23 +112,30 @@ class Application(QApplication):
             root_logger = logging.getLogger()
             root_logger.setLevel(logging.DEBUG)
 
-            if args.verbose:
-                handler = logging.StreamHandler(sys.stdout)
-            else:
-                handler = logging.handlers.RotatingFileHandler(
-                    common.LOG_FILE,
-                    maxBytes=common.MAX_LOG_SIZE,
-                    backupCount=common.MAX_LOG_COUNT
-                )
-                handler.setLevel(logging.INFO)
+            if self._verify_not_running():
+                self._create_lock_file()
 
-            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-            root_logger.addHandler(handler)
+            self.monitor = monitor.FileMonitor(self)
+            self.configManager = cm.get_config_manager(self)
+            self.service = service.Service(self)
+            self.serviceDisabled = False
+            self._try_start_service()
+            self.notifier = Notifier(self)
+            self.configWindow = ConfigWindow(self)
+            self.monitor.start()
+            # Initialise user code dir
+            if self.configManager.userCodeDir is not None:
+                sys.path.append(self.configManager.userCodeDir)
+            dbus.mainloop.qt.DBusQtMainLoop(set_as_default=True)
+            self.dbusService = common.AppService(self)
+            self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+            if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN]:
+                cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
+                self.args.show_config_window = True
+            if self.args.show_config_window:
+                self.show_configure()
 
-            if self.__verifyNotRunning():
-                self.__createLockFile()
-
-            self.initialise(args.show_config_window)
+            self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
         except Exception as e:
             logging.exception("Fatal error starting AutoKey: " + str(e))
@@ -136,6 +143,31 @@ class Application(QApplication):
             sys.exit(1)
         else:
             sys.exit(self.exec_())
+
+    def _try_start_service(self):
+        try:
+            self.service.start()
+        except Exception as e:
+            logging.exception("Error starting interface: " + str(e))
+            self.serviceDisabled = True
+            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
+                                   "Check your system/configuration.", str(e))
+
+    def _configure_root_logger(self):
+        """Initialise logging system"""
+        root_logger = logging.getLogger()
+        root_logger.setLevel(logging.DEBUG)
+        if self.args.verbose:
+            handler = logging.StreamHandler(sys.stdout)
+        else:
+            handler = logging.handlers.RotatingFileHandler(
+                common.LOG_FILE,
+                maxBytes=common.MAX_LOG_SIZE,
+                backupCount=common.MAX_LOG_COUNT
+            )
+            handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
+        root_logger.addHandler(handler)
 
     @staticmethod
     def _create_storage_directories():
@@ -150,11 +182,12 @@ class Application(QApplication):
         if not os.path.exists(common.RUN_DIR):
             os.makedirs(common.RUN_DIR)
 
-    def __createLockFile(self):
+    @staticmethod
+    def _create_lock_file():
         with open(common.LOCK_FILE, "w") as lock_file:
             lock_file.write(str(os.getpid()))
 
-    def __verifyNotRunning(self):
+    def _verify_not_running(self):
         if os.path.exists(common.LOCK_FILE):
             with open(common.LOCK_FILE, "r") as lock_file:
                 pid = lock_file.read()
@@ -173,8 +206,8 @@ class Application(QApplication):
                 bus = dbus.SessionBus()
 
                 try:
-                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface="org.autokey.Service")
+                    dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+                    dbus_service.show_configure(dbus_interface="org.autokey.Service")
                     sys.exit(0)
                 except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
@@ -184,39 +217,6 @@ class Application(QApplication):
                     sys.exit(1)
 
         return True
-
-    def initialise(self, configure: bool):
-        logging.info("Initialising application")
-        self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.get_config_manager(self)
-        self.service = service.Service(self)
-
-
-        # Initialise user code dir
-        if self.configManager.userCodeDir is not None:
-            sys.path.append(self.configManager.userCodeDir)
-        try:
-            self.service.start()
-        except Exception as e:
-            logging.exception("Error starting interface: " + str(e))
-            self.serviceDisabled = True
-            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
-        else:
-            self.serviceDisabled = False
-        self.notifier = Notifier(self)
-        self.configWindow = None
-        self.monitor.start()
-
-        dbus.mainloop.qt.DBusQtMainLoop(set_as_default=True)
-        self.dbusService = common.AppService(self)
-
-        if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] or configure:
-            cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
-            self.show_configure()
-
-        kbChangeFilter = KeyboardChangeFilter(self.service.mediator.interface)
-        self.installEventFilter(kbChangeFilter)
 
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
@@ -301,16 +301,15 @@ class Application(QApplication):
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logging.info("Displaying configuration window")
-        try:
-            self.configWindow.showNormal()
-            self.configWindow.activateWindow()
-        except (AttributeError, RuntimeError):
-            # AttributeError when the main window is shown the first time, RuntimeError subsequently.
-            self.configWindow = ConfigWindow(self)
-            self.configWindow.show()
+        self.configWindow.show()
+        self.configWindow.showNormal()
+        self.configWindow.activateWindow()
+
+    show_configure_signal = pyqtSignal()
 
     def show_configure_async(self):
-        self.exec_in_main(self.show_configure)
+        logging.debug("Emit show_configure_signal")
+        self.show_configure_signal.emit()
 
     @staticmethod
     def show_error_dialog(message: str, details: str=None):
