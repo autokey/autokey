@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
-
-sys.path.insert(0, os.path.abspath('lib'))
-import autokey.common as R
+import re
+from collections import namedtuple
 
 try:
     from setuptools import setup
@@ -29,17 +27,47 @@ except ImportError:
     sys.exit(1)
 
 if sys.version_info < (3,5,0):
-    print("Autokey requires Python 3.5 or later. You are using %s " % (".".join(map(str, sys.version_info[:3]))))
+    print("Autokey requires Python 3.5 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
+
+AutoKeyData = namedtuple("AutoKeyData", ["version", "author", "author_email", "maintainer", "maintainer_email"])
+
+
+def extract_autokey_data() -> AutoKeyData:
+    source_file_name = "./lib/autokey/common.py"
+    with open(source_file_name, "r") as data_source_file:
+        source = data_source_file.read()
+    if not source:
+        print("Cannot read AutoKey source file containing required information. Unreadable: {}".format(
+            source_file_name))
+        sys.exit(1)
+
+    def search_for(pattern: str) -> str:
+        return re.search(
+            r"""^{}\s*=\s*('(.*)'|"(.*)")""".format(pattern),
+            source,
+            re.M
+        ).group(1)
+
+    return AutoKeyData(
+        version=search_for("VERSION"),
+        author=search_for("AUTHOR"),
+        author_email=search_for("AUTHOR_EMAIL"),
+        maintainer=search_for("MAINTAINER"),
+        maintainer_email=search_for("MAINTAINER_EMAIL")
+    )
+
+
+ak_data = extract_autokey_data()
 
 setup(
     name='autokey',
-    version=R.VERSION,
+    version=ak_data.version,
     description='AutoKey (Python 3)',
-    author=R.AUTHOR,
-    author_email=R.AUTHOR_EMAIL,
-    maintainer=R.MAINTAINER,
-    maintainer_email=R.MAINTAINER_EMAIL,
+    author=ak_data.author,
+    author_email=ak_data.author_email,
+    maintainer=ak_data.maintainer,
+    maintainer_email=ak_data.maintainer_email,
     url='https://github.com/autokey/autokey',
     license='GPLv3',
     packages=['autokey', 'autokey.gtkui', 'autokey.qtui'],
@@ -72,7 +100,7 @@ setup(
                 ('share/kde4/apps/autokey',
                  ['config/autokeyui.rc'])
                 ],
-    entry_points = {
+    entry_points={
         'console_scripts': ['autokey-gtk=autokey.gtkui.__main__:main']
     },
     scripts=['autokey-qt', 'autokey-run', 'autokey-shell'],
