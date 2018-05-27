@@ -20,7 +20,7 @@ import logging
 from PyQt4.QtGui import QFileDialog, QWidget
 
 from autokey.configmanager import ConfigManager
-from . import common
+from autokey.qtui import common
 
 logger = common.logger.getChild("AutoKey configuration")  # type: logging.Logger
 
