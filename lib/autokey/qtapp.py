@@ -254,14 +254,12 @@ class Application(QApplication):
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
         self.service.unpause()
-        self.notifier.update_tool_tip()
 
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
         self.service.pause()
-        self.notifier.update_tool_tip()
 
     def toggle_service(self):
         """

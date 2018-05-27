@@ -42,17 +42,16 @@ class Notifier:
         self.build_menu()
 
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
-            self.update_tool_tip()
+            self.update_tool_tip(cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING])
+            self.app.monitoring_disabled.connect(self.update_tool_tip)
             self.icon.show()
                         
-    def update_tool_tip(self):
-        if cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING]:
+    def update_tool_tip(self, service_running: bool):
+        if service_running:
             self.icon.setToolTip(TOOLTIP_RUNNING)
-            self.action_enable_monitoring.setChecked(True)
         else:
             self.icon.setToolTip(TOOLTIP_PAUSED)
-            self.action_enable_monitoring.setChecked(False)
-            
+
     def build_menu(self):
         logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
@@ -73,14 +72,15 @@ class Notifier:
             self.action_enable_monitoring.setCheckable(True)
             self.action_enable_monitoring.setChecked(self.app.service.is_running())
             self.action_enable_monitoring.setEnabled(not self.app.serviceDisabled)
-            self.action_enable_monitoring.triggered.connect(self.on_enable_toggled)
+            # Sync action state with internal service state
+            self.action_enable_monitoring.triggered.connect(self.app.toggle_service)
+            self.app.monitoring_disabled.connect(self.action_enable_monitoring.setChecked)
 
             menu.addAction(self.action_enable_monitoring)
             menu.addAction(QIcon.fromTheme("edit-clear"), "&Hide Icon", self.on_hide_icon)
             menu.addAction(QIcon.fromTheme("configure"), "&Show Main Window", self.on_configure)
             menu.addAction(QIcon.fromTheme("application-quit"), "Exit AutoKey", self.on_quit)
             self.icon.setContextMenu(menu)
-
 
     def update_visible_status(self):
         self.icon.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
@@ -108,12 +108,6 @@ class Notifier:
 
     def on_configure(self):
         self.app.show_configure()
-        
-    def on_enable_toggled(self):
-        if self.action_enable_monitoring.isChecked():
-            self.app.unpause_service()
-        else:
-            self.app.pause_service()
             
     def on_hide_icon(self):
         self.icon.hide()
