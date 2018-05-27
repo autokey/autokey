@@ -79,10 +79,6 @@ class WidgetItemFactory:
 
         return rootItems
 
-    def container(self, title: str, parent: QWidget):
-        # TODO: This method is called by the tree widget. It expects a QMenu containing context menu items.
-        return QMenu(title, parent)
-
     def processFolder(self, parentItem, parentFolder):
         for folder in parentFolder.folders:
             item = self.__buildItem(parentItem, folder)

@@ -17,7 +17,7 @@ import os.path
 import logging
 
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QIcon
+from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QIcon, QMenu, QCursor
 
 from autokey import iomediator
 from autokey import model
@@ -51,7 +51,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.listWidget.hide()
 
         self.factory = None  # type: ak_tree.WidgetItemFactory
-
+        self.context_menu = None  # type: QMenu
         self.action_clear_log = self._create_action("edit-clear-history", "Clear Log", None, self.on_clear_log)
         self.listWidget.addAction(self.action_clear_log)
         self.action_save_log = self._create_action("edit-clear-history", "Save Log As…", None, self.on_save_log)
@@ -67,6 +67,22 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     def init(self, app):
         self.configManager = app.configManager
         self.logHandler = ak_tree.ListWidgetHandler(self.listWidget, app)
+        self.context_menu = self._create_treewidget_context_menu()
+
+    def _create_treewidget_context_menu(self) -> QMenu:
+        main_window = self.topLevelWidget()
+        context_menu = QMenu()
+        context_menu.addAction(main_window.action_create)
+        context_menu.addAction(main_window.action_rename_item)
+        context_menu.addAction(main_window.action_clone_item)
+        context_menu.addAction(main_window.action_cut_item)
+        context_menu.addAction(main_window.action_copy_item)
+        context_menu.addAction(main_window.action_paste_item)
+        context_menu.addSeparator()
+        context_menu.addAction(main_window.action_delete_item)
+        context_menu.addSeparator()
+        context_menu.addAction(main_window.action_run_script)
+        return context_menu
 
     def populate_tree(self, config):
         self.factory = ak_tree.WidgetItemFactory(config.folders)
@@ -108,8 +124,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     # ---- Signal handlers
 
     def on_treeWidget_customContextMenuRequested(self, position):
-        menu = self.factory.container("Context", self.topLevelWidget())
-        menu.popup(position)  # Previously used QCursor.pos()
+        menu = self.context_menu
+        # The supplied position parameter would center the context menu below the cursor, which is not what users
+        # expect. So use QCursor.pos() instead, which causes the menu to be right of /below the cursor as expected.
+        menu.popup(QCursor.pos())
 
     def on_treeWidget_itemChanged(self, item, column):
         if item is self.treeWidget.selectedItems()[0] and column == 0:

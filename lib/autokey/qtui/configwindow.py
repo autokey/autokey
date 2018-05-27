@@ -42,7 +42,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
     def __init__(self, app):
         super().__init__()
         self.setupUi(self)
-        self.central_widget.init(app)
+
         self.app = app
         self.action_create = self._create_action_create()
         self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
@@ -53,7 +53,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self._connect_all_help_menu_signals()
         self._initialise_action_states()
         self._set_platform_specific_keyboard_shortcuts()
-
+        self.central_widget.init(app)
         self.central_widget.populate_tree(self.app.configManager)
 
     def _show_action_create_popup(self):
