@@ -18,6 +18,7 @@ import logging
 
 from PyQt4.QtCore import Qt
 from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QIcon, QMenu, QCursor
+from PyQt4.QtGui import QListWidget, QListWidgetItem, QBrush
 
 from autokey import iomediator
 from autokey import model
@@ -66,8 +67,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
     def init(self, app):
         self.configManager = app.configManager
-        self.logHandler = ak_tree.ListWidgetHandler(self.listWidget, app)
+        self.logHandler = ListWidgetHandler(self.listWidget, app)
+        # Create and connect the custom context menu
         self.context_menu = self._create_treewidget_context_menu()
+        self.treeWidget.customContextMenuRequested.connect(lambda position: self.context_menu.popup(QCursor.pos()))
 
     def _create_treewidget_context_menu(self) -> QMenu:
         main_window = self.topLevelWidget()
@@ -122,12 +125,6 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             return self.on_save()
 
     # ---- Signal handlers
-
-    def on_treeWidget_customContextMenuRequested(self, position):
-        menu = self.context_menu
-        # The supplied position parameter would center the context menu below the cursor, which is not what users
-        # expect. So use QCursor.pos() instead, which causes the menu to be right of /below the cursor as expected.
-        menu.popup(QCursor.pos())
 
     def on_treeWidget_itemChanged(self, item, column):
         if item is self.treeWidget.selectedItems()[0] and column == 0:
@@ -529,3 +526,46 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             for item in theItem.items:
                 if model.TriggerMode.HOTKEY in item.modes:
                     self.topLevelWidget().app.hotkey_removed(item)
+
+
+class ListWidgetHandler(logging.Handler):
+
+    def __init__(self, list_widget: QListWidget, app):
+        logging.Handler.__init__(self)
+        self.widget = list_widget
+        self.app = app
+        self.level = logging.DEBUG
+
+        root_logger = logging.getLogger()
+        log_format = "%(message)s"
+        root_logger.addHandler(self)
+        self.setFormatter(logging.Formatter(log_format))
+
+    def flush(self):
+        pass
+
+    def emit(self, record):
+        try:
+            item = QListWidgetItem(self.format(record))
+            if record.levelno > logging.INFO:
+                item.setIcon(QIcon.fromTheme("dialog-warning"))
+                item.setForeground(QBrush(Qt.red))
+
+            else:
+                item.setIcon(QIcon.fromTheme("dialog-information"))
+
+            self.app.exec_in_main(self._add_item, item)
+
+        except (KeyboardInterrupt, SystemExit):
+            raise
+        except:
+            self.handleError(record)
+
+    def _add_item(self, item):
+        self.widget.addItem(item)
+
+        if self.widget.count() > 50:
+            delItem = self.widget.takeItem(0)
+            del delItem
+
+        self.widget.scrollToBottom()

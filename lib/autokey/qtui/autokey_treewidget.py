@@ -14,10 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
-
 from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QTreeWidget, QKeySequence, QTreeWidgetItem, QIcon, QListWidgetItem, QBrush, QWidget, QMenu
+from PyQt4.QtGui import QTreeWidget, QKeySequence, QTreeWidgetItem, QIcon
 
 from autokey import model
 
@@ -193,46 +191,3 @@ class ScriptWidgetItem(QTreeWidgetItem):
             return QTreeWidgetItem.__lt__(self, other)
         else:
             return False
-
-
-class ListWidgetHandler(logging.Handler):
-
-    def __init__(self, listWidget, app):
-        logging.Handler.__init__(self)
-        self.widget = listWidget
-        self.app = app
-        self.level = logging.DEBUG
-
-        rootLogger = logging.getLogger()
-        logFormat = "%(message)s"
-        rootLogger.addHandler(self)
-        self.setFormatter(logging.Formatter(logFormat))
-
-    def flush(self):
-        pass
-
-    def emit(self, record):
-        try:
-            item = QListWidgetItem(self.format(record))
-            if record.levelno > logging.INFO:
-                item.setIcon(QIcon.fromTheme("dialog-warning"))
-                item.setForeground(QBrush(Qt.red))
-
-            else:
-                item.setIcon(QIcon.fromTheme("dialog-information"))
-
-            self.app.exec_in_main(self.__addItem, item)
-
-        except (KeyboardInterrupt, SystemExit):
-            raise
-        except:
-            self.handleError(record)
-
-    def __addItem(self, item):
-        self.widget.addItem(item)
-
-        if self.widget.count() > 50:
-            delItem = self.widget.takeItem(0)
-            del delItem
-
-        self.widget.scrollToBottom()
