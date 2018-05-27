@@ -30,19 +30,25 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
     The EngineSettings class is used inside the AutoKey configuration dialog. It allows the user to select and add a
     custom Python module search path entry.
     """
-    def __init__(self, parent: QWidget, config_manager: ConfigManager):
+    def __init__(self, parent: QWidget=None):
         super(EngineSettings, self).__init__(parent)
         self.setupUi(self)
+
         # Save the path label text stored in the Qt UI file.
         # It is used to reset the label to this value if a custom module path is currently set and the user deletes it.
         # Do not hard-code it to prevent possible inconsistencies.
         self.initial_folder_label_text = self.folder_label.text()
+        self.config_manager = None  # type: ConfigManager
+        self.path = None  # type: str
+        self.clear_button.setEnabled(self.path is not None)
+        logger.debug("EngineSettings widget created.")
+
+    def init(self, config_manager: ConfigManager):
         self.config_manager = config_manager
         self.path = config_manager.userCodeDir
-        self.clear_button.setEnabled(self.path is not None)
         if config_manager.userCodeDir is not None:
             self.folder_label.setText(config_manager.userCodeDir)
-        logger.debug("EngineSettings widget created, custom module search path is set to: {}".format(self.path))
+        logger.debug("EngineSettings widget initialised, custom module search path is set to: {}".format(self.path))
 
     def save(self):
         """This function is called by the parent dialog window when the user selects to save the settings."""
@@ -65,16 +71,13 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
         PyQt slot called when the user hits the "Browse" button.
         Display a directory selection dialog and store the returned path.
         """
-        # Because of the QFileDialog properties, the returned path is never None or empty
-        path = QFileDialog.getExistingDirectory(self.parentWidget(), "Choose Directory")
+        path = QFileDialog.getExistingDirectory(self.parentWidget(), "Choose a directory containing Python modules")
 
-        if path:
+        if path:  # Non-empty means the user chose a path and clicked on OK
             self.path = path
             self.clear_button.setEnabled(True)
             self.folder_label.setText(path)
             logger.debug("User selects a custom module search path: {}".format(self.path))
-        else:  # Dialog aborted / ESC pressed, act as if "Clear" were pressed
-            self.on_clear_button_pressed()
 
     def on_clear_button_pressed(self):
         """
