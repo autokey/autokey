@@ -13,7 +13,9 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+from typing import Tuple
 
+from PyQt4.QtGui import QWidget
 
 from .. import common
 from ..common import inherits_from_ui_file_with_name
@@ -23,30 +25,30 @@ logger = common.logger.getChild("DetectDialog")
 
 class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
     """
-    The DetectDialog lets the user detect window properties of a chosen window.
+    The DetectDialog lets the user select window properties of a chosen window.
     The dialog shows the window title and window class of the chosen window
     and lets the user select one of those two options.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget):
         super(DetectDialog, self).__init__(parent)
         self.setupUi(self)
-        self.window_info = None
+        self.window_title = ""
+        self.window_class = ""
 
-    def populate(self, window_info):
-
-        self.detected_title.setText(window_info[0])
-        self.detected_class.setText(window_info[1])
+    def populate(self, window_info: Tuple[str, str]):
+        self.window_title, self.window_class = window_info
+        self.detected_title.setText(self.window_title)
+        self.detected_class.setText(self.window_class)
         logger.info(
-            "Detected window with properties title: {}, window class: {}".format(window_info[0], window_info[1])
+            "Detected window with properties title: {}, window class: {}".format(self.window_title, self.window_class)
         )
-        self.window_info = window_info
 
-    def get_choice(self):
+    def get_choice(self) -> str:
         # This relies on autoExclusive being set to true in the ui file.
         if self.classButton.isChecked():
-            logger.debug("User has chosen the window class: {}".format(self.window_info[1]))
-            return self.window_info[1]
+            logger.debug("User has chosen the window class: {}".format(self.window_class))
+            return self.window_class
         else:
-            logger.debug("User has chosen the window title: {}".format(self.window_info[0]))
-            return self.window_info[0]
+            logger.debug("User has chosen the window title: {}".format(self.window_title))
+            return self.window_title
