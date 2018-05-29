@@ -570,8 +570,7 @@ class XInterfaceBase(threading.Thread):
             self.sem.release()
         else:
             Gdk.threads_enter()
-            self.selection.set_text(string)
-            # self.selection.set_text(string.encode("utf-8"))
+            self.selection.set_text(string, -1)  # second parameter is string length, -1 means "autodetect"
             Gdk.threads_leave()
 
     def __fillClipboard(self, string):
