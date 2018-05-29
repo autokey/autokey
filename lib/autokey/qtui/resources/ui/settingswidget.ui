@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>341</width>
-    <height>126</height>
+    <width>353</width>
+    <height>132</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -81,6 +81,9 @@
      <property name="text">
       <string>Clear&amp;</string>
      </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
+     </property>
     </widget>
    </item>
    <item row="1" column="3">
@@ -95,6 +98,9 @@
      <property name="text">
       <string>Clear&amp;</string>
      </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
+     </property>
     </widget>
    </item>
    <item row="2" column="3">
@@ -108,6 +114,9 @@
     <widget class="QPushButton" name="clearFilterButton">
      <property name="text">
       <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
      </property>
     </widget>
    </item>
