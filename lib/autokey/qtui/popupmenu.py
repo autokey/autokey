@@ -18,7 +18,7 @@ from typing import List, Union
 
 import logging
 from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QMenu, QAction, QIcon
+from PyQt4.QtGui import QMenu, QAction, QIcon, QWidget
 
 
 from autokey import configmanager as cm
@@ -137,6 +137,10 @@ class SubMenu(QAction):
     def __init__(self, title: str, parent: PopupMenu, service, folders: list=None, items: list=None, on_desktop=True):
         QAction.__init__(self, SubMenu.folder_icon, title, parent)
         self.setMenu(PopupMenu(service, folders, items, on_desktop, title, parent))
+
+    def setParent(self, parent: QWidget=None):
+        super(SubMenu, self).setParent(parent)
+        self.menu().setParent(parent)
 
 
 class ItemAction(QAction):
