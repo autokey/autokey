@@ -102,9 +102,7 @@ setup(
                 ('share/man/man1/',
                  ['doc/man/autokey-qt.1',
                   'doc/man/autokey-gtk.1',
-                  'doc/man/autokey-run.1']),
-                ('share/kde4/apps/autokey',
-                 ['config/autokeyui.rc'])
+                  'doc/man/autokey-run.1'])
                 ],
     entry_points={
         'console_scripts': [
