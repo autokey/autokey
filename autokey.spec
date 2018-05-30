@@ -69,10 +69,9 @@ full flexibility and power of the Python language.
 
 %package qt
 License:        GPLv3
-Summary:        Desktop automation utility -- KDE Interface
+Summary:        Desktop automation utility -- Qt Interface
 Group:          System/X11/Utilities
 Requires:       %{name}-common = %{version}
-Requires:       python-kde4
 Requires:       python-qt4
 Requires:       python-qscintilla2
 Requires:       python-notify
@@ -122,7 +121,6 @@ find src/lib -name "*.py" -exec sed -i '/^#!\/usr\/bin\/env python$/d' {} ";"
 
 %files qt
 %defattr(-,root,root)
-%{_bindir}/autokey-qt
 %{python_sitelib}/autokey/qtapp.py*
 %{python_sitelib}/autokey/qtui/
 %{_datadir}/applications/autokey-qt.desktop
