@@ -152,9 +152,20 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         """
         QtDesigner does not support QKeySequence::StandardKey enum based default keyboard shortcuts.
         This means that all default key combinations ("Save", "Quit", etc) have to be defined in code.
-        :return:
         """
+        self.action_new_phrase.setShortcuts(QKeySequence.New)
         self.action_save.setShortcuts(QKeySequence.Save)
+        self.action_close_window.setShortcuts(QKeySequence.Close)
+        self.action_quit.setShortcuts(QKeySequence.Quit)
+
+        self.action_undo.setShortcuts(QKeySequence.Undo)
+        self.action_redo.setShortcuts(QKeySequence.Redo)
+        self.action_cut_item.setShortcuts(QKeySequence.Cut)
+        self.action_copy_item.setShortcuts(QKeySequence.Copy)
+        self.action_paste_item.setShortcuts(QKeySequence.Paste)
+        self.action_delete_item.setShortcuts(QKeySequence.Delete)
+
+        self.action_configure_autokey.setShortcuts(QKeySequence.Preferences)
 
     def _none_action(self):
         import warnings
