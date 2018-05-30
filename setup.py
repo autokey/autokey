@@ -79,7 +79,7 @@ setup(
         'autokey.qtui.settings'
     ],
     package_dir={'': 'lib'},
-    package_data={'autokey.qtui': ['data/*'],
+    package_data={'autokey.qtui': ['data/*', 'resources/resources.qrc', 'resources/ui/*.ui'],
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
@@ -107,9 +107,12 @@ setup(
                  ['config/autokeyui.rc'])
                 ],
     entry_points={
-        'console_scripts': ['autokey-gtk=autokey.gtkui.__main__:main']
+        'console_scripts': [
+            'autokey-gtk=autokey.gtkui.__main__:main',
+            'autokey-qt=autokey.qtui.__main__:Application'
+        ]
     },
-    scripts=['autokey-qt', 'autokey-run', 'autokey-shell'],
+    scripts=['autokey-run', 'autokey-shell'],
     install_requires=['dbus-python', 'pyinotify', 'python3-xlib'],
     classifiers=[
         'Development Status :: 4 - Beta',

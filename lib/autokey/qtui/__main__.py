@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 # Copyright (C) 2011 Chris Dekter
 # Copyright (C) 2018 Thomas Hess
 #
@@ -32,4 +30,8 @@ try:
 except KeyError:
     pass
 
-Application()
+if __name__ == '__main__':
+    # When invoked by the setup.py generated launcher, __name__ is set to "autokey.qtui.__main__", so
+    # this is only executed if invoked directly from the source directory as "python3 -m [lib.]autokey.qtui"
+    # The setup.py launcher directly calls Application() after importing
+    Application()
