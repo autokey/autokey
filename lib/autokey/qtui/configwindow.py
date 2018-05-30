@@ -115,16 +115,19 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.app.service.phraseRunner.macroManager.get_menu(self.on_insert_macro, self.menu_insert_macros)
 
     def _connect_all_settings_menu_signals(self):
-        # TODO: Connect unconnected actions
+        # TODO: Connect and implement unconnected actions
+        app = QApplication.instance()
         # Sync the action_enable_monitoring checkbox with the global state. Prevents a desync when the global hotkey
         # is used
-        app = QApplication.instance()
         app.monitoring_disabled.connect(self.action_enable_monitoring.setChecked)
+
         self.action_enable_monitoring.triggered.connect(app.toggle_service)
-        self.action_show_toolbar.triggered.connect(self._none_action)
         self.action_show_log_view.triggered.connect(self.on_show_log)
-        self.action_configure_shortcuts.triggered.connect(self._none_action)
-        self.action_configure_toolbars.triggered.connect(self._none_action)
+
+        self.action_configure_shortcuts.triggered.connect(self._none_action)  # Currently not shown in any menu
+        self.action_configure_toolbars.triggered.connect(self._none_action)  # Currently not shown in any menu
+        # Both actions above were part of the KXMLGUI window functionality and allowed to customize keyboard shortcuts
+        # and toolbar items
         self.action_configure_autokey.triggered.connect(self.on_advanced_settings)
 
     def _connect_all_help_menu_signals(self):
@@ -155,7 +158,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def _none_action(self):
         import warnings
-        warnings.warn("Unconnected menu item clicked!", UserWarning)
+        warnings.warn("Unconnected menu item clicked! Nothing happens…", UserWarning)
 
     def set_dirty(self):
         self.central_widget.set_dirty(True)

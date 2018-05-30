@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>784</width>
-     <height>30</height>
+     <height>32</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -91,8 +91,6 @@
     <addaction name="action_show_toolbar"/>
     <addaction name="action_show_log_view"/>
     <addaction name="separator"/>
-    <addaction name="action_configure_shortcuts"/>
-    <addaction name="action_configure_toolbars"/>
     <addaction name="action_configure_autokey"/>
    </widget>
    <widget class="QMenu" name="menu_help">
@@ -102,7 +100,9 @@
     <addaction name="action_show_online_manual"/>
     <addaction name="action_show_faq"/>
     <addaction name="action_show_api"/>
+    <addaction name="separator"/>
     <addaction name="action_report_bug"/>
+    <addaction name="separator"/>
     <addaction name="action_about_autokey"/>
     <addaction name="action_about_qt"/>
    </widget>
