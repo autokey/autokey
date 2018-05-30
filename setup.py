@@ -26,7 +26,7 @@ except ImportError:
           "manager (python-setuptools) or via pip (pip install setuptools)")
     sys.exit(1)
 
-if sys.version_info < (3,5,0):
+if sys.version_info < (3, 5, 0):
     print("Autokey requires Python 3.5 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
 
@@ -44,7 +44,7 @@ def extract_autokey_data() -> AutoKeyData:
 
     def search_for(pattern: str) -> str:
         return re.search(
-            r"""^{}\s*=\s*('(.*)'|"(.*)")""".format(pattern),
+            r"""^{}\s*=\s*('(.*)'|"(.*)")""".format(pattern),  # Search for assignments: VAR = 'VALUE' or VAR = "VALUE"
             source,
             re.M
         ).group(1)
@@ -70,10 +70,16 @@ setup(
     maintainer_email=ak_data.maintainer_email,
     url='https://github.com/autokey/autokey',
     license='GPLv3',
-    packages=['autokey', 'autokey.gtkui', 'autokey.qtui'],
+    packages=[
+        'autokey',
+        'autokey.iomediator',
+        'autokey.gtkui',
+        'autokey.qtui',
+        'autokey.qtui.dialogs',
+        'autokey.qtui.settings'
+    ],
     package_dir={'': 'lib'},
-    package_data={'autokey': ['iomediator/*'],
-                  'autokey.qtui': ['data/*'],
+    package_data={'autokey.qtui': ['data/*'],
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
