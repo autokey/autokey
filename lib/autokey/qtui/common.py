@@ -16,12 +16,29 @@
 import re
 import logging
 import os.path
+import pathlib
 
 from PyQt4.QtCore import QFile
 from PyQt4.QtGui import QMessageBox, QFont
 from PyQt4 import uic
 
-from .. import configmanager as cm
+from autokey import configmanager as cm
+
+try:
+    import autokey.qtui.compiled_resources
+except ModuleNotFoundError:
+    import warnings
+    # No compiled resource module found. Load bare files from disk instead.
+    warn_msg = "Compiled Qt resources file not found. If autokey is launched directly from the source directory, " \
+               "this is expected and harmless. If not, this indicates a failure in the resource compilation."
+    warnings.warn(warn_msg)
+    RESOURCE_PATH_PREFIX = str(pathlib.Path(__file__).resolve().parent / "resources")
+else:
+    import atexit
+    # Compiled resources found, so use it.
+    RESOURCE_PATH_PREFIX = ":"
+    atexit.register(autokey.qtui.compiled_resources.qCleanupResources)
+
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
@@ -66,12 +83,7 @@ def _get_ui_qfile(name: str):
     :param name:
     :return:
     """
-    # TODO: configure and use a resource file (resources.qrc) specifying all UI files and enable the next line, remove the workaround
-    # file_path = ":/ui/{ui_file_name}.ui".format(ui_file_name=name)
-    # WORKAROUND
-    import pathlib
-    file_path = "{abspath}/resources/ui/{ui_file_name}.ui".format(abspath=pathlib.Path(__file__).resolve().parent, ui_file_name=name)
-    # WORKAROUND END
+    file_path = RESOURCE_PATH_PREFIX + "/ui/{ui_file_name}.ui".format(ui_file_name=name)
     file = QFile(file_path)
     if not file.exists():
         raise FileNotFoundError("UI file not found: " + file_path)
@@ -86,8 +98,10 @@ def load_ui_from_file(name: str):
     :return:
     """
     ui_file = _get_ui_qfile(name)
-    base_type = uic.loadUiType(ui_file, from_imports=True)
-    ui_file.close()
+    try:
+        base_type = uic.loadUiType(ui_file, from_imports=True)
+    finally:
+        ui_file.close()
     return base_type
 
 

@@ -14,5 +14,6 @@
     <file>ui/enginesettings.ui</file>
     <file>ui/generalsettings.ui</file>
     <file>ui/specialhotkeysettings.ui</file>
+    <file>ui/settingsdialog.ui</file>
 </qresource>
 </RCC>
