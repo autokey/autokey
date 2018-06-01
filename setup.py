@@ -18,6 +18,9 @@
 import sys
 import re
 from collections import namedtuple
+import subprocess
+from pathlib import Path
+import warnings
 
 try:
     from setuptools import setup
@@ -25,10 +28,13 @@ except ImportError:
     print("Autokey needs setuptools in order to build. Install it with your package"
           "manager (python-setuptools) or via pip (pip install setuptools)")
     sys.exit(1)
+else:
+    import setuptools.command.build_py
 
 if sys.version_info < (3, 5, 0):
     print("Autokey requires Python 3.5 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
+
 
 AutoKeyData = namedtuple("AutoKeyData", ["version", "author", "author_email", "maintainer", "maintainer_email"])
 
@@ -47,7 +53,7 @@ def extract_autokey_data() -> AutoKeyData:
             r"""^{}\s*=\s*('(.*)'|"(.*)")""".format(pattern),  # Search for assignments: VAR = 'VALUE' or VAR = "VALUE"
             source,
             re.M
-        ).group(1)
+        ).group(1)[1:-1]  # Cut off outer quotation marks
 
     return AutoKeyData(
         version=search_for("VERSION"),
@@ -56,6 +62,34 @@ def extract_autokey_data() -> AutoKeyData:
         maintainer=search_for("MAINTAINER"),
         maintainer_email=search_for("MAINTAINER_EMAIL")
     )
+
+
+class BuildWithQtResources(setuptools.command.build_py.build_py):
+    """Try to build the Qt resources file for autokey-qt."""
+    def run(self):
+        if not self.dry_run:
+            compiled_qt_resources = self._compile_resource_file()
+            if compiled_qt_resources:
+                target_directory = str(Path(self.build_lib) / "autokey" / "qtui")
+                self.mkpath(target_directory)
+                with open(str(Path(target_directory) / "compiled_resources.py"), "w") as compiled_qt_resources_file:
+                    compiled_qt_resources_file.write(compiled_qt_resources)
+            else:
+                # If here, compilation failed for a known reason, so include the resource files directly.
+                self.package_data["autokey.qtui"] += ['resources/resources.qrc', 'resources/ui/*.ui']
+        super(BuildWithQtResources, self).run()
+
+    @staticmethod
+    def _compile_resource_file() -> str:
+        resource_file = str((Path(__file__).parent / "lib" / "autokey" / "qtui" / "resources" / "resources.qrc").resolve())
+        command = ("pyrcc4", "-py3", resource_file)
+        try:
+            compiled = subprocess.check_output(command, universal_newlines=True)  # type: str
+        except (FileNotFoundError, subprocess.CalledProcessError) as e:
+            warnings.warn("An exception occurred during resource compilation for autokey-qt: {}".format(e))
+            return ""
+        else:
+            return compiled
 
 
 ak_data = extract_autokey_data()
@@ -69,6 +103,7 @@ setup(
     maintainer=ak_data.maintainer,
     maintainer_email=ak_data.maintainer_email,
     url='https://github.com/autokey/autokey',
+    cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
     packages=[
         'autokey',
@@ -79,7 +114,8 @@ setup(
         'autokey.qtui.settings'
     ],
     package_dir={'': 'lib'},
-    package_data={'autokey.qtui': ['data/*', 'resources/resources.qrc', 'resources/ui/*.ui'],
+
+    package_data={'autokey.qtui': ['data/*'],  # Resources added by BuildWithQtResources iff resource compilation failed
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
