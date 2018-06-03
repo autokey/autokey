@@ -15,5 +15,11 @@
     <file>ui/generalsettings.ui</file>
     <file>ui/specialhotkeysettings.ui</file>
     <file>ui/settingsdialog.ui</file>
+    <!-- The icons are copied into the resource directory automatically during resource file compilation. -->
+    <file>icons/autokey.png</file>
+    <file>icons/autokey.svg</file>
+    <file>icons/autokey-status.svg</file>
+    <file>icons/autokey-status-dark.svg</file>
+    <file>icons/autokey-status-error.svg</file>
 </qresource>
 </RCC>

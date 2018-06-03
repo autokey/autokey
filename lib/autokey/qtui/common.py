@@ -17,9 +17,11 @@ import re
 import logging
 import os.path
 import pathlib
+import enum
+import functools
 
 from PyQt4.QtCore import QFile
-from PyQt4.QtGui import QMessageBox, QFont
+from PyQt4.QtGui import QMessageBox, QFont, QIcon
 from PyQt4 import uic
 
 from autokey import configmanager as cm
@@ -33,10 +35,12 @@ except ModuleNotFoundError:
                "this is expected and harmless. If not, this indicates a failure in the resource compilation."
     warnings.warn(warn_msg)
     RESOURCE_PATH_PREFIX = str(pathlib.Path(__file__).resolve().parent / "resources")
+    ICON_PATH_PREFIX = str(pathlib.Path(__file__).resolve().parent.parent.parent.parent / "config")
 else:
     import atexit
     # Compiled resources found, so use it.
     RESOURCE_PATH_PREFIX = ":"
+    ICON_PATH_PREFIX = ":/icons"
     atexit.register(autokey.qtui.compiled_resources.qCleanupResources)
 
 
@@ -73,6 +77,21 @@ def validate(expression, message, widget, parent):
         if widget is not None:
             widget.setFocus()
     return expression
+
+
+class AutoKeyIcon(enum.Enum):
+    AUTOKEY = "autokey.png"
+    AUTOKEY_SCALABLE = "autokey.svg"
+    SYSTEM_TRAY = "autokey-status.svg"
+    SYSTEM_TRAY_DARK = "autokey-status-dark.svg"
+    SYSTEM_TRAY_ERROR = "autokey-status-error.svg"
+
+
+@functools.lru_cache()
+def load_icon(name: AutoKeyIcon) -> QIcon:
+    file_path = ICON_PATH_PREFIX + "/" + name.value
+    icon = QIcon(file_path)
+    return icon
 
 
 def _get_ui_qfile(name: str):

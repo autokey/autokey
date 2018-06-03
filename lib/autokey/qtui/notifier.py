@@ -40,7 +40,9 @@ class Notifier:
 
         self.app = app
         self.configManager = app.configManager
-        self.icon = QSystemTrayIcon(QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]))
+        fallback_icon = autokey.qtui.common.load_icon(autokey.qtui.common.AutoKeyIcon.SYSTEM_TRAY_DARK)
+        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback=fallback_icon)
+        self.icon = QSystemTrayIcon(icon)
         self.icon.setContextMenu(QMenu("AutoKey"))
         self.icon.activated.connect(self.on_activate)
         self._create_static_actions()

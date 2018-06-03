@@ -36,6 +36,7 @@ from PyQt4.QtGui import QApplication, QCursor, QMessageBox, QIcon
 
 
 from autokey import service, monitor
+from autokey.qtui import common as ui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
@@ -98,7 +99,7 @@ class Application(QApplication):
     from here, together with some interactions from the tray icon.
     """
 
-    monitoring_disabled = pyqtSignal(bool, name="monitoring_enabled")
+    monitoring_disabled = pyqtSignal(bool, name="monitoring_disabled")
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
@@ -107,7 +108,7 @@ class Application(QApplication):
         self.args = parser.parse_args()
         self._configure_root_logger()
         logging.info("Initialising application")
-        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE))
+        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
             self._create_storage_directories()
             # Initialise logger

@@ -21,6 +21,7 @@ from collections import namedtuple
 import subprocess
 from pathlib import Path
 import warnings
+import shutil
 
 try:
     from setuptools import setup
@@ -68,7 +69,10 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
     """Try to build the Qt resources file for autokey-qt."""
     def run(self):
         if not self.dry_run:
-            compiled_qt_resources = self._compile_resource_file()
+            resource_dir = (Path(__file__).parent / "lib" / "autokey" / "qtui" / "resources").resolve()
+            resource_file = resource_dir / "resources.qrc"
+            self._copy_icon_files_into_qt_resources_directory(resource_dir)
+            compiled_qt_resources = self._compile_resource_file(resource_file)
             if compiled_qt_resources:
                 target_directory = str(Path(self.build_lib) / "autokey" / "qtui")
                 self.mkpath(target_directory)
@@ -80,9 +84,8 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
         super(BuildWithQtResources, self).run()
 
     @staticmethod
-    def _compile_resource_file() -> str:
-        resource_file = str((Path(__file__).parent / "lib" / "autokey" / "qtui" / "resources" / "resources.qrc").resolve())
-        command = ("pyrcc4", "-py3", resource_file)
+    def _compile_resource_file(resource_file: Path) -> str:
+        command = ("pyrcc4", "-py3", str(resource_file))
         try:
             compiled = subprocess.check_output(command, universal_newlines=True)  # type: str
         except (FileNotFoundError, subprocess.CalledProcessError) as e:
@@ -90,6 +93,19 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             return ""
         else:
             return compiled
+
+    def _copy_icon_files_into_qt_resources_directory(self, resource_dir: Path):
+        target_directory = resource_dir / "icons"
+        self.mkpath(str(target_directory))
+        icon_source_path = (Path(__file__).parent / "config").resolve()  # type: Path
+        for icon_name in (
+                "autokey.png",
+                "autokey.svg",
+                "autokey-status.svg",
+                "autokey-status-dark.svg",
+                "autokey-status-error.svg"):
+            icon = icon_source_path / icon_name
+            shutil.copy(str(icon), str(target_directory))
 
 
 ak_data = extract_autokey_data()
