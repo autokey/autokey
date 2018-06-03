@@ -37,12 +37,13 @@ PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
 _logger = autokey.qtui.common.logger.getChild("configwindow")  # type: logging.Logger
 
 
+
 class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwindow")):
 
     def __init__(self, app):
         super().__init__()
         self.setupUi(self)
-
+        self.about_dialog = dialogs.AboutAutokeyDialog(self)
         self.app = app
         self.action_create = self._create_action_create()
         self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
@@ -135,7 +136,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_show_faq.triggered.connect(self.on_show_faq)
         self.action_show_api.triggered.connect(self.on_show_api)
         self.action_report_bug.triggered.connect(self.on_report_bug)
-        self.action_about_autokey.triggered.connect(self.on_about)
+        self.action_about_autokey.triggered.connect(self.about_dialog.show)
         self.action_about_qt.triggered.connect(QApplication.aboutQt)
 
     def _initialise_action_states(self):
@@ -315,6 +316,3 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         
     def on_report_bug(self):
         webbrowser.open(autokey.common.BUG_URL, False, True)
-
-    def on_about(self):
-        QMessageBox.information(self, "About", "The About dialog is currently unavailable.", QMessageBox.Ok)

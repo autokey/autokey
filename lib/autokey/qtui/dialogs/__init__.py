@@ -23,6 +23,7 @@ __all__ = [
     "validate",
     "EMPTY_FIELD_REGEX",
     "AbbrSettingsDialog",
+    "AboutAutokeyDialog",
     "HotkeySettingsDialog",
     "GlobalHotkeyDialog",
     "WindowFilterSettingsDialog",
@@ -36,3 +37,4 @@ from .abbrsettings import AbbrSettingsDialog
 from .hotkeysettings import HotkeySettingsDialog, GlobalHotkeyDialog
 from .windowfiltersettings import WindowFilterSettingsDialog
 from .recorddialog import RecordDialog
+from .about_autokey_dialog import AboutAutokeyDialog
