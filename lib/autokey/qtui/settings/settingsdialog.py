@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 
-from PyQt4.QtCore import pyqtSlot
+from PyQt5.QtCore import pyqtSlot
 
 from autokey.configmanager import ConfigManager
 
@@ -29,7 +29,7 @@ class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):
     def __init__(self, parent):
         super(SettingsDialog, self).__init__(parent)
         self.setupUi(self)
-        self.app = parent.topLevelWidget().app  # autokey.qtapp.Application
+        self.app = parent.window().app  # autokey.qtapp.Application
         config_manager = self.app.configManager  # type: ConfigManager
         self.special_hotkeys_page.init(config_manager)
         self.script_engine_page.init(config_manager)

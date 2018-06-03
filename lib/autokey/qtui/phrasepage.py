@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 
-from PyQt4.QtGui import QMessageBox
+from PyQt5.QtWidgets import QMessageBox
 
 from .common import set_url_label, EMPTY_FIELD_REGEX, inherits_from_ui_file_with_name
 
@@ -104,12 +104,12 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
 
         if errors:
             msg = PROBLEM_MSG_SECONDARY.format('\n'.join([str(e) for e in errors]))
-            QMessageBox.critical(self.topLevelWidget(), PROBLEM_MSG_PRIMARY, msg)
+            QMessageBox.critical(self.window(), PROBLEM_MSG_PRIMARY, msg)
 
         return not bool(errors)
 
     def set_dirty(self):
-        self.topLevelWidget().set_dirty()
+        self.window().set_dirty()
 
     def undo(self):
         self.phraseText.undo()
@@ -125,10 +125,10 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
         self.set_dirty()
 
     def on_phraseText_undoAvailable(self, state):
-        self.topLevelWidget().set_undo_available(state)
+        self.window().set_undo_available(state)
 
     def on_phraseText_redoAvailable(self, state):
-        self.topLevelWidget().set_redo_available(state)
+        self.window().set_redo_available(state)
 
     def on_predictCheckbox_stateChanged(self, state):
         self.set_dirty()

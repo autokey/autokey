@@ -14,9 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4.QtGui import QDialog
-from PyQt4.QtGui import QFontMetrics
-from PyQt4.QtGui import QApplication
+from PyQt5.QtWidgets import QDialog, QApplication
+from PyQt5.QtGui import QFontMetrics
 
 from ..common import inherits_from_ui_file_with_name
 from .detectdialog import DetectDialog
@@ -69,7 +68,7 @@ class WindowFilterSettingsDialog(*inherits_from_ui_file_with_name("window_filter
         return str(self.triggerRegexLineEdit.text())
 
     def receive_window_info(self, info):
-        self.parentWidget().topLevelWidget().app.exec_in_main(self._receiveWindowInfo, info)
+        self.parentWidget().window().app.exec_in_main(self._receiveWindowInfo, info)
 
     def _receiveWindowInfo(self, info):
         dlg = DetectDialog(self)

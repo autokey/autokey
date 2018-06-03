@@ -31,8 +31,9 @@ import argparse
 from typing import NamedTuple, Iterable
 
 import dbus.mainloop.qt
-from PyQt4.QtCore import QObject, QEvent, Qt, pyqtSignal
-from PyQt4.QtGui import QApplication, QCursor, QMessageBox, QIcon
+from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QIcon
+from PyQt5.QtWidgets import QMessageBox, QApplication
 
 
 from autokey import service, monitor

@@ -17,8 +17,9 @@
 from typing import List, Union
 
 import logging
-from PyQt4.QtCore import Qt, pyqtSignal
-from PyQt4.QtGui import QMenu, QAction, QIcon, QWidget
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMenu, QAction, QWidget
 
 
 from autokey import configmanager as cm
@@ -132,10 +133,16 @@ class SubMenu(QAction):
     It gets used when a folder with a sub-folder has a
     hotkey assigned, to recursively show subfolder contents.
     """
-    folder_icon = QIcon.fromTheme("folder")
 
-    def __init__(self, title: str, parent: PopupMenu, service, folders: list=None, items: list=None, on_desktop=True):
-        QAction.__init__(self, SubMenu.folder_icon, title, parent)
+    def __init__(self,
+                 title: str,
+                 parent: PopupMenu,
+                 service,
+                 folders: FolderList=None,
+                 items: List[Item]=None,
+                 on_desktop: bool=True):
+        icon = QIcon.fromTheme("folder")
+        super(SubMenu, self).__init__(icon, title, parent)
         self.setMenu(PopupMenu(service, folders, items, on_desktop, title, parent))
 
     def setParent(self, parent: QWidget=None):
@@ -145,26 +152,23 @@ class SubMenu(QAction):
 
 class ItemAction(QAction):
 
-    script_icon = QIcon.fromTheme("text-x-python")
-    phrase_icon = QIcon.fromTheme("text-x-generic")
-
     action_sig = pyqtSignal([autokey.model.AbstractHotkey], name="action_sig")
 
-    def __init__(self, parent, description, item, target):
-        QAction.__init__(self, ItemAction._icon_for_item(item), description, parent)
+    def __init__(self, parent: QWidget, description: str, item: Item, target):
+        icon = ItemAction._icon_for_item(item)
+        super(ItemAction, self).__init__(icon, description, parent)
+
         self.item = item
-        self.triggered.connect(self.on_triggered)
+        self.triggered.connect(lambda: self.action_sig.emit(self.item))
         self.action_sig.connect(target)
 
-    def on_triggered(self):
-        self.action_sig.emit(self.item)
 
     @staticmethod
-    def _icon_for_item(item) -> QIcon:
+    def _icon_for_item(item: Item) -> QIcon:
         if isinstance(item, autokey.model.Script):
-            return ItemAction.script_icon
+            return QIcon.fromTheme("text-x-python")
         elif isinstance(item, autokey.model.Phrase):
-            return ItemAction.phrase_icon
+            return QIcon.fromTheme("text-x-generic")
         else:
             error_msg = "ItemAction got unknown item. Expected Union[autokey.model.Script, autokey.model.Phrase], " \
                         "got '{}'".format(str(type(item)))

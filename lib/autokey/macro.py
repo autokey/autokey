@@ -6,7 +6,7 @@ from autokey.iomediator.key import Key
 from autokey import common
 
 if common.USING_QT:
-    from PyQt4.QtGui import QAction
+    from PyQt5.QtWidgets import QAction
 
     def _(text: str, args: tuple=None):
         """localisation function, currently returns the identity. If args are given, those are used to format

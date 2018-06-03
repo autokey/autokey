@@ -21,8 +21,8 @@ This dialog allows the user to set and configure abbreviations to trigger script
 
 import logging
 
-from PyQt4 import QtCore
-from PyQt4.QtGui import QListWidgetItem, QDialogButtonBox
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 
 from .. import common
 from ..common import inherits_from_ui_file_with_name

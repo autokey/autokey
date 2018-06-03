@@ -16,7 +16,8 @@
 
 import logging
 
-from PyQt4.QtGui import QSystemTrayIcon, QIcon, QAction, QMenu
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
 
 from autokey.qtui import popupmenu
 import autokey.qtui.common
@@ -28,10 +29,14 @@ TOOLTIP_PAUSED = "AutoKey - paused"
 logger = autokey.qtui.common.logger.getChild("System-tray-notifier")  # type: logging.Logger
 
 
-class Notifier:
+class Notifier(QSystemTrayIcon):
     
     def __init__(self, app):
         logger.debug("Creating system tray icon notifier.")
+        fallback_icon = autokey.qtui.common.load_icon(autokey.qtui.common.AutoKeyIcon.SYSTEM_TRAY_DARK)
+        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback_icon)
+        super(Notifier, self).__init__(icon)
+
         # Actions
         self.action_hide_icon = None  # type: QAction
         self.action_show_config_window = None  # type: QAction
@@ -41,30 +46,30 @@ class Notifier:
         self.app = app
         self.configManager = app.configManager
         fallback_icon = autokey.qtui.common.load_icon(autokey.qtui.common.AutoKeyIcon.SYSTEM_TRAY_DARK)
-        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback=fallback_icon)
-        self.icon = QSystemTrayIcon(icon)
-        self.icon.setContextMenu(QMenu("AutoKey"))
-        self.icon.activated.connect(self.on_activate)
+        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback_icon)
+        self.setContextMenu(QMenu("AutoKey"))
+        self.activated.connect(self.on_activate)
         self._create_static_actions()
         self.update_tool_tip(cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING])
         self.app.monitoring_disabled.connect(self.update_tool_tip)
 
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             self.build_menu()
-            self.icon.show()
+            logger.debug("About to show the tray icon.")
+            self.show()
         logger.info("System tray icon notifier created.")
                         
     def update_tool_tip(self, service_running: bool):
         if service_running:
-            self.icon.setToolTip(TOOLTIP_RUNNING)
+            self.setToolTip(TOOLTIP_RUNNING)
         else:
-            self.icon.setToolTip(TOOLTIP_PAUSED)
+            self.setToolTip(TOOLTIP_PAUSED)
 
     def _create_action(self, icon_name: str, title: str, slot_function) -> QAction:
         """
         QAction factory.
         """
-        action = QAction(title, self.icon)
+        action = QAction(title, self)
         action.setIcon(QIcon.fromTheme(icon_name))
         action.triggered.connect(slot_function)
         return action
@@ -78,7 +83,7 @@ class Notifier:
         self.action_show_config_window = self._create_action("configure", "&Show Main Window", self.on_configure)
         self.action_quit = self._create_action("application-exit", "Exit AutoKey", self.on_quit)
         # TODO: maybe import this from configwindow.py ? The exact same Action is defined in the main window.
-        self.action_enable_monitoring = QAction("&Enable Monitoring", self.icon)
+        self.action_enable_monitoring = QAction("&Enable Monitoring", self)
         self.action_enable_monitoring.setCheckable(True)
         self.action_enable_monitoring.setChecked(self.app.service.is_running())
         self.action_enable_monitoring.setEnabled(not self.app.serviceDisabled)
@@ -98,7 +103,7 @@ class Notifier:
         # Only extract the QActions, but discard the PopupMenu instance.
         menu = popupmenu.PopupMenu(self.app.service, folders, items, False, "AutoKey")
         actions = menu.actions()
-        context_menu = self.icon.contextMenu()
+        context_menu = self.contextMenu()
         context_menu.addActions(actions)
         for action in actions:  # type: QAction
             action.setParent(context_menu)
@@ -109,7 +114,7 @@ class Notifier:
     def build_menu(self):
         logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
-            menu = self.icon.contextMenu()
+            menu = self.contextMenu()
             menu.clear()
             self._fill_context_menu_with_model_item_actions()
             menu.addAction(self.action_enable_monitoring)
@@ -119,11 +124,11 @@ class Notifier:
 
     def update_visible_status(self):
         self.build_menu()
-        self.icon.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        self.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
 
     def hide_icon(self):
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
-            self.icon.hide()
+            self.hide()
 
     def notify_error(self, message):
         pass
@@ -145,5 +150,5 @@ class Notifier:
         self.app.show_configure()
             
     def on_hide_icon(self):
-        self.icon.hide()
+        self.hide()
         cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = False

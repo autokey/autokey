@@ -16,9 +16,10 @@
 import os.path
 import logging
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QIcon, QMenu, QCursor
-from PyQt4.QtGui import QListWidget, QListWidgetItem, QBrush
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QIcon, QCursor, QBrush
+from PyQt5.QtWidgets import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QMenu
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from autokey import iomediator
 from autokey import model
@@ -46,7 +47,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.treeWidget.setColumnWidth(column_index, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][column_index])
 
         h_view = self.treeWidget.header()
-        h_view.setResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
+        h_view.setSectionResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
 
         self.logHandler = None
         self.listWidget.hide()
@@ -73,7 +74,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.treeWidget.customContextMenuRequested.connect(lambda position: self.context_menu.popup(QCursor.pos()))
 
     def _create_treewidget_context_menu(self) -> QMenu:
-        main_window = self.topLevelWidget()
+        main_window = self.window()
         context_menu = QMenu()
         context_menu.addAction(main_window.action_create)
         context_menu.addAction(main_window.action_rename_item)
@@ -108,7 +109,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
             # TODO: i18n
             result = QMessageBox.question(
-                self.topLevelWidget(),
+                self.window(),
                 "Save changes?",
                 "There are unsaved changes. Would you like to save them?",
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
@@ -133,14 +134,14 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                     not ui_common.EMPTY_FIELD_REGEX.match(newText),
                     "The name can't be empty.",
                     None,
-                    self.topLevelWidget()):
-                self.topLevelWidget().app.monitor.suspend()
+                    self.window()):
+                self.window().app.monitor.suspend()
                 self.stack.currentWidget().set_item_title(newText)
                 self.stack.currentWidget().rebuild_item_path()
 
                 persistGlobal = self.stack.currentWidget().save()
-                self.topLevelWidget().app.monitor.unsuspend()
-                self.topLevelWidget().app.config_altered(persistGlobal)
+                self.window().app.monitor.unsuspend()
+                self.window().app.config_altered(persistGlobal)
 
                 self.treeWidget.sortItems(0, Qt.AscendingOrder)
             else:
@@ -163,12 +164,12 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                 self.stack.setCurrentIndex(2)
                 self.scriptPage.load(model_item)
 
-            self.topLevelWidget().update_actions(model_items, True)
+            self.window().update_actions(model_items, True)
             self.set_dirty(False)
-            self.topLevelWidget().cancel_record()
+            self.window().cancel_record()
 
         else:
-            self.topLevelWidget().update_actions(model_items, False)
+            self.window().update_actions(model_items, False)
 
     def on_new_topfolder(self):
         logger.info("User initiates top-level folder creation")
@@ -177,13 +178,13 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             "Create Folder",
             "Create folder in the default location?",
             QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
-            self.topLevelWidget()
+            self.window()
 
         )
         message_box.button(QMessageBox.No).setText("Create elsewhere")  # TODO: i18n
         result = message_box.exec_()
 
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         if result == QMessageBox.Yes:
             logger.debug("User creates a new top-level folder.")
@@ -192,7 +193,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         elif result == QMessageBox.No:
             logger.debug("User creates a new folder and chose to create it elsewhere")
             path = QFileDialog.getExistingDirectory(
-                self.topLevelWidget(),
+                self.window(),
                 "Where should the folder be created?"
             )
             if path != "":
@@ -202,12 +203,12 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                 new_item = ak_tree.FolderWidgetItem(None, folder)
                 self.treeWidget.addTopLevelItem(new_item)
                 self.configManager.folders.append(folder)
-                self.topLevelWidget().app.config_altered(True)
+                self.window().app.config_altered(True)
 
-            self.topLevelWidget().app.monitor.unsuspend()
+            self.window().app.monitor.unsuspend()
         else:
             logger.debug("User canceled top-level folder creation.")
-            self.topLevelWidget().app.monitor.unsuspend()
+            self.window().app.monitor.unsuspend()
 
     def on_new_folder(self):
         parent_item = self.treeWidget.selectedItems()[0]
@@ -216,7 +217,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     def __createFolder(self, parent_item):
         folder = model.Folder("New Folder")
         new_item = ak_tree.FolderWidgetItem(parent_item, folder)
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         if parent_item is not None:
             parentFolder = self.__extractData(parent_item)
@@ -226,7 +227,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.configManager.folders.append(folder)
 
         folder.persist()
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
 
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(new_item)
@@ -234,7 +235,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.on_rename()
 
     def on_new_phrase(self):
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
         parent_item = self.treeWidget.selectedItems()[0]
         parent = self.__extractData(parent_item)
 
@@ -243,7 +244,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent.add_item(phrase)
         phrase.persist()
 
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(new_item)
         self.treeWidget.setItemSelected(parent_item, False)
@@ -251,7 +252,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.on_rename()
 
     def on_new_script(self):
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
         parent_item = self.treeWidget.selectedItems()[0]
         parent = self.__extractData(parent_item)
 
@@ -260,7 +261,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent.add_item(script)
         script.persist()
 
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(new_item)
         self.treeWidget.setItemSelected(parent_item, False)
@@ -299,32 +300,32 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             new_item = ak_tree.ScriptWidgetItem(parent_item, new_obj)
 
         parent.add_item(new_obj)
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
         new_obj.persist()
 
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
         self.treeWidget.setCurrentItem(new_item)
         self.treeWidget.setItemSelected(parent_item, False)
         self.on_treeWidget_itemSelectionChanged()
-        self.topLevelWidget().app.config_altered(False)
+        self.window().app.config_altered(False)
 
     def on_cut(self):
         self.cutCopiedItems = self.__getSelection()
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         source_items = self.treeWidget.selectedItems()
         result = [f for f in source_items if f.parent() not in source_items]
         for item in result:
             self.__removeItem(item)
 
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.topLevelWidget().app.config_altered(False)
+        self.window().app.monitor.unsuspend()
+        self.window().app.config_altered(False)
 
     def on_paste(self):
         parent_item = self.treeWidget.selectedItems()[0]
         parent = self.__extractData(parent_item)
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         new_items = []
         for item in self.cutCopiedItems:
@@ -350,12 +351,12 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.cutCopiedItems = []
         for item in new_items:
             self.treeWidget.setItemSelected(item, True)
-        self.topLevelWidget().app.monitor.unsuspend()
-        self.topLevelWidget().app.config_altered(False)
+        self.window().app.monitor.unsuspend()
+        self.window().app.config_altered(False)
 
     def on_delete(self):
         widget_items = self.treeWidget.selectedItems()
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         if len(widget_items) == 1:
             widget_item = widget_items[0]
@@ -373,15 +374,15 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             header = "Delete {item_count} selected items?".format(item_count=item_count)
             msg = "Are you sure you want to delete the {item_count} selected folders/items?".format(
                 item_count=item_count)
-        result = QMessageBox.question(self.topLevelWidget(), header, msg, QMessageBox.Yes | QMessageBox.No)
+        result = QMessageBox.question(self.window(), header, msg, QMessageBox.Yes | QMessageBox.No)
 
         if result == QMessageBox.Yes:
             for widget_item in widget_items:
                 self.__removeItem(widget_item)
 
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
         if result == QMessageBox.Yes:
-            self.topLevelWidget().app.config_altered(False)
+            self.window().app.config_altered(False)
 
     def on_rename(self):
         widget_item = self.treeWidget.selectedItems()[0]
@@ -390,16 +391,16 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     def on_save(self):
         logger.info("User requested file save.")
         if self.stack.currentWidget().validate():
-            self.topLevelWidget().app.monitor.suspend()
+            self.window().app.monitor.suspend()
             persist_global = self.stack.currentWidget().save()
-            self.topLevelWidget().save_completed(persist_global)
+            self.window().save_completed(persist_global)
             self.set_dirty(False)
 
             item = self.treeWidget.selectedItems()[0]
             item.update()
             self.treeWidget.update()
             self.treeWidget.sortItems(0, Qt.AscendingOrder)
-            self.topLevelWidget().app.monitor.unsuspend()
+            self.window().app.monitor.unsuspend()
             return False
 
         return True
@@ -407,11 +408,11 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     def on_reset(self):
         self.stack.currentWidget().reset()
         self.set_dirty(False)
-        self.topLevelWidget().cancel_record()
+        self.window().cancel_record()
 
     def on_save_log(self):
         file_name = QFileDialog.getSaveFileName(
-            self.topLevelWidget(),
+            self.window(),
             "Save log file",
             "",
             ""  # TODO: File type filter. Maybe "*.log"?
@@ -435,7 +436,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         # Filter out any child objects that belong to a parent already in the list
         result = [f for f in sourceItems if f.parent() not in sourceItems]
 
-        self.topLevelWidget().app.monitor.suspend()
+        self.window().app.monitor.suspend()
 
         for source in result:
             self.__removeItem(source)
@@ -451,9 +452,9 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
             target.addChild(source)
 
-        self.topLevelWidget().app.monitor.unsuspend()
+        self.window().app.monitor.unsuspend()
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.topLevelWidget().app.config_altered(True)
+        self.window().app.config_altered(True)
 
     def __moveRecurseUpdate(self, folder):
         folder.path = None
@@ -517,7 +518,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
     def __deleteHotkeys(self, theItem):
         if model.TriggerMode.HOTKEY in theItem.modes:
-            self.topLevelWidget().app.hotkey_removed(theItem)
+            self.window().app.hotkey_removed(theItem)
 
         if isinstance(theItem, model.Folder):
             for subFolder in theItem.folders:
@@ -525,7 +526,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
             for item in theItem.items:
                 if model.TriggerMode.HOTKEY in item.modes:
-                    self.topLevelWidget().app.hotkey_removed(item)
+                    self.window().app.hotkey_removed(item)
 
 
 class ListWidgetHandler(logging.Handler):

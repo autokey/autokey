@@ -12,8 +12,8 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-from PyQt4.QtGui import QWidget
-from PyQt4.QtCore import QSize
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import QSize
 
 from autokey.qtui import common as ui_common
 

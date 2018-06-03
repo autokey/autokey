@@ -20,9 +20,12 @@ import threading
 import time
 import webbrowser
 
-from PyQt4.QtCore import QPoint
-from PyQt4.QtGui import QApplication, QToolButton
-from PyQt4.QtGui import QKeySequence, QMessageBox, QAction, QMenu, QIcon
+from PyQt5.QtCore import QPoint
+from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtWidgets import QApplication, QAction, QMenu, QToolButton
+
+
+
 
 import autokey.common
 import autokey.qtui.common

@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyQt4.QtGui import QDialog
+from PyQt5.QtWidgets import QDialog
 
 from .common import inherits_from_ui_file_with_name
 from .dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
@@ -75,7 +75,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
     def save(self):
         # Perform hotkey ungrab
         if model.TriggerMode.HOTKEY in self.currentItem.modes:
-            self.topLevelWidget().app.hotkey_removed(self.currentItem)
+            self.window().app.hotkey_removed(self.currentItem)
 
         self.currentItem.set_modes([])
         if self.abbrEnabled:
@@ -88,10 +88,10 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             self.currentItem.set_window_titles(None)
 
         if self.hotkeyEnabled:
-            self.topLevelWidget().app.hotkey_created(self.currentItem)
+            self.window().app.hotkey_created(self.currentItem)
 
     def set_dirty(self):
-        self.topLevelWidget().set_dirty()
+        self.window().set_dirty()
 
     def validate(self):
         # Start by getting all applicable information
@@ -118,7 +118,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         # Validate
         ret = []
 
-        configManager = self.topLevelWidget().app.configManager
+        configManager = self.window().app.configManager
 
         for abbr in abbreviations:
             unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)

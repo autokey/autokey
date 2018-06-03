@@ -14,8 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt4.QtCore import Qt
-from PyQt4.QtGui import QTreeWidget, QKeySequence, QTreeWidgetItem, QIcon
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QKeySequence, QIcon
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
 
 from autokey import model
 
@@ -24,13 +25,13 @@ class AkTreeWidget(QTreeWidget):
 
     def edit(self, index, trigger, event):
         if index.column() == 0:
-            return QTreeWidget.edit(self, index, trigger, event)
+            super(QTreeWidget, self).edit(index, trigger, event)
         return False
 
     def keyPressEvent(self, event):
-        if self.topLevelWidget().is_dirty() \
+        if self.window().is_dirty() \
                 and (event.matches(QKeySequence.MoveToNextLine) or event.matches(QKeySequence.MoveToPreviousLine)):
-            veto = self.parentWidget().parentWidget().promptToSave()
+            veto = self.window().promptToSave()
             if not veto:
                 QTreeWidget.keyPressEvent(self, event)
             else:
@@ -39,8 +40,8 @@ class AkTreeWidget(QTreeWidget):
             QTreeWidget.keyPressEvent(self, event)
 
     def mousePressEvent(self, event):
-        if self.topLevelWidget().is_dirty():
-            veto = self.parentWidget().parentWidget().promptToSave()
+        if self.window().is_dirty():
+            veto = self.window().promptToSave()
             if not veto:
                 QTreeWidget.mousePressEvent(self, event)
                 QTreeWidget.mouseReleaseEvent(self, event)
@@ -59,7 +60,7 @@ class AkTreeWidget(QTreeWidget):
     def dropEvent(self, event):
         target = self.itemAt(event.pos())
         sources = self.selectedItems()
-        self.parentWidget().parentWidget().move_items(sources, target)
+        self.window().move_items(sources, target)
 
 
 class WidgetItemFactory:
@@ -172,7 +173,6 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.setData(3, Qt.UserRole, script)
         if parent is not None:
             parent.addChild(self)
-
         self.setFlags(self.flags() | Qt.ItemIsEditable)
 
     def update(self):

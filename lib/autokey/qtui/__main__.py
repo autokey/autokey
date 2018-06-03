@@ -19,7 +19,7 @@ import faulthandler
 
 faulthandler.enable()
 
-from PyQt4 import QtCore
+from PyQt5 import QtCore
 from autokey.qtapp import Application
 
 QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)

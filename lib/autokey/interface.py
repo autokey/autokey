@@ -37,7 +37,8 @@ del xlib_threaded
 from . import common
 
 if common.USING_QT:
-    from PyQt4.QtGui import QClipboard, QApplication
+    from PyQt5.QtGui import QClipboard
+    from PyQt5.QtWidgets import QApplication
 else:
     import gi
     gi.require_version('Gtk', '3.0')

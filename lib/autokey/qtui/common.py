@@ -20,9 +20,10 @@ import pathlib
 import enum
 import functools
 
-from PyQt4.QtCore import QFile
-from PyQt4.QtGui import QMessageBox, QFont, QIcon
-from PyQt4 import uic
+from PyQt5.QtCore import QFile
+from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtWidgets import QMessageBox
+from PyQt5 import uic
 
 from autokey import configmanager as cm
 

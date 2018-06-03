@@ -17,8 +17,8 @@
 import os.path
 import subprocess
 
-from PyQt4 import Qsci
-from PyQt4.QtGui import QMessageBox
+from PyQt5 import Qsci
+from PyQt5.QtWidgets import QMessageBox
 
 from .common import inherits_from_ui_file_with_name, set_url_label, EMPTY_FIELD_REGEX, monospace_font
 
@@ -61,8 +61,8 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
         self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
         self.promptCheckbox.setChecked(script.prompt)
         self.settingsWidget.load(script)
-        self.topLevelWidget().set_undo_available(False)
-        self.topLevelWidget().set_redo_available(False)
+        self.window().set_undo_available(False)
+        self.window().set_redo_available(False)
 
         if self.is_new_item():
             self.urlLabel.setEnabled(False)
@@ -90,11 +90,11 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
 
     def reset(self):
         self.load(self.current_script)
-        self.topLevelWidget().set_undo_available(False)
-        self.topLevelWidget().set_redo_available(False)
+        self.window().set_undo_available(False)
+        self.window().set_redo_available(False)
 
     def set_dirty(self):
-        self.topLevelWidget().set_dirty()
+        self.window().set_dirty()
 
     def start_record(self):
         self.scriptCodeEditor.append("\n")
@@ -117,11 +117,11 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
 
     def undo(self):
         self.scriptCodeEditor.undo()
-        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
+        self.window().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
 
     def redo(self):
         self.scriptCodeEditor.redo()
-        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
+        self.window().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
 
     def validate(self):
         errors = []
@@ -137,7 +137,7 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
         if errors:
             msg = PROBLEM_MSG_SECONDARY.format('\n'.join([str(e) for e in errors]))
             header = PROBLEM_MSG_PRIMARY
-            QMessageBox.critical(self.topLevelWidget(), header, msg)
+            QMessageBox.critical(self.window(), header, msg)
 
         return not bool(errors)
 
@@ -145,8 +145,8 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
 
     def on_scriptCodeEditor_textChanged(self):
         self.set_dirty()
-        self.topLevelWidget().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
-        self.topLevelWidget().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
+        self.window().set_undo_available(self.scriptCodeEditor.isUndoAvailable())
+        self.window().set_redo_available(self.scriptCodeEditor.isRedoAvailable())
 
     def on_promptCheckbox_stateChanged(self, state):
         self.set_dirty()

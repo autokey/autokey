@@ -17,7 +17,7 @@
 import sys
 import logging
 
-from PyQt4.QtGui import QFileDialog, QWidget
+from PyQt5.QtWidgets import QFileDialog, QWidget
 
 from autokey.configmanager import ConfigManager
 from autokey.qtui import common
