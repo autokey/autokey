@@ -20,10 +20,11 @@ import pathlib
 import enum
 import functools
 
-from PyQt5.QtCore import QFile
-from PyQt5.QtGui import QFont, QIcon
+from PyQt5.QtCore import QFile, QSize
+from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5 import uic
+from PyQt5.QtSvg import QSvgRenderer
 
 from autokey import configmanager as cm
 
@@ -92,6 +93,16 @@ class AutoKeyIcon(enum.Enum):
 def load_icon(name: AutoKeyIcon) -> QIcon:
     file_path = ICON_PATH_PREFIX + "/" + name.value
     icon = QIcon(file_path)
+    if not icon.availableSizes() and file_path.endswith(".svg"):
+        # FIXME: Work around Qt Bug: https://bugreports.qt.io/browse/QTBUG-63187
+        # Manually render the SVG to some common icon sizes.
+        icon = QIcon()  # Discard the bugged QIcon
+        renderer = QSvgRenderer(file_path)
+        for size in (16, 22, 24, 32, 64, 128):
+            pixmap = QPixmap(QSize(size, size))
+            pixmap.fill(QColor(255, 255, 255, 0))
+            renderer.render(QPainter(pixmap))
+            icon.addPixmap(pixmap)
     return icon
 
 

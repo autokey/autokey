@@ -52,7 +52,7 @@ Description: desktop automation utility - GTK+ version
 Package: autokey-qt
 Section: kde
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-pyqt5, python3-pyqt5.qsci, autokey-common
+Depends: ${python3:Depends}, ${misc:Depends}, python3-pyqt5, python3-pyqt5.qsci, python3-pyqt5.qtsvg, autokey-common
 Suggests: kdialog
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)

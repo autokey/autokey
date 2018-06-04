@@ -20,23 +20,24 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
 
 from autokey.qtui import popupmenu
-import autokey.qtui.common
+import autokey.qtui.common as ui_common
 from autokey import configmanager as cm
 
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
 
-logger = autokey.qtui.common.logger.getChild("System-tray-notifier")  # type: logging.Logger
+logger = ui_common.logger.getChild("System-tray-notifier")  # type: logging.Logger
 
 
 class Notifier(QSystemTrayIcon):
     
     def __init__(self, app):
         logger.debug("Creating system tray icon notifier.")
-        fallback_icon = autokey.qtui.common.load_icon(autokey.qtui.common.AutoKeyIcon.SYSTEM_TRAY_DARK)
-        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback_icon)
+        icon = QIcon.fromTheme(
+            cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
+            ui_common.load_icon(ui_common.AutoKeyIcon.SYSTEM_TRAY)
+        )
         super(Notifier, self).__init__(icon)
-
         # Actions
         self.action_hide_icon = None  # type: QAction
         self.action_show_config_window = None  # type: QAction
@@ -45,8 +46,6 @@ class Notifier(QSystemTrayIcon):
 
         self.app = app
         self.configManager = app.configManager
-        fallback_icon = autokey.qtui.common.load_icon(autokey.qtui.common.AutoKeyIcon.SYSTEM_TRAY_DARK)
-        icon = QIcon.fromTheme(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON], fallback_icon)
         self.setContextMenu(QMenu("AutoKey"))
         self.activated.connect(self.on_activate)
         self._create_static_actions()
