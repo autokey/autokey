@@ -8,7 +8,7 @@ Build-Depends:
 	python3-dbus,
 	dh-python,
 	debhelper,
-	pyqt4-dev-tools,
+	pyqt5-dev-tools,
 Standards-Version: 3.9.7
 X-Python3-Version: >= 3.5
 
@@ -52,7 +52,7 @@ Description: desktop automation utility - GTK+ version
 Package: autokey-qt
 Section: kde
 Architecture: all
-Depends: ${python3:Depends}, ${misc:Depends}, python3-dbus.mainloop.qt, python3-pyqt4, python3-pyqt4.qsci, autokey-common
+Depends: ${python3:Depends}, ${misc:Depends}, python3-pyqt5, python3-pyqt5.qsci, autokey-common
 Suggests: kdialog
 Replaces: autokey (<<0.61.4-0~0)
 Breaks: autokey (<<0.61.4-0~0)

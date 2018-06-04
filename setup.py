@@ -85,7 +85,7 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
 
     @staticmethod
     def _compile_resource_file(resource_file: Path) -> str:
-        command = ("pyrcc4", "-py3", str(resource_file))
+        command = ("pyrcc5", str(resource_file))
         try:
             compiled = subprocess.check_output(command, universal_newlines=True)  # type: str
         except (FileNotFoundError, subprocess.CalledProcessError) as e:
