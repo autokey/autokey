@@ -106,7 +106,7 @@ class Service:
         logger.debug("Service shutdown completed.")
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
-        logger.debug("Received mouse click - resetting buffer")
+        # logger.debug("Received mouse click - resetting buffer")
         self.inputStack.clear()
 
         # If we had a menu and receive a mouse click, means we already

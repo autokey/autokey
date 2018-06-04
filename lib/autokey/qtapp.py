@@ -30,11 +30,9 @@ import dbus
 import argparse
 from typing import NamedTuple, Iterable
 
-import dbus.mainloop.qt
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QMessageBox, QApplication
-
 
 from autokey import service, monitor
 from autokey.qtui import common as ui_common
@@ -42,6 +40,7 @@ from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey import configmanager as cm
+from autokey.qtui.dbus_service import AppService
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
@@ -101,6 +100,7 @@ class Application(QApplication):
     """
 
     monitoring_disabled = pyqtSignal(bool, name="monitoring_disabled")
+    show_configure_signal = pyqtSignal()
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
@@ -130,8 +130,9 @@ class Application(QApplication):
             # Initialise user code dir
             if self.configManager.userCodeDir is not None:
                 sys.path.append(self.configManager.userCodeDir)
-            dbus.mainloop.qt.DBusQtMainLoop(set_as_default=True)
-            self.dbusService = common.AppService(self)
+            logging.debug("Creating DBus service")
+            self.dbus_service = AppService(self)
+            logging.debug("Service created")
             self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
             if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN]:
                 cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
@@ -305,8 +306,6 @@ class Application(QApplication):
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()
-
-    show_configure_signal = pyqtSignal()
 
     def show_configure_async(self):
         logging.debug("Emit show_configure_signal")
