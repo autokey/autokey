@@ -581,12 +581,9 @@ class XInterfaceBase(threading.Thread):
             Gdk.threads_enter()
             text = self.clipBoard.wait_for_text()
             self.__savedClipboard = ''
-            if text is not None: self.__savedClipboard = text
-            if Gtk.get_major_version() >= 3:
-                self.clipBoard.set_text(string, -1)
-            else:
-                self.clipBoard.set_text(string)
-            # self.clipBoard.set_text(string.encode("utf-8"))
+            if text is not None:
+                self.__savedClipboard = text
+            self.clipBoard.set_text(string, -1)
             Gdk.threads_leave()
 
     def begin_send(self):
