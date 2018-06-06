@@ -17,13 +17,17 @@
 
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
-
+from abc import abstractmethod
+import typing
 import threading
 import select
 import logging
 import queue
 import subprocess
 import time
+
+if typing.TYPE_CHECKING:
+    from autokey.iomediator import IoMediator
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
 import Xlib.threaded as xlib_threaded
@@ -102,6 +106,80 @@ def str_or_bytes_to_bytes(x: Union[str, bytes, memoryview]) -> bytes:
         return x.tobytes()
     raise RuntimeError("x must be str or bytes or memoryview object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
 
+
+class AbstractClipboard:
+    """
+    Abstract interface for clipboard interactions.
+    This is an abstraction layer for platform dependent clipboard handling.
+    It unifies clipboard handling for Qt and GTK.
+    """
+    @property
+    @abstractmethod
+    def text(self):
+        """Get and set the keyboard clipboard content."""
+        return
+
+    @property
+    @abstractmethod
+    def selection(self):
+        """Get and set the mouse selection clipboard content."""
+        return
+
+
+if common.USING_QT:
+    class Clipboard(AbstractClipboard):
+        def __init__(self):
+            self._clipboard = QApplication.clipboard()
+
+        @property
+        def text(self):
+            return self._clipboard.text(QClipboard.Clipboard)
+
+        @text.setter
+        def text(self, new_content: str):
+            self._clipboard.setText(new_content, QClipboard.Clipboard)
+
+        @property
+        def selection(self):
+            return self._clipboard.text(QClipboard.Selection)
+
+        @selection.setter
+        def selection(self, new_content: str):
+            self._clipboard.setText(new_content, QClipboard.Selection)
+
+else:
+    class Clipboard(AbstractClipboard):
+        def __init__(self):
+            self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+            self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+
+        @property
+        def text(self):
+            Gdk.threads_enter()
+            text = self._clipboard.wait_for_text()
+            Gdk.threads_leave()
+            return text
+
+        @text.setter
+        def text(self, new_content: str):
+            Gdk.threads_enter()
+            self._clipboard.set_text(new_content, -1)
+            Gdk.threads_leave()
+
+        @property
+        def selection(self):
+            Gdk.threads_enter()
+            text = self._selection.wait_for_text()
+            Gdk.threads_leave()
+            return text
+
+        @selection.setter
+        def selection(self, new_content: str):
+            Gdk.threads_enter()
+            self._selection.set_text(new_content, -1)
+            Gdk.threads_leave()
+
+
 class XInterfaceBase(threading.Thread):
     """
     Encapsulates the common functionality for the two X interface classes.
@@ -111,7 +189,7 @@ class XInterfaceBase(threading.Thread):
         threading.Thread.__init__(self)
         self.setDaemon(True)
         self.setName("XInterface-thread")
-        self.mediator = mediator
+        self.mediator = mediator  # type: IoMediator
         self.app = app
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
@@ -123,12 +201,7 @@ class XInterfaceBase(threading.Thread):
         
         # Event listener
         self.listenerThread = threading.Thread(target=self.__flushEvents)
-
-        if common.USING_QT:
-            self.clipBoard = QApplication.clipboard()
-        else:
-            self.clipBoard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-            self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+        self.clipboard = Clipboard()
 
         self.__initMappings()
 
@@ -165,7 +238,7 @@ class XInterfaceBase(threading.Thread):
 
             self.queue.task_done()
 
-    def __enqueue(self, method, *args):
+    def __enqueue(self, method: typing.Callable, *args):
         self.queue.put_nowait((method, args))
 
     def on_keys_changed(self, data=None):
@@ -418,7 +491,6 @@ class XInterfaceBase(threading.Thread):
                 self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
         else:
             self.__enqueue(self.__grabRecurse, item, self.rootWindow)
-        
 
     def __grabRecurse(self, item, parent, checkWinInfo=True):
         try:
@@ -521,70 +593,66 @@ class XInterfaceBase(threading.Thread):
             except ValueError:
                 return "<code%d>" % keyCode
 
-    def send_string_clipboard(self, string, pasteCommand):
-        self.__enqueue(self.__sendStringClipboard, string, pasteCommand)
-        
-    def __sendStringClipboard(self, string, pasteCommand):
-        logger.debug("Sending string: %r", string)
-
-        if pasteCommand is None:
-            if common.USING_QT:
-                self.sem = threading.Semaphore(0)
-                self.app.exec_in_main(self.__fillSelection, string)
-                self.sem.acquire()
-            else:
-                self.__fillSelection(string)
-
-            focus = self.localDisplay.get_input_focus().focus
-            xtest.fake_input(focus, X.ButtonPress, X.Button2)
-            xtest.fake_input(focus, X.ButtonRelease, X.Button2)
-
-        else:
-            if common.USING_QT:
-                self.sem = threading.Semaphore(0)
-                self.app.exec_in_main(self.__fillClipboard, string)
-                self.sem.acquire()
-            else:
-                self.__fillClipboard(string)
-
-            self.mediator.send_string(pasteCommand)
-
-            if common.USING_QT:
-                self.app.exec_in_main(self.__restoreClipboard)
-
-        logger.debug("Send via clipboard done")
-
-    def __restoreClipboard(self):
-        if self.__savedClipboard != "":
-            if common.USING_QT:
-                self.clipBoard.setText(self.__savedClipboard, QClipboard.Clipboard)
-            else:
-                Gdk.threads_enter()
-                self.clipBoard.set_text(self.__savedClipboard)
-                Gdk.threads_leave()
-
-    def __fillSelection(self, string):
+    def send_string_clipboard(self, string: str, paste_command: typing.Optional[str]):
+        """
+        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        logger.debug("Sending string via clipboard: " + string)
         if common.USING_QT:
-            self.clipBoard.setText(string, QClipboard.Selection)
-            self.sem.release()
+            if paste_command is None:
+                self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
+            else:
+                self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
         else:
-            Gdk.threads_enter()
-            self.selection.set_text(string, -1)  # second parameter is string length, -1 means "autodetect"
-            Gdk.threads_leave()
+            if paste_command is None:
+                self.__enqueue(self._send_string_selection, string)
+            else:
+                self.__enqueue(self._send_string_clipboard, string, paste_command)
+        logger.debug("Sending via clipboard enqueued.")
 
-    def __fillClipboard(self, string):
-        if common.USING_QT:
-            self.__savedClipboard = self.clipBoard.text()
-            self.clipBoard.setText(string, QClipboard.Clipboard)
-            self.sem.release()
-        else:
-            Gdk.threads_enter()
-            text = self.clipBoard.wait_for_text()
-            self.__savedClipboard = ''
-            if text is not None:
-                self.__savedClipboard = text
-            self.clipBoard.set_text(string, -1)
-            Gdk.threads_leave()
+    def _send_string_clipboard(self, string: str, paste_command: str):
+        """Use the clipboard to send a string.
+        """
+        backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
+        self.clipboard.text = string
+        self.mediator.send_string(paste_command)
+        # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
+        self.__enqueue(self._restore_clipboard_text, backup)
+
+    def _restore_clipboard_text(self, backup: str):
+        """Restore the clipboard content."""
+        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
+        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
+        time.sleep(0.1)
+        self.clipboard.text = backup
+
+    def _send_string_selection(self, string: str):
+        """Use the mouse selection clipboard to send a string."""
+        backup = self.clipboard.selection  # Keep a backup of current content, to restore the original afterwards.
+        self.clipboard.selection = string
+        self.__enqueue(self._paste_using_mouse_button_2)
+        self.__enqueue(self._restore_clipboard_selection, backup)
+
+    def _restore_clipboard_selection(self, backup: str):
+        """Restore the selection clipboard content."""
+        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
+        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
+
+        # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
+        # It might be a good idea to make this delay configurable. There might be systems that need even longer.
+        time.sleep(1)
+        self.clipboard.selection = backup
+
+    def _paste_using_mouse_button_2(self):
+        """Paste using the mouse: Press the second mouse button, then release it again."""
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonPress, X.Button2)
+        xtest.fake_input(focus, X.ButtonRelease, X.Button2)
+        logger.debug("Mouse Button2 event sent.")
 
     def begin_send(self):
         self.__enqueue(self.__grab_keyboard)
@@ -752,7 +820,7 @@ class XInterfaceBase(threading.Thread):
         Send a modified key (e.g. when emulating a hotkey)
         """
         self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
-        
+
     def __sendModifiedKey(self, keyName, modifiers):
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
         try:
@@ -969,7 +1037,7 @@ class XInterfaceBase(threading.Thread):
                                   )
         focus.send_event(keyEvent)
 
-    def __lookupKeyCode(self, char):
+    def __lookupKeyCode(self, char: str) -> int:
         if char in AK_TO_XK_MAP:
             return self.localDisplay.keysym_to_keycode(AK_TO_XK_MAP[char])
         elif char.startswith("<code"):
@@ -981,46 +1049,46 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
 
-    def get_window_title(self, window=None, traverse=True):
+    def get_window_title(self, window=None, traverse=True) -> str:
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
 
-            return self.__getWinTitle(windowvar, traverse)
+            return self._get_window_title(windowvar, traverse)
 
         except AttributeError as e:
-            if str(e)=="'int' object has no attribute 'get_property'":
+            if str(e) == "'int' object has no attribute 'get_property'":
                 return ""
             raise
         except error.BadWindow as e:#TODO_PY3
-            print(__name__, repr(e))
+            logger.exception("Got BadWindow error.")
             return ""
         except:  # Default handler
             return ""
 
-    def __getWinTitle(self, windowvar, traverse):
+    def _get_window_title(self, windowvar, traverse) -> str:
         atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
         if atom is None:
             atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
         if atom:
-            value = atom.value
+            value = atom.value  # type: Union[str, bytes]
             # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
             return value.decode("utf-8") if isinstance(value, bytes) else value
         elif traverse:
-            return self.__getWinTitle(windowvar.query_tree().parent, True)
+            return self._get_window_title(windowvar.query_tree().parent, True)
         else:
             return ""
 
-    def get_window_class(self, window=None, traverse=True):
+    def get_window_class(self, window=None, traverse=True) -> str:
         try:
             if window is None:
                 windowvar = self.localDisplay.get_input_focus().focus
             else:
                 windowvar = window
 
-            return self.__getWinClass(windowvar, traverse)
+            return self._get_window_class(windowvar, traverse)
         except AttributeError as e:
             if str(e)=="'int' object has no attribute 'get_wm_class'":
                 return ""
@@ -1031,12 +1099,12 @@ class XInterfaceBase(threading.Thread):
         # except:
         #     return ""
     
-    def __getWinClass(self, windowvar, traverse):
+    def _get_window_class(self, windowvar, traverse) -> str:
         wmclass = windowvar.get_wm_class()
 
         if wmclass is None or not wmclass:
             if traverse:
-                return self.__getWinClass(windowvar.query_tree().parent, True)
+                return self._get_window_class(windowvar.query_tree().parent, True)
             else:
                 return ""
 
