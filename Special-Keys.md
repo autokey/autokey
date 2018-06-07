@@ -12,7 +12,7 @@ The below table lists all the names used for special keys.
 | DELETE | \<delete> |
 | DOWN | \<down> |
 | END | \<end> |
-| ENTER/|RETURN | \<enter> |
+| ENTER/RETURN | \<enter> |
 | ESCAPE | \<escape> |
 | F1-F12 | \<f1>-\<f12> |
 | HOME | \<home> |
@@ -47,4 +47,4 @@ The below table lists all the names used for special keys.
 | TAB | \<tab> |
 | UP | \<up> |
 
-To combine two keys use a + sign - e.g. to press Control+Esc use \"<ctrl>+\<escape>" enclosed in quotes.
+To combine two keys use a + sign - e.g. to press Control+Esc use \"\<ctrl>+\<escape>\" enclosed in quotes.
