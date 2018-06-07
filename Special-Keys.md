@@ -4,46 +4,47 @@ The below table lists all the names used for special keys.
 
 | Keys | String |
 |:---------|:-----------|
-| LEFT | \<left> |
-| RIGHT | \<right> |
-| UP | \<up> |
-| DOWN | \<down> |
-| BACKSPACE | \<backspace> |
-| TAB | \<tab> |
-| RETURN/ENTER | \<enter> |
-| SPACE | (space character) |
-| CONTROL | \<ctrl> |
 | ALT | \<alt> |
 | ALT_GR | \<alt_gr> |
-| SHIFT | \<shift> |
-| SUPER | \<super> |
+| BACKSPACE | \<backspace> |
 | CAPSLOCK | \<capslock> |
-| NUMLOCK | \<numlock> |
-| SCROLL_LOCK | \<scroll_lock> |
-| ESCAPE | \<escape> |
-| INSERT | \<insert> |
+| CONTROL | \<ctrl> |
 | DELETE | \<delete> |
-| HOME | \<home> |
+| DOWN | \<down> |
 | END | \<end> |
-| PAGE_UP | \<page_up> |
-| PAGE_DOWN | \<page_down> |
+| ENTER/|RETURN | \<enter> |
+| ESCAPE | \<escape> |
 | F1-F12 | \<f1>-\<f12> |
-| PRINT_SCREEN | \<print_screen> |
-| PAUSE | \<pause> |
+| HOME | \<home> |
+| INSERT | \<insert> |
+| LEFT | \<left> |
 | MENU | \<menu> |
-| NP_INSERT | \<np_insert> |
-| NP_DELETE | \<np_delete> |
-| NP_HOME | \<np_home> |
-| NP_END | \<np_end> |
-| NP_PAGE_UP | \<np_page_up> |
-| NP_PAGE_DOWN | \<np_page_down> |
-| NP_LEFT | \<np_left> |
-| NP_RIGHT | \<np_right> |
-| NP_UP | \<np_up> |
-| NP_DOWN | \<np_down> |
-| NP_DIVIDE | \<np_divide> |
-| NP_MULTIPLY | \<np_multiply> |
 | NP_ADD | \<np_add> |
+| NP_DELETE | \<np_delete> |
+| NP_DIVIDE | \<np_divide> |
+| NP_DOWN | \<np_down> |
+| NP_END | \<np_end> |
+| NP_HOME | \<np_home> |
+| NP_INSERT | \<np_insert> |
+| NP_LEFT | \<np_left> |
+| NP_MULTIPLY | \<np_multiply> |
+| NP_PAGE_DOWN | \<np_page_down> |
+| NP_PAGE_UP | \<np_page_up> |
+| NP_RIGHT | \<np_right> |
 | NP_SUBTRACT | \<np_subtract> |
+| NP_UP | \<np_up> |
+| NUMLOCK | \<numlock> |
+| PAGE_DOWN | \<page_down> |
+| PAGE_UP | \<page_up> |
+| PAUSE | \<pause> |
+| PRINT_SCREEN | \<print_screen> |
+| RETURN/ENTER | \<enter> |
+| RIGHT | \<right> |
+| SCROLL_LOCK | \<scroll_lock> |
+| SHIFT | \<shift> |
+| SPACE | (space character) |
+| SUPER | \<super> |
+| TAB | \<tab> |
+| UP | \<up> |
 
-To combine two keys use a + sign - e.g. to press Control+Esc use \<ctrl>+\<escape>
+To combine two keys use a + sign - e.g. to press Control+Esc use \"<ctrl>+\<escape>" enclosed in quotes.
