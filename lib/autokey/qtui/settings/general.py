@@ -51,10 +51,10 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
 
     def _settings_str(self):
         """Returns a human readable settings representation for logging purposes."""
-        settings = "Prompt to save: {}\n" \
-            "Show tray icon: {}\n" \
-            "Allow keyboard navigation: {}\n" \
-            "Sort by usage count: {}\n" \
+        settings = "Prompt to save: {}, " \
+            "Show tray icon: {}, " \
+            "Allow keyboard navigation: {}, " \
+            "Sort by usage count: {}, " \
             "Enable undo using backspace: {}".format(
                self.prompt_to_save_checkbox.isChecked(),
                self.show_tray_checkbox.isChecked(),
