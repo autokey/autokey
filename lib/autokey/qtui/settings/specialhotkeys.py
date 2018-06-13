@@ -49,7 +49,6 @@ class SpecialHotkeySettings(*autokey.qtui.common.inherits_from_ui_file_with_name
         self.use_service_hotkey = False
 
     def init(self, config_manager: ConfigManager):
-        logger.debug("Type of config_manager: {}".format(type(config_manager)))
         self.config_manager = config_manager
         self.use_config_hotkey = self._load_hotkey(config_manager.configHotkey, self.config_key_label,
                                                    self.show_config_dlg, self.clear_config_button)

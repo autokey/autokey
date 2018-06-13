@@ -15,6 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from typing import Optional, Callable
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
@@ -45,15 +46,14 @@ class Notifier(QSystemTrayIcon):
         self.action_enable_monitoring = None  # type: QAction
 
         self.app = app
-        self.configManager = app.configManager
+        self.config_manager = app.configManager
         self.setContextMenu(QMenu("AutoKey"))
         self.activated.connect(self.on_activate)
         self._create_static_actions()
         self.update_tool_tip(cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING])
         self.app.monitoring_disabled.connect(self.update_tool_tip)
-
+        self.build_menu()
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
-            self.build_menu()
             logger.debug("About to show the tray icon.")
             self.show()
         logger.info("System tray icon notifier created.")
@@ -64,13 +64,21 @@ class Notifier(QSystemTrayIcon):
         else:
             self.setToolTip(TOOLTIP_PAUSED)
 
-    def _create_action(self, icon_name: str, title: str, slot_function) -> QAction:
+    def _create_action(
+            self,
+            icon_name: Optional[str],
+            title: str,
+            slot_function: Callable[[None], None],
+            tool_tip: Optional[str]=None)-> QAction:
         """
         QAction factory.
         """
         action = QAction(title, self)
-        action.setIcon(QIcon.fromTheme(icon_name))
+        if icon_name:
+            action.setIcon(QIcon.fromTheme(icon_name))
         action.triggered.connect(slot_function)
+        if tool_tip:
+            action.setToolTip(tool_tip)
         return action
 
     def _create_static_actions(self):
@@ -78,16 +86,26 @@ class Notifier(QSystemTrayIcon):
         Create all static menu actions. The created actions will be placed in the tray icon context menu.
         """
         logger.info("Creating static context menu actions.")
-        self.action_hide_icon = self._create_action("edit-clear", "&Hide Icon", self.on_hide_icon)
-        self.action_show_config_window = self._create_action("configure", "&Show Main Window", self.on_configure)
-        self.action_quit = self._create_action("application-exit", "Exit AutoKey", self.on_quit)
+        self.action_hide_icon = self._create_action(
+            "edit-clear", "Temporarily &Hide Icon", self.hide,
+            "Temporarily hide the system tray icon.\nUse the settings to hide it permanently."
+        )
+        self.action_show_config_window = self._create_action(
+            "configure", "&Show Main Window", self.app.show_configure,
+            "Show the main AutoKey window. This does the same as left clicking the tray icon."
+        )
+        self.action_quit = self._create_action("application-exit", "Exit AutoKey", self.app.shutdown)
         # TODO: maybe import this from configwindow.py ? The exact same Action is defined in the main window.
-        self.action_enable_monitoring = QAction("&Enable Monitoring", self)
+        self.action_enable_monitoring = self._create_action(
+            None, "&Enable Monitoring", self.app.toggle_service,
+            "Pause the phrase expansion and script execution, both by abbreviations and hotkeys.\n"
+            "The global hotkeys to show the main window and to toggle this setting, as defined in the AutoKey settings, "
+            "are not affected and will work regardless."
+        )
         self.action_enable_monitoring.setCheckable(True)
         self.action_enable_monitoring.setChecked(self.app.service.is_running())
         self.action_enable_monitoring.setEnabled(not self.app.serviceDisabled)
         # Sync action state with internal service state
-        self.action_enable_monitoring.triggered.connect(self.app.toggle_service)
         self.app.monitoring_disabled.connect(self.action_enable_monitoring.setChecked)
 
     def _fill_context_menu_with_model_item_actions(self):
@@ -97,20 +115,22 @@ class Notifier(QSystemTrayIcon):
         """
         # Get phrase folders to add to main menu
         logger.info("Rebuilding model item actions, adding all items marked for access through the tray icon.")
-        folders = [folder for folder in self.configManager.allFolders if folder.showInTrayMenu]
-        items = [item for item in self.configManager.allItems if item.showInTrayMenu]
+        folders = [folder for folder in self.config_manager.allFolders if folder.showInTrayMenu]
+        items = [item for item in self.config_manager.allItems if item.showInTrayMenu]
         # Only extract the QActions, but discard the PopupMenu instance.
         menu = popupmenu.PopupMenu(self.app.service, folders, items, False, "AutoKey")
-        actions = menu.actions()
+        new_item_actions = menu.actions()
         context_menu = self.contextMenu()
-        context_menu.addActions(actions)
-        for action in actions:  # type: QAction
+        context_menu.addActions(new_item_actions)
+        for action in new_item_actions:  # type: QAction
+            # QMenu does not take the ownership when adding QActions, so manually re-parent all actions.
             action.setParent(context_menu)
 
         if items or folders:
             context_menu.addSeparator()
 
     def build_menu(self):
+        """Rebuild the context menu."""
         logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
         if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
             menu = self.contextMenu()
@@ -125,29 +145,10 @@ class Notifier(QSystemTrayIcon):
         self.build_menu()
         self.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
 
-    def hide_icon(self):
-        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
-            self.hide()
+    def notify_error(self, message: str):
+        self.showMessage("AutoKey Error", message)
 
-    def notify_error(self, message):
-        pass
-        
-    # ---- Signal handlers ----
-
-    def on_show_error(self):
-        self.app.exec_in_main(self.app.show_script_error)
-
-    def on_quit(self):
-        self.app.shutdown()
-
-    def on_activate(self, reason):
+    def on_activate(self, reason: QSystemTrayIcon.ActivationReason):
         logger.debug("Triggered system tray icon with reason: {}".format(reason))
         if reason == QSystemTrayIcon.ActivationReason(QSystemTrayIcon.Trigger):
-            self.on_configure()
-
-    def on_configure(self):
-        self.app.show_configure()
-            
-    def on_hide_icon(self):
-        self.hide()
-        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = False
+            self.app.show_configure()

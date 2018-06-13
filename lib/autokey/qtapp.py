@@ -280,7 +280,7 @@ class Application(QApplication):
         """
         logging.info("Shutting down")
         self.closeAllWindows()
-        self.notifier.hide_icon()
+        self.notifier.hide()
         self.service.shutdown()
         self.monitor.stop()
         self.quit()

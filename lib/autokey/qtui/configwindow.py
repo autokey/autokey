@@ -305,17 +305,21 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         
     def on_show_error(self):
         self.app.show_script_error()
-            
+
     # Help Menu
-            
-    def on_show_faq(self):
+
+    @staticmethod
+    def on_show_faq():
         webbrowser.open(autokey.common.FAQ_URL, False, True)
-        
-    def on_show_help(self):
+
+    @staticmethod
+    def on_show_help():
         webbrowser.open(autokey.common.HELP_URL, False, True)
 
-    def on_show_api(self):
+    @staticmethod
+    def on_show_api():
         webbrowser.open(autokey.common.API_URL, False, True)
-        
-    def on_report_bug(self):
+
+    @staticmethod
+    def on_report_bug():
         webbrowser.open(autokey.common.BUG_URL, False, True)
