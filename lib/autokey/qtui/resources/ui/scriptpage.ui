@@ -11,28 +11,33 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Form</string>
+   <string>ScriptPage</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
-    <widget class="KUrlLabel" name="urlLabel">
+    <widget class="QLabel" name="urlLabel">
+     <property name="toolTip">
+      <string>Open the script in the default text editor</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
+     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
-     <property name="tipText">
-      <string>Open the script in the default text editor</string>
+     <property name="openExternalLinks">
+      <bool>true</bool>
+     </property>
+     <property name="textInteractionFlags">
+      <set>Qt::TextBrowserInteraction</set>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QsciScintilla" name="scriptCodeEditor">
-     <property name="toolTip">
-      <string/>
-     </property>
-     <property name="whatsThis">
-      <string/>
-     </property>
-    </widget>
+    <widget class="QsciScintilla" name="scriptCodeEditor"/>
    </item>
    <item>
     <widget class="QGroupBox" name="settingsGroupbox">
@@ -55,7 +60,11 @@
        </widget>
       </item>
       <item>
-       <widget class="KSeparator" name="kseparator"/>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="SettingsWidget" name="settingsWidget" native="true"/>
@@ -67,19 +76,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>KSeparator</class>
-   <extends>QFrame</extends>
-   <header>kseparator.h</header>
-  </customwidget>
-  <customwidget>
-   <class>KUrlLabel</class>
-   <extends>QLabel</extends>
-   <header>kurllabel.h</header>
-  </customwidget>
-  <customwidget>
    <class>SettingsWidget</class>
    <extends>QWidget</extends>
-   <header>configwindow.h</header>
+   <header>autokey.qtui.settingswidget</header>
    <container>1</container>
   </customwidget>
   <customwidget>

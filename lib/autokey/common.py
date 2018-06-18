@@ -18,6 +18,7 @@
 
 import os
 import dbus.service
+import logging
 
 CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
@@ -61,6 +62,7 @@ class AppService(dbus.service.Object):
         busName = dbus.service.BusName('org.autokey.Service', bus=dbus.SessionBus())
         dbus.service.Object.__init__(self, busName, "/AppService")
         self.app = app
+        logging.debug("Created DBus service")
 
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='', out_signature='')
     def show_configure(self):

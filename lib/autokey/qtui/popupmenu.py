@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2018 Thomas Hess
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,32 +14,47 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import List, Union
 
-import logging, sys
-from PyKDE4.kdeui import KMenu, KAction, KActionMenu, KApplication
-#from PyKDE4.kdecore import ki18n, KAboutData, KCmdLineArgs
-from PyQt4.QtGui import QCursor
-from PyQt4.QtCore import SIGNAL, Qt
+import logging
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QMenu, QAction, QWidget
 
-from ..configmanager import *
 
+from autokey import configmanager as cm
+import autokey.model
+import autokey.service
+
+FolderList = List[autokey.model.Folder]
+Item = Union[autokey.model.Script, autokey.model.Phrase]
 _logger = logging.getLogger("phrase-menu")
 
-class MenuBase:
+
+class PopupMenu(QMenu):
     
-    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
+    def __init__(self,
+                 service: autokey.service.Service,
+                 folders: FolderList=None,
+                 items: List[Item]=None,
+                 on_desktop: bool=True,
+                 title: str=None,
+                 parent=None):
+        super(PopupMenu, self).__init__(parent)
+
         if items is None:
             items = []
         if folders is None:
             folders = []
+
+        self.setFocusPolicy(Qt.StrongFocus)
         self.service = service
-        self.__i = 1
-        self._onDesktop = onDesktop
+        self._on_desktop = on_desktop
         
         if title is not None:
-            self.addTitle(title)        
+            self.setTitle(title)
         
-        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -49,45 +63,59 @@ class MenuBase:
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
-        if len(folders) == 1 and len(items) == 0 and onDesktop:
+        if len(folders) == 1 and len(items) == 0 and on_desktop:
             # Only one folder - create menu with just its folders and items
-            self.addTitle(folders[0].title)
+            self.setTitle(folders[0].title)
             for folder in folders[0].folders:
-                subMenuItem = SubMenu(self._getMnemonic(folder.title), self, service, folder.folders, folder.items, False)
-                self.addAction(subMenuItem)
+                sub_menu_item = SubMenu(
+                    self._getMnemonic(folder.title),
+                    self,
+                    service,
+                    folder.folders,
+                    folder.items,
+                    False
+                )
+                self.addAction(sub_menu_item)
     
-            if len(folders[0].folders) > 0:
+            if folders[0].folders:
                 self.addSeparator()
             
-            self._addItemsToSelf(folders[0].items, onDesktop)
+            self._add_items_to_self(folders[0].items, on_desktop)
         
         else:
             # Create folder section
             for folder in folders:
-                subMenuItem = SubMenu(self._getMnemonic(folder.title), self, service, folder.folders, folder.items, False)
-                self.addAction(subMenuItem)
+                sub_menu_item = SubMenu(
+                    self._getMnemonic(folder.title),
+                    self,
+                    service,
+                    folder.folders,
+                    folder.items,
+                    False
+                )
+                self.addAction(sub_menu_item)
     
-            if len(folders) > 0:
+            if folders:
                 self.addSeparator()
     
-            self._addItemsToSelf(items, onDesktop)        
+            self._add_items_to_self(items, on_desktop)
         
-    def _addItem(self, description, item):
+    def _add_item(self, description, item):
         action = ItemAction(self, self._getMnemonic(description), item, self.service.item_selected)
         self.addAction(action)
         
-    def _addItemsToSelf(self, items, onDesktop):
+    def _add_items_to_self(self, items, on_desktop):
         # Create item (script/phrase) section
-        if ConfigManager.SETTINGS[SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))
             
         for item in items:
-            if onDesktop:
-                self._addItem(item.get_description(self.service.lastStackState), item)
+            if on_desktop:
+                self._add_item(item.get_description(self.service.lastStackState), item)
             else:
-                self._addItem(item.description, item)
+                self._add_item(item.description, item)
 
     def _getMnemonic(self, desc):
         #if 1 < 10 and '&' not in desc and self._onDesktop:
@@ -97,40 +125,52 @@ class MenuBase:
         #else:
         # FIXME - menu does not get keyboard focus, so mnemonic is useless
         return desc
-        
-class PopupMenu(KMenu, MenuBase):
-    
-    def __init__(self, service, folders: list=None, items: list=None, onDesktop=True, title=None):
-        KMenu.__init__(self)
-        MenuBase.__init__(self, service, folders, items, onDesktop, title)
-        if items is None:
-            items = []
-        if folders is None:
-            folders = []
-        #if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-
-        self.setFocusPolicy(Qt.StrongFocus)
-        # TODO - this doesn't always work - do something about this
-            
-
-class SubMenu(KActionMenu, MenuBase):
-    
-    def __init__(self, title, parent, service, folders: list=None, items: list=None, onDesktop=True):
-        KActionMenu.__init__(self, title, parent)
-        MenuBase.__init__(self, service, folders, items, onDesktop)
-        if items is None:
-            items = []
-        if folders is None:
-            folders = []
 
 
-class ItemAction(KAction):
-    
-    def __init__(self, parent, description, item, target):
-        KAction.__init__(self, description, parent)
+class SubMenu(QAction):
+    """
+    This QAction is used to create submenu in the popup menu.
+    It gets used when a folder with a sub-folder has a
+    hotkey assigned, to recursively show subfolder contents.
+    """
+
+    def __init__(self,
+                 title: str,
+                 parent: PopupMenu,
+                 service,
+                 folders: FolderList=None,
+                 items: List[Item]=None,
+                 on_desktop: bool=True):
+        icon = QIcon.fromTheme("folder")
+        super(SubMenu, self).__init__(icon, title, parent)
+        self.setMenu(PopupMenu(service, folders, items, on_desktop, title, parent))
+
+    def setParent(self, parent: QWidget=None):
+        super(SubMenu, self).setParent(parent)
+        self.menu().setParent(parent)
+
+
+class ItemAction(QAction):
+
+    action_sig = pyqtSignal([autokey.model.AbstractHotkey], name="action_sig")
+
+    def __init__(self, parent: QWidget, description: str, item: Item, target):
+        icon = ItemAction._icon_for_item(item)
+        super(ItemAction, self).__init__(icon, description, parent)
+
         self.item = item
-        self.connect(self, SIGNAL("triggered()"), self.on_triggered)
-        self.connect(self, SIGNAL("actionSig"), target)
+        self.triggered.connect(lambda: self.action_sig.emit(self.item))
+        self.action_sig.connect(target)
 
-    def on_triggered(self):
-        self.emit(SIGNAL("actionSig"), self.item)
+
+    @staticmethod
+    def _icon_for_item(item: Item) -> QIcon:
+        if isinstance(item, autokey.model.Script):
+            return QIcon.fromTheme("text-x-python")
+        elif isinstance(item, autokey.model.Phrase):
+            return QIcon.fromTheme("text-x-generic")
+        else:
+            error_msg = "ItemAction got unknown item. Expected Union[autokey.model.Script, autokey.model.Phrase], " \
+                        "got '{}'".format(str(type(item)))
+            _logger.error(error_msg)
+            raise ValueError(error_msg)

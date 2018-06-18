@@ -1,0 +1,26 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>ui/abbrsettings.ui</file>
+    <file>ui/hotkeysettings.ui</file>
+    <file>ui/detectdialog.ui</file>
+    <file>ui/window_filter_settings_dialog.ui</file>
+    <file>ui/record_dialog.ui</file>
+    <file>ui/settingswidget.ui</file>
+    <file>ui/scriptpage.ui</file>
+    <file>ui/phrasepage.ui</file>
+    <file>ui/folderpage.ui</file>
+    <file>ui/centralwidget.ui</file>
+    <file>ui/mainwindow.ui</file>
+    <file>ui/enginesettings.ui</file>
+    <file>ui/generalsettings.ui</file>
+    <file>ui/specialhotkeysettings.ui</file>
+    <file>ui/settingsdialog.ui</file>
+    <file>ui/about_autokey_dialog.ui</file>
+    <!-- The icons are copied into the resource directory automatically during resource file compilation. -->
+    <file>icons/autokey.png</file>
+    <file>icons/autokey.svg</file>
+    <file>icons/autokey-status.svg</file>
+    <file>icons/autokey-status-dark.svg</file>
+    <file>icons/autokey-status-error.svg</file>
+</qresource>
+</RCC>

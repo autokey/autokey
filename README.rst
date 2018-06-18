@@ -48,8 +48,8 @@ GTK frontend only:
 
 QT frontend only:
 
-- PyQt4
-- PyKDE4
+- PyQt5
+- ``pyrcc5`` command line tool (Optional installation time dependency, only used when installing or updating from the git source tree using setup.py. If not present, a fallback that causes a slightly slower application start will be used.)
 
 Install via pip
 ++++++++++++++++++++++

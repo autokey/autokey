@@ -37,7 +37,8 @@ del xlib_threaded
 from . import common
 
 if common.USING_QT:
-    from PyQt4.QtGui import QClipboard, QApplication
+    from PyQt5.QtGui import QClipboard
+    from PyQt5.QtWidgets import QApplication
 else:
     import gi
     gi.require_version('Gtk', '3.0')
@@ -83,10 +84,8 @@ from typing import Union
 
 def str_or_bytes_to_str(x: Union[str, bytes]) -> str:
     if type(x) == bytes:
-        logger.debug("using official python-xlib")
         return x.decode("utf8")
     if type(x) == str:
-        # logger.info("using LiuLang's python3-xlib")
         return x
     raise RuntimeError("x must be str or bytes object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
 
@@ -1009,7 +1008,9 @@ class XInterfaceBase(threading.Thread):
         if atom is None:
             atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
         if atom:
-            return atom.value #.decode("utf-8")
+            value = atom.value
+            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
+            return value.decode("utf-8") if isinstance(value, bytes) else value
         elif traverse:
             return self.__getWinTitle(windowvar.query_tree().parent, True)
         else:

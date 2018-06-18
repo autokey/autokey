@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>316</width>
-    <height>91</height>
+    <width>353</width>
+    <height>132</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -28,20 +28,6 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="3">
-    <widget class="KPushButton" name="setAbbrButton">
-     <property name="text">
-      <string>Set&amp;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="4">
-    <widget class="KPushButton" name="clearAbbrButton">
-     <property name="text">
-      <string>Clear&amp;</string>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QLabel" name="label_2">
      <property name="text">
@@ -53,20 +39,6 @@
     <widget class="QLabel" name="hotkeyLabel">
      <property name="text">
       <string>$hotkey</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="KPushButton" name="setHotkeyButton">
-     <property name="text">
-      <string>Set&amp;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="4">
-    <widget class="KPushButton" name="clearHotkeyButton">
-     <property name="text">
-      <string>Clear&amp;</string>
      </property>
     </widget>
    </item>
@@ -84,20 +56,6 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="3">
-    <widget class="KPushButton" name="setFilterButton">
-     <property name="text">
-      <string>Set&amp;</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="4">
-    <widget class="KPushButton" name="clearFilterButton">
-     <property name="text">
-      <string>Clear&amp;</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="2">
     <spacer name="horizontalSpacer">
      <property name="orientation">
@@ -111,15 +69,59 @@
      </property>
     </spacer>
    </item>
+   <item row="0" column="3">
+    <widget class="QPushButton" name="setAbbrButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QPushButton" name="clearAbbrButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="setHotkeyButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QPushButton" name="clearHotkeyButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="setFilterButton">
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QPushButton" name="clearFilterButton">
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear"/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>KPushButton</class>
-   <extends>QPushButton</extends>
-   <header>kpushbutton.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>

@@ -6,18 +6,22 @@ from autokey.iomediator.key import Key
 from autokey import common
 
 if common.USING_QT:
-    from PyKDE4.kdecore import ki18n
-    from PyKDE4.kdeui import KAction
-    from PyQt4.QtCore import SIGNAL
-    _ = ki18n  # TODO: WHY??
+    from PyQt5.QtWidgets import QAction
 
-    class MacroAction(KAction):
+    def _(text: str, args: tuple=None):
+        """localisation function, currently returns the identity. If args are given, those are used to format
+        text using the old-style % formatting."""
+        if args:
+            text = text % args
+        return text
+
+    class MacroAction(QAction):
 
         def __init__(self, menu, macro, callback):
-            KAction.__init__(self, macro.TITLE.toString(), menu)
+            super(MacroAction, self).__init__(macro.TITLE, menu)
             self.macro = macro
             self.callback = callback
-            self.connect(self, SIGNAL("triggered()"), self.on_triggered)  # TODO: SIGNAL deprecated and removed in PyQt5
+            self.triggered.connect(self.on_triggered)
 
         def on_triggered(self):
             self.callback(self.macro)

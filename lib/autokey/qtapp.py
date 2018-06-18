@@ -20,166 +20,208 @@ from . import common
 common.USING_QT = True
 
 import sys
-import traceback
 import os.path
-import signal
 import logging
 import logging.handlers
 import subprocess
 import queue
 import time
 import dbus
+import argparse
+from typing import NamedTuple, Iterable
 
-import dbus.mainloop.qt
-from PyKDE4.kdecore import KCmdLineArgs, KCmdLineOptions, KAboutData, ki18n, i18n
-from PyKDE4.kdeui import KMessageBox, KApplication
-from PyQt4.QtCore import SIGNAL, Qt, QObject, QEvent
-from PyQt4.QtGui import QCursor
+from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
+from PyQt5.QtGui import QCursor, QIcon
+from PyQt5.QtWidgets import QMessageBox, QApplication
 
+from autokey import service, monitor
+from autokey.qtui import common as ui_common
+from autokey.qtui.notifier import Notifier
+from autokey.qtui.popupmenu import PopupMenu
+from autokey.qtui.configwindow import ConfigWindow
+from autokey import configmanager as cm
+from autokey.qtui.dbus_service import AppService
 
-from . import service, monitor
-from .qtui.notifier import Notifier
-from .qtui.popupmenu import PopupMenu
-from .qtui.configwindow import ConfigWindow
-from . import configmanager as cm
+AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
+AboutData = NamedTuple("AboutData", (
+    ("program_name", str),
+    ("version", str),
+    ("program_description", str),
+    ("license_text", str),
+    ("copyright_notice", str),
+    ("homepage_url", str),
+    ("bug_report_email", str),
+    ("author_list", Iterable[AuthorData])
+))
 
-PROGRAM_NAME = ki18n("AutoKey")
-DESCRIPTION = ki18n("Desktop automation utility")
-LICENSE = KAboutData.License_GPL_V3
-COPYRIGHT = ki18n("""(c) 2009-2012 Chris Dekter
+COPYRIGHT = """(c) 2009-2012 Chris Dekter
 (c) 2014 GuoCi
-""")
-TEXT = ki18n("")
+(c) 2017, 2018 Thomas Hess
+"""
+
+author_data = (
+    AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
+    AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
+    AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
+    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com")
+)
+about_data = AboutData(
+   program_name="AutoKey",
+   version=common.VERSION,
+   program_description="Desktop automation utility",
+   license_text="GPL v3",  # TODO: load actual license text from disk somewhere
+   copyright_notice=COPYRIGHT,
+   homepage_url=common.HOMEPAGE,
+   bug_report_email=common.BUG_EMAIL,
+   author_list=author_data
+)
 
 
-class Application:
+def generate_argument_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(description="Desktop automation ")
+    parser.add_argument(
+        "-l", "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+    parser.add_argument(
+        "-c", "--configure",
+        action="store_true",
+        dest="show_config_window",
+        help="Show the configuration window on startup"
+    )
+    return parser
+
+
+class Application(QApplication):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
     """
 
-    def __init__(self):
+    monitoring_disabled = pyqtSignal(bool, name="monitoring_disabled")
+    show_configure_signal = pyqtSignal()
 
-        aboutData = KAboutData(common.APP_NAME, common.CATALOG, PROGRAM_NAME, common.VERSION, DESCRIPTION,
-                                    LICENSE, COPYRIGHT, TEXT, common.HOMEPAGE, common.BUG_EMAIL)
-
-        aboutData.addAuthor(ki18n("GuoCi"), ki18n("Python 3 port maintainer"), "guociz@gmail.com", "")
-        aboutData.addAuthor(ki18n("Chris Dekter"), ki18n("Developer"), "cdekter@gmail.com", "")
-        aboutData.addAuthor(ki18n("Sam Peterson"), ki18n("Original developer"), "peabodyenator@gmail.com", "")
-        aboutData.setProgramIconName(common.ICON_FILE)
-        self.aboutData = aboutData
-
-        KCmdLineArgs.init(sys.argv, aboutData)
-        options = KCmdLineOptions()
-        options.add("l").add("verbose", ki18n("Enable verbose logging"))
-        options.add("c").add("configure", ki18n("Show the configuration window on startup"))
-        KCmdLineArgs.addCmdLineOptions(options)
-        args = KCmdLineArgs.parsedArgs()
-
-        self.app = KApplication()
-
+    def __init__(self, argv: list=sys.argv):
+        super().__init__(argv)
+        self.handler = CallbackEventHandler()
+        parser = generate_argument_parser()
+        self.args = parser.parse_args()
+        self._configure_root_logger()
+        logging.info("Initialising application")
+        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
-            # Create configuration directory
-            if not os.path.exists(common.CONFIG_DIR):
-                os.makedirs(common.CONFIG_DIR)
-            # Create data directory (for log file)
-            if not os.path.exists(common.DATA_DIR):
-                os.makedirs(common.DATA_DIR)
-            # Create run directory (for lock file)
-            if not os.path.exists(common.RUN_DIR):
-                os.makedirs(common.RUN_DIR)
-
+            self._create_storage_directories()
             # Initialise logger
-            rootLogger = logging.getLogger()
-            rootLogger.setLevel(logging.DEBUG)
+            root_logger = logging.getLogger()
+            root_logger.setLevel(logging.DEBUG)
 
-            if args.isSet("verbose"):
-                handler = logging.StreamHandler(sys.stdout)
-            else:
-                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
-                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
-                handler.setLevel(logging.INFO)
+            if self._verify_not_running():
+                self._create_lock_file()
 
-            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-            rootLogger.addHandler(handler)
+            self.monitor = monitor.FileMonitor(self)
+            self.configManager = cm.get_config_manager(self)
+            self.service = service.Service(self)
+            self.serviceDisabled = False
+            self._try_start_service()
+            self.notifier = Notifier(self)
+            self.configWindow = ConfigWindow(self)
+            self.monitor.start()
+            # Initialise user code dir
+            if self.configManager.userCodeDir is not None:
+                sys.path.append(self.configManager.userCodeDir)
+            logging.debug("Creating DBus service")
+            self.dbus_service = AppService(self)
+            logging.debug("Service created")
+            self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+            if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN]:
+                cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
+                self.args.show_config_window = True
+            if self.args.show_config_window:
+                self.show_configure()
 
-            if self.__verifyNotRunning():
-                self.__createLockFile()
-
-            self.initialise(args.isSet("configure"))
+            self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
         except Exception as e:
-            self.show_error_dialog(i18n("Fatal error starting AutoKey.\n") + str(e))
             logging.exception("Fatal error starting AutoKey: " + str(e))
+            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
+        else:
+            sys.exit(self.exec_())
 
-    def __createLockFile(self):
-        # TODO: with-statement
-        f = open(common.LOCK_FILE, 'w')
-        f.write(str(os.getpid()))
-        f.close()
-
-    def __verifyNotRunning(self):
-        if os.path.exists(common.LOCK_FILE):
-            # TODO: with-statement
-            f = open(common.LOCK_FILE, 'r')
-            pid = f.read()
-            f.close()
-
-            # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()
-            if "autokey" in output:
-                logging.debug("AutoKey is already running as pid %s", pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface = "org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logging.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(i18n("AutoKey is already running as pid %1 but is not responding", pid), str(e))
-                    sys.exit(1)
-
-        return True
-
-    def main(self):
-        self.app.exec_()
-
-    def initialise(self, configure):
-        logging.info("Initialising application")
-        self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.get_config_manager(self)
-        self.service = service.Service(self)
-        self.serviceDisabled = False
-
-        # Initialise user code dir
-        if self.configManager.userCodeDir is not None:
-            sys.path.append(self.configManager.userCodeDir)
-
+    def _try_start_service(self):
         try:
             self.service.start()
         except Exception as e:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.show_error_dialog(i18n("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration."), str(e))
+            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
+                                   "Check your system/configuration.", str(e))
 
-        self.notifier = Notifier(self)
-        self.configWindow = None
-        self.monitor.start()
+    def _configure_root_logger(self):
+        """Initialise logging system"""
+        root_logger = logging.getLogger()
+        root_logger.setLevel(logging.DEBUG)
+        if self.args.verbose:
+            handler = logging.StreamHandler(sys.stdout)
+        else:
+            handler = logging.handlers.RotatingFileHandler(
+                common.LOG_FILE,
+                maxBytes=common.MAX_LOG_SIZE,
+                backupCount=common.MAX_LOG_COUNT
+            )
+            handler.setLevel(logging.INFO)
+        handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
+        root_logger.addHandler(handler)
 
-        dbus.mainloop.qt.DBusQtMainLoop(set_as_default=True)
-        self.dbusService = common.AppService(self)
+    @staticmethod
+    def _create_storage_directories():
+        """Create various storage directories, if those do not exist."""
+        # Create configuration directory
+        if not os.path.exists(common.CONFIG_DIR):
+            os.makedirs(common.CONFIG_DIR)
+        # Create data directory (for log file)
+        if not os.path.exists(common.DATA_DIR):
+            os.makedirs(common.DATA_DIR)
+        # Create run directory (for lock file)
+        if not os.path.exists(common.RUN_DIR):
+            os.makedirs(common.RUN_DIR)
 
-        if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] or configure:
-            cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
-            self.show_configure()
+    @staticmethod
+    def _create_lock_file():
+        with open(common.LOCK_FILE, "w") as lock_file:
+            lock_file.write(str(os.getpid()))
 
-        self.handler = CallbackEventHandler()
-        kbChangeFilter = KeyboardChangeFilter(self.service.mediator.interface)
-        self.app.installEventFilter(kbChangeFilter)
+    def _verify_not_running(self):
+        if os.path.exists(common.LOCK_FILE):
+            with open(common.LOCK_FILE, "r") as lock_file:
+                pid = lock_file.read()
+            try:
+                # Check if the pid file contains garbage
+                int(pid)
+            except ValueError:
+                logging.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
+                sys.exit(1)
+
+            # Check that the found PID is running and is autokey
+            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+                output = p.communicate()[0].decode()
+            if "autokey" in output:
+                logging.debug("AutoKey is already running as pid " + pid)
+                bus = dbus.SessionBus()
+
+                try:
+                    dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+                    dbus_service.show_configure(dbus_interface="org.autokey.Service")
+                    sys.exit(0)
+                except dbus.DBusException as e:
+                    logging.exception("Error communicating with Dbus service")
+                    self.show_error_dialog(
+                        message="AutoKey is already running as pid {} but is not responding".format(pid),
+                        details=str(e))
+                    sys.exit(1)
+
+        return True
 
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
@@ -215,19 +257,18 @@ class Application:
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
         self.service.unpause()
-        self.notifier.update_tool_tip()
 
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
         self.service.pause()
-        self.notifier.update_tool_tip()
 
     def toggle_service(self):
         """
-        Convenience method for toggling the expansion service on or off.
+        Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
+        self.monitoring_disabled.emit(not self.service.is_running())
         if self.service.is_running():
             self.pause_service()
         else:
@@ -238,12 +279,12 @@ class Application:
         Shut down the entire application.
         """
         logging.info("Shutting down")
-        self.app.closeAllWindows()
-        self.notifier.hide_icon()
+        self.closeAllWindows()
+        self.notifier.hide()
         self.service.shutdown()
         self.monitor.stop()
-        self.app.quit()
-        os.remove(common.LOCK_FILE)
+        self.quit()
+        os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logging.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):
@@ -262,35 +303,42 @@ class Application:
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logging.info("Displaying configuration window")
-        try:
-            self.configWindow.showNormal()
-            self.configWindow.activateWindow()
-        except (AttributeError, RuntimeError):
-            # AttributeError when the main window is shown the first time, RuntimeError subsequently.
-            self.configWindow = ConfigWindow(self)
-            self.configWindow.show()
+        self.configWindow.show()
+        self.configWindow.showNormal()
+        self.configWindow.activateWindow()
 
     def show_configure_async(self):
-        self.exec_in_main(self.show_configure)
+        logging.debug("Emit show_configure_signal")
+        self.show_configure_signal.emit()
 
-    def show_error_dialog(self, message, details=None):
+    @staticmethod
+    def show_error_dialog(message: str, details: str=None):
         """
         Convenience method for showing an error dialog.
         """
-        if details is None:
-            KMessageBox.error(None, message)
-        else:
-            KMessageBox.detailedError(None, message, details)
+        # TODO: i18n
+        message_box = QMessageBox(
+            QMessageBox.Critical,
+            "Error",
+            message,
+            QMessageBox.Ok,
+            None
+        )
+        if details:
+            message_box.setDetailedText(details)
+        message_box.exec_()
 
     def show_script_error(self):
         """
         Show the last script error (if any)
         """
-        if self.service.scriptRunner.error != '':
-            KMessageBox.information(None, self.service.scriptRunner.error, i18n("View Script Error Details"))
+        # TODO: i18n
+        if self.service.scriptRunner.error:
+            details = self.service.scriptRunner.error
             self.service.scriptRunner.error = ''
         else:
-            KMessageBox.information(None, i18n("No error information available"), i18n("View Script Error Details"))
+            details = "No error information available"
+        QMessageBox.information(None, "View Script Error Details", details)
 
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:
@@ -330,7 +378,7 @@ class CallbackEventHandler(QObject):
 
     def postEventWithCallback(self, callback, *args):
         self.queue.put((callback, args))
-        app = KApplication.kApplication()
+        app = QApplication.instance()
         app.postEvent(self, QEvent(QEvent.User))
 
 
@@ -345,4 +393,3 @@ class KeyboardChangeFilter(QObject):
             self.interface.on_keys_changed()
 
         return QObject.eventFilter(obj, event)
-
