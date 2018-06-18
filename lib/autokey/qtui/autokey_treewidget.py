@@ -31,7 +31,7 @@ class AkTreeWidget(QTreeWidget):
     def keyPressEvent(self, event):
         if self.window().is_dirty() \
                 and (event.matches(QKeySequence.MoveToNextLine) or event.matches(QKeySequence.MoveToPreviousLine)):
-            veto = self.window().promptToSave()
+            veto = self.window().central_widget.promptToSave()
             if not veto:
                 QTreeWidget.keyPressEvent(self, event)
             else:
@@ -41,7 +41,7 @@ class AkTreeWidget(QTreeWidget):
 
     def mousePressEvent(self, event):
         if self.window().is_dirty():
-            veto = self.window().promptToSave()
+            veto = self.window().central_widget.promptToSave()
             if not veto:
                 QTreeWidget.mousePressEvent(self, event)
                 QTreeWidget.mouseReleaseEvent(self, event)
