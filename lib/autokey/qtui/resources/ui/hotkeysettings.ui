@@ -80,7 +80,7 @@
    <item row="2" column="0" colspan="3">
     <widget class="QLabel" name="keyLabel">
      <property name="text">
-      <string>Key: %s</string>
+      <string>Key: (None)</string>
      </property>
     </widget>
    </item>
@@ -163,6 +163,22 @@
     <hint type="destinationlabel">
      <x>286</x>
      <y>124</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>setButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>setButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>377</x>
+     <y>90</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>343</x>
+     <y>101</y>
     </hint>
    </hints>
   </connection>

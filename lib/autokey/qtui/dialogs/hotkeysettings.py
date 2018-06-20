@@ -16,35 +16,58 @@
 
 import logging
 
-from .. import common
-from ..common import inherits_from_ui_file_with_name
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QDialogButtonBox
 
-from ... import iomediator
-from ... import model
-from ...iomediator.key import Key
+from autokey.qtui import common as ui_common
 
-logger = common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger
+from autokey import iomediator, model
+from autokey.iomediator.key import Key
+
+logger = ui_common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger
 
 
-class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
+class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeysettings")):
 
     KEY_MAP = {
-               ' ': "<space>",
-               }
+        ' ': "<space>",
+    }
 
-    REVERSE_KEY_MAP = {}
-    for key, value in KEY_MAP.items():
-        REVERSE_KEY_MAP[value] = key
+    REVERSE_KEY_MAP = {value: key for key, value in KEY_MAP.items()}
+
+    """
+    This signal is emitted whenever the key is assigned/deleted. This happens when the user records a key or cancels
+    a key recording.
+    """
+    key_assigned = pyqtSignal(bool, name="key_assigned")
+    recording_finished = pyqtSignal(bool, name="recording_finished")
 
     def __init__(self, parent):
         super(HotkeySettingsDialog, self).__init__(parent)
         self.setupUi(self)
-        self.key = None
+        # Enable the Ok button iff a correct key combination is assigned. This guides the user and obsoletes an error
+        # message that was shown when the user did something invalid.
+        self.key_assigned.connect(self.buttonBox.button(QDialogButtonBox.Ok).setEnabled)
+        self.recording_finished.connect(self.setButton.setEnabled)
+        self._key = ""
+        self.key = None  # Use the property setter to emit the key_assigned signal and disable the Ok button.
         self.target_item = None
-        self.grabber = None
+        self.grabber = None  # type: iomediator.KeyGrabber
+
+    @property
+    def key(self):
+        return self._key
+
+    @key.setter
+    def key(self, key):
+        self._key = key
+        self.key_assigned.emit(key is not None)
 
     def on_setButton_pressed(self):
-        self.setButton.setEnabled(False)
+        """
+        Start recording a key combination when the user clicks on the setButton.
+        The button itself- is automatically disabled during the recording process.
+        """
         self.keyLabel.setText("Press a key or combination...")  # TODO: i18n
         logger.debug("User starts to record a key combination.")
         self.grabber = iomediator.KeyGrabber(self)
@@ -52,7 +75,6 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
 
     def load(self, item):
         self.target_item = item
-        self.setButton.setEnabled(True)
         if model.TriggerMode.HOTKEY in item.modes:
             self.controlButton.setChecked(Key.CONTROL in item.modifiers)
             self.altButton.setChecked(Key.ALT in item.modifiers)
@@ -98,9 +120,9 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
 
         self._setKeyLabel("(None)")  # TODO: i18n
         self.key = None
-        self.setButton.setEnabled(True)
 
     def set_key(self, key, modifiers: list=None):
+        """This is called when the user successfully finishes recording a key combination."""
         if modifiers is None:
             modifiers = []
         if key in self.KEY_MAP:
@@ -113,13 +135,16 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         self.superButton.setChecked(Key.SUPER in modifiers)
         self.hyperButton.setChecked(Key.HYPER in modifiers)
         self.metaButton.setChecked(Key.META in modifiers)
-
-        self.setButton.setEnabled(True)
+        self.recording_finished.emit(True)
 
     def cancel_grab(self):
+        """
+        This is called when the user cancels a recording.
+        Canceling is done by clicking with the left mouse button.
+        """
         logger.debug("User canceled hotkey recording.")
-        self.setButton.setEnabled(True)
-        self._setKeyLabel(self.key)
+        self.recording_finished.emit(True)
+        self._setKeyLabel(self.key if self.key is not None else "(None)")
 
     def build_modifiers(self):
         modifiers = []
@@ -139,26 +164,12 @@ class HotkeySettingsDialog(*inherits_from_ui_file_with_name("hotkeysettings")):
         modifiers.sort()
         return modifiers
 
-    def accept(self):
-        if self.__valid():
-            super().accept()
-
     def reject(self):
         self.load(self.target_item)
         super().reject()
 
     def _setKeyLabel(self, key):
         self.keyLabel.setText("Key: " + key)  # TODO: i18n
-
-    def __valid(self):
-        if not common.validate(
-                self.key is not None,
-                "You must specify a key for the hotkey.",
-                None,
-                self):
-            return False
-
-        return True
 
 
 class GlobalHotkeyDialog(HotkeySettingsDialog):
