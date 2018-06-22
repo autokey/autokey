@@ -52,12 +52,18 @@
         <property name="text">
          <string>Set</string>
         </property>
+        <property name="icon">
+         <iconset theme="media-record"/>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="clear_monitor_button">
         <property name="text">
          <string>Clear</string>
+        </property>
+        <property name="icon">
+         <iconset theme="edit-clear"/>
         </property>
        </widget>
       </item>
@@ -102,12 +108,18 @@
         <property name="text">
          <string>Set</string>
         </property>
+        <property name="icon">
+         <iconset theme="media-record"/>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="clear_config_button">
         <property name="text">
          <string>Clear</string>
+        </property>
+        <property name="icon">
+         <iconset theme="edit-clear"/>
         </property>
        </widget>
       </item>
