@@ -26,7 +26,7 @@
      <x>0</x>
      <y>0</y>
      <width>784</width>
-     <height>32</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_file">
@@ -116,11 +116,14 @@
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
    <attribute name="toolBarArea">
     <enum>TopToolBarArea</enum>
    </attribute>
    <attribute name="toolBarBreak">
-    <bool>false</bool>
+    <bool>true</bool>
    </attribute>
    <addaction name="action_save"/>
    <addaction name="action_cut_item"/>
@@ -142,7 +145,7 @@
     <string>&amp;Folder</string>
    </property>
    <property name="toolTip">
-    <string>Create a new Folder</string>
+    <string>Create a new top level Folder anywhere in the file system.</string>
    </property>
   </action>
   <action name="action_new_sub_folder">
@@ -199,10 +202,7 @@
     <string>&amp;Save</string>
    </property>
    <property name="toolTip">
-    <string>Save changes</string>
-   </property>
-   <property name="shortcut">
-    <string comment="Save"/>
+    <string>Save changes.</string>
    </property>
   </action>
   <action name="action_close_window">
@@ -247,7 +247,7 @@
     <string>&amp;Undo</string>
    </property>
    <property name="toolTip">
-    <string>Undo the last change</string>
+    <string>Undo the last change.</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+Z</string>
@@ -439,6 +439,9 @@
    <property name="text">
     <string>&amp;F. A. Q.</string>
    </property>
+   <property name="toolTip">
+    <string>Show the online FAQ.</string>
+   </property>
   </action>
   <action name="action_show_api">
    <property name="icon">
@@ -448,6 +451,9 @@
    <property name="text">
     <string>&amp;Scripting Help</string>
    </property>
+   <property name="toolTip">
+    <string>Show the online scripting Help and API documentation.</string>
+   </property>
   </action>
   <action name="action_report_bug">
    <property name="icon">
@@ -456,6 +462,9 @@
    </property>
    <property name="text">
     <string>&amp;Report a Bug</string>
+   </property>
+   <property name="toolTip">
+    <string>Report a Bug on the GitHub issue tracker.</string>
    </property>
   </action>
   <action name="action_about_autokey">

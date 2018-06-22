@@ -87,7 +87,10 @@
    <item row="2" column="3" colspan="3">
     <widget class="QPushButton" name="setButton">
      <property name="text">
-      <string>Press to set</string>
+      <string>Record a key combination</string>
+     </property>
+     <property name="icon">
+      <iconset theme="media-record"/>
      </property>
     </widget>
    </item>
