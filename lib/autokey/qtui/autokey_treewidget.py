@@ -60,7 +60,7 @@ class AkTreeWidget(QTreeWidget):
     def dropEvent(self, event):
         target = self.itemAt(event.pos())
         sources = self.selectedItems()
-        self.window().move_items(sources, target)
+        self.window().central_widget.move_items(sources, target)
 
 
 class WidgetItemFactory:
