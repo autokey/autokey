@@ -79,5 +79,7 @@ class FolderPage(*inherits_from_ui_file_with_name("folderpage")):
     def on_showInTrayCheckbox_stateChanged(self, state):
         self.set_dirty()
 
-    def on_urlLabel_leftClickedUrl(self, url=None):
-        if url: subprocess.Popen(["/usr/bin/xdg-open", url])
+    @staticmethod
+    def on_urlLabel_leftClickedUrl(url=None):
+        if url:
+            subprocess.Popen(["/usr/bin/xdg-open", url])
