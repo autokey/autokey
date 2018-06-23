@@ -20,7 +20,7 @@ import threading
 import time
 import webbrowser
 
-from PyQt5.QtGui import QIcon, QKeySequence
+from PyQt5.QtGui import QIcon, QKeySequence, QCloseEvent
 from PyQt5.QtWidgets import QApplication, QAction, QMenu
 
 
@@ -169,12 +169,15 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.central_widget.set_dirty(True)
         self.action_save.setEnabled(True)
 
-    def closeEvent(self, event):
+    def closeEvent(self, event: QCloseEvent):
         """
         This function is automatically called when the window is closed using the close [X] button in the window
         decorations or by right clicking in the system window list and using the close action, or similar ways to close
         the window.
         Just ignore this event and simulate that the user used the action_close_window instead.
+
+        To quote the Qt5 QCloseEvent documentation: If you do not want your widget to be hidden, or want some special
+        handling, you should reimplement the event handler and ignore() the event.
         """
         event.ignore()
         # Be safe and emit this signal, because it might be connected to multiple slots.
