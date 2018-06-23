@@ -22,7 +22,7 @@ import functools
 
 from PyQt5.QtCore import QFile, QSize
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
@@ -61,16 +61,22 @@ def monospace_font() -> QFont:
     return font
 
 
-def set_url_label(button, path):
-    button.setEnabled(True)
+def set_url_label(label: QLabel, path: str):
 
+    # In both cases, only replace the first occurence.
     if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)")
+        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
     else:
-        text = path.replace(os.path.expanduser("~"), "~")
+        # if bob has added a path '/home/bob/some/folder/home/bobbie/foo/' to autokey, the desired replacement text
+        # is '~/some/folder/home/bobbie/foo/' and NOT '~/some/folder~bie/foo/'
+        text = path.replace(os.path.expanduser("~"), "~", 1)
     url = "file://" + path
+    if not label.openExternalLinks():
+        # The openExternalLinks property is not set in the UI file, so fail fast instead of doing workarounds.
+        raise ValueError("QLabel with disabled openExternalLinks property used to display an external URL. "
+                         "This won’t work, so fail now. Label: {}, Text: {}".format(label, label.text()))
     # TODO elide text?
-    button.setText("""<a href="{url}">{text}</a>""".format(url=url, text=text))
+    label.setText("""<a href="{url}">{text}</a>""".format(url=url, text=text))
 
 
 def validate(expression, message, widget, parent):
