@@ -330,9 +330,8 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         new_items = []
         for item in self.cutCopiedItems:
             if isinstance(item, model.Folder):
-                f = ak_tree.WidgetItemFactory(None)
                 new_item = ak_tree.FolderWidgetItem(parent_item, item)
-                f.processFolder(new_item, item)
+                ak_tree.WidgetItemFactory.process_folder(new_item, item)
                 parent.add_folder(item)
             elif isinstance(item, model.Phrase):
                 new_item = ak_tree.PhraseWidgetItem(parent_item, item)

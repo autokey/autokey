@@ -14,21 +14,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeySequence, QIcon
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem
+from typing import Union, List, Optional
+
+from PyQt5.QtCore import Qt, QEvent, QModelIndex
+from PyQt5.QtGui import QKeySequence, QIcon, QKeyEvent, QMouseEvent, QDragMoveEvent, QDropEvent
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView
 
 from autokey import model
 
 
 class AkTreeWidget(QTreeWidget):
 
-    def edit(self, index, trigger, event):
+    def edit(self, index: QModelIndex, trigger: QAbstractItemView.EditTrigger, event: QEvent):
         if index.column() == 0:
             super(QTreeWidget, self).edit(index, trigger, event)
         return False
 
-    def keyPressEvent(self, event):
+    def keyPressEvent(self, event: QKeyEvent):
         if self.window().is_dirty() \
                 and (event.matches(QKeySequence.MoveToNextLine) or event.matches(QKeySequence.MoveToPreviousLine)):
             veto = self.window().central_widget.promptToSave()
@@ -39,7 +41,7 @@ class AkTreeWidget(QTreeWidget):
         else:
             QTreeWidget.keyPressEvent(self, event)
 
-    def mousePressEvent(self, event):
+    def mousePressEvent(self, event: QMouseEvent):
         if self.window().is_dirty():
             veto = self.window().central_widget.promptToSave()
             if not veto:
@@ -50,54 +52,22 @@ class AkTreeWidget(QTreeWidget):
         else:
             QTreeWidget.mousePressEvent(self, event)
 
-    def dragMoveEvent(self, event):
+    def dragMoveEvent(self, event: QDragMoveEvent):
         target = self.itemAt(event.pos())
         if isinstance(target, FolderWidgetItem):
             QTreeWidget.dragMoveEvent(self, event)
         else:
             event.ignore()
 
-    def dropEvent(self, event):
+    def dropEvent(self, event: QDropEvent):
         target = self.itemAt(event.pos())
         sources = self.selectedItems()
         self.window().central_widget.move_items(sources, target)
 
 
-class WidgetItemFactory:
-
-    def __init__(self, rootFolders):
-        self.folders = rootFolders
-
-    def get_root_folder_list(self):
-        rootItems = []
-
-        for folder in self.folders:
-            item = self.__buildItem(None, folder)
-            rootItems.append(item)
-            self.processFolder(item, folder)
-
-        return rootItems
-
-    def processFolder(self, parentItem, parentFolder):
-        for folder in parentFolder.folders:
-            item = self.__buildItem(parentItem, folder)
-            self.processFolder(item, folder)
-
-        for childModelItem in parentFolder.items:
-            self.__buildItem(parentItem, childModelItem)
-
-    def __buildItem(self, parent, item):
-        if isinstance(item, model.Folder):
-            return FolderWidgetItem(parent, item)
-        elif isinstance(item, model.Phrase):
-            return PhraseWidgetItem(parent, item)
-        elif isinstance(item, model.Script):
-            return ScriptWidgetItem(parent, item)
-
-
 class FolderWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent, folder):
+    def __init__(self, parent: Optional[QTreeWidgetItem], folder: model.Folder):
         QTreeWidgetItem.__init__(self)
         self.folder = folder
         self.setIcon(0, QIcon.fromTheme("folder"))
@@ -130,7 +100,7 @@ class FolderWidgetItem(QTreeWidgetItem):
 
 class PhraseWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent, phrase):
+    def __init__(self, parent: Optional[FolderWidgetItem], phrase: model.Phrase):
         QTreeWidgetItem.__init__(self)
         self.phrase = phrase
         self.setIcon(0, QIcon.fromTheme("text-x-generic"))
@@ -138,7 +108,7 @@ class PhraseWidgetItem(QTreeWidgetItem):
         self.setText(1, phrase.get_abbreviations())
         self.setText(2, phrase.get_hotkey_string())
         self.setData(3, Qt.UserRole, phrase)
-        if parent is not None:
+        if parent is not None:  # TODO: Phrase without parent allowed? This is should be an error.
             parent.addChild(self)
 
         self.setFlags(self.flags() | Qt.ItemIsEditable)
@@ -163,7 +133,7 @@ class PhraseWidgetItem(QTreeWidgetItem):
 
 class ScriptWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent, script):
+    def __init__(self, parent: Optional[FolderWidgetItem], script: model.Script):
         QTreeWidgetItem.__init__(self)
         self.script = script
         self.setIcon(0, QIcon.fromTheme("text-x-python"))
@@ -171,7 +141,7 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.setText(1, script.get_abbreviations())
         self.setText(2, script.get_hotkey_string())
         self.setData(3, Qt.UserRole, script)
-        if parent is not None:
+        if parent is not None:  # TODO: Script without parent allowed? This is should be an error.
             parent.addChild(self)
         self.setFlags(self.flags() | Qt.ItemIsEditable)
 
@@ -191,3 +161,41 @@ class ScriptWidgetItem(QTreeWidgetItem):
             return QTreeWidgetItem.__lt__(self, other)
         else:
             return False
+
+
+ItemType = Union[model.Folder, model.Phrase, model.Script]
+ItemWidgetType = Union[FolderWidgetItem, PhraseWidgetItem, ScriptWidgetItem]
+
+
+class WidgetItemFactory:
+
+    def __init__(self, root_folders: List[model.Folder]):
+        self.folders = root_folders
+
+    def get_root_folder_list(self):
+        root_items = []
+
+        for folder in self.folders:
+            item = WidgetItemFactory._build_item(None, folder)
+            root_items.append(item)
+            WidgetItemFactory.process_folder(item, folder)
+
+        return root_items
+
+    @staticmethod
+    def process_folder(parent_item: ItemWidgetType, parent_folder: model.Folder):
+        for folder in parent_folder.folders:
+            item = WidgetItemFactory._build_item(parent_item, folder)
+            WidgetItemFactory.process_folder(item, folder)
+
+        for childModelItem in parent_folder.items:
+            WidgetItemFactory._build_item(parent_item, childModelItem)
+
+    @staticmethod
+    def _build_item(parent: Optional[FolderWidgetItem], item: ItemType) -> ItemWidgetType:
+        if isinstance(item, model.Folder):
+            return FolderWidgetItem(parent, item)
+        elif isinstance(item, model.Phrase):
+            return PhraseWidgetItem(parent, item)
+        elif isinstance(item, model.Script):
+            return ScriptWidgetItem(parent, item)
