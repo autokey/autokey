@@ -49,6 +49,8 @@ GTK frontend only:
 QT frontend only:
 
 - PyQt5
+    - SVG module, if not already bundled
+    - QScintilla2 module, if not already bundled
 - ``pyrcc5`` command line tool (Optional installation time dependency, only used when installing or updating from the git source tree using setup.py. If not present, a fallback that causes a slightly slower application start will be used.)
 
 Install via pip
@@ -73,6 +75,8 @@ There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives
    sudo add-apt-repository ppa:sporkwitch/autokey
    sudo apt update
    sudo apt install autokey-gtk
+   # Or alternatively, to install the Qt5 based GUI:
+   sudo apt install autokey-qt
 
 Distro package not provided? Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
 
