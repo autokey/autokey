@@ -125,10 +125,10 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_configure_autokey.triggered.connect(self.on_advanced_settings)
 
     def _connect_all_help_menu_signals(self):
-        self.action_show_online_manual.triggered.connect(self.on_show_help)
-        self.action_show_faq.triggered.connect(self.on_show_faq)
-        self.action_show_api.triggered.connect(self.on_show_api)
-        self.action_report_bug.triggered.connect(self.on_report_bug)
+        self.action_show_online_manual.triggered.connect(lambda: self.open_external_url(autokey.common.HELP_URL))
+        self.action_show_faq.triggered.connect(lambda: self.open_external_url(autokey.common.FAQ_URL))
+        self.action_show_api.triggered.connect(lambda: self.open_external_url(autokey.common.API_URL))
+        self.action_report_bug.triggered.connect(lambda: self.open_external_url(autokey.common.BUG_URL))
         self.action_about_autokey.triggered.connect(self.about_dialog.show)
         self.action_about_qt.triggered.connect(QApplication.aboutQt)
 
@@ -196,7 +196,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
             for item in items:
                 if isinstance(item, model.Folder):
                     can_copy = False
-                    break        
+                    break
             
             self.action_new_top_folder.setEnabled(True)
             self.action_new_sub_folder.setEnabled(can_create)
@@ -302,17 +302,5 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
     # Help Menu
 
     @staticmethod
-    def on_show_faq():
-        webbrowser.open(autokey.common.FAQ_URL, False, True)
-
-    @staticmethod
-    def on_show_help():
-        webbrowser.open(autokey.common.HELP_URL, False, True)
-
-    @staticmethod
-    def on_show_api():
-        webbrowser.open(autokey.common.API_URL, False, True)
-
-    @staticmethod
-    def on_report_bug():
-        webbrowser.open(autokey.common.BUG_URL, False, True)
+    def open_external_url(url: str):
+        webbrowser.open(url, False, True)

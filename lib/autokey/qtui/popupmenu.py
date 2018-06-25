@@ -162,7 +162,6 @@ class ItemAction(QAction):
         self.triggered.connect(lambda: self.action_sig.emit(self.item))
         self.action_sig.connect(target)
 
-
     @staticmethod
     def _icon_for_item(item: Item) -> QIcon:
         if isinstance(item, autokey.model.Script):
