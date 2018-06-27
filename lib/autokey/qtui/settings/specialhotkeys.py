@@ -95,7 +95,7 @@ class SpecialHotkeySettings(*autokey.qtui.common.inherits_from_ui_file_with_name
             self.use_config_hotkey = True
             key = self.show_config_dlg.key
             modifiers = self.show_config_dlg.build_modifiers()
-            self.config_key_label.setText(self.show_config_dlg.targetItem.get_hotkey_string(key, modifiers))
+            self.config_key_label.setText(self.show_config_dlg.target_item.get_hotkey_string(key, modifiers))
             self.clear_config_button.setEnabled(True)
 
     def on_clear_config_button_pressed(self):
@@ -111,7 +111,7 @@ class SpecialHotkeySettings(*autokey.qtui.common.inherits_from_ui_file_with_name
             self.use_service_hotkey = True
             key = self.toggle_monitor_dlg.key
             modifiers = self.toggle_monitor_dlg.build_modifiers()
-            self.monitor_key_label.setText(self.toggle_monitor_dlg.targetItem.get_hotkey_string(key, modifiers))
+            self.monitor_key_label.setText(self.toggle_monitor_dlg.target_item.get_hotkey_string(key, modifiers))
             self.clear_monitor_button.setEnabled(True)
 
     def on_clear_monitor_button_pressed(self):
