@@ -22,10 +22,11 @@ from PyQt5.QtWidgets import QDialogButtonBox
 
 from autokey.qtui import common as ui_common
 
-from autokey import iomediator, model
+from autokey import iomediator, model, configmanager as cm
 from autokey.iomediator.key import Key
 
 logger = ui_common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger
+Item = typing.Union[model.Folder, model.Script, model.Phrase]
 
 
 class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeysettings")):
@@ -52,7 +53,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         self.recording_finished.connect(self.setButton.setEnabled)
         self._key = ""
         self.key = None  # Use the property setter to emit the key_assigned signal and disable the Ok button.
-        self.target_item = None
+        self.target_item = None  # type: Item
         self.grabber = None  # type: iomediator.KeyGrabber
 
     @property
@@ -67,14 +68,14 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
     def on_setButton_pressed(self):
         """
         Start recording a key combination when the user clicks on the setButton.
-        The button itself- is automatically disabled during the recording process.
+        The button itself is automatically disabled during the recording process.
         """
         self.keyLabel.setText("Press a key or combination...")  # TODO: i18n
         logger.debug("User starts to record a key combination.")
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
 
-    def load(self, item):
+    def load(self, item: Item):
         self.target_item = item
         if model.TriggerMode.HOTKEY in item.modes:
             self.controlButton.setChecked(Key.CONTROL in item.modifiers)
@@ -175,7 +176,8 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
 
 class GlobalHotkeyDialog(HotkeySettingsDialog):
 
-    def load(self, item):
+    def load(self, item: cm.GlobalHotkey):
+        print("GlobalHotkeyDialog: item type: " + str(type(item)))
         self.target_item = item
         if item.enabled:
             self.controlButton.setChecked(Key.CONTROL in item.modifiers)
@@ -196,7 +198,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         else:
             self.reset()
 
-    def save(self, item):
+    def save(self, item: cm.GlobalHotkey):
         # Build modifier list
         modifiers = self.build_modifiers()
 

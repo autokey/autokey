@@ -16,7 +16,7 @@
 
 import typing
 
-from PyQt5.QtWidgets import QDialog, QWidget, QApplication
+from PyQt5.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
 
 from autokey.qtui.dialogs import GlobalHotkeyDialog
 import autokey.qtui.common as ui_common
@@ -24,7 +24,6 @@ import autokey.qtui.common as ui_common
 if typing.TYPE_CHECKING:
     import logging
 
-    from autokey.configmanager import ConfigManager
     from autokey.qtapp import Application
 
 logger = ui_common.logger.getChild("Special Hotkey Settings widget")  # type: logging.Logger
@@ -45,14 +44,11 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         super(SpecialHotkeySettings, self).__init__(parent)
         self.setupUi(self)
 
-        self.config_manager = None  # type: ConfigManager
 
         self.show_config_dlg = GlobalHotkeyDialog(parent)
         self.toggle_monitor_dlg = GlobalHotkeyDialog(parent)
         self.use_config_hotkey = False
         self.use_service_hotkey = False
-
-    def init(self):
         app = QApplication.instance()  # type: Application
         self.config_manager = app.configManager
         self.use_config_hotkey = self._load_hotkey(self.config_manager.configHotkey, self.config_key_label,
@@ -60,8 +56,9 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         self.use_service_hotkey = self._load_hotkey(self.config_manager.toggleServiceHotkey, self.monitor_key_label,
                                                     self.toggle_monitor_dlg, self.clear_monitor_button)
 
+
     @staticmethod
-    def _load_hotkey(item, label, dialog, clear_button):
+    def _load_hotkey(item, label: QLabel, dialog: GlobalHotkeyDialog, clear_button: QPushButton):
         dialog.load(item)
         if item.enabled:
             key = item.hotKey

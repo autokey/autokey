@@ -33,8 +33,6 @@ class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):
     def __init__(self, parent: QWidget=None):
         super(SettingsDialog, self).__init__(parent)
         self.setupUi(self)
-        self.special_hotkeys_page.init()
-        self.script_engine_page.init()
         logger.info("Settings dialog window created.")
 
     @pyqtSlot()  # Avoid the slot being called twice, by both signals clicked() and clicked(bool).

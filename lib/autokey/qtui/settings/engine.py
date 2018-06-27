@@ -43,14 +43,11 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
         # It is used to reset the label to this value if a custom module path is currently set and the user deletes it.
         # Do not hard-code it to prevent possible inconsistencies.
         self.initial_folder_label_text = self.folder_label.text()
-        self.config_manager = None  # type: ConfigManager
-        self.path = None  # type: str
         self.clear_button.setEnabled(self.path is not None)
-        logger.debug("EngineSettings widget created.")
 
-    def init(self):
         self.config_manager = QApplication.instance().configManager
         self.path = self.config_manager.userCodeDir
+
         if self.config_manager.userCodeDir is not None:
             self.folder_label.setText(self.config_manager.userCodeDir)
         logger.debug("EngineSettings widget initialised, custom module search path is set to: {}".format(self.path))

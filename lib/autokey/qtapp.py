@@ -113,8 +113,6 @@ class Application(QApplication):
         try:
             self._create_storage_directories()
             # Initialise logger
-            root_logger = logging.getLogger()
-            root_logger.setLevel(logging.DEBUG)
 
             if self._verify_not_running():
                 self._create_lock_file()
