@@ -16,11 +16,16 @@
 
 import sys
 import logging
+import typing
 
-from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5.QtCore import pyqtSlot
+from PyQt5.QtWidgets import QFileDialog, QWidget, QApplication
 
-from autokey.configmanager import ConfigManager
 from autokey.qtui import common
+
+if typing.TYPE_CHECKING:
+    from autokey.configmanager import ConfigManager
+
 
 logger = common.logger.getChild("AutoKey configuration")  # type: logging.Logger
 
@@ -43,11 +48,11 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
         self.clear_button.setEnabled(self.path is not None)
         logger.debug("EngineSettings widget created.")
 
-    def init(self, config_manager: ConfigManager):
-        self.config_manager = config_manager
-        self.path = config_manager.userCodeDir
-        if config_manager.userCodeDir is not None:
-            self.folder_label.setText(config_manager.userCodeDir)
+    def init(self):
+        self.config_manager = QApplication.instance().configManager
+        self.path = self.config_manager.userCodeDir
+        if self.config_manager.userCodeDir is not None:
+            self.folder_label.setText(self.config_manager.userCodeDir)
         logger.debug("EngineSettings widget initialised, custom module search path is set to: {}".format(self.path))
 
     def save(self):
@@ -66,12 +71,13 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
                 self.config_manager.userCodeDir = self.path
                 logger.info("Saved custom module search path and added it to sys.path: {}".format(self.path))
 
+    @pyqtSlot()
     def on_browse_button_pressed(self):
         """
         PyQt slot called when the user hits the "Browse" button.
         Display a directory selection dialog and store the returned path.
         """
-        path = QFileDialog.getExistingDirectory(self.parentWidget(), "Choose a directory containing Python modules")
+        path = QFileDialog.getExisingDirectory(self.parentWidget(), "Choose a directory containing Python modules")
 
         if path:  # Non-empty means the user chose a path and clicked on OK
             self.path = path
@@ -79,6 +85,7 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
             self.folder_label.setText(path)
             logger.debug("User selects a custom module search path: {}".format(self.path))
 
+    @pyqtSlot()
     def on_clear_button_pressed(self):
         """
         PyQt slot called when the user hits the "Clear" button.

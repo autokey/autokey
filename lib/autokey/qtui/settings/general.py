@@ -37,12 +37,12 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
         self.allow_kb_nav_checkbox.setVisible(False)
         self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
         self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
-        logger.debug("Created widget and loaded current settings:\n" + self._settings_str())
+        logger.debug("Created widget and loaded current settings: " + self._settings_str())
 
     def save(self):
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
-        logger.debug("User requested to save settings. New settings: \n" + self._settings_str())
+        logger.debug("User requested to save settings. New settings: " + self._settings_str())
         cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
         # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()

@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Optional, Callable
+from typing import Optional, Callable, TYPE_CHECKING
 
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
@@ -23,6 +23,9 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
 from autokey.qtui import popupmenu
 import autokey.qtui.common as ui_common
 from autokey import configmanager as cm
+
+if TYPE_CHECKING:
+    from autokey.qtapp import Application
 
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
@@ -45,8 +48,8 @@ class Notifier(QSystemTrayIcon):
         self.action_quit = None  # type: QAction
         self.action_enable_monitoring = None  # type: QAction
 
-        self.app = app
-        self.config_manager = app.configManager
+        self.app = app  # type: Application
+        self.config_manager = self.app.configManager
         self.setContextMenu(QMenu("AutoKey"))
         self.activated.connect(self.on_activate)
         self._create_static_actions()
@@ -99,8 +102,8 @@ class Notifier(QSystemTrayIcon):
         self.action_enable_monitoring = self._create_action(
             None, "&Enable Monitoring", self.app.toggle_service,
             "Pause the phrase expansion and script execution, both by abbreviations and hotkeys.\n"
-            "The global hotkeys to show the main window and to toggle this setting, as defined in the AutoKey settings, "
-            "are not affected and will work regardless."
+            "The global hotkeys to show the main window and to toggle this setting, as defined in the AutoKey "
+            "settings, are not affected and will work regardless."
         )
         self.action_enable_monitoring.setCheckable(True)
         self.action_enable_monitoring.setChecked(self.app.service.is_running())

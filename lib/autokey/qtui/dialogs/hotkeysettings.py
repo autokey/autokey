@@ -15,6 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+import typing
 
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialogButtonBox
@@ -121,10 +122,10 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         self._setKeyLabel("(None)")  # TODO: i18n
         self.key = None
 
-    def set_key(self, key, modifiers: list=None):
+    def set_key(self, key, modifiers: typing.List[Key]=None):
         """This is called when the user successfully finishes recording a key combination."""
         if modifiers is None:
-            modifiers = []
+            modifiers = []  # type: typing.List[Key]
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)

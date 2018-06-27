@@ -14,25 +14,27 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
+from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import pyqtSlot
-
-from autokey.configmanager import ConfigManager
+from PyQt5.QtWidgets import QApplication, QWidget
 
 from autokey.qtui import common
+
+if TYPE_CHECKING:
+    from autokey.qtapp import Application
+
 
 logger = common.logger.getChild("Settings Dialog")  # type: logging.Logger
 
 
 class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):
     
-    def __init__(self, parent):
+    def __init__(self, parent: QWidget=None):
         super(SettingsDialog, self).__init__(parent)
         self.setupUi(self)
-        self.app = parent.window().app  # autokey.qtapp.Application
-        config_manager = self.app.configManager  # type: ConfigManager
-        self.special_hotkeys_page.init(config_manager)
-        self.script_engine_page.init(config_manager)
+        self.special_hotkeys_page.init()
+        self.script_engine_page.init()
         logger.info("Settings dialog window created.")
 
     @pyqtSlot()  # Avoid the slot being called twice, by both signals clicked() and clicked(bool).
@@ -52,10 +54,11 @@ class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):
 
     def accept(self):
         logger.info("User requested to save the settings.")
+        app = QApplication.instance()  # type: Application
         self.general_settings_page.save()
         self.special_hotkeys_page.save()
         self.script_engine_page.save()
-        self.app.configManager.config_altered(True)
-        self.app.update_notifier_visibility()
+        app.configManager.config_altered(True)
+        app.update_notifier_visibility()
         super(SettingsDialog, self).accept()
         logger.debug("Save completed, dialog window hidden.")

@@ -14,25 +14,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
+import typing
 
 from PyQt5.QtWidgets import QMessageBox
 
-from .common import inherits_from_ui_file_with_name, set_url_label
+import autokey.qtui.common as ui_common
 
-from .. import configmanager as cm
+from autokey import configmanager as cm
+from autokey.model import Folder
+
+if typing.TYPE_CHECKING:
+    import logging
+
+
+logger = ui_common.logger.getChild("FolderPage")  # type: logging.Logger
 
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
 
 
-class FolderPage(*inherits_from_ui_file_with_name("folderpage")):
+class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
 
     def __init__(self):
         super(FolderPage, self).__init__()
         self.setupUi(self)
+        self.current_folder = None  # type: Folder
 
-    def load(self, folder):
-        self.currentFolder = folder
+    def load(self, folder: Folder):
+        self.current_folder = folder
         self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
         self.settingsWidget.load(folder)
 
@@ -40,27 +49,27 @@ class FolderPage(*inherits_from_ui_file_with_name("folderpage")):
             self.urlLabel.setEnabled(False)
             self.urlLabel.setText("(Unsaved)")  # TODO: i18n
         else:
-            set_url_label(self.urlLabel, self.currentFolder.path)
+            ui_common.set_url_label(self.urlLabel, self.current_folder.path)
 
     def save(self):
-        self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        self.current_folder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
         self.settingsWidget.save()
-        self.currentFolder.persist()
-        set_url_label(self.urlLabel, self.currentFolder.path)
+        self.current_folder.persist()
+        ui_common.set_url_label(self.urlLabel, self.current_folder.path)
 
-        return not self.currentFolder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
+        return not self.current_folder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
 
-    def set_item_title(self, title):
-        self.currentFolder.title = title
+    def set_item_title(self, title: str):
+        self.current_folder.title = title
 
     def rebuild_item_path(self):
-        self.currentFolder.rebuild_path()
+        self.current_folder.rebuild_path()
 
     def is_new_item(self):
-        return self.currentFolder.path is None
+        return self.current_folder.path is None
 
     def reset(self):
-        self.load(self.currentFolder)
+        self.load(self.current_folder)
 
     def validate(self):
         # Check settings
@@ -76,10 +85,10 @@ class FolderPage(*inherits_from_ui_file_with_name("folderpage")):
         self.window().set_dirty()
 
     # --- Signal handlers
-    def on_showInTrayCheckbox_stateChanged(self, state):
+    def on_showInTrayCheckbox_stateChanged(self, state: bool):
         self.set_dirty()
 
     @staticmethod
-    def on_urlLabel_leftClickedUrl(url=None):
+    def on_urlLabel_leftClickedUrl(url: str=None):
         if url:
             subprocess.Popen(["/usr/bin/xdg-open", url])

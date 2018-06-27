@@ -226,7 +226,7 @@ class Application(QApplication):
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
-        configManager.configHotkey.set_closure(self.show_configure_async)
+        configManager.configHotkey.set_closure(self.show_configure_signal.emit)
 
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
@@ -306,10 +306,6 @@ class Application(QApplication):
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()
-
-    def show_configure_async(self):
-        logging.debug("Emit show_configure_signal")
-        self.show_configure_signal.emit()
 
     @staticmethod
     def show_error_dialog(message: str, details: str=None):

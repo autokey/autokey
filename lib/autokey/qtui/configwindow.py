@@ -39,7 +39,7 @@ _logger = autokey.qtui.common.logger.getChild("configwindow")  # type: logging.L
 
 class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwindow")):
 
-    def __init__(self, app):
+    def __init__(self, app: QApplication):
         super().__init__()
         self.setupUi(self)
         self.about_dialog = dialogs.AboutAutokeyDialog(self)

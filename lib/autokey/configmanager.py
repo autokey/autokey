@@ -208,7 +208,7 @@ class ConfigManager:
         
         self.app = app
         self.folders = []
-        self.userCodeDir = None
+        self.userCodeDir = None  # type: str
         
         self.configHotkey = GlobalHotkey()
         self.configHotkey.set_hotkey(["<super>"], "k")
