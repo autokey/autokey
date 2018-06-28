@@ -1,1 +1,0 @@
-See [[Scripting#advanced-scripts]].
