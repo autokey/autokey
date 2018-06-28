@@ -15,6 +15,7 @@
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QSize
 
+import autokey.common
 from autokey.qtui import common as ui_common
 
 
@@ -26,3 +27,4 @@ class AboutAutokeyDialog(*ui_common.inherits_from_ui_file_with_name("about_autok
         icon = ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)
         pixmap = icon.pixmap(icon.actualSize(QSize(1024, 1024)))
         self.autokey_icon.setPixmap(pixmap)
+        self.autokey_version_label.setText(autokey.common.VERSION)
