@@ -1,3 +1,15 @@
+autokey (0.95.0-0) bionic; urgency=medium
+
+  * [Qt] Ported GUI from PyQt4/PyKDE4 to PyQt5
+  * Fixed clipboard pasting for Phrases
+  * [Scripting API] Re-added newline trimming in system.exec_command() API call.
+  * [Scripting API] Fixed broken KDialog based colour chooser dialogue.
+  * [Scripting API] Added zenity based colour chooser dialogue.
+  * [Scripting API] Both colour dialogs return parsed data in the form of a Python namedtuple. This API change breaks old scripts that used the KDialog based colour chooser.
+  * See the CHANGELOG.rst for details
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Thu, 28 Jun 2018 17:21:32 +0200
+
 autokey (0.94.1-1ubuntu1~bionicppa1) bionic; urgency=medium
 
   * Rebuild for bionic

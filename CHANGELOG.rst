@@ -3,6 +3,101 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.0 <2018-06-28>
+===========================
+
+Rewritten the Qt GUI, ported to PyQt5
+-------------------------------------
+
+Resurrected, re-written and cleaned up the `autokey-qt` Qt GUI. `autokey-qt` is now a pure `PyQt5` application, only dependent on currently supported libraries.
+
+Added improvements
+++++++++++++++++++
+- The main window now keeps its complete state when closed and re-opened (excluding complete application restarts). This includes the currently selected item(s) in the tree view on the left of the main window, selected text and cursor position in the editor on the right if currently editing a script or phrase.
+- The entries in the popup menu, that is shown when a hotkey assigned to a folder is pressed, now show icons based on their type (folder, phrase or script). This also works when items are configured to be shown in the system tray icon context menu.
+- The *A* autokey application icons are now always displayed correctly, both in the main window and the system tray icon.
+- Various menu actions now have system dependent keyboard shortcuts, that should adjust to the expected default of the user’s current platform/desktop environment.
+- Added icons and descriptive tooltip texts to various buttons.
+- The `enable monitoring` checkboxes (both in the `Settings` menu and the tray icon context menu) now properly react to pressing the global hotkey for this action and thus stay in sync. (Even if the hotkey is used while the menu is shown.)
+
+Regressions
++++++++++++
+- Customizing the main window toolbar entries and keyboard shortcuts to trigger various UI actions is no longer possible. This feature was provided by the KDE4 libraries and is currently dropped.
+- The previous, KDE4-based About dialogue is replaced with a very minimalistic one.
+- The settings dialogue heavily used the KDE4 functionalities. During the port to Qt5, the dialogue lost some visual style, but all core functionality is kept.
+
+Runtime dependencies
+++++++++++++++++++++
+- Removed dependencies on deprecated and unmaintained PyQt4 and PyKDE4 libraries.
+- Removed dependency on `dbus.mainloop.qt`, instead use the DBus support built into Qt5.
+- Now depend on PyQt5, the Qt5 SVG module and the Qt5 QScintilla2 module.
+
+Build-time dependencies
++++++++++++++++++++++++
+Optionally depend on `pyrcc5` command line tool to compile Qt resources into a Python module.
+
+Qt UI files are no longer compiled using `pykdeuic4`, Removed the old compiler wrapper script in commit 6eeeb92f_.
+
+.. _6eeeb92f: https://github.com/autokey/autokey/commit/6eeeb92f14c694979c1367d51350c1e6509329b1
+
+Known bugs
+++++++++++
+The system tray icon is shown, but non-functional, after enabling it in the settings dialogue. AutoKey Qt has to be restarted for the tray icon to start working. This should have no impact on the normal daily use.
+
+Changed features
+++++++++++++++++
+The `hide tray icon` entry in the tray icon context menu now hides the icon for the current session only. The entry does not permanently disable the tray icon any more without any confirmation. Now, the only way to permanently disable the tray icon is through using the appropriate setting in the settings dialogue.
+
+Fixed the broken `Clipboard` and `Mouse selection` phrase paste modes
+---------------------------------------------------------------------
+- Pasting using both `Clipboard` and `Mouse selection` works in both the Qt and GTK GUI. See `#101`_
+- Fixed restoring the clipboard after a paste is performed. Both GUIs now restore the previous clipboard content, after a phrase is pasted.
+
+.. _`#101`: https://github.com/autokey/autokey/issues/101
+
+Scripting API Changes
+---------------------
+
+Additions
++++++++++
+
+- Added a colour picker dialogue to the GTK dialog class, because the used `zenity` now supports it.
+
+    - The result is returned as three integers using the ColourData NamedTuple, providing both index based access and attribute access, using the channel names (`r`, `g`, `b`). Additionally, ColourData provides some conversion methods.
+
+Breaking changes
+++++++++++++++++
+- See Pull request `#148`_. The `dialog` classes for user input in scripts now return typed NamedTuple tuples instead of plain tuples. This change is safe as long as users do not perform needlessly restrictive type checks in their scripts (e.g. `if type(returned_data) == type(tuple()): ...`). User scripts doing so will break.
+- The KDialog based colour picker now also returns a ColourData instance instead of a HTML style hex string, thus making this portable between both GTK and Qt GUIs. AutoKey users previously using the old KDE GUI and using the colour picker dialogue have to port their scripts. A simple fix is using the `html_code` property of the returned ColourData instance.
+
+.. _`#148`: https://github.com/autokey/autokey/pull/148
+
+Fixes
++++++
+- Re-introduce the newline trimming for system.exec_command() function. During the porting to Python 3, the newline trimming was removed, causing users various issues with unexpected newline characters at end of output. Now properly remove the _last_ newline at end of command output. (See issues `#75`_, `#92`_, `#145`_)
+- Applied various code style improvements to the scripting module.
+
+.. _`#75`: https://github.com/autokey/autokey/issues/75
+.. _`#92`: https://github.com/autokey/autokey/issues/92
+.. _`#145`: https://github.com/autokey/autokey/issues/145
+
+Other fixes and improvements
+----------------------------
+- Fix the KDialog based colour picker provided in the scripting API. Newer versions of KDialog require an additional parameter, which is added now.
+- Fixed crashes related to mouse pasting when using the GTK GUI.
+- Both `autokey-gtk` and `autokey-qt` are now automatically generated setuptools entry-points.
+- `autokey-gtk` can now be launched directly from the autokey source tree.
+
+From the shell, `cd` into the `lib` directory, then use
+
+.. code-block:: sh
+
+    <path_to_autokey_source_dir>/lib$ python3 -m autokey.gtkui [-l] [-c]
+    # Or alternatively, to launch autokey-qt use:
+    <path_to_autokey_source_dir>/lib$ python3 -m autokey.qtui [-l] [-c]
+
+
+- Various internal code style improvements at various locations, like added type hints, PEP8 style fixes, etc.
 
 Version 0.94.0 <2018-05-12>
 ===========================
@@ -92,7 +187,7 @@ First release <2014-01-31 Fri>
 This describes some of the changes to the original AutoKey source code.
 
 Python 3 related changes
-++++++++++++++++++++++++
+------------------------
 Python 3 is less tolerant of circular imports so some files were split into several files. Those pieces of the original have their file names prefixed with the original's.
 
 Bug fixes
