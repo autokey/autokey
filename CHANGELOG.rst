@@ -62,8 +62,7 @@ Additions
 +++++++++
 
 - Added a colour picker dialogue to the GTK dialog class, because the used `zenity` now supports it.
-
-    - The result is returned as three integers using the ColourData NamedTuple, providing both index based access and attribute access, using the channel names (`r`, `g`, `b`). Additionally, ColourData provides some conversion methods.
+- The picked colour is returned as three integers using the ColourData NamedTuple, providing both index based access and attribute  access, using the channel names (`r`, `g`, `b`). Additionally, ColourData provides some conversion methods.
 
 Breaking changes
 ++++++++++++++++
@@ -109,10 +108,9 @@ Version 0.94.0 <2018-05-12>
 
 Version 0.93.10 <2017-02-17>
 ============================
-The scripting global storage now returns None if the requested key is not present.
-Improved the error messages in autokey-run. It is now clear that autokey has to run in the background
-for autokey-run to work.
-Added a LICENSE file containing the GPL v3 license terms.
+- The scripting global storage now returns None if the requested key is not present.
+- Improved the error messages in autokey-run. It is now clear that autokey has to run in the background for autokey-run to work.
+- Added a LICENSE file containing the GPL v3 license terms.
 
 Version 0.93.9 <2017-01-11>
 ===========================
@@ -128,6 +126,7 @@ Version 0.93.8 <2017-01-09>
 Version 0.93.7 <2016-12-21>
 ===========================
 This release contains various bug/crash fixes
+
 - Renamed repository from autokey-py3 to autokey
 - Moved the AutoKey source code out of src folder one level up.
 - Removed donate button
@@ -139,7 +138,7 @@ This release contains various bug/crash fixes
 
 Version 0.93.6 <2016-08-13>
 ===========================
-- EnsCompatibility with official python-xlib
+- Ensure Compatibility with official python-xlib
 - Fixed several GTK related warnings
 - GTK GUI:  Add feature to trigger popupmenu items with letters, rather than numbers.
 - Add an AUR link
