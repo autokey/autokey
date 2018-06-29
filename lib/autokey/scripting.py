@@ -102,10 +102,12 @@ class Keyboard:
         
         @param keyString: string of keys (including special keys) to send
         """
-        self.mediator.interface.begin_send()
         assert type(keyString) is str
-        self.mediator.send_string(keyString)
-        self.mediator.interface.finish_send()
+        self.mediator.interface.begin_send()
+        try:
+            self.mediator.send_string(keyString)
+        finally:
+            self.mediator.interface.finish_send()
         
     def send_key(self, key, repeat=1):
         """
@@ -116,7 +118,7 @@ class Keyboard:
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
         """        
-        for x in range(repeat):
+        for _ in range(repeat):
             self.mediator.send_key(key)
         self.mediator.flush()
         
@@ -155,7 +157,7 @@ class Keyboard:
         @param key: they key to be sent (e.g. "s" or "<enter>")
         @param repeat: number of times to repeat the key event
         """
-        for x in range(repeat):
+        for _ in range(repeat):
             self.mediator.fake_keypress(key)
             
     def wait_for_keypress(self, key, modifiers: list=None, timeOut=10.0):

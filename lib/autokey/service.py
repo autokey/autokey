@@ -374,7 +374,7 @@ class Service:
 
 class PhraseRunner:
 
-    def __init__(self, service):
+    def __init__(self, service: Service):
         self.service = service
         self.macroManager = MacroManager(service.scriptRunner.engine)
         self.lastExpansion = None
@@ -383,23 +383,24 @@ class PhraseRunner:
 
     @threaded
     #@synchronized(iomediator.SEND_LOCK)
-    def execute(self, phrase, buffer=''):
-        mediator = self.service.mediator
+    def execute(self, phrase: model.Phrase, buffer=''):
+        mediator = self.service.mediator  # type: IoMediator
         mediator.interface.begin_send()
+        try:
+            expansion = phrase.build_phrase(buffer)
+            self.macroManager.process_expansion(expansion)
 
-        expansion = phrase.build_phrase(buffer)
-        self.macroManager.process_expansion(expansion)
+            mediator.send_backspace(expansion.backspaces)
+            if phrase.sendMode == model.SendMode.KEYBOARD:
+                mediator.send_string(expansion.string)
+            else:
+                mediator.paste_string(expansion.string, phrase.sendMode)
 
-        mediator.send_backspace(expansion.backspaces)
-        if phrase.sendMode == model.SendMode.KEYBOARD:
-            mediator.send_string(expansion.string)
-        else:
-            mediator.paste_string(expansion.string, phrase.sendMode)
-        mediator.interface.finish_send()
-
-        self.lastExpansion = expansion
-        self.lastPhrase = phrase
-        self.lastBuffer = buffer
+            self.lastExpansion = expansion
+            self.lastPhrase = phrase
+            self.lastBuffer = buffer
+        finally:
+            mediator.interface.finish_send()
 
     def can_undo(self):
         if self.lastExpansion is not None:
@@ -415,19 +416,21 @@ class PhraseRunner:
         replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)
         logger.debug("Replay string: %s", replay)
         logger.debug("Erase string: %r", self.lastExpansion.string)
-        mediator = self.service.mediator
+        mediator = self.service.mediator  # type: IoMediator
 
         #mediator.send_right(self.lastExpansion.lefts)
         mediator.interface.begin_send()
-        mediator.remove_string(self.lastExpansion.string)
-        mediator.send_string(replay)
-        mediator.interface.finish_send()
-        self.clear_last()
+        try:
+            mediator.remove_string(self.lastExpansion.string)
+            mediator.send_string(replay)
+            self.clear_last()
+        finally:
+            mediator.interface.finish_send()
 
 
 class ScriptRunner:
 
-    def __init__(self, mediator, app):
+    def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
         self.error = ''
@@ -449,7 +452,7 @@ class ScriptRunner:
         self.engine = self.scope["engine"]
 
     @threaded
-    def execute(self, script, buffer=''):
+    def execute(self, script: model.Script, buffer=''):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
