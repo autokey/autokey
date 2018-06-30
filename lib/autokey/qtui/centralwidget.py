@@ -410,21 +410,24 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.window().cancel_record()
 
     def on_save_log(self):
-        file_name = QFileDialog.getSaveFileName(
+        file_name, _ = QFileDialog.getSaveFileName(  # second return value contains the used file type filter.
             self.window(),
             "Save log file",
             "",
             ""  # TODO: File type filter. Maybe "*.log"?
         )
-        if file_name != "":
+        del _  # We are only interested in the selected file name
+        if file_name:
+            list_widget = self.listWidget  # type: QListWidget
+            item_texts = (list_widget.item(row).text() for row in range(list_widget.count()))
+            log_text = "\n".join(item_texts) + "\n"
             try:
                 with open(file_name, "w") as log_file:
-                    for i in range(self.listWidget.count()):
-                        text = self.listWidget.item(i).text()
-                        log_file.write(text)
-                        log_file.write('\n')
+                    log_file.write(log_text)
             except IOError:
                 logger.exception("Error saving log file")
+            else:
+                self.on_clear_log()  # Error log saved, so clear the previously saved entries
 
     def on_clear_log(self):
         self.listWidget.clear()
@@ -515,15 +518,15 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             new_index = min((removed_index, self.treeWidget.topLevelItemCount() - 1))
             self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(new_index))
 
-    def __deleteHotkeys(self, theItem):
-        if model.TriggerMode.HOTKEY in theItem.modes:
-            self.window().app.hotkey_removed(theItem)
+    def __deleteHotkeys(self, removed_item):
+        if model.TriggerMode.HOTKEY in removed_item.modes:
+            self.window().app.hotkey_removed(removed_item)
 
-        if isinstance(theItem, model.Folder):
-            for subFolder in theItem.folders:
+        if isinstance(removed_item, model.Folder):
+            for subFolder in removed_item.folders:
                 self.__deleteHotkeys(subFolder)
 
-            for item in theItem.items:
+            for item in removed_item.items:
                 if model.TriggerMode.HOTKEY in item.modes:
                     self.window().app.hotkey_removed(item)
 

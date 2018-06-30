@@ -43,7 +43,7 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
     def load(self, phrase):
         self.currentPhrase = phrase
         self.phraseText.setPlainText(phrase.phrase)
-        self.showInTrayCheckbox.setChecked(phrase.showInTrayMenu)
+        self.showInTrayCheckbox.setChecked(phrase.show_in_tray_menu)
 
         for k, v in model.SEND_MODES.items():
             if v == phrase.sendMode:
@@ -65,7 +65,7 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
     def save(self):
         self.settingsWidget.save()
         self.currentPhrase.phrase = str(self.phraseText.toPlainText())
-        self.currentPhrase.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        self.currentPhrase.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
 
         self.currentPhrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
 

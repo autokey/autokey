@@ -3,6 +3,17 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.1 <2018-06-30>
+===========================
+This is a small bug fixing release.
+
+- Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard.
+Make sure to always release the keyboard after grabbing it. See `#72`_, `launchpad_1551054_
+- Qt GUI: Fix saving the content of the log view to a file using the context menu entry.
+- Some small, internal code quality improvements.
+
+.. _`#72`: https://github.com/autokey/autokey/issues/72
+.. _launchpad_1551054: https://bugs.launchpad.net/ubuntu/+source/autokey/+bug/1551054
 Version 0.95.0 <2018-06-28>
 ===========================
 

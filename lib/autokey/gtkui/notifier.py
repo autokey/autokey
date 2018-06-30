@@ -94,11 +94,11 @@ class IndicatorNotifier:
         items = []
 
         for folder in self.configManager.allFolders:
-            if folder.showInTrayMenu:
+            if folder.show_in_tray_menu:
                 folders.append(folder)
         
         for item in self.configManager.allItems:
-            if item.showInTrayMenu:
+            if item.show_in_tray_menu:
                 items.append(item)
                     
         # Construct main menu
@@ -201,11 +201,11 @@ class UnityLauncher(IndicatorNotifier):
 #        items = []
 
 #        for folder in self.configManager.allFolders:
-#            if folder.showInTrayMenu:
+#            if folder.show_in_tray_menu:
 #                folders.append(folder)
 #        
 #        for item in self.configManager.allItems:
-#            if item.showInTrayMenu:
+#            if item.show_in_tray_menu:
 #                items.append(item)
                     
         # Construct main menu

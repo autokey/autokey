@@ -22,6 +22,8 @@ import glob
 import logging
 import json
 import shutil
+import typing
+import enum
 
 from autokey import configmanager as cm
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
@@ -32,44 +34,84 @@ _logger = logging.getLogger("model")
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
-JSON_FILE_PATTERN = "%s/.%s.json"
+JSON_FILE_PATTERN = "{}/.{}.json"
 SPACES_RE = re.compile(r"^ | $")
 
 
-def make_wordchar_re(wordChars):
-    return "[^%s]" % wordChars
+def make_wordchar_re(word_chars: str):
+    return "[^{word_chars}]".format(word_chars=word_chars)
 
 
 def extract_wordchars(regex):
     return regex[2:-1]
 
 
-def get_value_or_default(jsonData, key, default):
-    if key in jsonData:
-        return jsonData[key]
+def get_value_or_default(json_data: dict, key: str, default):
+    if key in json_data:
+        return json_data[key]
     else:
         return default
 
 
-def get_safe_path(basePath, name, ext=""):
+def get_safe_path(base_path, name, ext=""):
     name = SPACES_RE.sub('_', name)
-    safeName = ''.join([char for char in name if char.isalnum() or char in "_ -."])
+    safe_name = ''.join((char for char in name if char.isalnum() or char in "_ -."))
 
-    if safeName == '':
-        path = basePath + '/1' + ext
-        jsonPath = basePath + "/.1.json"
+    if safe_name == '':
+        path = base_path + '/1' + ext
+        jsonPath = base_path + "/.1.json"
         n = 2
     else:
-        path = basePath + '/' + safeName + ext
-        jsonPath = basePath + '/.' + safeName + ".json"
+        path = base_path + '/' + safe_name + ext
+        jsonPath = base_path + '/.' + safe_name + ".json"
         n = 1
 
     while os.path.exists(path) or os.path.exists(jsonPath):
-        path = basePath + '/' + safeName + str(n) + ext
-        jsonPath = basePath + '/.' + safeName + str(n) + ".json"
+        path = base_path + '/' + safe_name + str(n) + ext
+        jsonPath = base_path + '/.' + safe_name + str(n) + ".json"
         n += 1
 
     return path
+
+
+@enum.unique
+class TriggerMode(enum.Enum):
+    """
+    Enumeration class for phrase match modes.
+
+    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
+    ABBREVIATION: Trigger this phrase using an abbreviation.
+    PREDICTIVE: Trigger this phrase using predictive mode.
+    """
+    NONE = 0
+    ABBREVIATION = 1
+    PREDICTIVE = 2
+    HOTKEY = 3
+
+
+class SendMode(enum.Enum):
+    """
+    Enumeration class for phrase send modes
+
+    KEYBOARD: Send using key events
+    CB_CTRL_V: Send via clipboard and paste with Ctrl+v
+    CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
+    SELECTION: Send via X selection and paste with middle mouse button
+    """
+    KEYBOARD = "kb"
+    CB_CTRL_V = Key.CONTROL + "+v"
+    CB_CTRL_SHIFT_V = Key.CONTROL + "+" + Key.SHIFT + "+v"
+    CB_SHIFT_INSERT = Key.SHIFT + "+" + Key.INSERT
+    SELECTION = None
+
+
+SEND_MODES = {
+    "Keyboard": SendMode.KEYBOARD,
+    "Clipboard (Ctrl+V)": SendMode.CB_CTRL_V,
+    "Clipboard (Ctrl+Shift+V)": SendMode.CB_CTRL_SHIFT_V,
+    "Clipboard (Shift+Insert)": SendMode.CB_SHIFT_INSERT,
+    "Mouse Selection": SendMode.SELECTION
+}  # type: typing.Dict[str, SendMode]
 
 
 class AbstractAbbreviation:
@@ -78,7 +120,7 @@ class AbstractAbbreviation:
     """
 
     def __init__(self):
-        self.abbreviations = []
+        self.abbreviations = []  # type: typing.List[str]
         self.backspace = True
         self.ignoreCase = False
         self.immediate = False
@@ -96,11 +138,11 @@ class AbstractAbbreviation:
             }
         return d
 
-    def load_from_serialized(self, data):
+    def load_from_serialized(self, data: dict):
         if "abbreviations" not in data: # check for pre v0.80.4
-            self.abbreviations = [data["abbreviation"]]
+            self.abbreviations = [data["abbreviation"]]  # type: typing.List[str]
         else:
-            self.abbreviations = data["abbreviations"]
+            self.abbreviations = data["abbreviations"]  # type: typing.List[str]
 
         self.backspace = data["backspace"]
         self.ignoreCase = data["ignoreCase"]
@@ -108,7 +150,8 @@ class AbstractAbbreviation:
         self.triggerInside = data["triggerInside"]
         self.set_word_chars(data["wordChars"])
 
-    def copy_abbreviation(self, abbr):
+    def copy_abbreviation(self, abbr  # type: Item
+                          ):
         self.abbreviations = abbr.abbreviations
         self.backspace = abbr.backspace
         self.ignoreCase = abbr.ignoreCase
@@ -134,7 +177,7 @@ class AbstractAbbreviation:
         elif len(self.abbreviations) == 1:
             return self.abbreviations[0]
         else:
-            return "[%s]" % ','.join(self.abbreviations)
+            return "[" + ",".join(self.abbreviations) + "]"
 
     def _should_trigger_abbreviation(self, buffer):
         """
@@ -354,27 +397,27 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     with an abbreviation or hotkey.
     """
 
-    def __init__(self, title, showInTrayMenu=False, path=None):
+    def __init__(self, title: str, show_in_tray_menu: bool=False, path: str=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
         self.title = title
         self.folders = []
-        self.items = []
-        self.modes = []
+        self.items = []  # type: typing.List[Item]
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
-        self.showInTrayMenu = showInTrayMenu
-        self.parent = None
+        self.show_in_tray_menu = show_in_tray_menu
+        self.parent = None  # type: typing.Optional[Folder]
         self.path = path
 
-    def build_path(self, baseName=None):
-        if baseName is None:
-            baseName = self.title
+    def build_path(self, base_name=None):
+        if base_name is None:
+            base_name = self.title
 
         if self.parent is not None:
-            self.path = get_safe_path(self.parent.path, baseName)
+            self.path = get_safe_path(self.parent.path, base_name)
         else:
-            self.path = get_safe_path(cm.CONFIG_DEFAULT_FOLDER, baseName)
+            self.path = get_safe_path(cm.CONFIG_DEFAULT_FOLDER, base_name)
 
     def persist(self):
         if self.path is None:
@@ -390,15 +433,12 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         d = {
             "type": "folder",
             "title": self.title,
-            #"folders": [folder.get_serializable() for folder in self.folders],
-            #"items": [item.get_serializable() for item in self.items],
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
-            "showInTrayMenu": self.showInTrayMenu,
+            "showInTrayMenu": self.show_in_tray_menu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self),
-            #"isTopLevel": self.isTopLevel
             }
         return d
 
@@ -441,15 +481,15 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(inFile)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for %s", self.title)
+            _logger.exception("Error while loading json data for " + self.title)
             _logger.error("JSON data not loaded (or loaded incomplete)")
 
     def inject_json_data(self, data):
         self.title = data["title"]
 
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
-        self.showInTrayMenu = data["showInTrayMenu"]
+        self.show_in_tray_menu = data["showInTrayMenu"]
 
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
@@ -482,7 +522,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def get_tuple(self):
         return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
     def add_folder(self, folder):
@@ -559,47 +599,11 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return cmp(other.title, self.title)"""
 
     def __str__(self):
-        return "folder '%s'" % self.title
+        return "folder '{}'".format(self.title)
 
     def __repr__(self):
         return str(self)
 
-
-class TriggerMode:
-    """
-    Enumeration class for phrase match modes.
-
-    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
-    ABBREVIATION: Trigger this phrase using an abbreviation.
-    PREDICTIVE: Trigger this phrase using predictive mode.
-    """
-    NONE = 0
-    ABBREVIATION = 1
-    PREDICTIVE = 2
-    HOTKEY = 3
-
-class SendMode:
-    """
-    Enumeration class for phrase send modes
-
-    KEYBOARD: Send using key events
-    CB_CTRL_V: Send via clipboard and paste with Ctrl+v
-    CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
-    SELECTION: Send via X selection and paste with middle mouse button
-    """
-    KEYBOARD = "kb"
-    CB_CTRL_V = Key.CONTROL + "+v"
-    CB_CTRL_SHIFT_V = Key.CONTROL + '+' + Key.SHIFT + "+v"
-    CB_SHIFT_INSERT = Key.SHIFT + '+' + Key.INSERT
-    SELECTION = None
-
-SEND_MODES = {
-             "Keyboard" : SendMode.KEYBOARD,
-             "Clipboard (Ctrl+V)" : SendMode.CB_CTRL_V,
-             "Clipboard (Ctrl+Shift+V)" : SendMode.CB_CTRL_SHIFT_V,
-             "Clipboard (Shift+Insert)" : SendMode.CB_SHIFT_INSERT,
-             "Mouse Selection" : SendMode.SELECTION
-             }
 
 class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
@@ -612,53 +616,51 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.phrase = phrase
-        self.modes = []
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
         self.omitTrigger = False
         self.matchCase = False
         self.parent = None
-        self.showInTrayMenu = False
+        self.show_in_tray_menu = False
         self.sendMode = SendMode.KEYBOARD
         self.path = path
 
-    def build_path(self, baseName=None):
-        if baseName is None:
-            baseName = self.description
+    def build_path(self, base_name=None):
+        if base_name is None:
+            base_name = self.description
         else:
-            baseName = baseName[:-4]
-        self.path = get_safe_path(self.parent.path, baseName, ".txt")
+            base_name = base_name[:-4]
+        self.path = get_safe_path(self.parent.path, base_name, ".txt")
 
     def get_json_path(self):
-        directory, baseName = os.path.split(self.path[:-4])
-        return JSON_FILE_PATTERN % (directory, baseName)
+        directory, base_name = os.path.split(self.path[:-4])
+        return JSON_FILE_PATTERN.format(directory, base_name)
 
     def persist(self):
         if self.path is None:
             self.build_path()
 
-        with open(self.get_json_path(), 'w') as jsonFile:
-            json.dump(self.get_serializable(), jsonFile, indent=4)
+        with open(self.get_json_path(), 'w') as json_file:
+            json.dump(self.get_serializable(), json_file, indent=4)
 
-        with open(self.path, "w") as outFile:
-            outFile.write(self.phrase)
-            # outFile.write(self.phrase.encode("utf-8"))
+        with open(self.path, "w") as out_file:
+            out_file.write(self.phrase)
 
     def get_serializable(self):
         d = {
             "type": "phrase",
             "description": self.description,
-            #"phrase": self.phrase,
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
             "prompt": self.prompt,
             "omitTrigger": self.omitTrigger,
             "matchCase": self.matchCase,
-            "showInTrayMenu": self.showInTrayMenu,
+            "showInTrayMenu": self.show_in_tray_menu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self),
-            "sendMode" : self.sendMode
+            "sendMode": self.sendMode.value
             }
         return d
 
@@ -675,33 +677,33 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def load_from_serialized(self):
         try:
-            with open(self.get_json_path(), "r") as jsonFile:
-                data = json.load(jsonFile)
+            with open(self.get_json_path(), "r") as json_file:
+                data = json.load(json_file)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.exception("Error while loading json data for " + self.description)
             _logger.error("JSON data not loaded (or loaded incomplete)")
 
-    def inject_json_data(self, data):
+    def inject_json_data(self, data: dict):
         self.description = data["description"]
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
         self.matchCase = data["matchCase"]
-        self.showInTrayMenu = data["showInTrayMenu"]
-        self.sendMode = get_value_or_default(data, "sendMode", SendMode.KEYBOARD)
+        self.show_in_tray_menu = data["showInTrayMenu"]
+        self.sendMode = SendMode(get_value_or_default(data, "sendMode", SendMode.KEYBOARD))
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
 
     def rebuild_path(self):
         if self.path is not None:
-            oldName = self.path
-            oldJson = self.get_json_path()
+            old_name = self.path
+            old_json = self.get_json_path()
             self.build_path()
-            os.rename(oldName, self.path)
-            os.rename(oldJson, self.get_json_path())
+            os.rename(old_name, self.path)
+            os.rename(old_json, self.get_json_path())
         else:
             self.build_path()
 
@@ -712,31 +714,31 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             if os.path.exists(self.get_json_path()):
                 os.remove(self.get_json_path())
 
-    def copy(self, thePhrase):
-        self.description = thePhrase.description
-        self.phrase = thePhrase.phrase
+    def copy(self, source_phrase):
+        self.description = source_phrase.description
+        self.phrase = source_phrase.phrase
 
         # TODO - re-enable me if restoring predictive functionality
-        #if TriggerMode.PREDICTIVE in thePhrase.modes:
+        #if TriggerMode.PREDICTIVE in source_phrase.modes:
         #    self.modes.append(TriggerMode.PREDICTIVE)
 
-        self.prompt = thePhrase.prompt
-        self.omitTrigger = thePhrase.omitTrigger
-        self.matchCase = thePhrase.matchCase
-        self.parent = thePhrase.parent
-        self.showInTrayMenu = thePhrase.showInTrayMenu
-        self.copy_abbreviation(thePhrase)
-        self.copy_hotkey(thePhrase)
-        self.copy_window_filter(thePhrase)
+        self.prompt = source_phrase.prompt
+        self.omitTrigger = source_phrase.omitTrigger
+        self.matchCase = source_phrase.matchCase
+        self.parent = source_phrase.parent
+        self.show_in_tray_menu = source_phrase.show_in_tray_menu
+        self.copy_abbreviation(source_phrase)
+        self.copy_hotkey(source_phrase)
+        self.copy_window_filter(source_phrase)
 
     def get_tuple(self):
         return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
-    def check_input(self, buffer, windowInfo):
-        if self._should_trigger_window_title(windowInfo):
+    def check_input(self, buffer, window_info):
+        if self._should_trigger_window_title(window_info):
             abbr = False
             predict = False
 
@@ -755,14 +757,14 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.usageCount += 1
         self.parent.increment_usage_count()
         expansion = Expansion(self.phrase)
-        triggerFound = False
+        trigger_found = False
 
         if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
                 abbr = self._get_trigger_abbreviation(buffer)
 
                 stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
-                triggerFound = True
+                trigger_found = True
                 if self.backspace:
                     # determine how many backspaces to send
                     expansion.backspaces = len(abbr) + len(stringAfter)
@@ -784,9 +786,9 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         #if TriggerMode.PREDICTIVE in self.modes:
         #    if self._should_trigger_predictive(buffer):
         #        expansion.string = expansion.string[ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]
-        #        triggerFound = True
+        #        trigger_found = True
 
-        if not triggerFound:
+        if not trigger_found:
             # Phrase could have been triggered from menu - check parents for backspace count
             expansion.backspaces = self.parent.get_backspace_count(buffer)
 
@@ -814,7 +816,6 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 return len(self.modifiers) + 1
 
         return self.parent.calculate_input(buffer)
-
 
     def get_trigger_chars(self, buffer):
         abbr = self._get_trigger_abbreviation(buffer)
@@ -875,10 +876,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             expansion.string = firstpart + secondpart
 
     def __str__(self):
-        return "phrase '%s'" % self.description
+        return "phrase '{}'".format(self.description)
 
     def __repr__(self):
         return "Phrase('" + self.description + "')"
+
 
 class Expansion:
 
@@ -887,70 +889,69 @@ class Expansion:
         self.lefts = 0
         self.backspaces = 0
 
+
 class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Encapsulates all data and behaviour for a script.
     """
 
-    def __init__(self, description, code, path=None):
+    def __init__(self, description: str, source_code: str, path=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
         AbstractWindowFilter.__init__(self)
         self.description = description
-        self.code = code
+        self.code = source_code
         self.store = Store()
-        self.modes = []
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
         self.omitTrigger = False
         self.parent = None
-        self.showInTrayMenu = False
+        self.show_in_tray_menu = False
         self.path = path
 
-    def build_path(self, baseName=None):
-        if baseName is None:
-            baseName = self.description
+    def build_path(self, base_name=None):
+        if base_name is None:
+            base_name = self.description
         else:
-            baseName = baseName[:-3]
-        self.path = get_safe_path(self.parent.path, baseName, ".py")
+            base_name = base_name[:-3]
+        self.path = get_safe_path(self.parent.path, base_name, ".py")
 
     def get_json_path(self):
-        directory, baseName = os.path.split(self.path[:-3])
-        return JSON_FILE_PATTERN % (directory, baseName)
+        directory, base_name = os.path.split(self.path[:-3])
+        return JSON_FILE_PATTERN.format(directory, base_name)
 
     def persist(self):
         if self.path is None:
             self.build_path()
 
-        with open(self.get_json_path(), 'w') as jsonFile:
-            json.dump(self.get_serializable(), jsonFile, indent=4)
+        with open(self.get_json_path(), 'w') as json_file:
+            json.dump(self.get_serializable(), json_file, indent=4)
 
-        with open(self.path, "w") as outFile:
-            outFile.write(self.code)
-            # outFile.write(self.code.encode("utf-8"))
+        with open(self.path, "w") as out_file:
+            out_file.write(self.code)
 
     def get_serializable(self):
         d = {
             "type": "script",
             "description": self.description,
-            #"code": self.code,
             "store": self.store,
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
             "prompt": self.prompt,
             "omitTrigger": self.omitTrigger,
-            "showInTrayMenu": self.showInTrayMenu,
+            "showInTrayMenu": self.show_in_tray_menu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self)
             }
         return d
 
-    def load(self, parent):
+    def load(self, parent: Folder):
         self.parent = parent
 
-        with open(self.path, "r", encoding='UTF-8') as inFile:
-            self.code = inFile.read()
+        with open(self.path, "r", encoding='UTF-8') as in_file:
+            self.code = in_file.read()
 
         if os.path.exists(self.get_json_path()):
             self.load_from_serialized()
@@ -963,17 +964,17 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(jsonFile)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for %s", self.description)
+            _logger.exception("Error while loading json data for " + self.description)
             _logger.error("JSON data not loaded (or loaded incomplete)")
 
-    def inject_json_data(self, data):
+    def inject_json_data(self, data: dict):
         self.description = data["description"]
         self.store = Store(data["store"])
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
-        self.showInTrayMenu = data["showInTrayMenu"]
+        self.show_in_tray_menu = data["showInTrayMenu"]
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
@@ -995,22 +996,22 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             if os.path.exists(self.get_json_path()):
                 os.remove(self.get_json_path())
 
-    def copy(self, theScript):
-        self.description = theScript.description
-        self.code = theScript.code
+    def copy(self, source_script):
+        self.description = source_script.description
+        self.code = source_script.code
 
-        self.prompt = theScript.prompt
-        self.omitTrigger = theScript.omitTrigger
-        self.parent = theScript.parent
-        self.showInTrayMenu = theScript.showInTrayMenu
-        self.copy_abbreviation(theScript)
-        self.copy_hotkey(theScript)
-        self.copy_window_filter(theScript)
+        self.prompt = source_script.prompt
+        self.omitTrigger = source_script.omitTrigger
+        self.parent = source_script.parent
+        self.show_in_tray_menu = source_script.show_in_tray_menu
+        self.copy_abbreviation(source_script)
+        self.copy_hotkey(source_script)
+        self.copy_window_filter(source_script)
 
     def get_tuple(self):
         return "text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
     def check_input(self, buffer, windowInfo):
@@ -1023,7 +1024,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def process_buffer(self, buffer):
         self.usageCount += 1
         self.parent.increment_usage_count()
-        triggerFound = False
+        trigger_found = False
         backspaces = 0
         string = ""
 
@@ -1031,7 +1032,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             if self._should_trigger_abbreviation(buffer):
                 abbr = self._get_trigger_abbreviation(buffer)
                 stringBefore, typedAbbr, stringAfter = self._partition_input(buffer, abbr)
-                triggerFound = True
+                trigger_found = True
                 if self.backspace:
                     # determine how many backspaces to send
                     backspaces = len(abbr) + len(stringAfter)
@@ -1041,8 +1042,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 if not self.omitTrigger:
                     string += stringAfter
 
-
-        if not triggerFound:
+        if not trigger_found:
             # Phrase could have been triggered from menu - check parents for backspace count
             backspaces = self.parent.get_backspace_count(buffer)
 
@@ -1055,7 +1055,10 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return self.description
 
     def __str__(self):
-        return "script '%s'" % self.description
+        return "script '{}'".format(self.description)
 
     def __repr__(self):
         return "Script('" + self.description + "')"
+
+
+Item = typing.Union[Folder, Phrase, Script]
