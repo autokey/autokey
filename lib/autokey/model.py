@@ -23,6 +23,7 @@ import logging
 import json
 import shutil
 import typing
+import enum
 
 from autokey import configmanager as cm
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
@@ -73,6 +74,46 @@ def get_safe_path(base_path, name, ext=""):
     return path
 
 
+@enum.unique
+class TriggerMode(enum.Enum):
+    """
+    Enumeration class for phrase match modes.
+
+    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
+    ABBREVIATION: Trigger this phrase using an abbreviation.
+    PREDICTIVE: Trigger this phrase using predictive mode.
+    """
+    NONE = 0
+    ABBREVIATION = 1
+    PREDICTIVE = 2
+    HOTKEY = 3
+
+
+class SendMode(enum.Enum):
+    """
+    Enumeration class for phrase send modes
+
+    KEYBOARD: Send using key events
+    CB_CTRL_V: Send via clipboard and paste with Ctrl+v
+    CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
+    SELECTION: Send via X selection and paste with middle mouse button
+    """
+    KEYBOARD = "kb"
+    CB_CTRL_V = Key.CONTROL + "+v"
+    CB_CTRL_SHIFT_V = Key.CONTROL + "+" + Key.SHIFT + "+v"
+    CB_SHIFT_INSERT = Key.SHIFT + "+" + Key.INSERT
+    SELECTION = None
+
+
+SEND_MODES = {
+    "Keyboard": SendMode.KEYBOARD,
+    "Clipboard (Ctrl+V)": SendMode.CB_CTRL_V,
+    "Clipboard (Ctrl+Shift+V)": SendMode.CB_CTRL_SHIFT_V,
+    "Clipboard (Shift+Insert)": SendMode.CB_SHIFT_INSERT,
+    "Mouse Selection": SendMode.SELECTION
+}  # type: typing.Dict[str, SendMode]
+
+
 class AbstractAbbreviation:
     """
     Abstract class encapsulating the common functionality of an abbreviation list
@@ -109,8 +150,8 @@ class AbstractAbbreviation:
         self.triggerInside = data["triggerInside"]
         self.set_word_chars(data["wordChars"])
 
-    def copy_abbreviation(self, abbr):
-        abbr = abbr  # type: Item
+    def copy_abbreviation(self, abbr  # type: Item
+                          ):
         self.abbreviations = abbr.abbreviations
         self.backspace = abbr.backspace
         self.ignoreCase = abbr.ignoreCase
@@ -363,7 +404,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.title = title
         self.folders = []
         self.items = []  # type: typing.List[Item]
-        self.modes = []
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.show_in_tray_menu = show_in_tray_menu
         self.parent = None  # type: typing.Optional[Folder]
@@ -392,7 +433,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         d = {
             "type": "folder",
             "title": self.title,
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
             "showInTrayMenu": self.show_in_tray_menu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
@@ -446,7 +487,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def inject_json_data(self, data):
         self.title = data["title"]
 
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.show_in_tray_menu = data["showInTrayMenu"]
 
@@ -481,7 +522,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def get_tuple(self):
         return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
     def add_folder(self, folder):
@@ -564,45 +605,6 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return str(self)
 
 
-class TriggerMode:
-    """
-    Enumeration class for phrase match modes.
-
-    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
-    ABBREVIATION: Trigger this phrase using an abbreviation.
-    PREDICTIVE: Trigger this phrase using predictive mode.
-    """
-    NONE = 0
-    ABBREVIATION = 1
-    PREDICTIVE = 2
-    HOTKEY = 3
-
-
-class SendMode:
-    """
-    Enumeration class for phrase send modes
-
-    KEYBOARD: Send using key events
-    CB_CTRL_V: Send via clipboard and paste with Ctrl+v
-    CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
-    SELECTION: Send via X selection and paste with middle mouse button
-    """
-    KEYBOARD = "kb"
-    CB_CTRL_V = Key.CONTROL + "+v"
-    CB_CTRL_SHIFT_V = Key.CONTROL + '+' + Key.SHIFT + "+v"
-    CB_SHIFT_INSERT = Key.SHIFT + '+' + Key.INSERT
-    SELECTION = None
-
-
-SEND_MODES = {
-             "Keyboard" : SendMode.KEYBOARD,
-             "Clipboard (Ctrl+V)" : SendMode.CB_CTRL_V,
-             "Clipboard (Ctrl+Shift+V)" : SendMode.CB_CTRL_SHIFT_V,
-             "Clipboard (Shift+Insert)" : SendMode.CB_SHIFT_INSERT,
-             "Mouse Selection" : SendMode.SELECTION
-             }
-
-
 class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Encapsulates all data and behaviour for a phrase.
@@ -614,7 +616,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.phrase = phrase
-        self.modes = []
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
         self.omitTrigger = False
@@ -649,7 +651,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         d = {
             "type": "phrase",
             "description": self.description,
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
             "prompt": self.prompt,
             "omitTrigger": self.omitTrigger,
@@ -658,7 +660,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self),
-            "sendMode": self.sendMode
+            "sendMode": self.sendMode.value
             }
         return d
 
@@ -684,13 +686,13 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
         self.matchCase = data["matchCase"]
         self.show_in_tray_menu = data["showInTrayMenu"]
-        self.sendMode = get_value_or_default(data, "sendMode", SendMode.KEYBOARD)
+        self.sendMode = SendMode(get_value_or_default(data, "sendMode", SendMode.KEYBOARD))
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
@@ -732,7 +734,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def get_tuple(self):
         return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
     def check_input(self, buffer, window_info):
@@ -900,7 +902,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.description = description
         self.code = source_code
         self.store = Store()
-        self.modes = []
+        self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
         self.omitTrigger = False
@@ -934,7 +936,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "type": "script",
             "description": self.description,
             "store": self.store,
-            "modes": self.modes,
+            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
             "usageCount": self.usageCount,
             "prompt": self.prompt,
             "omitTrigger": self.omitTrigger,
@@ -968,7 +970,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def inject_json_data(self, data: dict):
         self.description = data["description"]
         self.store = Store(data["store"])
-        self.modes = data["modes"]
+        self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
         self.omitTrigger = data["omitTrigger"]
@@ -1009,7 +1011,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def get_tuple(self):
         return "text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
 
-    def set_modes(self, modes):
+    def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
     def check_input(self, buffer, windowInfo):

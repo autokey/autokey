@@ -5,6 +5,7 @@ import logging
 from ..configmanager import ConfigManager
 from ..configmanager_constants import INTERFACE_TYPE
 from ..interface import XRecordInterface, AtSpiInterface
+from autokey.model import SendMode
 
 from .key import Key
 from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
@@ -159,7 +160,7 @@ class IoMediator(threading.Thread):
                             
         self.__reapplyModifiers()
         
-    def paste_string(self, string, pasteCommand):
+    def paste_string(self, string, pasteCommand: SendMode):
         if len(string) > 0:
             _logger.debug("Send via clipboard")
             self.interface.send_string_clipboard(string, pasteCommand)

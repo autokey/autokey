@@ -348,10 +348,10 @@ class Service:
 
 
     def __haveMatch(self, data):
-        folderMatch, itemMatches = data
-        if folderMatch is not None:
+        folder_match, item_matches = data
+        if folder_match is not None:
             return True
-        if len(itemMatches) > 0:
+        if len(item_matches) > 0:
             return True
 
         return False
@@ -435,9 +435,9 @@ class ScriptRunner:
         self.app = app
         self.error = ''
         self.scope = globals()
-        self.scope["highlevel"]= scripting_highlevel
-        self.scope["keyboard"]= scripting.Keyboard(mediator)
-        self.scope["mouse"]= scripting.Mouse(mediator)
+        self.scope["highlevel"] = scripting_highlevel
+        self.scope["keyboard"] = scripting.Keyboard(mediator)
+        self.scope["mouse"] = scripting.Mouse(mediator)
         self.scope["system"] = scripting.System()
         self.scope["window"] = scripting.Window(mediator)
         self.scope["engine"] = scripting.Engine(app.configManager, self)

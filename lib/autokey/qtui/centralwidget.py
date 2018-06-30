@@ -515,15 +515,15 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             new_index = min((removed_index, self.treeWidget.topLevelItemCount() - 1))
             self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(new_index))
 
-    def __deleteHotkeys(self, theItem):
-        if model.TriggerMode.HOTKEY in theItem.modes:
-            self.window().app.hotkey_removed(theItem)
+    def __deleteHotkeys(self, removed_item):
+        if model.TriggerMode.HOTKEY in removed_item.modes:
+            self.window().app.hotkey_removed(removed_item)
 
-        if isinstance(theItem, model.Folder):
-            for subFolder in theItem.folders:
+        if isinstance(removed_item, model.Folder):
+            for subFolder in removed_item.folders:
                 self.__deleteHotkeys(subFolder)
 
-            for item in theItem.items:
+            for item in removed_item.items:
                 if model.TriggerMode.HOTKEY in item.modes:
                     self.window().app.hotkey_removed(item)
 
