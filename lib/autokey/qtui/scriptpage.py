@@ -58,7 +58,7 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
         self.current_script = script
         self.scriptCodeEditor.clear()
         self.scriptCodeEditor.append(script.code)
-        self.showInTrayCheckbox.setChecked(script.showInTrayMenu)
+        self.showInTrayCheckbox.setChecked(script.show_in_tray_menu)
         self.promptCheckbox.setChecked(script.prompt)
         self.settingsWidget.load(script)
         self.window().set_undo_available(False)
@@ -73,7 +73,7 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
     def save(self):
         self.settingsWidget.save()
         self.current_script.code = str(self.scriptCodeEditor.text())
-        self.current_script.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        self.current_script.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
 
         self.current_script.persist()
         set_url_label(self.urlLabel, self.current_script.path)

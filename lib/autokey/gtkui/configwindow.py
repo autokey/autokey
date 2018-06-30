@@ -351,7 +351,7 @@ class FolderPage:
 
     def load(self, theFolder):
         self.currentFolder = theFolder
-        self.showInTrayCheckbox.set_active(theFolder.showInTrayMenu)
+        self.showInTrayCheckbox.set_active(theFolder.show_in_tray_menu)
         self.settingsWidget.load(theFolder)
 
         if self.is_new_item():
@@ -361,7 +361,7 @@ class FolderPage:
             set_linkbutton(self.linkButton, self.currentFolder.path)
 
     def save(self):
-        self.currentFolder.showInTrayMenu = self.showInTrayCheckbox.get_active()
+        self.currentFolder.show_in_tray_menu = self.showInTrayCheckbox.get_active()
         self.settingsWidget.save()
         self.currentFolder.persist()
         set_linkbutton(self.linkButton, self.currentFolder.path)
@@ -457,7 +457,7 @@ class ScriptPage:
         self.buffer.place_cursor(self.buffer.get_start_iter())
 
         self.promptCheckbox.set_active(theScript.prompt)
-        self.showInTrayCheckbox.set_active(theScript.showInTrayMenu)
+        self.showInTrayCheckbox.set_active(theScript.show_in_tray_menu)
         self.settingsWidget.load(theScript)
 
         if self.is_new_item():
@@ -470,7 +470,7 @@ class ScriptPage:
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)
 
         self.currentItem.prompt = self.promptCheckbox.get_active()
-        self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
+        self.currentItem.show_in_tray_menu = self.showInTrayCheckbox.get_active()
 
         self.settingsWidget.save()
         self.currentItem.persist()
@@ -638,7 +638,7 @@ class PhrasePage(ScriptPage):
         self.buffer.place_cursor(self.buffer.get_start_iter())
 
         self.promptCheckbox.set_active(thePhrase.prompt)
-        self.showInTrayCheckbox.set_active(thePhrase.showInTrayMenu)
+        self.showInTrayCheckbox.set_active(thePhrase.show_in_tray_menu)
         self.settingsWidget.load(thePhrase)
 
         if self.is_new_item():
@@ -660,7 +660,7 @@ class PhrasePage(ScriptPage):
                                                         self.buffer.get_end_iter(), False)#.decode("utf-8")
 
         self.currentItem.prompt = self.promptCheckbox.get_active()
-        self.currentItem.showInTrayMenu = self.showInTrayCheckbox.get_active()
+        self.currentItem.show_in_tray_menu = self.showInTrayCheckbox.get_active()
         self.currentItem.sendMode = model.SEND_MODES[self.sendModeCombo.get_active_text()]
 
         self.settingsWidget.save()

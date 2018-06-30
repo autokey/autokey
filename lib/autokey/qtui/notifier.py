@@ -118,8 +118,8 @@ class Notifier(QSystemTrayIcon):
         """
         # Get phrase folders to add to main menu
         logger.info("Rebuilding model item actions, adding all items marked for access through the tray icon.")
-        folders = [folder for folder in self.config_manager.allFolders if folder.showInTrayMenu]
-        items = [item for item in self.config_manager.allItems if item.showInTrayMenu]
+        folders = [folder for folder in self.config_manager.allFolders if folder.show_in_tray_menu]
+        items = [item for item in self.config_manager.allItems if item.show_in_tray_menu]
         # Only extract the QActions, but discard the PopupMenu instance.
         menu = popupmenu.PopupMenu(self.app.service, folders, items, False, "AutoKey")
         new_item_actions = menu.actions()

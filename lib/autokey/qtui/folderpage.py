@@ -42,7 +42,7 @@ class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
 
     def load(self, folder: Folder):
         self.current_folder = folder
-        self.showInTrayCheckbox.setChecked(folder.showInTrayMenu)
+        self.showInTrayCheckbox.setChecked(folder.show_in_tray_menu)
         self.settingsWidget.load(folder)
 
         if self.is_new_item():
@@ -52,7 +52,7 @@ class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
             ui_common.set_url_label(self.urlLabel, self.current_folder.path)
 
     def save(self):
-        self.current_folder.showInTrayMenu = self.showInTrayCheckbox.isChecked()
+        self.current_folder.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
         self.settingsWidget.save()
         self.current_folder.persist()
         ui_common.set_url_label(self.urlLabel, self.current_folder.path)
