@@ -3,7 +3,7 @@ autokey (0.95.1-0) bionic; urgency=medium
   * Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard. Make sure to always release the keyboard after grabbing it.
   * [Qt]: Fix saving the content of the log view to a file using the context menu entry.
 
-  -- Thomas Hess <thomas.hess@udo.edu>  Sat, 30 Jun 2018 23:02:19 +0200
+ -- Thomas Hess <thomas.hess@udo.edu>  Sat, 30 Jun 2018 23:02:19 +0200
 
 autokey (0.95.0-0) bionic; urgency=medium
 
