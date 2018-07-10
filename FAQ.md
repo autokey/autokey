@@ -54,9 +54,9 @@ Caps lock key is really out of autokey's scope, you just need to use other utili
 ### Where is my configuration information stored? Can I move those to other machines?
 By default AutoKey stores your settings under ~/.config/autokey. You can of course create AutoKey folders anywhere you wish as well, using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favourite file manager, or synchronised using a program such as Dropbox. Please remember to also copy the hidden files as each macro and phrase has one.
 
-### Using Dates in Macros
+### Using Dates in Scripts
 
-Users frequently need to use the date or time in a macro.
+Users frequently need to use the date or time in a script.
 
 The easiest way to get and process a date is by using the Python time or datetime modules.
 
@@ -72,7 +72,7 @@ You can also do things like run the system date command
     output = system.exec_command(commandstr)
     keyboard.send_keys(output)
 
-but this creates another process and makes your macro dependent on the behavior of the external command with respect to both its output format and any error conditions it may generate.
+but this creates another process and makes your script dependent on the behavior of the external command with respect to both its output format and any error conditions it may generate.
 
 Background
 
