@@ -26,12 +26,49 @@ Displays the information of the active window after 2 seconds
     winClass = window.get_active_class()
     dialog.info_dialog("Window information", "Active window information:\\nTitle: '%s'\\nClass: '%s'" % (winTitle, winClass))
 
-### Insert Current Date/Time
+### Using Dates in Scripts
+
+Users frequently need to use the date or time in a script.
+
+The easiest way to get and process a date is by using the Python time or datetime modules.
+
+    import time
+    output = time.strftime("date %Y:%m:%d")
+    keyboard.send_keys(output)
+
+If you need a specific time other than "now", Python will be happy to oblige, but setting that up is a separate (purely Python) topic with many options. (See links at end.)
+
+You can also do things like run the system date command.
 
 This script uses the simplified system.exec_command() function to execute the Unix date program, get the output, and send it via keyboard output
 
     output = system.exec_command("date")
     keyboard.send_keys(output)
+
+or, with more options
+
+    commandstr="date "+%Y-%m-%d" --date="next sun""
+    output = system.exec_command(commandstr)
+    keyboard.send_keys(output)
+
+but this creates another process and makes your script dependent on the behavior of the external command with respect to both its output format and any error conditions it may generate.
+
+#### Background
+
+Time itself is stored in binary format (from man clock_gettime(3)):
+
+           All  implementations  support  the system-wide real-time clock, which is identified by CLOCK_REALTIME.  Its time represents
+           seconds and nanoseconds since the Epoch.
+
+Since this is essentially a really big integer, it is a handy form to use for calculations involving time. The Linux *date* command (and the Python *strftime()* function) understands this format and will happily convert from and to various other formats - probably using the same or a very similar *strftime* utility.
+
+See:
+
+datetime https://docs.python.org/3/library/datetime.html
+
+time https://docs.python.org/3/library/time.html#module-time
+
+for all the gory details.
 
 ### List Menu
 
