@@ -16,6 +16,7 @@ We are including the glossary of AutoKey terms at the beginning of the users man
 - **script** - a small program written in Python. It can start other programs, send commands to a running window, re-size your window, reposition your cursor after execution, etc.
 - **tray menu** - pop-up menu that appears when the AutoKey icon is clicked.
 - **triggers** - hotkeys and typed abbreviations.
+- **macro** - A special `<tag>` that can be placed inside a phrase, turning the phrase into a dynamic phrase. Upon phrase expansion, the tags are replaced with text. For example, the `date` tag is replaced with the current date and time. For details, see [Dynamic Phrases, Using Macros as placeholders in Phrases](../Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
 
 ## Why Would You Use AutoKey And What Does It Do For You?
 
