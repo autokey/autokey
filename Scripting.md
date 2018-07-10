@@ -31,7 +31,7 @@ Displays the information of the active window after 2 seconds
 This script uses the simplified system.exec_command() function to execute the Unix date program, get the output, and send it via keyboard output
 
     output = system.exec_command("date")
-keyboard.send_keys(output)
+    keyboard.send_keys(output)
 
 ### List Menu
 
