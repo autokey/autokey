@@ -53,3 +53,40 @@ Caps lock key is really out of autokey's scope, you just need to use other utili
 
 ### Where is my configuration information stored? Can I move those to other machines?
 By default AutoKey stores your settings under ~/.config/autokey. You can of course create AutoKey folders anywhere you wish as well, using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favourite file manager, or synchronised using a program such as Dropbox. Please remember to also copy the hidden files as each macro and phrase has one.
+
+### Using Dates in Macros
+
+Users frequently need to use the date or time in a macro.
+
+The easiest way to get and process a date is by using the Python time or datetime modules.
+
+    `import time
+    output = time.strftime("date %Y:%m:%d")
+    keyboard.send_keys(output)`
+
+If you need a specific time other than "now", Python will be happy to oblige, but setting that up is a separate (purely Python) topic with many options. (See links at end.)
+
+You can also do things like run the system date command 
+
+    `commandstr="date "+%Y-%m-%d" --date="next sun""
+    output = system.exec_command(commandstr)
+    keyboard.send_keys(output)`
+
+but this creates another process and makes your macro dependent on the behavior of the external command with respect to both its output format and any error conditions it may generate.
+
+Background
+
+Time itself is stored in binary format (from man clock_gettime(3)):
+
+           All  implementations  support  the system-wide real-time clock, which is identified by CLOCK_REALTIME.  Its time represents
+           seconds and nanoseconds since the Epoch.
+
+Since this is essentially a really big integer, it is a handy form to use for calculations involving time. The Linux *date* command (and the Python *strftime()* function) understands this format and will happily convert from and to various other formats - probably using the same or a very similar *strftime* utility.
+
+See:
+
+datetime https://docs.python.org/3/library/datetime.html
+
+time https://docs.python.org/3/library/time.html#module-time
+
+for all the gory details.
