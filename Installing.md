@@ -119,14 +119,7 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
     
 ## Installing Debian dependencies<a name="Installing-Debian-dependencies"></a>
 
-(Under construction - Please submit corrections/feedback)
-
-`apt install gir1.2-appindicator3-0.1`
-
-`apt install python3-dbus python-pynotify python-xlib python3-gi libdbus-glib-1-dev`
-
-PyGTK - unsure of package name
-
+[Details here](https://github.com/autokey/autokey/wiki/FAQ#what-are-the-dependency-packages-for-autokey)
 
 November 2011
 Original author, Keith W. Daniels
