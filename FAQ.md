@@ -60,17 +60,17 @@ Users frequently need to use the date or time in a macro.
 
 The easiest way to get and process a date is by using the Python time or datetime modules.
 
-    `import time
+    import time
     output = time.strftime("date %Y:%m:%d")
-    keyboard.send_keys(output)`
+    keyboard.send_keys(output)
 
 If you need a specific time other than "now", Python will be happy to oblige, but setting that up is a separate (purely Python) topic with many options. (See links at end.)
 
 You can also do things like run the system date command 
 
-    `commandstr="date "+%Y-%m-%d" --date="next sun""
+    commandstr="date "+%Y-%m-%d" --date="next sun""
     output = system.exec_command(commandstr)
-    keyboard.send_keys(output)`
+    keyboard.send_keys(output)
 
 but this creates another process and makes your macro dependent on the behavior of the external command with respect to both its output format and any error conditions it may generate.
 
