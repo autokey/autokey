@@ -52,4 +52,4 @@ The default trigger characters are dependent on your locale. They are any charac
 Caps lock key is really out of autokey's scope, you just need to use other utilities to get the desired effect.
 
 ### Where is my configuration information stored? Can I move those to other machines?
-By default AutoKey stores your settings under ~/.config/autokey. You can of course create AutoKey folders anywhere you wish as well, using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favourite file manager, or synchronised using a program such as Dropbox.
+By default AutoKey stores your settings under ~/.config/autokey. You can of course create AutoKey folders anywhere you wish as well, using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favourite file manager, or synchronised using a program such as Dropbox. Please remember to also copy the hidden files as each macro and phrase has one.
