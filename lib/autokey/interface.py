@@ -192,8 +192,8 @@ class XInterfaceBase(threading.Thread):
         self.setName("XInterface-thread")
         self.mediator = mediator  # type: IoMediator
         self.app = app
-        self.lastChars = [] # QT4 Workaround
-        self.__enableQT4Workaround = False # QT4 Workaround
+        self.lastChars = []  # QT4 Workaround
+        self.__enableQT4Workaround = False  # QT4 Workaround
         self.shutdown = False
         
         # Event loop
@@ -468,13 +468,11 @@ class XInterfaceBase(threading.Thread):
             window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
 
             if Key.NUMLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
-
+                mask |= self.modMasks[Key.NUMLOCK]
             if Key.CAPSLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+                mask |= self.modMasks[Key.CAPSLOCK]
 
-            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+            window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
 
         except Exception as e:
             logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
