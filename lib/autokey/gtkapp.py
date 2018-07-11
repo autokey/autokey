@@ -45,7 +45,7 @@ from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
-from . import configmanager as cm
+from autokey import configmanager as cm
 
 PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
 DESCRIPTION = _("Desktop automation utility")
@@ -103,15 +103,12 @@ class Application:
             sys.exit(1)
 
     def __createLockFile(self):
-        # TODO: with-statement
-        f = open(common.LOCK_FILE, 'w')
-        f.write(str(os.getpid()))
-        f.close()
+        with open(common.LOCK_FILE, "w") as lock_file:
+            lock_file.write(str(os.getpid()))
 
     def __verifyNotRunning(self):
         if os.path.exists(common.LOCK_FILE):
-            with open(common.LOCK_FILE, 'r') as f:
-                pid = f.read()
+            pid = Application._read_pid_from_lock_file()
 
             # Check that the found PID is running and is autokey
             with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
@@ -123,7 +120,7 @@ class Application:
 
                 try:
                     dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface = "org.autokey.Service")
+                    dbusService.show_configure(dbus_interface="org.autokey.Service")
                     sys.exit(0)
                 except dbus.DBusException as e:
                     logging.exception("Error communicating with Dbus service")
@@ -131,6 +128,11 @@ class Application:
                     sys.exit(1)
 
         return True
+
+    @staticmethod
+    def _read_pid_from_lock_file() -> str:
+        with open(common.LOCK_FILE, 'r') as lock_file:
+            return lock_file.read()
 
     def initialise(self, configure):
         logging.info("Initialising application")
@@ -158,7 +160,8 @@ class Application:
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.dbusService = common.AppService(self)
 
-        if configure: self.show_configure()
+        if configure:
+            self.show_configure()
 
     def init_global_hotkeys(self, configManager):
         logging.info("Initialise global hotkeys")
