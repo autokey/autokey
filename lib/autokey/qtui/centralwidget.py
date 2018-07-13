@@ -236,7 +236,8 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
     def on_new_phrase(self):
         self.window().app.monitor.suspend()
-        parent_item = self.treeWidget.selectedItems()[0]
+        tree_widget = self.treeWidget  # type: ak_tree.AkTreeWidget
+        parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
         phrase = model.Phrase("New Phrase", "Enter phrase contents")
@@ -245,15 +246,17 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         phrase.persist()
 
         self.window().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(new_item)
-        self.treeWidget.setItemSelected(parent_item, False)
+
+        tree_widget.sortItems(0, Qt.AscendingOrder)
+        tree_widget.setCurrentItem(new_item)
+        parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
 
     def on_new_script(self):
         self.window().app.monitor.suspend()
-        parent_item = self.treeWidget.selectedItems()[0]
+        tree_widget = self.treeWidget  # type: ak_tree.AkTreeWidget
+        parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
         script = model.Script("New Script", "#Enter script code")
@@ -262,9 +265,9 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         script.persist()
 
         self.window().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(new_item)
-        self.treeWidget.setItemSelected(parent_item, False)
+        tree_widget.sortItems(0, Qt.AscendingOrder)
+        tree_widget.setCurrentItem(new_item)
+        parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
 
@@ -287,7 +290,8 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
     def on_clone(self):
         source_object = self.__getSelection()[0]
-        parent_item = self.treeWidget.selectedItems()[0].parent()
+        tree_widget = self.treeWidget  # type: ak_tree.AkTreeWidget
+        parent_item = tree_widget.selectedItems()[0].parent()  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
         if isinstance(source_object, model.Phrase):
@@ -304,9 +308,9 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         new_obj.persist()
 
         self.window().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
-        self.treeWidget.setCurrentItem(new_item)
-        self.treeWidget.setItemSelected(parent_item, False)
+        tree_widget.sortItems(0, Qt.AscendingOrder)
+        tree_widget.setCurrentItem(new_item)
+        parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
         self.window().app.config_altered(False)
 
@@ -349,7 +353,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.on_treeWidget_itemSelectionChanged()
         self.cutCopiedItems = []
         for item in new_items:
-            self.treeWidget.setItemSelected(item, True)
+            item.setSelected(True)
         self.window().app.monitor.unsuspend()
         self.window().app.config_altered(False)
 
