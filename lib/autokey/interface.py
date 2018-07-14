@@ -87,14 +87,6 @@ NUMLOCK_LEDMASK = 1<<1
 from typing import Union
 
 
-def str_or_bytes_to_str(x: Union[str, bytes]) -> str:
-    if type(x) == bytes:
-        return x.decode("utf8")
-    if type(x) == str:
-        return x
-    raise RuntimeError("x must be str or bytes object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
-
-
 def str_or_bytes_to_bytes(x: Union[str, bytes, memoryview]) -> bytes:
     if type(x) == bytes:
         # logger.info("using LiuLang's python3-xlib")
@@ -977,10 +969,10 @@ class XInterfaceBase(threading.Thread):
 
     def __checkWorkaroundNeeded(self):
         focus = self.localDisplay.get_input_focus().focus
-        windowName = self.get_window_title(focus)
-        windowClass = self.get_window_class(focus)
+        window_title = self.get_window_title(focus)
+        window_class = self.get_window_class(focus)
         w = self.app.configManager.workAroundApps
-        if w.match(str_or_bytes_to_str(windowName)) or w.match(windowClass):
+        if w.match(window_title) or w.match(window_class):
             self.__enableQT4Workaround = True
         else:
             self.__enableQT4Workaround = False

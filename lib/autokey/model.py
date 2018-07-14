@@ -329,11 +329,11 @@ class AbstractWindowFilter:
 
         return None
 
-    def _should_trigger_window_title(self, windowInfo):
-        from . import interface
+    def _should_trigger_window_title(self, window_info):
+        window_title, window_class = window_info
         r = self.get_applicable_regex()
         if r is not None:
-            return r.match(interface.str_or_bytes_to_str(windowInfo[0])) or r.match(windowInfo[1])
+            return r.match(window_title) or r.match(window_class)
         else:
             return True
 
