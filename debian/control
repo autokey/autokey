@@ -6,9 +6,15 @@ XSBC-Original-Maintainer: Troy C. (Ubuntu PPA) <ubuntu.troxor@xoxy.net>
 Build-Depends:
 	python3-all,
 	python3-setuptools,
+	python3-dbus,
+	python3-xlib,
+	python3-gi,
+	gir1.2-gtk-3.0,
 	dh-python,
 	debhelper,
-	pyqt5-dev-tools
+	pyqt5-dev-tools,
+	python3-pyqt5.qsci,
+	python3-pyqt5.qtsvg
 Standards-Version: 3.9.7
 Vcs-Git: https://github.com/autokey/autokey.git
 Homepage: https://github.com/autokey/autokey
@@ -41,16 +47,16 @@ Section: gnome
 Architecture: all
 Homepage: https://github.com/autokey/autokey
 Depends:
-    ${python3:Depends},
-    ${misc:Depends},
-    python3-gi,
-    gir1.2-gtk-3.0,
-    gir1.2-gtksource-3.0,
-    gir1.2-appindicator3-0.1,
-    gir1.2-glib-2.0,
-    gir1.2-notify-0.7,
-    zenity (>=2.31.3-0~0),
-    autokey-common (= ${binary:Version})
+	${python3:Depends},
+	${misc:Depends},
+	python3-gi,
+	gir1.2-gtk-3.0,
+	gir1.2-gtksource-3.0,
+	gir1.2-appindicator3-0.1,
+	gir1.2-glib-2.0,
+	gir1.2-notify-0.7,
+	zenity (>=2.31.3-0~0),
+	autokey-common (= ${binary:Version})
 Replaces: autokey (<<0.61.4-0~0), autokey-gtk (<<${binary:Version})
 Breaks: autokey (<<0.61.4-0~0)
 Description: desktop automation utility - GTK+ version
@@ -67,12 +73,12 @@ Section: kde
 Architecture: all
 Homepage: https://github.com/autokey/autokey
 Depends:
-    ${python3:Depends},
-    ${misc:Depends},
-    python3-pyqt5,
-    python3-pyqt5.qsci,
-    python3-pyqt5.qtsvg,
-    autokey-common (= ${binary:Version})
+	${python3:Depends},
+	${misc:Depends},
+	python3-pyqt5,
+	python3-pyqt5.qsci,
+	python3-pyqt5.qtsvg,
+	autokey-common (= ${binary:Version})
 Recommends: kdialog
 Replaces: autokey (<<0.61.4-0~0), autokey-qt (<< ${binary:Version})
 Breaks: autokey (<<0.61.4-0~0)
