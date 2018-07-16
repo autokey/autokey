@@ -88,17 +88,16 @@ def get_config_manager(autoKeyApp, hadError=False):
     return configManager
 
 
-def save_config(configManager):
+def save_config(config_manager):
     _logger.info("Persisting configuration")
-    configManager.app.monitor.suspend() 
+    config_manager.app.monitor.suspend()
     # Back up configuration if it exists
     # TODO: maybe use with-statement instead of try-except?
     if os.path.exists(CONFIG_FILE):
         _logger.info("Backing up existing config file")
         shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
-        outFile = open(CONFIG_FILE, "w")
-        json.dump(configManager.get_serializable(), outFile, indent=4)
+        _persist_settings(config_manager)
         _logger.info("Finished persisting configuration - no errors")
     except Exception as e:
         if os.path.exists(CONFIG_FILE_BACKUP):
@@ -106,8 +105,57 @@ def save_config(configManager):
         _logger.exception("Error while saving configuration. Backup has been restored (if found).")
         raise Exception("Error while saving configuration. Backup has been restored (if found).")
     finally:
-        outFile.close()
-        configManager.app.monitor.unsuspend() 
+        config_manager.app.monitor.unsuspend()
+
+
+def _persist_settings(config_manager):
+    """
+    Write the settings, including the persistent global script Store.
+    The Store instance might contain arbitrary user data, like function objects, OpenCL contexts, or whatever other
+    non-serializable objects, both as keys or values.
+    Try to serialize the data, and if it fails, fall back to checking the store and removing all non-serializable
+    data.
+    """
+    serializable_data = config_manager.get_serializable()
+    try:
+        _try_persist_settings(serializable_data)
+    except TypeError:
+        # The user added non-serializable data to the store, so remove all non-serializable keys or values.
+        _remove_non_serializable_store_entries(serializable_data["settings"][SCRIPT_GLOBALS])
+        _try_persist_settings(serializable_data)
+
+
+def _try_persist_settings(serializable_data: dict):
+    """Write the settings as JSON to the configuration file"""
+    with open(CONFIG_FILE, "w") as json_file:
+            json.dump(serializable_data, json_file, indent=4)
+
+
+def _remove_non_serializable_store_entries(store: dict):
+    """
+    This function is called if there are non-serializable items in the global script storage.
+    This function removes all such items.
+    """
+    removed_key_list = []
+    for key, value in store.items():
+        if not (_is_serializable(key) and _is_serializable(value)):
+            _logger.info("Remove non-serializable item from the global script store. Key: '{}', Value: '{}'. "
+                         "This item cannot be saved and therefore will be lost.".format(
+                            key, value
+            ))
+            removed_key_list.append(key)
+    for key in removed_key_list:
+        del store[key]
+
+
+def _is_serializable(data):
+    """Check, if data is json serializable."""
+    try:
+        json.dumps(data)
+    except TypeError:
+        return False
+    else:
+        return True
 
 
 def apply_settings(settings):

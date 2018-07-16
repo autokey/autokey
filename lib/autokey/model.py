@@ -46,13 +46,6 @@ def extract_wordchars(regex):
     return regex[2:-1]
 
 
-def get_value_or_default(json_data: dict, key: str, default):
-    if key in json_data:
-        return json_data[key]
-    else:
-        return default
-
-
 def get_safe_path(base_path, name, ext=""):
     name = SPACES_RE.sub('_', name)
     safe_name = ''.join((char for char in name if char.isalnum() or char in "_ -."))
@@ -692,7 +685,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.omitTrigger = data["omitTrigger"]
         self.matchCase = data["matchCase"]
         self.show_in_tray_menu = data["showInTrayMenu"]
-        self.sendMode = SendMode(get_value_or_default(data, "sendMode", SendMode.KEYBOARD))
+        self.sendMode = SendMode(data.get("sendMode", SendMode.KEYBOARD))
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
@@ -925,8 +918,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if self.path is None:
             self.build_path()
 
-        with open(self.get_json_path(), 'w') as json_file:
-            json.dump(self.get_serializable(), json_file, indent=4)
+        self._persist_metadata()
 
         with open(self.path, "w") as out_file:
             out_file.write(self.code)
@@ -947,10 +939,56 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             }
         return d
 
+    def _persist_metadata(self):
+        """
+        Write all script meta-data, including the persistent script Store.
+        The Store instance might contain arbitrary user data, like function objects, OpenCL contexts, or whatever other
+        non-serializable objects, both as keys or values.
+        Try to serialize the data, and if it fails, fall back to checking the store and removing all non-serializable
+        data.
+        """
+        serializable_data = self.get_serializable()
+        try:
+            self._try_persist_metadata(serializable_data)
+        except TypeError:
+            # The user added non-serializable data to the store, so skip all non-serializable keys or values.
+            cleaned_data = Script._remove_non_serializable_store_entries(serializable_data["store"])
+            self._try_persist_metadata(cleaned_data)
+
+    def _try_persist_metadata(self, serializable_data: dict):
+        with open(self.get_json_path(), "w") as json_file:
+                json.dump(serializable_data, json_file, indent=4)
+
+    @staticmethod
+    def _remove_non_serializable_store_entries(store: Store) -> dict:
+        """
+        Copy all serializable data into a new dict, and skip the rest.
+        This makes sure to keep the items during runtime, even if the user edits and saves the script.
+        """
+        cleaned_store_data = {}
+        for key, value in store.items():
+            if Script._is_serializable(key) and Script._is_serializable(value):
+                cleaned_store_data[key] = value
+            else:
+                _logger.info("Skip non-serializable item in the local script store. Key: '{}', Value: '{}'. "
+                             "This item cannot be saved and therefore will be lost when autokey quits.".format(
+                                key, value
+                ))
+        return cleaned_store_data
+
+    @staticmethod
+    def _is_serializable(data):
+        try:
+            json.dumps(data)
+        except TypeError:
+            return False
+        else:
+            return True
+
     def load(self, parent: Folder):
         self.parent = parent
 
-        with open(self.path, "r", encoding='UTF-8') as in_file:
+        with open(self.path, "r", encoding="UTF-8") as in_file:
             self.code = in_file.read()
 
         if os.path.exists(self.get_json_path()):
@@ -958,7 +996,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         else:
             self.description = os.path.basename(self.path)[:-3]
 
-    def load_from_serialized(self):
+    def load_from_serialized(self, **kwargs):
         try:
             with open(self.get_json_path(), "r") as jsonFile:
                 data = json.load(jsonFile)

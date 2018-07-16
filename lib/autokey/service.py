@@ -102,7 +102,8 @@ class Service:
     def shutdown(self, save=True):
         logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
-        if save: save_config(self.configManager)
+        if save:
+            save_config(self.configManager)
         logger.debug("Service shutdown completed.")
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
