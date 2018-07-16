@@ -3,6 +3,14 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.2 <2018-07-16>
+===========================
+
+- Fix broken imports in autokey-shell script
+- Skip non-json-serializable data in script storage (both script local and global) during saving. This allows putting non-serializable items (like function objects) into the store without crashing autokey during saving.
+- [Qt] Fix minor bug when creating new items. Created items are now properly selected for renaming directly after creation.
+- Minor code simplifications. Removed unnecessary functions that were obsoleted during prior changes.
+
 Version 0.95.1 <2018-06-30>
 ===========================
 This is a small bug fixing release.

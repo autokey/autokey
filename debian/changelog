@@ -1,7 +1,17 @@
+autokey (0.95.2-0) bionic; urgency=medium
+
+  * Fix broken imports in autokey-shell script
+  * Skip non-json-serializable data in script storage (both script local and global) during saving. This allows putting
+    non-serializable items (like function objects) into the store without crashing autokey during saving.
+  * [Qt] Fix minor bug when creating new items. Created items are now properly selected for renaming directly after creation.
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Mon, 16 Jul 2018 15:13:03 +0200
+
 autokey (0.95.1-0) bionic; urgency=medium
 
-  * Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard. Make sure to always release the keyboard after grabbing it.
-  * [Qt]: Fix saving the content of the log view to a file using the context menu entry.
+  * Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user
+    keyboard. Make sure to always release the keyboard after grabbing it.
+  * [Qt] Fix saving the content of the log view to a file using the context menu entry.
 
  -- Thomas Hess <thomas.hess@udo.edu>  Sat, 30 Jun 2018 23:02:19 +0200
 
@@ -12,7 +22,8 @@ autokey (0.95.0-0) bionic; urgency=medium
   * [Scripting API] Re-added newline trimming in system.exec_command() API call.
   * [Scripting API] Fixed broken KDialog based colour chooser dialogue.
   * [Scripting API] Added zenity based colour chooser dialogue.
-  * [Scripting API] Both colour dialogs return parsed data in the form of a Python namedtuple. This API change breaks old scripts that used the KDialog based colour chooser.
+  * [Scripting API] Both colour dialogs return parsed data in the form of a Python namedtuple.
+    This API change breaks old scripts that used the KDialog based colour chooser.
   * See the CHANGELOG.rst for details
 
  -- Thomas Hess <thomas.hess@udo.edu>  Thu, 28 Jun 2018 17:21:32 +0200
