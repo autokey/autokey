@@ -586,10 +586,8 @@ The first parameter is the string of characters to type. The second optional par
 
 **type_slow()**:
 ```python
-# Filename: typing_aids.py
 
 import time
-import scripting
 
 ## Type a string character by character
 ##   from within AutoKey
@@ -599,6 +597,6 @@ def type_slow(string, delay=0.1):
     delay = 0
 
   for c in string:
-    scripting.keyboard.send_key(c)
+    scripting.keyboard.send_keys(c)
     time.sleep(delay)
 ```
