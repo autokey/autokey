@@ -152,7 +152,9 @@ def _is_serializable(data):
     """Check, if data is json serializable."""
     try:
         json.dumps(data)
-    except TypeError:
+    except (TypeError, ValueError):
+        # TypeError occurs with non-serializable types (type, function, etc.)
+        # ValueError occurs when circular references are found. Example: `l=[]; l.append(l)`
         return False
     else:
         return True

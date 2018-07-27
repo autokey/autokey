@@ -980,7 +980,9 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def _is_serializable(data):
         try:
             json.dumps(data)
-        except TypeError:
+        except (TypeError, ValueError):
+            # TypeError occurs with non-serializable types (type, function, etc.)
+            # ValueError occurs when circular references are found. Example: `l=[]; l.append(l)`
             return False
         else:
             return True
