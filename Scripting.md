@@ -593,10 +593,11 @@ import time
 ##   from within AutoKey
 ##   with a small delay between characters
 def type_slow(string, delay=0.1):
-  if delay < 0:
-    delay = 0
-
-  for c in string:
-    scripting.keyboard.send_keys(c)
-    time.sleep(delay)
+    if delay <= 0:
+        # No delay, directly relay the whole string to the API function.
+        keyboard.send_keys(string)
+    else:
+        for c in string:
+            keyboard.send_keys(c)
+            time.sleep(delay)
 ```
