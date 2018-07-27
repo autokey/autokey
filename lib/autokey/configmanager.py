@@ -119,7 +119,7 @@ def _persist_settings(config_manager):
     serializable_data = config_manager.get_serializable()
     try:
         _try_persist_settings(serializable_data)
-    except TypeError:
+    except (TypeError, ValueError):
         # The user added non-serializable data to the store, so remove all non-serializable keys or values.
         _remove_non_serializable_store_entries(serializable_data["settings"][SCRIPT_GLOBALS])
         _try_persist_settings(serializable_data)
@@ -140,9 +140,7 @@ def _remove_non_serializable_store_entries(store: dict):
     for key, value in store.items():
         if not (_is_serializable(key) and _is_serializable(value)):
             _logger.info("Remove non-serializable item from the global script store. Key: '{}', Value: '{}'. "
-                         "This item cannot be saved and therefore will be lost.".format(
-                            key, value
-            ))
+                         "This item cannot be saved and therefore will be lost.".format(key, value))
             removed_key_list.append(key)
     for key in removed_key_list:
         del store[key]
