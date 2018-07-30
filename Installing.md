@@ -40,11 +40,13 @@ This section applies to Debian and derivatives such as Ubuntu and Mint. These st
 
 If you don't know what a PPA is you can learn about them [here][ppa].
 
-    $ sudo add-apt-repository ppa:troxor/autokey
+    $ sudo add-apt-repository ppa:sporkwitch/autokey
     $ sudo apt update
-    $ sudo apt install autokey-gtk
+    $ sudo apt install autokey-gtk # Install the GTk3 based GUI
+    $ # Or, alternatively:
+    $ sudo apt install autokey-qt # Install the Qt5 based GUI
   
-**Note:** As of 10/2017, the PPA only supports Ubuntu 16.04 and derivatives.
+**Note:** As of 7/2018, the PPA only supports Ubuntu 18.04 and derivatives.
 If you are using another release of Ubuntu, then install using [`pip` Installation](#pip-installation).
 
 ### Arch
