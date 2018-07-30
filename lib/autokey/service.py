@@ -404,8 +404,7 @@ class PhraseRunner:
             mediator.interface.finish_send()
 
     def can_undo(self):
-        if self.lastExpansion is not None:
-            return model.TriggerMode.ABBREVIATION in self.lastPhrase.modes
+        return self.lastExpansion is not None
 
     def clear_last(self):
         self.lastExpansion = None

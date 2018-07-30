@@ -228,20 +228,26 @@ class AbstractAbbreviation:
 
         return False
 
-    def _partition_input(self, currentString, abbr):
+    def _partition_input(self, current_string: str, abbr: typing.Optional[str]) -> typing.Tuple[str, str, str]:
         """
         Partition the input into text before, text after, and typed abbreviation (if it exists)
         """
-        if self.ignoreCase:
-            matchString = currentString.lower()
-            stringBefore, typedAbbr, stringAfter = matchString.rpartition(abbr)
-            abbrStart = len(stringBefore)
-            abbrEnd = abbrStart + len(typedAbbr)
-            typedAbbr = currentString[abbrStart:abbrEnd]
-        else:
-            stringBefore, typedAbbr, stringAfter = currentString.rpartition(abbr)
+        if abbr:
+            if self.ignoreCase:
+                match_string = current_string.lower()
+                string_before, typed_abbreviation, string_after = match_string.rpartition(abbr)
+                abbr_start_index = len(string_before)
+                abbr_end_index = abbr_start_index + len(typed_abbreviation)
+                typed_abbreviation = current_string[abbr_start_index:abbr_end_index]
+            else:
+                string_before, typed_abbreviation, string_after = current_string.rpartition(abbr)
 
-        return stringBefore, typedAbbr, stringAfter
+            return string_before, typed_abbreviation, string_after
+        else:
+            # abbr is None. This happens if the phrase was typed/pasted using a hotkey and is about to be un-done.
+            # In this case, there is no trigger character (thus empty before and after text). The complete string
+            # should be undone.
+            return "", current_string, ""
 
 
 class AbstractWindowFilter:
