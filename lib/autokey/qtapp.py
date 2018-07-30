@@ -107,11 +107,17 @@ class Application(QApplication):
         self.handler = CallbackEventHandler()
         parser = generate_argument_parser()
         self.args = parser.parse_args()
-        self._configure_root_logger()
+        try:
+            self._create_storage_directories()
+            self._configure_root_logger()
+        except Exception as e:
+            logging.exception("Fatal error starting AutoKey: " + str(e))
+            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
+            sys.exit(1)
         logging.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
-            self._create_storage_directories()
+
             # Initialise logger
 
             if self._verify_not_running():
