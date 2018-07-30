@@ -135,7 +135,6 @@ setup(
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
-                  'config/autokey.png',
                   'config/autokey-status.svg',
                   'config/autokey-status-dark.svg',
                   'config/autokey-status-error.svg']),
