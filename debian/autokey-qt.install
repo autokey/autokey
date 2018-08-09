@@ -2,4 +2,5 @@ usr/bin/autokey-qt
 usr/lib/python*/*-packages/autokey/qtapp.py
 usr/lib/python*/*-packages/autokey/qtui/
 usr/share/applications/autokey-qt.desktop
+usr/share/icons/hicolor/96x96/apps/autokey.png
 usr/share/man/man1/autokey-qt.1
