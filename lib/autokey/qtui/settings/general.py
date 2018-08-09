@@ -16,7 +16,8 @@
 
 import logging
 
-from PyQt5.QtWidgets import QWidget
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QComboBox
 
 from autokey import configmanager as cm
 
@@ -27,6 +28,10 @@ logger = autokey.qtui.common.logger.getChild("General settings widget")  # type:
 
 class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("generalsettings")):
     """This widget implements the "general settings" widget and is used in the settings dialog."""
+    GUI_TABLE = (("autokey-qt.desktop", "Qt5"),
+                 ("autokey-gtk.desktop", "GTK+")
+                 )
+
     def __init__(self, parent: QWidget=None):
         super(GeneralSettings, self).__init__(parent)
         self.setupUi(self)
@@ -37,6 +42,9 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
         self.allow_kb_nav_checkbox.setVisible(False)
         self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
         self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
+        self._fill_autostart_gui_selection_combobox()
+        self.autostart_settings = cm.get_autostart()
+        self._load_autostart_settings()
         logger.debug("Created widget and loaded current settings: " + self._settings_str())
 
     def save(self):
@@ -48,6 +56,7 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
         # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
+        self._save_autostart_settings()
 
     def _settings_str(self):
         """Returns a human readable settings representation for logging purposes."""
@@ -63,3 +72,30 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
                self.enable_undo_checkbox.isChecked()
             )
         return settings
+
+    def _fill_autostart_gui_selection_combobox(self):
+        combobox = self.autostart_interface_choice_combobox  # type: QComboBox
+        for desktop_file, name in GeneralSettings.GUI_TABLE:
+            try:
+                cm.get_source_desktop_file(desktop_file)
+            except FileNotFoundError:
+                # Skip unavailable GUIs
+                pass
+            else:
+                combobox.addItem(name, desktop_file)
+
+    def _load_autostart_settings(self):
+        combobox = self.autostart_interface_choice_combobox  # type: QComboBox
+        self.autostart_groupbox.setChecked(self.autostart_settings.desktop_file_name is not None)
+        if self.autostart_settings.desktop_file_name is not None:
+            combobox.setCurrentIndex(combobox.findData(self.autostart_settings.desktop_file_name))
+        self.autostart_show_main_window_checkbox.setChecked(self.autostart_settings.switch_show_configure)
+
+    def _save_autostart_settings(self):
+        combobox = self.autostart_interface_choice_combobox  # type: QComboBox
+        desktop_entry = None if not self.autostart_groupbox.isChecked() else combobox.currentData(Qt.UserRole)
+        show_main_window = self.autostart_show_main_window_checkbox.isChecked()
+        new_settings = cm.AutostartSettings(desktop_entry, show_main_window)
+        if new_settings != self.autostart_settings:
+            # Only write if settings changed to preserve eventual user-made modifications.
+            cm.set_autostart_entry(new_settings)

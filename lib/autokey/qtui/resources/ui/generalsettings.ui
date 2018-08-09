@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
+    <width>510</width>
     <height>444</height>
    </rect>
   </property>
@@ -15,7 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <widget class="QGroupBox" name="groupBox">
+    <widget class="QGroupBox" name="application_groupbox">
      <property name="title">
       <string>Application</string>
      </property>
@@ -38,7 +38,59 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="autostart_groupbox">
+     <property name="toolTip">
+      <string>Enable to automatically start AutoKey after logging in.</string>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enabling this option places a &lt;span style=&quot; font-weight:600;&quot;&gt;autokey.desktop&lt;/span&gt; file into the autostart folder inside the user folder. It can be found in  &lt;a href=&quot;file://$XDG_CONFIG_HOME/autostart&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;$XDG_CONFIG_HOME/autostart&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="title">
+      <string>A&amp;utomatically start AutoKey after login</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <spacer name="horizontal_spacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QCheckBox" name="autostart_show_main_window_checkbox">
+        <property name="toolTip">
+         <string>If checked, start in the foreground by showing the main window.
+If unchecked, start in the background.</string>
+        </property>
+        <property name="text">
+         <string>Show main window when starting</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="autostart_interface_choice_label">
+        <property name="text">
+         <string>Start using this interface:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="autostart_interface_choice_combobox"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="popup_menu_groupbox">
      <property name="title">
       <string>Popup Menu</string>
      </property>
@@ -64,9 +116,9 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_3">
+    <widget class="QGroupBox" name="phrase_expansion_groupbox">
      <property name="title">
-      <string>Expansions</string>
+      <string>Phrase expansions</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>

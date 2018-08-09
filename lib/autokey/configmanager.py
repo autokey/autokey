@@ -181,6 +181,7 @@ def get_autostart() -> AutostartSettings:
 def _extract_data_from_desktop_file(desktop_file: Path) -> AutostartSettings:
     with open(str(desktop_file), "r") as file:
         for line in file.readlines():
+            line = line.rstrip("\n")
             if line.startswith("Exec="):
                 program_name = line.split("=")[1].split(" ")[0]
                 return AutostartSettings(program_name + ".desktop", line.endswith("-c"))
@@ -204,7 +205,7 @@ def set_autostart_entry(autostart_data: AutostartSettings):
 def _create_autostart_entry(autostart_data: AutostartSettings, autostart_file: Path):
     """Create an autostart .desktop file in the autostart directory, if possible."""
     try:
-        source_desktop_file = _get_source_desktop_file(autostart_data.desktop_file_name)
+        source_desktop_file = get_source_desktop_file(autostart_data.desktop_file_name)
     except FileNotFoundError:
         _logger.exception("Failed to find a usable .desktop file! Unable to find: {}".format(
             autostart_data.desktop_file_name))
@@ -229,7 +230,7 @@ def delete_autostart_entry():
         _logger.info("Deleted old autostart entry: {}".format(autostart_file))
 
 
-def _get_source_desktop_file(desktop_file_name: str) -> Path:
+def get_source_desktop_file(desktop_file_name: str) -> Path:
     """
     Try to get the source .desktop file with the given name.
     :raises FileNotFoundError: If no desktop file was found in the searched directories.
