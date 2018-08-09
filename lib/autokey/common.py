@@ -20,11 +20,16 @@ import os
 import dbus.service
 import logging
 
-CONFIG_DIR = os.path.join(os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config')), "autokey")
+XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
 XDG_CACHE_HOME = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
+XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share"))
+
+CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "autokey")
 RUN_DIR = os.path.join(os.environ.get('XDG_RUNTIME_DIR', XDG_CACHE_HOME), "autokey")
-DATA_DIR = os.path.join(os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share")), "autokey")
+DATA_DIR = os.path.join(XDG_DATA_HOME, "autokey")
+# The desktop file to start autokey during login is placed here
+AUTOSTART_DIR = os.path.join(XDG_CONFIG_HOME, "autostart")
 
 LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
 LOG_FILE = os.path.join(DATA_DIR, "autokey.log")

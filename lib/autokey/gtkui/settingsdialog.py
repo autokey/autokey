@@ -24,9 +24,6 @@ from .. import common
 from .dialogs import GlobalHotkeyDialog
 from .configwindow0 import get_ui
 
-DESKTOP_FILE = "/usr/share/applications/autokey-gtk.desktop"
-AUTOSTART_DIR = os.path.expanduser("~/.config/autostart")
-AUTOSTART_FILE = os.path.join(AUTOSTART_DIR, "autokey-gtk.desktop")
 
 ICON_NAME_MAP = {
                 _("Light") : common.ICON_FILE_NOTIFICATION,
@@ -69,7 +66,7 @@ class SettingsDialog:
         self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
         self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]))
         
-        self.autoStartCheckbox.set_active(os.path.exists(AUTOSTART_FILE))
+        self.autoStartCheckbox.set_active(cm.get_autostart().desktop_file_name is not None)
         self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
         #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
@@ -103,21 +100,9 @@ class SettingsDialog:
 
     def on_save(self, widget, data=None):
         if self.autoStartCheckbox.get_active():
-            if not os.path.exists(AUTOSTART_FILE):
-                try:
-                    inFile = open(DESKTOP_FILE, 'r')
-                    outFile = open(AUTOSTART_FILE, 'w')
-                    contents = inFile.read()
-                    contents = contents.replace(" -c\n", "\n")
-                    outFile.write(contents)
-                    inFile.close()
-                    outFile.close()
-                except:
-                    pass
-                
+            cm.set_autostart_entry(cm.AutostartSettings("autokey-gtk.desktop", False))
         else:
-            if os.path.exists(AUTOSTART_FILE):
-                os.remove(AUTOSTART_FILE)
+            cm.delete_autostart_entry()
     
         cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
