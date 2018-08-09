@@ -24,12 +24,11 @@ import logging
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 
-from .. import common
-from ..common import inherits_from_ui_file_with_name
+from autokey.qtui import common as ui_common
 
 from autokey import model
 
-logger = common.logger.getChild("Abbreviation Settings Dialog")  # type: logging.Logger
+logger = ui_common.logger.getChild("Abbreviation Settings Dialog")  # type: logging.Logger
 
 WORD_CHAR_OPTIONS = {
                      "All non-word": model.DEFAULT_WORDCHAR_REGEX,
@@ -56,7 +55,7 @@ class AbbrListItem(QListWidgetItem):
             QListWidgetItem.setData(self, role, value)
 
 
-class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
+class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsettings")):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -85,7 +84,7 @@ class AbbrSettingsDialog(*inherits_from_ui_file_with_name("abbrsettings")):
             self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(False)
 
     def on_abbrListWidget_itemChanged(self, item):
-        if common.EMPTY_FIELD_REGEX.match(item.text()):
+        if ui_common.EMPTY_FIELD_REGEX.match(item.text()):
             row = self.abbrListWidget.row(item)
             self.abbrListWidget.takeItem(row)
             logger.debug("User deleted abbreviation content. Deleted empty list element.")

@@ -18,7 +18,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="0" colspan="3">
-    <widget class="QCheckBox" name="recMouseButton">
+    <widget class="QCheckBox" name="record_mouse_button">
      <property name="text">
       <string>Record mouse events (experimental)</string>
      </property>
@@ -46,14 +46,14 @@
     </widget>
    </item>
    <item row="1" column="0" colspan="3">
-    <widget class="QCheckBox" name="recKeyboardButton">
+    <widget class="QCheckBox" name="record_keyboard_button">
      <property name="text">
       <string>Record keyboard events</string>
      </property>
     </widget>
    </item>
    <item row="5" column="1">
-    <spacer name="verticalSpacer">
+    <spacer name="vertical_spacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
@@ -66,7 +66,7 @@
     </spacer>
    </item>
    <item row="6" column="0" colspan="3">
-    <widget class="QDialogButtonBox" name="buttonBox">
+    <widget class="QDialogButtonBox" name="button_box">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
@@ -76,7 +76,7 @@
     </widget>
    </item>
    <item row="3" column="1" rowspan="2">
-    <widget class="QSpinBox" name="secondsSpinBox">
+    <widget class="QSpinBox" name="delay_recording_start_seconds_spin_box">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
        <horstretch>0</horstretch>
@@ -93,7 +93,7 @@
  <resources/>
  <connections>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>button_box</sender>
    <signal>accepted()</signal>
    <receiver>Dialog</receiver>
    <slot>accept()</slot>
@@ -109,7 +109,7 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
+   <sender>button_box</sender>
    <signal>rejected()</signal>
    <receiver>Dialog</receiver>
    <slot>reject()</slot>

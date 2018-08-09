@@ -108,7 +108,8 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         else:
             key = key_text
 
-        assert key is not None, "Attempt to set hotkey with no key"
+        if key is None:
+            raise RuntimeError("Attempt to set hotkey with no key")
         logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
         item.set_hotkey(modifiers, key)
 
@@ -177,7 +178,6 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
 class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item: cm.GlobalHotkey):
-        print("GlobalHotkeyDialog: item type: " + str(type(item)))
         self.target_item = item
         if item.enabled:
             self.controlButton.setChecked(Key.CONTROL in item.modifiers)
@@ -208,5 +208,6 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         else:
             key = key_text
 
-        assert key is not None, "Attempt to set hotkey with no key"
+        if key is None:
+            raise RuntimeError("Attempt to set hotkey with no key")
         item.set_hotkey(modifiers, key)

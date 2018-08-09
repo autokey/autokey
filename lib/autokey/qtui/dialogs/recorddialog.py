@@ -14,14 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-from .. import common
-from ..common import inherits_from_ui_file_with_name
+from autokey.qtui import common as ui_common
 
 import logging
-logger = common.logger.getChild("Record Dialog")  # type: logging.Logger
+logger = ui_common.logger.getChild("Record Dialog")  # type: logging.Logger
 
 
-class RecordDialog(*inherits_from_ui_file_with_name("record_dialog")):
+class RecordDialog(*ui_common.inherits_from_ui_file_with_name("record_dialog")):
 
     def __init__(self, parent, closure):
         super().__init__(parent)
@@ -29,13 +28,13 @@ class RecordDialog(*inherits_from_ui_file_with_name("record_dialog")):
         self.closure = closure
 
     def get_record_keyboard(self):
-        return self.recKeyboardButton.isChecked()
+        return self.record_keyboard_button.isChecked()
 
     def get_record_mouse(self):
-        return self.recMouseButton.isChecked()
+        return self.record_mouse_button.isChecked()
 
     def get_delay(self):
-        return self.secondsSpinBox.value()
+        return self.delay_recording_start_seconds_spin_box.value()
 
     def accept(self):
         super().accept()

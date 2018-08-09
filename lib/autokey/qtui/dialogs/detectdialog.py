@@ -17,13 +17,12 @@ from typing import Tuple
 
 from PyQt5.QtWidgets import QWidget
 
-from .. import common
-from ..common import inherits_from_ui_file_with_name
+from autokey.qtui import common as ui_common
 
-logger = common.logger.getChild("DetectDialog")
+logger = ui_common.logger.getChild("DetectDialog")
 
 
-class DetectDialog(*inherits_from_ui_file_with_name("detectdialog")):
+class DetectDialog(*ui_common.inherits_from_ui_file_with_name("detectdialog")):
     """
     The DetectDialog lets the user select window properties of a chosen window.
     The dialog shows the window title and window class of the chosen window
