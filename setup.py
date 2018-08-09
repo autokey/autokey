@@ -162,7 +162,7 @@ setup(
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
-    install_requires=['dbus-python', 'pyinotify', 'python3-xlib'],
+    install_requires=['dbus-python', 'pyinotify', 'python-xlib'],
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
