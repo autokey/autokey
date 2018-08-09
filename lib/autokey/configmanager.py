@@ -325,6 +325,25 @@ def _convertFolder(folderData, parent):
             i.persist()
 
 
+def convert_rename_autostart_entries_for_v0_95_3():
+    """
+    In versions <= 0.95.2, the autostart option in autokey-gtk copied the default autokey-gtk.desktop file into
+    $XDG_CONFIG_DIR/autostart (with minor, unrelated modifications).
+    For versions >= 0.95.3, the autostart file is renamed to autokey.desktop. In 0.95.3, the autostart functionality
+    is implemented for autokey-qt. Thus, it becomes possible to have an autostart file for both GUIs in the autostart
+    directory simultaneously. Because of the singleton nature of autokey, this becomes an issue and race-conditions
+    determine which GUI starts first. To prevent this, both GUIs will share a single autokey.desktop autostart entry,
+    allowing only one GUI to be started during login. This allows for much simpler code.
+    """
+    old_autostart_file = Path(common.AUTOSTART_DIR) / "autokey-gtk.desktop"
+    if old_autostart_file.exists():
+        new_file_name = Path(common.AUTOSTART_DIR) / "autokey.desktop"
+        _logger.info("Migration task: Found old autostart entry: '{}'. Rename to: '{}'".format(
+            old_autostart_file, new_file_name)
+        )
+        old_autostart_file.rename(new_file_name)
+
+
 class ConfigManager:
     """
     Contains all application configuration, and provides methods for updating and 
@@ -521,6 +540,9 @@ dialog.info_dialog("Window information",
                     _logger.error("Existing config file has been saved as %s%s",
                                   CONFIG_FILE, version)
                     raise
+
+            if version < "0.95.3":
+                convert_rename_autostart_entries_for_v0_95_3()
                 
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
