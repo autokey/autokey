@@ -2,5 +2,4 @@ usr/bin/autokey-gtk
 usr/lib/python*/*-packages/autokey/gtkapp.py
 usr/lib/python*/*-packages/autokey/gtkui/
 usr/share/applications/autokey-gtk.desktop
-usr/share/icons/hicolor/scalable/apps/autokey.svg
 usr/share/man/man1/autokey-gtk.1

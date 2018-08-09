@@ -15,6 +15,7 @@ usr/lib/python*/*-packages/autokey/scripting_highlevel.py
 usr/lib/python*/*-packages/autokey/scripting_Store.py
 usr/lib/python*/*-packages/autokey/service.py
 usr/share/icons/hicolor/scalable/apps/autokey-status*.svg
+usr/share/icons/hicolor/scalable/apps/autokey.svg
 usr/share/icons/Humanity/scalable/apps/*.svg
 usr/share/icons/ubuntu-mono-dark/apps/48/*.svg
 usr/share/icons/ubuntu-mono-light/apps/48/*.svg
