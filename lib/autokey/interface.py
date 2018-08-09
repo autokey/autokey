@@ -57,6 +57,8 @@ else:
         HAS_ATSPI = False
     except ValueError:
         HAS_ATSPI = False
+    except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
+        HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
 try:
