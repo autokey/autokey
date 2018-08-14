@@ -21,16 +21,23 @@ from PyQt5.QtWidgets import QWidget, QComboBox
 
 from autokey import configmanager as cm
 
-import autokey.qtui.common
+import autokey.qtui.common as ui_common
+import autokey.common as common
 
-logger = autokey.qtui.common.logger.getChild("General settings widget")  # type: logging.Logger
+logger = ui_common.logger.getChild("General settings widget")  # type: logging.Logger
 
 
-class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("generalsettings")):
+class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsettings")):
     """This widget implements the "general settings" widget and is used in the settings dialog."""
-    GUI_TABLE = (("autokey-qt.desktop", "Qt5"),
-                 ("autokey-gtk.desktop", "GTK+")
-                 )
+    GUI_TABLE = (
+        ("autokey-qt.desktop", "Qt5"),
+        ("autokey-gtk.desktop", "GTK+")
+    )
+
+    ICON_TABLE = (
+        (0, common.ICON_FILE_NOTIFICATION),
+        (1, common.ICON_FILE_NOTIFICATION_DARK)
+    )
 
     def __init__(self, parent: QWidget=None):
         super(GeneralSettings, self).__init__(parent)
@@ -42,6 +49,8 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
         self.allow_kb_nav_checkbox.setVisible(False)
         self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
         self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
+        self._fill_notification_icon_combobox_user_data()
+        self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
         self.autostart_settings = cm.get_autostart()
         self._load_autostart_settings()
@@ -56,6 +65,8 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
         # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON] = self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
+        # TODO: After saving the notification icon, apply it to the currently running instance.
         self._save_autostart_settings()
 
     def _settings_str(self):
@@ -64,12 +75,14 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
             "Show tray icon: {}, " \
             "Allow keyboard navigation: {}, " \
             "Sort by usage count: {}, " \
-            "Enable undo using backspace: {}".format(
+            "Enable undo using backspace: {}, " \
+            "Tray icon theme: {}".format(
                self.prompt_to_save_checkbox.isChecked(),
                self.show_tray_checkbox.isChecked(),
                self.allow_kb_nav_checkbox.isChecked(),
                self.sort_by_usage_checkbox.isChecked(),
-               self.enable_undo_checkbox.isChecked()
+               self.enable_undo_checkbox.isChecked(),
+               self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
             )
         return settings
 
@@ -83,6 +96,21 @@ class GeneralSettings(*autokey.qtui.common.inherits_from_ui_file_with_name("gene
                 pass
             else:
                 combobox.addItem(name, desktop_file)
+
+    def _fill_notification_icon_combobox_user_data(self):
+        combo_box = self.system_tray_icon_theme_combobox  # type: QComboBox
+        for index, icon_name in GeneralSettings.ICON_TABLE:
+            combo_box.setItemData(index, icon_name, Qt.UserRole)
+
+    def _load_system_tray_icon_theme(self):
+        combo_box = self.system_tray_icon_theme_combobox  # type: QComboBox
+        data = cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]
+        combo_box_index = combo_box.findData(data, Qt.UserRole)
+        if combo_box_index == -1:
+            # Invalid data in user configuration. TODO: should this be a warning or error?
+            # Just revert to theme at index 0 (light)
+            combo_box_index = 0
+        combo_box.setCurrentIndex(combo_box_index)
 
     def _load_autostart_settings(self):
         combobox = self.autostart_interface_choice_combobox  # type: QComboBox

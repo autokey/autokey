@@ -22,15 +22,76 @@
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
        <widget class="QCheckBox" name="prompt_to_save_checkbox">
+        <property name="toolTip">
+         <string>If checked, ask if changes should be saved or not.
+If unchecked, always save changes without asking.</string>
+        </property>
         <property name="text">
          <string>Prompt for unsaved changes</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="show_tray_checkbox">
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="system_tray_groupbox">
+     <property name="title">
+      <string>System tray icon</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="2">
+       <spacer name="system_tray_horizontal_spacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="system_tray_icon_theme_combobox">
+        <property name="toolTip">
+         <string>Choose between a light and a dark icon theme.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Light</string>
+         </property>
+         <property name="icon">
+          <iconset theme="autokey-status"/>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Dark</string>
+         </property>
+         <property name="icon">
+          <iconset theme="autokey-status-dark"/>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="system_tray_icon_theme_label">
         <property name="text">
-         <string>Show a notification icon</string>
+         <string>Used system tray icon theme:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QCheckBox" name="show_tray_checkbox">
+        <property name="toolTip">
+         <string>Enabling this places an icon in the desktop system tray or notification area.
+The icon can be used to show the main window.
+It also provides access to scripts and phrases marked for display in the tray icon context menu.</string>
+        </property>
+        <property name="text">
+         <string>Show a notification icon in the system tray or notification area</string>
         </property>
        </widget>
       </item>
@@ -50,6 +111,9 @@
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
      </property>
      <layout class="QGridLayout" name="gridLayout">
       <item row="0" column="2">
@@ -84,7 +148,11 @@ If unchecked, start in the background.</string>
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QComboBox" name="autostart_interface_choice_combobox"/>
+       <widget class="QComboBox" name="autostart_interface_choice_combobox">
+        <property name="toolTip">
+         <string>Choose which GUI should be starting. Only available if both the Qt and GTK+ GUIs are installed.</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>
@@ -123,6 +191,9 @@ If unchecked, start in the background.</string>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
        <widget class="QCheckBox" name="enable_undo_checkbox">
+        <property name="toolTip">
+         <string>Enable undoing Phrase expansions using the backspace key.</string>
+        </property>
         <property name="text">
          <string>Enable undo by pressing backspace</string>
         </property>
