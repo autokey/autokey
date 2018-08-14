@@ -138,6 +138,8 @@ setup(
                   'config/autokey-status.svg',
                   'config/autokey-status-dark.svg',
                   'config/autokey-status-error.svg']),
+                ('share/icons/hicolor/96x96/apps',  # TODO: Remove later. https://github.com/autokey/autokey/issues/160
+                 ['config/autokey.png']),
                 ('share/icons/Humanity/scalable/apps',
                  ['config/Humanity/autokey-status.svg',
                   'config/Humanity/autokey-status-error.svg']),
