@@ -460,7 +460,9 @@ class ScriptRunner:
 
         backspaces, stringAfter = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
-
+        if script.path is not None:
+            # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
+            scope["__file__"] = script.path
         try:
             exec(script.code, scope)
         except Exception as e:
