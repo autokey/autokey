@@ -80,7 +80,7 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
                     compiled_qt_resources_file.write(compiled_qt_resources)
             else:
                 # If here, compilation failed for a known reason, so include the resource files directly.
-                self.package_data["autokey.qtui"] += ['resources/resources.qrc', 'resources/ui/*.ui']
+                self.package_data["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
         super(BuildWithQtResources, self).run()
 
     @staticmethod
