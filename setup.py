@@ -80,7 +80,9 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
                     compiled_qt_resources_file.write(compiled_qt_resources)
             else:
                 # If here, compilation failed for a known reason, so include the resource files directly.
-                self.package_data["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
+                # Ok, always include this for now. setup.py seems to not like this
+                # self.package_data["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
+                pass
         super(BuildWithQtResources, self).run()
 
     @staticmethod
@@ -131,7 +133,7 @@ setup(
     ],
     package_dir={'': 'lib'},
 
-    package_data={'autokey.qtui': ['data/*'],  # Resources added by BuildWithQtResources iff resource compilation failed
+    package_data={'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
