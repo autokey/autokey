@@ -13,6 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import typing
+
+qt_version = ...  # type: typing.List[str]
+rcc_version = ...  # type: int
 qt_resource_data = ...  # type: bytes
 qt_resource_name = ...  # type: bytes
 qt_resource_struct = ...  # type: bytes

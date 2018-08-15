@@ -182,8 +182,9 @@ class Mouse:
     """
     Provides access to send mouse clicks
     """
-    def __init__(self, mediator):
-        self.mediator = mediator    
+    def __init__(self, mediator: iomediator.IoMediator):
+        self.mediator = mediator
+        self.interface = mediator.interface
     
     def click_relative(self, x, y, button):
         """
@@ -195,7 +196,7 @@ class Mouse:
         @param y: y-coordinate in pixels, relative to upper left corner of window
         @param button: mouse button to simulate (left=1, middle=2, right=3)
         """
-        self.mediator.send_mouse_click(x, y, button, True)
+        self.interface.send_mouse_click(x, y, button, True)
         
     def click_relative_self(self, x, y, button):
         """
@@ -207,7 +208,7 @@ class Mouse:
         @param y: y-offset in pixels, relative to current mouse position
         @param button: mouse button to simulate (left=1, middle=2, right=3)
         """
-        self.mediator.send_mouse_click_relative(x, y, button)
+        self.interface.send_mouse_click_relative(x, y, button)
         
     def click_absolute(self, x, y, button):
         """
@@ -219,7 +220,7 @@ class Mouse:
         @param y: y-coordinate in pixels, relative to upper left corner of window
         @param button: mouse button to simulate (left=1, middle=2, right=3)
         """
-        self.mediator.send_mouse_click(x, y, button, False)
+        self.interface.send_mouse_click(x, y, button, False)
         
     def wait_for_click(self, button, timeOut=10.0):
         """

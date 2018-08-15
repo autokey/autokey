@@ -74,9 +74,9 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             self._copy_icon_files_into_qt_resources_directory(resource_dir)
             compiled_qt_resources = self._compile_resource_file(resource_file)
             if compiled_qt_resources:
-                target_directory = str(Path(self.build_lib) / "autokey" / "qtui")
-                self.mkpath(target_directory)
-                with open(str(Path(target_directory) / "compiled_resources.py"), "w") as compiled_qt_resources_file:
+                target_directory = Path(self.build_lib) / "autokey" / "qtui"
+                self.mkpath(str(target_directory))
+                with open(str(target_directory / "compiled_resources.py"), "w") as compiled_qt_resources_file:
                     compiled_qt_resources_file.write(compiled_qt_resources)
             else:
                 # If here, compilation failed for a known reason, so include the resource files directly.
