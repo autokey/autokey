@@ -83,3 +83,13 @@ script:
 from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%Y.%m.%d'))
 ```
+
+## Search for text from your clipboard in your Browser
+
+script:
+```python
+import  webbrowser
+import time
+time.sleep(0.2)
+webbrowser.open("http://www.google.de/search?q="+clipboard.get_clipboard())
+```
