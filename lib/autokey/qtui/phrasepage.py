@@ -17,9 +17,9 @@ import subprocess
 
 from PyQt5.QtWidgets import QMessageBox
 
-from .common import set_url_label, EMPTY_FIELD_REGEX, inherits_from_ui_file_with_name
+from autokey import model
+from autokey.qtui import common as ui_common
 
-from .. import model
 
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
@@ -27,7 +27,7 @@ PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
 
 # TODO: Once the port to Qt5 is done, set the editor placeholder text in the UI file to "Enter your phrase here."
 # TODO: Pure Qt4 QTextEdit does not support placeholder texts, so this functionality is currently unavailable.
-class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
+class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
 
     def __init__(self):
         super(PhrasePage, self).__init__()
@@ -54,7 +54,7 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
             self.urlLabel.setEnabled(False)
             self.urlLabel.setText("(Unsaved)")  # TODO: i18n
         else:
-            set_url_label(self.urlLabel, self.currentPhrase.path)
+            ui_common.set_url_label(self.urlLabel, self.currentPhrase.path)
 
         # TODO - re-enable me if restoring predictive functionality
         #self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
@@ -76,7 +76,7 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
         self.currentPhrase.prompt = self.promptCheckbox.isChecked()
 
         self.currentPhrase.persist()
-        set_url_label(self.urlLabel, self.currentPhrase.path)
+        ui_common.set_url_label(self.urlLabel, self.currentPhrase.path)
         return False
 
     def set_item_title(self, title):
@@ -96,7 +96,7 @@ class PhrasePage(*inherits_from_ui_file_with_name("phrasepage")):
 
         # Check phrase content
         phrase = str(self.phraseText.toPlainText())
-        if EMPTY_FIELD_REGEX.match(phrase):
+        if ui_common.EMPTY_FIELD_REGEX.match(phrase):
             errors.append("The phrase content can't be empty")  # TODO: i18n
 
         # Check settings

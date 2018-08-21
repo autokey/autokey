@@ -20,7 +20,8 @@ import subprocess
 from PyQt5 import Qsci
 from PyQt5.QtWidgets import QMessageBox
 
-from .common import inherits_from_ui_file_with_name, set_url_label, EMPTY_FIELD_REGEX, monospace_font
+from autokey import model
+from autokey.qtui import common as ui_common
 
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
 
@@ -28,7 +29,7 @@ PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
 
 
-class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
+class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
 
     def __init__(self):
         super(ScriptPage, self).__init__()
@@ -40,7 +41,7 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
         api = Qsci.QsciAPIs(lex)
         api.load(API_FILE)
         api.prepare()
-        self.current_script = None
+        self.current_script = None  # type: model.Script
         self.scriptCodeEditor.setLexer(lex)
 
         self.scriptCodeEditor.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
@@ -52,9 +53,9 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
         self.scriptCodeEditor.setAutoCompletionThreshold(3)
         self.scriptCodeEditor.setAutoCompletionSource(Qsci.QsciScintilla.AcsAll)
         self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNoContext)
-        lex.setFont(monospace_font())
+        lex.setFont(ui_common.monospace_font())
 
-    def load(self, script):
+    def load(self, script: model.Script):
         self.current_script = script
         self.scriptCodeEditor.clear()
         self.scriptCodeEditor.append(script.code)
@@ -68,15 +69,15 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
             self.urlLabel.setEnabled(False)
             self.urlLabel.setText("(Unsaved)")  # TODO: i18n
         else:
-            set_url_label(self.urlLabel, self.current_script.path)
+            ui_common.set_url_label(self.urlLabel, self.current_script.path)
 
     def save(self):
         self.settingsWidget.save()
         self.current_script.code = str(self.scriptCodeEditor.text())
         self.current_script.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
-
+        self.current_script.prompt = self.promptCheckbox.isChecked()
         self.current_script.persist()
-        set_url_label(self.urlLabel, self.current_script.path)
+        ui_common.set_url_label(self.urlLabel, self.current_script.path)
         return False
 
     def set_item_title(self, title):
@@ -128,7 +129,7 @@ class ScriptPage(*inherits_from_ui_file_with_name("scriptpage")):
 
         # Check script code
         code = str(self.scriptCodeEditor.text())
-        if EMPTY_FIELD_REGEX.match(code):
+        if ui_common.EMPTY_FIELD_REGEX.match(code):
             errors.append("The script code can't be empty")  # TODO: i18n
 
         # Check settings
