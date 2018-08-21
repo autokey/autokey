@@ -282,10 +282,10 @@ class AbstractWindowFilter:
     def set_filter_recursive(self, recurse):
         self.isRecursive = recurse
 
-    def has_filter(self):
+    def has_filter(self) -> bool:
         return self.windowInfoRegex is not None
 
-    def inherits_filter(self):
+    def inherits_filter(self) -> bool:
         if self.parent is not None:
             return self.parent.get_applicable_regex(True) is not None
 

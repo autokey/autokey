@@ -17,13 +17,17 @@
 
 from PyQt5.QtWidgets import QDialog
 
-from .common import inherits_from_ui_file_with_name
-from .dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
+from autokey.qtui.common import inherits_from_ui_file_with_name
+from autokey.qtui.dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
 
-from .. import model
+from autokey import model
 
 
 class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
+    """
+    The SettingsWidget is used to configure model items. It allows display, assigning and clearing of abbreviations,
+    hotkeys and window filters.
+    """
 
     KEY_MAP = HotkeySettingsDialog.KEY_MAP
     REVERSE_KEY_MAP = HotkeySettingsDialog.REVERSE_KEY_MAP
@@ -32,96 +36,96 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         super(SettingsWidget, self).__init__(parent)
         self.setupUi(self)
 
-        self.abbrDialog = AbbrSettingsDialog(self)
-        self.hotkeyDialog = HotkeySettingsDialog(self)
-        self.filterDialog = WindowFilterSettingsDialog(self)
+        self.abbr_settings_dialog = AbbrSettingsDialog(self)
+        self.hotkey_settings_dialog = HotkeySettingsDialog(self)
+        self.window_filter_dialog = WindowFilterSettingsDialog(self)
+        self.current_item = None  # type: model.Item
+        self.abbreviation_enabled = False
+        self.hotkey_enabled = False
+        self.window_filter_enabled = False
 
-    def load(self, item):
-        self.currentItem = item
+    def load(self, item: model.Item):
+        self.current_item = item
+        self._load_abbreviation_data(item)
+        self._load_hotkey_data(item)
+        self._load_window_filter_data(item)
 
-        self.abbrDialog.load(self.currentItem)
-        if model.TriggerMode.ABBREVIATION in item.modes:
-            self.abbrLabel.setText(item.get_abbreviations())
-            self.clearAbbrButton.setEnabled(True)
-            self.abbrEnabled = True
-        else:
-            self.abbrLabel.setText("(None configured)")  # TODO: i18n
-            self.clearAbbrButton.setEnabled(False)
-            self.abbrEnabled = False
+    def _load_abbreviation_data(self, item: model.Item):
+        self.abbr_settings_dialog.load(item)
+        item_has_abbreviation = model.TriggerMode.ABBREVIATION in item.modes
+        self.abbreviation_label.setText(item.get_abbreviations() if item_has_abbreviation else "(None configured)")
+        self.clear_abbreviation_button.setEnabled(item_has_abbreviation)
+        self.abbreviation_enabled = item_has_abbreviation
 
-        self.hotkeyDialog.load(self.currentItem)
-        if model.TriggerMode.HOTKEY in item.modes:
-            self.hotkeyLabel.setText(item.get_hotkey_string())
-            self.clearHotkeyButton.setEnabled(True)
-            self.hotkeyEnabled = True
-        else:
-            self.hotkeyLabel.setText("(None configured)")  # TODO: i18n
-            self.clearHotkeyButton.setEnabled(False)
-            self.hotkeyEnabled = False
+    def _load_hotkey_data(self, item: model.Item):
+        self.hotkey_settings_dialog.load(item)
+        item_has_hotkey = model.TriggerMode.HOTKEY in item.modes
+        self.hotkey_label.setText(item.get_hotkey_string() if item_has_hotkey else "(None configured)")
+        self.clear_hotkey_button.setEnabled(item_has_hotkey)
+        self.hotkey_enabled = item_has_hotkey
 
-        self.filterDialog.load(self.currentItem)
-        self.filterEnabled = False
-        self.clearFilterButton.setEnabled(False)
-        if item.has_filter() or item.inherits_filter():
-            self.windowFilterLabel.setText(item.get_filter_regex())
+    def _load_window_filter_data(self, item: model.Item):
+        self.window_filter_dialog.load(item)
+        item_has_window_filter = item.has_filter() or item.inherits_filter()
+        self.window_filter_label.setText(item.get_filter_regex() if item_has_window_filter else "(None configured)")
+        self.window_filter_enabled = item_has_window_filter
+        self.clear_window_filter_button.setEnabled(item_has_window_filter)
 
-            if not item.inherits_filter():
-                self.clearFilterButton.setEnabled(True)
-                self.filterEnabled = True
-
-        else:
-            self.windowFilterLabel.setText("(None configured)")  # TODO: i18n
+        if item.inherits_filter():
+            # Inherited window filters can’t be deleted on specific items.
+            self.clear_window_filter_button.setEnabled(False)
+            self.window_filter_enabled = False
 
     def save(self):
         # Perform hotkey ungrab
-        if model.TriggerMode.HOTKEY in self.currentItem.modes:
-            self.window().app.hotkey_removed(self.currentItem)
+        if model.TriggerMode.HOTKEY in self.current_item.modes:
+            self.window().app.hotkey_removed(self.current_item)
 
-        self.currentItem.set_modes([])
-        if self.abbrEnabled:
-            self.abbrDialog.save(self.currentItem)
-        if self.hotkeyEnabled:
-            self.hotkeyDialog.save(self.currentItem)
-        if self.filterEnabled:
-            self.filterDialog.save(self.currentItem)
+        self.current_item.set_modes([])
+        if self.abbreviation_enabled:
+            self.abbr_settings_dialog.save(self.current_item)
+        if self.hotkey_enabled:
+            self.hotkey_settings_dialog.save(self.current_item)
+        if self.window_filter_enabled:
+            self.window_filter_dialog.save(self.current_item)
         else:
-            self.currentItem.set_window_titles(None)
+            self.current_item.set_window_titles(None)
 
-        if self.hotkeyEnabled:
-            self.window().app.hotkey_created(self.currentItem)
+        if self.hotkey_enabled:
+            self.window().app.hotkey_created(self.current_item)
 
     def set_dirty(self):
         self.window().set_dirty()
 
     def validate(self):
         # Start by getting all applicable information
-        if self.abbrEnabled:
-            abbreviations = self.abbrDialog.get_abbrs()
+        if self.abbreviation_enabled:
+            abbreviations = self.abbr_settings_dialog.get_abbrs()
         else:
             abbreviations = []
 
-        if self.hotkeyEnabled:
-            modifiers = self.hotkeyDialog.build_modifiers()
-            key = self.hotkeyDialog.key
+        if self.hotkey_enabled:
+            modifiers = self.hotkey_settings_dialog.build_modifiers()
+            key = self.hotkey_settings_dialog.key
         else:
             modifiers = []
             key = None
 
-        filterExpression = None
-        if self.filterEnabled:
-            filterExpression = self.filterDialog.get_filter_text()
-        elif self.currentItem.parent is not None:
-            r = self.currentItem.parent.get_applicable_regex(True)
+        filter_expression = None
+        if self.window_filter_enabled:
+            filter_expression = self.window_filter_dialog.get_filter_text()
+        elif self.current_item.parent is not None:
+            r = self.current_item.parent.get_applicable_regex(True)
             if r is not None:
-                filterExpression = r.pattern
+                filter_expression = r.pattern
 
         # Validate
         ret = []
 
-        configManager = self.window().app.configManager
+        config_manager = self.window().app.configManager
 
         for abbr in abbreviations:
-            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            unique, conflicting = config_manager.check_abbreviation_unique(abbr, filter_expression, self.current_item)
             if not unique:
                 f = conflicting.get_applicable_regex()
                 # TODO: i18n
@@ -139,7 +143,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
                             )
                 ret.append(msg)
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        unique, conflicting = config_manager.check_hotkey_unique(modifiers, key, filter_expression, self.current_item)
         if not unique:
             f = conflicting.get_applicable_regex()
             # TODO: i18n
@@ -161,66 +165,66 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
 
     # ---- Signal handlers
 
-    def on_setAbbrButton_pressed(self):
-        self.abbrDialog.exec_()
+    def on_set_abbreviation_button_pressed(self):
+        self.abbr_settings_dialog.exec_()
 
-        if self.abbrDialog.result() == QDialog.Accepted:
+        if self.abbr_settings_dialog.result() == QDialog.Accepted:
             self.set_dirty()
-            self.abbrEnabled = True
-            self.abbrLabel.setText(self.abbrDialog.get_abbrs_readable())
-            self.clearAbbrButton.setEnabled(True)
+            self.abbreviation_enabled = True
+            self.abbreviation_label.setText(self.abbr_settings_dialog.get_abbrs_readable())
+            self.clear_abbreviation_button.setEnabled(True)
 
-    def on_clearAbbrButton_pressed(self):
+    def on_clear_abbreviation_button_pressed(self):
         self.set_dirty()
-        self.abbrEnabled = False
-        self.clearAbbrButton.setEnabled(False)
-        self.abbrLabel.setText("(None configured)")  # TODO: i18n
-        self.abbrDialog.reset()
+        self.abbreviation_enabled = False
+        self.clear_abbreviation_button.setEnabled(False)
+        self.abbreviation_label.setText("(None configured)")  # TODO: i18n
+        self.abbr_settings_dialog.reset()
 
-    def on_setHotkeyButton_pressed(self):
-        self.hotkeyDialog.exec_()
+    def on_set_hotkey_button_pressed(self):
+        self.hotkey_settings_dialog.exec_()
 
-        if self.hotkeyDialog.result() == QDialog.Accepted:
+        if self.hotkey_settings_dialog.result() == QDialog.Accepted:
             self.set_dirty()
-            self.hotkeyEnabled = True
-            key = self.hotkeyDialog.key
-            modifiers = self.hotkeyDialog.build_modifiers()
-            self.hotkeyLabel.setText(self.currentItem.get_hotkey_string(key, modifiers))
-            self.clearHotkeyButton.setEnabled(True)
+            self.hotkey_enabled = True
+            key = self.hotkey_settings_dialog.key
+            modifiers = self.hotkey_settings_dialog.build_modifiers()
+            self.hotkey_label.setText(self.current_item.get_hotkey_string(key, modifiers))
+            self.clear_hotkey_button.setEnabled(True)
 
-    def on_clearHotkeyButton_pressed(self):
+    def on_clear_hotkey_button_pressed(self):
         self.set_dirty()
-        self.hotkeyEnabled = False
-        self.clearHotkeyButton.setEnabled(False)
-        self.hotkeyLabel.setText("(None configured)")  # TODO: i18n
-        self.hotkeyDialog.reset()
+        self.hotkey_enabled = False
+        self.clear_hotkey_button.setEnabled(False)
+        self.hotkey_label.setText("(None configured)")  # TODO: i18n
+        self.hotkey_settings_dialog.reset()
 
-    def on_setFilterButton_pressed(self):
-        self.filterDialog.exec_()
+    def on_set_window_filter_button_pressed(self):
+        self.window_filter_dialog.exec_()
 
-        if self.filterDialog.result() == QDialog.Accepted:
+        if self.window_filter_dialog.result() == QDialog.Accepted:
             self.set_dirty()
-            filterText = self.filterDialog.get_filter_text()
-            if filterText != "":
-                self.filterEnabled = True
-                self.clearFilterButton.setEnabled(True)
-                self.windowFilterLabel.setText(filterText)
+            filter_text = self.window_filter_dialog.get_filter_text()
+            if filter_text:
+                self.window_filter_enabled = True
+                self.clear_window_filter_button.setEnabled(True)
+                self.window_filter_label.setText(filter_text)
             else:
-                self.filterEnabled = False
-                self.clearFilterButton.setEnabled(False)
-                if self.currentItem.inherits_filter():
-                    text = self.currentItem.parent.get_child_filter()
+                self.window_filter_enabled = False
+                self.clear_window_filter_button.setEnabled(False)
+                if self.current_item.inherits_filter():
+                    text = self.current_item.parent.get_child_filter()
                 else:
                     text = "(None configured)"  # TODO: i18n
-                self.windowFilterLabel.setText(text)
+                self.window_filter_label.setText(text)
 
-    def on_clearFilterButton_pressed(self):
+    def on_clear_window_filter_button_pressed(self):
         self.set_dirty()
-        self.filterEnabled = False
-        self.clearFilterButton.setEnabled(False)
-        if self.currentItem.inherits_filter():
-            text = self.currentItem.parent.get_child_filter()
+        self.window_filter_enabled = False
+        self.clear_window_filter_button.setEnabled(False)
+        if self.current_item.inherits_filter():
+            text = self.current_item.parent.get_child_filter()
         else:
             text = "(None configured)"  # TODO: i18n
-        self.windowFilterLabel.setText(text)
-        self.filterDialog.reset()
+        self.window_filter_label.setText(text)
+        self.window_filter_dialog.reset()
