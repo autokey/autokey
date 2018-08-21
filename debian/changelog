@@ -1,3 +1,40 @@
+autokey (0.95.3-0) bionic; urgency=medium
+
+  [Features]
+  * Phrase expansion can now always be undone using the backspace key, if the feature is enabled in the settings.
+    Previously it was only be possible if the phrase was triggered by an abbreviation.
+    Now it also works when using hotkeys or selecting phrases from menus.
+    This also prevents crashes in certain cases.
+  * Qt GUI: Add support for automatically starting `autokey-qt` during login. It can be configured in the settings
+    dialogue. The configuration option allows to choose which GUI is automatically started, if both `autokey-qt` and
+    `autokey-gtk` are installed simultaneously, and whether the main window should be shown automatically on launch.
+  * Qt GUI: Added the notification icon theme selection to the settings dialogue. The added section in the general
+    settings allow to choose between the light and dark theme, like in the `autokey-gtk` settings dialogue. Changing
+    this setting currently requires an application restart to take effect.
+
+  [Bug fixes]
+  * Scripting API: The Python `__file__` global variable is now properly set for AutoKey scripts.
+    It contains the full path to the Python script file currently running. Previously, it contained the full path to
+    the `service.py` file of the currently running AutoKey instance.
+  * Crash fix: Skip import of the AT-SPI interface, if importing of `pyatspi` fails with a SyntaxError. This may happen
+    with certain versions of `pyatspi` on Python 3.7. For details see the GitHub issue #173.
+  * Fix serializing the store during saving, if user stores recursive data structures. It now handles/skips lists that
+    contain themselves or other circular referenced data structures.
+  * GTK GUI: Fix autostart handling: Create the `$XDG_CONFIG_HOME/autostart` (`~/.config/autostart`) directory, if it is
+    not already present. Fixes #149
+  * Qt GUI: Create the user data directories before initializing the logger system. This prevents crashes when
+    autokey-qt is used for the first time or when the user wiped all previous data. Fixes #170
+  * Qt GUI: Fix saving the "Always prompt before running this script" checkbox content when editing scripts. This option
+    now works as intended again.
+
+  [Packaging]
+  * Stop shipping the `autokey.png` icon file inside a `scalable` icon theme directory. Moved to the appropriate raster
+    image directory.
+  * Corrected broken dependency package name in setup.py. The library is called `python-xlib` and not `python3-xlib` on
+    PyPI.
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Tue, 21 Aug 2018 21:48:00 +0200
+
 autokey (0.95.2-0) bionic; urgency=medium
 
   * Fix broken imports in autokey-shell script

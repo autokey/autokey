@@ -3,31 +3,83 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.3 <2018-08-21>
+===========================
+
+Features
+--------
+
+- Phrase expansion can now always be undone using the backspace key, if the feature is enabled in the settings.
+  Previously it was only be possible if the phrase was triggered by an abbreviation.
+  Now it also works when using hotkeys or selecting phrases from menus.
+  This also prevents crashes in `certain cases`_.
+- Qt GUI: Add support for automatically starting `autokey-qt` during login. It can be configured in the settings
+  dialogue. The configuration option allows to choose which GUI is automatically started, if both `autokey-qt` and
+  `autokey-gtk` are installed simultaneously, and whether the main window should be shown automatically on launch.
+- Qt GUI: Added the notification icon theme selection to the settings dialogue. The added section in the general
+  settings allow to choose between the light and dark theme, like in the `autokey-gtk` settings dialogue. Changing
+  this setting currently requires an application restart to take effect.
+
+Bug fixes
+---------
+- Scripting API: The Python `__file__` global variable is now properly set for AutoKey scripts.
+  It contains the full path to the Python script file currently running. Previously, it contained the full path to
+  the `service.py` file of the currently running AutoKey instance.
+- Crash fix: Skip import of the AT-SPI interface, if importing of `pyatspi` fails with a SyntaxError. This may happen
+  with certain versions of `pyatspi` on Python 3.7. For details see `#173`_
+- Fix serializing the store during saving, if user stores recursive data structures. It now handles/skips lists that
+  contain themselves or other circular referenced data structures.
+- GTK GUI: Fix autostart handling: Create the `$XDG_CONFIG_HOME/autostart` (`~/.config/autostart`) directory, if it is
+  not already present. Fixes `#149`_
+- Qt GUI: Create the user data directories before initializing the logger system. This prevents crashes when autokey-qt
+  is used for the first time or when the user wiped all previous data. Fixes `#170`_
+- Qt GUI: Fix saving the "Always prompt before running this script" checkbox content when editing scripts. This option
+  now works as intended again.
+
+Packaging
+---------
+- Stop shipping the `autokey.png` icon file inside a `scalable` icon theme directory. Moved to the appropriate raster
+  image directory.
+- Corrected broken dependency package name in setup.py. The library is called `python-xlib` and not `python3-xlib` on
+  PyPI.
+
+
+.. _certain cases: https://github.com/autokey/autokey/issues/164
+.. _`#173`: https://github.com/autokey/autokey/issues/173
+.. _`#149`: https://github.com/autokey/autokey/issues/149
+.. _`#170`: https://github.com/autokey/autokey/issues/170
+
+
 Version 0.95.2 <2018-07-16>
 ===========================
 
 - Fix broken imports in autokey-shell script
-- Skip non-json-serializable data in script storage (both script local and global) during saving. This allows putting non-serializable items (like function objects) into the store without crashing autokey during saving.
-- [Qt] Fix minor bug when creating new items. Created items are now properly selected for renaming directly after creation.
+- Skip non-json-serializable data in script storage (both script local and global) during saving. This allows putting
+  non-serializable items (like function objects) into the store without crashing autokey during saving.
+- Qt GUI: Fix minor bug when creating new items. Created items are now properly selected for renaming directly after
+  creation.
 - Minor code simplifications. Removed unnecessary functions that were obsoleted during prior changes.
 
 Version 0.95.1 <2018-06-30>
 ===========================
 This is a small bug fixing release.
 
-- Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard. Make sure to always release the keyboard after grabbing it. See `#72`_, `launchpad_1551054_
+- Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard.
+  Make sure to always release the keyboard after grabbing it. See `#72`_, launchpad_1551054_
 - Qt GUI: Fix saving the content of the log view to a file using the context menu entry.
 - Some small, internal code quality improvements.
 
 .. _`#72`: https://github.com/autokey/autokey/issues/72
 .. _launchpad_1551054: https://bugs.launchpad.net/ubuntu/+source/autokey/+bug/1551054
+
 Version 0.95.0 <2018-06-28>
 ===========================
 
 Rewritten the Qt GUI, ported to PyQt5
 -------------------------------------
 
-Resurrected, re-written and cleaned up the `autokey-qt` Qt GUI. `autokey-qt` is now a pure `PyQt5` application, only dependent on currently supported libraries.
+Resurrected, re-written and cleaned up the `autokey-qt` Qt GUI. `autokey-qt` is now a pure `PyQt5` application, only
+dependent on currently supported libraries.
 
 Added improvements
 ++++++++++++++++++
