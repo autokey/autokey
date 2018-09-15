@@ -18,7 +18,7 @@
 import sys
 from gi.repository import Gtk
 
-
+import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey import common
@@ -27,8 +27,8 @@ from .configwindow0 import get_ui
 
 
 ICON_NAME_MAP = {
-                _("Light") : common.ICON_FILE_NOTIFICATION,
-                _("Dark") : common.ICON_FILE_NOTIFICATION_DARK
+                _("Light"): common.ICON_FILE_NOTIFICATION,
+                _("Dark"): common.ICON_FILE_NOTIFICATION_DARK
                 }
 
 ICON_NAME_LIST = []
@@ -67,7 +67,7 @@ class SettingsDialog:
         self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]))
         
-        self.autoStartCheckbox.set_active(cm.get_autostart().desktop_file_name is not None)
+        self.autoStartCheckbox.set_active(autokey.configmanager.autostart.get_autostart().desktop_file_name is not None)
         self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
@@ -98,9 +98,10 @@ class SettingsDialog:
 
     def on_save(self, widget, data=None):
         if self.autoStartCheckbox.get_active():
-            cm.set_autostart_entry(cm.AutostartSettings("autokey-gtk.desktop", False))
+            autokey.configmanager.autostart.set_autostart_entry(
+                autokey.configmanager.autostart.AutostartSettings("autokey-gtk.desktop", False))
         else:
-            cm.delete_autostart_entry()
+            autokey.configmanager.autostart.delete_autostart_entry()
     
         cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()

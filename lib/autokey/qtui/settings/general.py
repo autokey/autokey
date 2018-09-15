@@ -19,6 +19,7 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox
 
+import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
@@ -53,7 +54,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         self._fill_notification_icon_combobox_user_data()
         self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
-        self.autostart_settings = cm.get_autostart()
+        self.autostart_settings = autokey.configmanager.autostart.get_autostart()
         self._load_autostart_settings()
         logger.debug("Created widget and loaded current settings: " + self._settings_str())
 
@@ -61,15 +62,11 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
         logger.debug("User requested to save settings. New settings: " + self._settings_str())
-        cm.ConfigManager.SETTINGS[
-            cm_constants.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[
-            cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
-        # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[
-            cm_constants.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[
-            cm_constants.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
+        # cm.ConfigManager.SETTINGS[cm_constants.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = \
             self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
         # TODO: After saving the notification icon, apply it to the currently running instance.
@@ -96,7 +93,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         combobox = self.autostart_interface_choice_combobox  # type: QComboBox
         for desktop_file, name in GeneralSettings.GUI_TABLE:
             try:
-                cm.get_source_desktop_file(desktop_file)
+                autokey.configmanager.autostart.get_source_desktop_file(desktop_file)
             except FileNotFoundError:
                 # Skip unavailable GUIs
                 pass
@@ -129,7 +126,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         combobox = self.autostart_interface_choice_combobox  # type: QComboBox
         desktop_entry = None if not self.autostart_groupbox.isChecked() else combobox.currentData(Qt.UserRole)
         show_main_window = self.autostart_show_main_window_checkbox.isChecked()
-        new_settings = cm.AutostartSettings(desktop_entry, show_main_window)
+        new_settings = autokey.configmanager.autostart.AutostartSettings(desktop_entry, show_main_window)
         if new_settings != self.autostart_settings:
             # Only write if settings changed to preserve eventual user-made modifications.
-            cm.set_autostart_entry(new_settings)
+            autokey.configmanager.autostart.set_autostart_entry(new_settings)
