@@ -15,12 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
 from gi.repository import Gtk
 
-from .. import configmanager as cm
-from .. import common
+
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+from autokey import common
 from .dialogs import GlobalHotkeyDialog
 from .configwindow0 import get_ui
 
@@ -63,20 +64,17 @@ class SettingsDialog:
         for key, value in list(ICON_NAME_MAP.items()):
             self.iconStyleCombo.append_text(key)
             ICON_NAME_LIST.append(value)
-        self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
-        self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]))
+        self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
+        self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]))
         
         self.autoStartCheckbox.set_active(cm.get_autostart().desktop_file_name is not None)
-        self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
-        self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
+        self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         # Added by Trey Blancher (ectospasm) 2015-09-16
-        self.triggerItemByInitial.set_active(cm.ConfigManager.SETTINGS[cm.TRIGGER_BY_INITIAL])
-        self.sortByUsageCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
-        self.enableUndoCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
-        
-
-
+        self.triggerItemByInitial.set_active(cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL])
+        self.sortByUsageCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT])
+        self.enableUndoCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE])
 
         # Hotkeys
         self.showConfigDlg = GlobalHotkeyDialog(parent, configManager, self.on_config_response)
@@ -87,9 +85,9 @@ class SettingsDialog:
         self.clearMonitorButton = builder.get_object("clearMonitorButton")    
         
         self.useConfigHotkey = self.__loadHotkey(configManager.configHotkey, self.configKeyLabel, 
-                                                    self.showConfigDlg, self.clearConfigButton)
+                                                 self.showConfigDlg, self.clearConfigButton)
         self.useServiceHotkey = self.__loadHotkey(configManager.toggleServiceHotkey, self.monitorKeyLabel, 
-                                                    self.toggleMonitorDlg, self.clearMonitorButton)
+                                                  self.toggleMonitorDlg, self.clearMonitorButton)
                                                     
         # Script Engine Settings
         self.userModuleChooserButton = builder.get_object("userModuleChooserButton")
@@ -104,14 +102,14 @@ class SettingsDialog:
         else:
             cm.delete_autostart_entry()
     
-        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
-        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
         #cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
-        cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
         # Added by Trey Blancher (ectospasm) 2015-09-16
-        cm.ConfigManager.SETTINGS[cm.TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
-        cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
-        cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
+        cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
         
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)

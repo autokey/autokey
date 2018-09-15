@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from . import common
 common.USING_QT = True
 
@@ -35,11 +34,13 @@ from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QMessageBox, QApplication
 
 from autokey import service, monitor
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 from autokey.qtui import common as ui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
-from autokey import configmanager as cm
 from autokey.qtui.dbus_service import AppService
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
@@ -138,8 +139,8 @@ class Application(QApplication):
             self.dbus_service = AppService(self)
             logging.debug("Service created")
             self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-            if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN]:
-                cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
+            if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
+                cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
                 self.args.show_config_window = True
             if self.args.show_config_window:
                 self.show_configure()

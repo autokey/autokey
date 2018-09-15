@@ -19,7 +19,8 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 import autokey.qtui.common as ui_common
 import autokey.common as common
@@ -43,12 +44,12 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         super(GeneralSettings, self).__init__(parent)
         self.setupUi(self)
 
-        self.prompt_to_save_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
-        self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        self.prompt_to_save_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
+        self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         # self.allow_kb_nav_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS])
         self.allow_kb_nav_checkbox.setVisible(False)
-        self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
-        self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
+        self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT])
+        self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE])
         self._fill_notification_icon_combobox_user_data()
         self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
@@ -60,12 +61,17 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
         logger.debug("User requested to save settings. New settings: " + self._settings_str())
-        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[
+            cm_constants.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[
+            cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
         # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON] = self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
+        cm.ConfigManager.SETTINGS[
+            cm_constants.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[
+            cm_constants.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = \
+            self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
         # TODO: After saving the notification icon, apply it to the currently running instance.
         self._save_autostart_settings()
 
@@ -104,7 +110,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
 
     def _load_system_tray_icon_theme(self):
         combo_box = self.system_tray_icon_theme_combobox  # type: QComboBox
-        data = cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]
+        data = cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]
         combo_box_index = combo_box.findData(data, Qt.UserRole)
         if combo_box_index == -1:
             # Invalid data in user configuration. TODO: should this be a warning or error?

@@ -56,7 +56,6 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         self.use_service_hotkey = self._load_hotkey(self.config_manager.toggleServiceHotkey, self.monitor_key_label,
                                                     self.toggle_monitor_dlg, self.clear_monitor_button)
 
-
     @staticmethod
     def _load_hotkey(item, label: QLabel, dialog: GlobalHotkeyDialog, clear_button: QPushButton):
         dialog.load(item)

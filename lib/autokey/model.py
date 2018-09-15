@@ -25,7 +25,7 @@ import shutil
 import typing
 import enum
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
 from autokey.iomediator.constants import KEY_SPLIT_RE
 from autokey.scripting_Store import Store
@@ -416,7 +416,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if self.parent is not None:
             self.path = get_safe_path(self.parent.path, base_name)
         else:
-            self.path = get_safe_path(cm.CONFIG_DEFAULT_FOLDER, base_name)
+            self.path = get_safe_path(cm_constants.CONFIG_DEFAULT_FOLDER, base_name)
 
     def persist(self):
         if self.path is None:

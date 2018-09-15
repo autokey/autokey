@@ -18,7 +18,8 @@
 import time, logging
 from gi.repository import Gtk, Gdk
 
-from .. import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 _logger = logging.getLogger("phrase-menu")
 
@@ -37,7 +38,7 @@ class PopupMenu(Gtk.Menu):
         self.__i = 1
         self.service = service
         
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -46,7 +47,7 @@ class PopupMenu(Gtk.Menu):
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
-        if cm.ConfigManager.SETTINGS[cm.TRIGGER_BY_INITIAL]:
+        if cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL]:
             _logger.debug("Triggering menu item by first initial")
             self.triggerInitial = 1
         else:
@@ -106,7 +107,7 @@ class PopupMenu(Gtk.Menu):
         
     def __addItemsToSelf(self, items, service, onDesktop):
         # Create phrase section
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))

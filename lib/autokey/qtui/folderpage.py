@@ -18,9 +18,9 @@ import typing
 
 from PyQt5.QtWidgets import QMessageBox
 
+import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.qtui.common as ui_common
 
-from autokey import configmanager as cm
 from autokey.model import Folder
 
 if typing.TYPE_CHECKING:
@@ -57,7 +57,7 @@ class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
         self.current_folder.persist()
         ui_common.set_url_label(self.urlLabel, self.current_folder.path)
 
-        return not self.current_folder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
+        return not self.current_folder.path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER)
 
     def set_item_title(self, title: str):
         self.current_folder.title = title

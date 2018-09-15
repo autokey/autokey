@@ -2,9 +2,9 @@ import threading
 import queue
 import logging
 
-from ..configmanager import ConfigManager
-from ..configmanager_constants import INTERFACE_TYPE
-from ..interface import XRecordInterface, AtSpiInterface
+from autokey.configmanager.configmanager import ConfigManager
+from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
+from autokey.interface import XRecordInterface, AtSpiInterface
 from autokey.model import SendMode
 
 from .key import Key

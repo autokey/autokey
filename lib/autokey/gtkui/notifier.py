@@ -18,6 +18,8 @@
 import threading
 
 import gi
+
+
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
 gi.require_version('AppIndicator3', '0.1')
@@ -26,7 +28,10 @@ from gi.repository import Gtk, Gdk, Notify, AppIndicator3
 import gettext
 
 from . import popupmenu
-from .. import configmanager as cm
+
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 from .. import common
 
 
@@ -45,15 +50,17 @@ class IndicatorNotifier:
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
-        self.indicator = AppIndicator3.Indicator.new("AutoKey", cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
-                                                AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
+        self.indicator = AppIndicator3.Indicator.new(
+            "AutoKey",
+            cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON],
+            AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
                                                 
         self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
         self.update_visible_status()           
         self.rebuild_menu()
         
     def update_visible_status(self):
-        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]:
             self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
         else:
             self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)   
@@ -145,7 +152,7 @@ class IndicatorNotifier:
 
     def on_remove_icon(self, widget, data=None):
         self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
-        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = False
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
         self.app.shutdown()

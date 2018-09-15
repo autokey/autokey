@@ -14,14 +14,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from . import common
 common.USING_QT = False
 
 import sys
-import traceback
 import os.path
-import signal
 import logging
 import logging.handlers
 import subprocess
@@ -45,7 +42,9 @@ from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 
 PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
 DESCRIPTION = _("Desktop automation utility")
@@ -86,8 +85,11 @@ class Application:
                 handler = logging.StreamHandler(sys.stdout)
             else:
                 rootLogger.setLevel(logging.INFO)
-                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
-                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
+                handler = logging.handlers.RotatingFileHandler(
+                    common.LOG_FILE,
+                    maxBytes=common.MAX_LOG_SIZE,
+                    backupCount=common.MAX_LOG_COUNT
+                )
 
             handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
             rootLogger.addHandler(handler)
@@ -151,7 +153,7 @@ class Application:
             logging.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration."), str(e))
+                                     "Check your system/configuration."), str(e))
 
         self.notifier = get_notifier(self)
         self.configWindow = None
@@ -293,7 +295,7 @@ class Application:
                                      message_format=self.service.scriptRunner.error)
             self.service.scriptRunner.error = ''
             # revert the tray icon
-            self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON])
+            self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON])
             self.notifier.errorItem.hide()
             self.notifier.update_visible_status()
 

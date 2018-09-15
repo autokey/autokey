@@ -15,16 +15,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, os, webbrowser, time
+import locale
+import logging
+import os
 import threading
+import time
+import webbrowser
 
 from gi import require_version
+
+
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
 
 from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 
-import locale
+
 
 GETTEXT_DOMAIN = 'autokey'
 
@@ -36,8 +42,11 @@ locale.setlocale(locale.LC_ALL, '')
 
 from . import dialogs
 from .settingsdialog import SettingsDialog
-from .. import configmanager as cm
-from ..iomediator import Recorder
+
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
+from autokey.iomediator import Recorder
 from .. import model, common
 
 CONFIG_WINDOW_TITLE = "AutoKey"
@@ -59,8 +68,8 @@ from .configwindow0 import get_ui
 def set_linkbutton(button, path):
     button.set_sensitive(True)
 
-    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
+    if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
     else:
         text = path.replace(os.path.expanduser("~"), "~")
 
@@ -366,7 +375,7 @@ class FolderPage:
         self.currentFolder.persist()
         set_linkbutton(self.linkButton, self.currentFolder.path)
 
-        return not self.currentFolder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
+        return not self.currentFolder.path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER)
 
     def set_item_title(self, newTitle):
         self.currentFolder.title = newTitle
@@ -753,39 +762,39 @@ class ConfigWindow:
         # Menu Bar
         actionGroup = Gtk.ActionGroup("menu")
         actions = [
-                ("File", None, _("_File")),
-                ("create", None, _("New")),
-                ("new-top-folder", "folder-new", _("_Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
-                ("new-folder", "folder-new", _("Subf_older"), "", _("Create a new folder in the current folder"), self.on_new_folder),
-                ("new-phrase", "text-x-generic", _("_Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
-                ("new-script", "text-x-python", _("Scrip_t"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
-                ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
-                ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
-                ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
-                ("quit", Gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
-                ("Edit", None, _("_Edit")),
-                ("cut-item", Gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
-                ("copy-item", Gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
-                ("paste-item", Gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
-                ("clone-item", Gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
-                ("delete-item", Gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
-                ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
-                ("undo", Gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
-                ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
-                ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
-                ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
-                ("Tools", None, _("_Tools")),
-                ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
-                ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
-                #("Settings", None, _("_Settings"), None, None, None),
-                #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
-                ("Help", None, _("_Help")),
-                ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
-                ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
-                ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
-                ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
-                ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
-                ]
+            ("File", None, _("_File")),
+            ("create", None, _("New")),
+            ("new-top-folder", "folder-new", _("_Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
+            ("new-folder", "folder-new", _("Subf_older"), "", _("Create a new folder in the current folder"), self.on_new_folder),
+            ("new-phrase", "text-x-generic", _("_Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
+            ("new-script", "text-x-python", _("Scrip_t"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
+            ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
+            ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
+            ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
+            ("quit", Gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
+            ("Edit", None, _("_Edit")),
+            ("cut-item", Gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
+            ("copy-item", Gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
+            ("paste-item", Gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
+            ("clone-item", Gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
+            ("delete-item", Gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
+            ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
+            ("undo", Gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
+            ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
+            ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
+            ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
+            ("Tools", None, _("_Tools")),
+            ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
+            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
+            #("Settings", None, _("_Settings"), None, None, None),
+            #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
+            ("Help", None, _("_Help")),
+            ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
+            ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
+            ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
+            ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
+            ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
+        ]
         actionGroup.add_actions(actions)
 
         toggleActions = [
@@ -812,7 +821,7 @@ class ConfigWindow:
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
         toolbar.insert(create, 0)
-        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR])
+        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TOOLBAR])
         toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
 
         self.treeView = builder.get_object("treeWidget")
@@ -836,9 +845,9 @@ class ConfigWindow:
 
         self.treeView.columns_autosize()
 
-        width, height = cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE]
+        width, height = cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE]
         self.set_default_size(width, height)
-        self.hpaned.set_position(cm.ConfigManager.SETTINGS[cm.HPANE_POSITION])
+        self.hpaned.set_position(cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION])
 
     def __addToolbar(self):
         toolbar = self.uiManager.get_widget('/Toolbar')
@@ -952,8 +961,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         return False
 
     def on_close(self, widget, data=None):
-        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
-        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
         self.cancel_record()
         if self.queryClose():
             return True
@@ -965,8 +974,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
-        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
-        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
         self.app.shutdown()
 
     # File Menu
@@ -1246,7 +1255,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         else:
             self.vbox.remove(self.uiManager.get_widget('/Toolbar'))
 
-        cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR] = widget.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TOOLBAR] = widget.get_active()
 
     def on_show_error(self, widget, data=None):
         self.app.show_script_error(self.ui)
@@ -1560,9 +1569,11 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         result = False
 
         if self.dirty:
-            if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
-                dlg = Gtk.MessageDialog(self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
-                                        _("There are unsaved changes. Would you like to save them?"))
+            if cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE]:
+                dlg = Gtk.MessageDialog(
+                    self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
+                    _("There are unsaved changes. Would you like to save them?")
+                )
                 dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
                 response = dlg.run()
 

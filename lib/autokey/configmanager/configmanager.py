@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -26,54 +27,24 @@ import re
 from pathlib import Path
 
 from autokey import common
+
+from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
+    RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
+    PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
+    SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE
 from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 import json
 
 _logger = logging.getLogger("config-manager")
 
-CONFIG_FILE = os.path.join(common.CONFIG_DIR, "autokey.json")
-CONFIG_DEFAULT_FOLDER = os.path.join(common.CONFIG_DIR, "data")
-CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
-
-DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
-RECENT_ENTRIES_FOLDER = "Recently Typed"
-
-IS_FIRST_RUN = "isFirstRun"
-SERVICE_RUNNING = "serviceRunning"
-MENU_TAKES_FOCUS = "menuTakesFocus"
-SHOW_TRAY_ICON = "showTrayIcon"
-SORT_BY_USAGE_COUNT = "sortByUsageCount"
-#DETECT_UNWANTED_ABBR = "detectUnwanted"
-PROMPT_TO_SAVE = "promptToSave"
-#PREDICTIVE_LENGTH = "predictiveLength"
-INPUT_SAVINGS = "inputSavings"
-ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
-from .configmanager_constants import INTERFACE_TYPE
-# INTERFACE_TYPE = "interfaceType"
-UNDO_USING_BACKSPACE = "undoUsingBackspace"
-WINDOW_DEFAULT_SIZE = "windowDefaultSize"
-HPANE_POSITION = "hPanePosition"
-COLUMN_WIDTHS = "columnWidths"
-SHOW_TOOLBAR = "showToolbar"
-NOTIFICATION_ICON = "notificationIcon"
-WORKAROUND_APP_REGEX = "workAroundApps"
-# Added by Trey Blancher (ectospasm) 2015-09-16
-TRIGGER_BY_INITIAL = "triggerItemByInitial"
-
-SCRIPT_GLOBALS = "scriptGlobals"
-
-# TODO - Future functionality
-#TRACK_RECENT_ENTRY = "trackRecentEntry"
-#RECENT_ENTRY_COUNT = "recentEntryCount"
-#RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
-#RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
 
 # Used to set or retrieve autostart related settings. These settings are separately handled by .desktop files in the
 # user autostart directory in $XDG_DATA_HOME/autostart, typically ~/.local/share/autostart.
 AutostartSettings = typing.NamedTuple("AutostartSettings", [
     ("desktop_file_name", typing.Optional[str]), ("switch_show_configure", bool)
 ])
+
 
 def get_config_manager(autoKeyApp, hadError=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
@@ -910,7 +881,7 @@ dialog.info_dialog("Window information",
         return True, None
     
 # This import placed here to prevent circular import conflicts
-from . import model
+from autokey import model
 
 
 class GlobalHotkey(model.AbstractHotkey):

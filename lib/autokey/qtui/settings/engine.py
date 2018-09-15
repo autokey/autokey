@@ -23,9 +23,6 @@ from PyQt5.QtWidgets import QFileDialog, QWidget, QApplication
 
 from autokey.qtui import common
 
-if typing.TYPE_CHECKING:
-    from autokey.configmanager import ConfigManager
-
 
 logger = common.logger.getChild("AutoKey configuration")  # type: logging.Logger
 

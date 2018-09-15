@@ -23,10 +23,11 @@ from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
 from autokey import iomediator
 from autokey import model
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
-from . import common as ui_common
-from . import autokey_treewidget as ak_tree
+from autokey.qtui import common as ui_common
+from autokey.qtui import autokey_treewidget as ak_tree
 
 
 logger = ui_common.logger.getChild("CentralWidget")  # type: logging.Logger
@@ -44,7 +45,9 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         self.cutCopiedItems = []
         for column_index in range(3):
-            self.treeWidget.setColumnWidth(column_index, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][column_index])
+            self.treeWidget.setColumnWidth(
+                column_index, cm.ConfigManager.SETTINGS[cm_constants.COLUMN_WIDTHS][column_index]
+            )
 
         h_view = self.treeWidget.header()
         h_view.setSectionResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
@@ -99,14 +102,14 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.on_treeWidget_itemSelectionChanged()
 
     def set_splitter(self, window_size):
-        pos = cm.ConfigManager.SETTINGS[cm.HPANE_POSITION]
+        pos = cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION]
         self.splitter.setSizes([pos, window_size.width() - pos])
 
     def set_dirty(self, dirty: bool):
         self.dirty = dirty
 
     def promptToSave(self):
-        if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
+        if cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE]:
             # TODO: i18n
             result = QMessageBox.question(
                 self.window(),
