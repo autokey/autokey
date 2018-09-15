@@ -139,7 +139,7 @@ class Application:
     def initialise(self, configure):
         logging.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.get_config_manager(self)
+        self.configManager = cm.create_config_manager_instance(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
 

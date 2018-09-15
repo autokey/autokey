@@ -125,7 +125,7 @@ class Application(QApplication):
                 self._create_lock_file()
 
             self.monitor = monitor.FileMonitor(self)
-            self.configManager = cm.get_config_manager(self)
+            self.configManager = cm.create_config_manager_instance(self)
             self.service = service.Service(self)
             self.serviceDisabled = False
             self._try_start_service()

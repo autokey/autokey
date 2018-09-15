@@ -23,7 +23,6 @@ import logging
 import glob
 import threading
 import re
-from pathlib import Path
 
 from autokey import common
 
@@ -31,6 +30,7 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
     SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE
+import autokey.configmanager.version_upgrading
 from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 import json
@@ -38,25 +38,23 @@ import json
 _logger = logging.getLogger("config-manager")
 
 
-
-def get_config_manager(autoKeyApp, hadError=False):
+def create_config_manager_instance(auto_key_app, had_error=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
         os.mkdir(CONFIG_DEFAULT_FOLDER)
-
     try:
-        configManager = ConfigManager(autoKeyApp)
+        config_manager = ConfigManager(auto_key_app)
     except Exception as e:
-        if hadError or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
+        if had_error or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
             _logger.exception("Error while loading configuration. Cannot recover.")
             raise
 
         _logger.exception("Error while loading configuration. Backup has been restored.")
         os.remove(CONFIG_FILE)
         shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
-        return get_config_manager(autoKeyApp, True)
+        return create_config_manager_instance(auto_key_app, True)
     
     _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
-    return configManager
+    return config_manager
 
 
 def save_config(config_manager):
@@ -139,67 +137,6 @@ def apply_settings(settings):
     """
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
-
-
-def convert_v07_to_v08(configData):
-    oldVersion = configData["version"]
-    os.rename(CONFIG_FILE, CONFIG_FILE + oldVersion)
-    _logger.info("Converting v%s configuration data to v0.80.0", oldVersion)
-    for folderData in configData["folders"]:
-        _convertFolder(folderData, None)
-        
-    configData["folders"] = []
-    configData["version"] = common.VERSION
-    configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE_NOTIFICATION
-
-    # Remove old backup file so we never retry the conversion
-    if os.path.exists(CONFIG_FILE_BACKUP):
-        os.remove(CONFIG_FILE_BACKUP)
-    
-    _logger.info("Conversion succeeded")
-        
-        
-def _convertFolder(folderData, parent):
-    f = model.Folder("")
-    f.inject_json_data(folderData)
-    f.parent = parent
-    f.persist()    
-    
-    for subfolder in folderData["folders"]:
-        _convertFolder(subfolder, f)
-    
-    for itemData in folderData["items"]:
-        i = None
-        if itemData["type"] == "script":
-            i = model.Script("", "")
-            i.code = itemData["code"]
-        elif itemData["type"] == "phrase":
-            i = model.Phrase("", "")
-            i.phrase = itemData["phrase"]
-        
-        if i is not None:
-            i.inject_json_data(itemData)
-            i.parent = f
-            i.persist()
-
-
-def convert_rename_autostart_entries_for_v0_95_3():
-    """
-    In versions <= 0.95.2, the autostart option in autokey-gtk copied the default autokey-gtk.desktop file into
-    $XDG_CONFIG_DIR/autostart (with minor, unrelated modifications).
-    For versions >= 0.95.3, the autostart file is renamed to autokey.desktop. In 0.95.3, the autostart functionality
-    is implemented for autokey-qt. Thus, it becomes possible to have an autostart file for both GUIs in the autostart
-    directory simultaneously. Because of the singleton nature of autokey, this becomes an issue and race-conditions
-    determine which GUI starts first. To prevent this, both GUIs will share a single autokey.desktop autostart entry,
-    allowing only one GUI to be started during login. This allows for much simpler code.
-    """
-    old_autostart_file = Path(common.AUTOSTART_DIR) / "autokey-gtk.desktop"
-    if old_autostart_file.exists():
-        new_file_name = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-        _logger.info("Migration task: Found old autostart entry: '{}'. Rename to: '{}'".format(
-            old_autostart_file, new_file_name)
-        )
-        old_autostart_file.rename(new_file_name)
 
 
 class ConfigManager:
@@ -388,20 +325,9 @@ dialog.info_dialog("Window information",
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
-                
-            if version < "0.80.0":
-                try:
-                    convert_v07_to_v08(data)
-                    self.config_altered(True)
-                except Exception as e:
-                    _logger.exception("Problem occurred during conversion.")
-                    _logger.error("Existing config file has been saved as %s%s",
-                                  CONFIG_FILE, version)
-                    raise
 
-            if version < "0.95.3":
-                convert_rename_autostart_entries_for_v0_95_3()
-                
+            autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
+
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
