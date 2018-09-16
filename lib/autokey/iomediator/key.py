@@ -1,5 +1,9 @@
 # Key codes enumeration
 import enum
+import re
+
+# Matches the special <code[number]> syntax, like <code86> for non-printable or unknown keys.
+_code_point_re = re.compile(r"<code(0|[1-9][0-9]*)>")
 
 
 @enum.unique
@@ -101,7 +105,7 @@ class Key(str, enum.Enum):
         try:
             cls(lowered_key_string)
         except ValueError:
-            return lowered_key_string.startswith("<code")
+            return _code_point_re.fullmatch(lowered_key_string) is not None
         else:
             return True
 
