@@ -13,7 +13,7 @@ class KeyGrabber:
     """
 
     def __init__(self, parent):
-        self.targetParent = parent
+        self.target_parent = parent
 
     def start(self):
         # In QT version, sometimes the mouseclick event arrives before we finish initialising
@@ -22,16 +22,16 @@ class KeyGrabber:
         IoMediator.listeners.append(self)
         _iomediator.CURRENT_INTERFACE.grab_keyboard()
 
-    def handle_keypress(self, rawKey, modifiers, key, *args):
-        if rawKey not in MODIFIERS:
+    def handle_keypress(self, raw_key, modifiers, key, *args):
+        if raw_key not in MODIFIERS:
             IoMediator.listeners.remove(self)
-            self.targetParent.set_key(rawKey, modifiers)
+            self.target_parent.set_key(raw_key, modifiers)
             _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
 
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
+    def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
         IoMediator.listeners.remove(self)
         _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
-        self.targetParent.cancel_grab()
+        self.target_parent.cancel_grab()
 
 
 class Recorder(KeyGrabber):
@@ -42,29 +42,33 @@ class Recorder(KeyGrabber):
     def __init__(self, parent):
         KeyGrabber.__init__(self, parent)
         self.insideKeys = False
+        self.start_time = .0
+        self.delay = .0
+        self.delay_finished = False
+        self.record_keyboard = self.record_mouse = False
 
-    def start(self, delay):
+    def start(self, delay: float):
         time.sleep(0.1)
         IoMediator.listeners.append(self)
-        self.targetParent.start_record()
-        self.startTime = time.time()
+        self.target_parent.start_record()
+        self.start_time = time.time()
         self.delay = delay
-        self.delayFinished = False
+        self.delay_finished = False
 
     def start_withgrab(self):
         time.sleep(0.1)
         IoMediator.listeners.append(self)
-        self.targetParent.start_record()
-        self.startTime = time.time()
+        self.target_parent.start_record()
+        self.start_time = time.time()
         self.delay = 0
-        self.delayFinished = True
+        self.delay_finished = True
         _iomediator.CURRENT_INTERFACE.grab_keyboard()
 
     def stop(self):
         if self in IoMediator.listeners:
             IoMediator.listeners.remove(self)
             if self.insideKeys:
-                self.targetParent.end_key_sequence()
+                self.target_parent.end_key_sequence()
             self.insideKeys = False
 
     def stop_withgrab(self):
@@ -72,42 +76,44 @@ class Recorder(KeyGrabber):
         if self in IoMediator.listeners:
             IoMediator.listeners.remove(self)
             if self.insideKeys:
-                self.targetParent.end_key_sequence()
+                self.target_parent.end_key_sequence()
             self.insideKeys = False
 
-    def set_record_keyboard(self, doIt):
-        self.recordKeyboard = doIt
+    def set_record_keyboard(self, record: bool):
+        self.record_keyboard = record
 
-    def set_record_mouse(self, doIt):
-        self.recordMouse = doIt
+    def set_record_mouse(self, record: bool):
+        self.record_mouse = record
 
-    def __delayPassed(self):
-        if not self.delayFinished:
+    def _delay_passed(self) -> bool:
+        if not self.delay_finished:
             now = time.time()
-            delta = datetime.datetime.utcfromtimestamp(now - self.startTime)
-            self.delayFinished = (delta.second > self.delay)
+            delta = datetime.datetime.utcfromtimestamp(now - self.start_time)
+            self.delay_finished = (delta.second > self.delay)
 
-        return self.delayFinished
+        return self.delay_finished
 
-    def handle_keypress(self, rawKey, modifiers, key, *args):
-        if self.recordKeyboard and self.__delayPassed():
+    def handle_keypress(self, raw_key, modifiers, key, *args):
+        if self.record_keyboard and self._delay_passed():
             if not self.insideKeys:
                 self.insideKeys = True
-                self.targetParent.start_key_sequence()
+                self.target_parent.start_key_sequence()
 
-            modifierCount = len(modifiers)
+            modifier_count = len(modifiers)
 
-            if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers) or \
-                    (Key.SHIFT in modifiers and len(rawKey) > 1):
-                self.targetParent.append_hotkey(rawKey, modifiers)
+            # TODO: This check assumes that Key.SHIFT is the only case shifting modifier. What about ISO_Level3_Shift
+            # or ISO_Level5_Lock?
+            if modifier_count > 1 or (modifier_count == 1 and Key.SHIFT not in modifiers) or \
+                    (Key.SHIFT in modifiers and len(raw_key) > 1):
+                self.target_parent.append_hotkey(raw_key, modifiers)
 
             elif key not in MODIFIERS:
-                self.targetParent.append_key(key)
+                self.target_parent.append_key(key)
 
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
-        if self.recordMouse and self.__delayPassed():
+    def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
+        if self.record_mouse and self._delay_passed():
             if self.insideKeys:
                 self.insideKeys = False
-                self.targetParent.end_key_sequence()
+                self.target_parent.end_key_sequence()
 
-            self.targetParent.append_mouseclick(relX, relY, button, windowInfo[0])
+            self.target_parent.append_mouseclick(rel_x, rel_y, button, window_info[0])

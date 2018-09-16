@@ -32,9 +32,9 @@ class WindowGrabber:
         time.sleep(0.1)
         IoMediator.listeners.append(self)
 
-    def handle_keypress(self, rawKey, modifiers, key, *args):
+    def handle_keypress(self, raw_key, modifiers, key, *args):
         pass
 
-    def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowInfo):
+    def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
         IoMediator.listeners.remove(self)
-        self.dialog.receive_window_info(windowInfo)
+        self.dialog.receive_window_info(window_info)

@@ -91,33 +91,33 @@ class IoMediator(threading.Thread):
         if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
-    def handle_keypress(self, keyCode, windowName, windowClass):
+    def handle_keypress(self, key_code, window_name, window_class):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
         """
-        self.queue.put_nowait((keyCode, windowName, windowClass))
+        self.queue.put_nowait((key_code, window_name, window_class))
         
     def run(self):
         while True:
-            keyCode, windowName, windowClass = self.queue.get()
-            if keyCode is None and windowName is None:
+            key_code, window_name, window_class = self.queue.get()
+            if key_code is None and window_name is None:
                 break
             
-            numLock = self.modifiers[Key.NUMLOCK]
-            modifiers = self.__getModifiersOn()
+            num_lock = self.modifiers[Key.NUMLOCK]
+            modifiers = self._get_modifiers_on()
             shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
-            key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
-            rawKey = self.interface.lookup_string(keyCode, False, False, False)
+            key = self.interface.lookup_string(key_code, shifted, num_lock, self.modifiers[Key.ALT_GR])
+            raw_key = self.interface.lookup_string(key_code, False, False, False)
             
             for target in self.listeners:
-                target.handle_keypress(rawKey, modifiers, key, windowName, windowClass)                
+                target.handle_keypress(raw_key, modifiers, key, window_name, window_class)
                 
             self.queue.task_done()
             
-    def handle_mouse_click(self, rootX, rootY, relX, relY, button, windowInfo):
+    def handle_mouse_click(self, root_x, root_y, rel_x, rel_y, button, window_info):
         for target in self.listeners:
-            target.handle_mouseclick(rootX, rootY, relX, relY, button, windowInfo)
+            target.handle_mouseclick(root_x, root_y, rel_x, rel_y, button, window_info)
         
     # Methods for expansion service ----
 
@@ -132,7 +132,7 @@ class IoMediator(threading.Thread):
         string = string.replace('\t', "<tab>")
         
         _logger.debug("Send via event interface")
-        self.__clearModifiers()
+        self._clear_modifiers()
         modifiers = []
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
@@ -158,12 +158,12 @@ class IoMediator(threading.Thread):
                         else:
                             self.interface.send_string(section)
                             
-        self.__reapplyModifiers()
+        self._reapply_modifiers()
         
-    def paste_string(self, string, pasteCommand: SendMode):
+    def paste_string(self, string, paste_command: SendMode):
         if len(string) > 0:
             _logger.debug("Send via clipboard")
-            self.interface.send_string_clipboard(string, pasteCommand)
+            self.interface.send_string_clipboard(string, paste_command)
 
     def remove_string(self, string):
         backspaces = -1  # Start from -1 to discount the backspace already pressed by the user
@@ -176,21 +176,21 @@ class IoMediator(threading.Thread):
                 
         self.send_backspace(backspaces)
 
-    def send_key(self, keyName):
-        keyName = keyName.replace('\n', "<enter>")
-        self.interface.send_key(keyName)
+    def send_key(self, key_name):
+        key_name = key_name.replace('\n', "<enter>")
+        self.interface.send_key(key_name)
 
-    def press_key(self, keyName):
-        keyName = keyName.replace('\n', "<enter>")
-        self.interface.fake_keydown(keyName)
+    def press_key(self, key_name):
+        key_name = key_name.replace('\n', "<enter>")
+        self.interface.fake_keydown(key_name)
 
-    def release_key(self, keyName):
-        keyName = keyName.replace('\n', "<enter>")
-        self.interface.fake_keyup(keyName)                
+    def release_key(self, key_name):
+        key_name = key_name.replace('\n', "<enter>")
+        self.interface.fake_keyup(key_name)
 
-    def fake_keypress(self, keyName):
-        keyName = keyName.replace('\n', "<enter>")
-        self.interface.fake_keypress(keyName)
+    def fake_keypress(self, key_name):
+        key_name = key_name.replace('\n', "<enter>")
+        self.interface.fake_keypress(key_name)
 
     def send_left(self, count):
         """
@@ -222,7 +222,7 @@ class IoMediator(threading.Thread):
         
     # Utility methods ----
     
-    def __clearModifiers(self):
+    def _clear_modifiers(self):
         self.releasedModifiers = []
         
         for modifier in list(self.modifiers.keys()):
@@ -230,11 +230,11 @@ class IoMediator(threading.Thread):
                 self.releasedModifiers.append(modifier)
                 self.interface.release_key(modifier)
 
-    def __reapplyModifiers(self):
+    def _reapply_modifiers(self):
         for modifier in self.releasedModifiers:
             self.interface.press_key(modifier)
 
-    def __getModifiersOn(self):
+    def _get_modifiers_on(self):
         modifiers = []
         for modifier in HELD_MODIFIERS:
             if self.modifiers[modifier]:
