@@ -24,8 +24,7 @@ import glob
 import threading
 import re
 
-from autokey import common
-
+from autokey import common, model
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
@@ -610,9 +609,6 @@ class ConfigManager:
                     return item is targetItem, item
 
         return True, None
-    
-# This import placed here to prevent circular import conflicts
-from autokey import model
 
 
 class GlobalHotkey(model.AbstractHotkey):
