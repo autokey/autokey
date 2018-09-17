@@ -584,7 +584,6 @@ The following macro emits/types a string of characters one at a time with a dela
 
 The first parameter is the string of characters to type. The second optional parameter is the number of seconds to delay between each keypress. It defaults to 0.1 seconds.
 
-**type_slow()**:
 ```python
 
 import time
@@ -600,4 +599,52 @@ def type_slow(string, delay=0.1):
         for c in string:
             keyboard.send_keys(c)
             time.sleep(delay)
+```
+
+
+### Function to list passwords on Firefox ###
+
+**Author**: Chris Dardis
+
+**Description:***
+This brings up your list of saved passwords at a keystroke e.g. "<ctrl> + <alt> + p" while using Firefox. 
+This comes in handy on a daily basis for me.
+There is a limit to how fast this will work, as it involves tabbing on an active browser. 
+Thus, the values for time.sleep() below are perhaps a little conservative. 
+
+```python
+
+## menu - edit
+keyboard.send_keys("<alt>+e")
+time.sleep(0.5)
+## menu - preferences (opens new tab)
+keyboard.send_keys("n")
+time.sleep(0.5)
+keyboard.send_keys("passwords")
+time.sleep(1.5)
+keyboard.send_keys("<tab>")
+time.sleep(0.25)
+keyboard.send_keys("<tab>")
+time.sleep(0.25)
+keyboard.send_keys("<enter>")
+time.sleep(1.0)
+keyboard.send_keys("<tab> <tab> <tab>")
+time.sleep(2.0)
+keyboard.send_keys("<tab>")
+time.sleep(0.5)
+keyboard.send_keys("<enter>")
+time.sleep(1.0)
+window.activate("Confirm")
+time.sleep(1.0)
+keyboard.send_keys("<alt>+y")
+time.sleep(2.0)
+## x7 total
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+keyboard.send_keys("<tab>")
+
 ```
