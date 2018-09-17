@@ -607,7 +607,7 @@ def type_slow(string, delay=0.1):
 **Author**: Chris Dardis
 
 **Description:***
-This brings up your list of saved passwords at a keystroke e.g. "<ctrl> + <alt> + p" while using Firefox. 
+This brings up your list of saved passwords at a keystroke e.g. "CTRL + ALT + p" while using Firefox. 
 This comes in handy on a daily basis for me.
 There is a limit to how fast this will work, as it involves tabbing on an active browser. 
 Thus, the values for time.sleep() below are perhaps a little conservative. 
