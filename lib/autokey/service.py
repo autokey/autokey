@@ -479,7 +479,12 @@ class ScriptRunner:
         """Provide the triggered abbreviation to the executed script, if any"""
         engine = scope["engine"]  # type: scripting.Engine
         if buffer:
-            triggered_abbreviation = buffer[:len(trigger_character)]
+            triggered_abbreviation = buffer[:-len(trigger_character)]
+
+            logger.debug(
+                "Triggered a Script by an abbreviation. Setting it for engine.get_triggered_abbreviation(). "
+                "abbreviation='{}', trigger='{}'".format(triggered_abbreviation, trigger_character)
+            )
             engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
 
     def run_subscript(self, script):
