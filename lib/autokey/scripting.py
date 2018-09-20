@@ -19,7 +19,7 @@ import subprocess
 import threading
 import time
 import re
-from typing import NamedTuple, Union, List
+from typing import NamedTuple, Union, List, Optional, Tuple
 
 from autokey import common, model
 from autokey import iomediator
@@ -1134,6 +1134,7 @@ class Engine:
         self.runner = runner
         self.monitor = configManager.app.monitor
         self.__returnValue = ''
+        self._triggered_abbreviation = None  # type: Optional[str]
         
     def get_folder(self, title):
         """
@@ -1292,3 +1293,33 @@ class Engine:
         ret = self.__returnValue
         self.__returnValue = ''
         return ret
+
+    def _set_triggered_abbreviation(self, abbreviation: str, trigger_character: str):
+        """
+        Used internally by AutoKey to provide the abbreviation and trigger that caused the script to execute.
+        @param abbreviation: Abbreviation that caused the script to execute
+        @param trigger_character: Possibly empty "trigger character". As defined in the abbreviation configuration.
+        """
+        self._triggered_abbreviation = abbreviation
+        self._triggered_character = trigger_character
+
+    def get_triggered_abbreviation(self) -> Tuple[Optional[str], Optional[str]]:
+        """
+        This function can be queried by a script to get the abbreviation text that triggered it’s execution.
+
+        If a script is triggered by an abbreviation, this function returns a tuple containing two strings. First element
+        is the abbreviation text. The second element is the trigger character that finally caused the execution. It is
+        typically some whitespace character, like ' ', '\t' or a newline character. It is empty, if the abbreviation was
+        configured to "trigger immediately".
+
+        If the script execution was triggered by a hotkey, a call to the DBus interface, the tray icon, the "Run"
+        button in the main window or any other means, this function returns a tuple containing two None values.
+
+        Usage: C{abbreviation, trigger_character = engine.get_triggered_abbreviation()}
+        You can determine if the script was triggered by an abbreviation by simply testing the truth value of the first
+        returned value.
+
+        @return: Abbreviation that triggered the script execution, if any.
+        @rtype: C{Tuple[Optional[str], Optional[str]]}
+        """
+        return self._triggered_abbreviation, self._triggered_character
