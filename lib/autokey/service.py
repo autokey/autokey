@@ -458,8 +458,10 @@ class ScriptRunner:
         scope = self.scope.copy()
         scope["store"] = script.store
 
-        backspaces, stringAfter = script.process_buffer(buffer)
+        backspaces, trigger_character = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
+
+        self._set_triggered_abbreviation(scope, buffer, trigger_character)
         if script.path is not None:
             # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
             scope["__file__"] = script.path
@@ -470,7 +472,15 @@ class ScriptRunner:
             self.error = "Script name: '{}'\n{}".format(script.description, traceback.format_exc())
             self.app.notify_error("The script '{}' encountered an error".format(script.description))
 
-        self.mediator.send_string(stringAfter)
+        self.mediator.send_string(trigger_character)
+
+    @staticmethod
+    def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
+        """Provide the triggered abbreviation to the executed script, if any"""
+        engine = scope["engine"]  # type: scripting.Engine
+        if buffer:
+            triggered_abbreviation = buffer[:len(trigger_character)]
+            engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
 
     def run_subscript(self, script):
         scope = self.scope.copy()
