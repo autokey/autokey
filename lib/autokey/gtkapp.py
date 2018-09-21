@@ -19,13 +19,10 @@ from . import common
 common.USING_QT = False
 
 import sys
-import traceback
 import os.path
-import signal
 import logging
 import logging.handlers
 import subprocess
-import optparse
 import time
 import threading
 
@@ -40,7 +37,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-
+import autokey.argument_parser
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
@@ -62,10 +59,7 @@ class Application:
         GLib.threads_init()
         Gdk.threads_init()
 
-        p = optparse.OptionParser()
-        p.add_option("-l", "--verbose", help="Enable verbose logging", action="store_true", default=False)
-        p.add_option("-c", "--configure", help="Show the configuration window on startup", action="store_true", default=False)
-        options, args = p.parse_args()
+        args = autokey.argument_parser.parse_args()
 
         try:
             # Create configuration directory
@@ -81,13 +75,16 @@ class Application:
             # Initialise logger
             rootLogger = logging.getLogger()
 
-            if options.verbose:
+            if args.verbose:
                 rootLogger.setLevel(logging.DEBUG)
                 handler = logging.StreamHandler(sys.stdout)
             else:
                 rootLogger.setLevel(logging.INFO)
-                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
-                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
+                handler = logging.handlers.RotatingFileHandler(
+                    common.LOG_FILE,
+                    maxBytes=common.MAX_LOG_SIZE,
+                    backupCount=common.MAX_LOG_COUNT
+                )
 
             handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
             rootLogger.addHandler(handler)
@@ -95,7 +92,7 @@ class Application:
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
-            self.initialise(options.configure)
+            self.initialise(args.show_config_window)
 
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
