@@ -15,7 +15,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 from . import common
 common.USING_QT = True
 
@@ -27,7 +26,6 @@ import subprocess
 import queue
 import time
 import dbus
-import argparse
 from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
@@ -35,12 +33,14 @@ from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QMessageBox, QApplication
 
 from autokey import service, monitor
+import autokey.argument_parser
 from autokey.qtui import common as ui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey import configmanager as cm
 from autokey.qtui.dbus_service import AppService
+
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
@@ -77,22 +77,6 @@ about_data = AboutData(
 )
 
 
-def generate_argument_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Desktop automation ")
-    parser.add_argument(
-        "-l", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    parser.add_argument(
-        "-c", "--configure",
-        action="store_true",
-        dest="show_config_window",
-        help="Show the configuration window on startup"
-    )
-    return parser
-
-
 class Application(QApplication):
     """
     Main application class; starting and stopping of the application is controlled
@@ -105,8 +89,7 @@ class Application(QApplication):
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
         self.handler = CallbackEventHandler()
-        parser = generate_argument_parser()
-        self.args = parser.parse_args()
+        self.args = autokey.argument_parser.parse_args()
         try:
             self._create_storage_directories()
             self._configure_root_logger()
