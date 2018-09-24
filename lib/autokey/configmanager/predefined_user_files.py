@@ -186,6 +186,7 @@ def _create_folder(name: str, parent: Folder=None) -> Folder:
 
 
 def _create_addresses_folder(parent: Folder) -> Folder:
+    """Creates the "Adresses" folder inside the "My Phrases" folder."""
     addresses = _create_folder("Addresses", parent)
     addresses.persist()
     for item_data in adress_phrases_data:
@@ -194,7 +195,7 @@ def _create_addresses_folder(parent: Folder) -> Folder:
 
 
 def create_my_phrases_folder() -> Folder:
-    """Creates the "My Phrases" folder."""
+    """Creates the "My Phrases" folder. It will contain some simple test phrases"""
     my_phrases = _create_folder("My Phrases")
     my_phrases.set_hotkey(["<ctrl>"], "<f7>")
     my_phrases.set_modes([TriggerMode.HOTKEY])
@@ -206,7 +207,10 @@ def create_my_phrases_folder() -> Folder:
 
 
 def create_sample_scripts_folder():
-    """Creates the "Sample Scripts" folder. It contains a bunch of pre-defined example scripts."""
+    """
+    Creates the "Sample Scripts" folder. It contains a bunch of pre-defined example scripts.
+    The exact script content is read from the predifined_user_scripts directory inside this Python package.
+    """
     sample_scripts = _create_folder("Sample Scripts")
     sample_scripts.persist()
     for item_data in sample_scripts_data:

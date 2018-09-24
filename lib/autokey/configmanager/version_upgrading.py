@@ -20,13 +20,14 @@ This module handles upgrading user data, if required.
 The stored user data contains a version field with the autokey version that created it. This is used to determine
 if any patches must be applied.
 
-Each converter function altering the configuration data MUST NOT set the "version" item in the configuration data to the
-currently running version (so NEVER set to common.VERSION), because this might skip additional conversion steps.
-The conversion function MAY set the item to it’s own intended target version.
+Each converter function altering the configuration data MUST NOT change the "version" item in the configuration data to
+a different version (so NEVER set to common.VERSION), because this might skip additional conversion steps.
 
 Example: Let the current version be 0.97.0. If 0.96.1 introduces a conversion step, and old 0.70.x data is found,
 setting config_data["version"] to common.VERSION ("0.97.0") inside the conversion function convert_v0_70_to_v0_80 will
 skip the required conversion task for 0.96.1.
+Additionally, it will skip further conversion tasks that require the model to be present, which are executed in the
+ConfigManager later. The ConfigManager is responsible for updating the data version.
 Do not require the user to install all versions one after another in order to get all data patches. Such skips might
 happen with LTS distribution releases that skip several autokey versions during their lifetime.
 """
@@ -42,6 +43,7 @@ _logger = logging.getLogger("config-manager").getChild("version_upgrade")  # typ
 
 
 def upgrade_configuration(configuration_manager, config_data: dict):
+    """Updates the global configuration data to the latest version."""
     version = config_data["version"]
     if version < "0.80.0":
         convert_v0_70_to_v0_80(config_data, version)
