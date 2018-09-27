@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 try:
     import autokey.qtui.compiled_resources
@@ -71,8 +71,8 @@ def monospace_font() -> QFont:
 def set_url_label(label: QLabel, path: str):
 
     # In both cases, only replace the first occurence.
-    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
+    if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
     else:
         # if bob has added a path '/home/bob/some/folder/home/bobbie/foo/' to autokey, the desired replacement text
         # is '~/some/folder/home/bobbie/foo/' and NOT '~/some/folder~bie/foo/'

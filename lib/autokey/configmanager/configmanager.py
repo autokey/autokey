@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,7 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import typing
 import os
 import os.path
 import shutil
@@ -23,76 +23,40 @@ import logging
 import glob
 import threading
 import re
-from pathlib import Path
 
 from autokey import common
+
+from autokey import common, model
+from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
+    RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
+    PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
+    SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE
+import autokey.configmanager.version_upgrading
+import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 import json
 
 _logger = logging.getLogger("config-manager")
 
-CONFIG_FILE = os.path.join(common.CONFIG_DIR, "autokey.json")
-CONFIG_DEFAULT_FOLDER = os.path.join(common.CONFIG_DIR, "data")
-CONFIG_FILE_BACKUP = CONFIG_FILE + '~'
 
-DEFAULT_ABBR_FOLDER = "Imported Abbreviations"
-RECENT_ENTRIES_FOLDER = "Recently Typed"
-
-IS_FIRST_RUN = "isFirstRun"
-SERVICE_RUNNING = "serviceRunning"
-MENU_TAKES_FOCUS = "menuTakesFocus"
-SHOW_TRAY_ICON = "showTrayIcon"
-SORT_BY_USAGE_COUNT = "sortByUsageCount"
-#DETECT_UNWANTED_ABBR = "detectUnwanted"
-PROMPT_TO_SAVE = "promptToSave"
-#PREDICTIVE_LENGTH = "predictiveLength"
-INPUT_SAVINGS = "inputSavings"
-ENABLE_QT4_WORKAROUND = "enableQT4Workaround"
-from .configmanager_constants import INTERFACE_TYPE
-# INTERFACE_TYPE = "interfaceType"
-UNDO_USING_BACKSPACE = "undoUsingBackspace"
-WINDOW_DEFAULT_SIZE = "windowDefaultSize"
-HPANE_POSITION = "hPanePosition"
-COLUMN_WIDTHS = "columnWidths"
-SHOW_TOOLBAR = "showToolbar"
-NOTIFICATION_ICON = "notificationIcon"
-WORKAROUND_APP_REGEX = "workAroundApps"
-# Added by Trey Blancher (ectospasm) 2015-09-16
-TRIGGER_BY_INITIAL = "triggerItemByInitial"
-
-SCRIPT_GLOBALS = "scriptGlobals"
-
-# TODO - Future functionality
-#TRACK_RECENT_ENTRY = "trackRecentEntry"
-#RECENT_ENTRY_COUNT = "recentEntryCount"
-#RECENT_ENTRY_MINLENGTH = "recentEntryMinLength"
-#RECENT_ENTRY_SUGGEST = "recentEntrySuggest"
-
-# Used to set or retrieve autostart related settings. These settings are separately handled by .desktop files in the
-# user autostart directory in $XDG_DATA_HOME/autostart, typically ~/.local/share/autostart.
-AutostartSettings = typing.NamedTuple("AutostartSettings", [
-    ("desktop_file_name", typing.Optional[str]), ("switch_show_configure", bool)
-])
-
-def get_config_manager(autoKeyApp, hadError=False):
+def create_config_manager_instance(auto_key_app, had_error=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
         os.mkdir(CONFIG_DEFAULT_FOLDER)
-
     try:
-        configManager = ConfigManager(autoKeyApp)
+        config_manager = ConfigManager(auto_key_app)
     except Exception as e:
-        if hadError or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
+        if had_error or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
             _logger.exception("Error while loading configuration. Cannot recover.")
             raise
 
         _logger.exception("Error while loading configuration. Backup has been restored.")
         os.remove(CONFIG_FILE)
         shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
-        return get_config_manager(autoKeyApp, True)
+        return create_config_manager_instance(auto_key_app, True)
     
     _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
-    return configManager
+    return config_manager
 
 
 def save_config(config_manager):
@@ -169,179 +133,12 @@ def _is_serializable(data):
         return True
 
 
-def get_autostart() -> AutostartSettings:
-    """Returns the autostart settings as read from the system."""
-    autostart_file = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-    if not autostart_file.exists():
-        return AutostartSettings(None, False)
-    else:
-        return _extract_data_from_desktop_file(autostart_file)
-
-
-def _extract_data_from_desktop_file(desktop_file: Path) -> AutostartSettings:
-    with open(str(desktop_file), "r") as file:
-        for line in file.readlines():
-            line = line.rstrip("\n")
-            if line.startswith("Exec="):
-                program_name = line.split("=")[1].split(" ")[0]
-                return AutostartSettings(program_name + ".desktop", line.endswith("-c"))
-    raise ValueError("Autostart autokey.desktop file does not contain any Exec line. File: {}".format(desktop_file))
-
-
-def set_autostart_entry(autostart_data: AutostartSettings):
-    """
-    Activates or deactivates autostarting autokey during user login.
-    Autostart is handled by placing a .desktop file into '$XDG_CONFIG_HOME/autostart', typically '~/.config/autostart'
-    """
-    _logger.info("Save autostart settings: {}".format(autostart_data))
-    autostart_file = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-    if autostart_data.desktop_file_name is None:  # Choosing None as the GUI signals deleting the entry.
-        delete_autostart_entry()
-    else:
-        autostart_file.parent.mkdir(exist_ok=True)  # make sure that the parent autostart directory exists.
-        _create_autostart_entry(autostart_data, autostart_file)
-
-
-def _create_autostart_entry(autostart_data: AutostartSettings, autostart_file: Path):
-    """Create an autostart .desktop file in the autostart directory, if possible."""
-    try:
-        source_desktop_file = get_source_desktop_file(autostart_data.desktop_file_name)
-    except FileNotFoundError:
-        _logger.exception("Failed to find a usable .desktop file! Unable to find: {}".format(
-            autostart_data.desktop_file_name))
-    else:
-        _logger.debug("Found source desktop file that will be placed into the autostart directory: {}".format(
-            source_desktop_file))
-        with open(str(source_desktop_file), "r") as opened_source_desktop_file:
-            desktop_file_content = opened_source_desktop_file.read()
-        desktop_file_content = "\n".join(_manage_autostart_desktop_file_launch_flags(
-            desktop_file_content, autostart_data.switch_show_configure
-        )) + "\n"
-        with open(str(autostart_file), "w", encoding="UTF-8") as opened_autostart_file:
-            opened_autostart_file.write(desktop_file_content)
-        _logger.debug("Written desktop file: {}".format(autostart_file))
-
-
-def delete_autostart_entry():
-    """Remove a present autostart entry. If none is found, nothing happens."""
-    autostart_file = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-    if autostart_file.exists():
-        autostart_file.unlink()
-        _logger.info("Deleted old autostart entry: {}".format(autostart_file))
-
-
-def get_source_desktop_file(desktop_file_name: str) -> Path:
-    """
-    Try to get the source .desktop file with the given name.
-    :raises FileNotFoundError: If no desktop file was found in the searched directories.
-    """
-    possible_paths = (
-        # Copy from local installation. Also used if the user explicitely customized the launcher .desktop file.
-        Path(common.XDG_DATA_HOME) / "applications",
-        # Copy from system-wide installation
-        Path("/", "usr", "share", "applications"),
-        # Copy from git source tree. This will probably not work when used, because the application won’t be in the PATH
-        Path(__file__).parent.parent.parent / "config"
-    )
-    for possible_path in possible_paths:
-        desktop_file = possible_path / desktop_file_name
-        if desktop_file.exists():
-            return desktop_file
-    raise FileNotFoundError("Desktop file for autokey could not be found. Searched paths: {}".format(possible_paths))
-
-
-def _manage_autostart_desktop_file_launch_flags(desktop_file_content: str, show_configure: bool) -> typing.Iterable[str]:
-    """Iterate over the desktop file contents. Yields all lines except for the "Exec=" line verbatim. Modifies
-    the Exec line to include the user desired command line switches (currently only one implemented)."""
-    for line in desktop_file_content.splitlines(keepends=False):
-        if line.startswith("Exec="):
-            exec_line = _modify_exec_line(line, show_configure)
-            _logger.info("Used 'Exec' line in desktop file: {}".format(exec_line))
-            yield exec_line
-        else:
-            yield line
-
-
-def _modify_exec_line(line: str, show_configure: bool) -> str:
-    if show_configure:
-        if line.endswith(" -c"):
-            return line
-        else:
-            return line + " -c"
-    else:
-        if line.endswith(" -c"):
-            return line[:-3]
-        else:
-            return line
-
-
 def apply_settings(settings):
     """
     Allows new settings to be added without users having to lose all their configuration
     """
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
-
-
-def convert_v07_to_v08(configData):
-    oldVersion = configData["version"]
-    os.rename(CONFIG_FILE, CONFIG_FILE + oldVersion)
-    _logger.info("Converting v%s configuration data to v0.80.0", oldVersion)
-    for folderData in configData["folders"]:
-        _convertFolder(folderData, None)
-        
-    configData["folders"] = []
-    configData["version"] = common.VERSION
-    configData["settings"][NOTIFICATION_ICON] = common.ICON_FILE_NOTIFICATION
-
-    # Remove old backup file so we never retry the conversion
-    if os.path.exists(CONFIG_FILE_BACKUP):
-        os.remove(CONFIG_FILE_BACKUP)
-    
-    _logger.info("Conversion succeeded")
-        
-        
-def _convertFolder(folderData, parent):
-    f = model.Folder("")
-    f.inject_json_data(folderData)
-    f.parent = parent
-    f.persist()    
-    
-    for subfolder in folderData["folders"]:
-        _convertFolder(subfolder, f)
-    
-    for itemData in folderData["items"]:
-        i = None
-        if itemData["type"] == "script":
-            i = model.Script("", "")
-            i.code = itemData["code"]
-        elif itemData["type"] == "phrase":
-            i = model.Phrase("", "")
-            i.phrase = itemData["phrase"]
-        
-        if i is not None:
-            i.inject_json_data(itemData)
-            i.parent = f
-            i.persist()
-
-
-def convert_rename_autostart_entries_for_v0_95_3():
-    """
-    In versions <= 0.95.2, the autostart option in autokey-gtk copied the default autokey-gtk.desktop file into
-    $XDG_CONFIG_DIR/autostart (with minor, unrelated modifications).
-    For versions >= 0.95.3, the autostart file is renamed to autokey.desktop. In 0.95.3, the autostart functionality
-    is implemented for autokey-qt. Thus, it becomes possible to have an autostart file for both GUIs in the autostart
-    directory simultaneously. Because of the singleton nature of autokey, this becomes an issue and race-conditions
-    determine which GUI starts first. To prevent this, both GUIs will share a single autokey.desktop autostart entry,
-    allowing only one GUI to be started during login. This allows for much simpler code.
-    """
-    old_autostart_file = Path(common.AUTOSTART_DIR) / "autokey-gtk.desktop"
-    if old_autostart_file.exists():
-        new_file_name = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-        _logger.info("Migration task: Found old autostart entry: '{}'. Rename to: '{}'".format(
-            old_autostart_file, new_file_name)
-        )
-        old_autostart_file.rename(new_file_name)
 
 
 class ConfigManager:
@@ -405,7 +202,7 @@ class ConfigManager:
         app.init_global_hotkeys(self)        
         
         self.load_global_config()
-                
+
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
         self.app.monitor.add_watch(common.CONFIG_DIR)
         
@@ -414,93 +211,10 @@ class ConfigManager:
     
         # --- Code below here only executed if no persisted config data provided
         
-        _logger.info("No configuration found - creating new one")       
-        
-        myPhrases = model.Folder("My Phrases")
-        myPhrases.set_hotkey(["<ctrl>"], "<f7>")
-        myPhrases.set_modes([model.TriggerMode.HOTKEY])
-        myPhrases.persist()
-
-        f = model.Folder("Addresses")
-        adr = model.Phrase("Home Address", "22 Avenue Street\nBrisbane\nQLD\n4000")
-        adr.set_modes([model.TriggerMode.ABBREVIATION])
-        adr.add_abbreviation("adr")
-        f.add_item(adr)
-        myPhrases.add_folder(f)        
-        f.persist()
-        adr.persist()
-
-        p = model.Phrase("First phrase", "Test phrase number one!")
-        p.set_modes([model.TriggerMode.PREDICTIVE])
-        p.set_window_titles(".* - gedit")
-        myPhrases.add_item(p)
-        
-        myPhrases.add_item(model.Phrase("Second phrase", "Test phrase number two!"))
-        myPhrases.add_item(model.Phrase("Third phrase", "Test phrase number three!"))
-        self.folders.append(myPhrases)
-        [p.persist() for p in myPhrases.items]
-        
-        sampleScripts = model.Folder("Sample Scripts")
-        sampleScripts.persist()
-        dte = model.Script("Insert Date", "")
-        dte.code = """output = system.exec_command("date")
-keyboard.send_keys(output)"""
-        sampleScripts.add_item(dte)
-        
-        lMenu = model.Script("List Menu", "")
-        lMenu.code = """choices = ["something", "something else", "a third thing"]
-
-retCode, choice = dialog.list_menu(choices)
-if retCode == 0:
-    keyboard.send_keys("You chose " + choice)"""
-        sampleScripts.add_item(lMenu)
-        
-        sel = model.Script("Selection Test", "")
-        sel.code = """text = clipboard.get_selection()
-keyboard.send_key("<delete>")
-keyboard.send_keys("The text %s was here previously" % text)"""
-        sampleScripts.add_item(sel)
-        
-        abbrc = model.Script("Abbreviation from selection", "")
-        abbrc.code = """import time
-time.sleep(0.25)
-contents = clipboard.get_selection()
-retCode, abbr = dialog.input_dialog("New Abbreviation", "Choose an abbreviation for the new phrase")
-if retCode == 0:
-    if len(contents) > 20:
-        title = contents[0:17] + "..."
-    else:
-        title = contents
-    folder = engine.get_folder("My Phrases")
-    engine.create_abbreviation(folder, title, abbr, contents)"""
-        sampleScripts.add_item(abbrc)
-        
-        phrasec = model.Script("Phrase from selection", "")
-        phrasec.code = """import time
-time.sleep(0.25)
-contents = clipboard.get_selection()
-if len(contents) > 20:
-    title = contents[0:17] + "..."
-else:
-    title = contents
-folder = engine.get_folder("My Phrases")
-engine.create_phrase(folder, title, contents)"""
-        sampleScripts.add_item(phrasec)
-        
-        win = model.Script("Display window info", "")
-        win.code = """# Displays the information of the next window to be left-clicked
-import time
-mouse.wait_for_click(1)
-time.sleep(0.2)
-winTitle = window.get_active_title()
-winClass = window.get_active_class()
-dialog.info_dialog("Window information", 
-          "Active window information:\\nTitle: '%s'\\nClass: '%s'" % (winTitle, winClass))"""
-        win.show_in_tray_menu = True
-        sampleScripts.add_item(win)
-        
-        self.folders.append(sampleScripts)
-        [s.persist() for s in sampleScripts.items]
+        _logger.info("No configuration found - creating new one")
+        self.folders.append(autokey.configmanager.predefined_user_files.create_my_phrases_folder())
+        self.folders.append(autokey.configmanager.predefined_user_files.create_sample_scripts_folder())
+        _logger.debug("Initial folders generated and populated with example data.")
 
         # TODO - future functionality
         self.recentEntries = []
@@ -530,20 +244,9 @@ dialog.info_dialog("Window information",
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
-                
-            if version < "0.80.0":
-                try:
-                    convert_v07_to_v08(data)
-                    self.config_altered(True)
-                except Exception as e:
-                    _logger.exception("Problem occurred during conversion.")
-                    _logger.error("Existing config file has been saved as %s%s",
-                                  CONFIG_FILE, version)
-                    raise
 
-            if version < "0.95.3":
-                convert_rename_autostart_entries_for_v0_95_3()
-                
+            autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
+
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
@@ -908,9 +611,6 @@ dialog.info_dialog("Window information",
                     return item is targetItem, item
 
         return True, None
-    
-# This import placed here to prevent circular import conflicts
-from . import model
 
 
 class GlobalHotkey(model.AbstractHotkey):

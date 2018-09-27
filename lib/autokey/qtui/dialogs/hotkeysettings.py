@@ -22,7 +22,8 @@ from PyQt5.QtWidgets import QDialogButtonBox
 
 from autokey.qtui import common as ui_common
 
-from autokey import iomediator, model, configmanager as cm
+from autokey import iomediator, model
+import autokey.configmanager.configmanager as cm
 from autokey.iomediator.key import Key
 
 logger = ui_common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger

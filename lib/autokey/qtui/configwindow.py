@@ -26,7 +26,9 @@ from PyQt5.QtWidgets import QApplication, QAction, QMenu
 
 import autokey.common
 import autokey.qtui.common
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 from autokey import model
 from .settings import SettingsDialog
 from . import dialogs
@@ -234,8 +236,8 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
     # ---- Signal handlers ----
     
     def queryClose(self):
-        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.central_widget.splitter.sizes()[0] + 4
-        cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS] = [
+        cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.central_widget.splitter.sizes()[0] + 4
+        cm.ConfigManager.SETTINGS[cm_constants.COLUMN_WIDTHS] = [
             self.central_widget.treeWidget.columnWidth(column_index) for column_index in range(3)
         ]
         

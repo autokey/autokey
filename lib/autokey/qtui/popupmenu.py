@@ -22,7 +22,8 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu, QAction, QWidget
 
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.model
 import autokey.service
 
@@ -54,7 +55,7 @@ class PopupMenu(QMenu):
         if title is not None:
             self.setTitle(title)
         
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             _logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -106,7 +107,7 @@ class PopupMenu(QMenu):
         
     def _add_items_to_self(self, items, on_desktop):
         # Create item (script/phrase) section
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))

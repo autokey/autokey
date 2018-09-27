@@ -20,6 +20,7 @@ import traceback
 import collections
 import time
 import logging
+import threading
 
 from autokey import common
 from autokey.iomediator.key import Key
@@ -27,9 +28,9 @@ from autokey.iomediator import IoMediator
 
 from .macro import MacroManager
 
-from . import scripting, model, scripting_Store, scripting_highlevel
-from .configmanager import ConfigManager, SERVICE_RUNNING, SCRIPT_GLOBALS, save_config, UNDO_USING_BACKSPACE
-import threading
+from autokey import scripting, model, scripting_Store, scripting_highlevel
+from autokey.configmanager.configmanager import ConfigManager, save_config
+import autokey.configmanager.configmanager_constants as cm_constants
 logger = logging.getLogger("service")
 
 MAX_STACK_LENGTH = 150
@@ -46,6 +47,7 @@ def threaded(f):
     wrapper.__dict__ = f.__dict__
     wrapper.__doc__ = f.__doc__
     return wrapper
+
 
 def synchronized(lock):
     """ Synchronization decorator. """
@@ -70,7 +72,7 @@ class Service:
     def __init__(self, app):
         logger.info("Starting service")
         self.configManager = app.configManager
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = False
         self.mediator = None
         self.app = app
         self.inputStack = collections.deque(maxlen=MAX_STACK_LENGTH)
@@ -82,22 +84,22 @@ class Service:
         self.mediator.interface.initialise()
         self.mediator.interface.start()
         self.mediator.start()
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
+        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS]
         logger.info("Service now marked as running")
 
     def unpause(self):
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         logger.info("Unpausing - service now marked as running")
 
     def pause(self):
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = False
         logger.info("Pausing - service now marked as stopped")
 
     def is_running(self):
-        return ConfigManager.SETTINGS[SERVICE_RUNNING]
+        return ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING]
 
     def shutdown(self, save=True):
         logger.info("Service shutting down")
@@ -274,7 +276,7 @@ class Service:
             key = '\t'
 
         if key == Key.BACKSPACE:
-            if ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
+            if ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
                 self.phraseRunner.undo_expansion()
             else:
                 # handle backspace by dropping the last saved character

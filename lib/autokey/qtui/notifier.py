@@ -22,7 +22,9 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
 
 from autokey.qtui import popupmenu
 import autokey.qtui.common as ui_common
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 
 if TYPE_CHECKING:
     from autokey.qtapp import Application
@@ -38,7 +40,7 @@ class Notifier(QSystemTrayIcon):
     def __init__(self, app):
         logger.debug("Creating system tray icon notifier.")
         icon = QIcon.fromTheme(
-            cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
+            cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON],
             ui_common.load_icon(ui_common.AutoKeyIcon.SYSTEM_TRAY)
         )
         super(Notifier, self).__init__(icon)
@@ -53,10 +55,10 @@ class Notifier(QSystemTrayIcon):
         self.setContextMenu(QMenu("AutoKey"))
         self.activated.connect(self.on_activate)
         self._create_static_actions()
-        self.update_tool_tip(cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING])
+        self.update_tool_tip(cm.ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING])
         self.app.monitoring_disabled.connect(self.update_tool_tip)
         self.build_menu()
-        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]:
             logger.debug("About to show the tray icon.")
             self.show()
         logger.info("System tray icon notifier created.")
@@ -134,8 +136,10 @@ class Notifier(QSystemTrayIcon):
 
     def build_menu(self):
         """Rebuild the context menu."""
-        logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
-        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+        logger.debug("Show tray icon enabled in settings: {}".format(
+            cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
+        )
+        if cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]:
             menu = self.contextMenu()
             menu.clear()
             self._fill_context_menu_with_model_item_actions()
@@ -146,7 +150,7 @@ class Notifier(QSystemTrayIcon):
 
     def update_visible_status(self):
         self.build_menu()
-        self.setVisible(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        self.setVisible(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
 
     def notify_error(self, message: str):
         self.showMessage("AutoKey Error", message)
