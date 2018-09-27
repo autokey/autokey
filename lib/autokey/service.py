@@ -87,7 +87,7 @@ class Service:
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS]
+        scripting_Store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
     def unpause(self):

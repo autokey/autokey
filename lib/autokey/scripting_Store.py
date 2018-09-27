@@ -2,6 +2,7 @@ class Store(dict):
     """
     Allows persistent storage of values between invocations of the script.
     """
+    GLOBALS = {}
     
     def set_value(self, key, value):
         """
