@@ -22,13 +22,14 @@ import time
 import logging
 import threading
 
-from autokey import common
+
 from autokey.iomediator.key import Key
 from autokey.iomediator import IoMediator
 
-from .macro import MacroManager
+from autokey.macro import MacroManager
 
-from autokey import scripting, model, scripting_Store, scripting_highlevel
+from autokey import model
+import autokey.scripting
 from autokey.configmanager.configmanager import ConfigManager, save_config
 import autokey.configmanager.configmanager_constants as cm_constants
 logger = logging.getLogger("service")
@@ -87,7 +88,7 @@ class Service:
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting_Store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
+        autokey.scripting.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
     def unpause(self):
@@ -437,19 +438,15 @@ class ScriptRunner:
         self.app = app
         self.error = ''
         self.scope = globals()
-        self.scope["highlevel"] = scripting_highlevel
-        self.scope["keyboard"] = scripting.Keyboard(mediator)
-        self.scope["mouse"] = scripting.Mouse(mediator)
-        self.scope["system"] = scripting.System()
-        self.scope["window"] = scripting.Window(mediator)
-        self.scope["engine"] = scripting.Engine(app.configManager, self)
+        self.scope["highlevel"] = autokey.scripting.highlevel
+        self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
+        self.scope["mouse"] = autokey.scripting.Mouse(mediator)
+        self.scope["system"] = autokey.scripting.System()
+        self.scope["window"] = autokey.scripting.Window(mediator)
+        self.scope["engine"] = autokey.scripting.Engine(app.configManager, self)
 
-        if common.USING_QT:
-            self.scope["dialog"] = scripting.QtDialog()
-            self.scope["clipboard"] = scripting.QtClipboard(app)
-        else:
-            self.scope["dialog"] = scripting.GtkDialog()
-            self.scope["clipboard"] = scripting.GtkClipboard(app)
+        self.scope["dialog"] = autokey.scripting.Dialog()
+        self.scope["clipboard"] = autokey.scripting.Clipboard(app)
 
         self.engine = self.scope["engine"]
 
@@ -479,7 +476,7 @@ class ScriptRunner:
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
         """Provide the triggered abbreviation to the executed script, if any"""
-        engine = scope["engine"]  # type: scripting.Engine
+        engine = scope["engine"]  # type: autokey.scripting.Engine
         if buffer:
             triggered_abbreviation = buffer[:-len(trigger_character)]
 

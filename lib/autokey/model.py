@@ -28,7 +28,7 @@ import enum
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
 from autokey.iomediator.constants import KEY_SPLIT_RE
-from autokey.scripting_Store import Store
+import autokey.scripting
 
 _logger = logging.getLogger("model")
 
@@ -900,7 +900,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.code = source_code
-        self.store = Store()
+        self.store = autokey.scripting.Store()
         self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
@@ -966,7 +966,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 json.dump(serializable_data, json_file, indent=4)
 
     @staticmethod
-    def _remove_non_serializable_store_entries(store: Store) -> dict:
+    def _remove_non_serializable_store_entries(store: autokey.scripting.Store) -> dict:
         """
         Copy all serializable data into a new dict, and skip the rest.
         This makes sure to keep the items during runtime, even if the user edits and saves the script.
@@ -1015,7 +1015,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]
-        self.store = Store(data["store"])
+        self.store = autokey.scripting.Store(data["store"])
         self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]
