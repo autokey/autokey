@@ -123,6 +123,7 @@ setup(
     url='https://github.com/autokey/autokey',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
+    python_requires=">=3.5",
     packages=[
         'autokey',
         'autokey.iomediator',
@@ -167,6 +168,9 @@ setup(
     },
     scripts=['autokey-run', 'autokey-shell'],
     install_requires=['dbus-python', 'pyinotify', 'python-xlib'],
+    setup_requires=["pytest-runner"],
+    tests_require=["pytest", "pyhamcrest"],
+    test_suite="pytest",
     classifiers=[
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',

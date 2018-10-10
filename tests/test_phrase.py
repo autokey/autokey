@@ -1,0 +1,172 @@
+# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+import typing
+from unittest.mock import MagicMock
+
+import pytest
+from hamcrest import *
+
+import autokey.model as model
+
+ABBR_ONLY = [model.TriggerMode.ABBREVIATION]
+
+PhraseData = typing.NamedTuple("PhraseData", [
+    ("name", str),
+    ("abbreviation", typing.Optional[str]),
+    ("content", str),
+    ("trigger_modes", typing.List[model.TriggerMode]),
+    ("ignore_case", bool),
+    ("match_case", bool)
+])
+
+PhraseResult = typing.NamedTuple("PhraseResult", [
+    ("expansion", typing.Optional[str]),
+    ("abbreviation_length", typing.Optional[int]),
+    ("backspace_count", typing.Optional[int]),
+    ("triggered_on_input", bool)
+])
+
+
+def create_phrase(
+        name: str="phrase",
+        abbreviation: str="xp@",
+        content: str = "expansion@autokey.com",  # Values taken from original test code
+        trigger_modes: list=None,
+        ignore_case: bool=False,
+        match_case: bool=False) -> model.Phrase:
+    if trigger_modes is None:
+        trigger_modes = [model.TriggerMode.ABBREVIATION]
+    phrase = model.Phrase(name, content)
+    phrase.add_abbreviation(abbreviation)
+    phrase.set_modes(trigger_modes)
+    phrase.ignoreCase = ignore_case
+    phrase.matchCase = match_case
+    phrase.parent = MagicMock()
+    return phrase
+
+
+def generate_test_cases_for_ignore_case():
+    """Yields PhraseData, Trigger, PhraseResult"""
+    yield PhraseData("name", "ab@", "abbr", ABBR_ONLY, False, False), "AB@ ", PhraseResult(None, None, None, False)
+    yield PhraseData("name", "AB@", "abbr", ABBR_ONLY, False, False), "ab@ ", PhraseResult(None, None, None, False)
+    yield PhraseData("name", "ab@", "abbr", ABBR_ONLY, True, False), "AB@ ", PhraseResult("abbr ", None, None, True)
+    yield PhraseData("name", "AB@", "abbr", ABBR_ONLY, True, False), "ab@ ", PhraseResult("abbr ", None, None, True)
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_ignore_case())
+def test_ignore_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
+    phrase = create_phrase(*phrase_data)
+
+    # Verify trigger behaviour
+    assert_that(
+        phrase.check_input(trigger_str, ("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger"
+    )
+    if phrase_result.triggered_on_input:
+        # If the phrase should trigger, also verify the expansion correctness
+        assert_that(
+            phrase.build_phrase(trigger_str).string,
+            is_(equal_to(phrase_result.expansion)),
+            "Invalid Phrase expansion result string"
+        )
+
+
+def generate_test_cases_for_match_case():
+    """Yields PhraseData, Trigger, PhraseResult"""
+    # "tri" in test data is short for "trigger", "ab br" is a short phrase that can show all behaviour variants
+
+    def phrase_data(abbreviation: str, phrase_content: str) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation=abbreviation, content=phrase_content,
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=True, match_case=True)
+    
+    def phrase_result(expansion_result: str) -> PhraseResult:
+        """Local helper function to save typing constant data"""
+        return PhraseResult(
+            expansion=expansion_result, abbreviation_length=None,
+            backspace_count=None, triggered_on_input=True)
+
+    # Don’t match case
+    yield PhraseData("name", "tri", "ab br", ABBR_ONLY, True, False), "TRI ", phrase_result("ab br ")
+    yield PhraseData("name", "TRI", "ab br", ABBR_ONLY, True, False), "tri ", phrase_result("ab br ")
+    yield PhraseData("name", "Tri", "ab br", ABBR_ONLY, True, False), "tri ", phrase_result("ab br ")
+    
+    # Match case for lower case content and a lower case abbreviation
+    yield phrase_data("tri", "ab br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("tri", "ab br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("tri", "ab br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("tri", "ab br"), "TRi ", phrase_result("ab br ")  # Original case
+    # Match case for UPPER CASE content and a lower case abbreviation
+    yield phrase_data("tri", "AB BR"), "tri ", phrase_result("ab br ")
+    yield phrase_data("tri", "AB BR"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("tri", "AB BR"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("tri", "AB BR"), "TRi ", phrase_result("AB BR ")  # Original case
+    # Match case for Title Case content and a lower case abbreviation
+    yield phrase_data("tri", "Ab Br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("tri", "Ab Br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("tri", "Ab Br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("tri", "Ab Br"), "TRi ", phrase_result("Ab Br ")  # Original case
+
+    # Match case for lower case content and an UPPER CASE abbreviation
+    yield phrase_data("TRI", "ab br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("TRI", "ab br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("TRI", "ab br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("TRI", "ab br"), "TRi ", phrase_result("ab br ")  # Original case
+    # Match case for UPPER CASE content and an UPPER CASE abbreviation
+    yield phrase_data("TRI", "AB BR"), "tri ", phrase_result("ab br ")
+    yield phrase_data("TRI", "AB BR"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("TRI", "AB BR"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("TRI", "AB BR"), "TRi ", phrase_result("AB BR ")  # Original case
+    # Match case for Title Case content and an UPPER CASE abbreviation
+    yield phrase_data("TRI", "Ab Br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("TRI", "Ab Br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("TRI", "Ab Br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("TRI", "Ab Br"), "TRi ", phrase_result("Ab Br ")  # Original case
+
+    # Match case for lower case content and a Title Case abbreviation
+    yield phrase_data("Tri", "ab br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("Tri", "ab br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("Tri", "ab br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("Tri", "ab br"), "TRi ", phrase_result("ab br ")  # Original case
+    # Match case for UPPER CASE content and a Title Case abbreviation
+    yield phrase_data("Tri", "AB BR"), "tri ", phrase_result("ab br ")
+    yield phrase_data("Tri", "AB BR"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("Tri", "AB BR"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("Tri", "AB BR"), "TRi ", phrase_result("AB BR ")  # Original case
+    # Match case for Title Case content and a Title Case abbreviation
+    yield phrase_data("Tri", "Ab Br"), "tri ", phrase_result("ab br ")
+    yield phrase_data("Tri", "Ab Br"), "Tri ", phrase_result("Ab br ")
+    yield phrase_data("Tri", "Ab Br"), "TRI ", phrase_result("AB BR ")
+    yield phrase_data("Tri", "Ab Br"), "TRi ", phrase_result("Ab Br ")  # Original case
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_match_case())
+def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
+    phrase = create_phrase(*phrase_data)
+    # Should always trigger
+    assert_that(
+        phrase.check_input(trigger_str, ("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger:"
+    )
+    # Verify that the case is matched correctly
+    assert_that(
+        phrase.build_phrase(trigger_str).string,
+        is_(equal_to(phrase_result.expansion)),
+        "Invalid Phrase expansion result string"
+    )
