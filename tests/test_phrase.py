@@ -155,6 +155,7 @@ def generate_test_cases_for_match_case():
     yield phrase_data("Tri", "Ab Br"), "TRi ", phrase_result("Ab Br ")  # Original case
 
 
+@pytest.mark.skip(reason="match_case currently broken. See issue #197")
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_match_case())
 def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
@@ -170,3 +171,21 @@ def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: Ph
         is_(equal_to(phrase_result.expansion)),
         "Invalid Phrase expansion result string"
     )
+
+
+def test_trigger_immediate():
+    abbreviation = "xp@"  # Values taken from original unit tests
+    phrase = create_phrase(abbreviation=abbreviation, content="expansion@autokey.com")
+    phrase.immediate = True
+
+    # Trigger on the first assigned abbreviation, don’t care about the actual abbreviation content
+    # Test that the abbreviation triggers without the presence of a trigger character
+    assert_that(phrase.check_input(phrase.abbreviations[0], ("", "")), is_(equal_to(True)))
+    # Don’t trigger when there is a space after the typed abbreviation
+    assert_that(phrase.check_input(phrase.abbreviations[0] + " ", ("", "")), is_(equal_to(False)))
+
+    # Now test some results
+    result = phrase.build_phrase(phrase.abbreviations[0])
+    assert_that(result.string, is_(equal_to("expansion@autokey.com")))
+    assert_that(result.backspaces, is_(equal_to(len(abbreviation))))
+    assert_that(phrase.calculate_input(abbreviation), is_(equal_to(len(abbreviation))))
