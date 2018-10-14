@@ -186,8 +186,8 @@ class XInterfaceBase(threading.Thread):
         self.setName("XInterface-thread")
         self.mediator = mediator  # type: IoMediator
         self.app = app
-        self.lastChars = []  # QT4 Workaround
-        self.__enableQT4Workaround = False  # QT4 Workaround
+        self.lastChars = [] # QT4 Workaround
+        self.__enableQT4Workaround = False # QT4 Workaround
         self.shutdown = False
         
         # Event loop
@@ -462,11 +462,13 @@ class XInterfaceBase(threading.Thread):
             window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
 
             if Key.NUMLOCK in self.modMasks:
-                mask |= self.modMasks[Key.NUMLOCK]
-            if Key.CAPSLOCK in self.modMasks:
-                mask |= self.modMasks[Key.CAPSLOCK]
+                window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
 
-            window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+            if Key.CAPSLOCK in self.modMasks:
+                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+
+            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
+                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
 
         except Exception as e:
             logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
@@ -936,7 +938,11 @@ class XInterfaceBase(threading.Thread):
     def handle_mouseclick(self, button, x, y):
         self.__enqueue(self.__handleMouseclick, button, x, y)
         
-    def __handleMouseclick(self, button, x, y):        
+    def __handleMouseclick(self, button, x, y):
+        # Sleep a bit to timing issues. A mouse click might change the active application.
+        # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
+        # causing the queried window title (and maybe the window class or even none of those) to be invalid.
+        time.sleep(0.001)  # TODO: may need some tweaking
         title = self.get_window_title()
         klass = self.get_window_class()
         info = (title, klass)
