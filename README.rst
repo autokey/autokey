@@ -26,7 +26,7 @@ About
 Installation
 ============
 
-**Please remove previous installations of both AutoKey and AutoKey fully before installing!**
+**Please remove previous installations of both AutoKey and AutoKey-py3 fully before installing!**
 
 Dependencies
 ++++++++++++
@@ -85,7 +85,7 @@ Distro package not provided? Create your own package for Debian-based distros us
 Arch Linux
 ++++++++++
 
-Available in the `AUR`_. Unfortunately, Arch has removed the kdebindings-python package, so only the GTK frontend is usable for now.
+Up to date packages are available in the `AUR`_.
 
 .. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
 
