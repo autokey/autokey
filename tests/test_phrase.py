@@ -261,5 +261,139 @@ def test_undo_on_backspace(phrase_data: PhraseData, trigger_str: str, undo_enabl
     phrase = create_phrase(*phrase_data)
     phrase.backspace = undo_enabled
 
+    # Expansion should always trigger
+    assert_that(
+        phrase.check_input(trigger_str, ("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger:"
+    )
+
     result = phrase.build_phrase(trigger_str)
-    assert_that(result.backspaces, is_(equal_to(phrase_result.backspace_count)))
+    assert_that(
+        result.backspaces,
+        is_(equal_to(phrase_result.backspace_count)),
+        "Wrong backspace key count"
+    )
+    assert_that(
+        result.lefts,
+        is_(equal_to(0)),
+    )
+
+
+def generate_test_cases_for_omit_trigger():
+    """Yields PhraseData, trigger_str, omit_trigger, PhraseResults"""
+    def phrase_data(trigger_immediately: bool) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation="tri", content="ab br",
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_immediately=trigger_immediately)
+
+    def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:
+        """Local helper function to save typing constant data"""
+        return PhraseResult(
+            expansion=expansion, abbreviation_length=None,
+            backspace_count=backspace_count, triggered_on_input=True)
+
+    yield phrase_data(False), "tri ", False, phrase_result("ab br ", 4)
+    yield phrase_data(False), "tri\t", False, phrase_result("ab br\t", 4)
+    yield phrase_data(False), "tri\n", False, phrase_result("ab br\n", 4)
+    yield phrase_data(False), "tri ", True, phrase_result("ab br", 4)
+    yield phrase_data(False), "tri\t", True, phrase_result("ab br", 4)
+    yield phrase_data(False), "tri\n", True, phrase_result("ab br", 4)
+    # Now trigger immediately
+    yield phrase_data(True), "tri", False, phrase_result("ab br", 3)
+    yield phrase_data(True), "tri", True, phrase_result("ab br", 3)
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, omit_trigger, phrase_result",
+                         generate_test_cases_for_omit_trigger())
+def test_omit_trigger(phrase_data: PhraseData, trigger_str: str, omit_trigger: bool, phrase_result: PhraseResult):
+    """
+    omitTrigger set to True causes the trigger character to be not re-typed during Phrase expansion
+    """
+    phrase = create_phrase(*phrase_data)
+    phrase.omitTrigger = omit_trigger
+
+    # Expansion should always trigger
+    assert_that(
+        phrase.check_input(trigger_str, ("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger:"
+    )
+
+    result = phrase.build_phrase(trigger_str)
+
+    assert_that(
+        result.string,
+        is_(equal_to(phrase_result.expansion)),
+        "Wrong trigger character in expansion result"
+    )
+    assert_that(
+        result.backspaces,
+        is_(equal_to(phrase_result.backspace_count)),
+        "Wrong backspace character count"
+    )
+    assert_that(
+        result.lefts,
+        is_(equal_to(0)),
+
+    )
+
+
+def generate_test_cases_for_trigger_phrase_inside_word():
+    """Yields PhraseData, trigger_str, PhraseResults"""
+    def phrase_data(trigger_immediately: bool) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation="tri", content="ab br",
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_immediately=trigger_immediately)
+
+    def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:
+        """Local helper function to save typing constant data"""
+        return PhraseResult(
+            expansion=expansion, abbreviation_length=None,
+            backspace_count=backspace_count, triggered_on_input=True)
+    yield phrase_data(False), "tri\n", phrase_result("ab br\n", 4)
+    yield phrase_data(False), "abctri ", phrase_result("ab br ", 4)
+    yield phrase_data(False), "ZQtri.", phrase_result("ab br.", 4)
+    # Now trigger immediately
+    yield phrase_data(True), "tri", phrase_result("ab br", 3)
+    yield phrase_data(True), "abctri", phrase_result("ab br", 3)
+    yield phrase_data(True), "ZQtri", phrase_result("ab br", 3)
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result",
+                         generate_test_cases_for_trigger_phrase_inside_word())
+def test_trigger_phrase_inside_word(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
+    phrase = create_phrase(*phrase_data)
+    phrase.triggerInside = True
+
+    # Expansion should always trigger
+    assert_that(
+        phrase.check_input(trigger_str, ("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger:"
+    )
+
+    result = phrase.build_phrase(trigger_str)
+    assert_that(
+        result.string,
+        is_(equal_to(phrase_result.expansion)),
+        "Wrong expansion result"
+    )
+    assert_that(
+        result.backspaces,
+        is_(equal_to(phrase_result.backspace_count)),
+        "Wrong backspace character count"
+    )
+    assert_that(
+        result.lefts,
+        is_(equal_to(0)),
+
+    )
+
+
+def generate_test_cases_for_count_lefts_for_cursor_macro():
+    pass
