@@ -23,12 +23,14 @@ import autokey.model as model
 
 ABBR_ONLY = [model.TriggerMode.ABBREVIATION]
 
+AbbreviationType = typing.Union[str, typing.List[str]]
+
 # Used as parameter containers to cut down argument count.
 # These make reading output of failed test cases much easier, because when pytest prints it, it annotates each value
 # (e.g. "True") with it’s intended meaning (e.g. "ignore_case=True")
 PhraseData = typing.NamedTuple("PhraseData", [
     ("name", str),
-    ("abbreviation", typing.Optional[str]),
+    ("abbreviation", AbbreviationType),
     ("content", str),
     ("trigger_modes", typing.List[model.TriggerMode]),
     ("ignore_case", bool),
@@ -39,14 +41,14 @@ PhraseData = typing.NamedTuple("PhraseData", [
 PhraseResult = typing.NamedTuple("PhraseResult", [
     ("expansion", typing.Optional[str]),
     ("abbreviation_length", typing.Optional[int]),
-    ("backspace_count", typing.Optional[int]),
+    ("backspace_count", int),
     ("triggered_on_input", bool)
 ])
 
 
 def create_phrase(
         name: str="phrase",
-        abbreviation: str="xp@",
+        abbreviation: AbbreviationType="xp@",
         content: str = "expansion@autokey.com",  # Values taken from original test code
         trigger_modes: typing.List[model.TriggerMode]=None,
         ignore_case: bool=False,
@@ -56,7 +58,11 @@ def create_phrase(
     if trigger_modes is None:
         trigger_modes = [model.TriggerMode.ABBREVIATION]
     phrase = model.Phrase(name, content)
-    phrase.add_abbreviation(abbreviation)
+    if isinstance(abbreviation, str):
+        phrase.add_abbreviation(abbreviation)
+    else:
+        for abbr in abbreviation:
+            phrase.add_abbreviation(abbr)
     phrase.set_modes(trigger_modes)
     phrase.ignoreCase = ignore_case
     phrase.matchCase = match_case
@@ -69,21 +75,28 @@ def create_phrase(
 def generate_test_cases_for_ignore_case():
     """Yields PhraseData, typed_input, PhraseResult"""
 
-    def phrase_result(expansion_result: typing.Optional[str], triggered: bool) -> PhraseResult:
+    def phrase_data(abbreviation: str, phrase_content: str, ignore_case: bool) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation=abbreviation, content=phrase_content,
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=False,
+            trigger_immediately=False)
+
+    def phrase_result(expansion_result: str, triggered: bool) -> PhraseResult:
         """Local helper function to save typing constant data"""
         return PhraseResult(
             expansion=expansion_result, abbreviation_length=None,
-            backspace_count=None, triggered_on_input=triggered)
+            backspace_count=len(expansion_result), triggered_on_input=triggered)
 
-    yield PhraseData("name", "ab@", "abbr", ABBR_ONLY, False, False, False), "AB@ ", phrase_result(None, False)
-    yield PhraseData("name", "AB@", "abbr", ABBR_ONLY, False, False, False), "ab@ ", phrase_result(None, False)
-    yield PhraseData("name", "ab@", "abbr", ABBR_ONLY, True, False, False), "AB@ ", phrase_result("abbr ", True)
-    yield PhraseData("name", "AB@", "abbr", ABBR_ONLY, True, False, False), "ab@ ", phrase_result("abbr ", True)
+    yield phrase_data("ab@", "abbr", False), "AB@ ", phrase_result("", False)
+    yield phrase_data("AB@", "abbr", False), "ab@ ", phrase_result("", False)
+    yield phrase_data("ab@", "abbr", True), "AB@ ", phrase_result("abbr ", True)
+    yield phrase_data("AB@", "abbr", True), "ab@ ", phrase_result("abbr ", True)
 
     # Don’t match case
-    yield PhraseData("name", "tri", "ab br", ABBR_ONLY, True, False, False), "TRI ", phrase_result("ab br ", True)
-    yield PhraseData("name", "TRI", "ab br", ABBR_ONLY, True, False, False), "tri ", phrase_result("ab br ", True)
-    yield PhraseData("name", "Tri", "ab br", ABBR_ONLY, True, False, False), "tri ", phrase_result("ab br ", True)
+    yield phrase_data("tri", "ab br", True), "TRI ", phrase_result("ab br ", True)
+    yield phrase_data("TRI", "ab br", True), "tri ", phrase_result("ab br ", True)
+    yield phrase_data("Tri", "ab br", True), "tri ", phrase_result("ab br ", True)
 
 
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_ignore_case())
@@ -120,7 +133,7 @@ def generate_test_cases_for_match_case():
         """Local helper function to save typing constant data"""
         return PhraseResult(
             expansion=expansion_result, abbreviation_length=None,
-            backspace_count=None, triggered_on_input=True)
+            backspace_count=len(expansion_result), triggered_on_input=True)
     
     # Match case for lower case content and a lower case abbreviation
     yield phrase_data("tri", "ab br"), "tri ", phrase_result("ab br ")
@@ -183,10 +196,15 @@ def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: Ph
         "Phrase expansion should trigger:"
     )
     # Verify that the case is matched correctly
+    result = phrase.build_phrase(trigger_str)
     assert_that(
-        phrase.build_phrase(trigger_str).string,
+        result.string,
         is_(equal_to(phrase_result.expansion)),
         "Invalid Phrase expansion result string"
+    )
+    assert_that(
+        result.lefts,
+        is_(equal_to(0)),
     )
 
 
@@ -215,7 +233,7 @@ def generate_test_cases_for_undo_on_backspace():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation="tri", content="ab br",
-            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=True, match_case=True,
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
             trigger_immediately=trigger_immediately)
 
     def phrase_result(backspace_count: int) -> PhraseResult:
