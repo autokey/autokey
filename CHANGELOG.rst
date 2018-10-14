@@ -3,6 +3,20 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.4 <2018-10-14>
+===========================
+
+Bug fixes
+---------
+
+- Fix grabbed hotkeys being incorrectly received by other applications.
+- Fixed crashes when processing `<code>` literals in strings.
+  It is now possible to place `<code>` and `<code/>` literals in Phrases.
+  Additionally, such literals can be typed in scripts using the keyboard.send_keys function.
+- Increased the reliability of the window filter detection dialog in autokey-qt. The dialog allows sampling windows
+  to aid writing window filters. Due to timing issues in certain cases, sometimes the window title of the previously
+  active window was returned.
+
 Version 0.95.3 <2018-08-21>
 ===========================
 
