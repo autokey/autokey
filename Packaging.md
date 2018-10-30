@@ -1,3 +1,24 @@
+# PyPI:
+
+    % git checkout v0.95.4
+    Note: checking out 'v0.95.4'.
+    ...
+    HEAD is now at c260a41 Release v0.95.4
+
+    % python3 setup.py sdist bdist_wheel
+
+    % twine upload --verbose --repository-url https://upload.pypi.org/legacy/ dist/*
+    Enter your username: <your pypi username>
+    Enter your password: 
+    Uploading distributions to https://upload.pypi.org/legacy/
+    Uploading autokey-0.95.4-py3-none-any.whl
+    ...
+    Uploading autokey-0.95.4.tar.gz
+    ...
+
+
+
+
 # Ubuntu:
 
 http://packaging.ubuntu.com/html/packaging-new-software.html
