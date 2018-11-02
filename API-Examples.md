@@ -469,7 +469,7 @@ See [Release key](#release-key)
 
     keyboard.press_key('<ctrl>')
     keyboard.send_keys('d', repeat=5)
-    keyboard.release_key('<ctrl>'**)
+    keyboard.release_key('<ctrl>')
 
 
 ### Release key ###
