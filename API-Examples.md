@@ -490,6 +490,12 @@ See [Press_key](#press-key)
 
 The script sends 'z' three times.
 
+send_key sends a single keystroke. You cannot use send_key on its own to send
+keys that are modified with Crtl, Shift, or Alt, for example. 
+
+If you want to use modifiers, use either [send_keys](send-keys) or [press_key](#press-key).
+
+
 #### Send key script ####
 
     keyboard.send_key('z',repeat=3)
