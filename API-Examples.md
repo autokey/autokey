@@ -462,7 +462,7 @@ This script sends '\<down>' five times.
 
 This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl>.
 
-[See Release key](#release-key)
+See [Release key](#release-key)
 
 #### Press key script ####
 
@@ -476,7 +476,7 @@ This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl
 
 **release_key** releases a key that has previously been pressed by **press_key**.
 
-See [See Press_key](#press-key)
+See [Press_key](#press-key)
 
 #### Release key script ####
 
