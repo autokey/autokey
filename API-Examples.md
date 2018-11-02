@@ -453,7 +453,7 @@ This script sends '\<down>' five times.
 
 #### Fake key press script ####
 
-    keyboard.fake_keypress('<down>', repeat=5**)
+    keyboard.fake_keypress('<down>', repeat=5)
 
 
 ### Press key ###
