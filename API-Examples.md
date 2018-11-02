@@ -458,7 +458,7 @@ This script sends '\<down>' five times.
 
 ### Press key ###
 
-**press_key* makes AutoKey hold down a key until it is specifically released. 
+**press_key** makes AutoKey hold down a key until it is specifically released. 
 
 This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl>.
 
@@ -482,7 +482,7 @@ See [Press_key](#press-key)
 
     keyboard.press_key('<ctrl>')
     keyboard.fake_keypress('d', repeat=5)
-    keyboard.release_key('<ctrl>'**)
+    keyboard.release_key('<ctrl>')
 
 ### Send key ###
 
