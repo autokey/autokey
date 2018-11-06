@@ -124,8 +124,15 @@ Zero-installation Method
 AutoKey can also be used directly from the cloned repo. This is useful, e.g., for trying 
 out a new version without removing the current installed version.
 
-1. Start the Autokey daemon: In the `lib` directory, execute `python3 -m autokey.gtkui`
-   or `python3 -m autokey.qtui`.
+1. Start the Autokey daemon
+
+.. code:: sh
+
+   cd lib
+   python3 -m autokey.gtkui
+   # or for KDE
+   python3 -m autokey.qtui
+
 2. Start the Autokey UI by repeating Step 1 in a new terminal window.
 
 
