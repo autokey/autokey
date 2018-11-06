@@ -1,7 +1,7 @@
 import re
 import unittest
 
-from lib.phrase import *
+from lib.autokey.model import Phrase
 
 class PhraseTest(unittest.TestCase):
     
@@ -19,9 +19,7 @@ class PhraseTest(unittest.TestCase):
         
         self.defaultPhrase = Phrase("xp@", "expansion@autokey.com")
         self.defaultPhrase.set_abbreviation("xp@")
-        self.defaultPhrase.set_modes([PhraseMode.ABBREVIATION])
-        self.defaultFolder = PhraseFolder("Folder")
-        self.defaultFolder.add_phrase(self.defaultPhrase)        
+        self.defaultFolder.add_phrase(self.defaultPhrase)
         
     def testImmediateOption(self):
         
@@ -33,7 +31,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("xp@", "expansion@autokey.com")
         phrase.immediate = True
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])
         self.defaultFolder.add_phrase(phrase)
         
         self.assertEqual(phrase.check_input("xp@", ""), True)
@@ -52,7 +49,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("xp@", "expansion@autokey.com")
         phrase.ignoreCase = True
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])
         self.defaultFolder.add_phrase(phrase)
         self.assertEqual(phrase.check_input("XP@ ", ""), True)
         
@@ -64,7 +60,6 @@ class PhraseTest(unittest.TestCase):
         phrase.ignoreCase = True
         phrase.matchCase = True
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])        
         self.defaultFolder.add_phrase(phrase)
         
         result = phrase.build_phrase("asdf XP@ ")
@@ -85,7 +80,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("xp@", "expansion@autokey.com")
         phrase.backspace = False
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])        
         self.defaultFolder.add_phrase(phrase)
         
         result = phrase.build_phrase("xp@ ")
@@ -100,7 +94,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("xp@", "expansion@autokey.com")
         phrase.omitTrigger = True
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])        
         self.defaultFolder.add_phrase(phrase)
         
         result = phrase.build_phrase("xp@.")
@@ -118,7 +111,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("xp@", "expansion@autokey.com")
         phrase.triggerInside = True
         phrase.set_abbreviation("xp@")
-        phrase.set_modes([PhraseMode.ABBREVIATION])        
         self.defaultFolder.add_phrase(phrase)
         self.assertEqual(phrase.check_input("asdfxp@.", ""), True)
         
@@ -129,7 +121,6 @@ class PhraseTest(unittest.TestCase):
         #Test with omit trigger false
         phrase = Phrase("Positioning Phrase", "[udc]$(cursor )[/udc]")
         phrase.set_abbreviation("udc")
-        phrase.set_modes([PhraseMode.ABBREVIATION])
         self.defaultFolder.add_phrase(phrase)
         
         result = phrase.build_phrase("udc ")
@@ -162,7 +153,6 @@ class PhraseTest(unittest.TestCase):
     def testMultipleAbbrs(self):
         phrase = Phrase("Some abbr", "Some abbr")
         phrase.set_abbreviation("sdf")
-        phrase.set_modes([PhraseMode.ABBREVIATION])        
         self.defaultFolder.add_phrase(phrase)
         input = "fgh xp@asdf sdf "
         
@@ -189,7 +179,6 @@ class PhraseTest(unittest.TestCase):
         
     def testNoneMode(self):
         phrase = Phrase("Test Phrase", "Testing")
-        folder = PhraseFolder("Folder")
         folder.set_abbreviation("asdf")
         folder.set_modes([PhraseMode.ABBREVIATION])
         folder.add_phrase(phrase)
@@ -204,7 +193,6 @@ class PhraseTest(unittest.TestCase):
         phrase = Phrase("Some abbr", "Some abbr")
         phrase.set_window_titles(".*Eclipse.*")
         phrase.set_abbreviation("sdf")
-        phrase.set_modes([PhraseMode.ABBREVIATION])                
         self.defaultFolder.add_phrase(phrase)
         self.assertEqual(phrase.check_input("sdf ", "blah - Eclipse Platform"), True)
 
@@ -213,8 +201,6 @@ class PredictivePhraseTest(unittest.TestCase):
     
     def setUp(self):
         self.phrase = Phrase("blah", "This is a test phrase")
-        self.phrase.set_modes([PhraseMode.PREDICTIVE])
-        folder = PhraseFolder("Folder")
         folder.add_phrase(self.phrase)
         
     def testPredict(self):
@@ -238,9 +224,7 @@ class HotkeyPhrasetest(unittest.TestCase):
     
     def setUp(self):
         self.phrase = Phrase("blah", "This is a test phrase")
-        self.phrase.set_modes([PhraseMode.HOTKEY])
         self.phrase.set_hotkey(["A", "B"], "n")
-        folder = PhraseFolder("Folder")
         folder.add_phrase(self.phrase)
         
     def testHotkey(self):
@@ -263,29 +247,22 @@ class HotkeyPhrasetest(unittest.TestCase):
 class PhraseFolderTest(unittest.TestCase):
     
     def setUp(self):
-        self.folder = PhraseFolder("Folder")
         self.folder.set_abbreviation("sdf")
-        self.folder.set_modes([PhraseMode.ABBREVIATION])
-                
+
     def testCheckInput(self):
         self.assertEqual(self.folder.check_input("sdf ", ""), True)
     
 class E2ETest(unittest.TestCase):
     
     def setUp(self):
-        self.topFolder = PhraseFolder("Top Folder")
         self.topFolder.set_abbreviation("top1")
-        self.topFolder.set_modes([PhraseMode.ABBREVIATION])
-        
-        self.bottomFolder = PhraseFolder("Bottom Folder")
+
         self.bottomFolder.set_abbreviation("bottom1")
-        self.bottomFolder.set_modes([PhraseMode.ABBREVIATION])
         self.topFolder.add_folder(self.bottomFolder)
         
         self.phrase = Phrase("blah", "The Phrase")
         self.phrase.set_abbreviation("asdf")
         self.phrase.set_hotkey(["A"], "n")
-        self.phrase.set_modes([PhraseMode.ABBREVIATION, PhraseMode.HOTKEY, PhraseMode.PREDICTIVE])
         self.bottomFolder.add_phrase(self.phrase)
             
     def testCheckInput(self):

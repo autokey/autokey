@@ -26,7 +26,9 @@ import re
 from pathlib import Path
 
 from autokey import common
-from autokey.iomediator.constants import X_RECORD_INTERFACE
+
+# from autokey.iomediator.constants import X_RECORD_INTERFACE
+X_RECORD_INTERFACE = "XRecord"
 
 import json
 
