@@ -133,7 +133,7 @@ out a new version without removing the current installed version.
    # or for KDE
    python3 -m autokey.qtui
 
-2. Start the Autokey UI by repeating Step 1 in a new terminal window.
+2. Start the Autokey UI (if desired) by repeating Step 1 in a new terminal window.
 
 
 Documentation
