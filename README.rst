@@ -14,6 +14,7 @@ AutoKey
    :target: https://stackoverflow.com/questions/tagged/autokey
 
 
+
 .. contents::
 
 
@@ -122,7 +123,7 @@ Zero-installation Method
 ++++++++++++++++++++++++
 
 AutoKey can also be used directly from the cloned repo. This is useful, e.g., for trying 
-out a new version without removing the current installed version.
+out a new version without removing a current installation.
 
 1. Start the Autokey daemon
 
@@ -135,6 +136,8 @@ out a new version without removing the current installed version.
 
 2. Start the Autokey UI (if desired) by repeating Step 1 in a new terminal window.
 
+The commands accept CLI switches just like the regular installation, so
+:code:`python3 -m autokey.qtui -lc` works as expected.
 
 Documentation
 =============
