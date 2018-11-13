@@ -210,8 +210,7 @@ def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: Ph
 
 def test_trigger_immediate():
     abbreviation = "xp@"  # Values taken from original unit tests
-    phrase = create_phrase(abbreviation=abbreviation, content="expansion@autokey.com")
-    phrase.immediate = True
+    phrase = create_phrase(abbreviation=abbreviation, content="expansion@autokey.com", trigger_immediately=True)
 
     # Trigger on the first assigned abbreviation, don’t care about the actual abbreviation content
     # Test that the abbreviation triggers without the presence of a trigger character
@@ -441,11 +440,11 @@ def test_count_lefts_for_cursor_macro(phrase_data: PhraseData, trigger_str: str,
     )
     pytest.xfail("Counting lefts in expansion result seems to be broken legacy code?")
     result = phrase.build_phrase(trigger_str)
-    #assert_that(
-    #    result.string,
-    #    is_(equal_to(phrase_result.expansion)),
-    #    "Wrong expansion result"
-    #)
+    assert_that(
+        result.string,
+        is_(equal_to(phrase_result.expansion)),
+        "Wrong expansion result"
+    )
     assert_that(
         result.backspaces,
         is_(equal_to(phrase_result.backspace_count)),
