@@ -582,9 +582,9 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if TriggerMode.ABBREVIATION in self.modes and self.backspace:
             if self._should_trigger_abbreviation(buffer):
                 if self.immediate:
-                    return len(self.abbreviation)
+                    return len(self._get_trigger_abbreviation(buffer))
                 else:
-                    return len(self.abbreviation) + 1
+                    return len(self._get_trigger_abbreviation(buffer)) + 1
 
         if self.parent is not None:
             return self.parent.calculate_input(buffer)
@@ -798,12 +798,13 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         """
         Calculate how many keystrokes were used in triggering this phrase.
         """
+        # TODO: This function is unused?
         if TriggerMode.ABBREVIATION in self.modes:
             if self._should_trigger_abbreviation(buffer):
                 if self.immediate:
-                    return len(self.abbreviation)
+                    return len(self._get_trigger_abbreviation(buffer))
                 else:
-                    return len(self.abbreviation) + 1
+                    return len(self._get_trigger_abbreviation(buffer)) + 1
 
         # TODO - re-enable me if restoring predictive functionality
         #if TriggerMode.PREDICTIVE in self.modes:
