@@ -14,6 +14,10 @@ AutoKey
    :target: https://stackoverflow.com/questions/tagged/autokey
 
 
+
+.. contents::
+
+
 About
 =====
 `AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted at `OldAutoKey`_. Updated to run on Python 3. 
@@ -114,6 +118,26 @@ Avaiable from Fedora_ 27 onwards.
    sudo dnf install autokey-gtk
    # or for kde
    sudo dnf install autokey-kde
+
+Zero-installation Method
+++++++++++++++++++++++++
+
+AutoKey can also be used directly from the cloned repo. This is useful, e.g., for trying 
+out a new version without removing a current installation.
+
+1. Start the Autokey daemon
+
+.. code:: sh
+
+   cd lib
+   python3 -m autokey.gtkui
+   # or for KDE
+   python3 -m autokey.qtui
+
+2. Start the Autokey UI (if desired) by repeating Step 1 in a new terminal window.
+
+The commands accept CLI switches just like the regular installation, so
+:code:`python3 -m autokey.qtui -lc` works as expected.
 
 Documentation
 =============
