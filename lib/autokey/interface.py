@@ -611,7 +611,10 @@ class XInterfaceBase(threading.Thread):
         """
         backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
         self.clipboard.text = string
-        self.mediator.send_string(paste_command.value)
+        try:
+            self.mediator.send_string(paste_command.value)
+        finally:
+            self.ungrab_keyboard()
         # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
         self.__enqueue(self._restore_clipboard_text, backup)
 
