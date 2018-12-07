@@ -376,12 +376,11 @@ class XInterfaceBase(threading.Thread):
             
         for window in children:
             try:
-                title = self.get_window_title(window, False)
-                klass = self.get_window_class(window, False)
+                window_info = self.get_window_info(window, False)
                 
-                if title or klass:
+                if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
                             self.__grabHotkey(item.hotKey, item.modifiers, window)
                             self.__grabRecurse(item, window, False)
                         
@@ -421,12 +420,11 @@ class XInterfaceBase(threading.Thread):
             
         for window in children:
             try:
-                title = self.get_window_title(window, False)
-                klass = self.get_window_class(window, False)
+                window_info = self.get_window_info(window, False)
                 
-                if title or klass:
+                if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
                             self.__ungrabHotkey(item.hotKey, item.modifiers, window)
                             self.__ungrabRecurse(item, window, False)
                         
@@ -442,10 +440,9 @@ class XInterfaceBase(threading.Thread):
         """
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
-        title = self.get_window_title(window)
-        klass = self.get_window_class(window)
+        window_info = self.get_window_info(window)
         for item in hotkeys:
-            if item.get_applicable_regex() is not None and item._should_trigger_window_title((title, klass)):
+            if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
             elif self.__needsMutterWorkaround(item):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
@@ -499,9 +496,8 @@ class XInterfaceBase(threading.Thread):
             shouldTrigger = False
             
             if checkWinInfo:
-                title = self.get_window_title(window, False)
-                klass = self.get_window_class(window, False)
-                shouldTrigger = item._should_trigger_window_title((title, klass))
+                window_info = self.get_window_info(window, False)
+                shouldTrigger = item._should_trigger_window_title(window_info)
 
             if shouldTrigger or not checkWinInfo:
                 self.__grabHotkey(item.hotKey, item.modifiers, window)
@@ -535,10 +531,9 @@ class XInterfaceBase(threading.Thread):
         for window in children:
             shouldTrigger = False
             
-            if checkWinInfo:        
-                title = self.get_window_title(window, False)
-                klass = self.get_window_class(window, False)
-                shouldTrigger = item._should_trigger_window_title((title, klass))
+            if checkWinInfo:
+                window_info = self.get_window_info(window, False)
+                shouldTrigger = item._should_trigger_window_title(window_info)
 
             if shouldTrigger or not checkWinInfo:
                 self.__ungrabHotkey(item.hotKey, item.modifiers, window)
@@ -927,7 +922,8 @@ class XInterfaceBase(threading.Thread):
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            self.mediator.handle_keypress(keyCode, self.get_window_title(focus), self.get_window_class(focus))
+            window_info = self.get_window_info(focus)
+            self.mediator.handle_keypress(keyCode, window_info.wm_title, window_info.wm_class)
 
     def handle_keyrelease(self, keyCode):
         self.__enqueue(self.__handleKeyrelease, keyCode)
@@ -944,21 +940,19 @@ class XInterfaceBase(threading.Thread):
         # Sleep a bit to timing issues. A mouse click might change the active application.
         # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
         # causing the queried window title (and maybe the window class or even none of those) to be invalid.
-        time.sleep(0.001)  # TODO: may need some tweaking
-        title = self.get_window_title()
-        klass = self.get_window_class()
-        info = (title, klass)
+        time.sleep(0.005)  # TODO: may need some tweaking
+        window_info = self.get_window_info()
         
         if x is None and y is None:
             ret = self.localDisplay.get_input_focus().focus.query_pointer()
-            self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button, info)
+            self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button, window_info)
         else:
             focus = self.localDisplay.get_input_focus().focus
             try:
                 rel = focus.translate_coords(self.rootWindow, x, y)
-                self.mediator.handle_mouse_click(x, y, rel.x, rel.y, button, info)
+                self.mediator.handle_mouse_click(x, y, rel.x, rel.y, button, window_info)
             except:
-                self.mediator.handle_mouse_click(x, y, 0, 0, button, info)
+                self.mediator.handle_mouse_click(x, y, 0, 0, button, window_info)
 
     def __decodeModifier(self, keyCode):
         """
@@ -979,10 +973,9 @@ class XInterfaceBase(threading.Thread):
 
     def __checkWorkaroundNeeded(self):
         focus = self.localDisplay.get_input_focus().focus
-        window_title = self.get_window_title(focus)
-        window_class = self.get_window_class(focus)
+        window_info = self.get_window_info(focus)
         w = self.app.configManager.workAroundApps
-        if w.match(window_title) or w.match(window_class):
+        if w.match(window_info.wm_title) or w.match(window_info.wm_class):
             self.__enableQT4Workaround = True
         else:
             self.__enableQT4Workaround = False
@@ -1132,7 +1125,6 @@ class XInterfaceBase(threading.Thread):
     def get_window_class(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_class
 
-    
     def cancel(self):
         logger.debug("XInterfaceBase: Try to exit event thread.")
         self.queue.put_nowait((None, None))

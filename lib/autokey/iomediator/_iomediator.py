@@ -91,7 +91,7 @@ class IoMediator(threading.Thread):
         if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
-    def handle_keypress(self, keyCode, windowName, windowClass):
+    def handle_keypress(self, keyCode, windowName: str, windowClass: str):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
