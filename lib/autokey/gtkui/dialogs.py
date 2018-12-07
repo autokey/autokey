@@ -643,4 +643,3 @@ class RecordDialog(DialogBase):
             
     def valid(self):
         return True
-

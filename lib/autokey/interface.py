@@ -923,7 +923,7 @@ class XInterfaceBase(threading.Thread):
             self.mediator.handle_modifier_down(modifier)
         else:
             window_info = self.get_window_info(focus)
-            self.mediator.handle_keypress(keyCode, window_info.wm_title, window_info.wm_class)
+            self.mediator.handle_keypress(keyCode, window_info)
 
     def handle_keyrelease(self, keyCode):
         self.__enqueue(self.__handleKeyrelease, keyCode)

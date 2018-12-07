@@ -91,17 +91,17 @@ class IoMediator(threading.Thread):
         if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
     
-    def handle_keypress(self, keyCode, windowName: str, windowClass: str):
+    def handle_keypress(self, keyCode, window_info):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
         """
-        self.queue.put_nowait((keyCode, windowName, windowClass))
+        self.queue.put_nowait((keyCode, window_info))
         
     def run(self):
         while True:
-            keyCode, windowName, windowClass = self.queue.get()
-            if keyCode is None and windowName is None:
+            keyCode, window_info = self.queue.get()
+            if keyCode is None and window_info.wm_title is None:
                 break
             
             numLock = self.modifiers[Key.NUMLOCK]
@@ -111,7 +111,7 @@ class IoMediator(threading.Thread):
             rawKey = self.interface.lookup_string(keyCode, False, False, False)
             
             for target in self.listeners:
-                target.handle_keypress(rawKey, modifiers, key, windowName, windowClass)                
+                target.handle_keypress(rawKey, modifiers, key, window_info)
                 
             self.queue.task_done()
             
