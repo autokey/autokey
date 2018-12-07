@@ -1057,6 +1057,7 @@ class XInterfaceBase(threading.Thread):
             return self._get_window_info(window, traverse)
         except error.BadWindow:
             logger.exception("Got BadWindow error while requesting window information.")
+            return self._create_window_info(window, "", "")
 
     def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
         new_wm_title = self._try_get_window_title(window)
