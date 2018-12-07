@@ -630,7 +630,7 @@ class XInterfaceBase(threading.Thread):
         """Restore the clipboard content."""
         # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
         # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.clipboard.text = backup
 
     def _send_string_selection(self, string: str):
