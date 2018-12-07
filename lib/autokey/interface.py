@@ -86,10 +86,8 @@ MASK_INDEXES = [
 CAPSLOCK_LEDMASK = 1<<0
 NUMLOCK_LEDMASK = 1<<1
 
-from typing import Union
 
-
-def str_or_bytes_to_bytes(x: Union[str, bytes, memoryview]) -> bytes:
+def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
     if type(x) == bytes:
         # logger.info("using LiuLang's python3-xlib")
         return x
@@ -100,6 +98,10 @@ def str_or_bytes_to_bytes(x: Union[str, bytes, memoryview]) -> bytes:
         logger.debug("using official python-xlib")
         return x.tobytes()
     raise RuntimeError("x must be str or bytes or memoryview object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
+
+
+# This tuple is used to return requested window properties.
+WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
 
 
 class AbstractClipboard:
@@ -1048,66 +1050,87 @@ class XInterfaceBase(threading.Thread):
                 logger.error("Unknown key name: %s", char)
                 raise
 
-    def get_window_title(self, window=None, traverse=True) -> str:
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         try:
             if window is None:
-                windowvar = self.localDisplay.get_input_focus().focus
-            else:
-                windowvar = window
+                window = self.localDisplay.get_input_focus().focus
+            return self._get_window_info(window, traverse)
+        except error.BadWindow:
+            logger.exception("Got BadWindow error while requesting window information.")
 
-            return self._get_window_title(windowvar, traverse)
+    def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
+        new_wm_title = self._try_get_window_title(window)
+        new_wm_class = self._try_get_window_class(window)
 
-        except AttributeError as e:
-            if str(e) == "'int' object has no attribute 'get_property'":
-                return ""
-            raise
-        except error.BadWindow as e:#TODO_PY3
-            logger.exception("Got BadWindow error.")
-            return ""
-        except:  # Default handler
-            return ""
+        if not wm_title and new_wm_title:  # Found title, update known information
+            wm_title = new_wm_title
+        if not wm_class and new_wm_class:  # Found class, update known information
+            wm_class = new_wm_class
 
-    def _get_window_title(self, windowvar, traverse) -> str:
-        atom = windowvar.get_property(self.__VisibleNameAtom, 0, 0, 255)
+        if traverse:
+            # Recursive operation on the parent window
+            if wm_title and wm_class:  # Both known, abort walking the tree and return the data.
+                return self._create_window_info(window, wm_title, wm_class)
+            else:  # At least one property is still not known. So walk the window tree up.
+                parent = window.query_tree().parent
+                # Stop traversal, if the parent is not a window. When querying the parent, at some point, an integer
+                # is returned. Then just stop following the tree.
+                if isinstance(parent, int):
+                    # At this point, wm_title or wm_class may still be None. The recursive call with traverse=False
+                    # will replace any None with an empty string. See below.
+                    return self._get_window_info(window, False, wm_title, wm_class)
+                else:
+                    return self._get_window_info(parent, traverse, wm_title, wm_class)
+
+        else:
+            # No recursion, so fill unknown values with empty strings.
+            if wm_title is None:
+                wm_title = ""
+            if wm_class is None:
+                wm_class = ""
+            return self._create_window_info(window, wm_title, wm_class)
+
+    def _create_window_info(self, window, wm_title: str, wm_class: str):
+        """
+        Creates a WindowInfo object from the window title and WM_CLASS.
+        Also checks for the Java XFocusProxyWindow workaround and applies it if needed:
+
+        Workaround for Java applications: Java AWT uses a XFocusProxyWindow class, so to get usable information,
+        the parent window needs to be queried. Credits: https://github.com/mooz/xkeysnail/pull/32
+        https://github.com/JetBrains/jdk8u_jdk/blob/master/src/solaris/classes/sun/awt/X11/XFocusProxyWindow.java#L35
+        """
+        if "FocusProxy" in wm_class:
+            parent = window.query_tree().parent
+            # Discard both the already known wm_class and window title, because both are known to be wrong.
+            return self._get_window_info(parent, False)
+        else:
+            return WindowInfo(wm_title=wm_title, wm_class=wm_class)
+
+    def _try_get_window_title(self, window) -> typing.Optional[str]:
+        atom = window.get_property(self.__VisibleNameAtom, 0, 0, 255)
         if atom is None:
-            atom = windowvar.get_property(self.__NameAtom, 0, 0, 255)
+            atom = window.get_property(self.__NameAtom, 0, 0, 255)
         if atom:
-            value = atom.value  # type: Union[str, bytes]
+            value = atom.value  # type: typing.Union[str, bytes]
             # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
             return value.decode("utf-8") if isinstance(value, bytes) else value
-        elif traverse:
-            return self._get_window_title(windowvar.query_tree().parent, True)
         else:
-            return ""
+            return None
+
+    @staticmethod
+    def _try_get_window_class(window) -> typing.Optional[str]:
+        wm_class = window.get_wm_class()
+        if wm_class:
+            return "{}.{}".format(wm_class[0], wm_class[1])
+        else:
+            return None
+
+    def get_window_title(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_title
 
     def get_window_class(self, window=None, traverse=True) -> str:
-        try:
-            if window is None:
-                windowvar = self.localDisplay.get_input_focus().focus
-            else:
-                windowvar = window
+        return self.get_window_info(window, traverse).wm_class
 
-            return self._get_window_class(windowvar, traverse)
-        except AttributeError as e:
-            if str(e)=="'int' object has no attribute 'get_wm_class'":
-                return ""
-            raise
-        except error.BadWindow as e:#TODO_PY3
-            print(__name__, repr(e))
-            return ""
-        # except:
-        #     return ""
-    
-    def _get_window_class(self, windowvar, traverse) -> str:
-        wmclass = windowvar.get_wm_class()
-
-        if wmclass is None or not wmclass:
-            if traverse:
-                return self._get_window_class(windowvar.query_tree().parent, True)
-            else:
-                return ""
-
-        return wmclass[0] + '.' + wmclass[1]
     
     def cancel(self):
         logger.debug("XInterfaceBase: Try to exit event thread.")
