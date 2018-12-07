@@ -563,7 +563,7 @@ class WindowFilterSettingsDialog(DialogBase):
         response = dlg.run()
         
         if response == Gtk.ResponseType.OK:
-            self.triggerRegexEntry.set_text(dlg.get_choice().encode("utf-8"))
+            self.triggerRegexEntry.set_text(dlg.get_choice())
             
         self.detectButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -591,15 +591,15 @@ class DetectDialog(DialogBase):
         DialogBase.__init__(self)
         
     def populate(self, windowInfo):
-        self.titleLabel.set_text(_("Window title: %s") % windowInfo[0].encode("utf-8"))
-        self.classLabel.set_text(_("Window class: %s") % windowInfo[1].encode("utf-8"))
+        self.titleLabel.set_text(_("Window title: %s") % windowInfo.wm_title)
+        self.classLabel.set_text(_("Window class: %s") % windowInfo.wm_class)
         self.windowInfo = windowInfo
 
     def get_choice(self):
         if self.classRadioButton.get_active():
-            return self.windowInfo[1]
+            return self.windowInfo.wm_class
         else:
-            return self.windowInfo[0]
+            return self.windowInfo.wm_title
             
     def on_cancel(self, widget, data=None):
         self.ui.response(Gtk.ResponseType.CANCEL)
