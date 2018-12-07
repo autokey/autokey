@@ -615,9 +615,12 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: model.SendMode):
-        """Use the clipboard to send a string.
+        """
+        Use the clipboard to send a string.
         """
         backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
         self.clipboard.text = string
         try:
             self.mediator.send_string(paste_command.value)
@@ -631,11 +634,13 @@ class XInterfaceBase(threading.Thread):
         # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
         # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
         time.sleep(0.2)
-        self.clipboard.text = backup
+        self.clipboard.text = backup if backup is not None else ""
 
     def _send_string_selection(self, string: str):
         """Use the mouse selection clipboard to send a string."""
         backup = self.clipboard.selection  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
         self.__enqueue(self._paste_using_mouse_button_2)
         self.__enqueue(self._restore_clipboard_selection, backup)
@@ -648,7 +653,7 @@ class XInterfaceBase(threading.Thread):
         # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
         # It might be a good idea to make this delay configurable. There might be systems that need even longer.
         time.sleep(1)
-        self.clipboard.selection = backup
+        self.clipboard.selection = backup if backup is not None else ""
 
     def _paste_using_mouse_button_2(self):
         """Paste using the mouse: Press the second mouse button, then release it again."""
