@@ -120,22 +120,21 @@ class Service:
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last()
 
-    def handle_keypress(self, rawKey, modifiers, key, windowName, windowClass):
+    def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
-        logger.debug("Window visible title: %r, Window class: %r" % (windowName, windowClass))
+        logger.debug("Window visible title: %r, Window class: %r" % window_info)
         self.configManager.lock.acquire()
-        windowInfo = (windowName, windowClass)
 
         # Always check global hotkeys
         for hotkey in self.configManager.globalHotkeys:
-            hotkey.check_hotkey(modifiers, rawKey, windowInfo)
+            hotkey.check_hotkey(modifiers, rawKey, window_info)
 
-        if self.__shouldProcess(windowInfo):
+        if self.__shouldProcess(window_info):
             itemMatch = None
             menu = None
 
             for item in self.configManager.hotKeys:
-                if item.check_hotkey(modifiers, rawKey, windowInfo):
+                if item.check_hotkey(modifiers, rawKey, window_info):
                     itemMatch = item
                     break
 
@@ -150,7 +149,7 @@ class Service:
             else:
                 logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey(modifiers, rawKey, windowInfo):
+                    if folder.check_hotkey(modifiers, rawKey, window_info):
                         #menu = PopupMenu(self, [folder], [])
                         menu = ([folder], [])
 
@@ -184,11 +183,11 @@ class Service:
             if self.__updateStack(key):
                 currentInput = ''.join(self.inputStack)
                 item, menu = self.__checkTextMatches([], self.configManager.abbreviations,
-                                                    currentInput, windowInfo, True)
+                                                    currentInput, window_info, True)
                 if not item or menu:
                     item, menu = self.__checkTextMatches(self.configManager.allFolders,
                                                          self.configManager.allItems,
-                                                         currentInput, windowInfo)
+                                                         currentInput, window_info)
 
                 if item:
                     self.__tryReleaseLock()

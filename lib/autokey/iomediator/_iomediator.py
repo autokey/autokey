@@ -90,18 +90,18 @@ class IoMediator(threading.Thread):
         # Caps and num lock are handled on key down only
         if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
-    
-    def handle_keypress(self, key_code, window_name, window_class):
+
+    def handle_keypress(self, key_code, window_info):
         """
         Looks up the character for the given key code, applying any 
         modifiers currently in effect, and passes it to the expansion service.
         """
-        self.queue.put_nowait((key_code, window_name, window_class))
+        self.queue.put_nowait((key_code, window_info))
         
     def run(self):
         while True:
-            key_code, window_name, window_class = self.queue.get()
-            if key_code is None and window_name is None:
+            key_code, window_info = self.queue.get()
+            if key_code is None and window_info.wm_title is None:
                 break
             
             num_lock = self.modifiers[Key.NUMLOCK]
@@ -111,8 +111,8 @@ class IoMediator(threading.Thread):
             raw_key = self.interface.lookup_string(key_code, False, False, False)
             
             for target in self.listeners:
-                target.handle_keypress(raw_key, modifiers, key, window_name, window_class)
-                
+                target.handle_keypress(raw_key, modifiers, key, window_info)
+
             self.queue.task_done()
             
     def handle_mouse_click(self, root_x, root_y, rel_x, rel_y, button, window_info):
