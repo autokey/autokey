@@ -217,12 +217,10 @@ class AbstractAbbreviation:
 
             # Check chars ahead of abbr
             # length of stringBefore should always be > 0
-            if len(stringBefore) > 0:
-                if not re.match('(^\s)', stringBefore[-1]):
-                    # last char before is a word char
-                    if not self.triggerInside:
-                        # can't trigger when inside a word
-                        return False
+            if len(stringBefore) > 0 and not re.match('(^\s)', stringBefore[-1]) and not self.triggerInside:
+                # check if last char before the typed abbreviation is a word char
+                # if triggerInside is not set, can't trigger when inside a word
+                return False
 
             return True
 
@@ -230,12 +228,13 @@ class AbstractAbbreviation:
 
     def _partition_input(self, current_string: str, abbr: typing.Optional[str]) -> typing.Tuple[str, str, str]:
         """
-        Partition the input into text before, text after, and typed abbreviation (if it exists)
+        Partition the input into text before, typed abbreviation (if it exists), and text after
         """
         if abbr:
             if self.ignoreCase:
-                match_string = current_string.lower()
-                string_before, typed_abbreviation, string_after = match_string.rpartition(abbr)
+                string_before, typed_abbreviation, string_after = self._case_insensitive_rpartition(
+                    current_string, abbr
+                )
                 abbr_start_index = len(string_before)
                 abbr_end_index = abbr_start_index + len(typed_abbreviation)
                 typed_abbreviation = current_string[abbr_start_index:abbr_end_index]
@@ -248,6 +247,22 @@ class AbstractAbbreviation:
             # In this case, there is no trigger character (thus empty before and after text). The complete string
             # should be undone.
             return "", current_string, ""
+
+    @staticmethod
+    def _case_insensitive_rpartition(input_string: str, separator: str) -> typing.Tuple[str, str, str]:
+        """Same as str.rpartition(), except that the partitioning is done case insensitive."""
+        lowered_input_string = input_string.lower()
+        lowered_separator = separator.lower()
+        try:
+            split_index = lowered_input_string.rfind(lowered_separator)
+        except ValueError:
+            # Did not find the separator in the input_string.
+            # Follow https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str
+            # str.rpartition documentation and return the tuple ("", "", unmodified_input) in this case
+            return "", "", input_string
+        else:
+            split_index_2 = split_index+len(separator)
+            return input_string[:split_index], input_string[split_index: split_index_2], input_string[split_index_2:]
 
 
 class AbstractWindowFilter:
@@ -329,9 +344,9 @@ class AbstractWindowFilter:
         return None
 
     def _should_trigger_window_title(self, window_info):
-        r = self.get_applicable_regex()
+        r = self.get_applicable_regex()  # type: typing.Pattern
         if r is not None:
-            return r.match(window_info.wm_title) or r.match(window_info.wm_class)
+            return bool(r.match(window_info.wm_title)) or bool(r.match(window_info.wm_class))
         else:
             return True
 
@@ -547,9 +562,9 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         #del self.phrases[phrase.description]
         self.items.remove(item)
 
-    def check_input(self, buffer, windowInfo):
+    def check_input(self, buffer, window_info):
         if TriggerMode.ABBREVIATION in self.modes:
-            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(windowInfo)
+            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(window_info)
         else:
             return False
 
@@ -736,20 +751,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.modes = modes
 
     def check_input(self, buffer, window_info):
-        if self._should_trigger_window_title(window_info):
-            abbr = False
-            predict = False
-
-            if TriggerMode.ABBREVIATION in self.modes:
-                abbr = self._should_trigger_abbreviation(buffer)
-
-            # TODO - re-enable me if restoring predictive functionality
-            #if TriggerMode.PREDICTIVE in self.modes:
-            #    predict = self._should_trigger_predictive(buffer)
-
-            return abbr or predict
-
-        return False
+        if TriggerMode.ABBREVIATION in self.modes:
+            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(window_info)
+        else:
+            return False
 
     def build_phrase(self, buffer):
         self.usageCount += 1
@@ -1060,12 +1065,11 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def set_modes(self, modes: typing.List[TriggerMode]):
         self.modes = modes
 
-    def check_input(self, buffer, windowInfo):
-        if self._should_trigger_window_title(windowInfo):
-            if TriggerMode.ABBREVIATION in self.modes:
-                return self._should_trigger_abbreviation(buffer)
-
-        return False
+    def check_input(self, buffer, window_info):
+        if TriggerMode.ABBREVIATION in self.modes:
+            return self._should_trigger_abbreviation(buffer) and self._should_trigger_window_title(window_info)
+        else:
+            return False
 
     def process_buffer(self, buffer):
         self.usageCount += 1
