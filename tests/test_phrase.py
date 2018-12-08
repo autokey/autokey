@@ -91,10 +91,11 @@ def generate_test_cases_for_ignore_case():
 
     yield phrase_data("ab@", "abbr", False), "AB@ ", phrase_result("", False)
     yield phrase_data("AB@", "abbr", False), "ab@ ", phrase_result("", False)
+
+    # Don’t match case
     yield phrase_data("ab@", "abbr", True), "AB@ ", phrase_result("abbr ", True)
     yield phrase_data("AB@", "abbr", True), "ab@ ", phrase_result("abbr ", True)
 
-    # Don’t match case
     yield phrase_data("tri", "ab br", True), "TRI ", phrase_result("ab br ", True)
     yield phrase_data("TRI", "ab br", True), "tri ", phrase_result("ab br ", True)
     yield phrase_data("Tri", "ab br", True), "tri ", phrase_result("ab br ", True)
@@ -188,8 +189,6 @@ def generate_test_cases_for_match_case():
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_match_case())
 def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
-    if not phrase.check_input(trigger_str, WindowInfo("", "")):
-        pytest.xfail("match_case currently broken. See issue #197")
     # Expansion should always trigger
     assert_that(
         phrase.check_input(trigger_str, WindowInfo("", "")),
