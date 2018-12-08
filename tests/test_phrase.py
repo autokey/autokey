@@ -20,6 +20,7 @@ import pytest
 from hamcrest import *
 
 import autokey.model as model
+from autokey.interface import WindowInfo
 
 ABBR_ONLY = [model.TriggerMode.ABBREVIATION]
 
@@ -105,7 +106,7 @@ def test_ignore_case(phrase_data: PhraseData, trigger_str: str, phrase_result: P
 
     # Verify trigger behaviour
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger"
     )
@@ -187,11 +188,11 @@ def generate_test_cases_for_match_case():
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_match_case())
 def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
-    if not phrase.check_input(trigger_str, ("", "")):
+    if not phrase.check_input(trigger_str, WindowInfo("", "")):
         pytest.xfail("match_case currently broken. See issue #197")
     # Expansion should always trigger
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger:"
     )
@@ -214,9 +215,9 @@ def test_trigger_immediate():
 
     # Trigger on the first assigned abbreviation, don’t care about the actual abbreviation content
     # Test that the abbreviation triggers without the presence of a trigger character
-    assert_that(phrase.check_input(phrase.abbreviations[0], ("", "")), is_(equal_to(True)))
+    assert_that(phrase.check_input(phrase.abbreviations[0], WindowInfo("", "")), is_(equal_to(True)))
     # Don’t trigger when there is a space after the typed abbreviation
-    assert_that(phrase.check_input(phrase.abbreviations[0] + " ", ("", "")), is_(equal_to(False)))
+    assert_that(phrase.check_input(phrase.abbreviations[0] + " ", WindowInfo("", "")), is_(equal_to(False)))
 
     # Now test some results
     result = phrase.build_phrase(phrase.abbreviations[0])
@@ -262,7 +263,7 @@ def test_undo_on_backspace(phrase_data: PhraseData, trigger_str: str, undo_enabl
 
     # Expansion should always trigger
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger:"
     )
@@ -316,7 +317,7 @@ def test_omit_trigger(phrase_data: PhraseData, trigger_str: str, omit_trigger: b
 
     # Expansion should always trigger
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger:"
     )
@@ -370,7 +371,7 @@ def test_trigger_phrase_inside_word(phrase_data: PhraseData, trigger_str: str, p
 
     # Expansion should always trigger
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger:"
     )
@@ -434,7 +435,7 @@ def test_count_lefts_for_cursor_macro(phrase_data: PhraseData, trigger_str: str,
     phrase = create_phrase(*phrase_data)
     # Expansion should always trigger
     assert_that(
-        phrase.check_input(trigger_str, ("", "")),
+        phrase.check_input(trigger_str, WindowInfo("", "")),
         is_(equal_to(phrase_result.triggered_on_input)),
         "Phrase expansion should trigger:"
     )
