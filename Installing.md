@@ -51,7 +51,8 @@ If you are using another release of Ubuntu, then install using [`pip` Installati
 
 ### Arch
 
-The GTK front end is available in the Arch User Repository ([AUR][aur]). The qt front end is not available in the AUR.
+Up to date packages are available in the Arch User Repository([AUR package][aur]). It supports both the GTK and Qt GUI, but make sure to install the optional dependencies for the GUI you want.
+It seems that the AUR package specifies some run-time dependencies (programs used in certain API calls, like kdialog) as optional dependencies, so check the program log for errors caused by missing programs, when API calls fail.
 
 ### Gentoo
 
@@ -85,8 +86,9 @@ The following Python3 dependencies _should_ be automatically installed by the `p
 
 `autokey-qt` version
 
-* PyQt4
-* PyKDE4
+* PyQt5
+    * The PyQt5 SVG module, if not bundled
+    * The PyQt5-QScintilla2 module, if not bundled
 
 _Both_ versions need
 
