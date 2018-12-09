@@ -6,6 +6,18 @@
 
 (Pick one of: Always, Sometimes, Rarely, Unable, I Didn't Try)
 
+## Version
+
+AutoKey version: 
+
+Used GUI (Gtk, Qt, or both): 
+
+If the problem is known to be present in more than one version, please list all of those.
+
+Installed via: (PPA, pip3, …).
+
+Linux Distribution:
+
 ## Summary
 
 Summary of the problem.
@@ -25,22 +37,10 @@ Summary of the problem.
 
 If helpful, submit screenshots of the issue to help debug.\
 Debugging output, obtained by launching autokey via `autokey-gtk --verbose` (or `autokey-qt --verbose`, if you use the Qt interface) is also useful.\
-Please put the output into a block quote (enclose in triple backticks).
+Please upload the log somewhere accessible or put the output into a code block (enclose in triple backticks).
 ```
-Example block quote.
+Example code block. Replace this whith your log content.
 ```
-
-## Version
-
-AutoKey version: 
-
-Used GUI (Gtk, Qt, or both): 
-
-If the problem is known to be present in more than one version, please list all of those.
-
-Installed via: (PPA, pip3, …).
-
-Distro:
 
 ## Notes
 
