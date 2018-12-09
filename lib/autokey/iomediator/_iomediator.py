@@ -58,7 +58,7 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         _logger.debug("IoMediator shutting down")
         self.interface.cancel()
-        self.queue.put_nowait((None, None, None))
+        self.queue.put_nowait((None, None))
         _logger.debug("Waiting for IoMediator thread to end")
         self.join()
         _logger.debug("IoMediator shutdown completed")
@@ -101,7 +101,7 @@ class IoMediator(threading.Thread):
     def run(self):
         while True:
             key_code, window_info = self.queue.get()
-            if key_code is None and window_info.wm_title is None:
+            if key_code is None and window_info is None:
                 break
             
             num_lock = self.modifiers[Key.NUMLOCK]
