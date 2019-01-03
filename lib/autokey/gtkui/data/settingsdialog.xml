@@ -114,8 +114,8 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkCheckButton" id="promptToSaveCheckbox">
-                                    <property name="label" translatable="yes">Prompt for unsaved changes</property>
+                                  <object class="GtkCheckButton" id="autosaveCheckbox">
+                                    <property name="label" translatable="yes">Automatically save changes without confirmation</property>
                                     <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>

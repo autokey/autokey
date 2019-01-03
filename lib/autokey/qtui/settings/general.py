@@ -45,7 +45,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         super(GeneralSettings, self).__init__(parent)
         self.setupUi(self)
 
-        self.prompt_to_save_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
+        self.autosave_checkbox.setChecked(not cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
         self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         # self.allow_kb_nav_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS])
         self.allow_kb_nav_checkbox.setVisible(False)
@@ -62,7 +62,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
         logger.debug("User requested to save settings. New settings: " + self._settings_str())
-        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = self.prompt_to_save_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.autosave_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
         # cm.ConfigManager.SETTINGS[cm_constants.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
@@ -74,13 +74,13 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
 
     def _settings_str(self):
         """Returns a human readable settings representation for logging purposes."""
-        settings = "Prompt to save: {}, " \
+        settings = "Automatically save changes: {}, " \
             "Show tray icon: {}, " \
             "Allow keyboard navigation: {}, " \
             "Sort by usage count: {}, " \
             "Enable undo using backspace: {}, " \
             "Tray icon theme: {}".format(
-               self.prompt_to_save_checkbox.isChecked(),
+               self.autosave_checkbox.isChecked(),
                self.show_tray_checkbox.isChecked(),
                self.allow_kb_nav_checkbox.isChecked(),
                self.sort_by_usage_checkbox.isChecked(),

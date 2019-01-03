@@ -47,7 +47,7 @@ class SettingsDialog:
         
         # General Settings
         self.autoStartCheckbox = builder.get_object("autoStartCheckbox")
-        self.promptToSaveCheckbox = builder.get_object("promptToSaveCheckbox")
+        self.autosaveCheckbox = builder.get_object("autosaveCheckbox")
         self.showTrayCheckbox = builder.get_object("showTrayCheckbox")
         self.allowKbNavCheckbox = builder.get_object("allowKbNavCheckbox")
         self.allowKbNavCheckbox.hide()
@@ -66,10 +66,11 @@ class SettingsDialog:
             ICON_NAME_LIST.append(value)
         self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]))
-        
+
         self.autoStartCheckbox.set_active(autokey.configmanager.autostart.get_autostart().desktop_file_name is not None)
-        self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
+        self.autosaveCheckbox.set_active(not cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
+
         #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         # Added by Trey Blancher (ectospasm) 2015-09-16
         self.triggerItemByInitial.set_active(cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL])
@@ -102,8 +103,8 @@ class SettingsDialog:
                 autokey.configmanager.autostart.AutostartSettings("autokey-gtk.desktop", False))
         else:
             autokey.configmanager.autostart.delete_autostart_entry()
-    
-        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
+
+        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.promptToSaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
         #cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
