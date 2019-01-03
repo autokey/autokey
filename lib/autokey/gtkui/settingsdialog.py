@@ -15,7 +15,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
 import sys
 from gi.repository import Gtk
 
@@ -26,8 +25,8 @@ from .configwindow0 import get_ui
 
 
 ICON_NAME_MAP = {
-                _("Light") : common.ICON_FILE_NOTIFICATION,
-                _("Dark") : common.ICON_FILE_NOTIFICATION_DARK
+                _("Light"): common.ICON_FILE_NOTIFICATION,
+                _("Dark"): common.ICON_FILE_NOTIFICATION_DARK
                 }
 
 ICON_NAME_LIST = []
@@ -46,7 +45,7 @@ class SettingsDialog:
         
         # General Settings
         self.autoStartCheckbox = builder.get_object("autoStartCheckbox")
-        self.promptToSaveCheckbox = builder.get_object("promptToSaveCheckbox")
+        self.autosaveCheckbox = builder.get_object("autosaveCheckbox")
         self.showTrayCheckbox = builder.get_object("showTrayCheckbox")
         self.allowKbNavCheckbox = builder.get_object("allowKbNavCheckbox")
         self.allowKbNavCheckbox.hide()
@@ -67,7 +66,7 @@ class SettingsDialog:
         self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]))
         
         self.autoStartCheckbox.set_active(cm.get_autostart().desktop_file_name is not None)
-        self.promptToSaveCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
+        self.autosaveCheckbox.set_active(not cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
         #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         # Added by Trey Blancher (ectospasm) 2015-09-16
@@ -104,7 +103,7 @@ class SettingsDialog:
         else:
             cm.delete_autostart_entry()
     
-        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = self.promptToSaveCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = not self.autosaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
         #cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
