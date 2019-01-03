@@ -162,8 +162,12 @@ else:
         @text.setter
         def text(self, new_content: str):
             Gdk.threads_enter()
-            self._clipboard.set_text(new_content, -1)
-            Gdk.threads_leave()
+            try:
+                # This call might fail and raise an Exception.
+                # If it does, make sure to release the mutex and not deadlock AutoKey.
+                self._clipboard.set_text(new_content, -1)
+            finally:
+                Gdk.threads_leave()
 
         @property
         def selection(self):
@@ -175,8 +179,12 @@ else:
         @selection.setter
         def selection(self, new_content: str):
             Gdk.threads_enter()
-            self._selection.set_text(new_content, -1)
-            Gdk.threads_leave()
+            try:
+                # This call might fail and raise an Exception.
+                # If it does, make sure to release the mutex and not deadlock AutoKey.
+                self._selection.set_text(new_content, -1)
+            finally:
+                Gdk.threads_leave()
 
 
 class XInterfaceBase(threading.Thread):
@@ -609,11 +617,17 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: model.SendMode):
-        """Use the clipboard to send a string.
+        """
+        Use the clipboard to send a string.
         """
         backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
         self.clipboard.text = string
-        self.mediator.send_string(paste_command.value)
+        try:
+            self.mediator.send_string(paste_command.value)
+        finally:
+            self.ungrab_keyboard()
         # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
         self.__enqueue(self._restore_clipboard_text, backup)
 
@@ -621,12 +635,14 @@ class XInterfaceBase(threading.Thread):
         """Restore the clipboard content."""
         # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
         # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-        time.sleep(0.1)
-        self.clipboard.text = backup
+        time.sleep(0.2)
+        self.clipboard.text = backup if backup is not None else ""
 
     def _send_string_selection(self, string: str):
         """Use the mouse selection clipboard to send a string."""
         backup = self.clipboard.selection  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
         self.__enqueue(self._paste_using_mouse_button_2)
         self.__enqueue(self._restore_clipboard_selection, backup)
@@ -639,7 +655,7 @@ class XInterfaceBase(threading.Thread):
         # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
         # It might be a good idea to make this delay configurable. There might be systems that need even longer.
         time.sleep(1)
-        self.clipboard.selection = backup
+        self.clipboard.selection = backup if backup is not None else ""
 
     def _paste_using_mouse_button_2(self):
         """Paste using the mouse: Press the second mouse button, then release it again."""
