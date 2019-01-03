@@ -2,6 +2,15 @@ There are situations that AutoKey (currently) can not handle. This page should g
 
 Some of these limitations can be worked around, some may be fixed in future versions and some limitations are hard limitations that can not be fixed.
 
+# Secondary keyboard layouts configured in KDE do not work with AutoKey
+If you have multiple keyboard layouts configured using the KDE keyboard layout manager and use a non-default layout, i.e. not the first in the list, the keyboard output AutoKey generates is mangled by KDE, causing AutoKey to output nonsense.
+
+Depending on how different the layouts are, this can result in some slight mistakes for similar layouts or complete nonsense for quite different layouts (e.g. `querty` vs `Dvorak` or `neo2`).
+
+AutoKey outputs the keys suitable for the currently active layout, but the KDE keyboard monitor thinks it has to apply the same layout conversion as to your physical keyboard key presses. This causes a double key translation, and in turn messes up the AutoKey output.
+
+Workaround: Don’t use the secondary layouts and switch to the first in the list, before using AutoKey features.
+
 # Interacting with pure X toolkit applications does not work
 Reason:
 The X server interface used by AutoKey marks the generated events (key presses, releases, etc.) as `synthetic`, i.e. programmatically generated. Most programs written using the pure X11 toolkit ignore such events. Thus AutoKey does not work with them. Most of those applications have a name that starts with `X`.
