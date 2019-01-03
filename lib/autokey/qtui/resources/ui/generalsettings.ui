@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>510</width>
-    <height>444</height>
+    <height>468</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,13 +21,16 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <widget class="QCheckBox" name="prompt_to_save_checkbox">
+       <widget class="QCheckBox" name="autosave_checkbox">
         <property name="toolTip">
-         <string>If checked, ask if changes should be saved or not.
-If unchecked, always save changes without asking.</string>
+         <string>If checked, automatically save changes to the current Script or Phrase without asking for confirmation.
+If unchecked, ask if changes should be saved or not.</string>
         </property>
         <property name="text">
-         <string>Prompt for unsaved changes</string>
+         <string>Automatically save changes without confirmation</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -63,7 +66,8 @@ If unchecked, always save changes without asking.</string>
           <string>Light</string>
          </property>
          <property name="icon">
-          <iconset theme="autokey-status"/>
+          <iconset theme="autokey-status">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </item>
         <item>
@@ -71,7 +75,8 @@ If unchecked, always save changes without asking.</string>
           <string>Dark</string>
          </property>
          <property name="icon">
-          <iconset theme="autokey-status-dark"/>
+          <iconset theme="autokey-status-dark">
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </item>
        </widget>
@@ -192,7 +197,8 @@ If unchecked, start in the background.</string>
       <item>
        <widget class="QCheckBox" name="enable_undo_checkbox">
         <property name="toolTip">
-         <string>Enable undoing Phrase expansions using the backspace key.</string>
+         <string>Enable undoing Phrase expansions using the backspace key.
+This may not always work, if the Phrase content contains navigation keys.</string>
         </property>
         <property name="text">
          <string>Enable undo by pressing backspace</string>
