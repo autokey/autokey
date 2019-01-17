@@ -3,7 +3,7 @@ import enum
 import re
 
 # Matches the special <code[number]> syntax, like <code86> for non-printable or unknown keys.
-_code_point_re = re.compile(r"<code(0|[1-9][0-9]*)>")
+_code_point_re = re.compile(r"<code(0|[1-9][0-9]*)>", re.UNICODE)
 
 
 @enum.unique
@@ -111,3 +111,6 @@ class Key(str, enum.Enum):
 
 
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
+
+# Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
+KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)

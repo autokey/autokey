@@ -23,7 +23,7 @@ import logging
 import threading
 
 
-from autokey.iomediator.key import Key
+from autokey.iomediator.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
 
 from autokey.macro import MacroManager
@@ -383,6 +383,7 @@ class PhraseRunner:
         self.lastExpansion = None
         self.lastPhrase = None
         self.lastBuffer = None
+        self.contains_special_keys = False
 
     @threaded
     #@synchronized(iomediator.SEND_LOCK)
@@ -393,6 +394,7 @@ class PhraseRunner:
             expansion = phrase.build_phrase(buffer)
             self.macroManager.process_expansion(expansion)
 
+            self.contains_special_keys = self.phrase_contains_special_keys(expansion)
             mediator.send_backspace(expansion.backspaces)
             if phrase.sendMode == model.SendMode.KEYBOARD:
                 mediator.send_string(expansion.string)
@@ -406,7 +408,23 @@ class PhraseRunner:
             mediator.interface.finish_send()
 
     def can_undo(self):
-        return self.lastExpansion is not None
+        can_undo = self.lastExpansion is not None and not self.phrase_contains_special_keys(self.lastExpansion)
+        logger.debug("Undoing last phrase expansion requested. Can undo last expansion: {}".format(can_undo))
+        return can_undo
+
+    @staticmethod
+    def phrase_contains_special_keys(expansion: model.Expansion) -> bool:
+        """
+        Determine if the expansion contains any special keys, including those resulting from any processed macros
+        (<script>, <file>, etc). If any are found, the phrase cannot be undone.
+
+        Python Zen: »In the face of ambiguity, refuse the temptation to guess.«
+        The question 'What does the phrase expansion "<ctrl>+a<shift>+<insert>" do?' cannot be answered. Because the key
+        bindings cannot be assumed to result in the actions "select all text, then replace with clipboard content",
+        the undo operation can not be performed. Thus always disable undo, when special keys are found.
+        """
+        found_special_keys = KEY_FIND_RE.findall(expansion.string.lower())
+        return bool(found_special_keys)
 
     def clear_last(self):
         self.lastExpansion = None

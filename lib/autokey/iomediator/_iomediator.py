@@ -170,6 +170,11 @@ class IoMediator(threading.Thread):
         
         for section in KEY_SPLIT_RE.split(string):
             if Key.is_key(section):
+                # TODO: Only a subset of keys defined in Key are printable, thus require a backspace.
+                # Many keys are not printable, like the modifier keys or F-Keys.
+                # If the current key is a modifier, it may affect the printability of the next character.
+                # For example, if section == <alt>, and the next section begins with "+a", both the "+" and "a" are not
+                # printable, because both belong to the keyboard combination "<alt>+a"
                 backspaces += 1
             else:
                 backspaces += len(section)
