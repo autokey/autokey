@@ -420,7 +420,7 @@ class PhraseRunner:
         bindings cannot be assumed to result in the actions "select all text, then replace with clipboard content",
         the undo operation can not be performed. Thus always disable undo, when special keys are found.
         """
-        found_special_keys = KEY_FIND_RE.findall(expansion.string)
+        found_special_keys = KEY_FIND_RE.findall(expansion.string.lower())
         return bool(found_special_keys)
 
     def clear_last(self):
