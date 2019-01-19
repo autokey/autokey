@@ -23,17 +23,24 @@ Known not working applications:
 Workaround: Use AutoKey scripts to call `xdotool`. `xdotool` can be used to generate »non-synthetic« events that should work with those applications.
 
 # Phrases
-## Undo functionality
-Performing a perfect undo is sometimes not possible:
+## Limitations of the Undo functionality
+You can not undo phrase expansion that contain any kind of special keys, i.e. keys in AutoKey’s special key syntax `<key_name>` or `<codeXX>` where `XX` is a X11 key symbol number.
+This includes all keys listed [here](https://github.com/autokey/autokey/blob/master/lib/autokey/iomediator/key.py). For example:  `<code160>`, `<left>`, `<shift>+<left>`, `<Alt>+<F4>`, `<shift>+<insert>`, etc.
 
-- You can not reliably undo phrase expansion that contain cursor movement keys or other function keys, for example `<left>`, `<shift>+<left>`, `<Alt>+<F4>`, `<shift>+<insert>`, etc.
-If you try to undo such phrases, it will result in weird behaviour, like removing too many or too few characters.
+AutoKey versions ≥ 0.95.5:\
+AutoKey refuses to undo phrases containing special keys, because it cannot reliably determine how those keys alter the system state.
+
+Older versions (≤ 0.95.4, everything older than [f3f3ed05c18388eb08032b43a2e70539e0ced93c](https://github.com/autokey/autokey/commit/f3f3ed05c18388eb08032b43a2e70539e0ced93c)):\
+Older versions will try to undo such Phrases and most probably fail. This most probably results in the erasure of more characters than desired.
+
+### Performing a perfect undo is sometimes not possible:
+
 - If you use a Phrase containing tabulator characters (`	`) to move between input fields in a GUI form, hitting the `<backspace>` key does not go back. Instead it may delete the content of the currently active field.
 - If your text editor replaces tabulator characters with spaces, AutoKey can not undo the expansion, because it can not determine the expanded text length. Many IDEs do this, e.g. PyCharm, the AutoKey script editor itself, Kate (if configured to indent with spaces), etc.
 
 ## Phrase expansion
 
 - You can only place one `<cursor>` macro into a phrase.
-- If you use a `<script>` macro, your script may not alter the system state, otherwise the expansion _will_ fail.
+- If you use a `<script>` macro, your script may not alter the system state, otherwise the expansion _will_ fail. See the `Run script` section [here](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases) for additional details.
 
 # Scripts
