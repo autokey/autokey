@@ -102,7 +102,8 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_rename_item.triggered.connect(self.central_widget.on_rename)
 
     def _connect_all_tools_menu_signals(self):
-        self.action_show_last_script_error.triggered.connect(self.on_show_error)
+        self.action_show_last_script_error.triggered.connect(self.app.notifier.reset_tray_icon)
+        self.action_show_last_script_error.triggered.connect(self.app.show_script_error)
         self.action_record_script.triggered.connect(self.on_record)
         self.action_run_script.triggered.connect(self.on_run_script)
         # Add all defined macros to the »Insert Macros« menu
@@ -295,9 +296,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def on_show_log(self):
         self.central_widget.listWidget.setVisible(self.action_show_log_view.isChecked())
-        
-    def on_show_error(self):
-        self.app.show_script_error()
 
     # Help Menu
 

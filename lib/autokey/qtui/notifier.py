@@ -37,10 +37,7 @@ class Notifier(QSystemTrayIcon):
     
     def __init__(self, app):
         logger.debug("Creating system tray icon notifier.")
-        icon = QIcon.fromTheme(
-            cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
-            ui_common.load_icon(ui_common.AutoKeyIcon.SYSTEM_TRAY)
-        )
+        icon = self._load_default_icon()
         super(Notifier, self).__init__(icon, app)
         # Actions
         self.action_hide_icon = None  # type: QAction
@@ -76,6 +73,20 @@ class Notifier(QSystemTrayIcon):
             self.setToolTip(TOOLTIP_RUNNING)
         else:
             self.setToolTip(TOOLTIP_PAUSED)
+
+    @staticmethod
+    def _load_default_icon() -> QIcon:
+        return QIcon.fromTheme(
+            cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON],
+            ui_common.load_icon(ui_common.AutoKeyIcon.SYSTEM_TRAY)
+        )
+
+    @staticmethod
+    def _load_error_state_icon() -> QIcon:
+        return QIcon.fromTheme(
+            "autokey-status-error",
+            ui_common.load_icon(ui_common.AutoKeyIcon.SYSTEM_TRAY_ERROR)
+        )
 
     def _create_action(
             self,
@@ -163,7 +174,15 @@ class Notifier(QSystemTrayIcon):
         logger.info("Updated tray icon visibility. Is icon shown: {}".format(visible))
 
     def notify_error(self, message: str):
+        self.setIcon(self._load_error_state_icon())
         self.showMessage("AutoKey Error", message)
+
+    def reset_tray_icon(self):
+        """
+        Slot function that resets the icon to the default, as configured in the settings.
+        Used when the user switches the icon theme in the settings and when a script error condition is cleared.
+        """
+        self.setIcon(self._load_default_icon())
 
     def on_activate(self, reason: QSystemTrayIcon.ActivationReason):
         logger.debug("Triggered system tray icon with reason: {}".format(reason))
