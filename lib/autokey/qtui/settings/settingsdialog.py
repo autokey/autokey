@@ -58,5 +58,6 @@ class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):
         self.script_engine_page.save()
         app.configManager.config_altered(True)
         app.update_notifier_visibility()
+        app.notifier.reset_tray_icon()
         super(SettingsDialog, self).accept()
         logger.debug("Save completed, dialog window hidden.")

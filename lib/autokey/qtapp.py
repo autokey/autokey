@@ -222,7 +222,7 @@ class Application(QApplication):
 
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
-        self.notifier.build_menu()
+        self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
         logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
