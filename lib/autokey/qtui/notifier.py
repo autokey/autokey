@@ -40,6 +40,7 @@ class Notifier(QSystemTrayIcon):
         icon = self._load_default_icon()
         super(Notifier, self).__init__(icon, app)
         # Actions
+        self.action_view_script_error = None  # type: QAction
         self.action_hide_icon = None  # type: QAction
         self.action_show_config_window = None  # type: QAction
         self.action_quit = None  # type: QAction
@@ -110,6 +111,14 @@ class Notifier(QSystemTrayIcon):
         Create all static menu actions. The created actions will be placed in the tray icon context menu.
         """
         logger.info("Creating static context menu actions.")
+        self.action_view_script_error = self._create_action(
+            None, "&View script error", self.reset_tray_icon,
+            "View the last script error."
+        )
+        self.action_view_script_error.triggered.connect(self.app.show_script_error)
+        # The action should disable itself
+        self.action_view_script_error.setDisabled(True)
+        self.action_view_script_error.triggered.connect(self.action_view_script_error.setEnabled)
         self.action_hide_icon = self._create_action(
             "edit-clear", "Temporarily &Hide Icon", self.hide,
             "Temporarily hide the system tray icon.\nUse the settings to hide it permanently."
@@ -128,7 +137,7 @@ class Notifier(QSystemTrayIcon):
         )
         self.action_enable_monitoring.setCheckable(True)
         self.action_enable_monitoring.setChecked(self.app.service.is_running())
-        self.action_enable_monitoring.setEnabled(not self.app.serviceDisabled)
+        self.action_enable_monitoring.setDisabled(self.app.serviceDisabled)
         # Sync action state with internal service state
         self.app.monitoring_disabled.connect(self.action_enable_monitoring.setChecked)
 
@@ -161,6 +170,7 @@ class Notifier(QSystemTrayIcon):
         # Items selected for display are shown on top
         self._fill_context_menu_with_model_item_actions(context_menu)
         # The static actions are added at the bottom
+        context_menu.addAction(self.action_view_script_error)
         context_menu.addAction(self.action_enable_monitoring)
         context_menu.addAction(self.action_hide_icon)
         context_menu.addAction(self.action_show_config_window)
@@ -175,6 +185,7 @@ class Notifier(QSystemTrayIcon):
 
     def notify_error(self, message: str):
         self.setIcon(self._load_error_state_icon())
+        self.action_view_script_error.setEnabled(True)
         self.showMessage("AutoKey Error", message)
 
     def reset_tray_icon(self):
