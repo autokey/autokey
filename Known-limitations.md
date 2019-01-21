@@ -22,6 +22,19 @@ Known not working applications:
 
 Workaround: Use AutoKey scripts to call `xdotool`. `xdotool` can be used to generate »non-synthetic« events that should work with those applications.
 
+# Abbreviations
+AutoKey uses a Queue to find abbreviations in the last pressed keys.
+## Mouse clicks
+Because clicking with the mouse may switch between input fields or windows, the input queue is emptied whenever a mouse button is pressed.
+* Useful: You can use this as a feature to abort Phrase expansion or script execution by clicking a mouse button while typing an abbreviation.
+* Drawback/Limitation: You cannot use the mouse to click, while typing an abbreviation. Frequent mouse clicks, maybe done by an “auto-fire” feature built into your mouse, will interfere with the abbreviation trigger mechanism.
+
+## Input queue length hard-coded to 150 characters
+AutoKey only ever stores up to the last 150 typed keys. This imposes two limitations:
+
+* You can not define “abbreviations” longer than 150 characters.
+* You can not go back indefinitely in the typed key history by pressing the `<backspace>` key. If your abbreviation rotated out of the input buffer, expansion won’t happen any more, even if your text cursor reaches the unexpanded, previously typed abbreviation.
+
 # Phrases
 ## Limitations of the Undo functionality
 You can not undo phrase expansion that contain any kind of special keys, i.e. keys in AutoKey’s special key syntax `<key_name>` or `<codeXX>` where `XX` is a X11 key symbol number.
