@@ -54,6 +54,6 @@ Older versions will try to undo such Phrases and most probably fail. This most p
 ## Phrase expansion
 
 - You can only place one `<cursor>` macro into a phrase.
-- If you use a `<script>` macro, your script may not alter the system state, otherwise the expansion _will_ fail. See the `Run script` section [here](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases) for additional details.
+- If you use a `<script>` macro, your script may not alter the system state, otherwise the expansion _will_ fail. See the `Run script` section [here](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases#run-script) for additional details.
 
 # Scripts
