@@ -27,7 +27,13 @@ from autokey.model import Phrase
 def _create_phrase_runner(phrase_content: str) -> PhraseRunner:
     mock_service = MagicMock()
     runner = PhraseRunner(mock_service)
-    with patch('autokey.service.threaded', side_effect=(lambda func: func)):
+    # Patch "execute" to remove the multithreading decorator. This will serialize the
+    # phrase processing code. Without this patch, tests may fail due to asynchronous
+    # phrase processing.
+    with patch.object(runner, "execute", new=runner.execute._original):
+        # Explicitly bind runner.execute._original as the bound method runner.execute,
+        # because this is not automatically done in this case.
+        setattr(runner, "execute", runner.execute._original.__get__(runner, PhraseRunner))
         runner.execute(_generate_phrase(phrase_content))
 
     return runner
@@ -63,6 +69,21 @@ def generate_test_cases_for_test_can_undo_expansion():
 
 @pytest.mark.parametrize("content, expected", generate_test_cases_for_test_can_undo_expansion())
 def test_can_undo_expansion(content: str, expected: bool):
+    # Setup
     runner = _create_phrase_runner(content)
-
-    assert_that(runner.can_undo(), is_(equal_to(expected)))
+    assert_that(
+        runner.lastPhrase,
+        is_(not_none()),
+        "Test setup failed. The PhraseRunner holds no Phrase."
+    )
+    assert_that(
+        runner.lastPhrase.phrase,
+        is_(equal_to(content)),
+        "Test setup failed. The PhraseRunner holds an unexpected Phrase."
+    )
+    # Test
+    assert_that(
+        runner.can_undo(),
+        is_(equal_to(expected)),
+        "can_undo() returned wrong result"
+        )
