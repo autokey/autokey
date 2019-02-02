@@ -1,7 +1,5 @@
-# API Examples #
 
-
-## Introduction ##
+# Introduction #
 
 The API examples shown here are for AutoKey-GTK. 
 
@@ -17,7 +15,7 @@ The example types are as follows:
 - [Window](#window)
 
 
-## Clipboard ##
+# Clipboard #
 
 - [fill_clipboard](#fill_clipboard)
 - [fill_selection](#fill_selection)
@@ -25,9 +23,9 @@ The example types are as follows:
 - [get_selection](#get_selection)
 
 
-### fill_clipboard ###
+## fill_clipboard ##
 
-fill_clipboard copies supplied text into the clipboard.
+`fill_clipboard` copies the supplied text into the clipboard.
 
 The script does the following:
 
@@ -53,15 +51,15 @@ The script does the following:
 
 ### fill_selection ###
 
-fill_selection copies text into the X selection.
+fill_selection copies text into the X selection, that is the X11 PRIMARY selection ([Technical specification](https://specifications.freedesktop.org/clipboards-spec/clipboards-latest.txt)).
 
 The script does the following:
 
-1. Takes the text 'Hello World' and copies it to the clipboard as the upper case text 'HELLO WORLD'.
+1. Takes the text 'Hello World' and copies it to the PRIMARY selection buffer as the upper case text 'HELLO WORLD'.
 
 2. Waits 0.2 seconds for the clipboard operation to finish. This wait is unlikely to be necessary for small amounts of text, but clipboard operations can be slow.
 
-3. Sends the keys ctrl+v to paste the text from the clipboard.
+3. Presses the middle mouse button to paste the text from the selection buffer.
 
 
 #### fill_selection script ####
@@ -70,7 +68,8 @@ The script does the following:
     cb = 'hello world'
     clipboard.fill_selection(cb.upper())
     time.sleep(0.2)
-    keyboard.send_keys('<ctrl>+v')
+    # click on the current cursor position
+    mouse.click_relative_self(0, 0, 2)  # button 2 is the middle mouse button
 
 
 ### get_clipboard ###
@@ -115,7 +114,7 @@ The script does the following:
         dialog.info_dialog(title='No text selected', 
         message='No text in X selection') 
 
-## Dialogs ##
+# Dialogs #
 
 - [Calendar dialog](#calendar-dialog)
 - [Directory Chooser dialog](#directory-chooser-dialog)
@@ -128,7 +127,7 @@ The script does the following:
 - [Single-selection list menu](#single-selection-list-menu)
 
 
-### Calendar dialog ###
+## Calendar dialog ##
 
 The script does the following:
 
@@ -147,7 +146,7 @@ The script does the following:
    - The date that was specified on the dialog.
 
 
-#### Calendar dialog script ####
+### Calendar dialog script ####
 
     retCode, date = dialog.calendar(title='Choose a date')
 	if retCode:
@@ -165,7 +164,7 @@ The script does the following:
 
 
 
-### Directory Chooser dialog ###
+## Directory Chooser dialog ##
 
 tuple(int, str) 	
 choose_directory(self, title='Select Directory', initialDir='~', **kwargs)
@@ -188,7 +187,7 @@ This script does the following:
    - The full path of the directory that was specified on the dialog.
 
 
-#### Directory chooser dialog script ####
+### Directory chooser dialog script ###
 
 	retCode, dirName = dialog.choose_directory(title='Choose a directory')
 
@@ -201,12 +200,12 @@ This script does the following:
 	else:
 		dialog.info_dialog(title='The directory you chose was', message=dirName)
 
-### Information dialog ###
+## Information dialog ##
 
 This script displays an information dialog.
 
 
-#### Information dialog script ####
+### Information dialog script ###
 
 	weather = 'Sunny with some showers'
     retCode, user = dialog.info_dialog(title='Weather Forecast', message=weather)
@@ -215,7 +214,7 @@ This script displays an information dialog.
 	dialog.info_dialog(title='Weather Forecast', message=myMessage)
 
 
-### Input dialog ###
+## Input dialog ##
 
 This script does the following:
 
@@ -234,7 +233,7 @@ This script does the following:
    - The text that was entered on the input dialog.
 
 
-#### Input dialog script ####
+### Input dialog script ###
 
 	retCode, userInput = dialog.input_dialog(title='Input required',
 		message='Enter a string', 
@@ -248,7 +247,7 @@ This script does the following:
 		dialog.info_dialog(title='The string you entered', message=userInput)  # **
 
 
-### Multiple-selection list menu ###
+## Multiple-selection list menu ##
 
 This script does the following:
 
@@ -267,7 +266,7 @@ This script does the following:
    - A list that contains the text of each item that was selected on the multiple-selection list.
 
 
-#### Multiple-selection list script ####
+### Multiple-selection list script ###
 
 	optionShapes = ['Square', 'Triangle', 'Rectangle']
 
@@ -292,7 +291,7 @@ This script does the following:
 		dialog.info_dialog(title='Your choice was', message=myMessage)
 
 
-### Open File dialog ###
+## Open File dialog ##
 
 This script does the following:
 
@@ -311,7 +310,7 @@ This script does the following:
    - The full path of the file that was specified on the dialog.
 
 
-#### Open file dialog script ####
+### Open file dialog script ###
 
 	retCode, fName = dialog.open_file(title='Open File')
 
@@ -325,7 +324,7 @@ This script does the following:
 		dialog.info_dialog(title='The file you chose was', message=fName)
 
 
-### Password input dialog ###
+## Password input dialog ##
 
 This script does the following:
 
@@ -344,7 +343,7 @@ This script does the following:
    - The password that was entered on the password input dialog.
 
 
-#### Password dialog script ####
+### Password dialog script ###
 
 	retCode, pwd = dialog.password_dialog(title='Enter password', message='Enter password')
 
@@ -356,7 +355,7 @@ This script does the following:
 		dialog.info_dialog(title='The password you entered', message=pwd)
 
 
-### Save As dialog ###
+## Save As dialog ##
 
 This script does the following:
 
@@ -374,7 +373,7 @@ This script does the following:
 
    - The full path of the file that was specified on the dialog.
 
-#### Save As dialog script ####
+### Save As dialog script ###
 
 
 	retCode, fName = dialog.open_file(title='Save As')
@@ -389,7 +388,7 @@ This script does the following:
 		dialog.info_dialog(title='You chose to save file', message=fName)
 
 
-### Single-selection list menu ###
+## Single-selection list menu ##
 
 This script does the following:
 
@@ -408,7 +407,7 @@ This script does the following:
    - The text of the item that was selected on the single-selection list.
 
 
-#### Single-selection list script ####
+### Single-selection list script ###
 
 	optionColours = ['Blue', 'Red', 'Green', 'Yellow']
 
@@ -431,7 +430,7 @@ This script does the following:
 
 
   	
-## Keyboard ##
+# Keyboard #
 	
 - [Fake key press](#fake-key-press)	
 - [Press key](#press-key)	
@@ -443,7 +442,7 @@ This script does the following:
 
 
 
-### Fake key press ###
+## Fake key press ##
 
 Fake key presses can be useful to send key presses if an application does not respond to [Send key](#send-key).
 
@@ -451,12 +450,12 @@ This script sends '\<down>' five times.
 
 
 
-#### Fake key press script ####
+### Fake key press script ###
 
     keyboard.fake_keypress('<down>', repeat=5)
 
 
-### Press key ###
+## Press key ##
 
 **press_key** makes AutoKey hold down a key until it is specifically released. 
 
@@ -464,7 +463,7 @@ This script presses \<ctrl>, then sends 'd' five times, and then releases \<ctrl
 
 See [Release key](#release-key)
 
-#### Press key script ####
+### Press key script ###
 
 
     keyboard.press_key('<ctrl>')
@@ -472,19 +471,19 @@ See [Release key](#release-key)
     keyboard.release_key('<ctrl>')
 
 
-### Release key ###
+## Release key ##
 
 **release_key** releases a key that has previously been pressed by **press_key**.
 
 See [Press_key](#press-key)
 
-#### Release key script ####
+### Release key script ###
 
     keyboard.press_key('<ctrl>')
     keyboard.fake_keypress('d', repeat=5)
     keyboard.release_key('<ctrl>')
 
-### Send key ###
+## Send key ##
 
 **send_key** sends a single keystroke one or more times.
 
@@ -496,22 +495,22 @@ keys that are modified with Crtl, Shift, or Alt, for example.
 If you want to use modifiers, use either [send_keys](#send-keys) or [press_key](#press-key).
 
 
-#### Send key script ####
+### Send key script ###
 
     keyboard.send_key('z',repeat=3)
 
-### Send keys ###
+## Send keys ##
 
 **send_keys** sends a sequence of keystrokes.
 
 The scripts sends 'Hello World!'.
 
-### Send keys ###
+### Send keys script ###
 
     keyboard.send_keys('Hello World!')
 
 
-### Wait for key press ###
+## Wait for key press ##
 
 This script does the following:
 
@@ -528,7 +527,7 @@ This script does the following:
 You cannot use this function to wait for modifier keys, such as \<ctrl>, on their own
 
 
-#### Wait for key press script ####
+### Wait for key press script ###
 
 	retCode = keyboard.wait_for_keypress('d',modifiers=['<ctrl>'],timeOut=5)
 
@@ -542,7 +541,7 @@ You cannot use this function to wait for modifier keys, such as \<ctrl>, on thei
 		dialog.info_dialog(title='Timeout', message=myMessage)
 
 
-## Mouse ##
+# Mouse #
 
 - [Click_absolute](#click_absolute)
 - [Click_relative](#click_relative)
@@ -550,38 +549,38 @@ You cannot use this function to wait for modifier keys, such as \<ctrl>, on thei
 - [Wait_for_click](#wait_for_click)
 
 
-### Click_absolute ###
+## Click_absolute ##
 
 click_absolute sends a mouse click relative to the whole screen.
 
 The script clicks the left mouse button at position x=200, y=300 relative to the screen.
 
 
-#### Click_absolute script ####
+### Click_absolute script ###
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.click_absolute(200, 300, 1)
 
 
-### Click_relative ###
+## Click_relative ##
 
 click_relative sends a mouse click relative to the active window.
 
 The script clicks the left mouse button at position x=200, y=300 on the current window.
 
-#### Click_relative script ####
+### Click_relative script ###
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.click_relative(200, 300, 1)
 
 
-### Click_relative_self ###
+## Click_relative_self ##
 
 click_relative sends a mouse click relative to the current mouse cursor position.
 
 The script waits for 4 seconds and then clicks the left mouse button at position x=100, y=150 relative to the current mouse cursor position.
 
-#### Click_relative_self script ####
+### Click_relative_self script ###
 
     import time
     time.sleep(4)
@@ -589,14 +588,14 @@ The script waits for 4 seconds and then clicks the left mouse button at position
     mouse.click_relative_self(100, 150, 1)
 
 
-### Wait_for_click ###
+## Wait_for_click ##
 
 wait_for_click waits for a mouse button to be clicked. You specify which mouse button to wait for and the maximum time to wait.
 
 The script waits for a maximum of 10 seconds for a left click. When the click is detected the script displays a dialog.
 
 
-#### Wait_for_click script ####
+### Wait_for_click script ###
 
     # mouse buttons: left=1, middle=2, right=3
     mouse.wait_for_click(1, timeOut=10)
@@ -607,7 +606,7 @@ The script waits for a maximum of 10 seconds for a left click. When the click is
 
 
 
-## Store ##
+# Store #
 
 - [Get global value](#get-global-value)
 - [Get value](#get-value)
@@ -617,14 +616,14 @@ The script waits for a maximum of 10 seconds for a left click. When the click is
 - [Set value](#set-value)
 
 
-### Get global value ###
+## Get global value ##
 
 This script sets global value "myValue" to "hello" and then gets the value that has been set and displays it in an info dialog.
 
 Global values can be accessed by all AutoKey scripts. The values are available in future AutoKey sessions.
 
 
-#### Get global value script ####
+### Get global value script ###
 
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -632,7 +631,7 @@ Global values can be accessed by all AutoKey scripts. The values are available i
         message=x, width='200') 
 
 
-### Get value ###
+## Get value ##
 
 This script sets local value "myLocalValue" to "My local value" and then gets the value that has been set and displays it in an info dialog.
 
@@ -640,7 +639,7 @@ Local script variables can be accessed only by the script that wrote them. The v
 
 Script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
 
-#### Get value script ####
+### Get value script ###
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -648,7 +647,7 @@ Script variables can be accessed only by the script that wrote them. The values 
         message=x, width='200') 
 
 
-### Remove global value ###
+## Remove global value ##
 
 This script does the following:
 
@@ -661,7 +660,7 @@ This script does the following:
 4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
 
 
-#### Remove global value script ####
+### Remove global value script ###
 
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -681,7 +680,7 @@ This script does the following:
             message="myValue does not exist", width='200') # width is extra Zenity parameter 
 
 
-### Remove value ###
+## Remove value ##
 
 This script does the following:
 
@@ -694,7 +693,7 @@ This script does the following:
 4. Attempts to get the value of "myValue", but fails because "myValue" no longer exists.
 
 
-#### Remove value script ####
+### Remove value script ###
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -716,12 +715,12 @@ This script does the following:
 
 
 
-### Set global value ###
+## Set global value ##
 
 This script sets global value "myValue" to "hello" and then gets the value that has been set and displays it in an info dialog.
 
 
-#### Set global value script ####
+### Set global value script ###
     
     store.set_global_value("myValue","hello")
     x = store.get_global_value("myValue")
@@ -729,14 +728,14 @@ This script sets global value "myValue" to "hello" and then gets the value that 
         message=x, width='200') 
 
 
-### Set value ###
+## Set value ##
 
 This script sets local value "myLocalValue" to "My local value" and then gets the value that has been set and displays it in an info dialog.
 
 Local script variables can be accessed only by the script that wrote them. The values are available in future AutoKey sessions.
 
 
-#### Set value script ####
+### Set value script ###
 
     store.set_value("myValue","hello")
     x = store.get_value("myValue")
@@ -745,31 +744,31 @@ Local script variables can be accessed only by the script that wrote them. The v
 
 
 
-## System ##
+# System #
 
 - [Create_file](#create_file)
 - [Exec_command](#exec_command)
 
 
-### Create_file ###
+## Create_file ##
 
 create_file creates a file in the file system with the specified contents, if any.
 
 The script creates file /tmp/myFile.txt with the contents "Hello World".
 
 
-#### Create_file script ####
+### Create_file script ###
 
     system.create_file('/tmp/myFile.txt', contents='Hello World')
 
 
-### Exec_command ###
+## Exec_command ##
 
 exec_command executes a system command.
 
 The script executes the command 'ls /tmp' and captures the output. The script then saves the listing to file '/tmp/myListing.txt'.
 
-#### Exec_command script ####
+### Exec_command script ###
 
     output = system.exec_command('ls /tmp/', getOutput=True)
     system.create_file('/tmp/myListing.txt', contents=output)
@@ -778,7 +777,7 @@ The script executes the command 'ls /tmp' and captures the output. The script th
 
 
 
-## Window ##
+# Window #
 
 - [Get class of active window](#get-class-of-active-window)
 - [Get title of active window](#get-title-of-active-window)
@@ -792,101 +791,101 @@ The script executes the command 'ls /tmp' and captures the output. The script th
 
 
 	
-### Get class of active window ###
+## Get class of active window ##
 
 This script gets the class of the active window and then displays it in an info dialog.
 
 
-#### Get class of active window script ####
+### Get class of active window script ###
 
 	winClass = window.get_active_class()
 	dialog.info_dialog(title='Window class', message=winClass)
 
 
-###  Get title of active window ###
+##  Get title of active window ##
 
 This script gets the title of the active window and then displays it in an info dialog.
 
 
-#### Get title of active window script ####
+### Get title of active window script ###
 
 	winTitle = window.get_active_title()
 	dialog.info_dialog(title='Window title', message=winTitle)
 
 
-### Get window geometry ###
+## Get window geometry ##
 
 This script gets the geometry of the active window and then displays an info dialog that shows the values.
 
 
-#### Get window geometry script ####
+### Get window geometry script ###
 
 	winGeometry = 'X-origin: %s\nY-origin: %s\nWidth: %s\nHeight: %s'  %(winXOrigin, winYOrigin, winWidth, winHeight)
 	dialog.info_dialog(title='Window geometry', message=winGeometry)
 
 
-### Move window to different desktop ###
+## Move window to different desktop ##
 
 This script moves the 'Unsaved Document' window to desktop three.
 
 
-#### Move window to different desktop script ####
+### Move window to different desktop script ###
 
 	window.move_to_desktop('Unsaved Document', 3, matchClass=False) # desktop number is an integer. The first desktop is 0.
 
 
-### Set window property ###
+## Set window property ##
 
 This script maximizes horizontally the 'Unsaved Document' window.
 
 
-#### Set window property script ####
+### Set window property script ###
 
 	window.set_property('Unsaved Document', 'add','maximized_horz', matchClass=False)
 
 
-### Switch to different desktop ###
+## Switch to different desktop ##
 
 This script switches focus to desktop two.
 
 
-#### Switch to different desktop script ####
+### Switch to different desktop script ###
 
 	window.switch_desktop(2) # The first desktop is 0.
 
 
-### Wait for window to exist ###
+## Wait for window to exist ##
 
 This script waits up to five seconds for a specified window to exist and then displays an info dialog that shows the exit code.
 
 The exit code is **True*** if the window has focus, **False** if the script times out.
 
-#### Wait for window to exist script ####
+### Wait for window to exist script ###
 
 	retCode = window.wait_for_exist('Unsaved Document', timeOut=5)
 	myMessage = 'Exit code was: ' + str(retCode)
 	dialog.info_dialog(title='Exit code', message=myMessage)
 
 
-### Wait for window to have focus ###
+## Wait for window to have focus ##
 
 This script waits five seconds for the Thunderbird window to have focus and then displays an info dialog that shows the exit code. 
 
 The exit code is **True** if the window has focus, **False** if the script times out.
 
 
-#### Wait for window to have focus script ####
+### Wait for window to have focus script ###
 
 	retCode = window.wait_for_focus('.*Thunderbird', timeOut=5)
 	myMessage = 'Exit code was: ' + str(retCode)
 	dialog.info_dialog(title='Exit code', message=myMessage)
 
 
-### Resize or move window ###
+## Resize or move window ##
 
 This script resizes the 'Unsaved Document' window.
 
 
-#### Resize or move window script ####
+### Resize or move window script ###
 
 	window.resize_move('Unsaved Document', xOrigin=20, yOrigin=20, width=200, height=200, matchClass=False)
