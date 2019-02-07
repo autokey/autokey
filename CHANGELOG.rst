@@ -3,6 +3,36 @@ Changelog
 =========
 .. contents::
 
+
+Version 0.95.5 <2019-02-07>
+===========================
+
+Bug fixes
+---------
+
+- Fix window filter detection always returning Title: :code:`FocusProxy`, Class: `Focus-Proxy-Window.FocusProxy` on Java AWT applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications. Fixes issue #113
+- GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application. Now the dialogue window works as intended. Fixes issue #229
+- Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation dialogue. Options :code:`Ignore case` and :code:`Match case` now work with upper case abbreviations. Fixes issue #197
+- Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a clipboard pasting action. Fixes issues #72, #225
+- Prevent writing :code:`None` to the clipboard. This prevents autokey-gtk from deadlocking, caused by an unreleased mutex. Fixes issue #226
+- Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot be reliably undone. Fixes issue #196
+- Clarified autosave option wording in the settings window. The option now explicitly states what it does. Fixes issue #194
+- Force AutoKey to exit, if the X server connection closes, most probably at logout or session end. Fixes issue #198
+
+Qt tray icon fixes and improvements
++++++++++++++++++++++++++++++++++++
+
+- Added »View script error« entry to the Tray icon context menu, like in the GTK GUI. Part of issue #158
+- Tray icon turns red, when scripts raise an error, like in the GTK GUI. Part of issue #158
+- If changing the tray icon theme in the settings (light or dark), instantly apply the new theme, without requiring an application restart. Part of issue #158
+- The tray icon now works, after if it is disabled in the settings and then enabled again. Fixes issue #223
+
+Other fixes
+-----------
+
+- Enable :code:`setup.py` to be directly called from the system shell. Fixes issue #218
+- Cleaned up some legacy leftovers in the autokey repository
+
 Version 0.95.4 <2018-10-14>
 ===========================
 
