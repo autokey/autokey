@@ -38,6 +38,8 @@ import Xlib.threaded as xlib_threaded
 # issues.
 del xlib_threaded
 
+from Xlib.error import ConnectionClosedError
+
 
 from . import common
 
@@ -923,6 +925,16 @@ class XInterfaceBase(threading.Thread):
 
                 if self.shutdown:
                     break
+            except ConnectionClosedError:
+                # Autokey does not properly exit on logout. It causes an infinite exception loop, accumulating stack
+                # traces along. This acts like a memory leak, filling the system RAM until it hits an OOM condition.
+                # TODO: implement a proper exit mechanic that gracefully exits AutoKey in this case.
+                # Maybe react to a dbus message that announces the session end, before the X server forcefully closes
+                # the connection.
+                # See https://github.com/autokey/autokey/issues/198 for details
+                logger.exception("__flushEvents: Connection to the X server closed. Forcefully exiting Autokey now.")
+                import os
+                os._exit(1)
             except Exception:
                 logger.exception("__flushEvents: Some exception occured:")
                 pass
