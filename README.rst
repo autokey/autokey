@@ -93,18 +93,6 @@ Up to date packages are available in the `AUR`_.
 
 .. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
 
-Gentoo
-++++++
-
-Available via layman_.
-
-.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey
-
-.. code:: sh
-
-   layman -a y2kbadbug
-   emerge --sync
-   emerge -av autokey
 
 Fedora
 ++++++
