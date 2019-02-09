@@ -2,6 +2,16 @@
 
 This page contains solutions to problems frequently experienced by users of AutoKey.
 
+## AutoKey (Qt) + KDE desktop: Automatically starting AutoKey shows the GUI during login, even if `Show main window when starting` is disabled
+
+Explanation:\
+On KDE Plasma, AutoKey gets started twice during the login process. Once by the enabled Autostart setting in the Settings dialogue, and another time by the session restoration functionality built into the KDE desktop. When AutoKey is running, another starting instance causes the first to open it’s GUI. That’s why it shows up, even if disabled in the settings.
+
+Solution:\
+Either disable the Autostart option in the AutoKey settings and let the KDE session restoration mechanism restart AutoKey.\
+Or exclude AutoKey from said mechanism and keep the Autostart setting in the AutoKey settings active.\
+The exclusion feature is here: Open the KDE5 systemsettings (`systemsettings5`). In the settings application, navigate to `Workspace`→`Startup and Shutdown`→`Desktop Session`→`On Login`. Add `autokey-qt` to the applications listed in the text field labeled `Applications to be excluded from sessions:`.
+
 ## Feature X is not working correctly for me. How do I post useful debugging information on the list?
 
 Start by opening a terminal. Then start AutoKey with the debug logging turned on:
