@@ -168,7 +168,7 @@ setup(
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
-    install_requires=['dbus-python', 'pyinotify', 'python-xlib'],
+    install_requires=['pyinotify', 'python-xlib'],
     setup_requires=["pytest-runner"],
     tests_require=["pytest", "pyhamcrest"],
     test_suite="pytest",

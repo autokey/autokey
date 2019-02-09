@@ -38,12 +38,20 @@ Dependencies
 Python: 3.5
 
 Python modules (common):
+------------------------
 
 - dbus-python
 - pyinotify
 - python-xlib
 
+The dbus module *requires* manual installation, preferably using your distribution package manager.
+Due to odd detection issues with pip3 and this particular package, it is not defined as a dependency.
+Without having `dbus-python (PyPi link)`_ installed, AutoKey won’t start.
+
+.. _dbus-python (PyPi link): https://pypi.org/project/dbus-python/
+
 GTK frontend only:
+------------------
 
 - GObject Introspection
 - PyGTK
@@ -51,16 +59,18 @@ GTK frontend only:
 - libappindicator
 
 QT frontend only:
+-----------------
 
 - PyQt5
     - SVG module, if not already bundled
     - QScintilla2 module, if not already bundled
 - ``pyrcc5`` command line tool (Optional installation time dependency, only used when installing or updating from the git source tree using setup.py. If not present, a fallback that causes a slightly slower application start will be used.)
 
-Install via pip
-++++++++++++++++++++++
 
-pip will automatically resolve and install dependencies, but dbus-python requires the dbus headers be present on your system. These are usually installed through your package manager, and usually are named dbus-devel or libdbus-dev or similar.
+Install via pip3
+++++++++++++++++
+
+pip3 will automatically resolve and install dependencies, but dbus-python requires manual installation.
 
 .. code:: sh
 
@@ -69,10 +79,13 @@ pip will automatically resolve and install dependencies, but dbus-python require
    pip3 install --user git+https://github.com/autokey/autokey
 
 The "--user" option for pip may be added to install for the current user only.
+To install system-wide, run pip3 as the root user.
 
 Ubuntu/Mint/Debian
 ++++++++++++++++++
-There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives, such as Kubuntu):
+There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives, such as Kubuntu).
+If your Debian based system is not supported by the PPA or the PPA is not up to date, you can build your own packages
+(see below) or use the packages attached to the GitHub release page.
 
 .. code:: sh
 
@@ -82,7 +95,7 @@ There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives
    # Or alternatively, to install the Qt5 based GUI:
    sudo apt install autokey-qt
 
-Distro package not provided? Create your own package for Debian-based distros using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
+Distro package not provided? Create your own package for Debian-based distribution using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
 
 .. _Packaging: https://github.com/autokey/autokey/wiki/Packaging
 
@@ -93,18 +106,6 @@ Up to date packages are available in the `AUR`_.
 
 .. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
 
-Gentoo
-++++++
-
-Available via layman_.
-
-.. _layman: https://github.com/y2kbadbug/gentoo-overlay/tree/master/app-misc/autokey
-
-.. code:: sh
-
-   layman -a y2kbadbug
-   emerge --sync
-   emerge -av autokey
 
 Fedora
 ++++++
@@ -122,7 +123,7 @@ Avaiable from Fedora_ 27 onwards.
 Zero-installation Method
 ++++++++++++++++++++++++
 
-AutoKey can also be used directly from the cloned repo. This is useful, e.g., for trying 
+AutoKey can also be used directly from the cloned repository. This is useful, e.g., for trying
 out a new version without removing a current installation.
 
 1. Start the Autokey daemon
@@ -134,10 +135,11 @@ out a new version without removing a current installation.
    # or for KDE
    python3 -m autokey.qtui
 
-2. Start the Autokey UI (if desired) by repeating Step 1 in a new terminal window.
+2. Start the Autokey UI (if desired) by appending the --configure or -c command line switch to the end of the command.
 
 The commands accept CLI switches just like the regular installation, so
 :code:`python3 -m autokey.qtui -lc` works as expected.
+
 
 Documentation
 =============
@@ -182,4 +184,6 @@ __ https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 
 License
 =======
-GNU GPL v3.
+`GNU GPL v3.`_ See the LICENSE file alongside this README for a plain text copy of the license text.
+
+.. _GNU GPL v3.: https://www.gnu.org/licenses/gpl.html
