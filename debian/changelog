@@ -1,19 +1,36 @@
+autokey (0.95.6-0) bionic; urgency=medium
+
+  [Bug fixes]
+  * Fix the combination of phrase settings 'Match phrase case to typed abbreviation' and 'Trigger immediately' to cause
+    Scripts and Phrases to trigger on each and every key press. Fixes issue #254 introduced in 0.95.5.
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Sat, 09 Feb 2019 18:34:00 +0200
+
 autokey (0.95.5-0) bionic; urgency=medium
 
   [Bug fixes]
-  * Fix window filter detection always returning Title: 'FocusProxy', Class: 'Focus-Proxy-Window.FocusProxy' on Java AWT applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications. Fixes issue #113
-  * GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application. Now the dialogue window works as intended. Fixes issue #229
-  * Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation dialogue. Options `Ignore case` and `Match case` now work with upper case abbreviations. Fixes issue #197
-  * Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a clipboard pasting action. Fixes issues #72, #225
-  * Prevent writing `None` to the clipboard. This prevents autokey-gtk from deadlocking, caused by an unreleased mutex. Fixes issue #226
-  * Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot be reliably undone. Fixes issue #196
-  * Clarified autosave option wording in the settings window. The option now explicitly states what it does. Fixes issue #194
+  * Fix window filter detection always returning Title: 'FocusProxy', Class: 'Focus-Proxy-Window.FocusProxy' on Java AWT
+    applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications.
+    Fixes issue #113
+  * GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application. Now the dialogue
+    window works as intended. Fixes issue #229
+  * Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation
+    dialogue. Options `Ignore case` and `Match case` now work with upper case abbreviations. Fixes issue #197
+  * Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a clipboard
+    pasting action. Fixes issues #72, #225
+  * Prevent writing `None` to the clipboard. This prevents autokey-gtk from deadlocking, caused by an unreleased mutex.
+    Fixes issue #226
+  * Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot
+    be reliably undone. Fixes issue #196
+  * Clarified autosave option wording in the settings window. The option now explicitly states what it does.
+    Fixes issue #194
   * Force AutoKey to exit, if the X server connection closes, most probably at logout or session end. Fixes issue #198
 
   [Qt tray icon bug fixes]
   * Added »View script error« entry to the Tray icon context menu, like in the GTK GUI. Part of issue #158
   * Tray icon turns red, when scripts raise an error, like in the GTK GUI. Part of issue #158
-  * If changing the tray icon theme in the settings (light or dark), instantly apply the new theme, without requiring an application restart. Part of issue #158
+  * If changing the tray icon theme in the settings (light or dark), instantly apply the new theme, without requiring
+    an application restart. Part of issue #158
   * The tray icon now works, after if it is disabled in the settings and then enabled again. Fixes issue #223
 
  -- Thomas Hess <thomas.hess@udo.edu>  Tue, 07 Feb 2019 15:05:00 +0200
@@ -43,7 +60,7 @@ autokey (0.95.3-0) bionic; urgency=medium
     `autokey-gtk` are installed simultaneously, and whether the main window should be shown automatically on launch.
   * Qt GUI: Added the notification icon theme selection to the settings dialogue. The added section in the general
     settings allow to choose between the light and dark theme, like in the `autokey-gtk` settings dialogue. Changing
-    this setting currently requires an application restart to take effect.
+    this setting currently requires an application restart to take effect. (Restriction lifted in 0.95.5)
 
   [Bug fixes]
   * Scripting API: The Python `__file__` global variable is now properly set for AutoKey scripts.

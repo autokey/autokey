@@ -3,6 +3,13 @@ Changelog
 =========
 .. contents::
 
+Version 0.95.5 <2019-02-07>
+===========================
+
+Bug fixes
+---------
+
+- Fix the combination of phrase settings :code:`Match phrase case to typed abbreviation` and :code:`Trigger immediately` to cause Scripts and Phrases to trigger on each and every key press. Fixes issue #254 introduced in 0.95.5.
 
 Version 0.95.5 <2019-02-07>
 ===========================
