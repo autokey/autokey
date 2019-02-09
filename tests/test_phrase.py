@@ -245,7 +245,7 @@ def generate_test_cases_for_trigger_immediately():
     yield phrase_data("ueue", True, False), "ueue", phrase_result("Phrase Content.", True)
     yield phrase_data("ueue", True, True), "ueue", phrase_result("phrase content.", True)
     yield phrase_data("UeUe", True, False), "ueue", phrase_result("Phrase Content.", True)
-    yield phrase_data("UeUe", True, True), "ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, True), "ueue", phrase_result("phrase content.", True)
     # mixed case
     yield phrase_data("ueue", True, False), "UeUe", phrase_result("Phrase Content.", True)
     yield phrase_data("ueue", True, True), "UeUe", phrase_result("Phrase Content.", True)
@@ -280,9 +280,39 @@ def test_trigger_immediately(phrase_data: PhraseData, trigger_str: str, phrase_r
     if phrase_result.triggered_on_input:
         # Verify the result, if the expansion should trigger
         abbreviation_length = len(phrase_data.abbreviation)
-        result = phrase.build_phrase(phrase_data.abbreviation)
+        result = phrase.build_phrase(trigger_str)
         assert_that(result.string, is_(equal_to(phrase_result.expansion)), "Case matching broken.")
         assert_that(result.backspaces, is_(equal_to(abbreviation_length)), "Result length computation broken.")
+
+
+def generate_test_cases_for_case_insensitive_rpartition():
+    """
+    Yields tuples to test the custom case insensitive str.rpartition
+
+    input, separator, (left, match, right)
+    """
+    yield "a", "ue", ("", "", "a")
+    yield "a", "a", ("", "a", "")
+    yield "ab", "a", ("", "a", "b")
+    yield "abc", "b", ("a", "b", "c")
+    yield "ab", "b", ("a", "b", "")
+    # Upper case match
+    yield "a", "Ue", ("", "", "a")
+    yield "a", "A", ("", "a", "")
+    yield "ab", "A", ("", "a", "b")
+    yield "abc", "B", ("a", "b", "c")
+    yield "ab", "B", ("a", "b", "")
+    # Upper case buffer
+    yield "A", "ue", ("", "", "A")
+    yield "A", "a", ("", "A", "")
+    yield "AB", "a", ("", "A", "B")
+    yield "ABC", "b", ("A", "B", "C")
+    yield "AB", "b", ("A", "B", "")
+
+
+@pytest.mark.parametrize("input_str, match, expected", generate_test_cases_for_case_insensitive_rpartition())
+def test_case_insensitive_rpartition(input_str: str, match: str, expected:typing.Tuple[str, str, str]):
+    assert_that(model.Phrase._case_insensitive_rpartition(input_str, match), is_(equal_to(expected)))
 
 
 def generate_test_cases_for_undo_on_backspace():
