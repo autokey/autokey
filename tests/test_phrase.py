@@ -208,21 +208,81 @@ def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: Ph
     )
 
 
-def test_trigger_immediate():
-    abbreviation = "xp@"  # Values taken from original unit tests
-    phrase = create_phrase(abbreviation=abbreviation, content="expansion@autokey.com", trigger_immediately=True)
+def generate_test_cases_for_trigger_immediately():
+    """Yields PhraseData, typed_input, PhraseResult"""
 
-    # Trigger on the first assigned abbreviation, don’t care about the actual abbreviation content
-    # Test that the abbreviation triggers without the presence of a trigger character
-    assert_that(phrase.check_input(phrase.abbreviations[0], WindowInfo("", "")), is_(equal_to(True)))
-    # Don’t trigger when there is a space after the typed abbreviation
-    assert_that(phrase.check_input(phrase.abbreviations[0] + " ", WindowInfo("", "")), is_(equal_to(False)))
+    def phrase_data(abbreviation: str, ignore_case: bool, match_case: bool) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation=abbreviation, content="Phrase Content.",
+            trigger_modes=[model.TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=match_case,
+            trigger_immediately=True)
 
-    # Now test some results
-    result = phrase.build_phrase(phrase.abbreviations[0])
-    assert_that(result.string, is_(equal_to("expansion@autokey.com")))
-    assert_that(result.backspaces, is_(equal_to(len(abbreviation))))
-    assert_that(phrase.calculate_input(abbreviation), is_(equal_to(len(abbreviation))))
+    def phrase_result(expansion_result: str, triggered: bool) -> PhraseResult:
+        """Local helper function to save typing constant data"""
+        return PhraseResult(
+            expansion=expansion_result, abbreviation_length=None,
+            backspace_count=len(expansion_result), triggered_on_input=triggered)
+
+    # Positive test
+    yield phrase_data("ueue", False, False), "ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("Ueue", False, False), "Ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", False, False), "UeUe", phrase_result("Phrase Content.", True)
+    yield phrase_data("UEUE", False, False), "UEUE", phrase_result("Phrase Content.", True)
+
+    # Tests for issue https://github.com/autokey/autokey/issues/254
+    yield phrase_data("ueue", True, False), "a", phrase_result("", False)
+    yield phrase_data("ueue", True, True), "b", phrase_result("", False)
+    yield phrase_data("UeUe", True, False), "a", phrase_result("", False)
+    yield phrase_data("UeUe", True, True), "a", phrase_result("", False)
+
+    yield phrase_data("ueue", True, False), "A", phrase_result("", False)
+    yield phrase_data("ueue", True, True), "B", phrase_result("", False)
+    yield phrase_data("UeUe", True, False), "A", phrase_result("", False)
+    yield phrase_data("UeUe", True, True), "A", phrase_result("", False)
+    # Test that the fix for #254 does not break things.
+    # lower case
+    yield phrase_data("ueue", True, False), "ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("ueue", True, True), "ueue", phrase_result("phrase content.", True)
+    yield phrase_data("UeUe", True, False), "ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, True), "ueue", phrase_result("Phrase Content.", True)
+    # mixed case
+    yield phrase_data("ueue", True, False), "UeUe", phrase_result("Phrase Content.", True)
+    yield phrase_data("ueue", True, True), "UeUe", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, False), "UeUe", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, True), "UeUe", phrase_result("Phrase Content.", True)
+    # title case
+    yield phrase_data("ueue", True, False), "Ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("ueue", True, True), "Ueue", phrase_result("Phrase content.", True)
+    yield phrase_data("UeUe", True, False), "Ueue", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, True), "Ueue", phrase_result("Phrase content.", True)
+    # upper case
+    yield phrase_data("ueue", True, False), "UEUE", phrase_result("Phrase Content.", True)
+    yield phrase_data("ueue", True, True), "UEUE", phrase_result("PHRASE CONTENT.", True)
+    yield phrase_data("UeUe", True, False), "UEUE", phrase_result("Phrase Content.", True)
+    yield phrase_data("UeUe", True, True), "UEUE", phrase_result("PHRASE CONTENT.", True)
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_trigger_immediately())
+def test_trigger_immediately(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
+    window_info = WindowInfo("", "")
+    phrase = create_phrase(*phrase_data)
+
+    assert_that(
+        phrase.check_input(trigger_str, window_info),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Unexpected Phrase trigger"
+    )
+
+    # Generally don’t trigger if the trigger immediately option is on and there is a space after the typed abbreviation.
+    assert_that(phrase.check_input(phrase_data.abbreviation + " ", window_info), is_(equal_to(False)))
+
+    if phrase_result.triggered_on_input:
+        # Verify the result, if the expansion should trigger
+        abbreviation_length = len(phrase_data.abbreviation)
+        result = phrase.build_phrase(phrase_data.abbreviation)
+        assert_that(result.string, is_(equal_to(phrase_result.expansion)), "Case matching broken.")
+        assert_that(result.backspaces, is_(equal_to(abbreviation_length)), "Result length computation broken.")
 
 
 def generate_test_cases_for_undo_on_backspace():

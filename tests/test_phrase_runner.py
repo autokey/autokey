@@ -86,4 +86,4 @@ def test_can_undo_expansion(content: str, expected: bool):
         runner.can_undo(),
         is_(equal_to(expected)),
         "can_undo() returned wrong result"
-        )
+    )
