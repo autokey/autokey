@@ -179,11 +179,7 @@ class AbstractAbbreviation:
 
         @param buffer Input buffer to be checked (as string)
         """
-        for abbr in self.abbreviations:
-            if self.__checkInput(buffer, abbr):
-                return True
-
-        return False
+        return any(self.__checkInput(buffer, abbr) for abbr in self.abbreviations)
 
     def _get_trigger_abbreviation(self, buffer):
         for abbr in self.abbreviations:
@@ -254,7 +250,7 @@ class AbstractAbbreviation:
         lowered_input_string = input_string.lower()
         lowered_separator = separator.lower()
         try:
-            split_index = lowered_input_string.rfind(lowered_separator)
+            split_index = lowered_input_string.rindex(lowered_separator)
         except ValueError:
             # Did not find the separator in the input_string.
             # Follow https://docs.python.org/3/library/stdtypes.html#text-sequence-type-str
