@@ -85,7 +85,7 @@ Ubuntu/Mint/Debian
 ++++++++++++++++++
 There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives, such as Kubuntu).
 If your Debian based system is not supported by the PPA or the PPA is not up to date, you can build your own packages
-(see below) or use the packages attached to the GitHub [release](https://github.com/autokey/autokey/releases/) page.
+(see below) or use the packages attached to the GitHub Releases page https://github.com/autokey/autokey/releases/.
 
 .. code:: sh
 
