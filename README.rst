@@ -104,7 +104,7 @@ Arch Linux
 
 Up to date packages are available in the `AUR`_.
 
-.. _AUR: https://aur.archlinux.org/packages/autokey-py3/ 
+.. _AUR: https://aur.archlinux.org/packages/autokey/ 
 
 
 Fedora
