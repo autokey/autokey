@@ -858,7 +858,7 @@ This script switches focus to desktop two.
 
 This script waits up to five seconds for a specified window to exist and then displays an info dialog that shows the exit code.
 
-The exit code is **True*** if the window has focus, **False** if the script times out.
+The exit code is **True** if the window has focus, **False** if the script times out.
 
 ### Wait for window to exist script ###
 
