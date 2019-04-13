@@ -12,7 +12,7 @@ Changes were made to source code to keep the scripting API stable. ``system.exec
 
 Some guides on porting code to Python 3:
  - http://python3porting.com/
- - http://www.diveintopython3.net/porting-code-to-python-3-with-2to3.html
+ - http://diveintopython3.problemsolving.io/porting-code-to-python-3-with-2to3.html
 
 # Basic Scripts
 
