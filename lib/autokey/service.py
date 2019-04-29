@@ -140,15 +140,13 @@ class Service:
                     break
 
             if itemMatch is not None:
-                if not itemMatch.prompt:
-                    logger.info("Matched hotkey phrase/script with prompt=False")
-                else:
-                    logger.info("Matched hotkey phrase/script with prompt=True")
-                    #menu = PopupMenu(self, [], [itemMatch])
+                logger.info('Matched {} "{}" with hotkey and prompt={}'.format(
+                    itemMatch.__class__.__name__, itemMatch.description, itemMatch.prompt
+                ))
+                if itemMatch.prompt:
                     menu = ([], [itemMatch])
 
             else:
-                logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
                     if folder.check_hotkey(modifiers, rawKey, window_info):
                         #menu = PopupMenu(self, [folder], [])
@@ -156,7 +154,7 @@ class Service:
 
 
             if menu is not None:
-                logger.debug("Folder matched hotkey - showing menu")
+                logger.debug("Matched Folder with hotkey - showing menu")
                 if self.lastMenu is not None:
                     #self.lastMenu.remove_from_desktop()
                     self.app.hide_menu()
@@ -186,12 +184,15 @@ class Service:
                 item, menu = self.__checkTextMatches([], self.configManager.abbreviations,
                                                     currentInput, window_info, True)
                 if not item or menu:
-                    item, menu = self.__checkTextMatches(self.configManager.allFolders,
-                                                         self.configManager.allItems,
-                                                         currentInput, window_info)
+                    item, menu = self.__checkTextMatches(
+                        self.configManager.allFolders,
+                        self.configManager.allItems,
+                        currentInput, window_info)  # type: model.Phrase, list
 
                 if item:
                     self.__tryReleaseLock()
+                    logger.info('Matched {} "{}" having abbreviations "{}" against current input'.format(
+                        item.__class__.__name__, item.description, item.abbreviations))
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
@@ -201,7 +202,7 @@ class Service:
                     #self.lastMenu.show_on_desktop()
                     self.app.show_popup_menu(*menu)
 
-                logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
+                logger.debug("Input queue at end of handle_keypress: %s", self.inputStack)
 
         self.__tryReleaseLock()
 
@@ -433,7 +434,7 @@ class PhraseRunner:
 
     # @synchronized(iomediator.SEND_LOCK) #TODO_PY3 commented this
     def undo_expansion(self):
-        logger.info("Undoing last abbreviation expansion")
+        logger.info("Undoing last phrase expansion")
         replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)
         logger.debug("Replay string: %s", replay)
         logger.debug("Erase string: %r", self.lastExpansion.string)
