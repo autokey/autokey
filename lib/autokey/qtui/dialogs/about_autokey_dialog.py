@@ -12,6 +12,8 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+import sys
+
 from PyQt5.QtWidgets import QWidget
 from PyQt5.QtCore import QSize
 
@@ -28,3 +30,4 @@ class AboutAutokeyDialog(*ui_common.inherits_from_ui_file_with_name("about_autok
         pixmap = icon.pixmap(icon.actualSize(QSize(1024, 1024)))
         self.autokey_icon.setPixmap(pixmap)
         self.autokey_version_label.setText(autokey.common.VERSION)
+        self.python_version_label.setText(sys.version.replace("\n", " "))

@@ -1131,14 +1131,25 @@ class XInterfaceBase(threading.Thread):
             return WindowInfo(wm_title=wm_title, wm_class=wm_class)
 
     def _try_get_window_title(self, window) -> typing.Optional[str]:
-        atom = window.get_property(self.__VisibleNameAtom, 0, 0, 255)
+        atom = self._try_read_property(window, self.__VisibleNameAtom)
         if atom is None:
-            atom = window.get_property(self.__NameAtom, 0, 0, 255)
+            atom = self._try_read_property(window, self.__NameAtom)
         if atom:
             value = atom.value  # type: typing.Union[str, bytes]
             # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
             return value.decode("utf-8") if isinstance(value, bytes) else value
         else:
+            return None
+
+    @staticmethod
+    def _try_read_property(window, property_name: str):
+        """
+        Try to read the given property of the given window.
+        Returns the atom, if successful, None otherwise.
+        """
+        try:
+            return window.get_property(property_name, 0, 0, 255)
+        except error.BadAtom:
             return None
 
     @staticmethod
