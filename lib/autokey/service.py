@@ -136,15 +136,13 @@ class Service:
                     break
 
             if itemMatch is not None:
-                if not itemMatch.prompt:
-                    logger.info("Matched hotkey phrase/script with prompt=False")
-                else:
-                    logger.info("Matched hotkey phrase/script with prompt=True")
-                    #menu = PopupMenu(self, [], [itemMatch])
+                logger.info('Matched {} "{}" with hotkey and prompt={}'.format(
+                    itemMatch.__class__.__name__, itemMatch.description, itemMatch.prompt
+                ))
+                if itemMatch.prompt:
                     menu = ([], [itemMatch])
 
             else:
-                logger.debug("No phrase/script matched hotkey")
                 for folder in self.configManager.hotKeyFolders:
                     if folder.check_hotkey(modifiers, rawKey, window_info):
                         #menu = PopupMenu(self, [folder], [])
@@ -152,7 +150,7 @@ class Service:
 
 
             if menu is not None:
-                logger.debug("Folder matched hotkey - showing menu")
+                logger.debug("Matched Folder with hotkey - showing menu")
                 if self.lastMenu is not None:
                     #self.lastMenu.remove_from_desktop()
                     self.app.hide_menu()
@@ -182,12 +180,15 @@ class Service:
                 item, menu = self.__checkTextMatches([], self.configManager.abbreviations,
                                                     currentInput, window_info, True)
                 if not item or menu:
-                    item, menu = self.__checkTextMatches(self.configManager.allFolders,
-                                                         self.configManager.allItems,
-                                                         currentInput, window_info)
+                    item, menu = self.__checkTextMatches(
+                        self.configManager.allFolders,
+                        self.configManager.allItems,
+                        currentInput, window_info)  # type: model.Phrase, list
 
                 if item:
                     self.__tryReleaseLock()
+                    logger.info('Matched {} "{}" having abbreviations "{}" against current input'.format(
+                        item.__class__.__name__, item.description, item.abbreviations))
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
