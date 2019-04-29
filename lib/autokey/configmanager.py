@@ -400,10 +400,13 @@ class ConfigManager:
         
         self.toggleServiceHotkey = GlobalHotkey()
         self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
-        self.toggleServiceHotkey.enabled = True    
-        
-        app.init_global_hotkeys(self)        
-        
+        self.toggleServiceHotkey.enabled = True
+
+        # Set the attribute to the default first. Without this, AK breaks, if started for the first time. See #274
+        self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
+
+        app.init_global_hotkeys(self)
+
         self.load_global_config()
                 
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
