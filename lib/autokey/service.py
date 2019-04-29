@@ -197,7 +197,7 @@ class Service:
                     #self.lastMenu.show_on_desktop()
                     self.app.show_popup_menu(*menu)
 
-                logger.debug("Input stack at end of handle_keypress: %s", self.inputStack)
+                logger.debug("Input queue at end of handle_keypress: %s", self.inputStack)
 
         self.__tryReleaseLock()
 
@@ -429,7 +429,7 @@ class PhraseRunner:
 
     # @synchronized(iomediator.SEND_LOCK) #TODO_PY3 commented this
     def undo_expansion(self):
-        logger.info("Undoing last abbreviation expansion")
+        logger.info("Undoing last phrase expansion")
         replay = self.lastPhrase.get_trigger_chars(self.lastBuffer)
         logger.debug("Replay string: %s", replay)
         logger.debug("Erase string: %r", self.lastExpansion.string)
