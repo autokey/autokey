@@ -1,3 +1,22 @@
+autokey (0.95.7-0) bionic; urgency=medium
+
+  [Bug fixes]
+  * GTK GUI: Fixed system tray icon context menu entry `View script error`, which was non-functional, if the main
+    window is closed. The entry now opens the main window first as a workaround,
+    because a proper fix will require a major code overhaul. Fixes issue #222
+  * Qt GUI: Fixed the truncated GPLv3 license text shown in the About AutoKey dialogue.
+    The dialogue now shows the full license text. Fixes issue #258
+  * Hardened the logic to read application window titles. AutoKey now works, if applications do not set the
+    `_NET_WM_VISIBLE_NAME` property of their windows. Fixes issue #257
+  * Fixed Phrase expansion using the Keyboard method, which was broken if AutoKey was started for the first time.
+    Fixes issue #274
+
+  [Other fixes]
+  * Improved the debug logging output: Removed unnecessary output, clarified wordings, etc. See issue #230
+  * Qt GUI: Display the current Python version number in the About dialogue.
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Sat, 29 Apr 2019 14:40:00 +0200
+
 autokey (0.95.6-0) bionic; urgency=medium
 
   [Bug fixes]

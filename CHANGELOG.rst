@@ -3,27 +3,61 @@ Changelog
 =========
 .. contents::
 
+
+Version 0.95.6 <2019-04-29>
+===========================
+
+Bug fixes
+---------
+
+- GTK GUI: Fixed system tray icon context menu entry :code:`View script error`, which was non-functional,
+  if the main window is closed. The entry now opens the main window first as a workaround,
+  because a proper fix will require a major code overhaul. Fixes #222
+- Qt GUI: Fixed the truncated GPLv3 license text shown in the About AutoKey dialogue.
+  The dialogue window now shows the full license text. Fixes #258
+- Hardened the logic to read application window titles. AutoKey now works,
+  if applications do not set the :code:`_NET_WM_VISIBLE_NAME` property of their windows. Fixes #257
+- Fixed Phrase expansion using the Keyboard method, which was broken if AutoKey was started for the first time.
+  Fixes #274
+
+
+Other fixes
+-----------
+- Improved the debug logging output: Removed unnecessary output, clarified wordings, etc. See #230
+- Qt GUI: Display the current Python version number in the About dialogue.
+
+
+Version 0.95.6 <2019-02-09>
+===========================
+
+Bug fixes
+---------
+
+- Fix the combination of phrase settings :code:`Match phrase case to typed abbreviation` and
+  :code:`Trigger immediately` to cause Scripts and Phrases to trigger on each and every key press.
+  Fixes issue #254 introduced in 0.95.5.
+
 Version 0.95.5 <2019-02-07>
 ===========================
 
 Bug fixes
 ---------
 
-- Fix the combination of phrase settings :code:`Match phrase case to typed abbreviation` and :code:`Trigger immediately` to cause Scripts and Phrases to trigger on each and every key press. Fixes issue #254 introduced in 0.95.5.
-
-Version 0.95.5 <2019-02-07>
-===========================
-
-Bug fixes
----------
-
-- Fix window filter detection always returning Title: :code:`FocusProxy`, Class: `Focus-Proxy-Window.FocusProxy` on Java AWT applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications. Fixes issue #113
-- GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application. Now the dialogue window works as intended. Fixes issue #229
-- Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation dialogue. Options :code:`Ignore case` and :code:`Match case` now work with upper case abbreviations. Fixes issue #197
-- Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a clipboard pasting action. Fixes issues #72, #225
-- Prevent writing :code:`None` to the clipboard. This prevents autokey-gtk from deadlocking, caused by an unreleased mutex. Fixes issue #226
-- Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot be reliably undone. Fixes issue #196
-- Clarified autosave option wording in the settings window. The option now explicitly states what it does. Fixes issue #194
+- Fix window filter detection always returning Title: :code:`FocusProxy`, Class: `Focus-Proxy-Window.FocusProxy` on
+  Java AWT applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications.
+  Fixes issue #113
+- GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application.
+  Now the dialogue window works as intended. Fixes issue #229
+- Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation
+  dialogue. Options :code:`Ignore case` and :code:`Match case` now work with upper case abbreviations. Fixes issue #197
+- Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a
+  clipboard pasting action. Fixes issues #72, #225
+- Prevent writing :code:`None` to the clipboard. This prevents autokey-gtk from deadlocking,
+  caused by an unreleased mutex. Fixes issue #226
+- Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot
+  be reliably undone. Fixes issue #196
+- Clarified autosave option wording in the settings window. The option now explicitly states what it does.
+  Fixes issue #194
 - Force AutoKey to exit, if the X server connection closes, most probably at logout or session end. Fixes issue #198
 
 Qt tray icon fixes and improvements
@@ -31,7 +65,8 @@ Qt tray icon fixes and improvements
 
 - Added »View script error« entry to the Tray icon context menu, like in the GTK GUI. Part of issue #158
 - Tray icon turns red, when scripts raise an error, like in the GTK GUI. Part of issue #158
-- If changing the tray icon theme in the settings (light or dark), instantly apply the new theme, without requiring an application restart. Part of issue #158
+- If changing the tray icon theme in the settings (light or dark), instantly apply the new theme,
+  without requiring an application restart. Part of issue #158
 - The tray icon now works, after if it is disabled in the settings and then enabled again. Fixes issue #223
 
 Other fixes
