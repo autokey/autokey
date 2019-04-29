@@ -326,15 +326,11 @@ class XInterfaceBase(threading.Thread):
             if attr[0].startswith("XK"):
                 if attr[1] == code:
                     logger.debug("Alt-Grid: %s, %s", attr[0], attr[1])
-        logger.debug(repr(self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)))
 
-        logger.debug("X Server Keymap")
+        logger.debug("X Server Keymap, listing unmapped keys.")
         for char in "\\|`1234567890-=~!@#$%^&*()qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:\"ZXCVBNM<>?":
-            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-            keyCodeList = list(keyCodeList)
-            if len(keyCodeList) > 0:
-                logger.debug("[%s]: %s", char, keyCodeList)
-            else:
+            keyCodeList = list(self.localDisplay.keysym_to_keycodes(ord(char)))
+            if not keyCodeList:
                 logger.debug("No mapping for [%s]", char)
                 
     def __needsMutterWorkaround(self, item):
