@@ -38,16 +38,23 @@ AutoKey can be most easily installed using one of these two methods:
 
 This section applies to Debian and derivatives such as Ubuntu and Mint. These steps assume that you have Python version 3.5 or higher.
 
-If you don't know what a PPA is you can learn about them [here][ppa].
+AutoKey releases are available [here](https://github.com/autokey/autokey/releases/)
 
-    $ sudo add-apt-repository ppa:sporkwitch/autokey
-    $ sudo apt update
-    $ sudo apt install autokey-gtk # Install the GTk3 based GUI
-    $ # Or, alternatively:
-    $ sudo apt install autokey-qt # Install the Qt5 based GUI
-  
-**Note:** As of 7/2018, the PPA only supports Ubuntu 18.04 and derivatives.
-If you are using another release of Ubuntu, then install using [`pip` Installation](#pip-installation).
+Select the one you want and then download the common and gtk debs to a directory on your system
+
+Change into that directory (in a terminal) then
+
+To install it on a Debian-based system, use the following:
+
+    sudo dpkg --install autokey-common_VERSION_all.deb autokey-gtk_VERSION_all.deb
+
+(substituting the version you downloaded for "VERSION".)
+
+They need to be installed at the same time and `dpkg` will get it right while `apt` might not.
+
+If you prefer to use the QT front end, you can download and install that instead of (or in addition to) the GTK version.
+
+Since AutoKey is a Python3 application, it is largely independent of particular distribution releases and should work on most relatively current distributions.
 
 ### Arch
 
