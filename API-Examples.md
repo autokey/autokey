@@ -779,7 +779,7 @@ The script executes the command 'ls /tmp' and captures the output. The script th
 
 # Window #
 - [Activate window](#activate-window)
-- [Close window](#close-window])
+- [Close window](#close-window)
 - [Get class of active window](#get-class-of-active-window)
 - [Get title of active window](#get-title-of-active-window)
 - [Get window geometry](#get-window-geometry)
