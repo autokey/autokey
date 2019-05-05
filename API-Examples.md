@@ -778,7 +778,8 @@ The script executes the command 'ls /tmp' and captures the output. The script th
 
 
 # Window #
-
+- [Activate window](#activate-window)
+- [Close window](#close-window])
 - [Get class of active window](#get-class-of-active-window)
 - [Get title of active window](#get-title-of-active-window)
 - [Get window geometry](#get-window-geometry)
@@ -789,7 +790,48 @@ The script executes the command 'ls /tmp' and captures the output. The script th
 - [Wait for window to exist](#wait-for-window-to-exist)
 - [Wait for window to have focus](#wait-for-window-to-have-focus)
 
+<a id="activate-window"></a>
 
+## Activate window
+
+Script 1 activates the window with 'Atom' as part of the window title. If the window is on a different desktop the script automatically changes to that desktop.
+
+Script 2 activates the window with 'atom.Atom' as its class name.
+
+
+## Activate window script 1
+
+```
+window.activate('Atom', switchDesktop=True)
+```
+
+
+## Activate window script 2
+
+```
+window.activate('atom.Atom', switchDesktop=True, matchClass=True)
+```
+
+
+## Close Window
+
+Script 1 closes the window with 'Atom' as part of the window title.
+
+Script 2 closes the window with 'atom.Atom' as its class name.
+
+
+## Close window script 1
+
+```
+window.close('Atom')
+```
+
+
+## Close window script 2
+
+```
+window.close('atom.Atom', matchClass=True)
+```
 	
 ## Get class of active window ##
 
