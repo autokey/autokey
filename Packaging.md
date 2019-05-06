@@ -4,10 +4,10 @@ These instructions assume that you use a git checkout of the AutoKey repository 
 
 # PyPI (for maintainers):
 
-    % git checkout v0.95.6
-    Note: checking out 'v0.95.6'.
+    % git checkout v0.95.7
+    Note: checking out 'v0.95.7'.
     [snip git output]
-    HEAD is now at dc5bc5f Release v0.95.6
+    HEAD is now at dc5bc5f Release v0.95.7
 
     % python3 setup.py sdist bdist_wheel
 
@@ -15,9 +15,9 @@ These instructions assume that you use a git checkout of the AutoKey repository 
     Enter your username: <your pypi username>
     Enter your password: <your pypi password>
     Uploading distributions to https://upload.pypi.org/legacy/
-    Uploading autokey-0.95.6-py3-none-any.whl
+    Uploading autokey-0.95.7-py3-none-any.whl
     ...
-    Uploading autokey-0.95.6.tar.gz
+    Uploading autokey-0.95.7.tar.gz
     ...
 
 
@@ -38,7 +38,7 @@ http://packaging.ubuntu.com/html/packaging-new-software.html
 
 ### Build the packages from a tag
 
-    VERSION=v0.95.6
+    VERSION=v0.95.7
     uscan -dd
     git checkout $VERSION
     dpkg-buildpackage -b
@@ -71,7 +71,7 @@ When finished, do:
 
     git add lib/autokey/common.py CHANGELOG.rst debian/changelog
     git commit
-    # Provide a nice commit message, like `Release v.0.95.6`
+    # Provide a nice commit message, like `Release v.0.95.7`
     # DO NOT PUSH. First, verify that the Debian packaging works.
     # If not, fix the `debian/changelog` and merge the changelog fix into the last commit
     # Use git commit --amend to do so.
