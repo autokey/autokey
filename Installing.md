@@ -115,7 +115,7 @@ The Qt5-based GUI additionally depends on:
 | `kdialog` CLI tool | https://github.com/KDE/kdialog | Not available | this is used for the dialogue windows available in the Scripting API |
 | `pyrcc5` CLI tool | | not available | Installation-time/build-time only optional, but recommended dependency. |
 
-### [Installing Dependencies for Debian](#Installing-Debian-dependencies)
+### Installing Dependencies for Debian
 
     # Needed for both GUIs:
     sudo apt install python3-dbus python3-xlib python3-pyinotify wmctrl
@@ -165,10 +165,8 @@ Either way, once `$HOME/.local/bin` as used by the pip3 installation method (or 
 
     $ autokey-gtk
     $ autokey-qt
-    
-## Installing Debian dependencies<a name="Installing-Debian-dependencies"></a>
 
-[Details here](https://github.com/autokey/autokey/wiki/FAQ#what-are-the-dependency-packages-for-autokey)
+
 
 November 2011
 Original author, Keith W. Daniels
