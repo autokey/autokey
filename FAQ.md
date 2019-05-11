@@ -1,17 +1,5 @@
 ### What are the dependency packages for AutoKey?
-On Debian or Ubuntu you can get the dependencies by typing:
-
-	sudo apt-get install python-gtk2
-	sudo apt-get install python-gtksourceview2
-	sudo apt-get install python-glade2
-	sudo apt-get install python-xlib
-	sudo apt-get install python-notify
-	sudo apt-get install python-pyinotify
-	sudo apt-get install wmctrl
-
-Note that if you installed AutoKey from a .deb or using apt-get, these dependencies will automatically be installed for you.
-
-It is quite possible that you get more runtime errors requiring you to further add packs manually.
+See here for an overview, including the dependencies: https://github.com/autokey/autokey/wiki/Installing
 
 ### What is the license of AutoKey?
 AutoKey is published under GNU GPL v3 license.
@@ -49,7 +37,7 @@ That is the canonical way.
 If you wish, you can emit that dbus call directly, e.g. by using `dbus-send`. The interface name is `org.autokey.Service` and the method name is `show_configure`.
 
 In short, this command uses the dbus directly to open the main window of a running AutoKey instance:
-```
+``` shell
 dbus-send --session --type=method_call --dest="org.autokey.Service" "/AppService" "org.autokey.Service.show_configure"
 ```
 
