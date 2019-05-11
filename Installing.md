@@ -38,7 +38,7 @@ AutoKey can be most easily installed using one of these two methods:
 
 This section applies to Debian and derivatives such as Ubuntu and Mint. These steps assume that you have Python version 3.5 or higher.
 
-AutoKey releases are available [at the GitHub releases page, here](https://github.com/autokey/autokey/releases/).
+AutoKey releases can be downloaded [at the GitHub releases page.](https://github.com/autokey/autokey/releases/).
 
 Either use the supplied Debian packages attached to the GitHub release, or build your own Debian packages.
 
@@ -47,9 +47,7 @@ Chose the GUI you want and then download the `autokey-common_VERSION_all.deb` pa
 
 Building your own packages is described here: https://github.com/autokey/autokey/wiki/Packaging
 
-Change into the directory containing the packages (in a terminal) then,
-
-to install the packages on a Debian-based system, use the following:
+Open a terminal at the directory containing the AutoKey packages and use the following commands to install the packages:
 
     sudo dpkg --install autokey-common_VERSION_all.deb autokey-gtk_VERSION_all.deb
     sudo apt install --fix-missing
@@ -81,7 +79,7 @@ If the Python3 version of `pip` is not already installed, install `pip` using th
 
 The following Python3 dependencies need to be installed. If the install fails, look at your error messages - you might need to manually install one or more of the dependencies. Many dependencies are not specified in `setup.py`, so are not installed automatically.
 
-Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager where-ever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present there_. This may break software relying on the presence of those plugins, for example the HPLIP software.
+Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager where-ever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present in the system installation_. This may break software relying on the presence of those plugins, for example the HPLIP software.
 
 ## Dependencies
 
@@ -99,9 +97,9 @@ The GTK GUI additionally depends on these packages:
 |Package | Homepage | [PyPI (Python Package Index)](https://pypi.org/project/PyGObject/) link | Extra notes |
 |---|---|---|---|
 | GObject Introspection | https://gi.readthedocs.io/en/latest/index.html | https://pypi.org/project/PyGObject/ |
-| GTK (≥ 3.0) |  | Not available | Loaded at runtime from C libraries by `GObjectIntrospection` |
-| GtkSourceView | https://wiki.gnome.org/Projects/GtkSourceView | Not available | Loaded at runtime from C libraries by `GObjectIntrospection` |
-| libappindicator |  |  |  |
+| GTK (≥ 3.0) |  | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
+| GtkSourceView | https://wiki.gnome.org/Projects/GtkSourceView | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
+| libappindicator |  | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
 | libdbus-glib-1-dev |  |  |  |
 | `zenity` CLI tool | https://wiki.gnome.org/Projects/Zenity | Not available | this is used for the dialogue windows available in the Scripting API |
 
@@ -109,7 +107,7 @@ The Qt5-based GUI additionally depends on:
 
 |Package | Homepage | [PyPI (Python Package Index)](https://pypi.org/project/PyGObject/) link| Extra notes |
 |---|---|---|---|
-| PyQt5 | https://www.riverbankcomputing.com/software/pyqt/intro | https://pypi.org/project/PyQt5/ | Prefer installing from your distribution. Check, if your installation source provides the _full_ PyQt5 package. Some sources, notably the Ubuntu repository have the package split up into multiple modules. If so, you need the following additional modules.|
+| PyQt5 | https://www.riverbankcomputing.com/software/pyqt/intro | https://pypi.org/project/PyQt5/ | Prefer installing from your distribution. Check, if your installation source provides the _full_ PyQt5 package. Some sources, notably the Ubuntu repository have split PyQt5 up into multiple modules. If so, you need the following additional modules.|
 | PyQt5 SVG module, if not bundled with the base installation |  | included in PyQt5 from PyPi | If you installed from the Ubuntu repositories, you additionally need `python3-pyqt5.qtsvg` |
 | PyQt5-QScintilla2 module, if not bundled with the base installation |  | included in PyQt5 from PyPi | If you installed from the Ubuntu repositories, you additionally need `python3-pyqt5.qsci` |
 | `kdialog` CLI tool | https://github.com/KDE/kdialog | Not available | this is used for the dialogue windows available in the Scripting API |
@@ -147,7 +145,7 @@ Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user onl
     
 AutoKey will be located in your user directory: `~/.local/bin/autokey`
 
-If you run pip3 as root and omit the `--user` switch, AutoKey will be installed globally
+If you run pip3 as root and omit the `--user` switch, AutoKey will be installed globally.
   
 ## Running AutoKey
 
