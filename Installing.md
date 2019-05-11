@@ -38,27 +38,26 @@ AutoKey can be most easily installed using one of these two methods:
 
 This section applies to Debian and derivatives such as Ubuntu and Mint. These steps assume that you have Python version 3.5 or higher.
 
-AutoKey releases can be downloaded [at the GitHub releases page.](https://github.com/autokey/autokey/releases/).
+AutoKey releases can be downloaded from [releases](https://github.com/autokey/autokey/releases/) page.
 
 Either use the supplied Debian packages attached to the GitHub release, or build your own Debian packages.
 
 Using the pre-built packages:\
-Chose the GUI you want and then download the `autokey-common_VERSION_all.deb` package plus the chosen frontend package (`autokey-gtk_VERSION_all.deb` or `autokey-qt_VERSION_all.deb`) to a directory on your system.
+Chose the GUI you want and then download the `autokey-common_${VERSION}_all.deb` package plus the chosen frontend package (`autokey-gtk_${VERSION}_all.deb` or `autokey-qt_${VERSION}_all.deb`) to a directory on your system.
 
-Building your own packages is described here: https://github.com/autokey/autokey/wiki/Packaging
+Building your own packages is described on [this](https://github.com/autokey/autokey/wiki/Packaging) page.
 
 Open a terminal at the directory containing the AutoKey packages and use the following commands to install the packages:
 
-    sudo dpkg --install autokey-common_VERSION_all.deb autokey-gtk_VERSION_all.deb
+    VERSION="0.95.7-0"    # substitute with the version you downloaded
+    sudo dpkg --install autokey-common_${VERSION}_all.deb autokey-gtk_${VERSION}_all.deb
     sudo apt install --fix-missing
-
-(In the above command, substitute `VERSION` with the version you downloaded, for example `autokey-common_0.95.7-0_all.deb`.)
 
 Both the `-common` and GUI package need to be installed at the same time and `dpkg` will get it right while `apt` might not.
 If you prefer to use the QT front end, you can download and install that instead of (or in addition to) the GTK GUI.
-The second command will take care to install all dependencies from the official repositories.
+The second command will install all the dependencies from the official repositories.
 
-Since AutoKey is a Python3 application, it is largely independent of particular distribution releases and should work on most relatively current distributions. It is fine, as long as apt can resolve the dependencies.
+Since AutoKey is a Python3 application, it is largely independent of particular distribution releases and should work on most relatively fresh distributions. It is fine, as long as apt can resolve the dependencies.
 
 ## Arch Linux
 
@@ -79,18 +78,19 @@ If the Python3 version of `pip` is not already installed, install `pip` using th
 
 The following Python3 dependencies need to be installed. If the install fails, look at your error messages - you might need to manually install one or more of the dependencies. Many dependencies are not specified in `setup.py`, so are not installed automatically.
 
-Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager where-ever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present in the system installation_. This may break software relying on the presence of those plugins, for example the HPLIP software.
+Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager whenever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present in the system installation_. This may break software relying on the presence of those plugins, for example the HPLIP software.
 
 ## Dependencies
 
 AutoKey depends on (regardless of the used GUI):
 
-|Package | Homepage | [PyPI (Python Package Index)](https://pypi.org/project/PyGObject/) link| Extra notes |
-|---|---|---|---|
-| dbus-python |  | https://pypi.org/project/dbus-python/ | Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead. |
-| pyinotify | https://github.com/seb-m/pyinotify | https://pypi.org/project/pyinotify/ |  |
-| python-xlib | https://github.com/python-xlib/python-xlib | https://pypi.org/project/python-xlib/ |  |
-| `wmctrl` CLI tool | http://tripie.sweb.cz/utils/wmctrl/ | not available | used for window manipulation functions available in the Scripting API |
+[dbus-python](https://www.freedesktop.org/wiki/Software/DBusBindings/#python) \[[PyPI](https://pypi.org/project/dbus-python/)\] - Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead.
+
+[pyinotify](https://github.com/seb-m/pyinotify) \[[PyPI](https://pypi.org/project/pyinotify/)\]
+
+[python-xlib](https://github.com/python-xlib/python-xlib) \[[PyPI](https://pypi.org/project/python-xlib/)\]
+
+[wmctrl](http://tripie.sweb.cz/utils/wmctrl/) (CLI tool) - used for window manipulation functions available in the Scripting API.
 
 The GTK GUI additionally depends on these packages:
 
