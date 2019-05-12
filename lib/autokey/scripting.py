@@ -904,11 +904,11 @@ class Window:
     def __init__(self, mediator):
         self.mediator = mediator
         
-    def wait_for_focus(self, title, timeOut=5):
+    def wait_for_focus(self, title, timeOut=0):
         """
         Wait for window with the given title to have focus
         
-        Usage: C{window.wait_for_focus(title, timeOut=5)}
+        Usage: C{window.wait_for_focus(title, timeOut=0)}
         
         If the window becomes active, returns True. Otherwise, returns False if
         the window has not become active by the time the timeout has elapsed.
@@ -923,19 +923,17 @@ class Window:
             if regex.match(self.mediator.interface.get_window_title()):
                 return True
             
-            if timeOut == 0:
-                break  # zero length timeout, if not matched go straight to end
-                
             time.sleep(0.3)
-            waited += 0.3
+            if timeOut > 0:
+                waited += 0.3
             
         return False
         
-    def wait_for_exist(self, title, timeOut=5):
+    def wait_for_exist(self, title, timeOut=0):
         """
         Wait for window with the given title to be created
         
-        Usage: C{window.wait_for_exist(title, timeOut=5)}
+        Usage: C{window.wait_for_exist(title, timeOut=0)}
 
         If the window is in existence, returns True. Otherwise, returns False if
         the window has not been created by the time the timeout has elapsed.
@@ -951,12 +949,10 @@ class Window:
             for line in output.split('\n'):
                 if regex.match(line[14:].split(' ', 1)[-1]):
                     return True
-                    
-            if timeOut == 0:
-                break  # zero length timeout, if not matched go straight to end
-
+                
             time.sleep(0.3)
-            waited += 0.3
+            if timeOut > 0:
+                waited += 0.3
             
         return False
         
