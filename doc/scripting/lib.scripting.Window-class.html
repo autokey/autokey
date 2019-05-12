@@ -106,7 +106,7 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#wait_for_focus" class="summary-sig-name">wait_for_focus</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
-        <span class="summary-sig-arg">timeOut</span>=<span class="summary-sig-default">5</span>)</span><br />
+        <span class="summary-sig-arg">timeOut</span>=<span class="summary-sig-default">0</span>)</span><br />
       Wait for window with the given title to have focus</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.wait_for_focus">source&nbsp;code</a></span>
@@ -125,7 +125,7 @@
         <tr>
           <td><span class="summary-sig"><a href="lib.scripting.Window-class.html#wait_for_exist" class="summary-sig-name">wait_for_exist</a>(<span class="summary-sig-arg">self</span>,
         <span class="summary-sig-arg">title</span>,
-        <span class="summary-sig-arg">timeOut</span>=<span class="summary-sig-default">5</span>)</span><br />
+        <span class="summary-sig-arg">timeOut</span>=<span class="summary-sig-default">0</span>)</span><br />
       Wait for window with the given title to be created</td>
           <td align="right" valign="top">
             <span class="codelink"><a href="lib.scripting-pysrc.html#Window.wait_for_exist">source&nbsp;code</a></span>
@@ -353,7 +353,7 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">wait_for_focus</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>,
-        <span class="sig-arg">timeOut</span>=<span class="sig-default">5</span>)</span>
+        <span class="sig-arg">timeOut</span>=<span class="sig-default">0</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.wait_for_focus">source&nbsp;code</a></span>&nbsp;
@@ -361,7 +361,7 @@
   </tr></table>
   
   <p>Wait for window with the given title to have focus</p>
-  <p>Usage: <code>window.wait_for_focus(title, timeOut=5)</code></p>
+  <p>Usage: <code>window.wait_for_focus(title, timeOut=0)</code></p>
   <p>If the window becomes active, returns True. Otherwise, returns False 
   if the window has not become active by the time the timeout has 
   elapsed.</p>
@@ -384,7 +384,7 @@
   <tr valign="top"><td>
   <h3 class="epydoc"><span class="sig"><span class="sig-name">wait_for_exist</span>(<span class="sig-arg">self</span>,
         <span class="sig-arg">title</span>,
-        <span class="sig-arg">timeOut</span>=<span class="sig-default">5</span>)</span>
+        <span class="sig-arg">timeOut</span>=<span class="sig-default">0</span>)</span>
   </h3>
   </td><td align="right" valign="top"
     ><span class="codelink"><a href="lib.scripting-pysrc.html#Window.wait_for_exist">source&nbsp;code</a></span>&nbsp;
@@ -392,7 +392,7 @@
   </tr></table>
   
   <p>Wait for window with the given title to be created</p>
-  <p>Usage: <code>window.wait_for_exist(title, timeOut=5)</code></p>
+  <p>Usage: <code>window.wait_for_exist(title, timeOut=0)</code></p>
   <p>If the window is in existence, returns True. Otherwise, returns False 
   if the window has not been created by the time the timeout has 
   elapsed.</p>
