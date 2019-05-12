@@ -51,7 +51,7 @@ Open a terminal at the directory containing the AutoKey packages and use the fol
 
     VERSION="0.95.7-0"    # substitute with the version you downloaded
     sudo dpkg --install autokey-common_${VERSION}_all.deb autokey-gtk_${VERSION}_all.deb
-    sudo apt install --fix-missing
+    sudo apt --fix-broken install
 
 Both the `-common` and GUI package need to be installed at the same time and `dpkg` will get it right while `apt` might not.
 If you prefer to use the QT front end, you can download and install that instead of (or in addition to) the GTK GUI.
