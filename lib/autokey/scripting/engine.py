@@ -35,7 +35,7 @@ class Engine:
         self.__returnValue = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
-    def get_folder(self, title):
+    def get_folder(self, title: str):
         """
         Retrieve a folder by its title
 
@@ -119,6 +119,10 @@ class Engine:
         @param always_prompt: A boolean defaulting to False. If set to True,
                               the Phrase expansion has to be manually confirmed, each time it is triggered.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
+        @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
+          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
+          It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
+          risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
@@ -149,6 +153,7 @@ class Engine:
 
             folder.add_item(p)
             p.persist()
+            return p
         finally:
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
