@@ -102,14 +102,15 @@ class Engine:
             SELECTION
         To paste the Phrase using "<shift>+<insert>, set send_mode=engine.SendMode.CB_SHIFT_INSERT
 
-        window_filter: Accepts a string which will be used as a regular expression to match window titles or applications
-        using the WM_CLASS attribute.
+        window_filter: Accepts a string which will be used as a regular expression to match window titles or
+        applications using the WM_CLASS attribute.
 
         @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
         @param name: Name/description for the phrase.
         @param contents: the expansion text
         @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase
-        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey. First element is a list of modifiers, second element is the key.
+        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.
+                       First element is a list of modifiers, second element is the key.
         @param send_mode: The pasting mode that will be used to expand the Phrase.
                           Used to configure, how the Phrase is expanded. Defaults to typing using the "Keyboard" method.
         @param window_filter: A string containing a regular expression that will be used as the window filter.
@@ -117,32 +118,44 @@ class Engine:
                                     If set to True, the new Phrase will be shown in the tray icon context menu.
         @param always_prompt: A boolean defaulting to False. If set to True,
                               the Phrase expansion has to be manually confirmed, each time it is triggered.
+        @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
         """
-        self.monitor.suspend()
-        p = model.Phrase(name, contents)
         # TODO: The validation should be done by some controller functions in the model base classes.
-        if send_mode in model.SendMode:
-            p.sendMode = send_mode
         if abbreviations:
             if isinstance(abbreviations, str):
                 abbreviations = [abbreviations]
-            p.add_abbreviations(abbreviations)
+            for abbr in abbreviations:
+                if not self.configManager.check_abbreviation_unique(abbr, None, None):
+                    raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
         if hotkey:
-            p.set_hotkey(*hotkey)
-        if window_filter:
-            p.set_window_titles(window_filter)
-        if show_in_system_tray:
-            p.show_in_tray_menu = True
-        if always_prompt:
-            p.prompt = True
+            modifiers = sorted(hotkey[0])
+            if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None):
+                raise ValueError("The specified hotkey and modifier combination is already in use.")
 
-        folder.add_item(p)
-        p.persist()
-        self.monitor.unsuspend()
-        self.configManager.config_altered(False)
+        self.monitor.suspend()
+        try:
+            p = model.Phrase(name, contents)
+            if send_mode in model.SendMode:
+                p.sendMode = send_mode
+            p.add_abbreviations(abbreviations)
+            if hotkey:
+                p.set_hotkey(*hotkey)
+            if window_filter:
+                p.set_window_titles(window_filter)
+            if show_in_system_tray:
+                p.show_in_tray_menu = True
+            if always_prompt:
+                p.prompt = True
+
+            folder.add_item(p)
+            p.persist()
+        finally:
+            self.monitor.unsuspend()
+            self.configManager.config_altered(False)
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
+        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
         Create a new text phrase inside the given folder and assign the abbreviation given.
 
         Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}
@@ -170,6 +183,8 @@ class Engine:
 
     def create_hotkey(self, folder, description, modifiers, key, contents):
         """
+        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
+
         Create a text hotkey
 
         Usage: C{engine.create_hotkey(folder, description, modifiers, key, contents)}
