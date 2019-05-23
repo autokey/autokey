@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Union
 
 from autokey import model
 
@@ -25,6 +25,8 @@ class Engine:
     Note that any configuration changes made using this API while the configuration window
     is open will not appear until it is closed and re-opened.
     """
+    SendMode = model.SendMode
+    Key = model.Key
 
     def __init__(self, configManager, runner):
         self.configManager = configManager
@@ -47,20 +49,93 @@ class Engine:
                 return folder
         return None
 
-    def create_phrase(self, folder, description, contents):
+    def create_phrase(self, folder, name: str, contents: str,
+                      abbreviations: Union[str, List[str]]=None, hotkey: Tuple[model.Key, str]=None,
+                      send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
+                      show_in_system_tray: bool=False, always_prompt: bool=False):
         """
-        Create a text phrase
+        Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
+        you wish to create the Phrase in.
 
-        Usage: C{engine.create_phrase(folder, description, contents)}
+        The first three arguments (folder, name and contents) are required. All further arguments are optional and
+        considered to be keyword-argument only. Do not rely on the order of the optional arguments.
+        The optional parameters can be used to configure the newly created Phrase.
 
-        A new phrase with no abbreviation or hotkey is created in the specified folder
+        Usage (minimal example): C{engine.create_phrase(folder, name, contents)}
+
+        Further concrete examples:
+        C{
+        engine.create_phrase(folder, "My new Phrase", "This is the Phrase content", abbreviations=["abc", "def"],
+        hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V,
+        window_filter="konsole\.Konsole", show_in_system_tray=True)
+        }
+
+        Descriptions for the optional arguments:
+
+        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation
+        to the newly created phrase.
+
+        hotkey parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first
+        element and an unshifted (lowercase) key as the second element.
+        Modifier keys must be given as a list of strings (or Key enum instances), with the following
+        values permitted:
+            <ctrl>
+            <alt>
+            <super>
+            <hyper>
+            <meta>
+            <shift>
+        The key must be an unshifted character (i.e. lowercase) or a Key enum instance. Modifier keys from the list
+        above are NOT allowed here. Example: (["<ctrl>", "<alt>"], "9") to assign "<Ctrl>+<Alt>+9" as a hotkey.
+        The Key enum contains objects representing various special keys and is available as an attribute of the "engine"
+        object, named "Key". So to access a function key, you can use the string "<f12>" or engine.Key.F12
+        See the AutoKey Wiki for an overview of all available keys in the enumeration.
+
+        send_mode: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting
+        using the clipboard. It accepts items from the SendMode enumeration, which is also available from the engine
+        object as engine.SendMode. The parameter defaults to
+        engine.SendMode.KEYBOARD. Available send modes are:
+            KEYBOARD
+            CB_CTRL_V
+            CB_CTRL_SHIFT_V
+            CB_SHIFT_INSERT
+            SELECTION
+        To paste the Phrase using "<shift>+<insert>, set send_mode=engine.SendMode.CB_SHIFT_INSERT
+
+        window_filter: Accepts a string which will be used as a regular expression to match window titles or applications
+        using the WM_CLASS attribute.
 
         @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
-        @param description: description for the phrase
+        @param name: Name/description for the phrase.
         @param contents: the expansion text
+        @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase
+        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey. First element is a list of modifiers, second element is the key.
+        @param send_mode: The pasting mode that will be used to expand the Phrase.
+                          Used to configure, how the Phrase is expanded. Defaults to typing using the "Keyboard" method.
+        @param window_filter: A string containing a regular expression that will be used as the window filter.
+        @param show_in_system_tray: A boolean defaulting to False.
+                                    If set to True, the new Phrase will be shown in the tray icon context menu.
+        @param always_prompt: A boolean defaulting to False. If set to True,
+                              the Phrase expansion has to be manually confirmed, each time it is triggered.
         """
         self.monitor.suspend()
-        p = model.Phrase(description, contents)
+        p = model.Phrase(name, contents)
+        # TODO: The validation should be done by some controller functions in the model base classes.
+        if send_mode in model.SendMode:
+            p.sendMode = send_mode
+        if abbreviations:
+            if isinstance(abbreviations, str):
+                abbreviations = [abbreviations]
+            p.add_abbreviations(abbreviations)
+        if hotkey:
+            p.set_hotkey(*hotkey)
+        if window_filter:
+            p.set_window_titles(window_filter)
+        if show_in_system_tray:
+            p.show_in_tray_menu = True
+        if always_prompt:
+            p.prompt = True
+
         folder.add_item(p)
         p.persist()
         self.monitor.unsuspend()
@@ -68,7 +143,7 @@ class Engine:
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
-        Create a text abbreviation
+        Create a new text phrase inside the given folder and assign the abbreviation given.
 
         Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}
 
