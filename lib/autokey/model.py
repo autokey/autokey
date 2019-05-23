@@ -159,7 +159,22 @@ class AbstractAbbreviation:
         return self.wordChars.pattern
 
     def add_abbreviation(self, abbr):
+        if not isinstance(abbr, str):
+            raise ValueError("Abbreviations must be strings. Cannot add abbreviation '{}', having type {}.".format(
+                abbr, type(abbr)
+            ))
         self.abbreviations.append(abbr)
+        if TriggerMode.ABBREVIATION not in self.modes:
+            self.modes.append(TriggerMode.ABBREVIATION)
+
+    def add_abbreviations(self, abbreviation_list: typing.Iterable[str]):
+        if not isinstance(abbreviation_list, list):
+            abbreviation_list = list(abbreviation_list)
+        if not all(isinstance(abbr, str) for abbr in abbreviation_list):
+            raise ValueError("All added Abbreviations must be strings.")
+        self.abbreviations += abbreviation_list
+        if TriggerMode.ABBREVIATION not in self.modes:
+            self.modes.append(TriggerMode.ABBREVIATION)
 
     def clear_abbreviations(self):
         self.abbreviations = []
@@ -354,8 +369,8 @@ class AbstractWindowFilter:
 class AbstractHotkey(AbstractWindowFilter):
 
     def __init__(self):
-        self.modifiers = []
-        self.hotKey = None
+        self.modifiers = []  # type: typing.List[Key]
+        self.hotKey = None  # type: typing.Optional[str]
 
     def get_serializable(self):
         d = {
@@ -375,6 +390,7 @@ class AbstractHotkey(AbstractWindowFilter):
         modifiers.sort()
         self.modifiers = modifiers
         self.hotKey = key
+        self.modes.append(TriggerMode.HOTKEY)
 
     def check_hotkey(self, modifiers, key, windowTitle):
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
