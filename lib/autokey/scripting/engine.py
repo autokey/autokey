@@ -35,6 +35,7 @@ class Engine:
         self.__returnValue = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
+
     def get_folder(self, title: str):
         """
         Retrieve a folder by its title
