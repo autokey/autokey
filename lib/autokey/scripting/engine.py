@@ -30,11 +30,12 @@ class Engine:
     SendMode = model.SendMode
     Key = model.Key
 
-    def __init__(self, configManager, runner):
-        self.configManager = configManager
+    def __init__(self, config_manager, runner):
+        self.configManager = config_manager
         self.runner = runner
-        self.monitor = configManager.app.monitor
-        self.__returnValue = ''
+        self.monitor = config_manager.app.monitor
+        self._macro_args = []
+        self._return_value = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
     def get_folder(self, title: str):
@@ -244,13 +245,13 @@ class Engine:
         @param description: description of the script to run
         @raise Exception: if the specified script does not exist
         """
-        targetScript = None
+        target_script = None
         for item in self.configManager.allItems:
             if item.description == description and isinstance(item, model.Script):
-                targetScript = item
+                target_script = item
 
-        if targetScript is not None:
-            self.runner.run_subscript(targetScript)
+        if target_script is not None:
+            self.runner.run_subscript(target_script)
         else:
             raise Exception("No script with description '%s' found" % description)
 
@@ -258,7 +259,7 @@ class Engine:
         """
         Used internally by AutoKey for phrase macros
         """
-        self.__macroArgs = args["args"].split(',')
+        self._macro_args = args["args"].split(',')
 
         try:
             self.run_script(args["name"])
@@ -274,7 +275,7 @@ class Engine:
         @return: the arguments
         @rtype: C{list(str())}
         """
-        return self.__macroArgs
+        return self._macro_args
 
     def set_return_value(self, val):
         """
@@ -284,14 +285,14 @@ class Engine:
 
         @param val: value to be stored
         """
-        self.__returnValue = val
+        self._return_value = val
 
-    def get_return_value(self):
+    def _get_return_value(self):
         """
         Used internally by AutoKey for phrase macros
         """
-        ret = self.__returnValue
-        self.__returnValue = ''
+        ret = self._return_value
+        self._return_value = ''
         return ret
 
     def _set_triggered_abbreviation(self, abbreviation: str, trigger_character: str):
