@@ -389,7 +389,8 @@ class AbstractHotkey(AbstractWindowFilter):
         modifiers.sort()
         self.modifiers = modifiers
         self.hotKey = key
-        self.modes.append(TriggerMode.HOTKEY)
+        if key is not None:
+            self.modes.append(TriggerMode.HOTKEY)
 
     def check_hotkey(self, modifiers, key, windowTitle):
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
