@@ -50,7 +50,8 @@ class Engine:
         return None
 
     def create_phrase(self, folder, name: str, contents: str,
-                      abbreviations: Union[str, List[str]]=None, hotkey: Tuple[model.Key, str]=None,
+                      abbreviations: Union[str, List[str]]=None,
+                      hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
                       send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False):
         """
