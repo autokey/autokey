@@ -130,11 +130,11 @@ class Engine:
             if isinstance(abbreviations, str):
                 abbreviations = [abbreviations]
             for abbr in abbreviations:
-                if not self.configManager.check_abbreviation_unique(abbr, None, None):
+                if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
                     raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
         if hotkey:
             modifiers = sorted(hotkey[0])
-            if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None):
+            if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
                 raise ValueError("The specified hotkey and modifier combination is already in use.")
 
         self.monitor.suspend()
@@ -175,7 +175,7 @@ class Engine:
         @param contents: the expansion text
         @raise Exception: if the specified abbreviation is not unique
         """
-        if not self.configManager.check_abbreviation_unique(abbr, None, None):
+        if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
             raise Exception("The specified abbreviation is already in use")
 
         self.monitor.suspend()
@@ -216,7 +216,7 @@ class Engine:
         @raise Exception: if the specified hotkey is not unique
         """
         modifiers.sort()
-        if not self.configManager.check_hotkey_unique(modifiers, key, None, None):
+        if not self.configManager.check_hotkey_unique(modifiers, key, None, None)[0]:
             raise Exception("The specified hotkey and modifier combination is already in use")
 
         self.monitor.suspend()
