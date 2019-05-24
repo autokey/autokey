@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from collections.abc import Iterable
+
 from typing import Tuple, Optional, List, Union
 
 from autokey import model
@@ -34,7 +36,6 @@ class Engine:
         self.monitor = configManager.app.monitor
         self.__returnValue = ''
         self._triggered_abbreviation = None  # type: Optional[str]
-
 
     def get_folder(self, title: str):
         """
@@ -130,6 +131,10 @@ class Engine:
         if abbreviations:
             if isinstance(abbreviations, str):
                 abbreviations = [abbreviations]
+            elif not isinstance(abbreviations, Iterable):
+                raise ValueError("Expected a single string or a list/iterable of strings, not {}".format(
+                    type(abbreviations))
+                )
             for abbr in abbreviations:
                 if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
                     raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
@@ -143,7 +148,8 @@ class Engine:
             p = model.Phrase(name, contents)
             if send_mode in model.SendMode:
                 p.sendMode = send_mode
-            p.add_abbreviations(abbreviations)
+            if abbreviations:
+                p.add_abbreviations(abbreviations)
             if hotkey:
                 p.set_hotkey(*hotkey)
             if window_filter:
