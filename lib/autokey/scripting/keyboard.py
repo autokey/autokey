@@ -42,7 +42,7 @@ class Keyboard:
         """
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
-        if send_mode not in model.SendMode:
+        if not isinstance(send_mode, model.SendMode):
             permissible = "\n".join("keyboard.{}".format(mode) for mode in map(str, model.SendMode))
             raise TypeError(
                 "send_mode must be set to an element from keyboard.SendMode. "
