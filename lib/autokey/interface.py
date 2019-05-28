@@ -603,12 +603,12 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string via clipboard: " + string)
         if common.USING_QT:
-            if paste_command is None:
+            if paste_command in (None, model.SendMode.SELECTION):
                 self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
             else:
                 self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
         else:
-            if paste_command is None:
+            if paste_command in (None, model.SendMode.SELECTION):
                 self.__enqueue(self._send_string_selection, string)
             else:
                 self.__enqueue(self._send_string_clipboard, string, paste_command)

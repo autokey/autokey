@@ -13,29 +13,46 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from autokey import iomediator
+from autokey import iomediator, model
 
 
 class Keyboard:
     """
     Provides access to the keyboard for event generation.
     """
+    SendMode = model.SendMode
 
     def __init__(self, mediator):
         self.mediator = mediator  # type: iomediator.IoMediator
 
-    def send_keys(self, keyString):
+    def send_keys(self, key_string, send_mode: model.SendMode=model.SendMode.KEYBOARD):
         """
-        Send a sequence of keys via keyboard events
+        Send a sequence of keys via keyboard events as the default or via clipboard pasting.
+        Because the clipboard can only contain
+        printable characters, special keys and embedded key combinations can only be sent in keyboard mode.
+
+        Trying to send special keys using a clipboard pasting method will paste the literal representation
+        (e.g. "<ctrl>+<f11>") instead of the actual special key or key combination.
+
 
         Usage: C{keyboard.send_keys(keyString)}
 
-        @param keyString: string of keys (including special keys) to send
+        @param key_string: string of keys to send. Special keys are only possible in keyboard mode.
+        @param send_mode: Determines how the string is send.
         """
-        assert type(keyString) is str
+        if not isinstance(key_string, str):
+            raise TypeError("Only strings can be sent using this function")
+        if not isinstance(send_mode, model.SendMode):
+            permissible = "\n".join("keyboard.{}".format(mode) for mode in map(str, model.SendMode))
+            raise TypeError(
+                "send_mode must be set to an element from keyboard.SendMode. "
+                "Permissible values are:\n{}".format(permissible))
         self.mediator.interface.begin_send()
         try:
-            self.mediator.send_string(keyString)
+            if send_mode is model.SendMode.KEYBOARD:
+                self.mediator.send_string(key_string)
+            else:
+                self.mediator.paste_string(key_string, send_mode)
         finally:
             self.mediator.interface.finish_send()
 
