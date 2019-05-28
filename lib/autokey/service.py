@@ -22,7 +22,6 @@ import time
 import logging
 import threading
 
-
 from autokey.iomediator.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
 
@@ -89,7 +88,7 @@ class Service:
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        autokey.scripting.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
+        model.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
     def unpause(self):

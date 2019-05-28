@@ -628,6 +628,7 @@ class GlobalHotkey(model.AbstractHotkey):
         self.windowInfoRegex = None
         self.isRecursive = False
         self.parent = None
+        self.modes = []
 
     def get_serializable(self):
         d = {

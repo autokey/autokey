@@ -28,7 +28,6 @@ import enum
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
 from autokey.iomediator.constants import KEY_SPLIT_RE
-import autokey.scripting
 
 _logger = logging.getLogger("model")
 
@@ -159,7 +158,22 @@ class AbstractAbbreviation:
         return self.wordChars.pattern
 
     def add_abbreviation(self, abbr):
+        if not isinstance(abbr, str):
+            raise ValueError("Abbreviations must be strings. Cannot add abbreviation '{}', having type {}.".format(
+                abbr, type(abbr)
+            ))
         self.abbreviations.append(abbr)
+        if TriggerMode.ABBREVIATION not in self.modes:
+            self.modes.append(TriggerMode.ABBREVIATION)
+
+    def add_abbreviations(self, abbreviation_list: typing.Iterable[str]):
+        if not isinstance(abbreviation_list, list):
+            abbreviation_list = list(abbreviation_list)
+        if not all(isinstance(abbr, str) for abbr in abbreviation_list):
+            raise ValueError("All added Abbreviations must be strings.")
+        self.abbreviations += abbreviation_list
+        if TriggerMode.ABBREVIATION not in self.modes:
+            self.modes.append(TriggerMode.ABBREVIATION)
 
     def clear_abbreviations(self):
         self.abbreviations = []
@@ -350,8 +364,8 @@ class AbstractWindowFilter:
 class AbstractHotkey(AbstractWindowFilter):
 
     def __init__(self):
-        self.modifiers = []
-        self.hotKey = None
+        self.modifiers = []  # type: typing.List[Key]
+        self.hotKey = None  # type: typing.Optional[str]
 
     def get_serializable(self):
         d = {
@@ -371,6 +385,8 @@ class AbstractHotkey(AbstractWindowFilter):
         modifiers.sort()
         self.modifiers = modifiers
         self.hotKey = key
+        if key is not None:
+            self.modes.append(TriggerMode.HOTKEY)
 
     def check_hotkey(self, modifiers, key, windowTitle):
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
@@ -890,6 +906,69 @@ class Expansion:
         self.backspaces = 0
 
 
+class Store(dict):
+    """
+    Allows persistent storage of values between invocations of the script.
+    """
+    GLOBALS = {}
+
+    def set_value(self, key, value):
+        """
+        Store a value
+
+        Usage: C{store.set_value(key, value)}
+        """
+        self[key] = value
+
+    def get_value(self, key):
+        """
+        Get a value
+
+        Usage: C{store.get_value(key)}
+        """
+        return self.get(key, None)
+
+    def remove_value(self, key):
+        """
+        Remove a value
+
+        Usage: C{store.remove_value(key)}
+        """
+        del self[key]
+
+    def set_global_value(self, key, value):
+        """
+        Store a global value
+
+        Usage: C{store.set_global_value(key, value)}
+
+        The value stored with this method will be available to all scripts.
+        """
+        Store.GLOBALS[key] = value
+
+    def get_global_value(self, key):
+        """
+        Get a global value
+
+        Usage: C{store.get_global_value(key)}
+        """
+        return self.GLOBALS.get(key, None)
+
+    def remove_global_value(self, key):
+        """
+        Remove a global value
+
+        Usage: C{store.remove_global_value(key)}
+        """
+        del self.GLOBALS[key]
+
+    def has_key(self, key):
+        """
+        python 2 compatibility
+        """
+        return key in self
+
+
 class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     """
     Encapsulates all data and behaviour for a script.
@@ -901,7 +980,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.code = source_code
-        self.store = autokey.scripting.Store()
+        self.store = Store()
         self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
@@ -967,7 +1046,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 json.dump(serializable_data, json_file, indent=4)
 
     @staticmethod
-    def _remove_non_serializable_store_entries(store: autokey.scripting.Store) -> dict:
+    def _remove_non_serializable_store_entries(store: Store) -> dict:
         """
         Copy all serializable data into a new dict, and skip the rest.
         This makes sure to keep the items during runtime, even if the user edits and saves the script.
@@ -1016,7 +1095,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]
-        self.store = autokey.scripting.Store(data["store"])
+        self.store = Store(data["store"])
         self.modes = [TriggerMode(item) for item in data["modes"]]
         self.usageCount = data["usageCount"]
         self.prompt = data["prompt"]

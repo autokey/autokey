@@ -3,7 +3,7 @@ lib.scripting.__package__	lib.scripting-module.html#__package__
 lib.scripting.Engine	lib.scripting.Engine-class.html
 lib.scripting.Engine.run_script	lib.scripting.Engine-class.html#run_script
 lib.scripting.Engine.get_folder	lib.scripting.Engine-class.html#get_folder
-lib.scripting.Engine.get_return_value	lib.scripting.Engine-class.html#get_return_value
+lib.scripting.Engine._get_return_value	lib.scripting.Engine-class.html#_get_return_value
 lib.scripting.Engine.create_hotkey	lib.scripting.Engine-class.html#create_hotkey
 lib.scripting.Engine.run_script_from_macro	lib.scripting.Engine-class.html#run_script_from_macro
 lib.scripting.Engine.set_return_value	lib.scripting.Engine-class.html#set_return_value

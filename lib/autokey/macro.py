@@ -134,7 +134,7 @@ class ScriptMacro(AbstractMacro):
     def do_process(self, parts, i):
         args = self._get_args(parts[i])
         self.engine.run_script_from_macro(args)
-        parts[i] = self.engine.get_return_value()
+        parts[i] = self.engine._get_return_value()
 
 
 class DateMacro(AbstractMacro):

@@ -28,7 +28,7 @@ from .common import ColourData, DialogData
 from .engine import Engine
 from .keyboard import Keyboard
 from .mouse import Mouse
-from .store import Store
+from autokey.model import Store
 from .system import System
 from .window import Window
 

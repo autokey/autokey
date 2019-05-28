@@ -1075,7 +1075,7 @@ class XInterfaceBase(threading.Thread):
                 window = self.localDisplay.get_input_focus().focus
             return self._get_window_info(window, traverse)
         except error.BadWindow:
-            logger.exception("Got BadWindow error while requesting window information.")
+            logger.warning("Got BadWindow error while requesting window information.")
             return self._create_window_info(window, "", "")
 
     def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
