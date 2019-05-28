@@ -1,6 +1,6 @@
-engine.create_abbreviation(folder, description, abbr, contents) Create a text abbreviation
-engine.create_hotkey(folder, description, modifiers, key, contents) Create a text hotkey
-engine.create_phrase(folder, description, contents) Create a text phrase
+engine.create_abbreviation(folder, description, abbr, contents) DEPRECATED! Use create_phrase() instead. Create a Phrase with an abbreviation
+engine.create_hotkey(folder, description, modifiers, key, contents) DEPRECATED! Use create_phrase() instead. Create a Phrase with a hotkey
+engine.create_phrase(folder, description, contents) Create a Phrase in the given Folder. Fully configure it using the optional keyword parameters.
 engine.get_folder(title) Retrieve a folder by its title
 engine.get_macro_arguments() Get the arguments supplied to the current script via its macro
 engine.run_script(description) Run an existing script using its description to look it up
@@ -10,7 +10,7 @@ keyboard.fake_keypress(key, repeat=1) Fake a keypress
 keyboard.press_key(key) Send a key down event
 keyboard.release_key(key) Send a key up event
 keyboard.send_key(key, repeat=1) Send a keyboard event
-keyboard.send_keys(keyString) Send a sequence of keys via keyboard events
+keyboard.send_keys(key_string, send_mode=keyboard.SendMode.KEYBOARD) Send a sequence of keys via keyboard events (default) or via clipboard pasting
 keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0) Wait for a keypress or key combination
 mouse.click_absolute(x, y, button) Send a mouse click relative to the screen (absolute)
 mouse.click_relative(x, y, button) Send a mouse click relative to the active window
@@ -20,6 +20,7 @@ clipboard.fill_clipboard(contents) Copy text into the clipboard
 clipboard.fill_selection(contents) Copy text into the X selection
 clipboard.get_clipboard() Read text from the clipboard
 clipboard.get_selection() Read text from the X selection
+dialog.info_dialog(title="Information", message="") Show an informational dialog.
 dialog.choose_colour(title="Select Colour") Show a Colour Chooser dialog
 dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None, **kwargs) Show a Directory Chooser dialog
 dialog.combo_menu(options, title="Choose an option", message="Choose an option", **kwargs) Show a combobox menu
