@@ -1,6 +1,6 @@
-engine.create_abbreviation(folder, description, abbr, contents) DEPRECATED! Use create_phrase() instead. Create a Phrase with an abbreviation
-engine.create_hotkey(folder, description, modifiers, key, contents) DEPRECATED! Use create_phrase() instead. Create a Phrase with a hotkey
-engine.create_phrase(folder, description, contents) Create a Phrase in the given Folder. Fully configure it using the optional keyword parameters.
+engine.create_abbreviation(folder, description, abbr, contents) DEPRECATED! Use create_phrase() instead, create a Phrase with an abbreviation
+engine.create_hotkey(folder, description, modifiers, key, contents) DEPRECATED! Use create_phrase() instead, create a Phrase with a hotkey
+engine.create_phrase(folder, description, contents) Create a Phrase in the given Folder, Fully configure it using the optional keyword parameters
 engine.get_folder(title) Retrieve a folder by its title
 engine.get_macro_arguments() Get the arguments supplied to the current script via its macro
 engine.run_script(description) Run an existing script using its description to look it up
@@ -12,6 +12,12 @@ keyboard.release_key(key) Send a key up event
 keyboard.send_key(key, repeat=1) Send a keyboard event
 keyboard.send_keys(key_string, send_mode=keyboard.SendMode.KEYBOARD) Send a sequence of keys via keyboard events (default) or via clipboard pasting
 keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0) Wait for a keypress or key combination
+keyboard.SendMode Contains all valid options for the send_mode parameter
+keyboard.SendMode.KEYBOARD Type using the keyboard
+keyboard.SendMode.CB_CTRL_V Use the clipboard and paste using <Ctrl>+V
+keyboard.SendMode.CB_CTRL_SHIFT_V Use the clipboard and paste using <Ctrl>+<Shift>+V
+keyboard.SendMode.CB_SHIFT_INSERT Use the clipboard and paste using <Shift>+<Insert>
+keyboard.SendMode.SELECTION Use the X11 PRIMARY buffer / mouse selection and Paste using the middle mouse button
 mouse.click_absolute(x, y, button) Send a mouse click relative to the screen (absolute)
 mouse.click_relative(x, y, button) Send a mouse click relative to the active window
 mouse.click_relative_self(x, y, button) Send a mouse click relative to the current mouse position
