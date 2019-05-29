@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import typing
+
 from autokey import iomediator, model
 
 
@@ -25,7 +27,7 @@ class Keyboard:
     def __init__(self, mediator):
         self.mediator = mediator  # type: iomediator.IoMediator
 
-    def send_keys(self, key_string, send_mode: model.SendMode=model.SendMode.KEYBOARD):
+    def send_keys(self, key_string, send_mode: typing.Union[model.SendMode, int]=model.SendMode.KEYBOARD):
         """
         Send a sequence of keys via keyboard events as the default or via clipboard pasting.
         Because the clipboard can only contain
@@ -42,10 +44,21 @@ class Keyboard:
         """
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
+        if isinstance(send_mode, int):
+            if send_mode in range(len(model.SendMode)):
+                send_mode = tuple(model.SendMode)[send_mode]  # type: mode.SendMode
+            else:
+                permissible = "\n".join(
+                    "{}: keyboard.{}".format(
+                        number, str(constant)) for number, constant in enumerate(model.SendMode)
+                )
+                raise ValueError(
+                    "send_mode out of range for index-based access. "
+                    "Permissible values are:\n{}".format(permissible))
         if not isinstance(send_mode, model.SendMode):
             permissible = "\n".join("keyboard.{}".format(mode) for mode in map(str, model.SendMode))
             raise TypeError(
-                "send_mode must be set to an element from keyboard.SendMode. "
+                "send_mode must be set to an element from keyboard.SendMode (or an interger for index-based access). "
                 "Permissible values are:\n{}".format(permissible))
         self.mediator.interface.begin_send()
         try:
