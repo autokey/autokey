@@ -111,6 +111,11 @@ class Key(str, enum.Enum):
 
 
 NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOME, Key.END, Key.PAGE_UP, Key.PAGE_DOWN]
+# All known modifier keys. This is used to determine if a key is a modifier. Used by the Configuration manager
+# to verify that only modifier keys are placed in the disabled modifiers list.
+_ALL_MODIFIERS_ = (
+    Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.CAPSLOCK, Key.NUMLOCK, Key.META
+)
 
 # Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
