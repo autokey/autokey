@@ -705,8 +705,14 @@ dialog.info_dialog("Window information",
             _logger.info("Disabling modifier key {} based on the stored configuration file.".format(possible_modifier))
             MODIFIERS.remove(possible_modifier)
 
-            
-    def disable_modifier(self, modifier: typing.Union[key.Key, str]):
+    @staticmethod
+    def is_modifier_disabled(modifier: key.Key) -> bool:
+        """Checks, if the given modifier key is disabled. """
+        ConfigManager._check_if_modifier(modifier)
+        return modifier in ConfigManager.SETTINGS[DISABLED_MODIFIERS]
+
+    @staticmethod
+    def disable_modifier(modifier: typing.Union[key.Key, str]):
         """
         Permanently disable a modifier key. This can be used to disable unwanted modifier keys, like CAPSLOCK,
         if the user remapped the physical key to something else.
@@ -715,16 +721,17 @@ dialog.info_dialog("Window information",
         """
         if isinstance(modifier, str):
             modifier = key.Key(modifier)
-        self._check_if_modifier(modifier)
+        ConfigManager._check_if_modifier(modifier)
         try:
             _logger.info("Disabling modifier key {} on user request.".format(modifier))
             MODIFIERS.remove(modifier)
         except ValueError:
             _logger.warning("Disabling already disabled modifier key. Affected key: {}".format(modifier))
         else:
-            self.SETTINGS[DISABLED_MODIFIERS].append(modifier)
+            ConfigManager.SETTINGS[DISABLED_MODIFIERS].append(modifier)
 
-    def enable_modifier(self, modifier: typing.Union[key.Key, str]):
+    @staticmethod
+    def enable_modifier(modifier: typing.Union[key.Key, str]):
         """
         Enable a previously disabled modifier key.
         :param modifier: Modifier key to re-enable
@@ -732,11 +739,11 @@ dialog.info_dialog("Window information",
         """
         if isinstance(modifier, str):
             modifier = key.Key(modifier)
-        self._check_if_modifier(modifier)
+        ConfigManager._check_if_modifier(modifier)
         if modifier not in MODIFIERS:
             _logger.info("Re-eabling modifier key {} on user request.".format(modifier))
             MODIFIERS.append(modifier)
-            self.SETTINGS[DISABLED_MODIFIERS].remove(modifier)
+            ConfigManager.SETTINGS[DISABLED_MODIFIERS].remove(modifier)
         else:
             _logger.warning("Enabling already enabled modifier key. Affected key: {}".format(modifier))
 
