@@ -32,9 +32,9 @@ Installation
 
 **Please remove previous installations of both AutoKey and AutoKey-py3 fully before installing!**
 
-For detailed installation instructions, please visit the `Installation page`_. in our wiki.
+For detailed installation instructions, please visit the `Installation`_ page. in our wiki.
 
-.. Installation page: https://github.com/autokey/autokey/wiki/Installing
+.. _Installation: https://github.com/autokey/autokey/wiki/Installing
 
 Zero-installation Method
 ++++++++++++++++++++++++
