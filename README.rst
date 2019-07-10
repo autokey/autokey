@@ -32,93 +32,9 @@ Installation
 
 **Please remove previous installations of both AutoKey and AutoKey-py3 fully before installing!**
 
-Dependencies
-++++++++++++
+For detailed installation instructions, please visit the `Installation page`_. in our wiki.
 
-Python: 3.5
-
-Python modules (common):
-------------------------
-
-- dbus-python
-- pyinotify
-- python-xlib
-
-The dbus module *requires* manual installation, preferably using your distribution package manager.
-Due to odd detection issues with pip3 and this particular package, it is not defined as a dependency.
-Without having `dbus-python (PyPi link)`_ installed, AutoKey won’t start.
-
-.. _dbus-python (PyPi link): https://pypi.org/project/dbus-python/
-
-GTK frontend only:
-------------------
-
-- GObject Introspection
-- PyGTK
-- GtkSourceView
-- libappindicator
-
-QT frontend only:
------------------
-
-- PyQt5
-    - SVG module, if not already bundled
-    - QScintilla2 module, if not already bundled
-- ``pyrcc5`` command line tool (Optional installation time dependency, only used when installing or updating from the git source tree using setup.py. If not present, a fallback that causes a slightly slower application start will be used.)
-
-
-Install via pip3
-++++++++++++++++
-
-pip3 will automatically resolve and install dependencies, but dbus-python requires manual installation.
-
-.. code:: sh
-
-   pip3 install autokey
-   # or, if you want the latest from this repository,
-   pip3 install --user git+https://github.com/autokey/autokey
-
-The "--user" option for pip may be added to install for the current user only.
-To install system-wide, run pip3 as the root user.
-
-Ubuntu/Mint/Debian
-++++++++++++++++++
-There is a repository available for Ubuntu 18.04 LTS (and compatible derivatives, such as Kubuntu).
-If your Debian based system is not supported by the PPA or the PPA is not up to date, you can build your own packages
-(see below) or use the packages attached to the GitHub Releases page https://github.com/autokey/autokey/releases/.
-
-.. code:: sh
-
-   sudo add-apt-repository ppa:sporkwitch/autokey
-   sudo apt update
-   sudo apt install autokey-gtk
-   # Or alternatively, to install the Qt5 based GUI:
-   sudo apt install autokey-qt
-
-Distro package not provided? Create your own package for Debian-based distribution using files under ``debian/`` . Check out the `Packaging`_ wiki page for details.
-
-.. _Packaging: https://github.com/autokey/autokey/wiki/Packaging
-
-Arch Linux
-++++++++++
-
-Up to date packages are available in the `AUR`_.
-
-.. _AUR: https://aur.archlinux.org/packages/autokey/ 
-
-
-Fedora
-++++++
-
-Avaiable from Fedora_ 27 onwards.
-
-.. _Fedora: https://apps.fedoraproject.org/packages/autokey
-
-.. code:: sh
-
-   sudo dnf install autokey-gtk
-   # or for kde
-   sudo dnf install autokey-kde
+.. Installation page: https://github.com/autokey/autokey/wiki/Installing
 
 Zero-installation Method
 ++++++++++++++++++++++++
