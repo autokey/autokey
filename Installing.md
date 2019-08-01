@@ -170,7 +170,7 @@ November 2011
 Original author, Keith W. Daniels
 Edited by Joseph Pollock, troxor, ersanchez and Thomas Hess
 
-[aur]: https://aur.archlinux.org/packages/autokey-py3
+[aur]: https://aur.archlinux.org/packages/autokey/
 [autorepo]: https://github.com/autokey/autokey
 [installgit]: https://git-scm.com/download/linux
 [installpip]: https://packaging.python.org/install_requirements_linux/#installing-pip-setuptools-wheel-with-linux-package-managers
