@@ -711,3 +711,17 @@ keyboard.send_keys(sText)
 keyboard.send_keys("<shift>+<left>"*lLength)
 
 ```
+
+### Open a working directory
+```python
+**Author**: Kolibril13
+
+**Description**: This script opens the working directory, which you define in "/home/username/Desktop/working_directory.txt" (Ubuntu 18.04)
+import os
+with open('/home/kolibril/Desktop/working_directory.txt') as f: 
+        data = f.readlines() 
+working_directory= data[0]
+working_directory = working_directory[:-2]
+command = "nautilus " + working_directory 
+os.system(command)
+```
