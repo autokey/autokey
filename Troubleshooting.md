@@ -42,9 +42,14 @@ You must then enable accessible technologies via the Gnome Accessibility Setting
 
 Simply start AutoKey again while it is already running, and this will cause the configuration window to be shown.
 
-## How can one send an 'mdash' with keyboard.send_keys() in a script? 
-I tried:
-`mdash = "\u2014"`
-`keyboard.send_keys(mdash)`
-and nothing gets printed. However, when I activate `Autokey-qt --verbose` in the terminal, it indicates the — mdashin the eterminal.
+## How can one send em dash or another Unicode special character in new, python3 version of AutoKey? 
 
+One of the many options is to use the sample script bellow and modify `TextToType="—"` to your desired special character, for example `TextToType="≠"` ([source](https://github.com/autokey/autokey/issues/29#issuecomment-437426992)).
+```
+OldClipboard=clipboard.get_clipboard()
+TextToType="—"
+clipboard.fill_clipboard(TextToType)
+keyboard.send_keys("<ctrl>+v")
+time.sleep(0.1)
+clipboard.fill_clipboard(OldClipboard)
+```
