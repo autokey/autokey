@@ -44,10 +44,10 @@ Simply start AutoKey again while it is already running, and this will cause the 
 
 ## How can one send em dash or another Unicode special character in new, python3 version of AutoKey? 
 
-One of the many options is to use the sample script bellow and modify `TextToType="—"` to your desired special character, for example `TextToType="≠"` ([source](https://github.com/autokey/autokey/issues/29#issuecomment-437426992)).
+One of the many options is to use the sample script bellow and modify `TextToType="—"` to your desired special character (or sequence), for example `TextToType="≠≠≠"` ([source](https://github.com/autokey/autokey/issues/29#issuecomment-437426992)).
 ```
 OldClipboard=clipboard.get_clipboard()
-TextToType="—"
+TextToType="┐(´-｀)┌"
 clipboard.fill_clipboard(TextToType)
 keyboard.send_keys("<ctrl>+v")
 time.sleep(0.1)
