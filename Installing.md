@@ -47,11 +47,19 @@ Chose the GUI you want and then download the `autokey-common_${VERSION}_all.deb`
 
 Building your own packages is described on [this](https://github.com/autokey/autokey/wiki/Packaging) page.
 
-Open a terminal at the directory containing the AutoKey packages and use the following commands to install the packages:
+After you obtained the Debian packages, open a terminal at the directory containing the packages and use the following commands to install the packages:
 
     VERSION="0.95.7-0"    # substitute with the version you downloaded
     sudo dpkg --install autokey-common_${VERSION}_all.deb autokey-gtk_${VERSION}_all.deb
     sudo apt --fix-broken install
+
+In the case of `dpkg` complaining about missing dependencies, it is crucial to run `sudo apt --fix-broken install` afterwards. This will make sure that all dependencies are correctly installed. In case this does not fix the dependencies, please open an issue on the GitHub issue tracker.
+
+For reference, missing dependencies manifest in error messages similar to:
+
+    dpkg: dependency problems prevent configuration of autokey-common:
+      autokey-common depends on python3-pyinotify; however:
+      Package python3-pyinotify is not installed.
 
 Both the `-common` and GUI package need to be installed at the same time and `dpkg` will get it right while `apt` might not.
 If you prefer to use the QT front end, you can download and install that instead of (or in addition to) the GTK GUI.
