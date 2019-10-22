@@ -4,7 +4,7 @@ Changelog
 .. contents::
 
 
-Version 0.95.6 <2019-04-29>
+Version 0.95.7 <2019-04-29>
 ===========================
 
 Bug fixes
