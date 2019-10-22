@@ -141,7 +141,6 @@ class AbbrSettingsDialog(DialogBase):
         if model.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
-                # self.abbrList.get_model().append((abbr.encode("utf-8"),))
             self.removeButton.set_sensitive(True)
             firstIter = self.abbrList.get_model().get_iter_first()  
             self.abbrList.get_selection().select_iter(firstIter)
@@ -161,7 +160,7 @@ class AbbrSettingsDialog(DialogBase):
                     break
         else:
             # Custom wordchar regex used
-            self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex).encode("utf-8"))
+            self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex))
             self.wordCharCombo.set_active(len(WORD_CHAR_OPTIONS))
         
         if isinstance(item, model.Folder):
