@@ -10,25 +10,15 @@
     <x>0</x>
     <y>0</y>
     <width>546</width>
-    <height>186</height>
+    <height>150</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Set Hotkey</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="1" column="0">
-    <widget class="QPushButton" name="controlButton">
-     <property name="text">
-      <string>Control</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="1">
-    <widget class="QPushButton" name="altButton">
+    <widget class="QPushButton" name="mod_alt_button">
      <property name="text">
       <string>Alt</string>
      </property>
@@ -37,28 +27,8 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="2">
-    <widget class="QPushButton" name="shiftButton">
-     <property name="text">
-      <string>Shift</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="3">
-    <widget class="QPushButton" name="superButton">
-     <property name="text">
-      <string>Super</string>
-     </property>
-     <property name="checkable">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="4">
-    <widget class="QPushButton" name="hyperButton">
+    <widget class="QPushButton" name="mod_hyper_button">
      <property name="text">
       <string>Hyper</string>
      </property>
@@ -68,7 +38,7 @@
     </widget>
    </item>
    <item row="1" column="5">
-    <widget class="QPushButton" name="metaButton">
+    <widget class="QPushButton" name="mod_meta_button">
      <property name="text">
       <string>Meta</string>
      </property>
@@ -77,24 +47,7 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0" colspan="3">
-    <widget class="QLabel" name="keyLabel">
-     <property name="text">
-      <string>Key: (None)</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="3" colspan="3">
-    <widget class="QPushButton" name="setButton">
-     <property name="text">
-      <string>Record a key combination</string>
-     </property>
-     <property name="icon">
-      <iconset theme="media-record"/>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1">
+   <item row="5" column="0" colspan="6">
     <spacer name="verticalSpacer">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -107,7 +60,37 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="0" colspan="6">
+   <item row="1" column="2">
+    <widget class="QPushButton" name="mod_shift_button">
+     <property name="text">
+      <string>Shift</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="mod_control_button">
+     <property name="text">
+      <string>Control</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="mod_super_button">
+     <property name="text">
+      <string>Super</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="6">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -117,7 +100,35 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0">
+   <item row="4" column="0" colspan="6">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="recorded_key_label">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="text">
+        <string>Key: (None)</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="record_combination_button">
+       <property name="text">
+        <string>Record a key combination</string>
+       </property>
+       <property name="icon">
+        <iconset theme="media-record">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" colspan="6">
     <widget class="QLabel" name="modsLabel">
      <property name="text">
       <string>Modifiers:</string>
@@ -127,13 +138,12 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>controlButton</tabstop>
-  <tabstop>altButton</tabstop>
-  <tabstop>shiftButton</tabstop>
-  <tabstop>superButton</tabstop>
-  <tabstop>hyperButton</tabstop>
-  <tabstop>metaButton</tabstop>
-  <tabstop>setButton</tabstop>
+  <tabstop>mod_control_button</tabstop>
+  <tabstop>mod_alt_button</tabstop>
+  <tabstop>mod_shift_button</tabstop>
+  <tabstop>mod_super_button</tabstop>
+  <tabstop>mod_hyper_button</tabstop>
+  <tabstop>mod_meta_button</tabstop>
  </tabstops>
  <resources/>
  <connections>
@@ -144,8 +154,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>224</x>
-     <y>167</y>
+     <x>230</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>160</x>
@@ -160,8 +170,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>292</x>
-     <y>167</y>
+     <x>298</x>
+     <y>143</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -170,18 +180,18 @@
    </hints>
   </connection>
   <connection>
-   <sender>setButton</sender>
+   <sender>record_combination_button</sender>
    <signal>clicked(bool)</signal>
-   <receiver>setButton</receiver>
+   <receiver>record_combination_button</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>377</x>
+     <x>538</x>
      <y>90</y>
     </hint>
     <hint type="destinationlabel">
-     <x>343</x>
-     <y>101</y>
+     <x>538</x>
+     <y>98</y>
     </hint>
    </hints>
   </connection>
