@@ -36,6 +36,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
     }
 
     REVERSE_KEY_MAP = {value: key for key, value in KEY_MAP.items()}
+    DEFAULT_RECORDED_KEY_LABEL_CONTENT = "(None)"
 
     """
     This signal is emitted whenever the key is assigned/deleted. This happens when the user records a key or cancels
@@ -50,27 +51,27 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         # Enable the Ok button iff a correct key combination is assigned. This guides the user and obsoletes an error
         # message that was shown when the user did something invalid.
         self.key_assigned.connect(self.buttonBox.button(QDialogButtonBox.Ok).setEnabled)
-        self.recording_finished.connect(self.setButton.setEnabled)
-        self._key = ""
-        self.key = None  # Use the property setter to emit the key_assigned signal and disable the Ok button.
+        self.recording_finished.connect(self.record_combination_button.setEnabled)
+        self.key = ""
+        self._update_key(None)  # Use _update_key to emit the key_assigned signal and disable the Ok button.
         self.target_item = None  # type: Item
         self.grabber = None  # type: iomediator.KeyGrabber
 
-    @property
-    def key(self):
-        return self._key
+    def _update_key(self, key):
+        self.key = key
+        if key is None:
+            self.recorded_key_label.setText("Key: {}".format(self.DEFAULT_RECORDED_KEY_LABEL_CONTENT))  # TODO: i18n
+            self.key_assigned.emit(False)
+        else:
+            self.recorded_key_label.setText("Key: {}".format(key))  # TODO: i18n
+            self.key_assigned.emit(True)
 
-    @key.setter
-    def key(self, key):
-        self._key = key
-        self.key_assigned.emit(key is not None)
-
-    def on_setButton_pressed(self):
+    def on_record_combination_button_pressed(self):
         """
-        Start recording a key combination when the user clicks on the setButton.
+        Start recording a key combination when the user clicks on the record_combination_button.
         The button itself is automatically disabled during the recording process.
         """
-        self.keyLabel.setText("Press a key or combination...")  # TODO: i18n
+        self.recorded_key_label.setText("Press a key or combination...")  # TODO: i18n
         logger.debug("User starts to record a key combination.")
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
@@ -78,20 +79,19 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
     def load(self, item: Item):
         self.target_item = item
         if model.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.setChecked(Key.CONTROL in item.modifiers)
-            self.altButton.setChecked(Key.ALT in item.modifiers)
-            self.shiftButton.setChecked(Key.SHIFT in item.modifiers)
-            self.superButton.setChecked(Key.SUPER in item.modifiers)
-            self.hyperButton.setChecked(Key.HYPER in item.modifiers)
-            self.metaButton.setChecked(Key.META in item.modifiers)
+            self.mod_control_button.setChecked(Key.CONTROL in item.modifiers)
+            self.mod_alt_button.setChecked(Key.ALT in item.modifiers)
+            self.mod_shift_button.setChecked(Key.SHIFT in item.modifiers)
+            self.mod_super_button.setChecked(Key.SUPER in item.modifiers)
+            self.mod_hyper_button.setChecked(Key.HYPER in item.modifiers)
+            self.mod_meta_button.setChecked(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
                 key_text = self.KEY_MAP[key]
             else:
                 key_text = key
-            self._setKeyLabel(key_text)
-            self.key = key_text
+            self._update_key(key_text)
             logger.debug("Loaded item {}, key: {}, modifiers: {}".format(item, key_text, item.modifiers))
         else:
             self.reset()
@@ -102,42 +102,39 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         # Build modifier list
         modifiers = self.build_modifiers()
 
-        key_text = self.key
-        if key_text in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[key_text]
+        if self.key in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[self.key]
         else:
-            key = key_text
+            key = self.key
 
         if key is None:
             raise RuntimeError("Attempt to set hotkey with no key")
         logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
-        item.set_hotkey(modifiers, key)
+        item.set_hot_update_key(modifiers, key)
 
     def reset(self):
-        self.controlButton.setChecked(False)
-        self.altButton.setChecked(False)
-        self.shiftButton.setChecked(False)
-        self.superButton.setChecked(False)
-        self.hyperButton.setChecked(False)
-        self.metaButton.setChecked(False)
+        self.mod_control_button.setChecked(False)
+        self.mod_alt_button.setChecked(False)
+        self.mod_shift_button.setChecked(False)
+        self.mod_super_button.setChecked(False)
+        self.mod_hyper_button.setChecked(False)
+        self.mod_meta_button.setChecked(False)
 
-        self._setKeyLabel("(None)")  # TODO: i18n
-        self.key = None
+        self._update_key(None)
 
-    def set_key(self, key, modifiers: typing.List[Key]=None):
+    def set_key(self, key, modifiers: typing.List[Key] = None):
         """This is called when the user successfully finishes recording a key combination."""
         if modifiers is None:
             modifiers = []  # type: typing.List[Key]
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
-        self._setKeyLabel(key)
-        self.key = key
-        self.controlButton.setChecked(Key.CONTROL in modifiers)
-        self.altButton.setChecked(Key.ALT in modifiers)
-        self.shiftButton.setChecked(Key.SHIFT in modifiers)
-        self.superButton.setChecked(Key.SUPER in modifiers)
-        self.hyperButton.setChecked(Key.HYPER in modifiers)
-        self.metaButton.setChecked(Key.META in modifiers)
+        self._update_key(key)
+        self.mod_control_button.setChecked(Key.CONTROL in modifiers)
+        self.mod_alt_button.setChecked(Key.ALT in modifiers)
+        self.mod_shift_button.setChecked(Key.SHIFT in modifiers)
+        self.mod_super_button.setChecked(Key.SUPER in modifiers)
+        self.mod_hyper_button.setChecked(Key.HYPER in modifiers)
+        self.mod_meta_button.setChecked(Key.META in modifiers)
         self.recording_finished.emit(True)
 
     def cancel_grab(self):
@@ -147,21 +144,20 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         """
         logger.debug("User canceled hotkey recording.")
         self.recording_finished.emit(True)
-        self._setKeyLabel(self.key if self.key is not None else "(None)")
 
     def build_modifiers(self):
         modifiers = []
-        if self.controlButton.isChecked():
+        if self.mod_control_button.isChecked():
             modifiers.append(Key.CONTROL)
-        if self.altButton.isChecked():
+        if self.mod_alt_button.isChecked():
             modifiers.append(Key.ALT)
-        if self.shiftButton.isChecked():
+        if self.mod_shift_button.isChecked():
             modifiers.append(Key.SHIFT)
-        if self.superButton.isChecked():
+        if self.mod_super_button.isChecked():
             modifiers.append(Key.SUPER)
-        if self.hyperButton.isChecked():
+        if self.mod_hyper_button.isChecked():
             modifiers.append(Key.HYPER)
-        if self.metaButton.isChecked():
+        if self.mod_meta_button.isChecked():
             modifiers.append(Key.META)
 
         modifiers.sort()
@@ -171,29 +167,25 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         self.load(self.target_item)
         super().reject()
 
-    def _setKeyLabel(self, key):
-        self.keyLabel.setText("Key: " + key)  # TODO: i18n
-
 
 class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item: cm.GlobalHotkey):
         self.target_item = item
         if item.enabled:
-            self.controlButton.setChecked(Key.CONTROL in item.modifiers)
-            self.altButton.setChecked(Key.ALT in item.modifiers)
-            self.shiftButton.setChecked(Key.SHIFT in item.modifiers)
-            self.superButton.setChecked(Key.SUPER in item.modifiers)
-            self.hyperButton.setChecked(Key.HYPER in item.modifiers)
-            self.metaButton.setChecked(Key.META in item.modifiers)
+            self.mod_control_button.setChecked(Key.CONTROL in item.modifiers)
+            self.mod_alt_button.setChecked(Key.ALT in item.modifiers)
+            self.mod_shift_button.setChecked(Key.SHIFT in item.modifiers)
+            self.mod_super_button.setChecked(Key.SUPER in item.modifiers)
+            self.mod_hyper_button.setChecked(Key.HYPER in item.modifiers)
+            self.mod_meta_button.setChecked(Key.META in item.modifiers)
 
             key = item.hotKey
             if key in self.KEY_MAP:
                 key_text = self.KEY_MAP[key]
             else:
                 key_text = key
-            self._setKeyLabel(key_text)
-            self.key = key_text
+            self._update_key(key_text)
 
         else:
             self.reset()
@@ -202,11 +194,10 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         # Build modifier list
         modifiers = self.build_modifiers()
 
-        key_text = self.key
-        if key_text in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[key_text]
+        if self.key in self.REVERSE_KEY_MAP:
+            key = self.REVERSE_KEY_MAP[self.key]
         else:
-            key = key_text
+            key = self.key
 
         if key is None:
             raise RuntimeError("Attempt to set hotkey with no key")
