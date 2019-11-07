@@ -1,5 +1,5 @@
 # Copyright (C) 2011 Chris Dekter
-# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2018, 2019 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,14 +34,14 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         self.setupUi(self)
 
         self.initialising = True
-        l = list(model.SEND_MODES.keys())
-        l.sort()
-        for val in l:
+        self.current_phrase = None  # type: model.Phrase
+
+        for val in sorted(model.SEND_MODES.keys()):
             self.sendModeCombo.addItem(val)
         self.initialising = False
 
-    def load(self, phrase):
-        self.currentPhrase = phrase
+    def load(self, phrase: model.Phrase):
+        self.current_phrase = phrase
         self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.show_in_tray_menu)
 
@@ -54,7 +54,7 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
             self.urlLabel.setEnabled(False)
             self.urlLabel.setText("(Unsaved)")  # TODO: i18n
         else:
-            ui_common.set_url_label(self.urlLabel, self.currentPhrase.path)
+            ui_common.set_url_label(self.urlLabel, self.current_phrase.path)
 
         # TODO - re-enable me if restoring predictive functionality
         #self.predictCheckbox.setChecked(model.TriggerMode.PREDICTIVE in phrase.modes)
@@ -64,32 +64,32 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
 
     def save(self):
         self.settingsWidget.save()
-        self.currentPhrase.phrase = str(self.phraseText.toPlainText())
-        self.currentPhrase.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
+        self.current_phrase.phrase = str(self.phraseText.toPlainText())
+        self.current_phrase.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
 
-        self.currentPhrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
+        self.current_phrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
 
         # TODO - re-enable me if restoring predictive functionality
         #if self.predictCheckbox.isChecked():
         #    self.currentPhrase.modes.append(model.TriggerMode.PREDICTIVE)
 
-        self.currentPhrase.prompt = self.promptCheckbox.isChecked()
+        self.current_phrase.prompt = self.promptCheckbox.isChecked()
 
-        self.currentPhrase.persist()
-        ui_common.set_url_label(self.urlLabel, self.currentPhrase.path)
+        self.current_phrase.persist()
+        ui_common.set_url_label(self.urlLabel, self.current_phrase.path)
         return False
 
     def set_item_title(self, title):
-        self.currentPhrase.description = title
+        self.current_phrase.description = title
 
     def rebuild_item_path(self):
-        self.currentPhrase.rebuild_path()
+        self.current_phrase.rebuild_path()
 
     def is_new_item(self):
-        return self.currentPhrase.path is None
+        return self.current_phrase.path is None
 
     def reset(self):
-        self.load(self.currentPhrase)
+        self.load(self.current_phrase)
 
     def validate(self):
         errors = []
@@ -144,4 +144,5 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
             self.set_dirty()
 
     def on_urlLabel_leftClickedUrl(self, url=None):
-        if url: subprocess.Popen(["/usr/bin/xdg-open", url])
+        if url:
+            subprocess.Popen(["/usr/bin/xdg-open", url])
