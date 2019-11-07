@@ -111,7 +111,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         if key is None:
             raise RuntimeError("Attempt to set hotkey with no key")
         logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
-        item.set_hot_update_key(modifiers, key)
+        item.set_hotkey(modifiers, key)
 
     def reset(self):
         self.mod_control_button.setChecked(False)

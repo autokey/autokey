@@ -15,6 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import os.path
 import logging
+import typing
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QIcon, QCursor, QBrush
@@ -131,7 +132,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
     # ---- Signal handlers
 
     def on_treeWidget_itemChanged(self, item, column):
-        if item is self.treeWidget.selectedItems()[0] and column == 0:
+        if item is self._get_current_treewidget_item() and column == 0:
             newText = str(item.text(0))
             if ui_common.validate(
                     not ui_common.EMPTY_FIELD_REGEX.match(newText),
@@ -214,7 +215,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.window().app.monitor.unsuspend()
 
     def on_new_folder(self):
-        parent_item = self.treeWidget.selectedItems()[0]
+        parent_item = self._get_current_treewidget_item()
         self.__createFolder(parent_item)
 
     def __createFolder(self, parent_item):
@@ -330,7 +331,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.window().app.config_altered(False)
 
     def on_paste(self):
-        parent_item = self.treeWidget.selectedItems()[0]
+        parent_item = self._get_current_treewidget_item()
         parent = self.__extractData(parent_item)
         self.window().app.monitor.suspend()
 
@@ -391,7 +392,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.window().app.config_altered(False)
 
     def on_rename(self):
-        widget_item = self.treeWidget.selectedItems()[0]
+        widget_item = self._get_current_treewidget_item()
         self.treeWidget.editItem(widget_item, 0)
 
     def on_save(self):
@@ -401,8 +402,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             persist_global = self.stack.currentWidget().save()
             self.window().save_completed(persist_global)
             self.set_dirty(False)
-
-            item = self.treeWidget.selectedItems()[0]
+            item = self._get_current_treewidget_item()
             item.update()
             self.treeWidget.update()
             self.treeWidget.sortItems(0, Qt.AscendingOrder)
@@ -477,6 +477,40 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             child.persist()
 
     # ---- Private methods
+    def _get_current_treewidget_item(self) -> ak_tree.ItemWidgetType:
+        """
+        This method gets the TreeItem instance of the currently opened Item. Normally, this is just the selected item,
+        but the user can deselect it by clicking in the whitespace below the tree.
+        Some functions require the TreeItem of the currently opened Item. For example when renaming it, the name in the
+        tree has to be updated.
+        This function makes sure to always retrieve the required TreeItem instance.
+        """
+        selected_items = self.treeWidget.selectedItems()  # type: typing.List[ak_tree.ItemWidgetType]
+        if selected_items:
+            return selected_items[0]
+        else:
+            # The user deselected the item, so fall back to scan the whole tree for the desired item
+            currently_edited_item = self.stack.currentWidget().get_current_item()  # type: typing.Optional[model.Item]
+            if currently_edited_item is None:
+                raise RuntimeError("Tried to perform an action on an item, while none is opened.")
+
+            tree = self.treeWidget  # type: ak_tree.AkTreeWidget
+            item_widgets = [
+                tree.topLevelItem(top_level_index) for top_level_index in range(tree.topLevelItemCount())
+            ]  # type: typing.List[ak_tree.ItemWidgetType]
+
+            # Use a queue to iterate through the whole tree.
+            while item_widgets:
+                item_widget = item_widgets.pop(0)
+                # The actual model data is stored in column 3
+                found_item = item_widget.data(3, Qt.UserRole)  # type: ak_tree.ItemType
+                if found_item is currently_edited_item:  # Use identity to identify the right model instance.
+                    return item_widget
+                if isinstance(item_widget, ak_tree.FolderWidgetItem):
+                    for child_index in range(item_widget.childCount()):
+                        item_widgets.append(item_widget.child(child_index))
+            raise RuntimeError("Expected item {} not found in the tree!".format(currently_edited_item))
+
 
     def get_selected_item(self):
         return self.__getSelection()

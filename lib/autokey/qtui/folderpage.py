@@ -59,6 +59,10 @@ class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
 
         return not self.current_folder.path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER)
 
+    def get_current_item(self):
+        """Returns the currently held item."""
+        return self.current_folder
+
     def set_item_title(self, title: str):
         self.current_folder.title = title
 
