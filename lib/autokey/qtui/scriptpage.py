@@ -80,6 +80,10 @@ class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
         ui_common.set_url_label(self.urlLabel, self.current_script.path)
         return False
 
+    def get_current_item(self):
+        """Returns the currently held item."""
+        return self.current_script
+
     def set_item_title(self, title):
         self.current_script.description = title
 
