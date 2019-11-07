@@ -79,6 +79,10 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         ui_common.set_url_label(self.urlLabel, self.current_phrase.path)
         return False
 
+    def get_current_item(self):
+        """Returns the currently held item."""
+        return self.current_phrase
+
     def set_item_title(self, title):
         self.current_phrase.description = title
 
