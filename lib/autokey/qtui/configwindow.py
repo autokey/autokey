@@ -211,7 +211,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
             self.action_paste_item.setEnabled(can_create and len(self.central_widget.cutCopiedItems) > 0)
             self.action_record_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
             self.action_run_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
-            # self.insertMacro.setEnabled(isinstance(items[0], model.Phrase) and len(items) == 1)  # TODO: fixme
+            self.menu_insert_macros.setEnabled(isinstance(items[0], model.Phrase) and len(items) == 1)
 
             if changed:
                 self.action_save.setEnabled(False)

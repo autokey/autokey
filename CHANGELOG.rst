@@ -4,6 +4,22 @@ Changelog
 .. contents::
 
 
+Version 0.95.8 <2019-11-07>
+===========================
+
+Bug fixes
+---------
+
+- Qt GUI: Fix issue with Python 3.7.4 and PyQt 5.11-5.13.0 that prevented AutoKey from starting on certain
+  distributions shipping this configuration, notably Kubuntu 19.10. Fixes issues #313, #301
+- Qt GUI: Fix crash when saving the currently edited item, after deselecting it in the tree view. Fixes issue #285
+- Qt GUI: Disable Main window -> Tools -> Insert Macro when not editing a Phrase. Fixes issue #276
+- Qt GUI: Add a warning that explains possible data loss when creating top level directories at used specified
+  locations. See issue #171
+- GTK GUI: Fix application hang when setting a custom value for "Trigger on" in the Abbreviation settings dialogue.
+  Fixes issue #315
+
+
 Version 0.95.7 <2019-04-29>
 ===========================
 
