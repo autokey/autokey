@@ -15,6 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import os.path
 import logging
+import pathlib
 import typing
 
 from PyQt5.QtCore import Qt
@@ -193,18 +194,35 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         elif result == QMessageBox.No:
             logger.debug("User creates a new folder and chose to create it elsewhere")
+            QMessageBox.warning(
+                self.window(), "Beware",
+                "AutoKey will take the full ownership of the directory you are about to select or create. "
+                "It is advisable to only choose empty directories or directories that contain data created by AutoKey "
+                "previously.\n\nIf you delete or move the directory from within AutoKey "
+                "(for example by using drag and drop), all files unknown to AutoKey will be deleted.",
+                QMessageBox.Ok)
             path = QFileDialog.getExistingDirectory(
                 self.window(),
                 "Where should the folder be created?"
             )
             if path != "":
-                path = str(path)
-                name = os.path.basename(path)
-                folder = model.Folder(name, path=path)
-                new_item = ak_tree.FolderWidgetItem(None, folder)
-                self.treeWidget.addTopLevelItem(new_item)
-                self.configManager.folders.append(folder)
-                self.window().app.config_altered(True)
+                path = pathlib.Path(path)
+                if list(path.glob("*")):
+                    result = QMessageBox.warning(
+                        self.window(), "The chosen directory already contains files",
+                        "The selected directory already contains files. "
+                        "If you continue, AutoKey will take the ownership.\n\n"
+                        "You may lose all files in '{}' that are not related to AutoKey if you select this directory.\n"
+                        "Continue?".format(path),
+                        QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
+                else:
+                    result = True
+                if result:
+                    folder = model.Folder(path.name, path=str(path))
+                    new_item = ak_tree.FolderWidgetItem(None, folder)
+                    self.treeWidget.addTopLevelItem(new_item)
+                    self.configManager.folders.append(folder)
+                    self.window().app.config_altered(True)
 
             self.window().app.monitor.unsuspend()
         else:
