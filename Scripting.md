@@ -578,9 +578,9 @@ keyboard.send_keys("<enter>")
 **Author**: Joseph Pollock - JPmicrosystems
 
 **Description:***
-Normally, AutoKey will emit characters from a phrase or macro as fast as the system will allow. This is quite a bit faster than typing and some applications may not be able to keep up.
+Normally, AutoKey will emit characters from a phrase or script as fast as the system will allow. This is quite a bit faster than typing and some applications may not be able to keep up.
 
-The following macro emits/types a string of characters one at a time with a delay between each one.
+The following script emits/types a string of characters one at a time with a delay between each one.
 
 The first parameter is the string of characters to type. The second optional parameter is the number of seconds to delay between each keypress. It defaults to 0.1 seconds.
 
