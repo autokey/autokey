@@ -100,7 +100,7 @@ The unit test suite has two additional requirements:
 * Pytest (https://github.com/pytest-dev/pytest, https://pypi.org/project/pytest/)
 * PyHamcrest (https://github.com/hamcrest/PyHamcrest/, https://pypi.org/project/PyHamcrest/)
 
-Running the test suite is integrated into `setup.py`. The tests can be run by executing `python3 setup.py test` from the repository root directory.
+Running the test suite is integrated into :code:`setup.py`. The tests can be run by executing :code:`python3 setup.py test` from the repository root directory.
 
 Changelog
 =========
