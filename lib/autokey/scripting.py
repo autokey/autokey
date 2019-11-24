@@ -1200,7 +1200,8 @@ class Engine:
         self.monitor.unsuspend()
         self.configManager.config_altered(False)
         
-    def create_hotkey(self, folder, description, modifiers, key, contents):
+    def create_hotkey(self, folder, description, modifiers, key, contents,
+                      temporary=False):
         """
         Create a text hotkey
         
@@ -1224,6 +1225,10 @@ class Engine:
         @param modifiers: modifiers to use with the hotkey (as a list)
         @param key: the hotkey
         @param contents: the expansion text
+        @param (optional) temporary: Hotkeys created with temporary=True are
+        not persisted as .jsons, and are replaced if the description is not
+        unique within the folder.
+         Used for single-source rc-style scripts.
         @raise Exception: if the specified hotkey is not unique
         """
         modifiers.sort()
@@ -1235,7 +1240,10 @@ class Engine:
         p.modes.append(model.TriggerMode.HOTKEY)
         p.set_hotkey(modifiers, key)
         folder.add_item(p)
-        p.persist()
+        # Don't save a json if it is a temporary hotkey. Won't persist across
+        # reloads.
+        if not temporary:
+            p.persist()
         self.monitor.unsuspend()
         self.configManager.config_altered(False)
 
