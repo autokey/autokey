@@ -56,7 +56,8 @@ class Engine:
                       abbreviations: Union[str, List[str]]=None,
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
                       send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
-                      show_in_system_tray: bool=False, always_prompt: bool=False):
+                      show_in_system_tray: bool=False, always_prompt: bool=False,
+                      temporary=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
         you wish to create the Phrase in.
@@ -122,6 +123,10 @@ class Engine:
                                     If set to True, the new Phrase will be shown in the tray icon context menu.
         @param always_prompt: A boolean defaulting to False. If set to True,
                               the Phrase expansion has to be manually confirmed, each time it is triggered.
+        @param temporary: Hotkeys created with temporary=True are
+                                    not persisted as .jsons, and are replaced if the description is not
+                                    unique within the folder.
+                                     Used for single-source rc-style scripts.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
         @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
           internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
@@ -161,7 +166,10 @@ class Engine:
                 p.prompt = True
 
             folder.add_item(p)
-            p.persist()
+            # Don't save a json if it is a temporary hotkey. Won't persist across
+            # reloads.
+            if not temporary:
+                p.persist()
             return p
         finally:
             self.monitor.unsuspend()
