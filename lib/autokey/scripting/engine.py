@@ -160,10 +160,14 @@ class Engine:
                 p.set_hotkey(*hotkey)
             if window_filter:
                 p.set_window_titles(window_filter)
+            # XXX: Could these next 3 be refactored to just set p.<val> to the
+            # boolean, rather than the if?
             if show_in_system_tray:
                 p.show_in_tray_menu = True
             if always_prompt:
                 p.prompt = True
+            if temporary:
+                p.temporary = True
 
             folder.add_item(p)
             # Don't save a json if it is a temporary hotkey. Won't persist across

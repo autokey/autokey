@@ -644,6 +644,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.prompt = False
+        self.temporary = False
         self.omitTrigger = False
         self.matchCase = False
         self.parent = None
