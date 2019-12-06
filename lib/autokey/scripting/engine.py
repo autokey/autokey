@@ -56,7 +56,7 @@ class Engine:
         """
         Create and return a new folder.
 
-        Usage: C{engine.create_folder("new folder"), temporary=True}
+        Usage: C{engine.create_folder("new folder"), parent_folder=folder, temporary=True}
 
         Descriptions for the optional arguments:
 
@@ -73,6 +73,7 @@ class Engine:
             parent_folders = self.configManager.allFolders
         else:
             parent_folders = parent_folder.folders
+
         for folder in parent_folders:
             if folder.title == title:
                 return folder
@@ -84,6 +85,8 @@ class Engine:
                 parent_folder.add_folder(new_folder)
             if not temporary:
                 new_folder.persist()
+            else:
+                new_folder.temporary = True
             return new_folder
 
     def create_phrase(self, folder, name: str, contents: str,
