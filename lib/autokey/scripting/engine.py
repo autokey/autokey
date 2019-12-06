@@ -52,14 +52,15 @@ class Engine:
                 return folder
         return None
 
-    def create_folder(self, title: str, temporary=False):
+    def create_folder(self, title: str, parent_folder=None, temporary=False):
         """
         Create and return a new folder.
 
         Usage: C{engine.create_folder("new folder"), temporary=True}
 
-        Descriptions for the optional argument:
+        Descriptions for the optional arguments:
 
+        @param parentFolder: Folder to make this folder a subfolder of.
         @param temporary: Folders created with temporary=True are
                                     not persisted.
                                     Used for single-source rc-style scripts.
@@ -67,15 +68,20 @@ class Engine:
         If a folder of that name already exists, this will return it.
         Note that if more than one folder has the same title, only the first match will be
         returned.
-
-        Currently only allows addition of top-level folders.
         """
-        for folder in self.configManager.allFolders:
+        if parent_folder is None:
+            parent_folders = self.configManager.allFolders
+        else:
+            parent_folders = parent_folder.folders
+        for folder in parent_folders:
             if folder.title == title:
                 return folder
         else:
             new_folder = model.Folder(title)
-            self.configManager.allFolders.append(new_folder)
+            if parent_folder is None:
+                self.configManager.allFolders.append(new_folder)
+            else:
+                parent_folder.add_folder(new_folder)
             if not temporary:
                 new_folder.persist()
             return new_folder

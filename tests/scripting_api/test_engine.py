@@ -131,4 +131,13 @@ def test_engine_create_folder():
     # Temporary: Don't put folder on disk.
     test_folder = engine.create_folder("New folder",
             temporary=True)
-    assert_that(engine.configManager.allFolders, has_item(test_folder))
+    assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
+
+def test_engine_create_folder_subfolder():
+    engine, folder = create_engine()
+    # Temporary: Don't put folder on disk.
+    test_folder = engine.create_folder("New folder",
+            parent_folder=folder, temporary=True)
+    assert_that(engine.configManager.allFolders, not_(has_item(test_folder)), "creates top-level folder instead of subfolder")
+    assert_that(folder, is_(equal_to(test_folder.parent)),
+    "Doesn't add parent folder as parent of subfolder")
