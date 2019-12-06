@@ -99,7 +99,8 @@ class Engine:
                       temporary=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
-        you wish to create the Phrase in.
+        you wish to create the Phrase in. If the folder is a temporary
+        one, the phrase will be created as temporary.
 
         The first three arguments (folder, name and contents) are required. All further arguments are optional and
         considered to be keyword-argument only. Do not rely on the order of the optional arguments.
@@ -172,6 +173,8 @@ class Engine:
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
+        if folder.temporary:
+            temporary = True
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
