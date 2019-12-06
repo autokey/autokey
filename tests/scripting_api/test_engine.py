@@ -126,3 +126,9 @@ def test_engine_create_phrase_set_send_mode(send_mode: Engine.SendMode):
     assert_that(phrase.sendMode, is_(equal_to(send_mode)))
 
 
+def test_engine_create_folder():
+    engine, folder = create_engine()
+    # Temporary: Don't put folder on disk.
+    test_folder = engine.create_folder("New folder",
+            temporary=True)
+    assert_that(engine.configManager.allFolders, has_item(test_folder))

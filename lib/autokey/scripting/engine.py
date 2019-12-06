@@ -52,6 +52,34 @@ class Engine:
                 return folder
         return None
 
+    def create_folder(self, title: str, temporary=False):
+        """
+        Create and return a new folder.
+
+        Usage: C{engine.create_folder("new folder"), temporary=True}
+
+        Descriptions for the optional argument:
+
+        @param temporary: Folders created with temporary=True are
+                                    not persisted.
+                                    Used for single-source rc-style scripts.
+
+        If a folder of that name already exists, this will return it.
+        Note that if more than one folder has the same title, only the first match will be
+        returned.
+
+        Currently only allows addition of top-level folders.
+        """
+        for folder in self.configManager.allFolders:
+            if folder.title == title:
+                return folder
+        else:
+            new_folder = model.Folder(title)
+            self.configManager.allFolders.append(new_folder)
+            if not temporary:
+                new_folder.persist()
+            return new_folder
+
     def create_phrase(self, folder, name: str, contents: str,
                       abbreviations: Union[str, List[str]]=None,
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
