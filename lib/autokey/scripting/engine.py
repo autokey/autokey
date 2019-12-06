@@ -65,7 +65,9 @@ class Engine:
                                     not persisted.
                                     Used for single-source rc-style scripts.
 
-        If a folder of that name already exists, this will return it.
+        If a folder of that name already exists, this will return it unchanged.
+        The 'temporary' property is not touched to avoid deleting an existing
+        folder.
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """

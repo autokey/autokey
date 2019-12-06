@@ -135,9 +135,78 @@ def test_engine_create_folder():
 
 def test_engine_create_folder_subfolder():
     engine, folder = create_engine()
-    # Temporary: Don't put folder on disk.
+    # Temporary: prevent persisting (which fails b/c folder doesn't exist).
     test_folder = engine.create_folder("New folder",
             parent_folder=folder, temporary=True)
     assert_that(engine.configManager.allFolders, not_(has_item(test_folder)), "creates top-level folder instead of subfolder")
     assert_that(folder, is_(equal_to(test_folder.parent)),
-    "Doesn't add parent folder as parent of subfolder")
+        "Doesn't add parent folder as parent of subfolder")
+    assert_that(folder.folders,
+        has_item(test_folder),
+            "Doesn't create subfolder in correct folder")
+
+
+# These tests shouldn't really be here since they're for configmanager
+# class, not engine. But I'm not confident enough with settings up
+# tests to move them.
+
+def test_configmanager_remove_temporary_toplevel():
+    engine, folder = create_engine()
+    # Folder acts as a non-temp top-level folder.
+    test_phrase = engine.create_phrase(folder, "test phrase",
+        "contents", temporary=True)
+    with patch("autokey.model.Phrase.persist"):
+        test_phrase_nontemp = engine.create_phrase(folder,
+                "test phrase nontemp", "contents")
+    test_folder = engine.create_folder("New folder",
+            temporary=True)
+
+    engine.configManager.remove_all_temporary()
+
+    assert_that(engine.configManager.allFolders,
+            has_item(folder),
+                "Removes non-temp top-level folders")
+    assert_that(engine.configManager.allFolders,
+            not_(has_item(test_folder)),
+                "doesn't remove temp top-level folders")
+    assert_that(folder.items,
+            not_(has_item(test_phrase)),
+                "doesn't remove temp phrases")
+
+def test_configmanager_remove_temporary():
+    engine, folder = create_engine()
+
+    test_subfolder = engine.create_folder("New folder",
+            parent_folder=folder, temporary=True)
+    with patch("autokey.model.Folder.persist"):
+        test_subfolder_nontemp = engine.create_folder("New subfolder",
+                parent_folder = folder)
+    with patch("autokey.model.Folder.persist"):
+        test_subsubfolder_nontemp = engine.create_folder(
+                "New subfolder nontemp",
+                parent_folder = test_subfolder)
+    test_phrase = engine.create_phrase(test_subfolder, "test phrase",
+    "contents", temporary=True)
+    with patch("autokey.model.Phrase.persist"):
+        test_phrase_nontemp = engine.create_phrase(test_subfolder,
+                "test phrase nontemp", "contents")
+
+    engine.configManager.remove_all_temporary()
+
+    assert_that(folder.folders,
+            has_item(test_subfolder_nontemp),
+                "Removes non-temp subfolders")
+    assert_that(folder.folders,
+            not_(has_item(test_subfolder)),
+                "doesn't remove temp subfolders")
+    assert_that(test_subfolder.items,
+            not_(is_(equal_to(test_phrase))),
+                "doesn't remove temp phrases from temp subfolders")
+    # I'm less certain that this should be the defined behavior.
+    # Removes non-temp from temp parents.
+    assert_that(test_subfolder.items,
+            not_(has_item(test_phrase_nontemp)),
+                "doesn't remove nontemp phrases from temp subfolders")
+    assert_that(test_subfolder.folders,
+            not_(has_item(test_subsubfolder_nontemp)),
+                "doesn't remove nontemp subfolders from temp parent folders")

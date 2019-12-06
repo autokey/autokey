@@ -434,6 +434,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.show_in_tray_menu = show_in_tray_menu
         self.parent = None  # type: typing.Optional[Folder]
         self.path = path
+        self.temporary = False
 
     def build_path(self, base_name=None):
         if base_name is None:
