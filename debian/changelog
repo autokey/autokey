@@ -1,3 +1,12 @@
+autokey (0.95.9-0) bionic; urgency=medium
+
+  [Bug fixes]
+  * Prevent data losses when deleting or moving directories from within AutoKey. AutoKey will only delete data it knows
+    and keep unknown user data. So adding $HOME and then removing it again will not purge everything below it.
+    Affected were deleting directories and moving them via drag & drop. Fixes issues #171, #332
+
+ -- Thomas Hess <thomas.hess@udo.edu>  Sat, 7 Dec 2019 20:33:00 +0100
+
 autokey (0.95.8-0) bionic; urgency=medium
 
   [Bug fixes]
