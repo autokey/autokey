@@ -15,13 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import errno
 import re
 import os
 import os.path
 import glob
 import logging
 import json
-import shutil
 import typing
 import enum
 
@@ -454,7 +454,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def load(self, parent=None):
         self.parent = parent
 
-        if os.path.exists(self.path + "/.folder.json"):
+        if os.path.exists(self.get_json_path()):
             self.load_from_serialized()
         else:
             self.title = os.path.basename(self.path)
@@ -523,10 +523,23 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def remove_data(self):
         if self.path is not None:
+            for child in self.items:
+                child.remove_data()
+            for child in self.folders:
+                child.remove_data()
             try:
-                shutil.rmtree(self.path)
-            except OSError:
-                pass
+                # The json file must be removed first. Otherwise the rmdir will fail.
+                if os.path.exists(self.get_json_path()):
+                    os.remove(self.get_json_path())
+                os.rmdir(self.path)
+            except OSError as err:
+                # There may be user data in the removed directory. Only swallow the error, if it is caused by
+                # residing user data. Other errors should propagate.
+                if err.errno != errno.ENOTEMPTY:
+                    raise
+
+    def get_json_path(self):
+        return self.path + "/.folder.json"
 
     def get_tuple(self):
         return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self
