@@ -22,18 +22,20 @@ import shutil
 import logging
 import glob
 import threading
+import typing
 import re
-
-from autokey import common
 
 from autokey import common, model
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
-    SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE
+    SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE, \
+    DISABLED_MODIFIERS
 import autokey.configmanager.version_upgrading
 import autokey.configmanager.predefined_user_files
-from autokey.iomediator.constants import X_RECORD_INTERFACE
+from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS
+from autokey.iomediator import key
+
 
 import json
 
@@ -172,6 +174,7 @@ class ConfigManager:
                 NOTIFICATION_ICON: common.ICON_FILE_NOTIFICATION,
                 WORKAROUND_APP_REGEX: ".*VirtualBox.*|krdc.Krdc",
                 TRIGGER_BY_INITIAL: False,
+                DISABLED_MODIFIERS: [],
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY: True,
                 #RECENT_ENTRY_COUNT: 5,
@@ -253,6 +256,7 @@ class ConfigManager:
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
+            self.load_disabled_modifiers()
             
             self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
             
@@ -386,7 +390,75 @@ class ConfigManager:
         else:
             self.config_altered(False)
         return deleted
-            
+
+    def load_disabled_modifiers(self):
+        """
+        Load all disabled modifier keys from the configuration file. Called during startup, after the configuration
+        is read into the SETTINGS dictionary.
+        :return:
+        """
+        try:
+            self.SETTINGS[DISABLED_MODIFIERS] = [key.Key(value) for value in self.SETTINGS[DISABLED_MODIFIERS]]
+        except ValueError:
+            _logger.error("Unknown value in the disabled modifier list found. Unexpected: {}".format(
+                self.SETTINGS[DISABLED_MODIFIERS]))
+            self.SETTINGS[DISABLED_MODIFIERS] = []
+
+        for possible_modifier in self.SETTINGS[DISABLED_MODIFIERS]:
+            self._check_if_modifier(possible_modifier)
+            _logger.info("Disabling modifier key {} based on the stored configuration file.".format(possible_modifier))
+            MODIFIERS.remove(possible_modifier)
+
+    @staticmethod
+    def is_modifier_disabled(modifier: key.Key) -> bool:
+        """Checks, if the given modifier key is disabled. """
+        ConfigManager._check_if_modifier(modifier)
+        return modifier in ConfigManager.SETTINGS[DISABLED_MODIFIERS]
+
+    @staticmethod
+    def disable_modifier(modifier: typing.Union[key.Key, str]):
+        """
+        Permanently disable a modifier key. This can be used to disable unwanted modifier keys, like CAPSLOCK,
+        if the user remapped the physical key to something else.
+        :param modifier: Modifier key to disable.
+        :return:
+        """
+        if isinstance(modifier, str):
+            modifier = key.Key(modifier)
+        ConfigManager._check_if_modifier(modifier)
+        try:
+            _logger.info("Disabling modifier key {} on user request.".format(modifier))
+            MODIFIERS.remove(modifier)
+        except ValueError:
+            _logger.warning("Disabling already disabled modifier key. Affected key: {}".format(modifier))
+        else:
+            ConfigManager.SETTINGS[DISABLED_MODIFIERS].append(modifier)
+
+    @staticmethod
+    def enable_modifier(modifier: typing.Union[key.Key, str]):
+        """
+        Enable a previously disabled modifier key.
+        :param modifier: Modifier key to re-enable
+        :return:
+        """
+        if isinstance(modifier, str):
+            modifier = key.Key(modifier)
+        ConfigManager._check_if_modifier(modifier)
+        if modifier not in MODIFIERS:
+            _logger.info("Re-eabling modifier key {} on user request.".format(modifier))
+            MODIFIERS.append(modifier)
+            ConfigManager.SETTINGS[DISABLED_MODIFIERS].remove(modifier)
+        else:
+            _logger.warning("Enabling already enabled modifier key. Affected key: {}".format(modifier))
+
+    @staticmethod
+    def _check_if_modifier(modifier: key.Key):
+        if not isinstance(modifier, key.Key):
+            raise TypeError("The given value must be an AutoKey Key instance, got {}".format(type(modifier)))
+        if not modifier in key._ALL_MODIFIERS_:
+            raise ValueError("The given key '{}' is not a modifier. Expected one of {}.".format(
+                modifier, key._ALL_MODIFIERS_))
+
     def reload_global_config(self):
         _logger.info("Reloading global configuration")
         with open(CONFIG_FILE, 'r') as pFile:

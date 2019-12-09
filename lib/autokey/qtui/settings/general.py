@@ -19,9 +19,13 @@ import logging
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox
 
+
 import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+
+from autokey.iomediator.key import Key
+
 
 import autokey.qtui.common as ui_common
 import autokey.common as common
@@ -49,8 +53,11 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         # self.allow_kb_nav_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS])
         self.allow_kb_nav_checkbox.setVisible(False)
+
         self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT])
         self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE])
+        self.disable_capslock_checkbox.setChecked(cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK))
+
         self._fill_notification_icon_combobox_user_data()
         self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
@@ -62,6 +69,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
         logger.debug("User requested to save settings. New settings: " + self._settings_str())
+
         cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.autosave_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
         # cm.ConfigManager.SETTINGS[cm_constants.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
@@ -69,8 +77,17 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = \
             self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
-        # TODO: After saving the notification icon, apply it to the currently running instance.
+        self._save_disable_capslock_setting()
+
         self._save_autostart_settings()
+        # TODO: After saving the notification icon, apply it to the currently running instance.
+
+    def _save_disable_capslock_setting(self):
+        # Only update the modifier key handling if the value changed.
+        if self.disable_capslock_checkbox.isChecked() and not cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK):
+            cm.ConfigManager.disable_modifier(Key.CAPSLOCK)
+        elif not self.disable_capslock_checkbox.isChecked() and cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK):
+            cm.ConfigManager.enable_modifier(Key.CAPSLOCK)
 
     def _settings_str(self):
         """Returns a human readable settings representation for logging purposes."""
@@ -79,13 +96,15 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
             "Allow keyboard navigation: {}, " \
             "Sort by usage count: {}, " \
             "Enable undo using backspace: {}, " \
-            "Tray icon theme: {}".format(
+            "Tray icon theme: {}, " \
+            "Disable Capslock: {}".format(
                self.autosave_checkbox.isChecked(),
                self.show_tray_checkbox.isChecked(),
                self.allow_kb_nav_checkbox.isChecked(),
                self.sort_by_usage_checkbox.isChecked(),
                self.enable_undo_checkbox.isChecked(),
-               self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
+               self.system_tray_icon_theme_combobox.currentData(Qt.UserRole),
+               self.disable_capslock_checkbox.isChecked()
             )
         return settings
 

@@ -18,10 +18,14 @@
 import sys
 from gi.repository import Gtk
 
+
 import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey import common
+from autokey.iomediator.key import Key
+
+
 from .dialogs import GlobalHotkeyDialog
 from .configwindow0 import get_ui
 
@@ -49,6 +53,7 @@ class SettingsDialog:
         self.autoStartCheckbox = builder.get_object("autoStartCheckbox")
         self.autosaveCheckbox = builder.get_object("autosaveCheckbox")
         self.showTrayCheckbox = builder.get_object("showTrayCheckbox")
+        self.disableCapslockCheckbox = builder.get_object("disableCapslockCheckbox")
         self.allowKbNavCheckbox = builder.get_object("allowKbNavCheckbox")
         self.allowKbNavCheckbox.hide()
         self.sortByUsageCheckbox = builder.get_object("sortByUsageCheckbox")
@@ -64,14 +69,16 @@ class SettingsDialog:
         for key, value in list(ICON_NAME_MAP.items()):
             self.iconStyleCombo.append_text(key)
             ICON_NAME_LIST.append(value)
+
         self.iconStyleCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         self.iconStyleCombo.set_active(ICON_NAME_LIST.index(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]))
 
         self.autoStartCheckbox.set_active(autokey.configmanager.autostart.get_autostart().desktop_file_name is not None)
         self.autosaveCheckbox.set_active(not cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
         self.showTrayCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
+        self.disableCapslockCheckbox.set_active(cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK))
 
-        #self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
+        # self.allowKbNavCheckbox.set_active(cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS])
         # Added by Trey Blancher (ectospasm) 2015-09-16
         self.triggerItemByInitial.set_active(cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL])
         self.sortByUsageCheckbox.set_active(cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT])
@@ -112,7 +119,7 @@ class SettingsDialog:
         cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
-        
+        self._save_disable_capslock_setting()
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)
         
@@ -139,7 +146,14 @@ class SettingsDialog:
         
         self.hide()
         self.destroy()
-        
+
+    def _save_disable_capslock_setting(self):
+        # Only update the modifier key handling if the value changed.
+        if self.disableCapslockCheckbox.get_active() and not cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK):
+            cm.ConfigManager.disable_modifier(Key.CAPSLOCK)
+        elif not self.disableCapslockCheckbox.get_active() and cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK):
+            cm.ConfigManager.enable_modifier(Key.CAPSLOCK)
+
     def on_cancel(self, widget, data=None):
         self.hide()
         self.destroy()

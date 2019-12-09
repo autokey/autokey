@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.22.1 -->
 <interface>
-  <!-- interface-requires gtk+ 3.0 -->
+  <requires lib="gtk+" version="3.0"/>
   <object class="GtkDialog" id="settingsdialog">
     <property name="can_focus">False</property>
     <property name="border_width">8</property>
@@ -8,6 +9,9 @@
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
+    <child>
+      <placeholder/>
+    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="dialog-vbox1">
         <property name="visible">True</property>
@@ -26,7 +30,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_cancel" swapped="no"/>
               </object>
@@ -45,7 +48,6 @@
                 <property name="can_default">True</property>
                 <property name="has_default">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
                 <signal name="clicked" handler="on_save" swapped="no"/>
               </object>
@@ -104,7 +106,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -147,6 +148,21 @@
                                   </packing>
                                 </child>
                                 <child>
+                                  <object class="GtkCheckButton" id="disableCapslockCheckbox">
+                                    <property name="label" translatable="yes">Disable handling of the Capslock key</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
+                                <child>
                                   <object class="GtkHBox" id="hbox4">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
@@ -167,7 +183,7 @@
                                   <packing>
                                     <property name="expand">True</property>
                                     <property name="fill">True</property>
-                                    <property name="position">3</property>
+                                    <property name="position">4</property>
                                   </packing>
                                 </child>
                               </object>
@@ -211,7 +227,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -227,7 +242,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
                                   </object>
                                   <packing>
@@ -237,20 +251,19 @@
                                   </packing>
                                 </child>
                                 <child>
-                                 <object class="GtkCheckButton" id="triggerItemByInitial">
+                                  <object class="GtkCheckButton" id="triggerItemByInitial">
                                     <property name="label" translatable="yes">Trigger menu item by first initial</property>
                                     <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                  </object>                                                                                                                                                                                                  
-                                  <packing>                                                                                                                                                                                                  
-                                    <property name="expand">True</property>                                                                                                                                                                  
-                                    <property name="fill">True</property>                                                                                                                                                                    
-                                    <property name="position">2</property>                                                                                                                                                                   
-                                  </packing>                                
+                                  </object>
+                                  <packing>
+                                    <property name="expand">True</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
                                 </child>
                               </object>
                             </child>
@@ -289,7 +302,6 @@
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
                               </object>
                             </child>
@@ -361,8 +373,8 @@
                                   <object class="GtkLabel" id="label10">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Hotkey:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -374,8 +386,8 @@
                                   <object class="GtkLabel" id="monitorKeyLabel">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">$hotkey</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -391,7 +403,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <signal name="clicked" handler="on_setMonitorButton_pressed" swapped="no"/>
                                   </object>
                                   <packing>
@@ -408,7 +419,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_stock">True</property>
                                     <signal name="clicked" handler="on_clearMonitorButton_pressed" swapped="no"/>
                                   </object>
@@ -459,8 +469,8 @@
                                   <object class="GtkLabel" id="label12">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Hotkey:</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -472,8 +482,8 @@
                                   <object class="GtkLabel" id="configKeyLabel">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
-                                    <property name="xalign">0</property>
                                     <property name="label" translatable="yes">$hotkey</property>
+                                    <property name="xalign">0</property>
                                   </object>
                                   <packing>
                                     <property name="expand">True</property>
@@ -489,7 +499,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <signal name="clicked" handler="on_setConfigButton_pressed" swapped="no"/>
                                   </object>
                                   <packing>
@@ -506,7 +515,6 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_stock">True</property>
                                     <signal name="clicked" handler="on_clearConfigButton_pressed" swapped="no"/>
                                   </object>
@@ -580,10 +588,10 @@
                               <object class="GtkLabel" id="label17">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="xalign">0</property>
                                 <property name="ypad">5</property>
                                 <property name="label" translatable="yes">Any Python modules placed in this folder will be available for
 import by scripts.</property>
+                                <property name="xalign">0</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
