@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>510</width>
-    <height>468</height>
+    <width>557</width>
+    <height>557</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -197,11 +197,34 @@ If unchecked, start in the background.</string>
       <item>
        <widget class="QCheckBox" name="enable_undo_checkbox">
         <property name="toolTip">
-         <string>Enable undoing Phrase expansions using the backspace key.
-This may not always work, if the Phrase content contains navigation keys.</string>
+         <string>Enable undoing Phrase expansions using the backspace key
+
+Undo only works if the Phrase does not contain any special keys.
+AutoKey will refuse to perform an undo of a Phrase containing any such keys,
+regardless of this setting.</string>
         </property>
         <property name="text">
          <string>Enable undo by pressing backspace</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Modifier Keys</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QCheckBox" name="disable_capslock_checkbox">
+        <property name="toolTip">
+         <string>Enable this, if you remapped the Capslock key to be something else, like Ctrl.
+This will prevent any special handling for this key.</string>
+        </property>
+        <property name="text">
+         <string>Disable handling of the Capslock key.</string>
         </property>
        </widget>
       </item>
