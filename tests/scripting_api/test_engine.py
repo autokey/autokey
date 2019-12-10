@@ -125,6 +125,16 @@ def test_engine_create_phrase_set_send_mode(send_mode: Engine.SendMode):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", send_mode=send_mode)
     assert_that(phrase.sendMode, is_(equal_to(send_mode)))
 
+def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        parent = engine.create_folder("parent",
+            parent_folder=folder, temporary=True)
+        assert_that(
+            calling(engine.create_phrase).with_args(parent, "phrase", "ABC", temporary=False),
+            raises(ValueError)
+        )
+
 
 def test_engine_create_folder():
     engine, folder = create_engine()
@@ -144,7 +154,19 @@ def test_engine_create_folder_subfolder():
     assert_that(folder.folders,
         has_item(test_folder),
             "Doesn't create subfolder in correct folder")
+    test_folder = engine.create_folder("New folder",
+            parent_folder=folder, temporary=True)
+    assert_that(engine.configManager.allFolders, not_(has_item(test_folder)), "creates top-level folder instead of subfolder")
 
+def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        parent = engine.create_folder("parent",
+            parent_folder=folder, temporary=True)
+        assert_that(
+            calling(engine.create_folder).with_args("child", parent_folder=parent, temporary=False),
+            raises(ValueError)
+        )
 
 # These tests shouldn't really be here since they're for configmanager
 # class, not engine. But I'm not confident enough with settings up

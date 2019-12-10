@@ -85,6 +85,10 @@ class Engine:
                 self.configManager.allFolders.append(new_folder)
             else:
                 parent_folder.add_folder(new_folder)
+                if not temporary and parent_folder.temporary:
+                    raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+Folders created within temporary folders must themselves be set temporary")
+
             if not temporary:
                 new_folder.persist()
             else:
@@ -173,8 +177,9 @@ class Engine:
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
-        if folder.temporary:
-            temporary = True
+        if folder.temporary and not temporary:
+            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+Phrases created within temporary folders must themselves be explicitly set temporary")
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
