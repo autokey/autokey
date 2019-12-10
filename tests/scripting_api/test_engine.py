@@ -58,16 +58,32 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error():
             raises(ValueError), "contents is not checked for type=str")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", folder),
+                "contents", abbreviations=folder),
             raises(ValueError), "abbreviations is not checked for type=str")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", ["t1", "t2"]),
+                "contents", abbreviations=["t1", "t2"]),
             not_(raises(ValueError)), "abbreviations is not checked for type=list")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", ["t1", folder]),
+                "contents", abbreviations=["t1", folder]),
             raises(ValueError), "abbreviations is not checked for type=list[str]")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=folder),
+            raises(ValueError), "hotkey is not checked for type=tuple")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("t1", "t2", "t3")),
+            raises(ValueError), "hotkey is not checked for tuple len 2")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("t1", folder)),
+            raises(ValueError), "hotkey is not checked for type=tuple(str,str)")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=(["<ctrl>", folder], "a")),
+            raises(ValueError), "hotkey[0] is not checked for type=list[str]")
 
 
 def test_engine_create_phrase_adds_phrase_to_parent():
@@ -152,6 +168,7 @@ def test_engine_create_phrase_set_send_mode(send_mode: Engine.SendMode):
     with patch("autokey.model.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", send_mode=send_mode)
     assert_that(phrase.sendMode, is_(equal_to(send_mode)))
+
 
 def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
     engine, folder = create_engine()
