@@ -191,13 +191,20 @@ Folders created within temporary folders must themselves be set temporary")
             raise ValueError("Expected contents to be str, not {}".format(
                 type(contents))
             )
-        # TODO This doesn't validate if the list contains non-strings.
-        if abbreviations is not None and \
-                type(abbreviations) is not str and \
-                type(abbreviations) is not list:
-            raise ValueError("Expected abbreviations to be str or List[str], not {}".format(
-                type(abbreviations))
-            )
+        if abbreviations is not None:
+            fail=False
+            if not isinstance(abbreviations, str):
+                fail=True
+                if isinstance(abbreviations, list):
+                    for item in abbreviations:
+                        if not isinstance(item, str):
+                            fail=True
+                    else:
+                        fail=False
+            if fail:
+                raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+                    type(abbreviations))
+                    )
         # I can't figure out how to validate hotkey.
         # if hotkey is not None and type(hotkey) is not Tuple[List[Union[model.Key, str]], Union[model.Key, str]]:
         #     raise ValueError("Expected hotkey to be Tuple[List[Union[model.Key, str]], Union[model.Key, str]], not {}".format(
