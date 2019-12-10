@@ -41,6 +41,12 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
     return engine, test_folder
 
+def test_engine_create_phrase_invalid_input_types_raises_value_error():
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"):
+        assert_that(
+            calling(engine.create_phrase).with_args("Not a folder", "contents", "abreviation",),
+            raises(ValueError), "Folder is not checked for type=model.Folder")
 
 def test_engine_create_phrase_adds_phrase_to_parent():
     engine, folder = create_engine()

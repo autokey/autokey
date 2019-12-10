@@ -177,9 +177,11 @@ Folders created within temporary folders must themselves be set temporary")
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
-        if folder.temporary and not temporary:
-            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
-Phrases created within temporary folders must themselves be explicitly set temporary")
+        # Start with some simple input type-checking.
+        if type(folder) is not model.Folder:
+            raise ValueError("Expected a folder, not {}".format(
+                type(folder))
+            )
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
@@ -195,6 +197,10 @@ Phrases created within temporary folders must themselves be explicitly set tempo
             modifiers = sorted(hotkey[0])
             if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
                 raise ValueError("The specified hotkey and modifier combination is already in use.")
+
+        if folder.temporary and not temporary:
+            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+Phrases created within temporary folders must themselves be explicitly set temporary")
 
         self.monitor.suspend()
         try:
