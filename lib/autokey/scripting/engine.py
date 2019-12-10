@@ -196,20 +196,42 @@ Folders created within temporary folders must themselves be set temporary")
             if not isinstance(abbreviations, str):
                 fail=True
                 if isinstance(abbreviations, list):
+                    fail=False
                     for item in abbreviations:
                         if not isinstance(item, str):
                             fail=True
-                    else:
-                        fail=False
             if fail:
                 raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
                     type(abbreviations))
                     )
-        # I can't figure out how to validate hotkey.
-        # if hotkey is not None and type(hotkey) is not Tuple[List[Union[model.Key, str]], Union[model.Key, str]]:
-        #     raise ValueError("Expected hotkey to be Tuple[List[Union[model.Key, str]], Union[model.Key, str]], not {}".format(
-        #         type(hotkey))
-        #     )
+        if hotkey is not None:
+            fail=False
+            if isinstance(hotkey, tuple):
+                if len(hotkey) == 2:
+                    # First check modifiers is list of str or keys
+                    if isinstance(hotkey[0], list):
+                        for item in hotkey[0]:
+                            if not isinstance(item, str) and not \
+                            isinstance(item, model.Key):
+                                fail=True
+                    elif not isinstance(hotkey[0], str) and not \
+                            isinstance(hotkey[0], model.Key):
+                        fail=True
+                    else:
+                        fail=True
+                    # Then check second element is a key or str
+                    if not isinstance(hotkey[1], str) and not \
+                            isinstance(hotkey[1], model.Key):
+                        fail=True
+                else:
+                    fail=True
+            else:
+                fail=True
+            if fail:
+                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or stsr, not {}".format(
+
+                    type(hotkey))
+                )
         if send_mode is not None and not isinstance(send_mode, model.SendMode):
             raise ValueError("Expected send_mode to be model.SendMode, not {}".format(
                 type(send_mode))
