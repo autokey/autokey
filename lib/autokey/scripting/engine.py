@@ -182,6 +182,10 @@ Folders created within temporary folders must themselves be set temporary")
             raise ValueError("Expected a folder, not {}".format(
                 type(folder))
             )
+        if type(name) is not str:
+            raise ValueError("Expected name to be str, not {}".format(
+                type(contents))
+            )
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):

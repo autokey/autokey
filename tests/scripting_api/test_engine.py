@@ -47,6 +47,9 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error():
         assert_that(
             calling(engine.create_phrase).with_args("Not a folder", "contents", "abreviation",),
             raises(ValueError), "Folder is not checked for type=model.Folder")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, folder, "abreviation",),
+            raises(ValueError), "name is not checked for type=str")
 
 def test_engine_create_phrase_adds_phrase_to_parent():
     engine, folder = create_engine()
