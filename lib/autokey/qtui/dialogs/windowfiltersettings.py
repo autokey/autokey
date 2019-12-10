@@ -48,7 +48,11 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
             self.apply_recursive_check_box.setChecked(item.isRecursive)
 
     def save(self, item):
-        item.set_window_titles(self.get_filter_text())
+        try:
+            item.set_window_titles(self.get_filter_text())
+        except re.error:
+            # TODO: Warn user. Currently just doesn't save regex on error.
+            pass
         item.set_filter_recursive(self.get_is_recursive())
 
     def get_is_recursive(self):
