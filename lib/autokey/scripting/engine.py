@@ -95,6 +95,7 @@ Folders created within temporary folders must themselves be set temporary")
                 new_folder.temporary = True
             return new_folder
 
+
     def create_phrase(self, folder, name: str, contents: str,
                       abbreviations: Union[str, List[str]]=None,
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
@@ -177,14 +178,50 @@ Folders created within temporary folders must themselves be set temporary")
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
-        # Start with some simple input type-checking.
-        if type(folder) is not model.Folder:
+        # Start with input type-checking.
+        if not isinstance(folder, model.Folder):
             raise ValueError("Expected a folder, not {}".format(
                 type(folder))
             )
-        if type(name) is not str:
+        if not isinstance(name, str):
             raise ValueError("Expected name to be str, not {}".format(
+                type(name))
+            )
+        if not isinstance(contents, str):
+            raise ValueError("Expected contents to be str, not {}".format(
                 type(contents))
+            )
+        # TODO This doesn't validate if the list contains non-strings.
+        if abbreviations is not None and \
+                type(abbreviations) is not str and \
+                type(abbreviations) is not list:
+            raise ValueError("Expected abbreviations to be str or List[str], not {}".format(
+                type(abbreviations))
+            )
+        # I can't figure out how to validate hotkey.
+        # if hotkey is not None and type(hotkey) is not Tuple[List[Union[model.Key, str]], Union[model.Key, str]]:
+        #     raise ValueError("Expected hotkey to be Tuple[List[Union[model.Key, str]], Union[model.Key, str]], not {}".format(
+        #         type(hotkey))
+        #     )
+        if send_mode is not None and not isinstance(send_mode, model.SendMode):
+            raise ValueError("Expected send_mode to be model.SendMode, not {}".format(
+                type(send_mode))
+            )
+        if window_filter is not None and not isinstance(window_filter, str):
+            raise ValueError("Expected window_filter to be str, not {}".format(
+                type(window_filter))
+            )
+        if not isinstance(show_in_system_tray, bool):
+            raise ValueError("Expected show_in_system_tray to be bool, not {}".format(
+                type(show_in_system_tray))
+            )
+        if not isinstance(always_prompt, bool):
+            raise ValueError("Expected always_prompt to be bool, not {}".format(
+                type(always_prompt))
+            )
+        if not isinstance(temporary, bool):
+            raise ValueError("Expected temporary to be bool, not {}".format(
+                type(temporary))
             )
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
@@ -217,14 +254,9 @@ Phrases created within temporary folders must themselves be explicitly set tempo
                 p.set_hotkey(*hotkey)
             if window_filter:
                 p.set_window_titles(window_filter)
-            # XXX: Could these next 3 be refactored to just set p.<val> to the
-            # boolean, rather than the if?
-            if show_in_system_tray:
-                p.show_in_tray_menu = True
-            if always_prompt:
-                p.prompt = True
-            if temporary:
-                p.temporary = True
+            p.show_in_tray_menu = show_in_system_tray
+            p.prompt = always_prompt
+            p.temporary = temporary
 
             folder.add_item(p)
             # Don't save a json if it is a temporary hotkey. Won't persist across

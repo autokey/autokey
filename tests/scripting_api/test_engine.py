@@ -41,15 +41,34 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
     return engine, test_folder
 
+
 def test_engine_create_phrase_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Phrase.persist"):
         assert_that(
-            calling(engine.create_phrase).with_args("Not a folder", "contents", "abreviation",),
+            calling(engine.create_phrase).with_args("Not a folder", "name", "contents",),
             raises(ValueError), "Folder is not checked for type=model.Folder")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, folder, "abreviation",),
+            calling(engine.create_phrase).with_args(folder, folder,
+                "contents"),
             raises(ValueError), "name is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                folder),
+            raises(ValueError), "contents is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", folder),
+            raises(ValueError), "abbreviations is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", ["t1", "t2"]),
+            not_(raises(ValueError)), "abbreviations is not checked for type=list")
+        # assert_that(
+        #     calling(engine.create_phrase).with_args(folder, "name",
+        #         "contents", ["t1", folder]),
+        #     not_(raises(ValueError)), "abbreviations is not checked for type=list[str]")
+
 
 def test_engine_create_phrase_adds_phrase_to_parent():
     engine, folder = create_engine()
