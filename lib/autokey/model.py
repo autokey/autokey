@@ -274,11 +274,14 @@ class AbstractWindowFilter:
             return {"regex": None, "isRecursive": False}
 
     def load_from_serialized(self, data):
-        if isinstance(data, dict): # check needed for data from versions < 0.80.4
-            self.set_window_titles(data["regex"])
-            self.isRecursive = data["isRecursive"]
-        else:
-            self.set_window_titles(data)
+        try:
+            if isinstance(data, dict): # check needed for data from versions < 0.80.4
+                self.set_window_titles(data["regex"])
+                self.isRecursive = data["isRecursive"]
+            else:
+                self.set_window_titles(data)
+        except re.error as e:
+            raise e
 
     def copy_window_filter(self, window_filter):
         self.windowInfoRegex = window_filter.windowInfoRegex
@@ -286,7 +289,10 @@ class AbstractWindowFilter:
 
     def set_window_titles(self, regex):
         if regex is not None:
-            self.windowInfoRegex = re.compile(regex, re.UNICODE)
+            try:
+                self.windowInfoRegex = re.compile(regex, re.UNICODE)
+            except re.error as e:
+                raise e
         else:
             self.windowInfoRegex = regex
 
