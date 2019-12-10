@@ -170,6 +170,22 @@ def test_engine_create_phrase_set_send_mode(send_mode: Engine.SendMode):
     assert_that(phrase.sendMode, is_(equal_to(send_mode)))
 
 
+# def test_engine_create_phrase_regex():
+#     import re
+#     engine, folder = create_engine()
+#     with patch("autokey.model.Phrase.persist"):
+#         assert_that(
+#             calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter=".*"),
+#             not_(raises(re.error)),
+#             "Basic window_filter valid regex raises an error"
+#         )
+#         assert_that(
+#             calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter="*"),
+#             raises(re.error),
+#             "Invalid window_filter regex does not raise an error"
+#         )
+
+
 def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Folder.persist"):
