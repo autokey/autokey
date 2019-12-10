@@ -4,6 +4,16 @@ Changelog
 .. contents::
 
 
+Version 0.95.9 <2019-12-07>
+===========================
+
+Bug fixes
+---------
+
+- Prevent data losses when deleting or moving directories from within AutoKey. AutoKey will only delete data it knows
+  and keep unknown user data. So adding $HOME and then removing it again will not purge everything below it.
+  Affected were deleting directories and moving them via drag & drop. Fixes issues #171, #332
+
 Version 0.95.8 <2019-11-07>
 ===========================
 
