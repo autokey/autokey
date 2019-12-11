@@ -191,47 +191,8 @@ Folders created within temporary folders must themselves be set temporary")
             raise ValueError("Expected contents to be str, not {}".format(
                 type(contents))
             )
-        if abbreviations is not None:
-            fail=False
-            if not isinstance(abbreviations, str):
-                fail=True
-                if isinstance(abbreviations, list):
-                    fail=False
-                    for item in abbreviations:
-                        if not isinstance(item, str):
-                            fail=True
-            if fail:
-                raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
-                    type(abbreviations))
-                    )
-        if hotkey is not None:
-            fail=False
-            if isinstance(hotkey, tuple):
-                if len(hotkey) == 2:
-                    # First check modifiers is list of str or keys
-                    if isinstance(hotkey[0], list):
-                        for item in hotkey[0]:
-                            if not isinstance(item, str) and not \
-                            isinstance(item, model.Key):
-                                fail=True
-                    elif not isinstance(hotkey[0], str) and not \
-                            isinstance(hotkey[0], model.Key):
-                        fail=True
-                    else:
-                        fail=True
-                    # Then check second element is a key or str
-                    if not isinstance(hotkey[1], str) and not \
-                            isinstance(hotkey[1], model.Key):
-                        fail=True
-                else:
-                    fail=True
-            else:
-                fail=True
-            if fail:
-                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
-
-                    type(hotkey))
-                )
+        self.validateAbbreviations(abbreviations)
+        self.validateHotkey(hotkey)
         if send_mode is not None and not isinstance(send_mode, model.SendMode):
             raise ValueError("Expected send_mode to be model.SendMode, not {}".format(
                 type(send_mode))
@@ -296,6 +257,53 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         finally:
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
+
+
+    def validateAbbreviations(self, abbreviations):
+        if abbreviations is not None:
+            fail=False
+            if not isinstance(abbreviations, str):
+                fail=True
+                if isinstance(abbreviations, list):
+                    fail=False
+                    for item in abbreviations:
+                        if not isinstance(item, str):
+                            fail=True
+            if fail:
+                raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+                    type(abbreviations))
+                    )
+
+
+    def validateHotkey(self, hotkey):
+        if hotkey is not None:
+            fail=False
+            if isinstance(hotkey, tuple):
+                if len(hotkey) == 2:
+                    # First check modifiers is list of str or keys
+                    if isinstance(hotkey[0], list):
+                        for item in hotkey[0]:
+                            if not isinstance(item, str) and not \
+                            isinstance(item, model.Key):
+                                fail=True
+                    elif not isinstance(hotkey[0], str) and not \
+                            isinstance(hotkey[0], model.Key):
+                        fail=True
+                    else:
+                        fail=True
+                    # Then check second element is a key or str
+                    if not isinstance(hotkey[1], str) and not \
+                            isinstance(hotkey[1], model.Key):
+                        fail=True
+                else:
+                    fail=True
+            else:
+                fail=True
+            if fail:
+                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
+                    type(hotkey))
+                )
+
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
