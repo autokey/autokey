@@ -182,13 +182,6 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
         )
 
 
-def test_engine_create_folder():
-    engine, folder = create_engine()
-    with patch("autokey.model.Folder.persist"):
-        test_folder = engine.create_folder("New folder")
-        assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
-
-
 def test_engine_create_folder_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Folder.persist"):
@@ -207,6 +200,13 @@ def test_engine_create_folder_invalid_input_types_raises_value_error():
         assert_that(
             calling(engine.create_folder).with_args("title", temporary="not a bool"),
             raises(ValueError), "temporary is not checked for type=bool")
+
+
+def test_engine_create_folder():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        test_folder = engine.create_folder("New folder")
+        assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
 
 
 def test_engine_create_folder_subfolder():
