@@ -71,6 +71,9 @@ class Engine:
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """
+        self.validateType(title, "title", str, "str")
+        self.validateType(parent_folder, "parent_folder", model.Folder, "folder")
+        self.validateType(temporary, "temporary", bool, "bool")
         if parent_folder is None:
             parent_folders = self.configManager.allFolders
         else:
