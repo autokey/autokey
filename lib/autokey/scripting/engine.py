@@ -275,30 +275,31 @@ Phrases created within temporary folders must themselves be explicitly set tempo
                     )
 
 
+    def isValidHotkeyType(self, item):
+        return isinstance(item, str) or \
+                            isinstance(item, model.Key)
+
     def validateHotkey(self, hotkey):
         if hotkey is not None:
             fail=False
-            if isinstance(hotkey, tuple):
-                if len(hotkey) == 2:
+            if not isinstance(hotkey, tuple):
+                fail=True
+            else:
+                if len(hotkey) != 2:
+                    fail=True
+                else:
                     # First check modifiers is list of str or keys
                     if isinstance(hotkey[0], list):
                         for item in hotkey[0]:
-                            if not isinstance(item, str) and not \
-                            isinstance(item, model.Key):
+                            if not self.isValidHotkeyType(item):
                                 fail=True
-                    elif not isinstance(hotkey[0], str) and not \
-                            isinstance(hotkey[0], model.Key):
+                    elif not self.isValidHotkeyType(hotkey[0]):
                         fail=True
                     else:
                         fail=True
                     # Then check second element is a key or str
-                    if not isinstance(hotkey[1], str) and not \
-                            isinstance(hotkey[1], model.Key):
+                    if not self.isValidHotkeyType(hotkey[1]):
                         fail=True
-                else:
-                    fail=True
-            else:
-                fail=True
             if fail:
                 raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
                     type(hotkey))
