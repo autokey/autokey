@@ -77,8 +77,8 @@ class Engine:
         returned.
         """
         validateType(title, "title", str, "str")
-        # validateType(parent_folder, "parent_folder",
-        #         [model.Folder, pathlib.Path], ["folder", "pathlib.Path"])
+        validateType(parent_folder, "parent_folder",
+                [model.Folder, pathlib.Path], ["folder", "pathlib.Path"])
         validateType(temporary, "temporary", bool, "bool")
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
@@ -412,14 +412,28 @@ Phrases created within temporary folders must themselves be explicitly set tempo
 
 
 def validateType(item, name, type_, type_description):
-    # if not (isinstance(type_, list) and isinstance(type_description, list))
-    # and \
-    #         len(type_) == len(type_description):
-    if item is not None and not isinstance(item, type_):
-        raise ValueError("Expected {} to be {}, not {}".format(
-            name,
-            type_description,
-            type(item)))
+    if item is None:
+        return
+    # type_ and type_description might be passed as: 
+    # both singlets, one list, two lists of different lengths, two lists of
+    # same length.
+    if isinstance(type_, list) and isinstance(type_description, list) and \
+            len(type_) == len(type_description):
+        failed=True
+        for type__ in type_:
+            if isinstance(item, type__):
+                failed=False
+        if failed:
+            raise ValueError("Expected {} to be one of {}, not {}".format(
+                name,
+                type_description,
+                type(item)))
+    else:
+        if not isinstance(item, type_):
+            raise ValueError("Expected {} to be {}, not {}".format(
+                name,
+                type_description,
+                type(item)))
 
 def validateAbbreviations(abbreviations):
     if abbreviations is not None:
