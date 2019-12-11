@@ -200,9 +200,11 @@ def test_engine_create_folder_successful_using_a_parent_folder():
 
 def test_engine_create_folder_successful_using_a_path():
     engine, folder = create_engine()
-    new_path = pathlib.Path("/tmp/42")
+    parent_folder = pathlib.Path("/tmp/42")
+    folder_title = "title"
+    new_path = parent_folder / folder_title
     with patch("autokey.model.Folder.persist"):
-        new_folder = engine.create_folder("title", new_path)
+        new_folder = engine.create_folder(folder_title, parent_folder)
         assert_that(new_folder.path, is_(equal_to(str(new_path))))
 
 
