@@ -228,7 +228,7 @@ Folders created within temporary folders must themselves be set temporary")
             else:
                 fail=True
             if fail:
-                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or stsr, not {}".format(
+                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
 
                     type(hotkey))
                 )
