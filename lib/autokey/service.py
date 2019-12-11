@@ -508,3 +508,7 @@ class ScriptRunner:
         scope = self.scope.copy()
         scope["store"] = script.store
         exec(script.code, scope)
+
+    def run_subscript_path(self, path):
+        scope = self.scope.copy()
+        exec(open(path).read(), scope)
