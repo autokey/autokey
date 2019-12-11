@@ -913,11 +913,17 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return "Phrase('" + self.description + "')"
 
 
+# TODO: This can be converted to a dataclass, when migrating to Python >= 3.7.
+#       See https://docs.python.org/3/library/dataclasses.html
 class Expansion:
-
+    """
+    A simple container that contains the processed Phrase data during the Phrase expansion.
+    """
     def __init__(self, string):
+        # The processed string that will be typed by the Interface
         self.string = string
-        self.lefts = 0
+        # The number of backspaces needed to remove the typed string, including the trigger character, if any.
+        # Used, if the user requests an undo after expansion.
         self.backspaces = 0
 
 
