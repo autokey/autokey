@@ -75,16 +75,24 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error():
             raises(ValueError), "hotkey is not checked for type=tuple")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", "t2", "t3")),
+                "contents", hotkey=("<ctrl>", "t", "t")),
             raises(ValueError), "hotkey is not checked for tuple len 2")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", folder)),
+                "contents", hotkey=("<ctrl>", folder)),
             raises(ValueError), "hotkey is not checked for type=tuple(str,str)")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
                 "contents", hotkey=(["<ctrl>", folder], "a")),
             raises(ValueError), "hotkey[0] is not checked for type=list[str]")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("<ctrl>", "a")),
+            not_(raises(ValueError)), "hotkey modifiers fails single valid str")
+        # assert_that(
+        #     calling(engine.create_phrase).with_args(folder, "name",
+        #         "contents", hotkey=(["<ctrl>", "<shift>"], "<alt>")),
+        #     raises(ValueError), "hotkey key is allowed to be a modifier")
 
 
 def test_engine_create_phrase_adds_phrase_to_parent():
