@@ -424,6 +424,14 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         """
         return self._triggered_abbreviation, self._triggered_character
 
+    def remove_all_temporary(self, folder=None, in_temp_parent=False):
+        """
+        Removes all temporary folders and phrases, as well as any within temporary folders.
+        Useful for rc-style scripts that want to change a set of keys.
+        """
+        self.configManager.remove_all_temporary(folder,
+                in_temp_parent)
+
 
 def validateType(item, name, type_):
     """ type_ may be a list, in which case if item matches
