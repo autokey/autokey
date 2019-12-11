@@ -91,9 +91,8 @@ class Engine:
                         cannot use absolute paths.")
             path = parent_folder.expanduser() / title
             path.mkdir(parents=True, exist_ok=True)
-            new_folder = model.Folder(title)
+            new_folder = model.Folder(title, str(path.resolve())
             self.configManager.allFolders.append(new_folder)
-            new_folder.path = str(path.resolve())
             return new_folder
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
