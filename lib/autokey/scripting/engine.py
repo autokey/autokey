@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pathlib
+
 from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
@@ -60,24 +62,36 @@ class Engine:
 
         Descriptions for the optional arguments:
 
-        @param parentFolder: Folder to make this folder a subfolder of.
+        @param parentFolder: Folder to make this folder a subfolder of. If
+        passed as a folder, it will be that folder within auotkey.
+        If passed as pathlib.Path, it will be created or added at that path.
         @param temporary: Folders created with temporary=True are
                                     not persisted.
                                     Used for single-source rc-style scripts.
 
         If a folder of that name already exists, this will return it unchanged.
+        If the folder wasn't already added to autokey, it will be.
         The 'temporary' property is not touched to avoid deleting an existing
         folder.
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """
-        self.validateType(title, "title", str, "str")
-        self.validateType(parent_folder, "parent_folder", model.Folder, "folder")
-        self.validateType(temporary, "temporary", bool, "bool")
+        validateType(title, "title", str, "str")
+        # validateType(parent_folder, "parent_folder",
+        #         [model.Folder, pathlib.Path], ["folder", "pathlib.Path"])
+        validateType(temporary, "temporary", bool, "bool")
+        # TODO: Convert this to use get_folder, when we change to specifying
+        # the exact folder by more than just title.
         if parent_folder is None:
             parent_folders = self.configManager.allFolders
-        else:
+        elif isinstance(parent_folder, model.Folder):
             parent_folders = parent_folder.folders
+        elif isinstance(parent_folder, pathlib.Path):
+            path = parent_folder / title
+            path.mkdir(parents=True, exist_ok=True)
+        else:
+            # Input is previously validated, must match one of the above.
+            pass
 
         for folder in parent_folders:
             if folder.title == title:
@@ -182,16 +196,16 @@ Folders created within temporary folders must themselves be set temporary")
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
         # Start with input type-checking.
-        self.validateType(folder, "folder", model.Folder, "folder")
-        self.validateType(name, "name", str, "str")
-        self.validateType(contents, "contents", str, "str")
-        self.validateAbbreviations(abbreviations)
-        self.validateHotkey(hotkey)
-        self.validateType(send_mode, "send_mode", model.SendMode, "model.SendMode")
-        self.validateType(window_filter, "window_filter", str, "str")
-        self.validateType(show_in_system_tray, "show_in_system_tray", bool, "bool")
-        self.validateType(always_prompt, "always_prompt", bool, "bool")
-        self.validateType(temporary, "temporary", bool, "bool")
+        validateType(folder, "folder", model.Folder, "folder")
+        validateType(name, "name", str, "str")
+        validateType(contents, "contents", str, "str")
+        validateAbbreviations(abbreviations)
+        validateHotkey(hotkey)
+        validateType(send_mode, "send_mode", model.SendMode, "model.SendMode")
+        validateType(window_filter, "window_filter", str, "str")
+        validateType(show_in_system_tray, "show_in_system_tray", bool, "bool")
+        validateType(always_prompt, "always_prompt", bool, "bool")
+        validateType(temporary, "temporary", bool, "bool")
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
@@ -236,60 +250,6 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         finally:
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
-
-
-    def validateType(self, item, name, type_, type_description):
-        if item is not None and not isinstance(item, type_):
-            raise ValueError("Expected {} to be {}, not {}".format(
-                name,
-                type_description,
-                type(item)))
-
-    def validateAbbreviations(self, abbreviations):
-        if abbreviations is not None:
-            fail=False
-            if not isinstance(abbreviations, str):
-                fail=True
-                if isinstance(abbreviations, list):
-                    fail=False
-                    for item in abbreviations:
-                        if not isinstance(item, str):
-                            fail=True
-            if fail:
-                raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
-                    type(abbreviations))
-                    )
-
-
-    def isValidHotkeyType(self, item):
-        return isinstance(item, str) or \
-                            isinstance(item, model.Key)
-
-    def validateHotkey(self, hotkey):
-        if hotkey is not None:
-            fail=False
-            if not isinstance(hotkey, tuple):
-                fail=True
-            else:
-                if len(hotkey) != 2:
-                    fail=True
-                else:
-                    # First check modifiers is list of str or keys
-                    if isinstance(hotkey[0], list):
-                        for item in hotkey[0]:
-                            if not self.isValidHotkeyType(item):
-                                fail=True
-                    elif not self.isValidHotkeyType(hotkey[0]):
-                        fail=True
-                    else:
-                        fail=True
-                    # Then check second element is a key or str
-                    if not self.isValidHotkeyType(hotkey[1]):
-                        fail=True
-            if fail:
-                raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
-                    type(hotkey))
-                )
 
 
     def create_abbreviation(self, folder, description, abbr, contents):
@@ -449,3 +409,62 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         @rtype: C{Tuple[Optional[str], Optional[str]]}
         """
         return self._triggered_abbreviation, self._triggered_character
+
+
+def validateType(item, name, type_, type_description):
+    # if not (isinstance(type_, list) and isinstance(type_description, list))
+    # and \
+    #         len(type_) == len(type_description):
+    if item is not None and not isinstance(item, type_):
+        raise ValueError("Expected {} to be {}, not {}".format(
+            name,
+            type_description,
+            type(item)))
+
+def validateAbbreviations(abbreviations):
+    if abbreviations is not None:
+        fail=False
+        if not isinstance(abbreviations, str):
+            fail=True
+            if isinstance(abbreviations, list):
+                fail=False
+                for item in abbreviations:
+                    if not isinstance(item, str):
+                        fail=True
+        if fail:
+            raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+                type(abbreviations))
+                )
+
+
+def isValidHotkeyType(item):
+    return isinstance(item, str) or \
+                        isinstance(item, model.Key)
+
+def validateHotkey(hotkey):
+    if hotkey is not None:
+        fail=False
+        if not isinstance(hotkey, tuple):
+            fail=True
+        else:
+            if len(hotkey) != 2:
+                fail=True
+            else:
+                # First check modifiers is list of str or keys
+                if isinstance(hotkey[0], list):
+                    for item in hotkey[0]:
+                        if not isValidHotkeyType(item):
+                            fail=True
+                elif not isValidHotkeyType(hotkey[0]):
+                    fail=True
+                else:
+                    fail=True
+                # Then check second element is a key or str
+                if not isValidHotkeyType(hotkey[1]):
+                    fail=True
+        if fail:
+            raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
+                type(hotkey))
+            )
+
+
