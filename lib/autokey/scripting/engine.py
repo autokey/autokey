@@ -76,10 +76,10 @@ class Engine:
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """
-        validateType(title, "title", str, "str")
+        validateType(title, "title", str)
         validateType(parent_folder, "parent_folder",
-                [model.Folder, pathlib.Path], ["folder", "pathlib.Path"])
-        validateType(temporary, "temporary", bool, "bool")
+                [model.Folder, pathlib.Path])
+        validateType(temporary, "temporary", bool)
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
         if parent_folder is None:
@@ -196,16 +196,16 @@ Folders created within temporary folders must themselves be set temporary")
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
         # Start with input type-checking.
-        validateType(folder, "folder", model.Folder, "folder")
-        validateType(name, "name", str, "str")
-        validateType(contents, "contents", str, "str")
+        validateType(folder, "folder", model.Folder)
+        validateType(name, "name", str)
+        validateType(contents, "contents", str)
         validateAbbreviations(abbreviations)
         validateHotkey(hotkey)
-        validateType(send_mode, "send_mode", model.SendMode, "model.SendMode")
-        validateType(window_filter, "window_filter", str, "str")
-        validateType(show_in_system_tray, "show_in_system_tray", bool, "bool")
-        validateType(always_prompt, "always_prompt", bool, "bool")
-        validateType(temporary, "temporary", bool, "bool")
+        validateType(send_mode, "send_mode", model.SendMode)
+        validateType(window_filter, "window_filter", str)
+        validateType(show_in_system_tray, "show_in_system_tray", bool)
+        validateType(always_prompt, "always_prompt", bool)
+        validateType(temporary, "temporary", bool)
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
@@ -411,14 +411,13 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         return self._triggered_abbreviation, self._triggered_character
 
 
-def validateType(item, name, type_, type_description):
+def validateType(item, name, type_):
+    """ type_ may be a list, in which case if item matches
+    any type, no error is raised.
+    """
     if item is None:
         return
-    # type_ and type_description might be passed as: 
-    # both singlets, one list, two lists of different lengths, two lists of
-    # same length.
-    if isinstance(type_, list) and isinstance(type_description, list) and \
-            len(type_) == len(type_description):
+    if isinstance(type_, list):
         failed=True
         for type__ in type_:
             if isinstance(item, type__):
@@ -426,13 +425,13 @@ def validateType(item, name, type_, type_description):
         if failed:
             raise ValueError("Expected {} to be one of {}, not {}".format(
                 name,
-                type_description,
+                type_,
                 type(item)))
     else:
         if not isinstance(item, type_):
             raise ValueError("Expected {} to be {}, not {}".format(
                 name,
-                type_description,
+                type_,
                 type(item)))
 
 def validateAbbreviations(abbreviations):
