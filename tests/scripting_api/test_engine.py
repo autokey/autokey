@@ -238,12 +238,17 @@ def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error():
 def test_engine_create_folder_from_path():
     engine, folder = create_engine()
     path = pathlib.Path("/tmp/autokey")
+    title = "path folder"
+    fullpath=path / title
+    fullpathStr="/tmp/autokey/path folder"
+    # fullpathStr=str(fullpath)
     with patch("autokey.model.Folder.persist"):
         with patch("pathlib.Path.mkdir"):
-            test_folder = engine.create_folder("New folder", parent_folder=path)
+            test_folder = engine.create_folder(title, parent_folder=path)
             # XXX This is probably an erroneous assertion.
-            # assert_that(engine.configManager.allFolders, has_item(test_folder), "Doesn't create folder from path")
-            assert_that(path.exists())
+            assert_that(engine.configManager.allFolders, has_item(test_folder), "Doesn't create folder from path")
+            assert_that(test_folder.path, is_(equal_to(fullpathStr)), "Doesn't create folder from path")
+            # assert_that(path.exists())
             # path.rmdir()
 
 

@@ -66,6 +66,7 @@ class Engine:
         @param parentFolder: Folder to make this folder a subfolder of. If
         passed as a folder, it will be that folder within auotkey.
         If passed as pathlib.Path, it will be created or added at that path.
+        Paths expand ~ to $HOME.
         @param temporary: Folders created with temporary=True are
                                     not persisted.
                                     Used for single-source rc-style scripts.
@@ -92,6 +93,7 @@ class Engine:
             path.mkdir(parents=True, exist_ok=True)
             new_folder = model.Folder(title)
             self.configManager.allFolders.append(new_folder)
+            new_folder.path = str(path.resolve())
             return new_folder
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
