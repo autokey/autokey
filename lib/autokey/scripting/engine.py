@@ -341,18 +341,25 @@ Phrases created within temporary folders must themselves be explicitly set tempo
 
         Usage: C{engine.run_script(description)}
 
-        @param description: description of the script to run
+        @param description: description of the script to run. If parsable as
+        an absolute path to an existing file, that will be run instead.
         @raise Exception: if the specified script does not exist
         """
-        target_script = None
-        for item in self.configManager.allItems:
-            if item.description == description and isinstance(item, model.Script):
-                target_script = item
-
-        if target_script is not None:
-            self.runner.run_subscript(target_script)
+        path = pathlib.Path(description)
+        path = path.expanduser()
+        # Check if absolute path.
+        if pathlib.PurePath(path).is_absolute() and path.exists():
+            self.runner.run_subscript_path(path)
         else:
-            raise Exception("No script with description '%s' found" % description)
+            target_script = None
+            for item in self.configManager.allItems:
+                if item.description == description and isinstance(item, model.Script):
+                    target_script = item
+
+            if target_script is not None:
+                self.runner.run_subscript(target_script)
+            else:
+                raise Exception("No script with description '%s' found" % description)
 
     def run_script_from_macro(self, args):
         """
