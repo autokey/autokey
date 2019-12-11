@@ -202,10 +202,6 @@ def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: Ph
         is_(equal_to(phrase_result.expansion)),
         "Invalid Phrase expansion result string"
     )
-    assert_that(
-        result.lefts,
-        is_(equal_to(0)),
-    )
 
 
 def generate_test_cases_for_trigger_immediately():
@@ -363,10 +359,6 @@ def test_undo_on_backspace(phrase_data: PhraseData, trigger_str: str, undo_enabl
         is_(equal_to(phrase_result.backspace_count)),
         "Wrong backspace key count"
     )
-    assert_that(
-        result.lefts,
-        is_(equal_to(0)),
-    )
 
 
 def generate_test_cases_for_omit_trigger():
@@ -423,10 +415,6 @@ def test_omit_trigger(phrase_data: PhraseData, trigger_str: str, omit_trigger: b
         is_(equal_to(phrase_result.backspace_count)),
         "Wrong backspace character count"
     )
-    assert_that(
-        result.lefts,
-        is_(equal_to(0)),
-    )
 
 
 def generate_test_cases_for_trigger_phrase_inside_word():
@@ -475,8 +463,4 @@ def test_trigger_phrase_inside_word(phrase_data: PhraseData, trigger_str: str, p
         result.backspaces,
         is_(equal_to(phrase_result.backspace_count)),
         "Wrong backspace character count"
-    )
-    assert_that(
-        result.lefts,
-        is_(equal_to(0)),
     )
