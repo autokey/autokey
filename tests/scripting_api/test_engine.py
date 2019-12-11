@@ -43,47 +43,55 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     return engine, test_folder
 
 
+def test_engine_create_phrase_valid_abbreviation_list_succeeds():
+    engine, folder = create_engine()
+    valid_abbreviations = ["t1", "t2"]
+    with patch("autokey.model.Phrase.persist"):
+        phrase = engine.create_phrase(
+            folder, "name", "contents",
+            abbreviations=valid_abbreviations
+        )
+        assert_that(phrase.abbreviations, contains_inanyorder(*valid_abbreviations))
+
+
 def test_engine_create_phrase_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Phrase.persist"):
         assert_that(
-            calling(engine.create_phrase).with_args("Not a folder", "name", "contents",),
+            calling(engine.create_phrase).with_args(
+                "Not a folder", "name", "contents",),
             raises(ValueError), "Folder is not checked for type=model.Folder")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, folder,
-                "contents"),
+            calling(engine.create_phrase).with_args(
+                folder, folder, "contents"),
             raises(ValueError), "name is not checked for type=str")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                folder),
+            calling(engine.create_phrase).with_args(
+                folder, "name", folder),
             raises(ValueError), "contents is not checked for type=str")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", abbreviations=folder),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", abbreviations=folder),
             raises(ValueError), "abbreviations is not checked for type=str")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", abbreviations=["t1", "t2"]),
-            not_(raises(ValueError)), "abbreviations is not checked for type=list")
-        assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", abbreviations=["t1", folder]),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", abbreviations=["t1", folder]),
             raises(ValueError), "abbreviations is not checked for type=list[str]")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=folder),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", hotkey=folder),
             raises(ValueError), "hotkey is not checked for type=tuple")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", "t2", "t3")),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", hotkey=("t1", "t2", "t3")),
             raises(ValueError), "hotkey is not checked for tuple len 2")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", folder)),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", hotkey=("t1", folder)),
             raises(ValueError), "hotkey is not checked for type=tuple(str,str)")
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=(["<ctrl>", folder], "a")),
+            calling(engine.create_phrase).with_args(
+                folder, "name", "contents", hotkey=(["<ctrl>", folder], "a")),
             raises(ValueError), "hotkey[0] is not checked for type=list[str]")
 
 
@@ -182,6 +190,22 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
         )
 
 
+def test_engine_create_folder_successful_using_a_parent_folder():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        new_folder = engine.create_folder("title", folder)
+        assert_that(new_folder, is_in(folder.folders))
+        assert_that(new_folder.temporary, is_(equal_to(folder.temporary)))
+
+
+def test_engine_create_folder_successful_using_a_path():
+    engine, folder = create_engine()
+    new_path = pathlib.Path("/tmp/42")
+    with patch("autokey.model.Folder.persist"):
+        new_folder = engine.create_folder("title", new_path)
+        assert_that(new_folder.path, is_(equal_to(str(new_path))))
+
+
 def test_engine_create_folder_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Folder.persist"):
@@ -191,12 +215,6 @@ def test_engine_create_folder_invalid_input_types_raises_value_error():
         assert_that(
             calling(engine.create_folder).with_args("title", "not a folder"),
             raises(ValueError), "parent_folder is not checked for type=model.Folder")
-        assert_that(
-            calling(engine.create_folder).with_args("title", folder),
-            not_(raises(ValueError)), "parent_folder erroneously fails check for type=model.Folder")
-        assert_that(
-            calling(engine.create_folder).with_args("title", pathlib.Path(".")),
-            not_(raises(ValueError)), "parent_folder erroneously fails check for type=pathlib.Path")
         assert_that(
             calling(engine.create_folder).with_args("title", temporary="not a bool"),
             raises(ValueError), "temporary is not checked for type=bool")
@@ -212,17 +230,25 @@ def test_engine_create_folder():
 def test_engine_create_folder_subfolder():
     engine, folder = create_engine()
     # Temporary: prevent persisting (which fails b/c folder doesn't exist).
-    test_folder = engine.create_folder("New folder",
-            parent_folder=folder, temporary=True)
-    assert_that(engine.configManager.allFolders, not_(has_item(test_folder)), "creates top-level folder instead of subfolder")
-    assert_that(folder, is_(equal_to(test_folder.parent)),
+    test_folder = engine.create_folder("New folder", parent_folder=folder, temporary=True)
+    assert_that(
+        engine.configManager.allFolders,
+        is_not(has_item(test_folder)),  # Unfortunately, PyHamcrest has no plain not_ matcher, so use is_not instead
+        "creates top-level folder instead of subfolder")
+    assert_that(
+        folder,
+        is_(equal_to(test_folder.parent)),
         "Doesn't add parent folder as parent of subfolder")
-    assert_that(folder.folders,
+    assert_that(
+        folder.folders,
         has_item(test_folder),
-            "Doesn't create subfolder in correct folder")
-    test_folder = engine.create_folder("New folder",
-            parent_folder=folder, temporary=True)
-    assert_that(engine.configManager.allFolders, not_(has_item(test_folder)), "creates top-level folder instead of subfolder")
+        "Doesn't create subfolder in correct folder")
+    test_folder = engine.create_folder("New folder", parent_folder=folder, temporary=True)
+    assert_that(
+        engine.configManager.allFolders,
+        is_not(has_item(test_folder)),
+        "creates top-level folder instead of subfolder")
+
 
 def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error():
     engine, folder = create_engine()
@@ -250,7 +276,7 @@ def test_engine_create_folder_from_path():
             assert_that(test_folder.path, is_(equal_to(fullpathStr)), "Doesn't create folder from path")
         assert_that(
             calling(engine.create_folder).with_args(title, parent_folder=path),
-            not_(raises(Exception)), "Adding a duplicate folder from path raises error")
+            is_not(raises(Exception)), "Adding a duplicate folder from path raises error")
             # assert_that(path.exists())
             # path.rmdir()
 
@@ -263,20 +289,23 @@ def test_engine_remove_temporary_toplevel():
     with patch("autokey.model.Phrase.persist"):
         test_phrase_nontemp = engine.create_phrase(folder,
                 "test phrase nontemp", "contents")
-    test_folder = engine.create_folder("New folder",
-            temporary=True)
+    test_folder = engine.create_folder("New folder", temporary=True)
 
     engine.remove_all_temporary()
 
-    assert_that(engine.configManager.allFolders,
-            has_item(folder),
-                "Removes non-temp top-level folders")
-    assert_that(engine.configManager.allFolders,
-            not_(has_item(test_folder)),
-                "doesn't remove temp top-level folders")
-    assert_that(folder.items,
-            not_(has_item(test_phrase)),
-                "doesn't remove temp phrases")
+    assert_that(
+        engine.configManager.allFolders,
+        has_item(folder),
+        "Removes non-temp top-level folders")
+    assert_that(
+        engine.configManager.allFolders,
+        is_not(has_item(test_folder)),
+        "doesn't remove temp top-level folders")
+    assert_that(
+        folder.items,
+        is_not(has_item(test_phrase)),
+        "doesn't remove temp phrases")
+
 
 def test_engine_remove_temporary():
     engine, folder = create_engine()
@@ -299,10 +328,10 @@ def test_engine_remove_temporary():
     engine.remove_all_temporary()
 
     assert_that(folder.folders,
-            not_(has_item(test_subfolder)),
+            is_not(has_item(test_subfolder)),
                 "doesn't remove temp subfolders")
     assert_that(test_subfolder.items,
-            not_(is_(equal_to(test_phrase))),
+            is_not(is_(equal_to(test_phrase))),
                 "doesn't remove temp phrases from temp subfolders")
     # assert_that(folder.folders,
     #         has_item(test_subfolder_nontemp),
