@@ -255,12 +255,7 @@ def test_engine_create_folder_from_path():
             # path.rmdir()
 
 
-
-# These tests shouldn't really be here since they're for configmanager
-# class, not engine. But I'm not confident enough with settings up
-# tests to move them.
-
-def test_configmanager_remove_temporary_toplevel():
+def test_engine_remove_temporary_toplevel():
     engine, folder = create_engine()
     # Folder acts as a non-temp top-level folder.
     test_phrase = engine.create_phrase(folder, "test phrase",
@@ -271,7 +266,7 @@ def test_configmanager_remove_temporary_toplevel():
     test_folder = engine.create_folder("New folder",
             temporary=True)
 
-    engine.configManager.remove_all_temporary()
+    engine.remove_all_temporary()
 
     assert_that(engine.configManager.allFolders,
             has_item(folder),
@@ -283,7 +278,7 @@ def test_configmanager_remove_temporary_toplevel():
             not_(has_item(test_phrase)),
                 "doesn't remove temp phrases")
 
-def test_configmanager_remove_temporary():
+def test_engine_remove_temporary():
     engine, folder = create_engine()
 
     test_subfolder = engine.create_folder("New folder",
@@ -301,7 +296,7 @@ def test_configmanager_remove_temporary():
     #     test_phrase_nontemp = engine.create_phrase(test_subfolder,
     #             "test phrase nontemp", "contents")
 
-    engine.configManager.remove_all_temporary()
+    engine.remove_all_temporary()
 
     assert_that(folder.folders,
             not_(has_item(test_subfolder)),
