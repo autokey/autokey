@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import pathlib
+
 from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
@@ -47,19 +49,91 @@ class Engine:
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """
+        validateType(title, "title", str)
         for folder in self.configManager.allFolders:
             if folder.title == title:
                 return folder
         return None
 
+    def create_folder(self, title: str, parent_folder=None, temporary=False):
+        """
+        Create and return a new folder.
+
+        Usage: C{engine.create_folder("new folder"), parent_folder=folder, temporary=True}
+
+        Descriptions for the optional arguments:
+
+        @param parentFolder: Folder to make this folder a subfolder of. If
+        passed as a folder, it will be that folder within auotkey.
+        If passed as pathlib.Path, it will be created or added at that path.
+        Paths expand ~ to $HOME.
+        @param temporary: Folders created with temporary=True are
+                                    not persisted.
+                                    Used for single-source rc-style scripts.
+                                    Cannot be used if parent_folder is a Path.
+
+        If a folder of that name already exists, this will return it unchanged.
+        If the folder wasn't already added to autokey, it will be.
+        The 'temporary' property is not touched to avoid deleting an existing
+        folder.
+        Note that if more than one folder has the same title, only the first match will be
+        returned.
+        """
+        validateType(title, "title", str)
+        validateType(parent_folder, "parent_folder",
+                [model.Folder, pathlib.Path])
+        validateType(temporary, "temporary", bool)
+        # XXX Doesn't check if a folder already exists at this path in autokey.
+        if isinstance(parent_folder, pathlib.Path):
+            if temporary:
+                raise ValueError("Parameter 'temporary' is True, but a path \
+                        was given as the parent folder. Temporary folders \
+                        cannot use absolute paths.")
+            path = parent_folder.expanduser() / title
+            path.mkdir(parents=True, exist_ok=True)
+            new_folder = model.Folder(title, path=str(path.resolve()))
+            self.configManager.allFolders.append(new_folder)
+            return new_folder
+        # TODO: Convert this to use get_folder, when we change to specifying
+        # the exact folder by more than just title.
+        if parent_folder is None:
+            parent_folders = self.configManager.allFolders
+        elif isinstance(parent_folder, model.Folder):
+            parent_folders = parent_folder.folders
+        else:
+            # Input is previously validated, must match one of the above.
+            pass
+
+        for folder in parent_folders:
+            if folder.title == title:
+                return folder
+        else:
+            new_folder = model.Folder(title)
+            if parent_folder is None:
+                self.configManager.allFolders.append(new_folder)
+            else:
+                parent_folder.add_folder(new_folder)
+                if not temporary and parent_folder.temporary:
+                    raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+Folders created within temporary folders must themselves be set temporary")
+
+            if not temporary:
+                new_folder.persist()
+            else:
+                new_folder.temporary = True
+            return new_folder
+
+
     def create_phrase(self, folder, name: str, contents: str,
                       abbreviations: Union[str, List[str]]=None,
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
                       send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
-                      show_in_system_tray: bool=False, always_prompt: bool=False):
+                      show_in_system_tray: bool=False, always_prompt: bool=False,
+                      temporary=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
-        you wish to create the Phrase in.
+        you wish to create the Phrase in. If the folder is a temporary
+        one, the phrase will be created as temporary.
 
         The first three arguments (folder, name and contents) are required. All further arguments are optional and
         considered to be keyword-argument only. Do not rely on the order of the optional arguments.
@@ -122,12 +196,30 @@ class Engine:
                                     If set to True, the new Phrase will be shown in the tray icon context menu.
         @param always_prompt: A boolean defaulting to False. If set to True,
                               the Phrase expansion has to be manually confirmed, each time it is triggered.
+        @param temporary: Hotkeys created with temporary=True are
+                                    not persisted as .jsons, and are replaced if the description is not
+                                    unique within the folder.
+                                     Used for single-source rc-style scripts.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
         @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
           internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
+        # Start with input type-checking.
+        validateType(folder, "folder", model.Folder)
+        # For when we allow pathlib.Path
+        # validateType(folder, "folder",
+        #         [model.Folder, pathlib.Path])
+        validateType(name, "name", str)
+        validateType(contents, "contents", str)
+        validateAbbreviations(abbreviations)
+        validateHotkey(hotkey)
+        validateType(send_mode, "send_mode", model.SendMode)
+        validateType(window_filter, "window_filter", str)
+        validateType(show_in_system_tray, "show_in_system_tray", bool)
+        validateType(always_prompt, "always_prompt", bool)
+        validateType(temporary, "temporary", bool)
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
@@ -144,6 +236,10 @@ class Engine:
             if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
                 raise ValueError("The specified hotkey and modifier combination is already in use.")
 
+        if folder.temporary and not temporary:
+            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+Phrases created within temporary folders must themselves be explicitly set temporary")
+
         self.monitor.suspend()
         try:
             p = model.Phrase(name, contents)
@@ -155,17 +251,20 @@ class Engine:
                 p.set_hotkey(*hotkey)
             if window_filter:
                 p.set_window_titles(window_filter)
-            if show_in_system_tray:
-                p.show_in_tray_menu = True
-            if always_prompt:
-                p.prompt = True
+            p.show_in_tray_menu = show_in_system_tray
+            p.prompt = always_prompt
+            p.temporary = temporary
 
             folder.add_item(p)
-            p.persist()
+            # Don't save a json if it is a temporary hotkey. Won't persist across
+            # reloads.
+            if not temporary:
+                p.persist()
             return p
         finally:
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
+
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
@@ -324,3 +423,86 @@ class Engine:
         @rtype: C{Tuple[Optional[str], Optional[str]]}
         """
         return self._triggered_abbreviation, self._triggered_character
+
+
+    def remove_all_temporary(self, folder=None,
+            in_temp_parent=False):
+        """
+        Removes all temporary folders and phrases, as well as any within
+        temporary folders.
+        Useful for rc-style scripts that want to change a set of keys.
+        """
+        self.configManager.remove_all_temporary(folder,
+                in_temp_parent)
+
+
+def validateType(item, name, type_):
+    """ type_ may be a list, in which case if item matches
+    any type, no error is raised.
+    """
+    if item is None:
+        return
+    if isinstance(type_, list):
+        failed=True
+        for type__ in type_:
+            if isinstance(item, type__):
+                failed=False
+        if failed:
+            raise ValueError("Expected {} to be one of {}, not {}".format(
+                name,
+                type_,
+                type(item)))
+    else:
+        if not isinstance(item, type_):
+            raise ValueError("Expected {} to be {}, not {}".format(
+                name,
+                type_,
+                type(item)))
+
+def validateAbbreviations(abbreviations):
+    if abbreviations is not None:
+        fail=False
+        if not isinstance(abbreviations, str):
+            fail=True
+            if isinstance(abbreviations, list):
+                fail=False
+                for item in abbreviations:
+                    if not isinstance(item, str):
+                        fail=True
+        if fail:
+            raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+                type(abbreviations))
+                )
+
+
+def isValidHotkeyType(item):
+    return isinstance(item, str) or \
+                        isinstance(item, model.Key)
+
+def validateHotkey(hotkey):
+    if hotkey is not None:
+        fail=False
+        if not isinstance(hotkey, tuple):
+            fail=True
+        else:
+            if len(hotkey) != 2:
+                fail=True
+            else:
+                # First check modifiers is list of str or keys
+                if isinstance(hotkey[0], list):
+                    for item in hotkey[0]:
+                        if not isValidHotkeyType(item):
+                            fail=True
+                elif not isValidHotkeyType(hotkey[0]):
+                    fail=True
+                else:
+                    fail=True
+                # Then check second element is a key or str
+                if not isValidHotkeyType(hotkey[1]):
+                    fail=True
+        if fail:
+            raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
+                type(hotkey))
+            )
+
+

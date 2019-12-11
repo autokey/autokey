@@ -56,7 +56,7 @@ def create_config_manager_instance(auto_key_app, had_error=False):
         os.remove(CONFIG_FILE)
         shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
         return create_config_manager_instance(auto_key_app, True)
-    
+
     _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return config_manager
 
@@ -145,16 +145,16 @@ def apply_settings(settings):
 
 class ConfigManager:
     """
-    Contains all application configuration, and provides methods for updating and 
-    maintaining consistency of the configuration. 
+    Contains all application configuration, and provides methods for updating and
+    maintaining consistency of the configuration.
     """
 
     """
     Static member for global application settings.
     """
-    
+
     CLASS_VERSION = common.VERSION
-    
+
     SETTINGS = {
                 IS_FIRST_RUN: True,
                 SERVICE_RUNNING: True,
@@ -182,22 +182,22 @@ class ConfigManager:
                 #RECENT_ENTRY_SUGGEST: True
                 SCRIPT_GLOBALS: {}
                 }
-                
+
     def __init__(self, app):
         """
         Create initial default configuration
-        """ 
+        """
         self.VERSION = self.__class__.CLASS_VERSION
         self.lock = threading.Lock()
-        
+
         self.app = app
         self.folders = []
         self.userCodeDir = None  # type: str
-        
+
         self.configHotkey = GlobalHotkey()
         self.configHotkey.set_hotkey(["<super>"], "k")
         self.configHotkey.enabled = True
-        
+
         self.toggleServiceHotkey = GlobalHotkey()
         self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
         self.toggleServiceHotkey.enabled = True
@@ -211,12 +211,12 @@ class ConfigManager:
 
         self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
         self.app.monitor.add_watch(common.CONFIG_DIR)
-        
+
         if self.folders:
             return
-    
+
         # --- Code below here only executed if no persisted config data provided
-        
+
         _logger.info("No configuration found - creating new one")
         self.folders.append(autokey.configmanager.predefined_user_files.create_my_phrases_folder())
         self.folders.append(autokey.configmanager.predefined_user_files.create_sample_scripts_folder())
@@ -224,7 +224,7 @@ class ConfigManager:
 
         # TODO - future functionality
         self.recentEntries = []
-        
+
         self.config_altered(True)
 
     def get_serializable(self):
@@ -232,7 +232,7 @@ class ConfigManager:
         for folder in self.folders:
             if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
                 extraFolders.append(folder.path)
-        
+
         d = {
             "version": self.VERSION,
             "userCodeDir": self.userCodeDir,
@@ -246,7 +246,7 @@ class ConfigManager:
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
             _logger.info("Loading config from existing file: " + CONFIG_FILE)
-            
+
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
@@ -256,10 +256,11 @@ class ConfigManager:
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
+
             self.load_disabled_modifiers()
-            
+
             self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
-            
+
             for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
                 if os.path.isdir(entryPath):
                     _logger.debug("Loading folder at '%s'", entryPath)
@@ -274,42 +275,42 @@ class ConfigManager:
 
             self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
             self.configHotkey.load_from_serialized(data["configHotkey"])
-            
+
             if self.VERSION < self.CLASS_VERSION:
                 self.upgrade()
 
             self.config_altered(False)
             _logger.info("Successfully loaded configuration")
-            
+
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found
         for item in self.allItems:
             if item.path == path:
                 return item
-        
+
         return None
-    
+
     def __checkExistingFolder(self, path):
         for folder in self.allFolders:
             if folder.path == path:
                 return folder
-        
+
         return None
-            
+
     def path_created_or_modified(self, path):
         directory, baseName = os.path.split(path)
         loaded = False
-        
+
         if path == CONFIG_FILE:
             self.reload_global_config()
-            
+
         elif directory != common.CONFIG_DIR:  # ignore all other changes in top dir
-            
+
             # --- handle directories added
-            
+
             if os.path.isdir(path):
                 f = model.Folder("", path=path)
-                
+
                 if directory == CONFIG_DEFAULT_FOLDER:
                     self.folders.append(f)
                     f.load()
@@ -320,76 +321,77 @@ class ConfigManager:
                         f.load(folder)
                         folder.add_folder(f)
                         loaded = True
-            
+
             # -- handle txt or py files added or modified
-            
+
             elif os.path.isfile(path):
                 i = self.__checkExisting(path)
                 isNew = False
-                
+
                 if i is None:
                     isNew = True
                     if baseName.endswith(".txt"):
                         i = model.Phrase("", "", path=path)
                     elif baseName.endswith(".py"):
                         i = model.Script("", "", path=path)
-                                 
+
                 if i is not None:
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         i.load(folder)
                         if isNew: folder.add_item(i)
                         loaded = True
-                        
+
                 # --- handle changes to folder settings
-                            
+
                 if baseName == ".folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         folder.load_from_serialized()
                         loaded = True
-                        
+
                 # --- handle changes to item settings
-                
+
                 if baseName.endswith(".json"):
                     for item in self.allItems:
                         if item.get_json_path() == path:
                             item.load_from_serialized()
                             loaded = True
-                            
+
             if not loaded:
                 _logger.warning("No action taken for create/update event at %s", path)
             else:
                 self.config_altered(False)
             return loaded
-        
+
     def path_removed(self, path):
         directory, baseName = os.path.split(path)
         deleted = False
-        
+
         if directory == common.CONFIG_DIR: # ignore all deletions in top dir
-            return 
-        
+            return
+
         folder = self.__checkExistingFolder(path)
         item = self.__checkExisting(path)
-        
+
         if folder is not None:
             if folder.parent is None:
                 self.folders.remove(folder)
             else:
                 folder.parent.remove_folder(folder)
             deleted = True
-                
+
         elif item is not None:
             item.parent.remove_item(item)
             #item.remove_data()
             deleted = True
-            
+
         if not deleted:
             _logger.warning("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
         return deleted
+
 
     def load_disabled_modifiers(self):
         """
@@ -463,18 +465,18 @@ class ConfigManager:
         _logger.info("Reloading global configuration")
         with open(CONFIG_FILE, 'r') as pFile:
             data = json.load(pFile)
-    
+
         self.userCodeDir = data["userCodeDir"]
         apply_settings(data["settings"])
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
-        
+
         existingPaths = []
         for folder in self.folders:
             if folder.parent is None and not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
                 existingPaths.append(folder.path)
 
         for folderPath in data["folders"]:
-            if folderPath not in existingPaths:             
+            if folderPath not in existingPaths:
                 f = model.Folder("", path=folderPath)
                 f.load()
                 self.folders.append(f)
@@ -484,14 +486,14 @@ class ConfigManager:
 
         self.config_altered(False)
         _logger.info("Successfully reloaded global configuration")
-        
+
     def upgrade(self):
         _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
-        
+
         # Always reset interface type when upgrading
         self.SETTINGS[INTERFACE_TYPE] = X_RECORD_INTERFACE
         _logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
-        
+
         if self.VERSION < '0.70.0':
             _logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
@@ -502,81 +504,81 @@ class ConfigManager:
             self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
             self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
             self.SETTINGS[SCRIPT_GLOBALS] = {}
-        
-        self.VERSION = common.VERSION    
+
+        self.VERSION = common.VERSION
         self.config_altered(True)
-            
+
     def config_altered(self, persistGlobal):
         """
         Called when some element of configuration has been altered, to update
-        the lists of phrases/folders. 
-        
+        the lists of phrases/folders.
+
         @param persistGlobal: save the global configuration at the end of the process
         """
         _logger.info("Configuration changed - rebuilding in-memory structures")
-        
+
         self.lock.acquire()
         # Rebuild root folder list
         #rootFolders = self.folders
         #self.folders = []
         #for folder in rootFolders:
         #    self.folders.append(folder)
-        
+
         self.hotKeyFolders = []
         self.hotKeys = []
-        
+
         self.abbreviations = []
-        
+
         self.allFolders = []
         self.allItems = []
-        
+
         for folder in self.folders:
             if model.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
-            
+
             if not self.app.monitor.has_watch(folder.path):
                 self.app.monitor.add_watch(folder.path)
-            
+
             self.__processFolder(folder)
-        
+
         self.globalHotkeys = []
         self.globalHotkeys.append(self.configHotkey)
         self.globalHotkeys.append(self.toggleServiceHotkey)
         #_logger.debug("Global hotkeys: %s", self.globalHotkeys)
-        
+
         #_logger.debug("Hotkey folders: %s", self.hotKeyFolders)
         #_logger.debug("Hotkey phrases: %s", self.hotKeys)
         #_logger.debug("Abbreviation phrases: %s", self.abbreviations)
         #_logger.debug("All folders: %s", self.allFolders)
         #_logger.debug("All phrases: %s", self.allItems)
-        
+
         if persistGlobal:
             save_config(self)
 
         self.lock.release()
-                    
-    def __processFolder(self, parentFolder):        
+
+    def __processFolder(self, parentFolder):
         if not self.app.monitor.has_watch(parentFolder.path):
             self.app.monitor.add_watch(parentFolder.path)
-        
+
         for folder in parentFolder.folders:
             if model.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
-            
+
             if not self.app.monitor.has_watch(folder.path):
                 self.app.monitor.add_watch(folder.path)
-            
+
             self.__processFolder(folder)
-            
+
         for item in parentFolder.items:
             if model.TriggerMode.HOTKEY in item.modes:
                 self.hotKeys.append(item)
             if model.TriggerMode.ABBREVIATION in item.modes:
                 self.abbreviations.append(item)
             self.allItems.append(item)
-            
+
     # TODO Future functionality
     def add_recent_entry(self, entry):
         if RECENT_ENTRIES_FOLDER not in self.folders:
@@ -585,43 +587,43 @@ class ConfigManager:
             folder.set_modes([model.TriggerMode.HOTKEY])
             self.folders[RECENT_ENTRIES_FOLDER] = folder
             self.recentEntries = []
-        
+
         folder = self.folders[RECENT_ENTRIES_FOLDER]
-        
+
         if entry not in self.recentEntries:
             self.recentEntries.append(entry)
             while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]:
                 self.recentEntries.pop(0)
 
             folder.items = []
-            
+
             for theEntry in self.recentEntries:
                 if len(theEntry) > 17:
                     description = theEntry[:17] + "..."
                 else:
                     description = theEntry
-            
+
                 p = model.Phrase(description, theEntry)
                 if self.SETTINGS[RECENT_ENTRY_SUGGEST]:
                     p.set_modes([model.TriggerMode.PREDICTIVE])
-            
+
                 folder.add_item(p)
-                
+
             self.config_altered(False)
-        
+
     def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
         """
         Checks that the given abbreviation is not already in use.
-        
+
         @param abbreviation: the abbreviation to check
         @param newFilterPattern:
-        @param targetItem: the phrase for which the abbreviation to be used 
+        @param targetItem: the phrase for which the abbreviation to be used
         """
         for item in self.allFolders:
             if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
-            
+
         for item in self.allItems:
             if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
@@ -633,7 +635,7 @@ class ConfigManager:
         for item in self.allFolders:
             if model.TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
-                    return item is targetItem, item.title       
+                    return item is targetItem, item.title
 
         for item in self.allItems:
             if model.TriggerMode.ABBREVIATION in item.modes:
@@ -659,22 +661,22 @@ class ConfigManager:
                 return False
         except ValueError:
             return False"""
-            
+
     def check_hotkey_unique(self, modifiers, hotKey, newFilterPattern, targetItem):
         """
-        Checks that the given hotkey is not already in use. Also checks the 
+        Checks that the given hotkey is not already in use. Also checks the
         special hotkeys configured from the advanced settings dialog.
-        
+
         @param modifiers: modifiers for the hotkey
         @param hotKey: the hotkey to check
         @param newFilterPattern:
-        @param targetItem: the phrase for which the hotKey to be used        
+        @param targetItem: the phrase for which the hotKey to be used
         """
         for item in self.allFolders:
             if model.TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
                     return item is targetItem, item
-            
+
         for item in self.allItems:
             if model.TriggerMode.HOTKEY in item.modes:
                 if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
@@ -688,12 +690,39 @@ class ConfigManager:
         return True, None
 
 
+    def remove_all_temporary(self, folder=None, in_temp_parent=False):
+        """
+        Removes all temporary folders and phrases, as well as any within temporary folders.
+        Useful for rc-style scripts that want to change a set of keys.
+        """
+        if folder is None:
+            searchFolders = self.allFolders
+            searchItems = self.allItems
+        else:
+            searchFolders = folder.folders
+            searchItems = folder.items
+
+        for item in searchItems:
+            if item.temporary or in_temp_parent:
+                searchItems.remove(item)
+
+        for subfolder in searchFolders:
+            if subfolder.temporary or in_temp_parent:
+                in_temp_parent = True
+                if folder is not None:
+                    folder.remove_folder(subfolder)
+                else:
+                    searchFolders.remove(subfolder)
+            self.remove_all_temporary(subfolder, in_temp_parent)
+
+
+
 class GlobalHotkey(model.AbstractHotkey):
     """
     A global application hotkey, configured from the advanced settings dialog.
     Allows a method call to be attached to the hotkey.
     """
-    
+
     def __init__(self):
         model.AbstractHotkey.__init__(self)
         self.enabled = False
@@ -712,13 +741,13 @@ class GlobalHotkey(model.AbstractHotkey):
     def load_from_serialized(self, data):
         model.AbstractHotkey.load_from_serialized(self, data)
         self.enabled = data["enabled"]
-    
+
     def set_closure(self, closure):
         """
         Set the callable to be executed when the hotkey is triggered.
         """
         self.closure = closure
-        
+
     def check_hotkey(self, modifiers, key, windowTitle):
         # TODO: Doesn’t this always return False? (as long as no exceptions are thrown)
         if model.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
@@ -746,6 +775,6 @@ class GlobalHotkey(model.AbstractHotkey):
             ret += key
 
         return ret
-        
+
     def __str__(self):
         return "AutoKey global hotkeys"  # TODO: i18n
