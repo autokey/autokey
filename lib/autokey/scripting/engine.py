@@ -91,7 +91,7 @@ class Engine:
                         cannot use absolute paths.")
             path = parent_folder.expanduser() / title
             path.mkdir(parents=True, exist_ok=True)
-            new_folder = model.Folder(title, str(path.resolve())
+            new_folder = model.Folder(title, path=str(path.resolve()))
             self.configManager.allFolders.append(new_folder)
             return new_folder
         # TODO: Convert this to use get_folder, when we change to specifying
@@ -424,9 +424,12 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         """
         return self._triggered_abbreviation, self._triggered_character
 
-    def remove_all_temporary(self, folder=None, in_temp_parent=False):
+
+    def remove_all_temporary(self, folder=None,
+            in_temp_parent=False):
         """
-        Removes all temporary folders and phrases, as well as any within temporary folders.
+        Removes all temporary folders and phrases, as well as any within
+        temporary folders.
         Useful for rc-style scripts that want to change a set of keys.
         """
         self.configManager.remove_all_temporary(folder,
