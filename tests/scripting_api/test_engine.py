@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import typing
+import pathlib
 
 from unittest.mock import MagicMock, patch
 
@@ -198,6 +199,12 @@ def test_engine_create_folder_invalid_input_types_raises_value_error():
         assert_that(
             calling(engine.create_folder).with_args("title", "not a folder"),
             raises(ValueError), "parent_folder is not checked for type=model.Folder")
+        assert_that(
+            calling(engine.create_folder).with_args("title", folder),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=model.Folder")
+        assert_that(
+            calling(engine.create_folder).with_args("title", pathlib.Path(".")),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=pathlib.Path")
         assert_that(
             calling(engine.create_folder).with_args("title", temporary="not a bool"),
             raises(ValueError), "temporary is not checked for type=bool")
