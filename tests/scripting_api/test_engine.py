@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import typing
+import pathlib
 
 from unittest.mock import MagicMock, patch
 
@@ -181,14 +182,6 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
         )
 
 
-def test_engine_create_folder():
-    engine, folder = create_engine()
-    # Temporary: Don't put folder on disk.
-    test_folder = engine.create_folder("New folder",
-            temporary=True)
-    assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
-
-
 def test_engine_create_folder_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Folder.persist"):
@@ -199,8 +192,21 @@ def test_engine_create_folder_invalid_input_types_raises_value_error():
             calling(engine.create_folder).with_args("title", "not a folder"),
             raises(ValueError), "parent_folder is not checked for type=model.Folder")
         assert_that(
+            calling(engine.create_folder).with_args("title", folder),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=model.Folder")
+        assert_that(
+            calling(engine.create_folder).with_args("title", pathlib.Path(".")),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=pathlib.Path")
+        assert_that(
             calling(engine.create_folder).with_args("title", temporary="not a bool"),
             raises(ValueError), "temporary is not checked for type=bool")
+
+
+def test_engine_create_folder():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        test_folder = engine.create_folder("New folder")
+        assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
 
 
 def test_engine_create_folder_subfolder():
@@ -227,6 +233,28 @@ def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error():
             calling(engine.create_folder).with_args("child", parent_folder=parent, temporary=False),
             raises(ValueError)
         )
+
+
+def test_engine_create_folder_from_path():
+    engine, folder = create_engine()
+    path = pathlib.Path("/tmp/autokey")
+    title = "path folder"
+    fullpath=path / title
+    fullpathStr="/tmp/autokey/path folder"
+    # fullpathStr=str(fullpath)
+    with patch("autokey.model.Folder.persist"):
+        with patch("pathlib.Path.mkdir"):
+            test_folder = engine.create_folder(title, parent_folder=path)
+            # XXX This is probably an erroneous assertion.
+            assert_that(engine.configManager.allFolders, has_item(test_folder), "Doesn't create folder from path")
+            assert_that(test_folder.path, is_(equal_to(fullpathStr)), "Doesn't create folder from path")
+        assert_that(
+            calling(engine.create_folder).with_args(title, parent_folder=path),
+            not_(raises(Exception)), "Adding a duplicate folder from path raises error")
+            # assert_that(path.exists())
+            # path.rmdir()
+
+
 
 # These tests shouldn't really be here since they're for configmanager
 # class, not engine. But I'm not confident enough with settings up
