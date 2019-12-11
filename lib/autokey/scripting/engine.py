@@ -69,6 +69,7 @@ class Engine:
         @param temporary: Folders created with temporary=True are
                                     not persisted.
                                     Used for single-source rc-style scripts.
+                                    Cannot be used if parent_folder is a Path.
 
         If a folder of that name already exists, this will return it unchanged.
         If the folder wasn't already added to autokey, it will be.
@@ -81,15 +82,23 @@ class Engine:
         validateType(parent_folder, "parent_folder",
                 [model.Folder, pathlib.Path])
         validateType(temporary, "temporary", bool)
+        # XXX Doesn't check if a folder already exists at this path in autokey.
+        if isinstance(parent_folder, pathlib.Path):
+            if temporary:
+                raise ValueError("Parameter 'temporary' is True, but a path \
+                        was given as the parent folder. Temporary folders \
+                        cannot use absolute paths.")
+            path = parent_folder.expanduser() / title
+            path.mkdir(parents=True, exist_ok=True)
+            new_folder = model.Folder(title)
+            self.configManager.allFolders.append(new_folder)
+            return new_folder
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
         if parent_folder is None:
             parent_folders = self.configManager.allFolders
         elif isinstance(parent_folder, model.Folder):
             parent_folders = parent_folder.folders
-        elif isinstance(parent_folder, pathlib.Path):
-            path = parent_folder / title
-            path.mkdir(parents=True, exist_ok=True)
         else:
             # Input is previously validated, must match one of the above.
             pass
