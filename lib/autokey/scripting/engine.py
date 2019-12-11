@@ -179,40 +179,16 @@ Folders created within temporary folders must themselves be set temporary")
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
         # Start with input type-checking.
-        if not isinstance(folder, model.Folder):
-            raise ValueError("Expected a folder, not {}".format(
-                type(folder))
-            )
-        if not isinstance(name, str):
-            raise ValueError("Expected name to be str, not {}".format(
-                type(name))
-            )
-        if not isinstance(contents, str):
-            raise ValueError("Expected contents to be str, not {}".format(
-                type(contents))
-            )
+        self.validateType(folder, "folder", model.Folder, "folder")
+        self.validateType(name, "name", str, "str")
+        self.validateType(contents, "contents", str, "str")
         self.validateAbbreviations(abbreviations)
         self.validateHotkey(hotkey)
-        if send_mode is not None and not isinstance(send_mode, model.SendMode):
-            raise ValueError("Expected send_mode to be model.SendMode, not {}".format(
-                type(send_mode))
-            )
-        if window_filter is not None and not isinstance(window_filter, str):
-            raise ValueError("Expected window_filter to be str, not {}".format(
-                type(window_filter))
-            )
-        if not isinstance(show_in_system_tray, bool):
-            raise ValueError("Expected show_in_system_tray to be bool, not {}".format(
-                type(show_in_system_tray))
-            )
-        if not isinstance(always_prompt, bool):
-            raise ValueError("Expected always_prompt to be bool, not {}".format(
-                type(always_prompt))
-            )
-        if not isinstance(temporary, bool):
-            raise ValueError("Expected temporary to be bool, not {}".format(
-                type(temporary))
-            )
+        self.validateType(send_mode, "send_mode", model.SendMode, "model.SendMode")
+        self.validateType(window_filter, "window_filter", str, "str")
+        self.validateType(show_in_system_tray, "show_in_system_tray", bool, "bool")
+        self.validateType(always_prompt, "always_prompt", bool, "bool")
+        self.validateType(temporary, "temporary", bool, "bool")
         # TODO: The validation should be done by some controller functions in the model base classes.
         if abbreviations:
             if isinstance(abbreviations, str):
@@ -258,6 +234,13 @@ Phrases created within temporary folders must themselves be explicitly set tempo
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
 
+
+    def validateType(self, item, name, type_, type_description):
+        if item is not None and not isinstance(item, type_):
+            raise ValueError("Expected {} to be {}, not {}".format(
+                name,
+                type_description,
+                type(item)))
 
     def validateAbbreviations(self, abbreviations):
         if abbreviations is not None:
