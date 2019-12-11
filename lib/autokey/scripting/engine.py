@@ -49,6 +49,7 @@ class Engine:
         Note that if more than one folder has the same title, only the first match will be
         returned.
         """
+        validateType(title, "title", str)
         for folder in self.configManager.allFolders:
             if folder.title == title:
                 return folder
@@ -197,6 +198,9 @@ Folders created within temporary folders must themselves be set temporary")
         """
         # Start with input type-checking.
         validateType(folder, "folder", model.Folder)
+        # For when we allow pathlib.Path
+        # validateType(folder, "folder",
+        #         [model.Folder, pathlib.Path])
         validateType(name, "name", str)
         validateType(contents, "contents", str)
         validateAbbreviations(abbreviations)
