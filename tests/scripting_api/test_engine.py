@@ -248,6 +248,9 @@ def test_engine_create_folder_from_path():
             # XXX This is probably an erroneous assertion.
             assert_that(engine.configManager.allFolders, has_item(test_folder), "Doesn't create folder from path")
             assert_that(test_folder.path, is_(equal_to(fullpathStr)), "Doesn't create folder from path")
+        assert_that(
+            calling(engine.create_folder).with_args(title, parent_folder=path),
+            not_(raises(Exception)), "Adding a duplicate folder from path raises error")
             # assert_that(path.exists())
             # path.rmdir()
 
