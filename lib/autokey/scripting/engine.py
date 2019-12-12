@@ -19,7 +19,7 @@ from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
 
-from autokey import model
+from autokey import model, iomediator
 
 
 class Engine:
@@ -476,10 +476,25 @@ def validateAbbreviations(abbreviations):
 
 
 def isValidHotkeyType(item):
-    return isinstance(item, str) or \
-                        isinstance(item, model.Key)
+    fail=False
+    if isinstance(item, model.Key):
+        fail=False
+    elif isinstance(item, str):
+        if len(item) == 1:
+            fail=False
+        else:
+            try:
+                iomediator.key.Key.is_key(item)
+                fail=False
+            except KeyError:
+                fail=True
+    else:
+        fail=True
+    return not fail
 
 def validateHotkey(hotkey):
+    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
+
     if hotkey is not None:
         fail=False
         if not isinstance(hotkey, tuple):
@@ -488,21 +503,21 @@ def validateHotkey(hotkey):
             if len(hotkey) != 2:
                 fail=True
             else:
-                # First check modifiers is list of str or keys
+                # First check modifiers is list of valid hotkeys.
                 if isinstance(hotkey[0], list):
                     for item in hotkey[0]:
                         if not isValidHotkeyType(item):
                             fail=True
-                elif not isValidHotkeyType(hotkey[0]):
-                    fail=True
+                            failmsg = "Hotkey is not a valid modifier: {}".format(item)
                 else:
                     fail=True
+                    failmsg = "Hotkey modifiers is not a list"
                 # Then check second element is a key or str
                 if not isValidHotkeyType(hotkey[1]):
                     fail=True
+                    failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
         if fail:
-            raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
-                type(hotkey))
-            )
+            raise ValueError(failmsg)
+
 
 
