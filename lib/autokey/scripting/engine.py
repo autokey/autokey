@@ -337,7 +337,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
 
     def run_script(self, description):
         """
-        Run an existing script using its description to look it up
+        Run an existing script using its description or path to look it up
 
         Usage: C{engine.run_script(description)}
 
