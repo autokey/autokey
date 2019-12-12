@@ -87,10 +87,10 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error():
             calling(engine.create_phrase).with_args(folder, "name",
                 "contents", hotkey=(["<ctrl>", folder], "a")),
             raises(ValueError), "hotkey[0] is not checked for type=list[str]")
-        assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=(["<ctrl>"], "a")),
-            not_(raises(ValueError)), "hotkey modifiers fails single valid str")
+        # assert_that(
+        #     calling(engine.create_phrase).with_args(folder, "name",
+        #         "contents", hotkey=(["<alt>"], "6")),
+        #     not_(raises(ValueError)), "hotkey modifiers fails single valid str")
         # assert_that(
         #     calling(engine.create_phrase).with_args(folder, "name",
         #         "contents", hotkey=(["<ctrl>", "<shift>"], "<alt>")),

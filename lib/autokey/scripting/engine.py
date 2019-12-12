@@ -483,11 +483,7 @@ def isValidHotkeyType(item):
         if len(item) == 1:
             fail=False
         else:
-            try:
-                iomediator.key.Key.is_key(item)
-                fail=False
-            except KeyError:
-                fail=True
+            fail = not iomediator.key.Key.is_key(item)
     else:
         fail=True
     return not fail
