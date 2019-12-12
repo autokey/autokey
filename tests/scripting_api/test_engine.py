@@ -113,7 +113,9 @@ def test_engine_create_phrase_adds_phrase_to_parent():
     engine, folder = create_engine()
     with patch("autokey.model.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC")
-    assert_that(folder.items, has_item(phrase))
+        assert_that(folder.items, has_item(phrase))
+        hotkey = engine.create_phrase(folder, "Phrase", "ABC", hotkey=(["<ctrl>"], "a"))
+        assert_that(folder.items, has_item(hotkey))
 
 
 def test_engine_create_phrase_duplicate_hotkey_raises_value_error():
@@ -337,3 +339,14 @@ def test_engine_remove_temporary():
     # assert_that(test_subfolder.folders,
     #         not_(has_item(test_subsubfolder_nontemp)),
     #             "doesn't remove nontemp subfolders from temp parent folders")
+    test_hotkey = engine.create_phrase(folder, "test hotkey",
+    "contents", hotkey=(["<ctrl>"], "a"), temporary=True)
+    assert_that(
+        calling(engine.create_phrase).with_args(folder, "test hotkey2",
+                                                "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
+        raises(ValueError), "duplicate hotkey warning not received")
+    engine.remove_all_temporary()
+    assert_that(
+        calling(engine.create_phrase).with_args(folder, "test hotkey2",
+                                                "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
+        not_(raises(ValueError)), "Doesn't ungrab hotkeys (duplicate hotkey warning received)")
