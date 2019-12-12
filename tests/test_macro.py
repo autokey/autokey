@@ -15,6 +15,8 @@
 
 import typing
 import pathlib
+import os
+import sys
 
 from unittest.mock import MagicMock, patch
 
@@ -29,6 +31,8 @@ from autokey.scripting import Engine
 
 from autokey.macro import *
 
+def get_autokey_dir():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
@@ -45,9 +49,18 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
     return engine, test_folder
 
+def expandMacro(engine, phrase):
+    manager = MacroManager(engine)
+    # Expansion triggers usage count increase in the parent Folder. Prevent crashes because of a missing parent
+    phrase.parent = MagicMock()
+    PhraseRunner.execute(phrase)
+    expansion = phrase.build_phrase('')
+    manager.process_expansion(expansion)
+
 def test_arg_parse():
     engine, folder = create_engine()
     macro = ScriptMacro(engine)
+    service = Service(engine.configManager.app)
     test = "<script name='test name' args='long arg with spaces and ='>"
     expected = {"name": "test name", "args": "long arg with spaces and ="}
     assert_that(macro._get_args(test), is_(equal_to(expected)),
@@ -62,7 +75,21 @@ def test_arg_parse():
                 "Macro arg can't contain escaped quote quote")
 
 def test_script_macro():
-    pass
+    # Makes use of running script from absolute path.
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
+        dummy_folder = autokey.model.Folder("dummy")
+        # macro = ScriptMacro(engine)
+        # This is a duplicate of the phrase added by the target script, but in a
+        # different folder.
+        dummy = engine.create_phrase(dummy_folder, "dummy", "ABC", temporary=True)
+        assert_that(folder.items, not_(has_item(dummy)))
+
+        script = get_autokey_dir() + "/tests/create_single_phrase.py"
+        phrase = engine.create_phrase(folder, "script",
+                                    "<script name='{}' args=>".format(script))
+        expandMacro(engine, phrase)
+        assert_that(folder.items, has_item(dummy))
 
 def test_script_macro_spaced_quoted_args():
     pass

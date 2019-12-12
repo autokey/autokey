@@ -24,6 +24,7 @@ from hamcrest import *
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.service import PhraseRunner
 import autokey.model
+import autokey.service
 from autokey.scripting import Engine
 
 
