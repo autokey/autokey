@@ -1,5 +1,6 @@
 import datetime
 from abc import abstractmethod
+import shlex
 
 from autokey.iomediator.constants import KEY_SPLIT_RE
 from autokey.iomediator.key import Key
@@ -29,6 +30,21 @@ if common.USING_QT:
 else:
     from gi.repository import Gtk
 
+
+def extract_tag(s):
+    if not isinstance(s, str):
+        raise TypeError
+    extracted = [p.split('>')[0] for p in s.split('<') if '>' in p]
+    if len(extracted) == 0:
+        return s
+    else:
+        return ''.join(extracted)
+
+def split_key_val(s):
+    # Split as if a shell argument.
+    # Splits at spaces, but preserves spaces within quotes.
+    pairs = shlex.split(s)
+    return dict(pair.split('=', 1) for pair in pairs)
 
 class MacroManager:
 
@@ -95,23 +111,23 @@ class AbstractMacro:
             return False
 
     def _get_args(self, token):
-        print(token)
-        l = token[:-1].split(' ')
-        ret = {}
+        macro = extract_tag(token)
+        macro_type, macro = macro.split(' ', 1)
+        args = split_key_val(macro)
+        expected_args = [arg[0] for arg in self.ARGS]
+        expected_argnum = len(self.ARGS)
 
-        if len(l) > 1:
-            for arg in l[1:]:
-                key, val = arg.split('=', 1)
-                ret[key] = val
-
-        for k, v in self.ARGS:
-            if k not in ret:
-                raise Exception("Missing mandatory argument '{}' for macro '{}'".format(k, self.ID))
+        for arg in expected_args:
+            if arg not in args:
+                raise ValueError("Missing mandatory argument '{}' for macro '{}'".format(arg, self.ID))
+        for arg in args:
+            if arg not in expected_args:
+                raise ValueError("Unexpected argument '{}' for macro '{}'".format(k, self.ID))
+        return args
 
         return ret
 
     def process(self, parts):
-        print("parts ", parts)
         for i in range(len(parts)):
             if self._can_process(parts[i]):
                 self.do_process(parts, i)
