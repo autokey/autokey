@@ -33,7 +33,9 @@ def generate_argument_parser():
                             action="store_const",
                             const="script",
                             dest="mode",
-                            help="Run a script")
+                            help="Run a script. Scripts can be autokey \
+                                    script names, or absolute paths to \
+                                    existing scripts.")
     mode_group.add_argument("-p", "--phrase",
                             action="store_const",
                             const="phrase",
