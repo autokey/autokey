@@ -703,18 +703,39 @@ class ConfigManager:
             searchItems = folder.items
 
         for item in searchItems:
-            if item.temporary or in_temp_parent:
-                searchItems.remove(item)
+            try:
+                if item.temporary or in_temp_parent:
+                    self.__deleteHotkeys(item)
+                    searchItems.remove(item)
+            # Items created before this update don't have a 'temporary' field.
+            except AttributeError:
+                pass
 
         for subfolder in searchFolders:
-            if subfolder.temporary or in_temp_parent:
-                in_temp_parent = True
-                if folder is not None:
-                    folder.remove_folder(subfolder)
-                else:
-                    searchFolders.remove(subfolder)
+            self.__deleteHotkeys(subfolder)
+            try:
+                if subfolder.temporary or in_temp_parent:
+                    in_temp_parent = True
+                    if folder is not None:
+                        folder.remove_folder(subfolder)
+                    else:
+                        searchFolders.remove(subfolder)
+            # Items created before this update don't have a 'temporary' field.
+            except AttributeError:
+                pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    def __deleteHotkeys(self, removed_item):
+        if model.TriggerMode.HOTKEY in removed_item.modes:
+            self.app.hotkey_removed(removed_item)
+
+        if isinstance(removed_item, model.Folder):
+            for subFolder in removed_item.folders:
+                self.__deleteHotkeys(subFolder)
+
+            for item in removed_item.items:
+                if model.TriggerMode.HOTKEY in item.modes:
+                    self.app.hotkey_removed(item)
 
 
 class GlobalHotkey(model.AbstractHotkey):
