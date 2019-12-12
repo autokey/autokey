@@ -532,4 +532,5 @@ class ScriptRunner:
 
     def run_subscript_path(self, path):
         scope = self.scope.copy()
+        scope["__file__"] = script.path
         exec(open(path).read(), scope)
