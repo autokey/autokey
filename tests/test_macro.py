@@ -51,25 +51,24 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
 def expandMacro(engine, phrase):
     manager = MacroManager(engine)
+    # service = autokey.service.Service(engine.configManager.app)
     # Expansion triggers usage count increase in the parent Folder. Prevent crashes because of a missing parent
-    phrase.parent = MagicMock()
-    PhraseRunner.execute(phrase)
-    expansion = phrase.build_phrase('')
-    manager.process_expansion(expansion)
+    # phrase.parent = MagicMock()
+    # PhraseRunner.execute(phrase)
+    return manager.process_expansion_macros(phrase)
 
 def test_arg_parse():
     engine, folder = create_engine()
     macro = ScriptMacro(engine)
-    service = Service(engine.configManager.app)
-    test = "<script name='test name' args='long arg with spaces and ='>"
+    test = "name='test name' args='long arg with spaces and ='"
     expected = {"name": "test name", "args": "long arg with spaces and ="}
     assert_that(macro._get_args(test), is_(equal_to(expected)),
                 "Macro arg can't contain equals")
-    test = "<script name='test name' args='long arg with spaces and \"'>"
+    test = "name='test name' args='long arg with spaces and \"'"
     expected = {"name": "test name", "args": "long arg with spaces and \""}
     assert_that(macro._get_args(test), is_(equal_to(expected)),
                 "Macro arg can't contain opposite quote")
-    test = '<script name="test name" args="long arg with spaces and \\"">'
+    test = 'name="test name" args="long arg with spaces and \\""'
     expected = {"name": "test name", "args": 'long arg with spaces and "'}
     assert_that(macro._get_args(test), is_(equal_to(expected)),
                 "Macro arg can't contain escaped quote quote")
@@ -95,12 +94,32 @@ def test_script_macro_spaced_quoted_args():
     pass
 
 def test_cursor_macro():
-    pass
+    engine, folder = create_engine()
+    test="one<cursor>two"
+    expected="onetwo"
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "cursor macro returns wrong text")
 
 def test_date_macro():
-    macro="<date format=dd>"
-    pass
+    engine, folder = create_engine()
+    test="<date format=dd>"
+    expected="15"
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "Date macro fails to expand")
 
 def test_file_macro():
-    pass
+    engine, folder = create_engine()
+    path =  get_autokey_dir() + "/tests/dummy_file.txt"
+    test="file name={}".format(path)
+    expected="test result macro expansion"
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "file macro does not expand correctly")
 
+def test_macro_expansion():
+    contents="Today's date is <date format=dd/mm>, a fine date indeed"
+
+    contents="<date format=dd/mm> two dates this time <date format=dd/mm>"
+    contents="<date format=dd/mm> mixed <cursor> macro types"
+
+def test_nested_macro_raises_error():
+    contents="<date format=<cursor>>"

@@ -400,7 +400,8 @@ class PhraseRunner:
         mediator.interface.begin_send()
         try:
             expansion = phrase.build_phrase(buffer)
-            self.macroManager.process_expansion(expansion)
+            expansion.string = \
+                    self.macroManager.process_expansion_macros(expansion.string)
 
             self.contains_special_keys = self.phrase_contains_special_keys(expansion)
             mediator.send_backspace(expansion.backspaces)
