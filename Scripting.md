@@ -399,83 +399,143 @@ window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, match
 **Description**: Changes `<ctrl>+p` for Mozilla applications to print to a file in a special offline print queue using incremented file names, intended for use with duplexpr.
 
 ```python
-# print2file
+##print2file
 
-import time
-import os
-
-## Copyleft 2012/02/27 - JPmicrosystems GPL
-## Change <ctrl>+p for Firefox and Thunderbird
-## to print to file in a special print queue using
+## Copyleft 2012/08/31 - Joseph J. Pollock JPmicrosystems GPL
+## Last Modified 2019/05/16 - Handle new Mozilla print dialog
+##    Added support for Waterfox
+##
+## Assign <Super>+p for Firefox and Thunderbird
+## to print to file in a special print queue using 
 ## numbered file names, 01, 02, ... so the print jobs stay in order
+##
+## The new file name/number will have the same number of digits as the highest
+## existing file name/number with left zero padding
+## Two digit file names/numbers is the default.
+##
+## You can "seed" the process using e.g. touch 0000 in an empty print queue
 ## Intended for use with duplexpr
 ## http://sourceforge.net/projects/duplexpr/
-## User must manually create print queue folder (~/pq)
-## and set all *.print_to_filename variables in prefs.js (about:config)
-## to path to print queue/01.ps
-## e.g. /home/shelelia/pq/01.ps
-
-## Hotkey <ctrl>+p
-## Window Filter .*Mozilla.*
-
-## Changes <ctrl>+p to
-## Print to file and looks at the print queue (~/pq)
+##
+## User must manually create print queue directory (~/pq)
+##
+## Not sure about the following still being necessary, but it works
+## Set all *.print_to_filename variables in prefs.js (about:config)
+## to path to print queue/01.ps (or .pdf)
+## e.g. /home/shelelia/pq/01.ps (or .pdf)
+##
+## Using Ctrl+P as the hotkey doesn't seem to work in Firefox any more
+## Hotkey <Super>+p
+## Window Filter .*Thunderbird.*|.*Mozilla.*|.*Waterfox.*
+##
+## Changes <Super>+p to
+## Print to file and looks at the print queue (~/pq) - hard coded
 ## Finds the last print file number and increments it by one
+## Also handles files ending in ".pdf" or ".ps"
 ## Doesn't send final <Enter> so additional options like Print Selection
 ## can be set by the user
-##Fails if Loading file to print takes longer than the second delay
+
+import os
+import re
+import string
+import time
 
 def filenum ():
     ## Gets next file number
     ## Set path to print queue
-    path = os.getenv("HOME") + '/pq'
+    home = os.getenv("HOME")
+    path = home + "/pq"  ## Change this if your print queue is elsewhere
+    ##print("path [" + path + "]")  ## debug
     ## Get all the files in the print queue in a list
     ## Handle filesystem error
     try:
         dirlist=os.listdir(path)
     except:
-        return "EE"
-
+        return "EE" 
+        
     ## And sort it in reverse order
     ## So the largest numbered file is first
     dirlist.sort(reverse=True)
-
+    
     ## If there aren't any files then
     ## Set last file to 0
     ## else, set it to the last file with a valid number
     ## Defend script against non-numeric file names
     ## go down the reverse sorted list until a numeric one is found
     fn=""
-    if len(dirlist) == 0:
-      fn = "00"
-    else:
-        files = len(dirlist)
+    digits = 2  ## default to 2-digit file numbers
+    files = len(dirlist)
+    if files > 0:
         i = 0
+        ##print("Found [" + str(files) + "] files")  ## debug
+        
         while (i < files) and (fn == ""):
-            name = dirlist[i]
+            name = dirlist[i] 
+            ##print("name [" + name + "]")  ## debug
+            ## regex for case insensitive replace of the last occurrence
+            ## of .pdf or .ps at the end of the string with nothing
+            ## if the file name has more than one, it's not one of ours
+            name = re.sub(r'\.(?i)(pdf|ps)?$', "", name)
+            ## Use the length of the one we found to set the zero padding length
             if name.isdigit():
                 fn = str(int(name) + 1)
+                digits = len(name)
+
             i += 1
 
+    ## If no numeric file names were found
     if fn == "":
-      fn = "01"
-
-    ## If it's less than 2 characters long,
-    ## Left pad it with a zero
-    ## To maintain the sorting order
-    if len(fn) < 2:
-      fn = '0' + fn
-
+        fn="1"
+        ##print("fn [" + fn + "]")
+      
+    ## left zero fill the file name to the same length as the one we found
+    ##print("fn [" + fn + "] digits [" + str(digits) + "]")  ## debug
+    fn = fn.zfill(digits)
     return fn
 
+### DEBUG
+## This code is for standalone testing outside of AutoKey
+
+##output = filenum()
+##print("Next File Number is [" + output + "]")
+##quit()
+
+### DEBUG
 
 ## Open the File menu
-## (can't use <ctrl>+p because that's the hotkey)
-keyboard.send_keys("<alt>+f")
+## Only works if Main Menu bar is displayed
+## If we're not using Ctrl+p for the hotkey any more,
+## maybe we can use it instead of AlT+f,p
+##keyboard.send_keys("<alt>+f")
+##time.sleep(1.0)
+#### Select Print
+##keyboard.send_keys("p")
+##time.sleep(1.0)
+keyboard.send_keys("<ctrl>+p")
 time.sleep(1.0)
-## Select Print
-keyboard.send_keys("p")
-time.sleep(2.0)
+
+winTitle = window.get_active_title()
+
+while (winTitle == "Printing"):
+    time.sleep(1.0)
+    winTitle = window.get_active_title()
+    
+## error window processing - for when FF complains about
+## not being able to print all elements of the page
+winTitle = window.get_active_title()
+winClass = window.get_active_class()
+if winTitle == "Printer Error" and winClass == "Dialog.Firefox":
+   keyboard.send_keys("<enter>")
+   time.sleep(1.0)
+ 
+if winTitle == "Print Preview Error" and winClass == "Dialog.Firefox":
+   keyboard.send_keys("<enter>")
+   time.sleep(1.0)
+ 
+if winClass == "Dialog.Firefox":
+   keyboard.send_keys("<enter>")
+   time.sleep(1.0)
+ 
 ## tab to the printer selection list, then to the top of the list
 ## which is the Print to File selection
 keyboard.send_keys("<tab><home>")
@@ -485,10 +545,28 @@ keyboard.send_keys("<tab>")
 
 output = filenum()
 
-## complete the file name field in the print dialog
-## But don't send an enter so the user can select
-## options before printing
+keyboard.send_keys("<enter>")
+time.sleep(1.0)
+
+keyboard.send_keys("<ctrl>+a") ## New 2019/04/23
+time.sleep(1.0)
+
+path = os.getenv("PQ") ## Change this if your print queue is elsewhere
+path = "/home/bigbird/pq/"
+keyboard.send_keys(path) ## New 2019/04/23
+time.sleep(1.0)
+
+## complete the file name field in the select file dialog
 keyboard.send_keys(output)
+keyboard.send_keys("<enter>")
+time.sleep(1.0)
+
+## Tab away from the File select button so the user can just press Enter
+## But don't send an enter so the user can select
+## other options before printing
+keyboard.send_keys("<tab>")
+time.sleep(0.5)
+keyboard.send_keys("<tab>")
 
 
 ```
