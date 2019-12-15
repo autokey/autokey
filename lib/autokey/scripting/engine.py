@@ -234,7 +234,7 @@ Folders created within temporary folders must themselves be set temporary")
         if hotkey:
             modifiers = sorted(hotkey[0])
             if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
-                raise ValueError("The specified hotkey and modifier combination is already in use.")
+                raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
 
         if folder.temporary and not temporary:
             raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
