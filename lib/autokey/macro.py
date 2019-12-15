@@ -123,17 +123,21 @@ class AbstractMacro:
 
         return ret
 
-    def _extract_macro(section):
+    def _extract_macro(self, section):
         content = extract_tag(section)
         # type is space-separated from rest of macro.
-        macro_type, macro = content.split(' ', 1)
+        # Cursor macros have no space.
+        if ' ' in content:
+            macro_type, macro = content.split(' ', 1)
+        else:
+            macro_type, macro = (content, '')
         return macro_type, macro
 
 
     def process(self, sections):
         for i, section in enumerate(sections):
             if KEY_SPLIT_RE.match(section):
-                macro_type, macro = _extract_macro(sections[i])
+                macro_type, macro = self._extract_macro(sections[i])
                 if macro_type == self.ID:
         # parts and i are required for cursor macros.
                     sections = self.do_process(sections, i)
@@ -173,7 +177,7 @@ class ScriptMacro(AbstractMacro):
         self.engine = engine
 
     def do_process(self, sections, i):
-        macro_type, macro = _extract_macro(sections[i])
+        macro_type, macro = self._extract_macro(sections[i])
         args = self._get_args(macro)
         self.engine.run_script_from_macro(args)
         return self.engine._get_return_value()
@@ -186,9 +190,10 @@ class DateMacro(AbstractMacro):
     ARGS = [("format", _("Format"))]
 
     def do_process(self, sections, i):
-        macro_type, macro = _extract_macro(sections[i])
+        macro_type, macro = self._extract_macro(sections[i])
         format_ = self._get_args(macro)["format"]
-        date = datetime.datetime.now().strftime(format_)
+        date = datetime.datetime.now()
+        date = date.strftime(format_)
         sections[i] = date
         return sections
 
@@ -200,9 +205,10 @@ class FileContentsMacro(AbstractMacro):
     ARGS = [("name", _("File name"))]
 
     def do_process(self, sections, i):
-        macro_type, macro = _extract_macro(sections[i])
+        macro_type, macro = self._extract_macro(sections[i])
         name = self._get_args(macro)["name"]
 
         with open(name, "r") as inputFile:
             sections[i] = inputFile.read()
+
         return sections
