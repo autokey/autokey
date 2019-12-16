@@ -10,6 +10,8 @@
   
 * [`pip` Installation](#pip-installation)
 
+[Dependencies](#Dependencies)
+
 [Running AutoKey](#running-autokey)
 
 # Installation Options
@@ -91,6 +93,8 @@ Installing the dependencies from PyPI may be tricky and break your system in une
 ## Dependencies
 
 AutoKey depends on (regardless of the used GUI):
+
+Python 3.5
 
 [dbus-python](https://www.freedesktop.org/wiki/Software/DBusBindings/#python) \[[PyPI](https://pypi.org/project/dbus-python/)\] - Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead.
 
