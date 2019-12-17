@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import typing
+import pathlib
 
 from unittest.mock import MagicMock, patch
 
@@ -40,6 +41,50 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
         engine.configManager.config_altered(False)
 
     return engine, test_folder
+
+
+def test_engine_create_phrase_invalid_input_types_raises_value_error():
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"):
+        assert_that(
+            calling(engine.create_phrase).with_args("Not a folder", "name", "contents",),
+            raises(ValueError), "Folder is not checked for type=model.Folder")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, folder,
+                "contents"),
+            raises(ValueError), "name is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                folder),
+            raises(ValueError), "contents is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", abbreviations=folder),
+            raises(ValueError), "abbreviations is not checked for type=str")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", abbreviations=["t1", "t2"]),
+            not_(raises(ValueError)), "abbreviations is not checked for type=list")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", abbreviations=["t1", folder]),
+            raises(ValueError), "abbreviations is not checked for type=list[str]")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=folder),
+            raises(ValueError), "hotkey is not checked for type=tuple")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("t1", "t2", "t3")),
+            raises(ValueError), "hotkey is not checked for tuple len 2")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("t1", folder)),
+            raises(ValueError), "hotkey is not checked for type=tuple(str,str)")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=(["<ctrl>", folder], "a")),
+            raises(ValueError), "hotkey[0] is not checked for type=list[str]")
 
 
 def test_engine_create_phrase_adds_phrase_to_parent():
@@ -137,12 +182,32 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error():
         )
 
 
+def test_engine_create_folder_invalid_input_types_raises_value_error():
+    engine, folder = create_engine()
+    with patch("autokey.model.Folder.persist"):
+        assert_that(
+            calling(engine.create_folder).with_args(folder),
+            raises(ValueError), "title is not checked for type=str")
+        assert_that(
+            calling(engine.create_folder).with_args("title", "not a folder"),
+            raises(ValueError), "parent_folder is not checked for type=model.Folder")
+        assert_that(
+            calling(engine.create_folder).with_args("title", folder),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=model.Folder")
+        assert_that(
+            calling(engine.create_folder).with_args("title", pathlib.Path(".")),
+            not_(raises(ValueError)), "parent_folder erroneously fails check for type=pathlib.Path")
+        assert_that(
+            calling(engine.create_folder).with_args("title", temporary="not a bool"),
+            raises(ValueError), "temporary is not checked for type=bool")
+
+
 def test_engine_create_folder():
     engine, folder = create_engine()
-    # Temporary: Don't put folder on disk.
-    test_folder = engine.create_folder("New folder",
-            temporary=True)
-    assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
+    with patch("autokey.model.Folder.persist"):
+        test_folder = engine.create_folder("New folder")
+        assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
+
 
 def test_engine_create_folder_subfolder():
     engine, folder = create_engine()
@@ -169,11 +234,28 @@ def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error():
             raises(ValueError)
         )
 
-# These tests shouldn't really be here since they're for configmanager
-# class, not engine. But I'm not confident enough with settings up
-# tests to move them.
 
-def test_configmanager_remove_temporary_toplevel():
+def test_engine_create_folder_from_path():
+    engine, folder = create_engine()
+    path = pathlib.Path("/tmp/autokey")
+    title = "path folder"
+    fullpath=path / title
+    fullpathStr="/tmp/autokey/path folder"
+    # fullpathStr=str(fullpath)
+    with patch("autokey.model.Folder.persist"):
+        with patch("pathlib.Path.mkdir"):
+            test_folder = engine.create_folder(title, parent_folder=path)
+            # XXX This is probably an erroneous assertion.
+            assert_that(engine.configManager.allFolders, has_item(test_folder), "Doesn't create folder from path")
+            assert_that(test_folder.path, is_(equal_to(fullpathStr)), "Doesn't create folder from path")
+        assert_that(
+            calling(engine.create_folder).with_args(title, parent_folder=path),
+            not_(raises(Exception)), "Adding a duplicate folder from path raises error")
+            # assert_that(path.exists())
+            # path.rmdir()
+
+
+def test_engine_remove_temporary_toplevel():
     engine, folder = create_engine()
     # Folder acts as a non-temp top-level folder.
     test_phrase = engine.create_phrase(folder, "test phrase",
@@ -184,7 +266,7 @@ def test_configmanager_remove_temporary_toplevel():
     test_folder = engine.create_folder("New folder",
             temporary=True)
 
-    engine.configManager.remove_all_temporary()
+    engine.remove_all_temporary()
 
     assert_that(engine.configManager.allFolders,
             has_item(folder),
@@ -196,7 +278,8 @@ def test_configmanager_remove_temporary_toplevel():
             not_(has_item(test_phrase)),
                 "doesn't remove temp phrases")
 
-def test_configmanager_remove_temporary():
+    
+def test_engine_remove_temporary():
     engine, folder = create_engine()
 
     test_subfolder = engine.create_folder("New folder",
@@ -214,7 +297,7 @@ def test_configmanager_remove_temporary():
     #     test_phrase_nontemp = engine.create_phrase(test_subfolder,
     #             "test phrase nontemp", "contents")
 
-    engine.configManager.remove_all_temporary()
+    engine.remove_all_temporary()
 
     assert_that(folder.folders,
             not_(has_item(test_subfolder)),
@@ -249,3 +332,4 @@ def test_configmanager_remove_temporary():
 #             raises(re.error),
 #             "Invalid window_filter regex does not raise an error"
 #         )
+
