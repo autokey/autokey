@@ -507,7 +507,7 @@ class ScriptRunner:
         # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
         scope["__file__"] = path.resolve()
         try:
-            exec(open(path).read(), scope)
+            exec(pathlib.Path(path).read_text(), scope)
         except Exception as e:
             logger.exception("Script error")
             self.error = "Script name: '{}'\n{}".format(path, traceback.format_exc())
@@ -534,5 +534,4 @@ class ScriptRunner:
     def run_subscript_path(self, path):
         scope = self.scope.copy()
         scope["__file__"] = script.path
-        print('running subscript', path)
-        exec(open(path).read(), scope)
+        exec(pathlib.Path(path).read_text(), scope)
