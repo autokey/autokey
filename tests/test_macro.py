@@ -69,21 +69,21 @@ def expandMacro(engine, phrase):
     manager = MacroManager(engine)
     return manager.process_expansion_macros(phrase)
 
-def test_arg_parse():
+
+@pytest.mark.parametrize("test_input, expected, error_msg", [
+    ("name='test name' args='long arg with spaces and ='", {"name": "test name", "args": "long arg with spaces and ="}, "Macro arg can't contain equals"),
+    ("name='test name' args='long arg with spaces and \"'",
+            {"name": "test name", "args": "long arg with spaces and \""},
+                "Macro arg can't contain opposite quote"),
+    ('name="test name" args="long arg with spaces and \\""',
+            {"name": "test name", "args": 'long arg with spaces and "'},
+                "Macro arg can't contain escaped quote quote")
+])
+def test_arg_parse(test_input, expected, error_msg):
     engine, folder = create_engine()
     macro = ScriptMacro(engine)
-    test = "name='test name' args='long arg with spaces and ='"
-    expected = {"name": "test name", "args": "long arg with spaces and ="}
-    assert_that(macro._get_args(test), is_(equal_to(expected)),
-                "Macro arg can't contain equals")
-    test = "name='test name' args='long arg with spaces and \"'"
-    expected = {"name": "test name", "args": "long arg with spaces and \""}
-    assert_that(macro._get_args(test), is_(equal_to(expected)),
-                "Macro arg can't contain opposite quote")
-    test = 'name="test name" args="long arg with spaces and \\""'
-    expected = {"name": "test name", "args": 'long arg with spaces and "'}
-    assert_that(macro._get_args(test), is_(equal_to(expected)),
-                "Macro arg can't contain escaped quote quote")
+    assert_that(macro._get_args(test_input), is_(equal_to(expected)),
+                error_msg)
 
 @pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
 def test_script_macro():
@@ -132,21 +132,23 @@ def test_file_macro():
     assert_that(expandMacro(engine, test), is_(equal_to(expected)),
                 "file macro does not expand correctly")
 
-def test_macro_expansion():
+
+path =  get_autokey_dir() + "/tests/dummy_file.txt"
+@pytest.mark.parametrize("test_input, expected, error_msg", [
+    ("middle <file name={}> macro".format(path),
+            "middle test result macro expansion\n macro",
+            "Macros between other parts don't expand properly"),
+    ("<file name={}> two macros this time <file name={}>".format(path, path),
+            "test result macro expansion\n two macros this time test result macro expansion\n".format(path, path),
+            "Two macros per phrase don't expand properly"),
+    ("<file name={}> mixed macro <cursor> types".format(path),
+        "test result macro expansion\n mixed macro  types<left><left><left><left><left><left>",
+        "mixed macros don't expand properly")
+])
+def test_macro_expansion(test_input, expected, error_msg):
     engine, folder = create_engine()
-    path =  get_autokey_dir() + "/tests/dummy_file.txt"
-    contents="middle <file name={}> macro".format(path, path)
-    expected="middle test result macro expansion\n macro".format(path, path)
-    assert_that(expandMacro(engine, contents), is_(equal_to(expected)),
-                "Macros between other parts don't expand properly")
-    contents="<file name={}> two macros this time <file name={}>".format(path, path)
-    expected="test result macro expansion\n two macros this time test result macro expansion\n".format(path, path)
-    assert_that(expandMacro(engine, contents), is_(equal_to(expected)),
-                "Two macros per phrase don't expand properly")
-    contents="<file name={}> mixed macro <cursor> types".format(path)
-    expected="test result macro expansion\n mixed macro  types<left><left><left><left><left><left>"
-    assert_that(expandMacro(engine, contents), is_(equal_to(expected)),
-                "mixed macros don't expand properly")
+    assert_that(expandMacro(engine, test_input), is_(equal_to(expected)),
+            error_msg)
 
 # def test_nested_macro_raises_error():
 #     contents="<date format=<cursor>>"
