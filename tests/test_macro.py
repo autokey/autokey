@@ -77,12 +77,29 @@ def expandMacro(engine, phrase):
                 "Macro arg can't contain opposite quote"),
     ('name="test name" args="long arg with spaces and \\""',
             {"name": "test name", "args": 'long arg with spaces and "'},
-                "Macro arg can't contain escaped quote quote")
+                "Macro arg can't contain escaped quote quote"),
+    ('name="test name" args="long arg with spaces and >"',
+            {"name": "test name", "args": 'long arg with spaces and >'},
+                "Macro arg can't contain > when handleg just by get_args"),
 ])
 def test_arg_parse(test_input, expected, error_msg):
     engine, folder = create_engine()
     macro = ScriptMacro(engine)
     assert_that(macro._get_args(test_input), is_(equal_to(expected)),
+                error_msg)
+
+# Using date for this because it's the easiest macro with args to expand.
+@unittest.mock.patch('datetime.datetime', FakeDate)
+@pytest.mark.parametrize("test, expected, error_msg", [
+    ("<date format=%m>%y>", "01>19", "Macro arg can't handle '>'"),
+    ("<date format=%m<%y>", "01<19", "Macro arg can't handle '<'"),
+    ("<date format=<%m%y>>", "<0119>", "Macro arg can't handle being enclosed in angle brackets '<arg>'"),
+])
+def test_arg_parse_with_gt_lt_symbols(test, expected, error_msg):
+    from datetime import datetime
+    FakeDate.now = classmethod(lambda cls: datetime(2019, 1, 1))
+    engine, folder = create_engine()
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
                 error_msg)
 
 @pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
