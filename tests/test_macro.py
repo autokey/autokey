@@ -88,14 +88,38 @@ def test_arg_parse(test_input, expected, error_msg):
     assert_that(macro._get_args(test_input), is_(equal_to(expected)),
                 error_msg)
 
-# Using date for this because it's the easiest macro with args to expand.
+# Using date for this because it's the easiest macro with args to expand,
+# without throwing errors on bad args.
 @unittest.mock.patch('datetime.datetime', FakeDate)
 @pytest.mark.parametrize("test, expected, error_msg", [
-    ("<date format=%m>%y>", "01>19", "Macro arg can't handle '>'"),
-    ("<date format=%m<%y>", "01<19", "Macro arg can't handle '<'"),
-    ("<date format=<%m%y>>", "<0119>", "Macro arg can't handle being enclosed in angle brackets '<arg>'"),
+    (r"<date format=%m\>%y>", "01>19", r"Macro arg can't handle '\>'"),
+    (r"<date format=%m\<%y>", "01<19", r"Macro arg can't handle '\<'"),
+    (r"<date format=\<%m%y\>>", "<0119>", r"Macro arg can't handle being enclosed in angle brackets '\<arg\>'"),
+    (r"before <date format=\<%m%y\>> macro", "before <0119> macro", "Macro arg in angle brackets breaks overall phrase splitting"),
 ])
-def test_arg_parse_with_gt_lt_symbols(test, expected, error_msg):
+def test_arg_parse_with_escaped_gt_lt_symbols(test, expected, error_msg):
+    from datetime import datetime
+    FakeDate.now = classmethod(lambda cls: datetime(2019, 1, 1))
+    engine, folder = create_engine()
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                error_msg)
+
+
+@pytest.mark.xfail
+@unittest.mock.patch('datetime.datetime', FakeDate)
+@pytest.mark.parametrize("test, expected, error_msg", [
+    ("Today < is <date format=%m/%y>", "Today < is 01/19", "Phrase with extra < before macro breaks macros"),
+    ("Today > is <date format=%m/%y>", "Today > is 01/19", "Phrase with extra > before macro breaks macros"),
+    ("Today is <date format=%m/%y>, horray<", "Today is 01/19, horray<", "Phrase with extra < after macro breaks macros"),
+    ("Today is <date format=%m/%y>, horray>", "Today is 01/19, horray>", "Phrase with extra > after macro breaks macros"),
+    ("Today is <<date format=%m/%y>", "Today is <01/19", "Phrase with extra < right before macro breaks macros"),
+    ("Today is <date format=%m/%y><", "Today is 01/19<", "Phrase with extra < right after macro breaks macros"),
+    ("Today is <date format=%m/%y>>", "Today is 01/19>", "Phrase with extra > right after macro breaks macros"),
+    ("Today <> is <date format=%m/%y>", "Today <> is 01/19", "Phrase with extra <> before macro breaks macros"),
+    ("Today <is <date format=%m/%y>,>", "Today <is 01/19,>", "Phrase with extra <> loosely around macro breaks macros"),
+    ("Today is <<date format=%m/%y>>", "Today is <01/19>", "Phrase with extra <> right around macro breaks macros"),
+])
+def test_phrase_with_gt_lt_symbols_and_macro(test, expected, error_msg):
     from datetime import datetime
     FakeDate.now = classmethod(lambda cls: datetime(2019, 1, 1))
     engine, folder = create_engine()
@@ -152,6 +176,8 @@ def test_file_macro():
 
 path =  get_autokey_dir() + "/tests/dummy_file.txt"
 @pytest.mark.parametrize("test_input, expected, error_msg", [
+    ("No macro", "No macro",
+            "Error on phrase without macros"),
     ("middle <file name={}> macro".format(path),
             "middle test result macro expansion\n macro",
             "Macros between other parts don't expand properly"),
