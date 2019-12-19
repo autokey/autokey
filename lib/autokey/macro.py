@@ -22,6 +22,7 @@ def form_macro_split_re():
     re = notEscd + "(<.*(?=" + notEscd + ">)>)"
     re = notEscd + "(<[^"+notEscd+">]+>)"
     re = notEscd + "(<.*(?=>)"+notEscd+">)"
+    re = notEscd + "(<[^>]*"+notEscd+">)"
     # re = "(?<=[^\\\\]<.*?=[^\\\\]>)"
     print('re', re)
     return re
@@ -188,19 +189,6 @@ class MacroManager:
         # Using the Key split regex works for now.
         print('content', content)
         print('re', form_macro_split_re())
-        bracketed_sections = list(parse_nested_brackets(content))
-        expansions = {}
-        for bracketpair in bracketed_sections:
-            depth = bracketpair[0]
-            pair = bracketpair[1]
-            expansions[pair] = self.expand_macro(pair)
-            pair_start = content.index(pair)
-            pair_end = pair_start + len(pair)
-        for macro in expansions:
-            content.replace(macro, expansions[macro])
-        print('extracted content', content)
-        return content
-        print('bracketed', bracketed_sections)
 
         content_sections = MACRO_SPLIT_RE.split(content)
         print('sections', content_sections)
@@ -259,6 +247,9 @@ class AbstractMacro:
 
     def _extract_macro(self, section):
         content = extract_tag(section)
+        # Unescape
+        content.replace(r'\>', '>')
+        content.replace(r'\<', '<')
         # type is space-separated from rest of macro.
         # Cursor macros have no space.
         if ' ' in content:
@@ -326,6 +317,7 @@ class DateMacro(AbstractMacro):
 
     def do_process(self, sections, i):
         macro_type, macro = self._extract_macro(sections[i])
+        print('date macro', macro)
         format_ = self._get_args(macro)["format"]
         date = datetime.datetime.now()
         date = date.strftime(format_)
