@@ -92,10 +92,18 @@ def test_arg_parse(test_input, expected, error_msg):
 # without throwing errors on bad args.
 @unittest.mock.patch('datetime.datetime', FakeDate)
 @pytest.mark.parametrize("test, expected, error_msg", [
-    (r"<date format=%m\>%y>", "01>19", r"Macro arg can't handle '\>'"),
-    (r"<date format=%m\<%y>", "01<19", r"Macro arg can't handle '\<'"),
-    (r"<date format=\<%m%y\>>", "<0119>", r"Macro arg can't handle being enclosed in angle brackets '\<arg\>'"),
-    (r"before <date format=\<%m%y\>> macro", "before <0119> macro", "Macro arg in angle brackets breaks overall phrase splitting"),
+    (r"<date format=%m\>%y>", "01>19",
+     r"Macro arg can't handle '\>'"),
+    (r"<date format=%m\<%y>", "01<19",
+     r"Macro arg can't handle '\<'"),
+    (r"<date format=\<%m%y\>>", "<0119>",
+     r"Macro arg can't handle being enclosed in angle brackets '\<arg\>'"),
+    (r"before <date format=\<%m%y\>> macro",
+     "before <0119> macro",
+     "Macro arg in angle brackets breaks overall phrase splitting"),
+    (r"before <date format=\<%m%y\>> between <date format=\<%m%y\>> macro",
+     "before <0119> between <0119> macro",
+     "Macro arg in angle brackets breaks overall phrase splitting with two macros"),
 ])
 def test_arg_parse_with_escaped_gt_lt_symbols(test, expected, error_msg):
     from datetime import datetime
