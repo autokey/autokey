@@ -162,13 +162,24 @@ def test_cursor_macro():
     assert_that(expandMacro(engine, test), is_(equal_to(expected)),
                 "cursor macro returns wrong text")
 
-@pytest.mark.xfail
-def test_cursor_before_another_macro():
+@pytest.mark.parametrize("test_input, expected, error_msg", [
+    ("<cursor><file name={}> types".format(path),
+     "test result macro expansion\n types" + "<left>"*(28 + 6),
+     "Cursor macro before another macro doesn't expand properly"),
+    ("<cursor><file name={}> types".format(path),
+     "test result macro expansion\n types" + "<left>"*(28 + 6),
+     "Cursor macro before another macro doesn't expand properly"),
+    ("<cursor><file name={}><file name={}> types".format(path, path),
+     "test result macro expansion\ntest result macro expansion\n types" + "<left>"*(28 + 28 + 6),
+     "Cursor macro before another 2 macros doesn't expand properly"),
+    ("<file name={}><cursor><file name={}> types".format(path, path),
+     "test result macro expansion\ntest result macro expansion\n types" + "<left>"*(28 + 6),
+     "Cursor macro between another 2 macros doesn't expand properly"),
+])
+def test_cursor_before_another_macro(test_input, expected, error_msg):
     engine, folder = create_engine()
-    test="<cursor><file name={}> types".format(path)
-    expected="test result macro expansion\n" + "<left>"*29
-    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
-                "Cursor macro before another macro doesn't expand properly")
+    assert_that(expandMacro(engine, test_input), is_(equal_to(expected)),
+                error_msg)
 
 
 @unittest.mock.patch('datetime.datetime', FakeDate)
