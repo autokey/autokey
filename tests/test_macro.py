@@ -36,6 +36,8 @@ from autokey.macro import *
 def get_autokey_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
+path =  get_autokey_dir() + "/tests/dummy_file.txt"
+
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
     test_folder = autokey.model.Folder("Test folder")
@@ -161,6 +163,14 @@ def test_cursor_macro():
     assert_that(expandMacro(engine, test), is_(equal_to(expected)),
                 "cursor macro returns wrong text")
 
+@pytest.mark.xfail
+def test_cursor_before_another_macro():
+    engine, folder = create_engine()
+    test="<cursor><file name={}> types".format(path)
+    expected="test result macro expansion\n" + "<left>"*29
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "Cursor macro before another macro doesn't expand properly")
+
 
 @unittest.mock.patch('datetime.datetime', FakeDate)
 def test_date_macro():
@@ -182,7 +192,6 @@ def test_file_macro():
                 "file macro does not expand correctly")
 
 
-path =  get_autokey_dir() + "/tests/dummy_file.txt"
 @pytest.mark.parametrize("test_input, expected, error_msg", [
     ("No macro", "No macro",
             "Error on phrase without macros"),
