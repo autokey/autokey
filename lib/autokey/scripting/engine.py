@@ -37,6 +37,8 @@ class Engine:
         self.runner = runner
         self.monitor = config_manager.app.monitor
         self._macro_args = []
+        self._script_args = []
+        self._script_kwargs = {}
         self._return_value = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
@@ -335,15 +337,19 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         self.monitor.unsuspend()
         self.configManager.config_altered(False)
 
-    def run_script(self, description):
+    def run_script(self, description, *args, **kwargs):
         """
         Run an existing script using its description to look it up
 
-        Usage: C{engine.run_script(description)}
+        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
         @param description: description of the script to run
+        @param args: arguments to pass to the function
+        @param kwargs: arguments to pass to the function by key
         @raise Exception: if the specified script does not exist
         """
+        self._script_args = args
+        self._script_kwargs = kwargs
         target_script = None
         for item in self.configManager.allItems:
             if item.description == description and isinstance(item, model.Script):
@@ -364,6 +370,29 @@ Phrases created within temporary folders must themselves be explicitly set tempo
             self.run_script(args["name"])
         except Exception as e:
             self.set_return_value("{ERROR: %s}" % str(e))
+
+    def get_script_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+
+        Usage: C{engine.get_script_arguments()}
+
+        @return: the arguments
+        @rtype: C{list(str())}
+        """
+        return self._script_args
+
+    def get_script_keyword_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+        as keyword args.
+
+        Usage: C{engine.get_script_keyword_arguments()}
+
+        @return: the arguments
+        @rtype: C{dict(str():str())}
+        """
+        return self._script_kwargs
 
     def get_macro_arguments(self):
         """
