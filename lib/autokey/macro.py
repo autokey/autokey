@@ -1,10 +1,12 @@
 import datetime
 from abc import abstractmethod
 import shlex
+import re
 
 from autokey.iomediator.constants import KEY_SPLIT_RE
 from autokey.iomediator.key import Key
 from autokey import common
+
 
 if common.USING_QT:
     from PyQt5.QtWidgets import QAction
@@ -31,6 +33,31 @@ else:
     from gi.repository import Gtk
 
 
+# Escape any escaped angle brackets
+def encode_escaped_brackets(s):
+    # If you need a literal '\' at the end of the macro args... IDK. Add a
+    # space before the >?
+    # If you need a literal \>, just add an extra \.
+    # s.replace("\\\\", chr(27)) # ASCII Escape
+    # Use arbitrary nonprinting ascii to represent escaped char.
+    # Easier than having to parse escape chars.
+    s = s.replace("\\<", chr(0x1e))  # Record seperator
+    s = s.replace("\\>", chr(0x1f))  # unit seperator
+    # s.replace(chr(27), "\\")
+    return s
+
+
+def decode_escaped_brackets(s):
+    s = s.replace(chr(0x1e), '<')  # Record seperator
+    s = s.replace(chr(0x1f), '>')  # unit seperator
+    return s
+
+def sections_decode_escaped_brackets(sections):
+    for i, s in enumerate(sections):
+        sections[i] = decode_escaped_brackets(s)
+
+
+# This must be passed a string containing only one macro.
 def extract_tag(s):
     if not isinstance(s, str):
         raise TypeError
@@ -40,11 +67,13 @@ def extract_tag(s):
     else:
         return ''.join(extracted)
 
+
 def split_key_val(s):
     # Split as if a shell argument.
     # Splits at spaces, but preserves spaces within quotes.
     pairs = shlex.split(s)
     return dict(pair.split('=', 1) for pair in pairs)
+
 
 class MacroManager:
 
@@ -73,13 +102,18 @@ class MacroManager:
 
         return menu
 
-    def process_expansion(self, expansion):
-        parts = KEY_SPLIT_RE.split(expansion.string)
+    # Split expansion.string, expand and process its macros, then
+    # replace with the results.
+    def process_expansion_macros(self, content):
+        # Split into sections with <> macros in them.
+        # Using the Key split regex works for now.
+        content = encode_escaped_brackets(content)
+        content_sections = KEY_SPLIT_RE.split(content)
 
-        for macro in self.macros:
-            macro.process(parts)
+        for macroClass in self.macros:
+            content_sections = macroClass.process(content_sections)
 
-        expansion.string = ''.join(parts)
+        return ''.join(content_sections)
 
 
 class AbstractMacro:
@@ -104,15 +138,7 @@ class AbstractMacro:
         ret += ">"
         return ret
 
-    def _can_process(self, token):
-        if KEY_SPLIT_RE.match(token):
-            return token[1:-1].split(' ', 1)[0] == self.ID
-        else:
-            return False
-
-    def _get_args(self, token):
-        macro = extract_tag(token)
-        macro_type, macro = macro.split(' ', 1)
+    def _get_args(self, macro):
         args = split_key_val(macro)
         expected_args = [arg[0] for arg in self.ARGS]
         expected_argnum = len(self.ARGS)
@@ -127,14 +153,33 @@ class AbstractMacro:
 
         return ret
 
-    def process(self, parts):
-        for i in range(len(parts)):
-            if self._can_process(parts[i]):
-                self.do_process(parts, i)
+    def _extract_macro(self, section):
+        content = extract_tag(section)
+        content = decode_escaped_brackets(content)
+        # type is space-separated from rest of macro.
+        # Cursor macros have no space.
+        if ' ' in content:
+            macro_type, macro = content.split(' ', 1)
+        else:
+            macro_type, macro = (content, '')
+        return macro_type, macro
+
+
+    def process(self, sections):
+        for i, section in enumerate(sections):
+            # if MACRO_SPLIT_RE.match(section):
+            if KEY_SPLIT_RE.match(section):
+                macro_type, macro = self._extract_macro(sections[i])
+                if macro_type == self.ID:
+        # parts and i are required for cursor macros.
+                    sections = self.do_process(sections, i)
+        return sections
 
     @abstractmethod
-    def do_process(self, parts, i):
-        pass
+    def do_process(self, sections, i):
+        """ Returns updated sections """
+        # parts and i are required for cursor macros.
+        return sections
 
 
 class CursorMacro(AbstractMacro):
@@ -143,13 +188,14 @@ class CursorMacro(AbstractMacro):
     TITLE = _("Position cursor")
     ARGS = []
 
-    def do_process(self, parts, i):
+    def do_process(self, sections, i):
         try:
-            lefts = len(''.join(parts[i+1:]))
-            parts.append(Key.LEFT * lefts)
-            parts[i] = ''
+            lefts = len(''.join(sections[i+1:]))
+            sections.append(Key.LEFT * lefts)
+            sections[i] = ''
         except IndexError:
             pass
+        return sections
 
 
 class ScriptMacro(AbstractMacro):
@@ -162,10 +208,11 @@ class ScriptMacro(AbstractMacro):
     def __init__(self, engine):
         self.engine = engine
 
-    def do_process(self, parts, i):
-        args = self._get_args(parts[i])
+    def do_process(self, sections, i):
+        macro_type, macro = self._extract_macro(sections[i])
+        args = self._get_args(macro)
         self.engine.run_script_from_macro(args)
-        parts[i] = self.engine._get_return_value()
+        return self.engine._get_return_value()
 
 
 class DateMacro(AbstractMacro):
@@ -174,10 +221,13 @@ class DateMacro(AbstractMacro):
     TITLE = _("Insert date")
     ARGS = [("format", _("Format"))]
 
-    def do_process(self, parts, i):
-        format_ = self._get_args(parts[i])["format"]
-        date = datetime.datetime.now().strftime(format_)
-        parts[i] = date
+    def do_process(self, sections, i):
+        macro_type, macro = self._extract_macro(sections[i])
+        format_ = self._get_args(macro)["format"]
+        date = datetime.datetime.now()
+        date = date.strftime(format_)
+        sections[i] = date
+        return sections
 
 
 class FileContentsMacro(AbstractMacro):
@@ -186,8 +236,11 @@ class FileContentsMacro(AbstractMacro):
     TITLE = _("Insert file contents")
     ARGS = [("name", _("File name"))]
 
-    def do_process(self, parts, i):
-        name = self._get_args(parts[i])["name"]
+    def do_process(self, sections, i):
+        macro_type, macro = self._extract_macro(sections[i])
+        name = self._get_args(macro)["name"]
 
         with open(name, "r") as inputFile:
-            parts[i] = inputFile.read()
+            sections[i] = inputFile.read()
+
+        return sections
