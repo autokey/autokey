@@ -115,7 +115,6 @@ def test_arg_parse_with_escaped_gt_lt_symbols(test, expected, error_msg):
                 error_msg)
 
 
-@pytest.mark.xfail
 @unittest.mock.patch('datetime.datetime', FakeDate)
 @pytest.mark.parametrize("test, expected, error_msg", [
     ("Today < is <date format=%m/%y>", "Today < is 01/19", "Phrase with extra < before macro breaks macros"),
