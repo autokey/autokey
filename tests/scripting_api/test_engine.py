@@ -15,6 +15,8 @@
 
 import typing
 import pathlib
+import sys
+import os
 
 from unittest.mock import MagicMock, patch
 
@@ -26,6 +28,8 @@ from autokey.service import PhraseRunner
 import autokey.model
 from autokey.scripting import Engine
 
+def get_autokey_dir():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
@@ -315,3 +319,16 @@ def test_engine_remove_temporary():
     # assert_that(test_subfolder.folders,
     #         not_(has_item(test_subsubfolder_nontemp)),
     #             "doesn't remove nontemp subfolders from temp parent folders")
+
+
+@pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
+def test_run_script():
+    # Makes use of running script from absolute path.
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
+        dummy_folder = autokey.model.Folder("dummy")
+        script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
+        # This also won't work until merging the absolute path script run
+        # patch.
+        engine.run_script(script, arg1="arg 1")
+        assert_that(engine._get_return_value["arg1"], is_(equal_to("arg 1")))
