@@ -19,7 +19,7 @@ from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
 
-from autokey import model
+from autokey import model, iomediator
 
 
 class Engine:
@@ -337,22 +337,29 @@ Phrases created within temporary folders must themselves be explicitly set tempo
 
     def run_script(self, description):
         """
-        Run an existing script using its description to look it up
+        Run an existing script using its description or path to look it up
 
         Usage: C{engine.run_script(description)}
 
-        @param description: description of the script to run
+        @param description: description of the script to run. If parsable as
+        an absolute path to an existing file, that will be run instead.
         @raise Exception: if the specified script does not exist
         """
-        target_script = None
-        for item in self.configManager.allItems:
-            if item.description == description and isinstance(item, model.Script):
-                target_script = item
-
-        if target_script is not None:
-            self.runner.run_subscript(target_script)
+        path = pathlib.Path(description)
+        path = path.expanduser()
+        # Check if absolute path.
+        if pathlib.PurePath(path).is_absolute() and path.exists():
+            self.runner.run_subscript_path(path)
         else:
-            raise Exception("No script with description '%s' found" % description)
+            target_script = None
+            for item in self.configManager.allItems:
+                if item.description == description and isinstance(item, model.Script):
+                    target_script = item
+
+            if target_script is not None:
+                self.runner.run_subscript(target_script)
+            else:
+                raise Exception("No script with description '%s' found" % description)
 
     def run_script_from_macro(self, args):
         """
@@ -476,10 +483,21 @@ def validateAbbreviations(abbreviations):
 
 
 def isValidHotkeyType(item):
-    return isinstance(item, str) or \
-                        isinstance(item, model.Key)
+    fail=False
+    if isinstance(item, model.Key):
+        fail=False
+    elif isinstance(item, str):
+        if len(item) == 1:
+            fail=False
+        else:
+            fail = not iomediator.key.Key.is_key(item)
+    else:
+        fail=True
+    return not fail
 
 def validateHotkey(hotkey):
+    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
+
     if hotkey is not None:
         fail=False
         if not isinstance(hotkey, tuple):
@@ -488,21 +506,21 @@ def validateHotkey(hotkey):
             if len(hotkey) != 2:
                 fail=True
             else:
-                # First check modifiers is list of str or keys
+                # First check modifiers is list of valid hotkeys.
                 if isinstance(hotkey[0], list):
                     for item in hotkey[0]:
                         if not isValidHotkeyType(item):
                             fail=True
-                elif not isValidHotkeyType(hotkey[0]):
-                    fail=True
+                            failmsg = "Hotkey is not a valid modifier: {}".format(item)
                 else:
                     fail=True
+                    failmsg = "Hotkey modifiers is not a list"
                 # Then check second element is a key or str
                 if not isValidHotkeyType(hotkey[1]):
                     fail=True
+                    failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
         if fail:
-            raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
-                type(hotkey))
-            )
+            raise ValueError(failmsg)
+
 
 
