@@ -102,6 +102,29 @@ def split_except_escaped(a, separator = ' ', escape = '\\'):
     result.append(token)
     return result
 
+# Escape any escaped angle brackets
+def encode_escaped_brackets(s):
+    # If you need a literal '\' at the end of the macro args... IDK. Add a
+    # space before the >?
+    # If you need a literal \>, just add an extra \.
+    # s.replace("\\\\", chr(27)) # ASCII Escape
+    # Use arbitrary nonprinting ascii to represent escaped char.
+    # Easier than having to parse escape chars...
+    s = s.replace("\\<", chr(0x1e))  # Record seperator
+    s = s.replace("\\>", chr(0x1f))  # unit seperator
+    # s.replace(chr(27), "\\")
+    return s
+
+
+def decode_escaped_brackets(s):
+    s = s.replace(chr(0x1e), '<')  # Record seperator
+    s = s.replace(chr(0x1f), '>')  # unit seperator
+    return s
+
+def sections_decode_escaped_brackets(sections):
+    for i, s in enumerate(sections):
+        sections[i] = decode_escaped_brackets(s)
+
 
 # This must be passed a string containing only one macro.
 def extract_tag(s):
@@ -190,17 +213,9 @@ class MacroManager:
         print('content', content)
         print('re', form_macro_split_re())
 
+        content = encode_escaped_brackets(content)
         content_sections = MACRO_SPLIT_RE.split(content)
         print('sections', content_sections)
-
-        while '' in content_sections:
-            content_sections.remove('')
-        print('sections', content_sections)
-
-        # Sections may contain nested angle brackets, or even nested macros.
-        if len(content_sections) > 1:
-            for section in content_sections:
-                self.process_expansion_macros(section)
 
         for macroClass in self.macros:
             content_sections = macroClass.process(content_sections)
@@ -247,9 +262,7 @@ class AbstractMacro:
 
     def _extract_macro(self, section):
         content = extract_tag(section)
-        # Unescape
-        content.replace(r'\>', '>')
-        content.replace(r'\<', '<')
+        content = decode_escaped_brackets(content)
         # type is space-separated from rest of macro.
         # Cursor macros have no space.
         if ' ' in content:
