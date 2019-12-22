@@ -21,6 +21,7 @@ import collections
 import time
 import logging
 import threading
+import pathlib
 
 from autokey.iomediator.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
@@ -228,8 +229,14 @@ class Service:
         self.phraseRunner.execute(phrase)
 
     def run_script(self, name):
-        script = self.__findItem(name, model.Script, "script")
-        self.scriptRunner.execute(script)
+        path = pathlib.Path(name)
+        path = path.expanduser()
+        # Check if absolute path.
+        if pathlib.PurePath(path).is_absolute() and path.exists():
+            self.scriptRunner.execute_path(path)
+        else:
+            script = self.__findItem(name, model.Script, "script")
+            self.scriptRunner.execute(script)
 
     def __findItem(self, name, objType, typeDescription):
         for item in self.configManager.allItems:
@@ -393,7 +400,8 @@ class PhraseRunner:
         mediator.interface.begin_send()
         try:
             expansion = phrase.build_phrase(buffer)
-            self.macroManager.process_expansion(expansion)
+            expansion.string = \
+                    self.macroManager.process_expansion_macros(expansion.string)
 
             self.contains_special_keys = self.phrase_contains_special_keys(expansion)
             mediator.send_backspace(expansion.backspaces)
@@ -491,6 +499,20 @@ class ScriptRunner:
 
         self.mediator.send_string(trigger_character)
 
+    @threaded
+    def execute_path(self, path: pathlib.Path, buffer=''):
+        logger.debug("Script runner executing: {}".format(path))
+        scope = self.scope.copy()
+        # scope["store"] = script.store
+        # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
+        scope["__file__"] = path.resolve()
+        try:
+            exec(path.read_text(), scope)
+        except Exception as e:
+            logger.exception("Script error")
+            self.error = "Script name: '{}'\n{}".format(path, traceback.format_exc())
+            self.app.notify_error("The script '{}' encountered an error".format(path))
+
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
         """Provide the triggered abbreviation to the executed script, if any"""
@@ -508,3 +530,8 @@ class ScriptRunner:
         scope = self.scope.copy()
         scope["store"] = script.store
         exec(script.code, scope)
+
+    def run_subscript_path(self, path):
+        scope = self.scope.copy()
+        scope["__file__"] = path
+        exec(pathlib.Path(path).read_text(), scope)
