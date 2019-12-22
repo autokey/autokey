@@ -328,7 +328,4 @@ def test_run_script():
     with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
         dummy_folder = autokey.model.Folder("dummy")
         script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
-        # This also won't work until merging the absolute path script run
-        # patch.
-        engine.run_script(script, arg1="arg 1")
-        assert_that(engine._get_return_value["arg1"], is_(equal_to("arg 1")))
+        assert_that(engine.run_script(script, arg1="arg 1"), is_(equal_to("arg 1")))

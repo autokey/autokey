@@ -357,6 +357,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
 
         if target_script is not None:
             self.runner.run_subscript(target_script)
+            return self._return_value
         else:
             raise Exception("No script with description '%s' found" % description)
 
@@ -369,6 +370,8 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         try:
             self.run_script(args["name"])
         except Exception as e:
+            # TODO: Log more information here, instead of setting the return
+            # value.
             self.set_return_value("{ERROR: %s}" % str(e))
 
     def get_script_arguments(self):
