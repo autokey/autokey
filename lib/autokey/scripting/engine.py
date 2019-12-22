@@ -378,7 +378,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         Usage: C{engine.get_script_arguments()}
 
         @return: the arguments
-        @rtype: C{list(str())}
+        @rtype: C{list[Any]}
         """
         return self._script_args
 
@@ -390,7 +390,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         Usage: C{engine.get_script_keyword_arguments()}
 
         @return: the arguments
-        @rtype: C{dict(str():str())}
+        @rtype: C{Dict[str, Any]}
         """
         return self._script_kwargs
 
