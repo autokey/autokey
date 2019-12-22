@@ -7,29 +7,6 @@ from autokey.iomediator.constants import KEY_SPLIT_RE
 from autokey.iomediator.key import Key
 from autokey import common
 
-def form_macro_split_re():
-    # Lookbehind to check if next character was escaped.
-    # Only handles a single escaping.
-    notEscd=r'(?<!\\)'
-    # re = "(?<!\\\\)(<.*(?=(?<!\\\\))>)"
-    # re = escd+"<"+''+"[^<>]+"+escd+r">\+?"
-    # re = escd+"<"+''+r".*?=[^\\]>"
-    # Surround in a capture group so that the contents of the match is also
-    # returned when splitting.
-    # re = "(?<!\\\\)(<.*(?=(?<!\\\\))>\\+?)"
-    re = "(?<!\\\\)(<.*(?=(?<!\\\\)>)>)"
-    # notEscd=''
-    re = notEscd + "(<.*(?=" + notEscd + ">)>)"
-    re = notEscd + "(<[^"+notEscd+">]+>)"
-    re = notEscd + "(<.*(?=>)"+notEscd+">)"
-    re = notEscd + "(<[^>]*"+notEscd+">)"
-    # re = "(?<=[^\\\\]<.*?=[^\\\\]>)"
-    print('re', re)
-    return re
-MACRO_SPLIT_RE = re.compile(form_macro_split_re())
-#     return re.split(r'(?<!\\)' + splitchar, string)
-# KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
-
 
 if common.USING_QT:
     from PyQt5.QtWidgets import QAction
@@ -56,52 +33,6 @@ else:
     from gi.repository import Gtk
 
 
-# def split_except_escaped(splitchar, string):
-#     return re.split(r'(?<!\\)' + splitchar, string)
-
-# def split_except_escaped(string, delimiter):
-#     if len(delimiter) != 1:
-#         raise ValueError('Invalid delimiter: ' + delimiter)
-#     ln = len(string)
-#     i = 0
-#     j = 0
-#     while j < ln:
-#         if string[j] == '\\':
-#             if j + 1 >= ln:
-#                 yield string[i:j]
-#                 return
-#             j += 1
-#         elif string[j] == delimiter:
-#             yield string[i:j]
-#             i = j + 1
-#         j += 1
-#     yield string[i:j]
-
-# Taken from
-# https://rosettacode.org/wiki/Tokenize_a_string_with_escaping#Python
-def split_except_escaped(a, separator = ' ', escape = '\\'):
-    '''
-        >>> print(token_with_escape('one^|uno||three^^^^|four^^^|^cuatro|'))
-        ['one|uno', '', 'three^^', 'four^|cuatro', '']
-    '''
-    result = []
-    token = ''
-    state = 0
-    for c in a:
-        if state == 0:
-            if c == escape:
-                state = 1
-            elif c == separator:
-                result.append(token)
-                token = ''
-            else:
-                token += c
-        elif state == 1:
-            token += c
-            state = 0
-    result.append(token)
-    return result
-
 # Escape any escaped angle brackets
 def encode_escaped_brackets(s):
     # If you need a literal '\' at the end of the macro args... IDK. Add a
@@ -109,7 +40,7 @@ def encode_escaped_brackets(s):
     # If you need a literal \>, just add an extra \.
     # s.replace("\\\\", chr(27)) # ASCII Escape
     # Use arbitrary nonprinting ascii to represent escaped char.
-    # Easier than having to parse escape chars...
+    # Easier than having to parse escape chars.
     s = s.replace("\\<", chr(0x1e))  # Record seperator
     s = s.replace("\\>", chr(0x1f))  # unit seperator
     # s.replace(chr(27), "\\")
@@ -128,49 +59,21 @@ def sections_decode_escaped_brackets(sections):
 
 # This must be passed a string containing only one macro.
 def extract_tag(s):
-    print(s)
     if not isinstance(s, str):
         raise TypeError
-    extracted = [split_except_escaped(p, r'>')[0]
-                 for p in split_except_escaped(s, r'<') if '>' in p]
-    extracted = [p.split('>')[0]
-                 for p in s.split('<') if '>' in p]
-    print('extracted tag', (extracted))
+    extracted = [p.split('>')[0] for p in s.split('<') if '>' in p]
     if len(extracted) == 0:
         return s
     else:
         return ''.join(extracted)
 
-# Adapted from
-#http://stackoverflow.com/questions/4284991/parsing-nested-parentheses-in-python-grab-content-by-level
-def parse_nested_brackets(string, brackets=('<','>')):
-    """Generate parenthesized contents in string as pairs (level, contents)."""
-    stack = []
-    for i, c in enumerate(string):
-        if c == brackets[0]:
-            # If escaped
-            if i==0 or (i > 0 and string[i-1] != '\\'):
-                stack.append(i)
-        elif c == brackets[1] and stack:
-            # If escaped
-            if i==0 or (i > 0 and string[i-1] != '\\'):
-                start = stack.pop()
-                yield (len(stack), string[start: i + 1])
-
-
-
-def split_phase_macros(content):
-    notEscd=r'(?<!\\)'
-    rx=notEscd + '<'
-    sections = re.split(rx, content)
-    print(sections)
-    # while re.match(rx, content):
 
 def split_key_val(s):
     # Split as if a shell argument.
     # Splits at spaces, but preserves spaces within quotes.
     pairs = shlex.split(s)
     return dict(pair.split('=', 1) for pair in pairs)
+
 
 class MacroManager:
 
@@ -199,23 +102,13 @@ class MacroManager:
 
         return menu
 
-    def expand_macro(self, string):
-        sections = [string]
-        for macroClass in self.macros:
-            sections = macroClass.process(sections)
-        return ''.join(sections)
-
     # Split expansion.string, expand and process its macros, then
     # replace with the results.
     def process_expansion_macros(self, content):
         # Split into sections with <> macros in them.
         # Using the Key split regex works for now.
-        print('content', content)
-        print('re', form_macro_split_re())
-
         content = encode_escaped_brackets(content)
-        content_sections = MACRO_SPLIT_RE.split(content)
-        print('sections', content_sections)
+        content_sections = KEY_SPLIT_RE.split(content)
 
         for macroClass in self.macros:
             content_sections = macroClass.process(content_sections)
@@ -330,7 +223,6 @@ class DateMacro(AbstractMacro):
 
     def do_process(self, sections, i):
         macro_type, macro = self._extract_macro(sections[i])
-        print('date macro', macro)
         format_ = self._get_args(macro)["format"]
         date = datetime.datetime.now()
         date = date.strftime(format_)
