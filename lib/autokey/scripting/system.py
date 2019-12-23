@@ -21,7 +21,7 @@ class System:
     Simplified access to some system commands.
     """
 
-    def exec_command(self, command, getOutput=True):
+    def exec_command(command, getOutput=True):
         """
         Execute a shell command
 
@@ -49,7 +49,7 @@ class System:
         else:
             subprocess.Popen(command, shell=True, bufsize=-1)
 
-    def create_file(self, fileName, contents=""):
+    def create_file(fileName, contents=""):
         """
         Create a file with contents
 
