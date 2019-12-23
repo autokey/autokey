@@ -19,16 +19,16 @@ This module contains the abbreviation settings dialog and used components.
 This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
 """
 
-import logging
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 
 from autokey.qtui import common as ui_common
 
 from autokey import model
+from autokey.logger import get_logger
 
-logger = ui_common.logger.getChild("Abbreviation Settings Dialog")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 WORD_CHAR_OPTIONS = {
                      "All non-word": model.DEFAULT_WORDCHAR_REGEX,

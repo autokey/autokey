@@ -15,16 +15,15 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-import logging
-import typing
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget, QApplication
 
 from autokey.qtui import common
+from autokey.logger import get_logger
 
-
-logger = common.logger.getChild("AutoKey configuration")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):

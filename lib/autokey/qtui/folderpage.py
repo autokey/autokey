@@ -22,12 +22,10 @@ import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.qtui.common as ui_common
 
 from autokey.model import Folder
+from autokey.logger import get_logger
 
-if typing.TYPE_CHECKING:
-    import logging
-
-
-logger = ui_common.logger.getChild("FolderPage")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."

@@ -14,7 +14,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import logging
 import os.path
 import pathlib
 import enum
@@ -27,6 +26,7 @@ from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.logger import get_logger
 
 try:
     import autokey.qtui.compiled_resources
@@ -52,10 +52,9 @@ else:
     ICON_PATH_PREFIX = ":/icons"
     atexit.register(autokey.qtui.compiled_resources.qCleanupResources)
 
-
+logger = get_logger(__name__)
+del get_logger
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
-
-logger = logging.getLogger("root").getChild("Qt-GUI")  # type: logging.Logger
 
 
 def monospace_font() -> QFont:
