@@ -1,10 +1,20 @@
 
 Phrases can be made dynamic by including one or more macros. A macro looks like an XML/HTML `<tag>`, it consists of a special keyword and space separated arguments in the `key=value` form, enclosed in angle brackets (`<` and `>`). Whenever a Phrase is expanded, all included macros are executed. Then the macro tags are replaced with their execution results. When the replacement is finished, the result gets pasted or typed (depending on the phrase setting).
 
-The current interface and implementation is a bit brittle:
+In versions older than `0.96.0`, the interface and implementation is a bit brittle:
 - Argument values can’t contain spaces
 - `<>` angle brackets in argument values interfere with the parser, and can’t be escaped
-- All arguments are required, even if you don’t want to use them (like providing arguments to executed scripts)
+
+In `0.96.0`, arguments can be quoted if they contain spaces, and angle brackets can be escaped with a single `\`. Only `\` before an angle bracket counts as an escape character. To form a literal `\>`, just add a single extra slash before the `\>`. To add a literal `\` anywhere else, just add as normal for a string.
+
+Macros cannot have a `\` right before the final `>`. If you need this, quote the argument containing the `\`, or add a space after it.
+
+Example of a quoted and escaped macro: `<script name=system args="xclip \> ~/sorted_clip.txt">`
+
+Other notes:
+
+- All arguments are required for a particular macro type, even if you don’t want to use them (like providing arguments to executed scripts)
+- Macros cannot be nested within one another (e.g., a `date` macro cannot use a `file` macro to provide the format).
 
 
 # Available Macros
@@ -12,7 +22,7 @@ Currently, there are four macros available:
 * `Position cursor`: `<cursor>` positions the text cursor at the indicated text position. There may be only one `<cursor>` macro in a phrase, either directly or indirectly.
 * `Insert date`: `<date>` inserts the current date. The format parameter takes a formatting string, allowing precise control over the resulting string.
 * `Insert file contents`: `<file>` takes a file name as a parameter and reads the file content from the disk. Beware that the whole content is read into the system memory at once and is then typed or pasted. Don’t use it with too large files, or experience application- or system lock-ups or long expansion times.
-* `Run script`: `<script>`executes any AutoKey script. Scripts executed from Phrases should never use the `keyboard` directly, instead return their replacement text using the `engine.set_return_value(str)`function
+* `Run script`: `<script>`executes any AutoKey script. Scripts executed from Phrases should never use the `keyboard` directly, instead return their replacement text using the `engine.set_return_value(str)`function.
 
 Macro templates are available and can be inserted into a currently edited phrase using the menu bar:
 * Qt GUI: `Tools` menu → `Insert Macro` → Choose one from the list
@@ -36,6 +46,9 @@ This can be used to include another Phrase by specifying its full file path and 
 The `<script name=script_name args=comma_separated_argument_string>` macro allows to use AutoKey Python scripts for Phrase content generation.
 This macro will execute the specified script during the macro processing step, before the phrase is pasted.
 The `<script>` macro token will be replaced with the script return value, which can be set using the `engine.set_return_value(str)` function. You should set the return value to a Python `str` string only.
+If there is an error, the macro will be replaced with that instead.
+
+As of `0.96.0`, Scripts outside of autokey can be executed by passing their absolute path (including `~`, which is expanded to `$HOME`) to `name=` instead of a description.
 
 Currently, the `args` argument expects a string containing comma separated values (CSV).
 The data is split at the `,` signs and is available as a list containing strings using the `engine.get_macro_arguments()` function.
