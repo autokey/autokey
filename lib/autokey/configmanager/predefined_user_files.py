@@ -20,13 +20,14 @@ Script content is stored as Python files inside the predefined_user_scripts dire
 This eases maintenance of predefined user scripts, because those are not stored inside string variables any more.
 """
 
-import logging
 from typing import NamedTuple, List, Optional
 import pathlib
 
 from autokey.model import Folder, Script, Phrase, TriggerMode
+from autokey.logger import get_logger
 
-_logger = logging.getLogger("config-manager").getChild("sample-data_generation")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 # A Hotkey is defined by a list of modifier keys and a printable key.
 HotkeyData = NamedTuple("HotkeyData", [("modifiers", List[str]), ("key", str)])
@@ -141,7 +142,7 @@ def _create_script(data: ItemData, parent: Folder) -> Script:
     """
     content_path = pathlib.Path(__file__).parent / "predefined_user_scripts" / (data.content + ".pyi")
 
-    _logger.debug("Creating Script: name={}, path_to_content={}".format(data.name, content_path))
+    logger.debug("Creating Script: name={}, path_to_content={}".format(data.name, content_path))
 
     with open(str(content_path), "r", encoding="utf-8") as source_file:
         source_code = source_file.read()
@@ -161,7 +162,7 @@ def _create_script(data: ItemData, parent: Folder) -> Script:
 
 def _create_phrase(data: ItemData, parent: Folder) -> Phrase:
     """Create a Phrase from data. Place it into the parent folder."""
-    _logger.debug("Creating Phrase: name={}".format(data.name))
+    logger.debug("Creating Phrase: name={}".format(data.name))
     item = Phrase(data.name, data.content)
     if data.hotkey:
         item.set_hotkey(*data.hotkey)
@@ -178,7 +179,7 @@ def _create_phrase(data: ItemData, parent: Folder) -> Phrase:
 
 def _create_folder(name: str, parent: Folder=None) -> Folder:
     """Creates a folder with the given name. If parent is given, create it inside parent."""
-    _logger.info("About to create folder '{}'".format(name))
+    logger.info("About to create folder '{}'".format(name))
     folder = Folder(name)
     if parent is not None:
         parent.add_folder(folder)
