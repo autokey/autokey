@@ -4,9 +4,14 @@ When you want to contribute new features or fix things, you are free to take vir
 
 Testing
 =======
-Running the tests is simple: Checkout `develop` and run `python3 setup.py test`
+Running the tests is simple: Checkout `develop` and run `python3 setup.py
+test`. (Check `setup.cfg` for more.) Testing specific folders/files can be done
+with `python3 setup.py test --addopts [dir]` Coverage can be tested with
+`coverage run setup.py test`. Genreate the results with
+`coverage html` then open htmlcov/index.html in a browser. (Alternatively,
+coverage can be viewed in-terminal with `coverage report`
 
-It requires py.test and PyHamcrest as new test-time only dependencies.
+It requires pytest and PyHamcrest as new test-time only dependencies, with `coverage` if you are testing coverage.
 
 The current `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
 The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
