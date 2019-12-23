@@ -20,7 +20,6 @@ import re
 import os
 import os.path
 import glob
-import logging
 import json
 import typing
 import enum
@@ -28,8 +27,10 @@ import enum
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.key import Key, NAVIGATION_KEYS
 from autokey.iomediator.constants import KEY_SPLIT_RE
+from autokey.logger import get_logger
 
-_logger = logging.getLogger("model")
+logger = get_logger(__name__)
+del get_logger
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
@@ -507,8 +508,8 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(inFile)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for " + self.title)
-            _logger.error("JSON data not loaded (or loaded incomplete)")
+            logger.exception("Error while loading json data for " + self.title)
+            logger.error("JSON data not loaded (or loaded incomplete)")
 
     def inject_json_data(self, data):
         self.title = data["title"]
@@ -721,8 +722,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(json_file)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for " + self.description)
-            _logger.error("JSON data not loaded (or loaded incomplete)")
+            logger.exception("Error while loading json data for " + self.description)
+            logger.error("JSON data not loaded (or loaded incomplete)")
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]
@@ -1071,7 +1072,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             if Script._is_serializable(key) and Script._is_serializable(value):
                 cleaned_store_data[key] = value
             else:
-                _logger.info("Skip non-serializable item in the local script store. Key: '{}', Value: '{}'. "
+                logger.info("Skip non-serializable item in the local script store. Key: '{}', Value: '{}'. "
                              "This item cannot be saved and therefore will be lost when autokey quits.".format(
                                 key, value
                 ))
@@ -1105,8 +1106,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                 data = json.load(jsonFile)
                 self.inject_json_data(data)
         except Exception:
-            _logger.exception("Error while loading json data for " + self.description)
-            _logger.error("JSON data not loaded (or loaded incomplete)")
+            logger.exception("Error while loading json data for " + self.description)
+            logger.error("JSON data not loaded (or loaded incomplete)")
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]
