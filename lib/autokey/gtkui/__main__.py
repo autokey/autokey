@@ -1,11 +1,11 @@
 import faulthandler
 faulthandler.enable()
 
-from autokey.gtkapp import Application
+from autokey.gtkapp import UI
 
 
 def main():
-    a = Application()
+    a = UI()
     a.main()
 
 

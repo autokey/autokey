@@ -45,7 +45,7 @@ HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'
 MAINTAINER = 'GuoCi'
-MAINTAINER_EMAIL = 'guociz@gmail.com'
+MAINTAINER_EMAIL = 'guociz@gmail.com' # Change to Thomas?
 BUG_EMAIL = "guociz@gmail.com"
 
 FAQ_URL = "https://github.com/autokey/autokey/wiki/FAQ"
