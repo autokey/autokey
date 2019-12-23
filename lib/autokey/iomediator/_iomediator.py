@@ -1,6 +1,5 @@
 import threading
 import queue
-import logging
 
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
@@ -11,7 +10,10 @@ from .key import Key
 from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 
 CURRENT_INTERFACE = None
-_logger = logging.getLogger("iomediator")
+from autokey.logger import get_logger
+
+logger = get_logger(__name__)
+del get_logger
 
 
 class IoMediator(threading.Thread):
@@ -53,27 +55,27 @@ class IoMediator(threading.Thread):
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
-        _logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
+        logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
         
     def shutdown(self):
-        _logger.debug("IoMediator shutting down")
+        logger.debug("IoMediator shutting down")
         self.interface.cancel()
         self.queue.put_nowait((None, None))
-        _logger.debug("Waiting for IoMediator thread to end")
+        logger.debug("Waiting for IoMediator thread to end")
         self.join()
-        _logger.debug("IoMediator shutdown completed")
+        logger.debug("IoMediator shutdown completed")
 
     # Callback methods for Interfaces ----
 
     def set_modifier_state(self, modifier, state):
-        _logger.debug("Set modifier %s to %r", modifier, state)
+        logger.debug("Set modifier %s to %r", modifier, state)
         self.modifiers[modifier] = state
     
     def handle_modifier_down(self, modifier):
         """
         Updates the state of the given modifier key to 'pressed'
         """
-        _logger.debug("%s pressed", modifier)
+        logger.debug("%s pressed", modifier)
         if modifier in (Key.CAPSLOCK, Key.NUMLOCK):
             if self.modifiers[modifier]:
                 self.modifiers[modifier] = False
@@ -86,7 +88,7 @@ class IoMediator(threading.Thread):
         """
         Updates the state of the given modifier key to 'released'.
         """
-        _logger.debug("%s released", modifier)
+        logger.debug("%s released", modifier)
         # Caps and num lock are handled on key down only
         if modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
             self.modifiers[modifier] = False
@@ -131,7 +133,7 @@ class IoMediator(threading.Thread):
         string = string.replace('\n', "<enter>")
         string = string.replace('\t', "<tab>")
         
-        _logger.debug("Send via event interface")
+        logger.debug("Send via event interface")
         self._clear_modifiers()
         modifiers = []
         for section in KEY_SPLIT_RE.split(string):
@@ -162,7 +164,7 @@ class IoMediator(threading.Thread):
         
     def paste_string(self, string, paste_command: SendMode):
         if len(string) > 0:
-            _logger.debug("Send via clipboard")
+            logger.debug("Send via clipboard")
             self.interface.send_string_clipboard(string, paste_command)
 
     def remove_string(self, string):
