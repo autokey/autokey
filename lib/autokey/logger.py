@@ -19,14 +19,14 @@ import pathlib
 import sys
 
 from autokey.argument_parser import Namespace
-import autokey.common
+from autokey.common import APP_NAME, DATA_DIR
 
-root_logger = logging.getLogger(autokey.common.APP_NAME)
+root_logger = logging.getLogger(APP_NAME)
 
-MAX_LOG_SIZE = 5 * 1024 * 1024  # 5 megabytes
+MAX_LOG_SIZE = 5 * 2**20  # 5 megabytes
 MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
-LOG_FILE = pathlib.Path(autokey.common.DATA_DIR) / "autokey.log"
+LOG_FILE = pathlib.Path(DATA_DIR) / "autokey.log"
 
 
 def get_logger(full_module_path: str) -> logging.Logger:

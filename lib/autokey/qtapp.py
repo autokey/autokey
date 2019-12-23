@@ -46,6 +46,7 @@ from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
 
 logger = get_logger(__name__)
+del get_logger
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
