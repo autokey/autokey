@@ -35,8 +35,47 @@ import autokey.service
 from autokey.scripting import Engine
 from autokey.baseapp import BaseApp
 
-
-def test_init():
+def init_app():
     # Because testing arguments aren't valid arguments for the app.
     with patch("autokey.argument_parser.parse_args"):
         app = BaseApp(MagicMock)
+    return app
+
+def test_init():
+    # Check for errors during init process.
+    init_app()
+    assert_that( calling(init_app),
+            not_(raises(Exception)),
+            "Initialising baseapp raises exception")
+
+def test_default_dirs():
+    with patch("os.makedirs"):
+        app = init_app()
+        assert_that( calling(app.create_default_dirs),
+                not_(raises(Exception)),
+                "Creating default dirs raises exception")
+        false = lambda x: False
+        with patch("os.path.exists", side_effect=false):
+            assert_that( calling(app.create_default_dirs),
+                    not_(raises(Exception)),
+                    "Creating default dirs raises exception")
+
+@pytest.mark.skip(reason="For some reason the function doesn't show up as an existing attribute.")
+def test_verifyNotRunning():
+    app = init_app()
+    assert_that( calling(app.__verifyNotRunning),
+            not_(raises(Exception)),
+            "Creating default dirs raises exception")
+
+# def test_verifyNotRunning():
+#     app = init_app()
+#     assert_that( calling(app.__verifyNotRunning),
+#             not_(raises(Exception)),
+#             "Creating default dirs raises exception")
+
+# def test_verifyNotRunning():
+#     app = init_app()
+#     assert_that( calling(app.__verifyNotRunning),
+#             not_(raises(Exception)),
+#             "Creating default dirs raises exception")
+
