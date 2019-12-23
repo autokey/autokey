@@ -18,10 +18,10 @@
 __all__ = ["XRecordInterface", "AtSpiInterface"]
 
 from abc import abstractmethod
+import logging
 import typing
 import threading
 import select
-import logging
 import queue
 import subprocess
 import time
@@ -73,8 +73,10 @@ except ImportError:
     
 from Xlib.protocol import rq, event
 
+from autokey.logger import get_logger
 
-logger = logging.getLogger("interface")
+logger = get_logger(__name__)
+del get_logger
 
 MASK_INDEXES = [
                (X.ShiftMapIndex, X.ShiftMask),
@@ -319,7 +321,7 @@ class XInterfaceBase(threading.Thread):
         self.__availableKeycodes = avail
         self.remappedChars = {}
 
-        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        if logger.getEffectiveLevel() == logging.DEBUG:
             self.keymap_test()
 
     def keymap_test(self):
