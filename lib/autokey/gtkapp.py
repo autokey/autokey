@@ -14,6 +14,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import autokey.dbus_service
 from . import common
 common.USING_QT = False
 
@@ -140,7 +141,7 @@ class Application:
         self.monitor.start()
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.dbusService = common.AppService(self)
+        self.dbusService = autokey.dbus_service.AppService(self)
 
         if configure:
             self.show_configure()
