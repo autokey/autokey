@@ -32,10 +32,20 @@ def get_logger(full_module_path: str) -> logging.Logger:
 def configure_root_logger(args: Namespace):
     """Initialise logging system"""
     root_logger.setLevel(1)
-    handler = logging.StreamHandler(sys.stdout)
-    handler.setLevel(logging.DEBUG if args.verbose else logging.INFO)
-    handler.setFormatter(logging.Formatter(LOG_FORMAT))
-    root_logger.addHandler(handler)
+
+    file_handler = logging.handlers.RotatingFileHandler(
+        autokey.common.LOG_FILE,
+        maxBytes=autokey.common.MAX_LOG_SIZE,
+        backupCount=autokey.common.MAX_LOG_COUNT
+    )
+    file_handler.setLevel(logging.INFO)
+
+    stdout_stream_handler = logging.StreamHandler(sys.stdout)
+    stdout_stream_handler.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+    stdout_stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
+
+    root_logger.addHandler(stdout_stream_handler)
+    root_logger.addHandler(file_handler)
     if args.cutelog_integration:
         socket_handler = logging.handlers.SocketHandler("127.0.0.1", 19996)  # default listening address
         root_logger.addHandler(socket_handler)
