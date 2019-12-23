@@ -22,6 +22,7 @@ They do not assert correct running, they only help with catching errors.
 
 import typing
 import pathlib
+import sys
 
 from unittest.mock import MagicMock, patch
 
@@ -35,22 +36,37 @@ import autokey.service
 from autokey.scripting import Engine
 from autokey.baseapp import BaseApp
 
-def init_app():
+def nothing():
+    # Silence error
+    # with raises(SystemExit):
+    #     sys.exit()
+    return
+
+@patch.object(autokey.service.Service, "start")
+def init_app(mock):
     # Because testing arguments aren't valid arguments for the app.
     with patch("autokey.argument_parser.parse_args"):
         app = BaseApp(MagicMock)
         app.UI.show_error_dialog = MagicMock
+        app.UI.show_configure_async = MagicMock
+        # Close the app, end tests. Happens at end of BaseApp.initialise().
+        app.UI.initialise = nothing
+        app.UI.show_configure = nothing
+        with patch("autokey.service.Service.start") and patch ("autokey.monitor.FileMonitor.start") and patch("dbus.mainloop.glib.DBusGMainLoop") and patch("autokey.common.AppService"):
+            app.initialise(True)
     return app
 
 def test_init():
     # Check for errors during init process.
-    init_app()
+    app = init_app()
+    # app.initialise(True)
     # assert_that( calling(init_app),
     #         not_(raises(Exception)),
     #         "Initialising baseapp raises exception")
     false = lambda x: False
     with patch("os.path.exists", side_effect=false) and patch("os.mkdir"):
-        init_app
+        init_app()
+    
 
 def test_default_dirs():
     with patch("os.makedirs"):
@@ -81,3 +97,25 @@ def test_createLockFile():
         app = init_app()
         app._BaseApp__createLockFile()
 
+def test_notifier():
+    app = init_app()
+    app.notify_error("msg")
+    app.update_notifier_visibility()
+
+@pytest.mark.skip(reason="BaseApp doesn't have a 'service' attribute. But neither does gtkapp...")
+def test_service():
+    app = init_app()
+    app.pause_service()
+    app.unpause_service()
+    app.toggle_service()
+
+def test_hotkey():
+    app = init_app()
+    app.init_global_hotkeys(app.configManager)
+    app.hotkey_created(MagicMock)
+    app.hotkey_removed(MagicMock)
+
+def test_path():
+    app = init_app()
+    app.path_created_or_modified(MagicMock)
+    app.path_removed(MagicMock)
