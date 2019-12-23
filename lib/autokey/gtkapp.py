@@ -45,7 +45,10 @@ import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
 
-PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
+# TODO: this _ named function is initialised by gettext.install(), which is for
+# localisation. It marks the string as a candidate for translation, but I don't
+# know what else.
+PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
