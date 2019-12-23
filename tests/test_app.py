@@ -39,14 +39,18 @@ def init_app():
     # Because testing arguments aren't valid arguments for the app.
     with patch("autokey.argument_parser.parse_args"):
         app = BaseApp(MagicMock)
+        app.UI.show_error_dialog = MagicMock
     return app
 
 def test_init():
     # Check for errors during init process.
     init_app()
-    assert_that( calling(init_app),
-            not_(raises(Exception)),
-            "Initialising baseapp raises exception")
+    # assert_that( calling(init_app),
+    #         not_(raises(Exception)),
+    #         "Initialising baseapp raises exception")
+    false = lambda x: False
+    with patch("os.path.exists", side_effect=false) and patch("os.mkdir"):
+        init_app
 
 def test_default_dirs():
     with patch("os.makedirs"):
@@ -60,22 +64,20 @@ def test_default_dirs():
                     not_(raises(Exception)),
                     "Creating default dirs raises exception")
 
-@pytest.mark.skip(reason="For some reason the function doesn't show up as an existing attribute.")
 def test_verifyNotRunning():
     app = init_app()
-    assert_that( calling(app.__verifyNotRunning),
-            not_(raises(Exception)),
-            "Creating default dirs raises exception")
+    app._BaseApp__verifyNotRunning()
+    false = lambda x: False
+    with patch("os.path.exists", side_effect=false) and patch("os.mkdir"):
+        app._BaseApp__verifyNotRunning()
+    pipe = lambda : ["autokey".encode()]
+    with patch("subprocess.Popen.communicate", side_effect=pipe):
+        with pytest.raises(SystemExit):
+            app._BaseApp__verifyNotRunning()
 
-# def test_verifyNotRunning():
-#     app = init_app()
-#     assert_that( calling(app.__verifyNotRunning),
-#             not_(raises(Exception)),
-#             "Creating default dirs raises exception")
-
-# def test_verifyNotRunning():
-#     app = init_app()
-#     assert_that( calling(app.__verifyNotRunning),
-#             not_(raises(Exception)),
-#             "Creating default dirs raises exception")
+def test_createLockFile():
+    false = lambda x: False
+    with patch("os.path.exists", side_effect=false) and patch("os.mkdir"):
+        app = init_app()
+        app._BaseApp__createLockFile()
 
