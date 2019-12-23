@@ -15,13 +15,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time, logging
+import time
 from gi.repository import Gtk, Gdk
 
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-_logger = logging.getLogger("phrase-menu")
+from autokey.logger import get_logger
+
+logger = get_logger(__name__)
+del get_logger
+
 
 class PopupMenu(Gtk.Menu):
     """
@@ -39,19 +43,19 @@ class PopupMenu(Gtk.Menu):
         self.service = service
         
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
-            _logger.debug("Sorting phrase menu by usage count")
+            logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
-            _logger.debug("Sorting phrase menu by item name/title")
+            logger.debug("Sorting phrase menu by item name/title")
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
         if cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL]:
-            _logger.debug("Triggering menu item by first initial")
+            logger.debug("Triggering menu item by first initial")
             self.triggerInitial = 1
         else:
-            _logger.debug("Triggering menu item by position in list")
+            logger.debug("Triggering menu item by position in list")
             self.triggerInitial = 0
 
 
