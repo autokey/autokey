@@ -164,3 +164,15 @@ class UI:
     def hide_menu(self):
         self.menu.remove_from_desktop()
 
+    def notify_error(self, message):
+        """
+        Show an error notification popup.
+
+        @param message: Message to show in the popup
+        """
+        self.notifier.notify_error(message)
+
+    def update_notifier_visibility(self):
+        self.notifier.update_visible_status()
+
+

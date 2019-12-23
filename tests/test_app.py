@@ -24,7 +24,7 @@ import typing
 import pathlib
 import sys
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import Mock, MagicMock, patch
 
 import pytest
 from hamcrest import *
@@ -43,7 +43,8 @@ def nothing():
     return
 
 @patch.object(autokey.service.Service, "start")
-def init_app(mock):
+@patch.object(autokey.monitor.FileMonitor, "start")
+def init_app(mock1, mock2):
     # Because testing arguments aren't valid arguments for the app.
     with patch("autokey.argument_parser.parse_args"):
         app = BaseApp(MagicMock)
@@ -52,8 +53,15 @@ def init_app(mock):
         # Close the app, end tests. Happens at end of BaseApp.initialise().
         app.UI.initialise = nothing
         app.UI.show_configure = nothing
-        with patch("autokey.service.Service.start") and patch ("autokey.monitor.FileMonitor.start") and patch("dbus.mainloop.glib.DBusGMainLoop") and patch("autokey.common.AppService"):
+        app.UI.notifier = Mock()
+        # app.UI.notifier.rebuild_menu = nothing
+        app.service = MagicMock
+        app.service.mediator = Mock()
+        app.service.mediator.interface = Mock()
+        with patch("dbus.mainloop.glib.DBusGMainLoop") and patch("autokey.common.AppService"):
             app.initialise(True)
+            app.service.mediator = Mock()
+            app.service.mediator.interface = Mock()
     return app
 
 def test_init():
@@ -66,7 +74,7 @@ def test_init():
     false = lambda x: False
     with patch("os.path.exists", side_effect=false) and patch("os.mkdir"):
         init_app()
-    
+
 
 def test_default_dirs():
     with patch("os.makedirs"):
@@ -97,12 +105,6 @@ def test_createLockFile():
         app = init_app()
         app._BaseApp__createLockFile()
 
-def test_notifier():
-    app = init_app()
-    app.notify_error("msg")
-    app.update_notifier_visibility()
-
-@pytest.mark.skip(reason="BaseApp doesn't have a 'service' attribute. But neither does gtkapp...")
 def test_service():
     app = init_app()
     app.pause_service()
@@ -112,10 +114,16 @@ def test_service():
 def test_hotkey():
     app = init_app()
     app.init_global_hotkeys(app.configManager)
-    app.hotkey_created(MagicMock)
-    app.hotkey_removed(MagicMock)
+    with patch("autokey.interface.XInterfaceBase.grab_hotkey"):
+        app.hotkey_created(Mock())
+        app.hotkey_removed(Mock())
+
+def test_config():
+    app = init_app()
+    app.config_altered(True)
 
 def test_path():
     app = init_app()
-    app.path_created_or_modified(MagicMock)
-    app.path_removed(MagicMock)
+    path = "/trashpath"
+    app.path_created_or_modified(path)
+    app.path_removed(path)
