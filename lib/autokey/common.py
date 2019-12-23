@@ -32,11 +32,6 @@ DATA_DIR = os.path.join(XDG_DATA_HOME, "autokey")
 AUTOSTART_DIR = os.path.join(XDG_CONFIG_HOME, "autostart")
 
 LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
-LOG_FILE = os.path.join(DATA_DIR, "autokey.log")
-
-MAX_LOG_SIZE = 5 * 1024 * 1024  # 5 megabytes
-MAX_LOG_COUNT = 3
-LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
 
 APP_NAME = "autokey"
 CATALOG = ""

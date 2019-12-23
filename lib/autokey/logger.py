@@ -15,13 +15,18 @@
 
 import logging
 import logging.handlers
+import pathlib
 import sys
 
 from autokey.argument_parser import Namespace
 import autokey.common
 
 root_logger = logging.getLogger(autokey.common.APP_NAME)
+
+MAX_LOG_SIZE = 5 * 1024 * 1024  # 5 megabytes
+MAX_LOG_COUNT = 3
 LOG_FORMAT = "%(asctime)s %(levelname)s - %(name)s - %(message)s"
+LOG_FILE = pathlib.Path(autokey.common.DATA_DIR) / "autokey.log"
 
 
 def get_logger(full_module_path: str) -> logging.Logger:
@@ -34,9 +39,9 @@ def configure_root_logger(args: Namespace):
     root_logger.setLevel(1)
 
     file_handler = logging.handlers.RotatingFileHandler(
-        autokey.common.LOG_FILE,
-        maxBytes=autokey.common.MAX_LOG_SIZE,
-        backupCount=autokey.common.MAX_LOG_COUNT
+        LOG_FILE,
+        maxBytes=MAX_LOG_SIZE,
+        backupCount=MAX_LOG_COUNT
     )
     file_handler.setLevel(logging.INFO)
 
