@@ -37,6 +37,8 @@ class Engine:
         self.runner = runner
         self.monitor = config_manager.app.monitor
         self._macro_args = []
+        self._script_args = []
+        self._script_kwargs = {}
         self._return_value = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
@@ -335,16 +337,18 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         self.monitor.unsuspend()
         self.configManager.config_altered(False)
 
-    def run_script(self, description):
+    def run_script(self, description, *args, **kwargs):
         """
         Run an existing script using its description or path to look it up
 
-        Usage: C{engine.run_script(description)}
+        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
         @param description: description of the script to run. If parsable as
         an absolute path to an existing file, that will be run instead.
         @raise Exception: if the specified script does not exist
         """
+        self._script_args = args
+        self._script_kwargs = kwargs
         path = pathlib.Path(description)
         path = path.expanduser()
         # Check if absolute path.
@@ -360,6 +364,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
                 self.runner.run_subscript(target_script)
             else:
                 raise Exception("No script with description '%s' found" % description)
+        return self._return_value
 
     def run_script_from_macro(self, args):
         """
@@ -370,7 +375,32 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         try:
             self.run_script(args["name"])
         except Exception as e:
+            # TODO: Log more information here, instead of setting the return
+            # value.
             self.set_return_value("{ERROR: %s}" % str(e))
+
+    def get_script_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+
+        Usage: C{engine.get_script_arguments()}
+
+        @return: the arguments
+        @rtype: C{list[Any]}
+        """
+        return self._script_args
+
+    def get_script_keyword_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+        as keyword args.
+
+        Usage: C{engine.get_script_keyword_arguments()}
+
+        @return: the arguments
+        @rtype: C{Dict[str, Any]}
+        """
+        return self._script_kwargs
 
     def get_macro_arguments(self):
         """
