@@ -220,6 +220,15 @@ def test_macro_expansion(test_input, expected, error_msg):
     assert_that(expandMacro(engine, test_input), is_(equal_to(expected)),
             error_msg)
 
+def test_system_macro():
+    engine, folder = create_engine()
+    home=os.environ['HOME']
+    test="one<system command='echo $HOME'>two"
+    expected="one{}two".format(home)
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "system macro fails")
+
+
 # def test_nested_macro_raises_error():
 #     contents="<date format=<cursor>>"
 #     # TODO

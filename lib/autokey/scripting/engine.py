@@ -20,6 +20,7 @@ from collections.abc import Iterable
 from typing import Tuple, Optional, List, Union
 
 from autokey import model, iomediator
+from autokey.scripting.system import System
 
 
 class Engine:
@@ -377,6 +378,16 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         except Exception as e:
             # TODO: Log more information here, instead of setting the return
             # value.
+            self.set_return_value("{ERROR: %s}" % str(e))
+
+    def run_system_command_from_macro(self, args):
+        """
+        Used internally by AutoKey for system macros
+        """
+
+        try:
+            self._return_value = System.exec_command(args["command"], getOutput=True)
+        except Exception as e:
             self.set_return_value("{ERROR: %s}" % str(e))
 
     def get_script_arguments(self):
