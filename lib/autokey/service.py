@@ -30,11 +30,8 @@ from autokey import model
 import autokey.scripting
 from autokey.configmanager.configmanager import ConfigManager, save_config
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 MAX_STACK_LENGTH = 150
 
 

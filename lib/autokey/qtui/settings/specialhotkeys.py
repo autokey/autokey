@@ -20,13 +20,11 @@ from PyQt5.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
 
 from autokey.qtui.dialogs import GlobalHotkeyDialog
 import autokey.qtui.common as ui_common
-from autokey.logger import get_logger
-
-logger = get_logger(__name__)
-del get_logger
-
 if typing.TYPE_CHECKING:
     from autokey.qtapp import Application
+
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialhotkeysettings")):

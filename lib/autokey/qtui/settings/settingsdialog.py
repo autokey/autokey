@@ -23,10 +23,8 @@ from autokey.qtui import common
 if TYPE_CHECKING:
     from autokey.qtapp import Application
 
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):

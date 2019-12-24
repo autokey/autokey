@@ -24,10 +24,8 @@ from autokey.qtui import common as ui_common
 from autokey import iomediator, model
 import autokey.configmanager.configmanager as cm
 from autokey.iomediator.key import Key
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 Item = typing.Union[model.Folder, model.Script, model.Phrase]
 
 

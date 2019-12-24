@@ -35,10 +35,8 @@ import autokey.configmanager.version_upgrading
 import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS
 from autokey.iomediator import key
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 def create_config_manager_instance(auto_key_app, had_error=False):

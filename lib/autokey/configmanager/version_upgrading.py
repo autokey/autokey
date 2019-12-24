@@ -39,10 +39,8 @@ from pathlib import Path
 
 from autokey import common, model
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 def upgrade_configuration(configuration_manager, config_data: dict):

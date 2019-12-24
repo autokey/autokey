@@ -24,11 +24,8 @@ from typing import NamedTuple, List, Optional
 import pathlib
 
 from autokey.model import Folder, Script, Phrase, TriggerMode
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 # A Hotkey is defined by a list of modifier keys and a printable key.
 HotkeyData = NamedTuple("HotkeyData", [("modifiers", List[str]), ("key", str)])
 # ItemData holds everything needed to define a standalone Script or Phrase. For Scripts, content contains the file name

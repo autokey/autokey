@@ -10,10 +10,8 @@ from .key import Key
 from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 
 CURRENT_INTERFACE = None
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class IoMediator(threading.Thread):

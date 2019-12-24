@@ -22,11 +22,8 @@ import time
 
 from pyinotify import WatchManager, Notifier, EventsCodes, ProcessEvent
 
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 m = EventsCodes.OP_FLAGS
 MASK = m["IN_CREATE"]|m["IN_MODIFY"]|m["IN_DELETE"]|m["IN_MOVED_TO"]|m["IN_MOVED_FROM"]
 

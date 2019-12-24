@@ -23,14 +23,11 @@ from autokey.qtui import popupmenu
 import autokey.qtui.common as ui_common
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.logger import get_logger
-
-logger = get_logger(__name__)
-del get_logger
 
 if TYPE_CHECKING:
     from autokey.qtapp import Application
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
 

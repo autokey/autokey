@@ -25,11 +25,8 @@ import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.model
 import autokey.service
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 FolderList = List[autokey.model.Folder]
 Item = Union[autokey.model.Script, autokey.model.Phrase]
 

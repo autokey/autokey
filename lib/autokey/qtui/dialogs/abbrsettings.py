@@ -25,11 +25,8 @@ from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 from autokey.qtui import common as ui_common
 
 from autokey import model
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 WORD_CHAR_OPTIONS = {
                      "All non-word": model.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",

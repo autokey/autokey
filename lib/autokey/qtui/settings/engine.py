@@ -20,10 +20,7 @@ from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget, QApplication
 
 from autokey.qtui import common
-from autokey.logger import get_logger
-
-logger = get_logger(__name__)
-del get_logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):

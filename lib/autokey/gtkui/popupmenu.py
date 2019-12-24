@@ -21,11 +21,8 @@ from gi.repository import Gtk, Gdk
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey.logger import get_logger
 
-logger = get_logger(__name__)
-del get_logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class PopupMenu(Gtk.Menu):
     """
