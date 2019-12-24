@@ -17,16 +17,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import threading
-import logging
 import os.path
 import time
 
 from pyinotify import WatchManager, Notifier, EventsCodes, ProcessEvent
 
-_logger = logging.getLogger("inotify")
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 m = EventsCodes.OP_FLAGS
 MASK = m["IN_CREATE"]|m["IN_MODIFY"]|m["IN_DELETE"]|m["IN_MOVED_TO"]|m["IN_MOVED_FROM"]
+
 
 class Processor(ProcessEvent):
     
@@ -40,7 +40,7 @@ class Processor(ProcessEvent):
             path = os.path.join(event.path, event.name)
         else:
             path = event.path
-        _logger.debug("Reporting %s event at %s", event.maskname, path)
+        logger.debug("Reporting %s event at %s", event.maskname, path)
         return path
     
     def process_IN_MOVED_TO(self, event):
@@ -93,7 +93,7 @@ class FileMonitor(threading.Thread):
         self.__isSuspended = False
         for watch in self.watches:
             if not os.path.exists(watch):
-                _logger.debug("Removed stale watch on %s", watch)
+                logger.debug("Removed stale watch on %s", watch)
                 self.watches.remove(watch)
         
     def is_suspended(self):
@@ -103,12 +103,12 @@ class FileMonitor(threading.Thread):
         return path in self.watches
     
     def add_watch(self, path):
-        _logger.debug("Adding watch for %s", path)
+        logger.debug("Adding watch for %s", path)
         self.manager.add_watch(path, MASK, self.__p)
         self.watches.append(path)
         
     def remove_watch(self, path):
-        _logger.debug("Removing watch for %s", path)
+        logger.debug("Removing watch for %s", path)
         wd = self.manager.get_wd(path)
         self.manager.rm_watch(wd, True)
         self.watches.remove(path)
@@ -125,7 +125,7 @@ class FileMonitor(threading.Thread):
             if self.notifier.check_events(1000):
                 self.notifier.read_events()
         
-        _logger.info("Shutting down file monitor")
+        logger.info("Shutting down file monitor")
         self.notifier.stop()        
         
     def stop(self):

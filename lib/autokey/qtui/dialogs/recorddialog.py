@@ -16,9 +16,8 @@
 
 from autokey.qtui import common as ui_common
 
-import logging
-logger = ui_common.logger.getChild("Record Dialog")  # type: logging.Logger
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class RecordDialog(*ui_common.inherits_from_ui_file_with_name("record_dialog")):
 

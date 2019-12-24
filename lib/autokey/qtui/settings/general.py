@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox
@@ -30,7 +29,7 @@ from autokey.iomediator.key import Key
 import autokey.qtui.common as ui_common
 import autokey.common as common
 
-logger = ui_common.logger.getChild("General settings widget")  # type: logging.Logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsettings")):

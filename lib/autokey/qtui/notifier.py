@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 from typing import Optional, Callable, TYPE_CHECKING
 
 from PyQt5.QtGui import QIcon
@@ -25,14 +24,12 @@ import autokey.qtui.common as ui_common
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-
 if TYPE_CHECKING:
     from autokey.qtapp import Application
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
-
-logger = ui_common.logger.getChild("System-tray-notifier")  # type: logging.Logger
 
 
 class Notifier(QSystemTrayIcon):
