@@ -168,9 +168,15 @@ setup(
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
-    install_requires=['pyinotify', 'python-xlib'],
+    install_requires=[
+        'pyinotify',
+        'python-xlib'
+    ],
     setup_requires=["pytest-runner"],
-    tests_require=["pytest", "pyhamcrest"],
+    tests_require=[
+        "pytest",
+        "pyhamcrest>=1.8.1"
+    ],
     test_suite="pytest",
     classifiers=[
         'Development Status :: 4 - Beta',
