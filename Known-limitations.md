@@ -19,6 +19,7 @@ Known not working applications:
 
 - `xterm` (Can be configured to accept the events: `<Ctrl>+<Left mouse button>` in the window to open the main menu, in there activate `Allow SendEvents`)
 - `xsane`
+- `xed`
 
 Workaround: Use AutoKey scripts to call `xdotool`. `xdotool` can be used to generate »non-synthetic« events that should work with those applications.
 
