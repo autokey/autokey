@@ -23,6 +23,7 @@ Currently, there are four macros available:
 * `Insert date`: `<date>` inserts the current date. The format parameter takes a formatting string, allowing precise control over the resulting string.
 * `Insert file contents`: `<file>` takes a file name as a parameter and reads the file content from the disk. Beware that the whole content is read into the system memory at once and is then typed or pasted. Don’t use it with too large files, or experience application- or system lock-ups or long expansion times.
 * `Run script`: `<script>`executes any AutoKey script. Scripts executed from Phrases should never use the `keyboard` directly, instead return their replacement text using the `engine.set_return_value(str)`function.
+* (As of `0.96.0`) `Run system command`: `<system>` takes a string as a parameter and replaces the macro with stdout of that string run as a system command.
 
 Macro templates are available and can be inserted into a currently edited phrase using the menu bar:
 * Qt GUI: `Tools` menu → `Insert Macro` → Choose one from the list
@@ -65,3 +66,6 @@ Running a Script using the `script` macro poses some limitations:
   - Do not use `system.exec_command` to execute GUI manipulation/automation tools, like `xdotool`.
 
 You may use the script to alter background system state, like starting or stopping system services, but simply restricting yourself to reading data in will yield the best results.
+
+## Run system command
+As of `0.96.0`: `<system command='echo test'>` is replaced in the phrase with the output of `echo test` - i.e., test.
