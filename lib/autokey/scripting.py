@@ -493,7 +493,11 @@ class System:
                     bufsize=-1,
                     stdout=subprocess.PIPE,
                     universal_newlines=True) as p:
-                output = p.communicate()[0][:-1]  # Drop the trailing newline character
+                output = p.communicate()[0]
+                if output[-1] == "\n":
+                    # Most shell output has a new line at the end, which we
+                    # don't want. Drop the trailing newline character
+                    output = output[:-1]
                 if p.returncode:
                     raise subprocess.CalledProcessError(p.returncode, output)
                 return output
