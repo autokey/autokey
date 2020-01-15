@@ -1,5 +1,4 @@
-
-# Copyright (C) 2019 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2019 BlueDrink9 <https://github.com/BlueDrink9>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
