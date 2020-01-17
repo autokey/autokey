@@ -387,7 +387,11 @@ class AbstractHotkey(AbstractWindowFilter):
         self.hotKey = key
         if key is not None:
             self.modes.append(TriggerMode.HOTKEY)
-        elif TriggerMode.HOTKEY in self.modes:
+
+    def unset_hotkey(self):
+        self.modifiers = None
+        self.hotkey = None
+        if TriggerMode.HOTKEY in self.modes:
             self.modes.remove(TriggerMode.HOTKEY)
 
     def check_hotkey(self, modifiers, key, windowTitle):
