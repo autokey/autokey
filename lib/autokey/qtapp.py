@@ -19,8 +19,6 @@
 
 import sys
 import os.path
-import logging
-import logging.handlers
 import subprocess
 import queue
 import time
@@ -45,7 +43,10 @@ from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
+from autokey.logger import get_logger, configure_root_logger
 
+logger = get_logger(__name__)
+del get_logger
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
@@ -97,12 +98,12 @@ class Application(QApplication):
         self.args = autokey.argument_parser.parse_args()
         try:
             self._create_storage_directories()
-            self._configure_root_logger()
+            configure_root_logger(self.args)
         except Exception as e:
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
-        logging.info("Initialising application")
+        logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
 
@@ -122,9 +123,9 @@ class Application(QApplication):
             # Initialise user code dir
             if self.configManager.userCodeDir is not None:
                 sys.path.append(self.configManager.userCodeDir)
-            logging.debug("Creating DBus service")
+            logger.debug("Creating DBus service")
             self.dbus_service = AppService(self)
-            logging.debug("Service created")
+            logger.debug("Service created")
             self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
             if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
                 cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
@@ -135,7 +136,7 @@ class Application(QApplication):
             self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
         except Exception as e:
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
         else:
@@ -145,26 +146,10 @@ class Application(QApplication):
         try:
             self.service.start()
         except Exception as e:
-            logging.exception("Error starting interface: " + str(e))
+            logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
-
-    def _configure_root_logger(self):
-        """Initialise logging system"""
-        root_logger = logging.getLogger()
-        root_logger.setLevel(logging.DEBUG)
-        if self.args.verbose:
-            handler = logging.StreamHandler(sys.stdout)
-        else:
-            handler = logging.handlers.RotatingFileHandler(
-                common.LOG_FILE,
-                maxBytes=common.MAX_LOG_SIZE,
-                backupCount=common.MAX_LOG_COUNT
-            )
-            handler.setLevel(logging.INFO)
-        handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-        root_logger.addHandler(handler)
 
     @staticmethod
     def _create_storage_directories():
@@ -192,14 +177,14 @@ class Application(QApplication):
                 # Check if the pid file contains garbage
                 int(pid)
             except ValueError:
-                logging.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
+                logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
                 sys.exit(1)
 
             # Check that the found PID is running and is autokey
             with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
                 output = p.communicate()[0].decode()
             if "autokey" in output:
-                logging.debug("AutoKey is already running as pid " + pid)
+                logger.debug("AutoKey is already running as pid " + pid)
                 bus = dbus.SessionBus()
 
                 try:
@@ -207,7 +192,7 @@ class Application(QApplication):
                     dbus_service.show_configure(dbus_interface="org.autokey.Service")
                     sys.exit(0)
                 except dbus.DBusException as e:
-                    logging.exception("Error communicating with Dbus service")
+                    logger.exception("Error communicating with Dbus service")
                     self.show_error_dialog(
                         message="AutoKey is already running as pid {} but is not responding".format(pid),
                         details=str(e))
@@ -216,7 +201,7 @@ class Application(QApplication):
         return True
 
     def init_global_hotkeys(self, configManager):
-        logging.info("Initialise global hotkeys")
+        logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_signal.emit)
 
@@ -225,11 +210,11 @@ class Application(QApplication):
         self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
-        logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
+        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.grab_hotkey(item)
 
     def hotkey_removed(self, item):
-        logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
+        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.ungrab_hotkey(item)
 
     def path_created_or_modified(self, path):
@@ -270,14 +255,14 @@ class Application(QApplication):
         """
         Shut down the entire application.
         """
-        logging.info("Shutting down")
+        logger.info("Shutting down")
         self.closeAllWindows()
         self.notifier.hide()
         self.service.shutdown()
         self.monitor.stop()
         self.quit()
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
-        logging.debug("All shutdown tasks complete... quitting")
+        logger.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):
         """
@@ -294,7 +279,7 @@ class Application(QApplication):
         """
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
-        logging.info("Displaying configuration window")
+        logger.info("Displaying configuration window")
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()
@@ -362,7 +347,7 @@ class CallbackEventHandler(QObject):
             try:
                 callback(*args)
             except Exception:
-                logging.exception("callback event failed: %r %r", callback, args, exc_info=True)
+                logger.exception("callback event failed: %r %r", callback, args, exc_info=True)
 
     def postEventWithCallback(self, callback, *args):
         self.queue.put((callback, args))

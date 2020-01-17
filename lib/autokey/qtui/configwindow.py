@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-import logging
 import threading
 import time
 import webbrowser
@@ -33,10 +31,9 @@ from autokey import model
 from .settings import SettingsDialog
 from . import dialogs
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
-
-_logger = autokey.qtui.common.logger.getChild("configwindow")  # type: logging.Logger
 
 
 class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwindow")):
@@ -225,7 +222,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_redo.setEnabled(state)
 
     def save_completed(self, persist_global):
-        _logger.debug("Saving completed. persist_global: {}".format(persist_global))
+        logger.debug("Saving completed. persist_global: {}".format(persist_global))
         self.action_save.setEnabled(False)
         self.app.config_altered(persist_global)
         
@@ -247,7 +244,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
                 return False
 
         self.hide()
-        # logging.getLogger().removeHandler(self.central_widget.logHandler)
         return True
     
     # File Menu

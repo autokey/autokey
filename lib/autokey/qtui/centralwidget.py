@@ -13,7 +13,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-import os.path
+
 import logging
 import pathlib
 import typing
@@ -30,9 +30,10 @@ import autokey.configmanager.configmanager_constants as cm_constants
 
 from autokey.qtui import common as ui_common
 from autokey.qtui import autokey_treewidget as ak_tree
+from autokey.logger import get_logger, root_logger
 
-
-logger = ui_common.logger.getChild("CentralWidget")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget")):
@@ -529,7 +530,6 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                         item_widgets.append(item_widget.child(child_index))
             raise RuntimeError("Expected item {} not found in the tree!".format(currently_edited_item))
 
-
     def get_selected_item(self):
         return self.__getSelection()
 
@@ -598,7 +598,6 @@ class ListWidgetHandler(logging.Handler):
         self.app = app
         self.level = logging.DEBUG
 
-        root_logger = logging.getLogger()
         log_format = "%(message)s"
         root_logger.addHandler(self)
         self.setFormatter(logging.Formatter(log_format))

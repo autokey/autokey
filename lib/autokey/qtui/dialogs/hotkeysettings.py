@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 import typing
 
 from PyQt5.QtCore import pyqtSignal
@@ -26,7 +25,7 @@ from autokey import iomediator, model
 import autokey.configmanager.configmanager as cm
 from autokey.iomediator.key import Key
 
-logger = ui_common.logger.getChild("Hotkey Settings Dialog")  # type: logging.Logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 Item = typing.Union[model.Folder, model.Script, model.Phrase]
 
 

@@ -19,7 +19,6 @@
 import traceback
 import collections
 import time
-import logging
 import threading
 import pathlib
 
@@ -32,8 +31,8 @@ from autokey import model
 import autokey.scripting
 from autokey.configmanager.configmanager import ConfigManager, save_config
 import autokey.configmanager.configmanager_constants as cm_constants
-logger = logging.getLogger("service")
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 MAX_STACK_LENGTH = 150
 
 

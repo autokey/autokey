@@ -35,13 +35,12 @@ happen with LTS distribution releases that skip several autokey versions during 
 """
 
 import os
-import logging
 from pathlib import Path
 
 from autokey import common, model
 import autokey.configmanager.configmanager_constants as cm_constants
 
-_logger = logging.getLogger("config-manager").getChild("version_upgrade")  # type: logging.Logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 def upgrade_configuration(configuration_manager, config_data: dict):
@@ -59,7 +58,7 @@ def convert_v0_70_to_v0_80(config_data, old_version: str):
     try:
         _convert_v0_70_to_v0_80(config_data, old_version)
     except Exception:
-        _logger.exception(
+        logger.exception(
             "Problem occurred during conversion. "
             "Existing config file has been saved as {}{}".format(cm_constants.CONFIG_FILE, old_version)
         )
@@ -68,7 +67,7 @@ def convert_v0_70_to_v0_80(config_data, old_version: str):
 
 def _convert_v0_70_to_v0_80(config_data, old_version: str):
     os.rename(cm_constants.CONFIG_FILE, cm_constants.CONFIG_FILE + old_version)
-    _logger.info("Converting v{} configuration data to v0.80.0".format(old_version))
+    logger.info("Converting v{} configuration data to v0.80.0".format(old_version))
     for folder_data in config_data["folders"]:
         _convert_v0_70_to_v0_80_folder(folder_data, None)
 
@@ -79,7 +78,7 @@ def _convert_v0_70_to_v0_80(config_data, old_version: str):
     if os.path.exists(cm_constants.CONFIG_FILE_BACKUP):
         os.remove(cm_constants.CONFIG_FILE_BACKUP)
 
-    _logger.info("Conversion succeeded")
+    logger.info("Conversion succeeded")
 
 
 def _convert_v0_70_to_v0_80_folder(folder_data, parent):
@@ -119,7 +118,7 @@ def convert_autostart_entries_for_v0_95_3():
     old_autostart_file = Path(common.AUTOSTART_DIR) / "autokey-gtk.desktop"
     if old_autostart_file.exists():
         new_file_name = Path(common.AUTOSTART_DIR) / "autokey.desktop"
-        _logger.info("Found old autostart entry: '{}'. Rename to: '{}'".format(
+        logger.info("Found old autostart entry: '{}'. Rename to: '{}'".format(
             old_autostart_file, new_file_name)
         )
         old_autostart_file.rename(new_file_name)

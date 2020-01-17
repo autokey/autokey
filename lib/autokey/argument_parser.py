@@ -15,11 +15,26 @@
 
 
 import argparse
+from typing import NamedTuple
 
 import autokey.common
 
+__all__ = [
+    "Namespace",
+    "parse_args"
+]
 
-def generate_argument_parser() -> argparse.ArgumentParser:
+Namespace = NamedTuple("Namespace", [
+    # Mock Namespace that mimics the object returned by parse_args() and should have the same signature.
+    # Used to provide better static type checking inside the IDE. Can also be used for unit testing.
+    # TODO: Convert to a class when the minimum Python version is risen to >= 3.6.
+    ("verbose", bool),
+    ("configure", bool),
+    ("cutelog_integration", bool),
+])
+
+
+def _generate_argument_parser() -> argparse.ArgumentParser:
     """Generates an ArgumentParser for AutoKey"""
     parser = argparse.ArgumentParser(description="Desktop automation ")
     parser.add_argument(
@@ -39,15 +54,20 @@ def generate_argument_parser() -> argparse.ArgumentParser:
         action="version",
         version="%(prog)s Version {}".format(autokey.common.VERSION)
     )
+    parser.add_argument(
+        "--cutelog-integration",
+        action="store_true",
+        help="Connect to a locally running cutelog instance with default settings to display the full program log. "
+             "See https://github.com/busimus/cutelog"
+    )
     return parser
 
 
-def parse_args():
+def parse_args() -> Namespace:
     """
-    Parses the command line arguments
+    Parses the command line arguments.
     :return: argparse Namespace object containing the parsed command line arguments
     """
-    parser = generate_argument_parser()
+    parser = _generate_argument_parser()
     args = parser.parse_args()
     return args
-

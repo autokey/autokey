@@ -15,6 +15,8 @@
 
 import typing
 import pathlib
+import sys
+import os
 
 from unittest.mock import MagicMock, patch
 
@@ -30,6 +32,10 @@ from autokey.scripting import Engine
 # For use in paramerizations.
 # Call replace_folder_in_args(folder, args) to use.
 folder_param="create_new_folder"
+
+def get_autokey_dir():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
+
 @pytest.fixture
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
@@ -390,3 +396,13 @@ def test_engine_remove_temporary(create_engine):
         calling(engine.create_phrase).with_args(folder, "test hotkey2",
                                                 "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
         not_(raises(ValueError)), "Doesn't ungrab hotkeys (duplicate hotkey warning received)")
+
+
+@pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
+def test_run_script():
+    # Makes use of running script from absolute path.
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
+        dummy_folder = autokey.model.Folder("dummy")
+        script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
+        assert_that(engine.run_script(script, arg1="arg 1"), is_(equal_to("arg 1")))

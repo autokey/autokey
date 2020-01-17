@@ -84,6 +84,7 @@ class MacroManager:
         self.macros.append(DateMacro())
         self.macros.append(FileContentsMacro())
         self.macros.append(CursorMacro())
+        self.macros.append(SystemMacro(engine))
 
     def get_menu(self, callback, menu=None):
         if common.USING_QT:
@@ -212,7 +213,28 @@ class ScriptMacro(AbstractMacro):
         macro_type, macro = self._extract_macro(sections[i])
         args = self._get_args(macro)
         self.engine.run_script_from_macro(args)
-        return self.engine._get_return_value()
+        sections[i] = self.engine._get_return_value()
+        return sections
+
+
+class SystemMacro(AbstractMacro):
+
+    ID = "system"
+    TITLE = _("Run system command")
+    ARGS = [("command", _("Command to be executed (including any arguments) - e.g. 'ls -l'")),]
+            # ("getOutput", _("True or False, whether or not to set the return
+            #     value to the script's stdout (blocks until script finishes). If
+            #     false, "))]
+
+    def __init__(self, engine):
+        self.engine = engine
+
+    def do_process(self, sections, i):
+        macro_type, macro = self._extract_macro(sections[i])
+        args = self._get_args(macro)
+        self.engine.run_system_command_from_macro(args)
+        sections[i] =  self.engine._get_return_value()
+        return sections
 
 
 class DateMacro(AbstractMacro):
