@@ -211,15 +211,9 @@ Folders created within temporary folders must themselves be set temporary")
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary)
 
-        if abbreviations:
-            if isinstance(abbreviations, str):
-                abbreviations = [abbreviations]
-            elif not isinstance(abbreviations, Iterable):
-                raise ValueError("Expected a single string or a list/iterable of strings, not {}".format(
-                    type(abbreviations))
-                )
-            self.check_abbreviation_unique(abbreviations)
-
+        if abbreviations and isinstance(abbreviations, str):
+            abbreviations = [abbreviations]
+        self.check_abbreviation_unique(abbreviations)
         self.check_hotkey_unique(hotkey)
 
         self.monitor.suspend()
@@ -448,6 +442,8 @@ Folders created within temporary folders must themselves be set temporary")
 
 
     def check_abbreviation_unique(self, abbreviations):
+        if not abbreviations:
+            return
         for abbr in abbreviations:
             if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
                 raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
@@ -466,13 +462,13 @@ def validateAbbreviations(abbreviations):
     fail=False
     if not isinstance(abbreviations, str):
         fail=True
-        if isinstance(abbreviations, list):
+        if isinstance(abbreviations, Iterable):
             fail=False
             for item in abbreviations:
                 if not isinstance(item, str):
                     fail=True
     if fail:
-        raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+        raise ValueError("Expected abbreviations to be a single string or a list/iterable of strings, not {}".format(
             type(abbreviations))
             )
 
