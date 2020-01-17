@@ -672,22 +672,42 @@ class ConfigManager:
         @param newFilterPattern:
         @param targetItem: the phrase for which the hotKey to be used
         """
-        for item in self.allFolders:
-            if model.TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+        item = self.get_item_with_hotkey(modifiers, hotKey, newFilterPattern)
+        if item:
+            return item is targetItem, item
+        else:
+            return True, None
 
-        for item in self.allItems:
-            if model.TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+    def get_item_with_hotkey(self, modifiers, hotKey, newFilterPattern=None):
+        """
+        Gets first item with the specified hotkey. Also checks the
+        special hotkeys configured from the advanced settings dialog.
+        Checks folders first, then phrases, then special hotkeys.
+
+        @param modifiers: modifiers for the hotkey
+        @param hotKey: the hotkey to check
+        @param newFilterPattern:
+        """
+        for searchSpace in [self.allFolders, self.allItems]:
+            for item in searchSpace:
+                if model.TriggerMode.HOTKEY in item.modes and \
+                        self.item_has_same_hotkey(item,
+                                                  modifiers,
+                                                  hotKey,
+                                                  newFilterPattern):
+                    return item
 
         for item in self.globalHotkeys:
             if item.enabled:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+                if self.item_has_same_hotkey(item,
+                                             modifiers,
+                                             hotKey,
+                                             newFilterPattern):
+                    return item
+        return None
 
-        return True, None
+    def item_has_same_hotkey(self, item, modifiers, hotKey, newFilterPattern):
+        return item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern)
 
 
     def remove_all_temporary(self, folder=None, in_temp_parent=False):
