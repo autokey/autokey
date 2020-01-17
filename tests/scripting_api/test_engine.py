@@ -27,6 +27,9 @@ import autokey.model
 import autokey.service
 from autokey.scripting import Engine
 
+# For use in paramerizations.
+# Call replace_folder_in_args(folder, args) to use.
+folder_param="create_new_folder"
 @pytest.fixture
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
@@ -43,55 +46,60 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
     return engine, test_folder
 
-folder="create_new_folder"
+def replace_folder_param_in_args(folder, args):
+    if isinstance(args, str):
+        return args
+    args = [folder if x == folder_param else x for x in args]
+    return args
+
 @pytest.mark.parametrize("args, kwargs, error_msg", [
     [("Not a folder", "name", "contents",),
      {},
      "Folder is not checked for type=model.Folder"],
-    [(folder, folder, "contents",),
+    [(folder_param, folder_param, "contents",),
      {},
      "name is not checked for type=str",],
-    [(folder, "name", folder),
+    [(folder_param, "name", folder_param),
      {},
      "contents is not checked for type=str"],
-    [(folder, "name", "contents",),
-     {"abbreviations": folder},
+    [(folder_param, "name", "contents",),
+     {"abbreviations": folder_param},
      "abbreviations is not checked for type=str"],
-    [(folder, "name", "contents",),
-     {"abbreviations": ["t1", folder]},
+    [(folder_param, "name", "contents",),
+     {"abbreviations": ["t1", folder_param]},
      "abbreviations is not checked for type=list[str]"],
-    [(folder, "name", "contents",),
-     {"hotkey": folder},
+    [(folder_param, "name", "contents",),
+     {"hotkey": folder_param},
      "hotkey is not checked for type=tuple"],
-    [(folder, "name", "contents",),
+    [(folder_param, "name", "contents",),
      {"hotkey": (["<ctrl>"], "t", "t")},
      "hotkey is not checked for tuple len 2"],
-    [(folder, "name", "contents",),
-     {"hotkey": (["<ctrl>"], folder)},
+    [(folder_param, "name", "contents",),
+     {"hotkey": (["<ctrl>"], folder_param)},
      "hotkey is not checked for type=tuple(str,str)"],
-    [(folder, "name", "contents",),
-     {"hotkey": (["<ctrl>", folder], "a")},
+    [(folder_param, "name", "contents",),
+     {"hotkey": (["<ctrl>", folder_param], "a")},
      "hotkey[0] is not checked for type=list[str]"],
-    [(folder, "name", "contents",),
+    [(folder_param, "name", "contents",),
      {"hotkey": (["Not a valid modifier"], "w")},
      "hotkey is not checked as valid Key (invalid modifier)"],
-    [(folder, "name", "contents",),
+    [(folder_param, "name", "contents",),
      {"hotkey": ([], "train")},
      "hotkey is not checked as valid Key (invalid key)"],
-    [(folder, "name", "contents",),
+    [(folder_param, "name", "contents",),
      {"hotkey": ("<ctrl>", "t")},
      "hotkey modifiers not checked as list."],
-    # (folder, "name",
+    # (folder_param, "name",
     # "contents", {"hotkey": (["<alt>"], "6")}),
     # "hotkey modifiers fails single valid str"
-    # (folder, "name",
+    # (folder_param, "name",
     # "contents", {"hotkey": (["<ctrl>", "<shift>"], "<alt>")}),
     # "hotkey key is allowed to be a modifier"
 ])
 def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engine, args, kwargs, error_msg):
     engine, folder = create_engine
     for arg in args:
-        if arg=="create new folder":
+        if arg==folder_param:
             arg=folder
     with patch("autokey.model.Phrase.persist"):
         #     error_check = engine.create_phrase(folder, "test phrase",
@@ -205,24 +213,40 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error(create
         )
 
 
-def test_engine_create_folder_invalid_types_raises_value_error(create_engine):
+@pytest.mark.parametrize("args, kwargs, error_msg", [
+    [[folder_param],
+     {},
+     "title is not checked for type=str"],
+    [["title", "not a folder"],
+     {},
+     "parent_folder is not checked for type=model.Folder"],
+    [["title"],
+     {'temporary': "not a bool"},
+     "temporary is not checked for type=bool"],
+])
+def test_engine_create_folder_invalid_types_raises_value_error(args, kwargs, error_msg, create_engine):
     engine, folder = create_engine
+    args = replace_folder_param_in_args(folder, args)
     with patch("autokey.model.Folder.persist"):
         assert_that(
-            calling(engine.create_folder).with_args(folder),
-            raises(ValueError), "title is not checked for type=str")
+            calling(engine.create_folder).with_args(*args, **kwargs),
+            raises(ValueError), error_msg)
+
+@pytest.mark.parametrize("args, kwargs, error_msg", [
+    [["title", folder_param],
+     {},
+     "parent_folder erroneously fails check for type=model.Folder"],
+    [["title", pathlib.Path(".")],
+     {},
+     "parent_folder erroneously fails check for type=pathlib.Path"],
+])
+def test_engine_create_folder_valid_types_not_raises_value_error(args, kwargs, error_msg, create_engine):
+    engine, folder = create_engine
+    args = replace_folder_param_in_args(folder, args)
+    with patch("autokey.model.Folder.persist"):
         assert_that(
-            calling(engine.create_folder).with_args("title", "not a folder"),
-            raises(ValueError), "parent_folder is not checked for type=model.Folder")
-        assert_that(
-            calling(engine.create_folder).with_args("title", folder),
-            not_(raises(ValueError)), "parent_folder erroneously fails check for type=model.Folder")
-        assert_that(
-            calling(engine.create_folder).with_args("title", pathlib.Path(".")),
-            not_(raises(ValueError)), "parent_folder erroneously fails check for type=pathlib.Path")
-        assert_that(
-            calling(engine.create_folder).with_args("title", temporary="not a bool"),
-            raises(ValueError), "temporary is not checked for type=bool")
+            calling(engine.create_folder).with_args(*args, **kwargs),
+            not_(raises(ValueError)), error_msg)
 
 
 def test_engine_create_folder(create_engine):
