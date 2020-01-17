@@ -206,21 +206,11 @@ Folders created within temporary folders must themselves be set temporary")
           It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
-        # Start with input type-checking.
-        validateType(folder, "folder", model.Folder)
-        # For when we allow pathlib.Path
-        # validateType(folder, "folder",
-        #         [model.Folder, pathlib.Path])
-        validateType(name, "name", str)
-        validateType(contents, "contents", str)
-        validateAbbreviations(abbreviations)
-        validateHotkey(hotkey)
-        validateType(send_mode, "send_mode", model.SendMode)
-        validateType(window_filter, "window_filter", str)
-        validateType(show_in_system_tray, "show_in_system_tray", bool)
-        validateType(always_prompt, "always_prompt", bool)
-        validateType(temporary, "temporary", bool)
-        # TODO: The validation should be done by some controller functions in the model base classes.
+
+        self.validateArguments(folder, name, contents,
+                          abbreviations, hotkey, send_mode, window_filter,
+                          show_in_system_tray, always_prompt, temporary)
+
         if abbreviations:
             if isinstance(abbreviations, str):
                 abbreviations = [abbreviations]
@@ -238,7 +228,7 @@ Folders created within temporary folders must themselves be set temporary")
 
         if folder.temporary and not temporary:
             raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
-Phrases created within temporary folders must themselves be explicitly set temporary")
+    Phrases created within temporary folders must themselves be explicitly set temporary")
 
         self.monitor.suspend()
         try:
@@ -442,6 +432,80 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         self.configManager.remove_all_temporary(folder,
                 in_temp_parent)
 
+    def validateArguments(self, folder, name, contents,
+                              abbreviations, hotkey, send_mode, window_filter,
+                              show_in_system_tray, always_prompt, temporary):
+        validateType(folder, "folder", model.Folder)
+        # For when we allow pathlib.Path
+        # validateType(folder, "folder",
+        #         [model.Folder, pathlib.Path])
+        validateType(name, "name", str)
+        validateType(contents, "contents", str)
+        validateAbbreviations(abbreviations)
+        validateHotkey(hotkey)
+        validateType(send_mode, "send_mode", model.SendMode)
+        validateType(window_filter, "window_filter", str)
+        validateType(show_in_system_tray, "show_in_system_tray", bool)
+        validateType(always_prompt, "always_prompt", bool)
+        validateType(temporary, "temporary", bool)
+        # TODO: The validation should be done by some controller functions in the model base classes.
+
+def validateAbbreviations(abbreviations):
+    if abbreviations is None:
+        return
+    fail=False
+    if not isinstance(abbreviations, str):
+        fail=True
+        if isinstance(abbreviations, list):
+            fail=False
+            for item in abbreviations:
+                if not isinstance(item, str):
+                    fail=True
+    if fail:
+        raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
+            type(abbreviations))
+            )
+
+
+def isValidHotkeyType(item):
+    fail=False
+    if isinstance(item, model.Key):
+        fail=False
+    elif isinstance(item, str):
+        if len(item) == 1:
+            fail=False
+        else:
+            fail = not iomediator.key.Key.is_key(item)
+    else:
+        fail=True
+    return not fail
+
+def validateHotkey(hotkey):
+    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
+    if hotkey is None:
+        return
+    fail=False
+    if not isinstance(hotkey, tuple):
+        fail=True
+    else:
+        if len(hotkey) != 2:
+            fail=True
+        else:
+            # First check modifiers is list of valid hotkeys.
+            if isinstance(hotkey[0], list):
+                for item in hotkey[0]:
+                    if not isValidHotkeyType(item):
+                        fail=True
+                        failmsg = "Hotkey is not a valid modifier: {}".format(item)
+            else:
+                fail=True
+                failmsg = "Hotkey modifiers is not a list"
+            # Then check second element is a key or str
+            if not isValidHotkeyType(hotkey[1]):
+                fail=True
+                failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
+    if fail:
+        raise ValueError(failmsg)
 
 def validateType(item, name, type_):
     """ type_ may be a list, in which case if item matches
@@ -465,62 +529,3 @@ def validateType(item, name, type_):
                 name,
                 type_,
                 type(item)))
-
-def validateAbbreviations(abbreviations):
-    if abbreviations is not None:
-        fail=False
-        if not isinstance(abbreviations, str):
-            fail=True
-            if isinstance(abbreviations, list):
-                fail=False
-                for item in abbreviations:
-                    if not isinstance(item, str):
-                        fail=True
-        if fail:
-            raise ValueError("Expected abbreviations to be str or list of str, not {}".format(
-                type(abbreviations))
-                )
-
-
-def isValidHotkeyType(item):
-    fail=False
-    if isinstance(item, model.Key):
-        fail=False
-    elif isinstance(item, str):
-        if len(item) == 1:
-            fail=False
-        else:
-            fail = not iomediator.key.Key.is_key(item)
-    else:
-        fail=True
-    return not fail
-
-def validateHotkey(hotkey):
-    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
-
-    if hotkey is not None:
-        fail=False
-        if not isinstance(hotkey, tuple):
-            fail=True
-        else:
-            if len(hotkey) != 2:
-                fail=True
-            else:
-                # First check modifiers is list of valid hotkeys.
-                if isinstance(hotkey[0], list):
-                    for item in hotkey[0]:
-                        if not isValidHotkeyType(item):
-                            fail=True
-                            failmsg = "Hotkey is not a valid modifier: {}".format(item)
-                else:
-                    fail=True
-                    failmsg = "Hotkey modifiers is not a list"
-                # Then check second element is a key or str
-                if not isValidHotkeyType(hotkey[1]):
-                    fail=True
-                    failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
-        if fail:
-            raise ValueError(failmsg)
-
-
-
