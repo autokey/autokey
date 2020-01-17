@@ -129,7 +129,7 @@ Folders created within temporary folders must themselves be set temporary")
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
                       send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False,
-                      temporary=False):
+                      temporary=False, replaceExistingHotkey=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
         you wish to create the Phrase in. If the folder is a temporary
@@ -209,12 +209,14 @@ Folders created within temporary folders must themselves be set temporary")
 
         self.validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
-                          show_in_system_tray, always_prompt, temporary)
+                          show_in_system_tray, always_prompt, temporary,
+                               replaceExistingHotkey)
 
         if abbreviations and isinstance(abbreviations, str):
             abbreviations = [abbreviations]
         self.check_abbreviation_unique(abbreviations)
-        self.check_hotkey_unique(hotkey)
+        if not replaceExistingHotkey:
+            self.check_hotkey_unique(hotkey)
 
         self.monitor.suspend()
         try:
@@ -420,7 +422,8 @@ Folders created within temporary folders must themselves be set temporary")
 
     def validateArguments(self, folder, name, contents,
                               abbreviations, hotkey, send_mode, window_filter,
-                              show_in_system_tray, always_prompt, temporary):
+                              show_in_system_tray, always_prompt, temporary,
+                              replaceExistingHotkey):
         validateType(folder, "folder", model.Folder)
         # For when we allow pathlib.Path
         # validateType(folder, "folder",
@@ -434,6 +437,7 @@ Folders created within temporary folders must themselves be set temporary")
         validateType(show_in_system_tray, "show_in_system_tray", bool)
         validateType(always_prompt, "always_prompt", bool)
         validateType(temporary, "temporary", bool)
+        validateType(replaceExistingHotkey, "replaceExistingHotkey", bool)
         # TODO: The validation should be done by some controller functions in the model base classes.
 
         if folder.temporary and not temporary:
