@@ -19,7 +19,7 @@ from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
 
-from autokey import model, iomediator
+from autokey import model, iomediator, configmanager
 
 
 class Engine:
@@ -217,6 +217,12 @@ Folders created within temporary folders must themselves be set temporary")
         self.check_abbreviation_unique(abbreviations)
         if not replaceExistingHotkey:
             self.check_hotkey_unique(hotkey)
+        else:
+            existing_item = self.get_item_with_hotkey(hotkey)
+            if not isinstance(existing_item, configmanager.configmanager.GlobalHotkey):
+                existing_item.unset_hotkey()
+
+
 
         self.monitor.suspend()
         try:
@@ -458,6 +464,13 @@ Folders created within temporary folders must themselves be set temporary")
         modifiers = sorted(hotkey[0])
         if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
             raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
+
+    def get_item_with_hotkey(self, hotkey):
+        if not hotkey:
+            return
+        modifiers = sorted(hotkey[0])
+        return self.configManager.get_item_with_hotkey(modifiers, hotkey[1])
+
 
 
 def validateAbbreviations(abbreviations):
