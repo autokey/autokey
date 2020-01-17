@@ -218,17 +218,9 @@ Folders created within temporary folders must themselves be set temporary")
                 raise ValueError("Expected a single string or a list/iterable of strings, not {}".format(
                     type(abbreviations))
                 )
-            for abbr in abbreviations:
-                if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
-                    raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
-        if hotkey:
-            modifiers = sorted(hotkey[0])
-            if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
-                raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
+            self.check_abbreviation_unique(abbreviations)
 
-        if folder.temporary and not temporary:
-            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
-    Phrases created within temporary folders must themselves be explicitly set temporary")
+        self.check_hotkey_unique(hotkey)
 
         self.monitor.suspend()
         try:
@@ -449,6 +441,24 @@ Folders created within temporary folders must themselves be set temporary")
         validateType(always_prompt, "always_prompt", bool)
         validateType(temporary, "temporary", bool)
         # TODO: The validation should be done by some controller functions in the model base classes.
+
+        if folder.temporary and not temporary:
+            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+    Phrases created within temporary folders must themselves be explicitly set temporary")
+
+
+    def check_abbreviation_unique(self, abbreviations):
+        for abbr in abbreviations:
+            if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
+                raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
+
+    def check_hotkey_unique(self, hotkey):
+        if not hotkey:
+            return
+        modifiers = sorted(hotkey[0])
+        if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
+            raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
+
 
 def validateAbbreviations(abbreviations):
     if abbreviations is None:
