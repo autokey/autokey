@@ -203,6 +203,9 @@ Folders created within temporary folders must themselves be set temporary")
                                     not persisted as .jsons, and are replaced if the description is not
                                     unique within the folder.
                                      Used for single-source rc-style scripts.
+        @param replaceExistingHotkey: If true, instead of warning if the hotkey
+            is already in use by another phrase or folder, it removes the hotkey
+            from those clashes and keeps this phrase's hotkey.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
         @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
           internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
