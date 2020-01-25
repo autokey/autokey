@@ -16,6 +16,7 @@
     <file>ui/specialhotkeysettings.ui</file>
     <file>ui/settingsdialog.ui</file>
     <file>ui/about_autokey_dialog.ui</file>
+    <file>ui/show_recent_script_errors_dialog.ui</file>
     <!-- The icons are copied into the resource directory automatically during resource file compilation. -->
     <file>icons/autokey.png</file>
     <file>icons/autokey.svg</file>
