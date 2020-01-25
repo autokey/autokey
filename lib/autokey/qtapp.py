@@ -301,18 +301,6 @@ class Application(QApplication):
             message_box.setDetailedText(details)
         message_box.exec_()
 
-    def show_script_error(self):
-        """
-        Show the last script error (if any)
-        """
-        # TODO: i18n
-        if self.service.scriptRunner.error:
-            details = self.service.scriptRunner.error
-            self.service.scriptRunner.error = ''
-        else:
-            details = "No error information available"
-        QMessageBox.information(None, "View Script Error Details", details)
-
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:
             items = []
