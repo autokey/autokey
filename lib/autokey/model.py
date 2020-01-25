@@ -16,9 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import errno
+import datetime
 import re
 import os
 import os.path
+from pathlib import Path
 import glob
 import json
 import typing
@@ -1197,6 +1199,18 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def __repr__(self):
         return "Script('" + self.description + "')"
+
+
+class ScriptErrorRecord:
+    """
+    This class holds a record of an error that caused a user Script to abort and additional meta-data .
+    """
+    def __init__(self, script: typing.Union[Script, Path], error_traceback: str,
+                 start_time: datetime.time, error_time: datetime.time):
+        self.script_name = script.description if isinstance(script, Script) else str(script)
+        self.error_traceback = error_traceback
+        self.start_time = start_time
+        self.error_time = error_time
 
 
 Item = typing.Union[Folder, Phrase, Script]
