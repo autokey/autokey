@@ -16,11 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import traceback
+
 import collections
-import time
-import threading
+import datetime
 import pathlib
+import threading
+import time
+import traceback
+import typing
+
 
 from autokey.iomediator.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
@@ -461,7 +465,8 @@ class ScriptRunner:
     def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
-        self.error = ''
+        self.error = ''  # TODO: Deprecated
+        self.error_records = []  # type: typing.List[model.ScriptErrorRecord]
         self.scope = globals()
         self.scope["highlevel"] = autokey.scripting.highlevel
         self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
@@ -474,6 +479,9 @@ class ScriptRunner:
         self.scope["clipboard"] = autokey.scripting.Clipboard(app)
 
         self.engine = self.scope["engine"]
+
+    def clear_error_records(self):
+        self.error_records.clear()
 
     @threaded
     def execute(self, script: model.Script, buffer=''):
@@ -489,28 +497,34 @@ class ScriptRunner:
         if script.path is not None:
             # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
             scope["__file__"] = script.path
-        try:
-            exec(script.code, scope)
-        except Exception as e:
-            logger.exception("Script error")
-            self.error = "Script name: '{}'\n{}".format(script.description, traceback.format_exc())
-            self.app.notify_error("The script '{}' encountered an error".format(script.description))
+        self._execute(scope, script)
 
         self.mediator.send_string(trigger_character)
 
     @threaded
-    def execute_path(self, path: pathlib.Path, buffer=''):
+    def execute_path(self, path: pathlib.Path):
         logger.debug("Script runner executing: {}".format(path))
         scope = self.scope.copy()
-        # scope["store"] = script.store
         # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
         scope["__file__"] = path.resolve()
+        self._execute(scope, path)
+
+    def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
+        script_code = script.read_text() if isinstance(script, pathlib.Path) else script.code
+        start_time = datetime.datetime.now().time()
+        # noinspection PyBroadException
         try:
-            exec(path.read_text(), scope)
+            exec(script_code, scope)
         except Exception as e:
+            error_time = datetime.datetime.now().time()
             logger.exception("Script error")
-            self.error = "Script name: '{}'\n{}".format(path, traceback.format_exc())
-            self.app.notify_error("The script '{}' encountered an error".format(path))
+            traceback_str = traceback.format_exc()
+
+            self.error_records.append(model.ScriptErrorRecord(
+                script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
+            ))
+            self.error = "Script name: '{}'\n{}".format(script.description, traceback_str)
+            self.app.notify_error("The script '{}' encountered an error".format(script.description))
 
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
