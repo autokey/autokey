@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>762</width>
-    <height>567</height>
+    <height>565</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -186,6 +186,14 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>show_previous_error_button</tabstop>
+  <tabstop>show_next_error_button</tabstop>
+  <tabstop>script_name_view</tabstop>
+  <tabstop>script_start_time_edit</tabstop>
+  <tabstop>script_error_time_edit</tabstop>
+  <tabstop>stack_trace_text_browser</tabstop>
+ </tabstops>
  <resources/>
  <connections>
   <connection>
@@ -195,8 +203,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>254</y>
+     <x>254</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -211,12 +219,108 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>316</x>
-     <y>260</y>
+     <x>322</x>
+     <y>558</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
      <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_next_error_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>show_next_error()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>712</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_previous_error_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>show_previous_error()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>622</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Dialog</sender>
+   <signal>has_next_error(bool)</signal>
+   <receiver>show_next_error_button</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>622</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>712</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Dialog</sender>
+   <signal>has_previous_error(bool)</signal>
+   <receiver>show_previous_error_button</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>712</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>622</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_next_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_previous_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>712</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>622</x>
+     <y>47</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_previous_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_next_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>622</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>712</x>
+     <y>47</y>
     </hint>
    </hints>
   </connection>

@@ -42,6 +42,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         super().__init__()
         self.setupUi(self)
         self.about_dialog = dialogs.AboutAutokeyDialog(self)
+        self.show_script_errors_dialog = dialogs.ShowRecentScriptErrorsDialog(self)
         self.app = app
         self.action_create = self._create_action_create()
         self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
@@ -102,7 +103,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def _connect_all_tools_menu_signals(self):
         self.action_show_last_script_error.triggered.connect(self.app.notifier.reset_tray_icon)
-        self.action_show_last_script_error.triggered.connect(self.app.show_script_error)
+        self.action_show_last_script_error.triggered.connect(self.show_script_errors_dialog.update_and_show)
         self.action_record_script.triggered.connect(self.on_record)
         self.action_run_script.triggered.connect(self.on_run_script)
         # Add all defined macros to the »Insert Macros« menu
