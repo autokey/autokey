@@ -18,7 +18,7 @@ import threading
 import time
 import webbrowser
 
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QTimer
 from PyQt5.QtGui import QIcon, QKeySequence, QCloseEvent
 from PyQt5.QtWidgets import QApplication, QAction, QMenu
 
@@ -286,14 +286,14 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
             self.action_record_script.setChecked(False)
 
     def on_run_script(self):
-        t = threading.Thread(target=self._run_script)
-        t.start()
-
-    def _run_script(self):
         script = self.central_widget.get_selected_item()[0]
-        time.sleep(2)  # Fix the GUI tooltip for action_run_script when changing this!
-        self.app.service.scriptRunner.execute(script)
-    
+        QTimer.singleShot(
+            2000,  # Fix the GUI tooltip for action_run_script when changing this!
+            (lambda: self.app.service.scriptRunner.execute(
+                script
+            ))
+        )
+
     # Settings Menu
             
     def on_advanced_settings(self):

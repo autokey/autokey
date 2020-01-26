@@ -42,8 +42,8 @@ MAX_STACK_LENGTH = 150
 
 def threaded(f):
 
-    def wrapper(*args):
-        t = threading.Thread(target=f, args=args, name="Phrase-thread")
+    def wrapper(*args, **kwargs):
+        t = threading.Thread(target=f, args=args, kwargs=kwargs, name="Phrase-thread")
         t.setDaemon(False)
         t.start()
 
