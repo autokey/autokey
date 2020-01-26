@@ -39,6 +39,8 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     # this and enables/disables itself based on the boolean value. The connection is defined in the .ui file.
     has_next_error = pyqtSignal(bool, name="has_next_error")
 
+    script_errors_available = pyqtSignal(bool, name="script_errors_available")
+
     def __init__(self, parent):
         super(ShowRecentScriptErrorsDialog, self).__init__(parent)
         self.setupUi(self)
@@ -50,6 +52,10 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         self.recent_script_errors = QApplication.instance().\
             service.scriptRunner.error_records  # type: typing.List[ScriptErrorRecord]
         self.currently_viewed_error_index = 0
+
+    def hide(self):
+        self.script_errors_available.emit(bool(self.recent_script_errors))
+        super(ShowRecentScriptErrorsDialog, self).hide()
 
     @pyqtSlot(QAbstractButton)
     def handle_button_box_buttons(self, clicked_button: QAbstractButton):

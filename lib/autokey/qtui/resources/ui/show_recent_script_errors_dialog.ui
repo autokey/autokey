@@ -14,23 +14,13 @@
    <string>View most recent Script errors</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="5" column="1">
-    <widget class="QTimeEdit" name="script_error_time_edit">
-     <property name="inputMethodHints">
-      <set>Qt::ImhPreferNumbers|Qt::ImhTime</set>
+   <item row="3" column="0">
+    <widget class="QLabel" name="script_name_header_label">
+     <property name="text">
+      <string>Crashed Script name:</string>
      </property>
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="displayFormat">
-      <string>HH:mm:ss</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+     <property name="buddy">
+      <cstring>script_name_view</cstring>
      </property>
     </widget>
    </item>
@@ -41,17 +31,16 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="script_name_header_label">
-     <property name="text">
-      <string>Crashed Script name:</string>
+   <item row="5" column="1">
+    <widget class="QTimeEdit" name="script_error_time_edit">
+     <property name="inputMethodHints">
+      <set>Qt::ImhPreferNumbers|Qt::ImhTime</set>
      </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="script_start_time_header_label">
-     <property name="text">
-      <string>Script start time:</string>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="displayFormat">
+      <string>HH:mm:ss</string>
      </property>
     </widget>
    </item>
@@ -114,7 +103,27 @@
      </item>
     </layout>
    </item>
-   <item row="7" column="0" colspan="2">
+   <item row="9" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Discard|QDialogButtonBox::Reset</set>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="script_error_time_header_label">
+     <property name="text">
+      <string>Error occured at:</string>
+     </property>
+     <property name="buddy">
+      <cstring>script_error_time_edit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" colspan="2">
     <widget class="QTextBrowser" name="stack_trace_text_browser">
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>
@@ -127,16 +136,6 @@
      </property>
      <property name="openLinks">
       <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close|QDialogButtonBox::Discard|QDialogButtonBox::Reset</set>
      </property>
     </widget>
    </item>
@@ -153,13 +152,10 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
-    <widget class="QLineEdit" name="script_name_view">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-     <property name="placeholderText">
-      <string>The failing Script’s name is shown here.</string>
+   <item row="6" column="1">
+    <widget class="QLabel" name="script_trigger_source_label">
+     <property name="text">
+      <string/>
      </property>
     </widget>
    </item>
@@ -170,17 +166,43 @@
      </property>
     </widget>
    </item>
-   <item row="5" column="0">
-    <widget class="QLabel" name="script_error_time_header_label">
-     <property name="text">
-      <string>Error occured at:</string>
+   <item row="3" column="1">
+    <widget class="QLineEdit" name="script_name_view">
+     <property name="toolTip">
+      <string>The name of the failed Script</string>
+     </property>
+     <property name="readOnly">
+      <bool>true</bool>
+     </property>
+     <property name="placeholderText">
+      <string>The failing Script’s name is shown here.</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="1">
-    <widget class="QLabel" name="script_trigger_source_label">
+   <item row="2" column="0" colspan="2">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="script_start_time_header_label">
      <property name="text">
-      <string/>
+      <string>Script start time:</string>
+     </property>
+     <property name="buddy">
+      <cstring>script_start_time_edit</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <widget class="QLabel" name="stack_trace_header_label">
+     <property name="text">
+      <string>The Python Stacktrace:</string>
+     </property>
+     <property name="buddy">
+      <cstring>stack_trace_text_browser</cstring>
      </property>
     </widget>
    </item>
