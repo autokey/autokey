@@ -39,11 +39,16 @@ PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
 
 class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwindow")):
 
+    script_errors_available = pyqtSignal(bool, name="script_errors_available")
+
     def __init__(self, app: QApplication):
         super().__init__()
         self.setupUi(self)
         self.about_dialog = dialogs.AboutAutokeyDialog(self)
         self.show_script_errors_dialog = dialogs.ShowRecentScriptErrorsDialog(self)
+        # Just forward the signal
+        self.show_script_errors_dialog.script_errors_available.connect(self.script_errors_available)
+
         self.app = app
         self.action_create = self._create_action_create()
         self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
@@ -104,6 +109,8 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def _connect_all_tools_menu_signals(self):
         self.action_show_last_script_error.triggered.connect(self.show_script_errors_dialog.update_and_show)
+        # Only enable the action if script errors are recorded. Disable the action if no errors are viewable.
+        self.script_errors_available.connect(self.action_show_last_script_error.setDisabled)
         self.action_record_script.triggered.connect(self.on_record)
         self.action_run_script.triggered.connect(self.on_run_script)
         # Add all defined macros to the »Insert Macros« menu
