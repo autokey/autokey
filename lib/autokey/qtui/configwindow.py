@@ -18,6 +18,7 @@ import threading
 import time
 import webbrowser
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QIcon, QKeySequence, QCloseEvent
 from PyQt5.QtWidgets import QApplication, QAction, QMenu
 
@@ -102,7 +103,6 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_rename_item.triggered.connect(self.central_widget.on_rename)
 
     def _connect_all_tools_menu_signals(self):
-        self.action_show_last_script_error.triggered.connect(self.app.notifier.reset_tray_icon)
         self.action_show_last_script_error.triggered.connect(self.show_script_errors_dialog.update_and_show)
         self.action_record_script.triggered.connect(self.on_record)
         self.action_run_script.triggered.connect(self.on_run_script)

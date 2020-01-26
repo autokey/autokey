@@ -106,9 +106,6 @@ class Application(QApplication):
         logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
-
-            # Initialise logger
-
             if self._verify_not_running():
                 self._create_lock_file()
 
@@ -119,6 +116,11 @@ class Application(QApplication):
             self._try_start_service()
             self.notifier = Notifier(self)
             self.configWindow = ConfigWindow(self)
+            # Connect the mutual connections between the tray icon and the main window
+            self.configWindow.action_show_last_script_error.triggered.connect(self.notifier.reset_tray_icon)
+            self.notifier.action_view_script_error.triggered.connect(
+                self.configWindow.show_script_errors_dialog.update_and_show)
+
             self.monitor.start()
             # Initialise user code dir
             if self.configManager.userCodeDir is not None:
