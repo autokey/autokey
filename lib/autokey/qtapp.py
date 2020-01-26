@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 from autokey import common
 common.USING_QT = True
 
-from autokey import service, monitor
+from autokey import service, monitor, model
 
 import autokey.argument_parser
 import autokey.configmanager.configmanager as cm
@@ -266,13 +266,15 @@ class Application(QApplication):
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: model.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.exec_in_main(self.notifier.notify_error, message)
+        self.configWindow.script_errors_available.emit(True)
 
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()

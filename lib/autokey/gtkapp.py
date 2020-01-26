@@ -36,7 +36,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 gettext.install("autokey")
 
 import autokey.argument_parser
-from autokey import service, monitor
+from autokey import service, monitor, model
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
@@ -226,12 +226,13 @@ class Application:
         os.remove(common.LOCK_FILE)
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: model.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
 
     def update_notifier_visibility(self):

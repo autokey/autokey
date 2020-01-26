@@ -509,6 +509,10 @@ class ScriptRunner:
         scope["__file__"] = path.resolve()
         self._execute(scope, path)
 
+    def _record_error(self, error: model.ScriptErrorRecord):
+        self.error_records.append(error)
+        self.app.notify_error(error)
+
     def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
         script_code = script.read_text() if isinstance(script, pathlib.Path) else script.code
         start_time = datetime.datetime.now().time()
@@ -520,11 +524,10 @@ class ScriptRunner:
             logger.exception("Script error")
             traceback_str = traceback.format_exc()
 
-            self.error_records.append(model.ScriptErrorRecord(
+            self._record_error(model.ScriptErrorRecord(
                 script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
             ))
-            self.error = "Script name: '{}'\n{}".format(script.description, traceback_str)
-            self.app.notify_error("The script '{}' encountered an error".format(script.description))
+
 
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
