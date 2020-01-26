@@ -77,7 +77,7 @@
       <string>&amp;Insert Macro</string>
      </property>
     </widget>
-    <addaction name="action_show_last_script_error"/>
+    <addaction name="action_show_last_script_errors"/>
     <addaction name="action_record_script"/>
     <addaction name="action_run_script"/>
     <addaction name="separator"/>
@@ -352,16 +352,19 @@
     <string>F2</string>
    </property>
   </action>
-  <action name="action_show_last_script_error">
+  <action name="action_show_last_script_errors">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset theme="dialog-error">
      <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>&amp;Show last script error</string>
+    <string>&amp;Show last script errors</string>
    </property>
    <property name="toolTip">
-    <string>Show the last occured script error, if any.</string>
+    <string>Show the recently occured script errors.</string>
    </property>
   </action>
   <action name="action_enable_monitoring">
