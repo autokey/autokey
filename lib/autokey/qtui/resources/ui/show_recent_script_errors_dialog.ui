@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>View most recent Script errors</string>
+   <string>Show recorded errors from Scripts</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="3" column="0">
@@ -162,7 +162,7 @@
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="dialog_header_label">
      <property name="text">
-      <string>Shown below are the most recent errors that occured in Scripts run by AutoKey during this session.</string>
+      <string>Shown below are the recorded errors that occurred in Scripts run by AutoKey during this session.</string>
      </property>
     </widget>
    </item>

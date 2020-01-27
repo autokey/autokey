@@ -32,10 +32,11 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     with errors, which can be viewed and cleared using this dialogue window.
     """
 
-    # When switching errors, emit a boolean indicating if further errors are available. The Next button reacts on
+    # When switching errors, emit a boolean indicating if previous errors are available. The Previous button reacts on
     # this and enables/disables itself based on the boolean value. The connection is defined in the .ui file.
     has_previous_error = pyqtSignal(bool, name="has_previous_error")
-    # When switching errors, emit a boolean indicating if previous errors are available. The Previous button reacts on
+
+    # When switching errors, emit a boolean indicating if further errors are available. The Next button reacts on
     # this and enables/disables itself based on the boolean value. The connection is defined in the .ui file.
     has_next_error = pyqtSignal(bool, name="has_next_error")
 
@@ -47,28 +48,41 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         # This can’t be done in the UI editor, which can only set specific fonts. Just use the system default monospace
         # font.
         self.stack_trace_text_browser.setFontFamily("monospace")
-        self.buttonBox.clicked.connect(self.handle_button_box_buttons)
+        self.buttonBox.clicked.connect(self.handle_button_box_button_clicks)
 
         self.recent_script_errors = QApplication.instance().\
             service.scriptRunner.error_records  # type: typing.List[ScriptErrorRecord]
         self.currently_viewed_error_index = 0
 
+    def _emit_has_next_error(self):
+        total_error_count = len(self.recent_script_errors)
+        has_next_error = self.currently_viewed_error_index < total_error_count - 1
+        self.has_next_error.emit(has_next_error)
+
+    def _emit_has_previous_error(self):
+        has_previous_error = self.currently_viewed_error_index > 0
+        self.has_previous_error.emit(has_previous_error)
+
+    def _emit_script_errors_available(self):
+        script_errors_available = bool(self.recent_script_errors)
+        self.script_errors_available.emit(script_errors_available)
+
     def hide(self):
-        self.script_errors_available.emit(bool(self.recent_script_errors))
+        self._emit_script_errors_available()
         super(ShowRecentScriptErrorsDialog, self).hide()
 
     @pyqtSlot(QAbstractButton)
-    def handle_button_box_buttons(self, clicked_button: QAbstractButton):
+    def handle_button_box_button_clicks(self, clicked_button: QAbstractButton):
         """
         Used to connect the button presses with logic for 'Reset error list' and 'Discard current error' buttons in
         the button box at the bottom of the dialogue window.
         """
         button_role = self.buttonBox.buttonRole(clicked_button)
-        # The Close is handled internally and simply hides the dialogue, therefore nothing is implemented here.
+        # The Close button is handled internally and simply hides the dialogue, therefore nothing is implemented here.
         if button_role == QDialogButtonBox.DestructiveRole:  # Discard current error
             self.remove_currently_shown_error_from_error_list()
         elif button_role == QDialogButtonBox.ResetRole:  # Clear the error list
-            self.clear_error_list()
+            self.clear_error_list_and_hide()
 
     @pyqtSlot()
     def update_and_show(self):
@@ -77,12 +91,10 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
             if self.currently_viewed_error_index >= error_count:
                 self.currently_viewed_error_index = error_count-1
 
-            self.has_next_error.emit(self.currently_viewed_error_index < error_count-1)
-            self.has_previous_error.emit(self.currently_viewed_error_index > 0)
-
+            self._emit_has_next_error()
+            self._emit_has_previous_error()
             logger.info("User views the last script errors. There are {} errors to review.".format(error_count))
-            self._show_error(self.currently_viewed_error_index)
-
+            self._show_currently_viewed_error()
             self.show()
         else:
             logger.error(
@@ -99,8 +111,8 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         # Out of bounds handling is not needed, as the Next button gets disables when the last error is reached.
         # See has_next_error Signal.
         self.currently_viewed_error_index += 1
-        self.has_next_error.emit(self.currently_viewed_error_index < len(self.recent_script_errors)-1)
-        self._show_error(self.currently_viewed_error_index)
+        self._emit_has_next_error()
+        self._show_currently_viewed_error()
 
     @pyqtSlot()
     def show_previous_error(self):
@@ -112,8 +124,8 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         # Out of bounds handling is not needed, as the Previous button gets disables when the first error is reached.
         # See has_previous_error Signal.
         self.currently_viewed_error_index -= 1
-        self.has_previous_error.emit(self.currently_viewed_error_index > 0)
-        self._show_error(self.currently_viewed_error_index)
+        self._emit_has_previous_error()
+        self._show_currently_viewed_error()
 
     def remove_currently_shown_error_from_error_list(self):
         """
@@ -123,25 +135,25 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         """
         error_count = len(self.recent_script_errors)
         if error_count == 1:
-            self.clear_error_list()
+            self.clear_error_list_and_hide()
         else:
             del self.recent_script_errors[self.currently_viewed_error_index]
             if self.currently_viewed_error_index == error_count-1:
                 self.show_previous_error()
             else:
-                self.has_next_error.emit(self.currently_viewed_error_index < len(self.recent_script_errors)-1)
-                self._show_error(self.currently_viewed_error_index)
+                self._emit_has_next_error()
+                self._show_currently_viewed_error()
 
-    def clear_error_list(self):
+    def clear_error_list_and_hide(self):
         """Clears all errors in the error list and hides the dialogue window."""
         self.currently_viewed_error_index = 0
         QApplication.instance().service.scriptRunner.clear_error_records()
         self.hide()
 
-    def _show_error(self, script_at_index: int):
-        """Update the GUI to show the error at the given list index."""
+    def _show_currently_viewed_error(self):
+        """Update the GUI to show the error at the current list index."""
         script_error = self.recent_script_errors[self.currently_viewed_error_index]
-        self.currently_shown_error_number_label.setText(str(script_at_index+1))
+        self.currently_shown_error_number_label.setText(str(self.currently_viewed_error_index+1))
         # Update the count on each show. This updates the GUI, if new errors occur while the
         # dialogue window is shown and the user clicks on a previous or next button.
         self.total_error_count_label.setText(str(len(self.recent_script_errors)))

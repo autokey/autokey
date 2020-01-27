@@ -45,10 +45,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         super().__init__()
         self.setupUi(self)
         self.about_dialog = dialogs.AboutAutokeyDialog(self)
-        self.show_script_errors_dialog = dialogs.ShowRecentScriptErrorsDialog(self)
-        # Just forward the signal
-        self.show_script_errors_dialog.script_errors_available.connect(self.script_errors_available)
-
+        self.show_script_errors_dialog = self._create_show_recent_script_errors_dialog()
         self.app = app
         self.action_create = self._create_action_create()
         self.toolbar.insertAction(self.action_save, self.action_create)  # Insert before action_save, i.e. at index 0
@@ -80,6 +77,12 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         action_create.setMenu(create_menu)
         return action_create
 
+    def _create_show_recent_script_errors_dialog(self) -> dialogs.ShowRecentScriptErrorsDialog:
+        show_script_errors_dialog = dialogs.ShowRecentScriptErrorsDialog(self)
+        # Forward the signal from the dialog instance to the own signal
+        show_script_errors_dialog.script_errors_available.connect(self.script_errors_available)
+        return show_script_errors_dialog
+
     def _connect_all_file_menu_signals(self):
         # Show the action_create popup menu regardless where the user places the click.
         # The Action is displayed as "[<icon>]v". Clicking on the downwards arrow opens the popup menu as
@@ -109,8 +112,11 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
 
     def _connect_all_tools_menu_signals(self):
         self.action_show_last_script_errors.triggered.connect(self.show_script_errors_dialog.update_and_show)
-        # Only enable the action if script errors are recorded. Disable the action if no errors are viewable.
+        # Only enable action_show_last_script_errors if script errors are recorded.
+        # Automatically disable the action if no errors are viewable to prevent the user from seeing a dialogue window
+        # in some undefined state.
         self.script_errors_available.connect(self.action_show_last_script_errors.setEnabled)
+
         self.action_record_script.triggered.connect(self.on_record)
         self.action_run_script.triggered.connect(self.on_run_script)
         # Add all defined macros to the »Insert Macros« menu
@@ -289,7 +295,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         script = self.central_widget.get_selected_item()[0]
         QTimer.singleShot(
             2000,  # Fix the GUI tooltip for action_run_script when changing this!
-            (lambda: self.app.service.scriptRunner.execute(
+            (lambda: self.app.service.scriptRunner.execute_script(
                 script
             ))
         )

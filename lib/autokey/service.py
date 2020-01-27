@@ -226,7 +226,6 @@ class Service:
 
         self.app.show_popup_menu([folder])
 
-
     def run_phrase(self, name):
         phrase = self.__findItem(name, model.Phrase, "phrase")
         self.phraseRunner.execute(phrase)
@@ -239,7 +238,7 @@ class Service:
             self.scriptRunner.execute_path(path)
         else:
             script = self.__findItem(name, model.Script, "script")
-            self.scriptRunner.execute(script)
+            self.scriptRunner.execute_script(script)
 
     def __findItem(self, name, objType, typeDescription):
         for item in self.configManager.allItems:
@@ -250,7 +249,7 @@ class Service:
 
     @threaded
     def item_selected(self, item):
-        time.sleep(0.25) # wait for window to be active
+        time.sleep(0.25)  # wait for window to be active
         self.lastMenu = None # if an item has been selected, the menu has been hidden
         self.__processItem(item, self.lastStackState)
 
@@ -357,7 +356,7 @@ class Service:
         if isinstance(item, model.Phrase):
             self.phraseRunner.execute(item, buffer)
         else:
-            self.scriptRunner.execute(item, buffer)
+            self.scriptRunner.execute_script(item, buffer)
 
 
 
@@ -484,7 +483,7 @@ class ScriptRunner:
         self.error_records.clear()
 
     @threaded
-    def execute(self, script: model.Script, buffer=''):
+    def execute_script(self, script: model.Script, buffer=''):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
@@ -506,28 +505,39 @@ class ScriptRunner:
         logger.debug("Script runner executing: {}".format(path))
         scope = self.scope.copy()
         # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
-        scope["__file__"] = path.resolve()
+        scope["__file__"] = str(path.resolve())
         self._execute(scope, path)
 
-    def _record_error(self, error: model.ScriptErrorRecord):
-        self.error_records.append(error)
-        self.app.notify_error(error)
+    def _record_error(self, script: typing.Union[model.Script, pathlib.Path], start_time: time.time):
+        error_time = datetime.datetime.now().time()
+        logger.exception("Script error")
+        traceback_str = traceback.format_exc()
+        error_record = model.ScriptErrorRecord(
+                script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
+        )
+        self.error_records.append(error_record)
+        self.app.notify_error(error_record)
 
     def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
-        script_code = script.read_text() if isinstance(script, pathlib.Path) else script.code
+        script_code = self._get_script_source_code(script)
         start_time = datetime.datetime.now().time()
         # noinspection PyBroadException
         try:
             exec(script_code, scope)
-        except Exception as e:
-            error_time = datetime.datetime.now().time()
-            logger.exception("Script error")
-            traceback_str = traceback.format_exc()
+        except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
+            self._record_error(script, start_time)
 
-            self._record_error(model.ScriptErrorRecord(
-                script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
-            ))
-
+    @staticmethod
+    def _get_script_source_code(script: typing.Union[model.Script, pathlib.Path]) -> str:
+        if isinstance(script, pathlib.Path):
+            script_code = script.read_text()
+        elif isinstance(script, model.Script):
+            script_code = script.code
+        else:
+            raise TypeError(
+                "Unknown script type passed in, expected one of [autokey.model.Script, pathlib.Path], got {}".format(
+                    type(script)))
+        return script_code
 
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):

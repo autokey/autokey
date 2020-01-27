@@ -1267,7 +1267,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __runScript(self):
         script = self.__getTreeSelection()[0]
         time.sleep(2)
-        self.app.service.scriptRunner.execute(script)
+        self.app.service.scriptRunner.execute_script(script)
 
     # Help Menu
 

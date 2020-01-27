@@ -361,10 +361,10 @@
      <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
    </property>
    <property name="text">
-    <string>&amp;Show last script errors</string>
+    <string>&amp;Show recorded errors from Scripts</string>
    </property>
    <property name="toolTip">
-    <string>Show the recently occured script errors.</string>
+    <string>Show recorded errors that occured in recently-run Scripts.</string>
    </property>
   </action>
   <action name="action_enable_monitoring">
