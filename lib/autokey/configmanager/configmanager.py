@@ -24,6 +24,7 @@ import threading
 import typing
 import re
 import json
+import itertools
 
 from autokey import common, model
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
@@ -685,14 +686,13 @@ class ConfigManager:
         @param hotKey: the hotkey to check
         @param newFilterPattern:
         """
-        for searchSpace in [self.allFolders, self.allItems]:
-            for item in searchSpace:
-                if model.TriggerMode.HOTKEY in item.modes and \
-                        self.item_has_same_hotkey(item,
-                                                  modifiers,
-                                                  hotKey,
-                                                  newFilterPattern):
-                    return item
+        for item in itertools.chain(self.allFolders, self.allItems):
+            if model.TriggerMode.HOTKEY in item.modes and \
+                    self.item_has_same_hotkey(item,
+                                              modifiers,
+                                              hotKey,
+                                              newFilterPattern):
+                return item
 
         for item in self.globalHotkeys:
             if item.enabled:
