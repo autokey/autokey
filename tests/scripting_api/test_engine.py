@@ -17,6 +17,8 @@ import typing
 import pathlib
 import sys
 import os
+import string
+import random
 
 from unittest.mock import MagicMock, patch
 
@@ -51,6 +53,12 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
         engine.configManager.config_altered(False)
 
     return engine, test_folder
+
+
+def create_random_string(length=10):
+    ''.join([random.choice(string.ascii_letters + string.digits) for n in
+        range(length)])
+
 
 def replace_folder_param_in_args(folder, args):
     if isinstance(args, str):
