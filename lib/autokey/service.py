@@ -519,16 +519,19 @@ class ScriptRunner:
         self.app.notify_error(error_record)
 
     def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
-        script_code, script_name = self._get_script_source_code_and_name(script)
-        logger.debug("About to execute script {}".format(script_name))
         start_time = datetime.datetime.now().time()
         # noinspection PyBroadException
-
         try:
-            compiled_code = compile(script_code, script_name, 'exec')
+            compiled_code = self._compile_script(script)
             exec(compiled_code, scope)
         except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
             self._record_error(script, start_time)
+
+    @staticmethod
+    def _compile_script(script: typing.Union[model.Script, pathlib.Path]):
+        script_code, script_name = ScriptRunner._get_script_source_code_and_name(script)
+        compiled_code = compile(script_code, script_name, 'exec')
+        return compiled_code
 
     @staticmethod
     def _get_script_source_code_and_name(script: typing.Union[model.Script, pathlib.Path]) -> typing.Tuple[str, str]:
@@ -568,6 +571,5 @@ class ScriptRunner:
         else:
             scope["__file__"] = str(script.resolve())
 
-        script_code, script_name = self._get_script_source_code_and_name(script)
-        compiled_code = compile(script_code, script_name, 'exec')
+        compiled_code = self._compile_script(script)
         exec(compiled_code, scope)
