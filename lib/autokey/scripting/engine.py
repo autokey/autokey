@@ -354,7 +354,7 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         path = path.expanduser()
         # Check if absolute path.
         if pathlib.PurePath(path).is_absolute() and path.exists():
-            self.runner.run_subscript_path(path)
+            self.runner.run_subscript(path)
         else:
             target_script = None
             for item in self.configManager.allItems:

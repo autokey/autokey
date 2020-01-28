@@ -519,25 +519,33 @@ class ScriptRunner:
         self.app.notify_error(error_record)
 
     def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
-        script_code = self._get_script_source_code(script)
+        script_code, script_name = self._get_script_source_code_and_name(script)
+        logger.debug("About to execute script {}".format(script_name))
         start_time = datetime.datetime.now().time()
         # noinspection PyBroadException
+
         try:
-            exec(script_code, scope)
+            compiled_code = compile(script_code, script_name, 'exec')
+            exec(compiled_code, scope)
         except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
             self._record_error(script, start_time)
 
     @staticmethod
-    def _get_script_source_code(script: typing.Union[model.Script, pathlib.Path]) -> str:
+    def _get_script_source_code_and_name(script: typing.Union[model.Script, pathlib.Path]) -> typing.Tuple[str, str]:
         if isinstance(script, pathlib.Path):
             script_code = script.read_text()
+            script_name = str(script)
         elif isinstance(script, model.Script):
             script_code = script.code
+            if script.path is None:
+                script_name = "<string>"
+            else:
+                script_name = str(script.path)
         else:
             raise TypeError(
                 "Unknown script type passed in, expected one of [autokey.model.Script, pathlib.Path], got {}".format(
                     type(script)))
-        return script_code
+        return script_code, script_name
 
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
@@ -552,12 +560,14 @@ class ScriptRunner:
             )
             engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
 
-    def run_subscript(self, script):
+    def run_subscript(self, script: typing.Union[model.Script, pathlib.Path]):
         scope = self.scope.copy()
-        scope["store"] = script.store
-        exec(script.code, scope)
+        if isinstance(script, model.Script):
+            scope["store"] = script.store
+            scope["__file__"] = str(script.path)
+        else:
+            scope["__file__"] = str(script.resolve())
 
-    def run_subscript_path(self, path):
-        scope = self.scope.copy()
-        scope["__file__"] = path
-        exec(pathlib.Path(path).read_text(), scope)
+        script_code, script_name = self._get_script_source_code_and_name(script)
+        compiled_code = compile(script_code, script_name, 'exec')
+        exec(compiled_code, scope)
