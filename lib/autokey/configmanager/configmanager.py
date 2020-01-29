@@ -742,6 +742,7 @@ class ConfigManager:
                 pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    # TODO: merge this function with model.Phrase.unset_hotkey
     def __deleteHotkeys(self, removed_item):
         if model.TriggerMode.HOTKEY in removed_item.modes:
             self.app.hotkey_removed(removed_item)

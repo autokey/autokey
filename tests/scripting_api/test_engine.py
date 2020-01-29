@@ -151,17 +151,17 @@ def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine)
 
 def test_engine_create_phrase_override_duplicate_hotkey(create_engine):
     engine, folder = create_engine
+    # --- Setup ---
     hotkey=(["<ctrl>"], "a")
     originalHotkey = create_test_hotkey(engine, folder, hotkey)
     assert_that(folder.items, has_item(originalHotkey))
+    # --- Run ---
     duplicateHotkey = create_test_hotkey(engine, folder, hotkey,
             replaceExisting=True)
+    # --- Assess ---
     assert_that(folder.items, has_item(duplicateHotkey))
-
-    item = get_item_with_hotkey(engine, hotkey)
-    while item is not duplicateHotkey:
-        assert_that(item, is_not(originalHotkey))
-        item = get_item_with_hotkey(engine, hotkey)
+    duplicateHotkey.unset_hotkey()
+    assert_that(get_item_with_hotkey(engine, hotkey), is_(None))
 
 def create_test_hotkey(engine, folder, hotkey, replaceExisting=False):
     with patch("autokey.model.Phrase.persist"):
