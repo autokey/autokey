@@ -152,19 +152,30 @@ def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine)
 def test_engine_create_phrase_override_duplicate_hotkey(create_engine):
     engine, folder = create_engine
     hotkey=(["<ctrl>"], "a")
-    with patch("autokey.model.Phrase.persist"):
-        phrase = engine.create_phrase(folder, "Phrase", "ABC", hotkey=hotkey)
-        assert_that(folder.items, has_item(phrase))
-        phrase2 = engine.create_phrase(folder, "Phrase 2", "ABC",
-                                       hotkey=hotkey,
-                                       replaceExistingHotkey=True)
-        assert_that(folder.items, has_item(phrase2))
-        modifiers = sorted(hotkey[0])
-        item = engine.configManager.get_item_with_hotkey(modifiers, hotkey[1])
-        while item is not phrase2:
-            assert_that(item, is_not(phrase))
-            item = engine.configManager.get_item_with_hotkey(modifiers, hotkey[1])
+    originalHotkey = create_test_hotkey(engine, folder, hotkey)
+    assert_that(folder.items, has_item(originalHotkey))
+    duplicateHotkey = create_test_hotkey(engine, folder, hotkey,
+            replaceExisting=True)
+    assert_that(folder.items, has_item(duplicateHotkey))
 
+    item = get_item_with_hotkey(engine, hotkey)
+    while item is not duplicateHotkey:
+        assert_that(item, is_not(originalHotkey))
+        item = get_item_with_hotkey(engine, hotkey)
+
+def create_test_hotkey(engine, folder, hotkey, replaceExisting=False):
+    with patch("autokey.model.Phrase.persist"):
+        return engine.create_phrase(folder,
+                create_random_string(),
+                "ABC",
+                hotkey=hotkey,
+                replaceExistingHotkey=replaceExisting,
+                )
+
+def get_item_with_hotkey(engine, hotkey):
+    modifiers = sorted(hotkey[0])
+    item = engine.configManager.get_item_with_hotkey(modifiers, hotkey[1])
+    return item
 
 
 def test_engine_create_phrase_duplicate_abbreviation_raises_value_error(create_engine):
