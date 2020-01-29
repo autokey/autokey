@@ -162,6 +162,9 @@ def test_engine_create_phrase_override_duplicate_hotkey(create_engine):
     assert_that(folder.items, has_item(duplicateHotkey))
     duplicateHotkey.unset_hotkey()
     assert_that(get_item_with_hotkey(engine, hotkey), is_(None))
+    # TODO: test that this will also work if the original hotkey belongs
+    # to a folder. Currently can't test because we can't create folders
+    # with hotkeys easily.
 
 def create_test_hotkey(engine, folder, hotkey, replaceExisting=False):
     with patch("autokey.model.Phrase.persist"):
