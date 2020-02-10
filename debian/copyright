@@ -3,7 +3,11 @@ Upstream-Name: autokey
 Source: https://github.com/autokey/autokey
 
 Files: *
-Copyright: © 2008-2012 Chris Dekter <cdekter@gmail.com>
+Copyright: © 2008 Sam Peterson <peabodyenator@gmail.com>
+           © 2008-2012 Chris Dekter <cdekter@gmail.com>
+           © 2014-2016 GuoCi <guociz@gmail.com>
+           © 2016-2018 Troy C.
+           © 2017-2020 Thomas Hess <thomas.hess@udo.edu>
 License: GPL-3+
  This package is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,8 +26,11 @@ License: GPL-3+
  Public License can be found in `/usr/share/common-licenses/GPL-3'.
 
 Files: debian/*
-Copyright: © 2009-2012, Chris Dekter <cdekter@gmail.com>
-           © 2009-2012, Luke Faraone <lfaraone@debian.org>
+Copyright: © 2008 Sam Peterson <peabodyenator@gmail.com>
+           © 2009-2012 Chris Dekter <cdekter@gmail.com>
+           © 2009-2012 Luke Faraone <lfaraone@debian.org>
+           © 2016-2018 Troy C.
+           © 2018-2020 Thomas Hess <thomas.hess@udo.edu>
 License: GPL-2+
  This program is free software; you can redistribute it
  and/or modify it under the terms of the GNU General Public
