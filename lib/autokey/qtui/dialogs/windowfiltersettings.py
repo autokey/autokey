@@ -23,8 +23,6 @@ from autokey import iomediator
 from autokey import model
 
 
-# TODO: Once the port to Qt5 is done, enable the clearButtonEnable property for the line edit in the UI editor.
-# TODO: Pure Qt4 does not support the line edit clear button, so this functionality is currently unavailable.
 class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
 
     def __init__(self, parent):
