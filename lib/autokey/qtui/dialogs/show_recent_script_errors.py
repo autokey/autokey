@@ -30,7 +30,10 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     """
     This dialogue is used to show errors that caused user Scripts to abort. The ScriptRunner class holds a list
     with errors, which can be viewed and cleared using this dialogue window.
+
     """
+    # TODO: When the minimal python version is raised to >= 3.6, add millisecond display to both the script start
+    # timestamp and the error timestamp.
 
     # When switching errors, emit a boolean indicating if previous errors are available. The Previous button reacts on
     # this and enables/disables itself based on the boolean value. The connection is defined in the .ui file.
@@ -45,18 +48,23 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     def __init__(self, parent):
         super(ShowRecentScriptErrorsDialog, self).__init__(parent)
         self.setupUi(self)
-        # This can’t be done in the UI editor, which can only set specific fonts. Just use the system default monospace
-        # font.
+        # This can’t be done in the UI editor, which can only set specific fonts.
+        # Just use the system default mono-space font. This aids Python’s error location indicator in case of
+        # SyntaxErrors in user scripts.
         self.stack_trace_text_browser.setFontFamily("monospace")
-        self.buttonBox.clicked.connect(self.handle_button_box_button_clicks)
+        # The suffix is stored in the UI file. Retrieve it
+        self.currently_shown_error_number_spin_box_suffix = self.currently_shown_error_number_spin_box.suffix()
 
         self.recent_script_errors = QApplication.instance().\
             service.scriptRunner.error_records  # type: typing.List[ScriptErrorRecord]
         self.currently_viewed_error_index = 0
 
+    @property
+    def total_error_count(self):
+        return len(self.recent_script_errors)
+
     def _emit_has_next_error(self):
-        total_error_count = len(self.recent_script_errors)
-        has_next_error = self.currently_viewed_error_index < total_error_count - 1
+        has_next_error = self.currently_viewed_error_index < self.total_error_count - 1
         self.has_next_error.emit(has_next_error)
 
     def _emit_has_previous_error(self):
@@ -86,7 +94,7 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
 
     @pyqtSlot()
     def update_and_show(self):
-        error_count = len(self.recent_script_errors)
+        error_count = self.total_error_count
         if error_count:
             if self.currently_viewed_error_index >= error_count:
                 self.currently_viewed_error_index = error_count-1
@@ -107,7 +115,6 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         Switch to the next error in the error list.
         The connection from the Next button to this slot function is defined in the .ui file.
         """
-        logger.debug("User views the next error.")
         # Out of bounds handling is not needed, as the Next button gets disables when the last error is reached.
         # See has_next_error Signal.
         self.currently_viewed_error_index += 1
@@ -120,10 +127,40 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         Switch to the previous error in the error list.
         The connection from the Previous button to this slot function is defined in the .ui file.
         """
-        logger.debug("User views the previous error.")
         # Out of bounds handling is not needed, as the Previous button gets disables when the first error is reached.
         # See has_previous_error Signal.
         self.currently_viewed_error_index -= 1
+        self._emit_has_previous_error()
+        self._show_currently_viewed_error()
+
+    @pyqtSlot()
+    def show_last_error(self):
+        """
+        Switch to the last error in the error list.
+        The connection from the Last button to this slot function is defined in the .ui file.
+        """
+        self.currently_viewed_error_index = self.total_error_count - 1
+        self._emit_has_next_error()
+        self._show_currently_viewed_error()
+
+    @pyqtSlot()
+    def show_first_error(self):
+        """
+        Switch to the first error in the error list.
+        The connection from the First button to this slot function is defined in the .ui file.
+        """
+        self.currently_viewed_error_index = 0
+        self._emit_has_previous_error()
+        self._show_currently_viewed_error()
+
+    @pyqtSlot(int)
+    def show_error_at_index(self, error_index: int):
+        """
+        Switch to a specific error in the error list. Subtract one, because the GUI uses a 1-based index.
+        The connection from the error number spin box to this slot function is defined in the .ui file.
+        """
+        self.currently_viewed_error_index = error_index - 1
+        self._emit_has_next_error()
         self._emit_has_previous_error()
         self._show_currently_viewed_error()
 
@@ -133,12 +170,11 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         Shows the next error, if available. Otherwise, show the previous error, if available.
         Or clear the list and hide the window, if the deleted error was the only one in the list.
         """
-        error_count = len(self.recent_script_errors)
-        if error_count == 1:
+        if self.total_error_count == 1:
             self.clear_error_list_and_hide()
         else:
             del self.recent_script_errors[self.currently_viewed_error_index]
-            if self.currently_viewed_error_index == error_count-1:
+            if self.currently_viewed_error_index == self.total_error_count - 1:
                 self.show_previous_error()
             else:
                 self._emit_has_next_error()
@@ -153,12 +189,17 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     def _show_currently_viewed_error(self):
         """Update the GUI to show the error at the current list index."""
         script_error = self.recent_script_errors[self.currently_viewed_error_index]
-        self.currently_shown_error_number_label.setText(str(self.currently_viewed_error_index+1))
-        # Update the count on each show. This updates the GUI, if new errors occur while the
+        error_count = self.total_error_count
+        logger.debug("User views error {} / {}.".format(self.currently_viewed_error_index+1, error_count))
+        self.currently_shown_error_number_spin_box.setMaximum(error_count)
+        self.currently_shown_error_number_spin_box.setValue(self.currently_viewed_error_index+1)
+        # Update the total count on each show. This updates the GUI, if new errors occur while the
         # dialogue window is shown and the user clicks on a previous or next button.
-        self.total_error_count_label.setText(str(len(self.recent_script_errors)))
+        self.currently_shown_error_number_spin_box.setSuffix(
+            self.currently_shown_error_number_spin_box_suffix.format(error_count)
+        )
+
         self.script_start_time_edit.setTime(script_error.start_time)
         self.script_error_time_edit.setTime(script_error.error_time)
         self.script_name_view.setText(script_error.script_name)
         self.stack_trace_text_browser.setText(script_error.error_traceback)
-

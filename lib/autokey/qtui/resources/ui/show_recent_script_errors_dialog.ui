@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>762</width>
-    <height>565</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,6 +39,9 @@
      <property name="readOnly">
       <bool>true</bool>
      </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
+     </property>
      <property name="displayFormat">
       <string>HH:mm:ss</string>
      </property>
@@ -54,23 +57,15 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="currently_shown_error_number_label">
-       <property name="text">
-        <string>1</string>
+      <widget class="QSpinBox" name="currently_shown_error_number_spin_box">
+       <property name="suffix">
+        <string> / {}</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="error_count_separator_label">
-       <property name="text">
-        <string>/</string>
+       <property name="minimum">
+        <number>1</number>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="total_error_count_label">
-       <property name="text">
-        <string>1</string>
+       <property name="singleStep">
+        <number>1</number>
        </property>
       </widget>
      </item>
@@ -88,16 +83,58 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="show_first_error_button">
+       <property name="toolTip">
+        <string>Show the oldest recorded script error.</string>
+       </property>
+       <property name="text">
+        <string>First</string>
+       </property>
+       <property name="icon">
+        <iconset theme="go-first">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="show_previous_error_button">
+       <property name="toolTip">
+        <string>Show the previous recorded script error.</string>
+       </property>
        <property name="text">
         <string>Previous</string>
+       </property>
+       <property name="icon">
+        <iconset theme="go-previous">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
      <item>
       <widget class="QPushButton" name="show_next_error_button">
+       <property name="toolTip">
+        <string>Show the next recorded script error.</string>
+       </property>
        <property name="text">
         <string>Next</string>
+       </property>
+       <property name="icon">
+        <iconset theme="go-next">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="show_last_error_button">
+       <property name="toolTip">
+        <string>Show the newest recorded script error.</string>
+       </property>
+       <property name="text">
+        <string>Last</string>
+       </property>
+       <property name="icon">
+        <iconset theme="go-last">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -125,6 +162,12 @@
    </item>
    <item row="8" column="0" colspan="2">
     <widget class="QTextBrowser" name="stack_trace_text_browser">
+     <property name="acceptDrops">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>The error message, as returned by Python.</string>
+     </property>
      <property name="lineWrapMode">
       <enum>QTextEdit::NoWrap</enum>
      </property>
@@ -146,6 +189,9 @@
      </property>
      <property name="readOnly">
       <bool>true</bool>
+     </property>
+     <property name="buttonSymbols">
+      <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
      <property name="displayFormat">
       <string>HH:mm:ss</string>
@@ -209,8 +255,11 @@
   </layout>
  </widget>
  <tabstops>
+  <tabstop>currently_shown_error_number_spin_box</tabstop>
+  <tabstop>show_first_error_button</tabstop>
   <tabstop>show_previous_error_button</tabstop>
   <tabstop>show_next_error_button</tabstop>
+  <tabstop>show_last_error_button</tabstop>
   <tabstop>script_name_view</tabstop>
   <tabstop>script_start_time_edit</tabstop>
   <tabstop>script_error_time_edit</tabstop>
@@ -225,8 +274,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>254</x>
-     <y>558</y>
+     <x>260</x>
+     <y>560</y>
     </hint>
     <hint type="destinationlabel">
      <x>157</x>
@@ -241,8 +290,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>322</x>
-     <y>558</y>
+     <x>328</x>
+     <y>560</y>
     </hint>
     <hint type="destinationlabel">
      <x>286</x>
@@ -257,8 +306,8 @@
    <slot>show_next_error()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
-     <y>47</y>
+     <x>628</x>
+     <y>64</y>
     </hint>
     <hint type="destinationlabel">
      <x>380</x>
@@ -273,7 +322,39 @@
    <slot>show_previous_error()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
+     <x>533</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_first_error_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>show_first_error()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>443</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>380</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_last_error_button</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>show_last_error()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>718</x>
      <y>47</y>
     </hint>
     <hint type="destinationlabel">
@@ -293,8 +374,8 @@
      <y>47</y>
     </hint>
     <hint type="destinationlabel">
-     <x>712</x>
-     <y>47</y>
+     <x>628</x>
+     <y>64</y>
     </hint>
    </hints>
   </connection>
@@ -305,12 +386,44 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
+     <x>661</x>
      <y>47</y>
     </hint>
     <hint type="destinationlabel">
+     <x>533</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Dialog</sender>
+   <signal>has_next_error(bool)</signal>
+   <receiver>show_last_error_button</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
      <x>622</x>
      <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>718</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>Dialog</sender>
+   <signal>has_previous_error(bool)</signal>
+   <receiver>show_first_error_button</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>661</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>443</x>
+     <y>64</y>
     </hint>
    </hints>
   </connection>
@@ -321,12 +434,28 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>712</x>
-     <y>47</y>
+     <x>628</x>
+     <y>64</y>
     </hint>
     <hint type="destinationlabel">
-     <x>622</x>
-     <y>47</y>
+     <x>533</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_next_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_first_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>628</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>443</x>
+     <y>64</y>
     </hint>
    </hints>
   </connection>
@@ -337,12 +466,124 @@
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
+     <x>533</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_previous_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_last_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>718</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_first_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_next_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>443</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>628</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_first_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_last_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>443</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>718</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_last_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_previous_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>718</x>
      <y>47</y>
     </hint>
     <hint type="destinationlabel">
-     <x>712</x>
+     <x>533</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>show_last_error_button</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>show_first_error_button</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>718</x>
      <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>443</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>currently_shown_error_number_spin_box</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>Dialog</receiver>
+   <slot>show_error_at_index(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>185</x>
+     <y>47</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>354</x>
+     <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>clicked(QAbstractButton*)</signal>
+   <receiver>Dialog</receiver>
+   <slot>handle_button_box_button_clicks(QAbstractButton*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>354</x>
+     <y>560</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>354</x>
+     <y>258</y>
     </hint>
    </hints>
   </connection>
