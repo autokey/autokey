@@ -358,20 +358,20 @@ def test_engine_remove_temporary():
         not_(raises(ValueError)), "Doesn't ungrab hotkeys (duplicate hotkey warning received)")
 
 
-# def test_engine_create_phrase_regex():
-#     import re
-#     engine, folder = create_engine()
-#     with patch("autokey.model.Phrase.persist"):
-#         assert_that(
-#             calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter=".*"),
-#             not_(raises(re.error)),
-#             "Basic window_filter valid regex raises an error"
-#         )
-#         assert_that(
-#             calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter="*"),
-#             raises(re.error),
-#             "Invalid window_filter regex does not raise an error"
-#         )
+def test_engine_create_phrase_regex():
+    import re
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"):
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter=".*"),
+            not_(raises(re.error)),
+            "Basic window_filter valid regex raises an error"
+        )
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter="*"),
+            raises(re.error),
+            "Invalid window_filter regex does not raise an error"
+        )
 
 
 @pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
