@@ -19,11 +19,11 @@
 import os
 import os.path
 import shutil
-import logging
 import glob
 import threading
 import typing
 import re
+import json
 
 from autokey import common, model
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
@@ -36,10 +36,7 @@ import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS
 from autokey.iomediator import key
 
-
-import json
-
-_logger = logging.getLogger("config-manager")
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 def create_config_manager_instance(auto_key_app, had_error=False):
@@ -49,33 +46,33 @@ def create_config_manager_instance(auto_key_app, had_error=False):
         config_manager = ConfigManager(auto_key_app)
     except Exception as e:
         if had_error or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
-            _logger.exception("Error while loading configuration. Cannot recover.")
+            logger.exception("Error while loading configuration. Cannot recover.")
             raise
 
-        _logger.exception("Error while loading configuration. Backup has been restored.")
+        logger.exception("Error while loading configuration. Backup has been restored.")
         os.remove(CONFIG_FILE)
         shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
         return create_config_manager_instance(auto_key_app, True)
 
-    _logger.debug("Global settings: %r", ConfigManager.SETTINGS)
+    logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return config_manager
 
 
 def save_config(config_manager):
-    _logger.info("Persisting configuration")
+    logger.info("Persisting configuration")
     config_manager.app.monitor.suspend()
     # Back up configuration if it exists
     # TODO: maybe use with-statement instead of try-except?
     if os.path.exists(CONFIG_FILE):
-        _logger.info("Backing up existing config file")
+        logger.info("Backing up existing config file")
         shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         _persist_settings(config_manager)
-        _logger.info("Finished persisting configuration - no errors")
+        logger.info("Finished persisting configuration - no errors")
     except Exception as e:
         if os.path.exists(CONFIG_FILE_BACKUP):
             shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
-        _logger.exception("Error while saving configuration. Backup has been restored (if found).")
+        logger.exception("Error while saving configuration. Backup has been restored (if found).")
         raise Exception("Error while saving configuration. Backup has been restored (if found).")
     finally:
         config_manager.app.monitor.unsuspend()
@@ -116,7 +113,7 @@ def _remove_non_serializable_store_entries(store: dict):
     removed_key_list = []
     for key, value in store.items():
         if not (_is_serializable(key) and _is_serializable(value)):
-            _logger.info("Remove non-serializable item from the global script store. Key: '{}', Value: '{}'. "
+            logger.info("Remove non-serializable item from the global script store. Key: '{}', Value: '{}'. "
                          "This item cannot be saved and therefore will be lost.".format(key, value))
             removed_key_list.append(key)
     for key in removed_key_list:
@@ -217,10 +214,10 @@ class ConfigManager:
 
         # --- Code below here only executed if no persisted config data provided
 
-        _logger.info("No configuration found - creating new one")
+        logger.info("No configuration found - creating new one")
         self.folders.append(autokey.configmanager.predefined_user_files.create_my_phrases_folder())
         self.folders.append(autokey.configmanager.predefined_user_files.create_sample_scripts_folder())
-        _logger.debug("Initial folders generated and populated with example data.")
+        logger.debug("Initial folders generated and populated with example data.")
 
         # TODO - future functionality
         self.recentEntries = []
@@ -245,7 +242,7 @@ class ConfigManager:
 
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
-            _logger.info("Loading config from existing file: " + CONFIG_FILE)
+            logger.info("Loading config from existing file: " + CONFIG_FILE)
 
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
@@ -263,7 +260,7 @@ class ConfigManager:
 
             for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
                 if os.path.isdir(entryPath):
-                    _logger.debug("Loading folder at '%s'", entryPath)
+                    logger.debug("Loading folder at '%s'", entryPath)
                     f = model.Folder("", path=entryPath)
                     f.load(None)
                     self.folders.append(f)
@@ -280,7 +277,7 @@ class ConfigManager:
                 self.upgrade()
 
             self.config_altered(False)
-            _logger.info("Successfully loaded configuration")
+            logger.info("Successfully loaded configuration")
 
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found
@@ -359,7 +356,7 @@ class ConfigManager:
                             loaded = True
 
             if not loaded:
-                _logger.warning("No action taken for create/update event at %s", path)
+                logger.warning("No action taken for create/update event at %s", path)
             else:
                 self.config_altered(False)
             return loaded
@@ -387,7 +384,7 @@ class ConfigManager:
             deleted = True
 
         if not deleted:
-            _logger.warning("No action taken for delete event at %s", path)
+            logger.warning("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
         return deleted
@@ -402,13 +399,13 @@ class ConfigManager:
         try:
             self.SETTINGS[DISABLED_MODIFIERS] = [key.Key(value) for value in self.SETTINGS[DISABLED_MODIFIERS]]
         except ValueError:
-            _logger.error("Unknown value in the disabled modifier list found. Unexpected: {}".format(
+            logger.error("Unknown value in the disabled modifier list found. Unexpected: {}".format(
                 self.SETTINGS[DISABLED_MODIFIERS]))
             self.SETTINGS[DISABLED_MODIFIERS] = []
 
         for possible_modifier in self.SETTINGS[DISABLED_MODIFIERS]:
             self._check_if_modifier(possible_modifier)
-            _logger.info("Disabling modifier key {} based on the stored configuration file.".format(possible_modifier))
+            logger.info("Disabling modifier key {} based on the stored configuration file.".format(possible_modifier))
             MODIFIERS.remove(possible_modifier)
 
     @staticmethod
@@ -429,10 +426,10 @@ class ConfigManager:
             modifier = key.Key(modifier)
         ConfigManager._check_if_modifier(modifier)
         try:
-            _logger.info("Disabling modifier key {} on user request.".format(modifier))
+            logger.info("Disabling modifier key {} on user request.".format(modifier))
             MODIFIERS.remove(modifier)
         except ValueError:
-            _logger.warning("Disabling already disabled modifier key. Affected key: {}".format(modifier))
+            logger.warning("Disabling already disabled modifier key. Affected key: {}".format(modifier))
         else:
             ConfigManager.SETTINGS[DISABLED_MODIFIERS].append(modifier)
 
@@ -447,11 +444,11 @@ class ConfigManager:
             modifier = key.Key(modifier)
         ConfigManager._check_if_modifier(modifier)
         if modifier not in MODIFIERS:
-            _logger.info("Re-eabling modifier key {} on user request.".format(modifier))
+            logger.info("Re-eabling modifier key {} on user request.".format(modifier))
             MODIFIERS.append(modifier)
             ConfigManager.SETTINGS[DISABLED_MODIFIERS].remove(modifier)
         else:
-            _logger.warning("Enabling already enabled modifier key. Affected key: {}".format(modifier))
+            logger.warning("Enabling already enabled modifier key. Affected key: {}".format(modifier))
 
     @staticmethod
     def _check_if_modifier(modifier: key.Key):
@@ -462,7 +459,7 @@ class ConfigManager:
                 modifier, key._ALL_MODIFIERS_))
 
     def reload_global_config(self):
-        _logger.info("Reloading global configuration")
+        logger.info("Reloading global configuration")
         with open(CONFIG_FILE, 'r') as pFile:
             data = json.load(pFile)
 
@@ -485,17 +482,17 @@ class ConfigManager:
         self.configHotkey.load_from_serialized(data["configHotkey"])
 
         self.config_altered(False)
-        _logger.info("Successfully reloaded global configuration")
+        logger.info("Successfully reloaded global configuration")
 
     def upgrade(self):
-        _logger.info("Checking if upgrade is needed from version %s", self.VERSION)
+        logger.info("Checking if upgrade is needed from version %s", self.VERSION)
 
         # Always reset interface type when upgrading
         self.SETTINGS[INTERFACE_TYPE] = X_RECORD_INTERFACE
-        _logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
+        logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
 
         if self.VERSION < '0.70.0':
-            _logger.info("Doing upgrade to 0.70.0")
+            logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
                 if isinstance(item, model.Phrase):
                     item.sendMode = model.SendMode.KEYBOARD
@@ -515,7 +512,7 @@ class ConfigManager:
 
         @param persistGlobal: save the global configuration at the end of the process
         """
-        _logger.info("Configuration changed - rebuilding in-memory structures")
+        logger.info("Configuration changed - rebuilding in-memory structures")
 
         self.lock.acquire()
         # Rebuild root folder list
@@ -703,18 +700,39 @@ class ConfigManager:
             searchItems = folder.items
 
         for item in searchItems:
-            if item.temporary or in_temp_parent:
-                searchItems.remove(item)
+            try:
+                if item.temporary or in_temp_parent:
+                    self.__deleteHotkeys(item)
+                    searchItems.remove(item)
+            # Items created before this update don't have a 'temporary' field.
+            except AttributeError:
+                pass
 
         for subfolder in searchFolders:
-            if subfolder.temporary or in_temp_parent:
-                in_temp_parent = True
-                if folder is not None:
-                    folder.remove_folder(subfolder)
-                else:
-                    searchFolders.remove(subfolder)
+            self.__deleteHotkeys(subfolder)
+            try:
+                if subfolder.temporary or in_temp_parent:
+                    in_temp_parent = True
+                    if folder is not None:
+                        folder.remove_folder(subfolder)
+                    else:
+                        searchFolders.remove(subfolder)
+            # Items created before this update don't have a 'temporary' field.
+            except AttributeError:
+                pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    def __deleteHotkeys(self, removed_item):
+        if model.TriggerMode.HOTKEY in removed_item.modes:
+            self.app.hotkey_removed(removed_item)
+
+        if isinstance(removed_item, model.Folder):
+            for subFolder in removed_item.folders:
+                self.__deleteHotkeys(subFolder)
+
+            for item in removed_item.items:
+                if model.TriggerMode.HOTKEY in item.modes:
+                    self.app.hotkey_removed(item)
 
 
 class GlobalHotkey(model.AbstractHotkey):
@@ -751,7 +769,7 @@ class GlobalHotkey(model.AbstractHotkey):
     def check_hotkey(self, modifiers, key, windowTitle):
         # TODO: Doesn’t this always return False? (as long as no exceptions are thrown)
         if model.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
-            _logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
+            logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
             self.closure()
         return False
 

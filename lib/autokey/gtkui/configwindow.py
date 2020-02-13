@@ -16,7 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import locale
-import logging
 import os
 import threading
 import time
@@ -53,7 +52,8 @@ CONFIG_WINDOW_TITLE = "AutoKey"
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
-_logger = logging.getLogger("configwindow")
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")

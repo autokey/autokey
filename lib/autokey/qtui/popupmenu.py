@@ -16,7 +16,6 @@
 
 from typing import List, Union
 
-import logging
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu, QAction, QWidget
@@ -27,9 +26,9 @@ import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.model
 import autokey.service
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 FolderList = List[autokey.model.Folder]
 Item = Union[autokey.model.Script, autokey.model.Phrase]
-_logger = logging.getLogger("phrase-menu")
 
 
 class PopupMenu(QMenu):
@@ -56,11 +55,11 @@ class PopupMenu(QMenu):
             self.setTitle(title)
         
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
-            _logger.debug("Sorting phrase menu by usage count")
+            logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
-            _logger.debug("Sorting phrase menu by item name/title")
+            logger.debug("Sorting phrase menu by item name/title")
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
@@ -172,5 +171,5 @@ class ItemAction(QAction):
         else:
             error_msg = "ItemAction got unknown item. Expected Union[autokey.model.Script, autokey.model.Phrase], " \
                         "got '{}'".format(str(type(item)))
-            _logger.error(error_msg)
+            logger.error(error_msg)
             raise ValueError(error_msg)

@@ -15,6 +15,8 @@
 
 import typing
 import pathlib
+import sys
+import os
 
 from unittest.mock import MagicMock, patch
 
@@ -24,8 +26,11 @@ from hamcrest import *
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.service import PhraseRunner
 import autokey.model
+import autokey.service
 from autokey.scripting import Engine
 
+def get_autokey_dir():
+    return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
     # Make sure to not write to the hard disk
@@ -46,6 +51,8 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 def test_engine_create_phrase_invalid_input_types_raises_value_error():
     engine, folder = create_engine()
     with patch("autokey.model.Phrase.persist"):
+        error_check = engine.create_phrase(folder, "test phrase",
+    "contents", hotkey=(["<ctrl>"], "a"))
         assert_that(
             calling(engine.create_phrase).with_args("Not a folder", "name", "contents",),
             raises(ValueError), "Folder is not checked for type=model.Folder")
@@ -75,23 +82,45 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error():
             raises(ValueError), "hotkey is not checked for type=tuple")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", "t2", "t3")),
+                "contents", hotkey=(["<ctrl>"], "t", "t")),
             raises(ValueError), "hotkey is not checked for tuple len 2")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
-                "contents", hotkey=("t1", folder)),
+                "contents", hotkey=(["<ctrl>"], folder)),
             raises(ValueError), "hotkey is not checked for type=tuple(str,str)")
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name",
                 "contents", hotkey=(["<ctrl>", folder], "a")),
             raises(ValueError), "hotkey[0] is not checked for type=list[str]")
+        # assert_that(
+        #     calling(engine.create_phrase).with_args(folder, "name",
+        #         "contents", hotkey=(["<alt>"], "6")),
+        #     not_(raises(ValueError)), "hotkey modifiers fails single valid str")
+        # assert_that(
+        #     calling(engine.create_phrase).with_args(folder, "name",
+        #         "contents", hotkey=(["<ctrl>", "<shift>"], "<alt>")),
+        #     raises(ValueError), "hotkey key is allowed to be a modifier")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=(["Not a valid modifier"], "w")),
+            raises(ValueError), "hotkey is not checked as valid Key (invalid modifier)")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=([], "train")),
+            raises(ValueError), "hotkey is not checked as valid Key (invalid key)")
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name",
+                "contents", hotkey=("<ctrl>", "t")),
+            raises(ValueError), "hotkey modifiers not checked as list.")
 
 
 def test_engine_create_phrase_adds_phrase_to_parent():
     engine, folder = create_engine()
     with patch("autokey.model.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC")
-    assert_that(folder.items, has_item(phrase))
+        assert_that(folder.items, has_item(phrase))
+        hotkey = engine.create_phrase(folder, "Phrase", "ABC", hotkey=(["<ctrl>"], "a"))
+        assert_that(folder.items, has_item(hotkey))
 
 
 def test_engine_create_phrase_duplicate_hotkey_raises_value_error():
@@ -316,6 +345,17 @@ def test_engine_remove_temporary():
     # assert_that(test_subfolder.folders,
     #         not_(has_item(test_subsubfolder_nontemp)),
     #             "doesn't remove nontemp subfolders from temp parent folders")
+    test_hotkey = engine.create_phrase(folder, "test hotkey",
+    "contents", hotkey=(["<ctrl>"], "a"), temporary=True)
+    assert_that(
+        calling(engine.create_phrase).with_args(folder, "test hotkey2",
+                                                "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
+        raises(ValueError), "duplicate hotkey warning not received")
+    engine.remove_all_temporary()
+    assert_that(
+        calling(engine.create_phrase).with_args(folder, "test hotkey2",
+                                                "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
+        not_(raises(ValueError)), "Doesn't ungrab hotkeys (duplicate hotkey warning received)")
 
 
 # def test_engine_create_phrase_regex():
@@ -333,3 +373,12 @@ def test_engine_remove_temporary():
 #             "Invalid window_filter regex does not raise an error"
 #         )
 
+
+@pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
+def test_run_script():
+    # Makes use of running script from absolute path.
+    engine, folder = create_engine()
+    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
+        dummy_folder = autokey.model.Folder("dummy")
+        script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
+        assert_that(engine.run_script(script, arg1="arg 1"), is_(equal_to("arg 1")))

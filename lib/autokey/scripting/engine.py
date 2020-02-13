@@ -19,7 +19,8 @@ from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
 
-from autokey import model
+from autokey import model, iomediator
+from autokey.scripting.system import System
 
 
 class Engine:
@@ -37,6 +38,8 @@ class Engine:
         self.runner = runner
         self.monitor = config_manager.app.monitor
         self._macro_args = []
+        self._script_args = []
+        self._script_kwargs = {}
         self._return_value = ''
         self._triggered_abbreviation = None  # type: Optional[str]
 
@@ -234,7 +237,7 @@ Folders created within temporary folders must themselves be set temporary")
         if hotkey:
             modifiers = sorted(hotkey[0])
             if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
-                raise ValueError("The specified hotkey and modifier combination is already in use.")
+                raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
 
         if folder.temporary and not temporary:
             raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
@@ -335,24 +338,34 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         self.monitor.unsuspend()
         self.configManager.config_altered(False)
 
-    def run_script(self, description):
+    def run_script(self, description, *args, **kwargs):
         """
-        Run an existing script using its description to look it up
+        Run an existing script using its description or path to look it up
 
-        Usage: C{engine.run_script(description)}
+        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
-        @param description: description of the script to run
+        @param description: description of the script to run. If parsable as
+        an absolute path to an existing file, that will be run instead.
         @raise Exception: if the specified script does not exist
         """
-        target_script = None
-        for item in self.configManager.allItems:
-            if item.description == description and isinstance(item, model.Script):
-                target_script = item
-
-        if target_script is not None:
-            self.runner.run_subscript(target_script)
+        self._script_args = args
+        self._script_kwargs = kwargs
+        path = pathlib.Path(description)
+        path = path.expanduser()
+        # Check if absolute path.
+        if pathlib.PurePath(path).is_absolute() and path.exists():
+            self.runner.run_subscript_path(path)
         else:
-            raise Exception("No script with description '%s' found" % description)
+            target_script = None
+            for item in self.configManager.allItems:
+                if item.description == description and isinstance(item, model.Script):
+                    target_script = item
+
+            if target_script is not None:
+                self.runner.run_subscript(target_script)
+            else:
+                raise Exception("No script with description '%s' found" % description)
+        return self._return_value
 
     def run_script_from_macro(self, args):
         """
@@ -363,7 +376,42 @@ Phrases created within temporary folders must themselves be explicitly set tempo
         try:
             self.run_script(args["name"])
         except Exception as e:
+            # TODO: Log more information here, instead of setting the return
+            # value.
             self.set_return_value("{ERROR: %s}" % str(e))
+
+    def run_system_command_from_macro(self, args):
+        """
+        Used internally by AutoKey for system macros
+        """
+
+        try:
+            self._return_value = System.exec_command(args["command"], getOutput=True)
+        except Exception as e:
+            self.set_return_value("{ERROR: %s}" % str(e))
+
+    def get_script_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+
+        Usage: C{engine.get_script_arguments()}
+
+        @return: the arguments
+        @rtype: C{list[Any]}
+        """
+        return self._script_args
+
+    def get_script_keyword_arguments(self):
+        """
+        Get the arguments supplied to the current script via the scripting api
+        as keyword args.
+
+        Usage: C{engine.get_script_keyword_arguments()}
+
+        @return: the arguments
+        @rtype: C{Dict[str, Any]}
+        """
+        return self._script_kwargs
 
     def get_macro_arguments(self):
         """
@@ -476,10 +524,21 @@ def validateAbbreviations(abbreviations):
 
 
 def isValidHotkeyType(item):
-    return isinstance(item, str) or \
-                        isinstance(item, model.Key)
+    fail=False
+    if isinstance(item, model.Key):
+        fail=False
+    elif isinstance(item, str):
+        if len(item) == 1:
+            fail=False
+        else:
+            fail = not iomediator.key.Key.is_key(item)
+    else:
+        fail=True
+    return not fail
 
 def validateHotkey(hotkey):
+    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
+
     if hotkey is not None:
         fail=False
         if not isinstance(hotkey, tuple):
@@ -488,21 +547,21 @@ def validateHotkey(hotkey):
             if len(hotkey) != 2:
                 fail=True
             else:
-                # First check modifiers is list of str or keys
+                # First check modifiers is list of valid hotkeys.
                 if isinstance(hotkey[0], list):
                     for item in hotkey[0]:
                         if not isValidHotkeyType(item):
                             fail=True
-                elif not isValidHotkeyType(hotkey[0]):
-                    fail=True
+                            failmsg = "Hotkey is not a valid modifier: {}".format(item)
                 else:
                     fail=True
+                    failmsg = "Hotkey modifiers is not a list"
                 # Then check second element is a key or str
                 if not isValidHotkeyType(hotkey[1]):
                     fail=True
+                    failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
         if fail:
-            raise ValueError("Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(
-                type(hotkey))
-            )
+            raise ValueError(failmsg)
+
 
 

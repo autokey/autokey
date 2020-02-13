@@ -14,13 +14,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+import autokey.dbus_service
 from . import common
 common.USING_QT = False
 
 import sys
 import os.path
-import logging
-import logging.handlers
 import subprocess
 import time
 import threading
@@ -43,9 +42,14 @@ from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.logger import get_logger, configure_root_logger
 
+logger = get_logger(__name__)
 
-PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
+# TODO: this _ named function is initialised by gettext.install(), which is for
+# localisation. It marks the string as a candidate for translation, but I don't
+# know what else.
+PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
@@ -73,23 +77,7 @@ class Application:
             if not os.path.exists(common.RUN_DIR):
                 os.makedirs(common.RUN_DIR)
 
-            # Initialise logger
-            rootLogger = logging.getLogger()
-
-            if args.verbose:
-                rootLogger.setLevel(logging.DEBUG)
-                handler = logging.StreamHandler(sys.stdout)
-            else:
-                rootLogger.setLevel(logging.INFO)
-                handler = logging.handlers.RotatingFileHandler(
-                    common.LOG_FILE,
-                    maxBytes=common.MAX_LOG_SIZE,
-                    backupCount=common.MAX_LOG_COUNT
-                )
-
-            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-            rootLogger.addHandler(handler)
-
+            configure_root_logger(args)
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
@@ -97,7 +85,7 @@ class Application:
 
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
     def __createLockFile(self):
@@ -113,7 +101,7 @@ class Application:
                 output = p.communicate()[0]
 
             if "autokey" in output.decode():
-                logging.debug("AutoKey is already running as pid %s", pid)
+                logger.debug("AutoKey is already running as pid %s", pid)
                 bus = dbus.SessionBus()
 
                 try:
@@ -121,7 +109,7 @@ class Application:
                     dbusService.show_configure(dbus_interface="org.autokey.Service")
                     sys.exit(0)
                 except dbus.DBusException as e:
-                    logging.exception("Error communicating with Dbus service")
+                    logger.exception("Error communicating with Dbus service")
                     self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
                     sys.exit(1)
 
@@ -133,7 +121,7 @@ class Application:
             return lock_file.read()
 
     def initialise(self, configure):
-        logging.info("Initialising application")
+        logger.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
         self.configManager = cm.create_config_manager_instance(self)
         self.service = service.Service(self)
@@ -146,7 +134,7 @@ class Application:
         try:
             self.service.start()
         except Exception as e:
-            logging.exception("Error starting interface: " + str(e))
+            logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                      "Check your system/configuration."), str(e))
@@ -156,13 +144,13 @@ class Application:
         self.monitor.start()
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.dbusService = common.AppService(self)
+        self.dbusService = autokey.dbus_service.AppService(self)
 
         if configure:
             self.show_configure()
 
     def init_global_hotkeys(self, configManager):
-        logging.info("Initialise global hotkeys")
+        logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_async)
 
@@ -171,11 +159,11 @@ class Application:
         self.notifier.rebuild_menu()
 
     def hotkey_created(self, item):
-        logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
+        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.grab_hotkey(item)
 
     def hotkey_removed(self, item):
-        logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
+        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.ungrab_hotkey(item)
 
     def path_created_or_modified(self, path):
@@ -229,14 +217,14 @@ class Application:
         t.start()
 
     def __completeShutdown(self):
-        logging.info("Shutting down")
+        logger.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()
         Gdk.threads_enter()
         Gtk.main_quit()
         Gdk.threads_leave()
         os.remove(common.LOCK_FILE)
-        logging.debug("All shutdown tasks complete... quitting")
+        logger.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, message):
         """
@@ -253,7 +241,7 @@ class Application:
         """
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
-        logging.info("Displaying configuration window")
+        logger.info("Displaying configuration window")
         if self.configWindow is None:
             self.configWindow = ConfigWindow(self)
             self.configWindow.show()
@@ -266,7 +254,7 @@ class Application:
         Gdk.threads_leave()
 
     def main(self):
-        logging.info("Entering main()")
+        logger.info("Entering main()")
         Gdk.threads_enter()
         Gtk.main()
         Gdk.threads_leave()
