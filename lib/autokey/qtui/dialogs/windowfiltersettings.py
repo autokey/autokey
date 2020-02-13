@@ -22,6 +22,8 @@ from .detectdialog import DetectDialog
 from autokey import iomediator
 from autokey import model
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
+
 
 # TODO: Once the port to Qt5 is done, enable the clearButtonEnable property for the line edit in the UI editor.
 # TODO: Pure Qt4 does not support the line edit clear button, so this functionality is currently unavailable.
@@ -48,11 +50,14 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
             self.apply_recursive_check_box.setChecked(item.isRecursive)
 
     def save(self, item):
+        regex = self.get_filter_text()
         try:
-            item.set_window_titles(self.get_filter_text())
+            item.set_window_titles(regex)
         except re.error:
-            # TODO: Warn user. Currently just doesn't save regex on error.
-            pass
+            logger.error(
+                    "Invalid window filter regex: '{}'. \
+                            Discarding without saving.".format(regex)
+                            )
         item.set_filter_recursive(self.get_is_recursive())
 
     def get_is_recursive(self):
