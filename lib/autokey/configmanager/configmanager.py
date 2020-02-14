@@ -742,10 +742,8 @@ class ConfigManager:
                 pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
-    # TODO: merge this function with model.AbstractHotkey.unset_hotkey
-    # Model.Folder also inherits from AbstractHotkey.
-    # Not sure how it interacts with the app though.
     def __deleteHotkeys(self, removed_item):
+        removed_item.unset_hotkey()
         if model.TriggerMode.HOTKEY in removed_item.modes:
             self.app.hotkey_removed(removed_item)
 
