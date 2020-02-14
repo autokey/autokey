@@ -695,12 +695,11 @@ class ConfigManager:
                 return item
 
         for item in self.globalHotkeys:
-            if item.enabled:
-                if self.item_has_same_hotkey(item,
+            if item.enabled and self.item_has_same_hotkey(item,
                                              modifiers,
                                              hotKey,
                                              newFilterPattern):
-                    return item
+                return item
         return None
 
     def item_has_same_hotkey(self, item, modifiers, hotKey, newFilterPattern):
