@@ -213,7 +213,7 @@ Folders created within temporary folders must themselves be set temporary")
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
         """
 
-        self.validateArguments(folder, name, contents,
+        validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary,
                                replace_existing_hotkey)
@@ -470,31 +470,6 @@ Folders created within temporary folders must themselves be set temporary")
         self.configManager.remove_all_temporary(folder,
                 in_temp_parent)
 
-    def validateArguments(self, folder, name, contents,
-                              abbreviations, hotkey, send_mode, window_filter,
-                              show_in_system_tray, always_prompt, temporary,
-                              replace_existing_hotkey):
-        validateType(folder, "folder", model.Folder)
-        # For when we allow pathlib.Path
-        # validateType(folder, "folder",
-        #         [model.Folder, pathlib.Path])
-        validateType(name, "name", str)
-        validateType(contents, "contents", str)
-        validateAbbreviations(abbreviations)
-        validateHotkey(hotkey)
-        validateType(send_mode, "send_mode", model.SendMode)
-        validateType(window_filter, "window_filter", str)
-        validateType(show_in_system_tray, "show_in_system_tray", bool)
-        validateType(always_prompt, "always_prompt", bool)
-        validateType(temporary, "temporary", bool)
-        validateType(replace_existing_hotkey, "replace_existing_hotkey", bool)
-        # TODO: The validation should be done by some controller functions in the model base classes.
-
-        if folder.temporary and not temporary:
-            raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
-    Phrases created within temporary folders must themselves be explicitly set temporary")
-
-
     def check_abbreviation_unique(self, abbreviations):
         if not abbreviations:
             return
@@ -514,7 +489,6 @@ Folders created within temporary folders must themselves be set temporary")
             return
         modifiers = sorted(hotkey[0])
         return self.configManager.get_item_with_hotkey(modifiers, hotkey[1])
-
 
 
 def validateAbbreviations(abbreviations):
@@ -547,6 +521,7 @@ def isValidHotkeyType(item):
         fail=True
     return not fail
 
+
 def validateHotkey(hotkey):
     failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
     if hotkey is None:
@@ -573,6 +548,32 @@ def validateHotkey(hotkey):
                 failmsg = "Hotkey is not a valid key: {}".format(hotkey[1])
     if fail:
         raise ValueError(failmsg)
+
+
+def validateArguments(folder, name, contents,
+                          abbreviations, hotkey, send_mode, window_filter,
+                          show_in_system_tray, always_prompt, temporary,
+                          replace_existing_hotkey):
+    validateType(folder, "folder", model.Folder)
+    # For when we allow pathlib.Path
+    # validateType(folder, "folder",
+    #         [model.Folder, pathlib.Path])
+    validateType(name, "name", str)
+    validateType(contents, "contents", str)
+    validateAbbreviations(abbreviations)
+    validateHotkey(hotkey)
+    validateType(send_mode, "send_mode", model.SendMode)
+    validateType(window_filter, "window_filter", str)
+    validateType(show_in_system_tray, "show_in_system_tray", bool)
+    validateType(always_prompt, "always_prompt", bool)
+    validateType(temporary, "temporary", bool)
+    validateType(replace_existing_hotkey, "replace_existing_hotkey", bool)
+    # TODO: The validation should be done by some controller functions in the model base classes.
+
+    if folder.temporary and not temporary:
+        raise ValueError("Parameter 'temporary' is False, but parent folder is a temporary one. \
+    Phrases created within temporary folders must themselves be explicitly set temporary")
+
 
 def validateType(item, name, type_):
     """ type_ may be a list, in which case if item matches
