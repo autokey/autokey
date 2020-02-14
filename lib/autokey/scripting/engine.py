@@ -132,7 +132,7 @@ Folders created within temporary folders must themselves be set temporary")
                       hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
                       send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False,
-                      temporary=False, replaceExistingHotkey=False):
+                      temporary=False, replace_existing_hotkey=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
         you wish to create the Phrase in. If the folder is a temporary
@@ -203,7 +203,7 @@ Folders created within temporary folders must themselves be set temporary")
                                     not persisted as .jsons, and are replaced if the description is not
                                     unique within the folder.
                                      Used for single-source rc-style scripts.
-        @param replaceExistingHotkey: If true, instead of warning if the hotkey
+        @param replace_existing_hotkey: If true, instead of warning if the hotkey
             is already in use by another phrase or folder, it removes the hotkey
             from those clashes and keeps this phrase's hotkey.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
@@ -216,12 +216,12 @@ Folders created within temporary folders must themselves be set temporary")
         self.validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary,
-                               replaceExistingHotkey)
+                               replace_existing_hotkey)
 
         if abbreviations and isinstance(abbreviations, str):
             abbreviations = [abbreviations]
         self.check_abbreviation_unique(abbreviations)
-        if not replaceExistingHotkey:
+        if not replace_existing_hotkey:
             self.check_hotkey_unique(hotkey)
         else:
             existing_item = self.get_item_with_hotkey(hotkey)
@@ -473,7 +473,7 @@ Folders created within temporary folders must themselves be set temporary")
     def validateArguments(self, folder, name, contents,
                               abbreviations, hotkey, send_mode, window_filter,
                               show_in_system_tray, always_prompt, temporary,
-                              replaceExistingHotkey):
+                              replace_existing_hotkey):
         validateType(folder, "folder", model.Folder)
         # For when we allow pathlib.Path
         # validateType(folder, "folder",
@@ -487,7 +487,7 @@ Folders created within temporary folders must themselves be set temporary")
         validateType(show_in_system_tray, "show_in_system_tray", bool)
         validateType(always_prompt, "always_prompt", bool)
         validateType(temporary, "temporary", bool)
-        validateType(replaceExistingHotkey, "replaceExistingHotkey", bool)
+        validateType(replace_existing_hotkey, "replace_existing_hotkey", bool)
         # TODO: The validation should be done by some controller functions in the model base classes.
 
         if folder.temporary and not temporary:

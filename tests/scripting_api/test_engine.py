@@ -172,7 +172,7 @@ def create_test_hotkey(engine, folder, hotkey, replaceExisting=False):
                 create_random_string(),
                 "ABC",
                 hotkey=hotkey,
-                replaceExistingHotkey=replaceExisting,
+                replace_existing_hotkey=replaceExisting,
                 )
 
 def get_item_with_hotkey(engine, hotkey):
