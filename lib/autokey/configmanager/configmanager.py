@@ -688,21 +688,22 @@ class ConfigManager:
         """
         for item in itertools.chain(self.allFolders, self.allItems):
             if model.TriggerMode.HOTKEY in item.modes and \
-                    self.item_has_same_hotkey(item,
+                    ConfigManager.item_has_same_hotkey(item,
                                               modifiers,
                                               hotKey,
                                               newFilterPattern):
                 return item
 
         for item in self.globalHotkeys:
-            if item.enabled and self.item_has_same_hotkey(item,
+            if item.enabled and ConfigManager.item_has_same_hotkey(item,
                                              modifiers,
                                              hotKey,
                                              newFilterPattern):
                 return item
         return None
 
-    def item_has_same_hotkey(self, item, modifiers, hotKey, newFilterPattern):
+    @staticmethod
+    def item_has_same_hotkey(item, modifiers, hotKey, newFilterPattern):
         return item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern)
 
 
