@@ -36,6 +36,8 @@ from ..iomediator.key import Key
 # from . import configwindow
 from .configwindow0 import get_ui
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
+
 WORD_CHAR_OPTIONS = {
                      "All non-word": model.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
@@ -64,28 +66,28 @@ def validate(expression, message, widget, parent):
 
 class DialogBase:
 
-    def __init__(self):    
+    def __init__(self):
         self.connect("close", self.on_close)
-        self.connect("delete_event", self.on_close)        
+        self.connect("delete_event", self.on_close)
 
     def on_close(self, widget, data=None):
         self.hide()
-        return True    
+        return True
 
     def on_cancel(self, widget, data=None):
         self.load(self.targetItem)
         self.ui.response(Gtk.ResponseType.CANCEL)
         self.hide()
-        
+
     def on_ok(self, widget, data=None):
         if self.valid():
             self.response(Gtk.ResponseType.OK)
             self.hide()
-        
+
     def __getattr__(self, attr):
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
         return getattr(self.ui, attr)
-    
+
     def on_response(self, widget, responseId):
         self.closure(responseId)
         if responseId < 0:
@@ -94,7 +96,7 @@ class DialogBase:
 
 
 class AbbrSettingsDialog(DialogBase):
-    
+
     def __init__(self, parent, configManager, closure):
         builder = get_ui("abbrsettings.xml")
         self.ui = builder.get_object("abbrsettings")
@@ -102,11 +104,11 @@ class AbbrSettingsDialog(DialogBase):
         self.ui.set_transient_for(parent)
         self.configManager = configManager
         self.closure = closure
-        
+
         self.abbrList = builder.get_object("abbrList")
         self.addButton = builder.get_object("addButton")
         self.removeButton = builder.get_object("removeButton")
-        
+
         self.wordCharCombo = builder.get_object("wordCharCombo")
         self.removeTypedCheckbox = builder.get_object("removeTypedCheckbox")
         self.omitTriggerCheckbox = builder.get_object("omitTriggerCheckbox")
@@ -114,13 +116,13 @@ class AbbrSettingsDialog(DialogBase):
         self.ignoreCaseCheckbox = builder.get_object("ignoreCaseCheckbox")
         self.triggerInsideCheckbox = builder.get_object("triggerInsideCheckbox")
         self.immediateCheckbox = builder.get_object("immediateCheckbox")
-        
+
         DialogBase.__init__(self)
-        
+
         # set up list view
         store = Gtk.ListStore(str)
         self.abbrList.set_model(store)
-        
+
         column1 = Gtk.TreeViewColumn(_("Abbreviations"))
         textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", True)
@@ -130,25 +132,25 @@ class AbbrSettingsDialog(DialogBase):
         column1.add_attribute(textRenderer, "text", 0)
         column1.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
         self.abbrList.append_column(column1)
-        
+
         for item in WORD_CHAR_OPTIONS_ORDERED:
             self.wordCharCombo.append_text(item)
-        
+
     def load(self, item):
         self.targetItem = item
         self.abbrList.get_model().clear()
-        
+
         if model.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
             self.removeButton.set_sensitive(True)
-            firstIter = self.abbrList.get_model().get_iter_first()  
+            firstIter = self.abbrList.get_model().get_iter_first()
             self.abbrList.get_selection().select_iter(firstIter)
         else:
             self.removeButton.set_sensitive(False)
 
         self.removeTypedCheckbox.set_active(item.backspace)
-        
+
         self.__resetWordCharCombo()
 
         wordCharRegex = item.get_word_chars()
@@ -162,46 +164,46 @@ class AbbrSettingsDialog(DialogBase):
             # Custom wordchar regex used
             self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex))
             self.wordCharCombo.set_active(len(WORD_CHAR_OPTIONS))
-        
+
         if isinstance(item, model.Folder):
             self.omitTriggerCheckbox.hide()
         else:
             self.omitTriggerCheckbox.show()
             self.omitTriggerCheckbox.set_active(item.omitTrigger)
-        
+
         if isinstance(item, model.Phrase):
             self.matchCaseCheckbox.show()
             self.matchCaseCheckbox.set_active(item.matchCase)
         else:
             self.matchCaseCheckbox.hide()
-        
+
         self.ignoreCaseCheckbox.set_active(item.ignoreCase)
         self.triggerInsideCheckbox.set_active(item.triggerInside)
         self.immediateCheckbox.set_active(item.immediate)
-        
+
     def save(self, item):
         item.modes.append(model.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
-        
+
         item.backspace = self.removeTypedCheckbox.get_active()
-        
+
         option = self.wordCharCombo.get_active_text()
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
             item.set_word_chars(model.make_wordchar_re(option))
-        
+
         if not isinstance(item, model.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.get_active()
-            
+
         if isinstance(item, model.Phrase):
             item.matchCase = self.matchCaseCheckbox.get_active()
-            
+
         item.ignoreCase = self.ignoreCaseCheckbox.get_active()
         item.triggerInside = self.triggerInsideCheckbox.get_active()
         item.immediate = self.immediateCheckbox.get_active()
-        
+
     def reset(self):
         self.abbrList.get_model().clear()
         self.__resetWordCharCombo()
@@ -213,13 +215,13 @@ class AbbrSettingsDialog(DialogBase):
         self.ignoreCaseCheckbox.set_active(False)
         self.triggerInsideCheckbox.set_active(False)
         self.immediateCheckbox.set_active(False)
-        
+
     def __resetWordCharCombo(self):
         self.wordCharCombo.remove_all()
         for item in WORD_CHAR_OPTIONS_ORDERED:
             self.wordCharCombo.append_text(item)
         self.wordCharCombo.set_active(0)
-        
+
     def get_abbrs(self):
         ret = []
         model = self.abbrList.get_model()
@@ -232,16 +234,16 @@ class AbbrSettingsDialog(DialogBase):
                 # ret.append(text.decode("utf-8"))
         except StopIteration:
             pass
-            
+
         return list(set(ret))
-        
+
     def get_abbrs_readable(self):
         abbrs = self.get_abbrs()
         if len(abbrs) == 1:
             return abbrs[0]
         else:
             return "[" + ",".join(abbrs) + "]"
-            
+
     def valid(self):
         if not validate(
                 len(self.get_abbrs()) > 0,
@@ -251,31 +253,31 @@ class AbbrSettingsDialog(DialogBase):
             return False
 
         return True
-    
+
     def reset_focus(self):
         self.addButton.grab_focus()
-        
+
     # Signal handlers
-    
+
     def on_cell_editing_cancelled(self, renderer, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
         oldText = model.get_value(curIter, 0) or ""
-        self.on_cell_modified(renderer, None, oldText)    
-    
+        self.on_cell_modified(renderer, None, oldText)
+
     def on_cell_modified(self, renderer, path, newText, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
         oldText = model.get_value(curIter, 0) or ""
         if EMPTY_FIELD_REGEX.match(newText) and EMPTY_FIELD_REGEX.match(oldText):
             self.on_removeButton_clicked(renderer)
         else:
-            model.set(curIter, 0, newText)      
-    
+            model.set(curIter, 0, newText)
+
     def on_addButton_clicked(self, widget, data=None):
         model = self.abbrList.get_model()
         newIter = model.append()
         self.abbrList.set_cursor(model.get_path(newIter), self.abbrList.get_column(0), True)
         self.removeButton.set_sensitive(True)
-        
+
     def on_removeButton_clicked(self, widget, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
         model.remove(curIter)
@@ -283,18 +285,18 @@ class AbbrSettingsDialog(DialogBase):
             self.removeButton.set_sensitive(False)
         else:
             self.abbrList.get_selection().select_iter(model.get_iter_first())
-        
+
     def on_abbrList_cursorchanged(self, widget, data=None):
         pass
-    
+
     def on_ignoreCaseCheckbox_stateChanged(self, widget, data=None):
         if not self.ignoreCaseCheckbox.get_active():
             self.matchCaseCheckbox.set_active(False)
-            
+
     def on_matchCaseCheckbox_stateChanged(self, widget, data=None):
         if self.matchCaseCheckbox.get_active():
             self.ignoreCaseCheckbox.set_active(True)
-            
+
     def on_immediateCheckbox_stateChanged(self, widget, data=None):
         if self.immediateCheckbox.get_active():
             self.omitTriggerCheckbox.set_active(False)
@@ -302,19 +304,19 @@ class AbbrSettingsDialog(DialogBase):
             self.wordCharCombo.set_sensitive(False)
         else:
             self.omitTriggerCheckbox.set_sensitive(True)
-            self.wordCharCombo.set_sensitive(True)       
+            self.wordCharCombo.set_sensitive(True)
 
 
 class HotkeySettingsDialog(DialogBase):
-    
+
     KEY_MAP = {
                ' ': "<space>",
                }
-    
+
     REVERSE_KEY_MAP = {}
     for key, value in KEY_MAP.items():
         REVERSE_KEY_MAP[value] = key
-        
+
     def __init__(self, parent, configManager, closure):
         builder = get_ui("hotkeysettings.xml")
         self.ui = builder.get_object("hotkeysettings")
@@ -323,7 +325,7 @@ class HotkeySettingsDialog(DialogBase):
         self.configManager = configManager
         self.closure = closure
         self.key = None
-        
+
         self.controlButton = builder.get_object("controlButton")
         self.altButton = builder.get_object("altButton")
         self.shiftButton = builder.get_object("shiftButton")
@@ -332,9 +334,9 @@ class HotkeySettingsDialog(DialogBase):
         self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
-        
+
         DialogBase.__init__(self)
-        
+
     def load(self, item):
         self.targetItem = item
         self.setButton.set_sensitive(True)
@@ -353,16 +355,16 @@ class HotkeySettingsDialog(DialogBase):
                 keyText = key
             self._setKeyLabel(keyText)
             self.key = keyText
-            
+
         else:
             self.reset()
-            
+
     def save(self, item):
         item.modes.append(model.TriggerMode.HOTKEY)
-        
+
         # Build modifier list
         modifiers = self.build_modifiers()
-            
+
         keyText = self.key
         if keyText in self.REVERSE_KEY_MAP:
             key = self.REVERSE_KEY_MAP[keyText]
@@ -371,7 +373,7 @@ class HotkeySettingsDialog(DialogBase):
 
         assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
-        
+
     def reset(self):
         self.controlButton.set_active(False)
         self.altButton.set_active(False)
@@ -383,7 +385,7 @@ class HotkeySettingsDialog(DialogBase):
         self._setKeyLabel(_("(None)"))
         self.key = None
         self.setButton.set_sensitive(True)
-            
+
     def set_key(self, key, modifiers: list=None):
         if modifiers is None:
             modifiers = []
@@ -398,7 +400,7 @@ class HotkeySettingsDialog(DialogBase):
         self.superButton.set_active(Key.SUPER in modifiers)
         self.hyperButton.set_active(Key.HYPER in modifiers)
         self.metaButton.set_active(Key.META in modifiers)
-        
+
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
 
@@ -407,7 +409,7 @@ class HotkeySettingsDialog(DialogBase):
         self.setButton.set_sensitive(True)
         self._setKeyLabel(self.key)
         Gdk.threads_leave()
-        
+
     def build_modifiers(self):
         modifiers = []
         if self.controlButton.get_active():
@@ -422,28 +424,28 @@ class HotkeySettingsDialog(DialogBase):
             modifiers.append(Key.HYPER)
         if self.metaButton.get_active():
             modifiers.append(Key.META)
-        
+
         modifiers.sort()
         return modifiers
-        
+
     def _setKeyLabel(self, key):
         self.keyLabel.set_text(_("Key: ") + key)
-        
+
     def valid(self):
         if not validate(self.key is not None, _("You must specify a key for the hotkey."), None, self.ui):
             return False
-        
+
         return True
-        
+
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
         self.keyLabel.set_text(_("Press a key..."))
         self.grabber = iomediator.KeyGrabber(self)
         self.grabber.start()
-        
+
 
 class GlobalHotkeyDialog(HotkeySettingsDialog):
-    
+
     def load(self, item):
         self.targetItem = item
         if item.enabled:
@@ -461,14 +463,14 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
                 keyText = key
             self._setKeyLabel(keyText)
             self.key = keyText
-            
+
         else:
             self.reset()
-        
+
     def save(self, item):
         # Build modifier list
         modifiers = self.build_modifiers()
-            
+
         keyText = self.key
         if keyText in self.REVERSE_KEY_MAP:
             key = self.REVERSE_KEY_MAP[keyText]
@@ -477,7 +479,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
         assert key is not None, "Attempt to set hotkey with no key"
         item.set_hotkey(modifiers, key)
-        
+
     def valid(self):
         configManager = self.configManager
         modifiers = self.build_modifiers()
@@ -499,81 +501,89 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
                 None,
                 self.ui):
             return False
-        
-        return True        
+
+        return True
 
 
 class WindowFilterSettingsDialog(DialogBase):
-    
+
     def __init__(self, parent, closure):
         builder = get_ui("windowfiltersettings.xml")
         self.ui = builder.get_object("windowfiltersettings")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
         self.closure = closure
-        
+
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
         self.recursiveButton = builder.get_object("recursiveButton")
         self.detectButton = builder.get_object("detectButton")
-        
+
         DialogBase.__init__(self)
-        
+
     def load(self, item):
         self.targetItem = item
-        
+
         if not isinstance(item, model.Folder):
             self.recursiveButton.hide()
         else:
             self.recursiveButton.show()
-        
+
         if not item.has_filter():
             self.reset()
         else:
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
-            
+
+    # It seriously bugs me how much duplication there is between the two GUIs.
     def save(self, item):
-        item.set_window_titles(self.get_filter_text())
+        regex = self.get_filter_text()
+        try:
+            item.set_window_titles(regex)
+        except re.error:
+            logger.error(
+                    "Invalid window filter regex: '{}'. \
+                            Discarding without saving.".format(regex)
+                            )
         item.set_filter_recursive(self.get_is_recursive())
-            
+
     def reset(self):
         self.triggerRegexEntry.set_text("")
         self.recursiveButton.set_active(False)
-        
+
     def get_filter_text(self):
         return self.triggerRegexEntry.get_text()
-        
+
     def get_is_recursive(self):
         return self.recursiveButton.get_active()
-        
+
     def valid(self):
         return True
-    
+
     def reset_focus(self):
         self.triggerRegexEntry.grab_focus()
-        
+
     def on_response(self, widget, responseId):
         self.closure(responseId)
-        
+
     def receive_window_info(self, info):
         Gdk.threads_enter()
         dlg = DetectDialog(self.ui)
         dlg.populate(info)
         response = dlg.run()
-        
+
         if response == Gtk.ResponseType.OK:
             self.triggerRegexEntry.set_text(dlg.get_choice())
-            
+
         self.detectButton.set_sensitive(True)
         Gdk.threads_leave()
-        
+
     def on_detectButton_pressed(self, widget, data=None):
-        #self.__dlg = 
+        #self.__dlg =
         widget.set_sensitive(False)
         self.grabber = iomediator.WindowGrabber(self)
         self.grabber.start()
-    
-        
+
+
 class DetectDialog(DialogBase):
 
     def __init__(self, parent):
@@ -581,14 +591,14 @@ class DetectDialog(DialogBase):
         self.ui = builder.get_object("detectdialog")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
-        
+
         self.classLabel = builder.get_object("classLabel")
         self.titleLabel = builder.get_object("titleLabel")
         self.classRadioButton = builder.get_object("classRadioButton")
         self.titleRadioButton = builder.get_object("titleRadioButton")
-        
+
         DialogBase.__init__(self)
-        
+
     def populate(self, windowInfo):
         self.titleLabel.set_text(_("Window title: %s") % windowInfo.wm_title)
         self.classLabel.set_text(_("Window class: %s") % windowInfo.wm_class)
@@ -599,46 +609,46 @@ class DetectDialog(DialogBase):
             return self.windowInfo.wm_class
         else:
             return self.windowInfo.wm_title
-            
+
     def on_cancel(self, widget, data=None):
         self.ui.response(Gtk.ResponseType.CANCEL)
         self.hide()
-        
+
     def on_ok(self, widget, data=None):
         self.response(Gtk.ResponseType.OK)
         self.hide()
 
-        
+
 class RecordDialog(DialogBase):
-    
+
     def __init__(self, parent, closure):
         self.closure = closure
         builder = get_ui("recorddialog.xml")
         self.ui = builder.get_object("recorddialog")
         builder.connect_signals(self)
         self.ui.set_transient_for(parent)
-        
+
         self.keyboardButton = builder.get_object("keyboardButton")
         self.mouseButton = builder.get_object("mouseButton")
         self.spinButton = builder.get_object("spinButton")
-        
+
         DialogBase.__init__(self)
-        
+
     def get_record_keyboard(self):
         return self.keyboardButton.get_active()
-        
+
     def get_record_mouse(self):
         return self.mouseButton.get_active()
 
     def get_delay(self):
         return self.spinButton.get_value_as_int()
-        
+
     def on_response(self, widget, responseId):
         self.closure(responseId, self.get_record_keyboard(), self.get_record_mouse(), self.get_delay())
-        
+
     def on_cancel(self, widget, data=None):
         self.ui.response(Gtk.ResponseType.CANCEL)
         self.hide()
-            
+
     def valid(self):
         return True

@@ -25,4 +25,4 @@ from autokey.scripting import System
     ["printf 'tree'", "tree", "Commands without newline aren't returned properly"],
 ])
 def test_system_exec_command(command, expected, errormsg):
-    assert_that(System.exec_command(None, command, getOutput=True), is_(expected), errormsg)
+    assert_that(System.exec_command(command, getOutput=True), is_(expected), errormsg)
