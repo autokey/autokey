@@ -32,6 +32,11 @@ Because the metadata file names start with a dot, they are hidden files
 by default and some copy commands like cp will miss them by default.
 rsync will get them. (Credits to Joe)
 
+### How to "source" settings on a new computer?
+First, install (latest) AutoKey on the new computer and press the New icon, then Folder. Select the folder that contains the settings from the previous installation. Expect to see an empty folder from the panel on the left.
+
+Secondly, quit the current AutoKey session through its icon in the system tray, and start AutoKey again. Since AutoKey does not monitor its "directories" on the fly, restarting it necessary.
+
 ## Why Would You Use AutoKey And What Does It Do For You?
 
 AutoKey can be a huge time saver, energy saver and productivity booster and can also reduce the stress on your arms and hands.
