@@ -18,6 +18,20 @@ We are including the glossary of AutoKey terms at the beginning of the users man
 - **triggers** - hotkeys and typed abbreviations.
 - **macro** - A special `<tag>` that can be placed inside a phrase, turning the phrase into a dynamic phrase. Upon phrase expansion, the tags are replaced with text. For example, the `date` tag is replaced with the current date and time. For details, see [Dynamic Phrases, Using Macros as placeholders in Phrases](../wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
 
+## How are things organized?
+ Each AutoKey phrase and script consists of two files, a file
+containing the body of the script or phrase and a sidecar file
+containing the metadata for the script or phrase. You have to make sure
+you copy/move the pairs together or they will not work.
+
+Scripts: my_script.py / .my_script.json
+
+Phrases: my_phrase.txt / .my_phrase.json
+
+Because the metadata file names start with a dot, they are hidden files
+by default and some copy commands like cp will miss them by default.
+rsync will get them. (Credits to Joe)
+
 ## Why Would You Use AutoKey And What Does It Do For You?
 
 AutoKey can be a huge time saver, energy saver and productivity booster and can also reduce the stress on your arms and hands.
