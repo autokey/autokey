@@ -1,7 +1,3 @@
-actually, the legacy AutoKey is much handier to run as debian package, while
-installing this new version is a real pain and poorly documented. It still
-might work eventually, though.
-
 This page contains a basic introduction on what AutoKey is and what it does.
 
 ## Glossary of AutoKey Terms
