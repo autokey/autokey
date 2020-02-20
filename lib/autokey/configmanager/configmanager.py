@@ -618,11 +618,16 @@ class ConfigManager:
         @param targetItem: the phrase for which the abbreviation to be used
         """
         for item in itertools.chain(self.allFolders, self.allItems):
-            if model.TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(filterPattern):
+            if ConfigManager.item_has_abbreviation(item, abbreviation) and \
+                    item.filter_matches(filterPattern):
                     return item is targetItem, item
 
         return True, None
+
+    @staticmethod
+    def item_has_abbreviation(item, abbreviation):
+        return model.TriggerMode.ABBREVIATION in item.modes and \
+            abbreviation in item.abbreviations
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
