@@ -609,25 +609,29 @@ class ConfigManager:
 
             self.config_altered(False)
 
-    def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
+    def check_abbreviation_unique(self, abbreviation, filterPattern, targetItem):
         """
         Checks that the given abbreviation is not already in use.
 
         @param abbreviation: the abbreviation to check
-        @param newFilterPattern:
+        @param filterPattern: The filter pattern associated with the abbreviation
         @param targetItem: the phrase for which the abbreviation to be used
         """
         for item in self.allFolders:
-            if model.TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+            if self.abbreviations_equal(item, targetItem, abbreviation, filterPattern):
+                return True, item
 
         for item in self.allItems:
-            if model.TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+            if self.abbreviations_equal(item, targetItem, abbreviation, filterPattern):
+                return True, item
 
         return True, None
+
+    def abbreviations_equal(self, item, targetItem, abbreviation, filterPattern):
+        if model.TriggerMode.ABBREVIATION in item.modes:
+            if abbreviation in item.abbreviations and item.filter_matches(filterPattern):
+                return item is targetItem
+        return True
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
