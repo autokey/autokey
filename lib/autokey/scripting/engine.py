@@ -220,9 +220,9 @@ Folders created within temporary folders must themselves be set temporary")
 
         if abbreviations and isinstance(abbreviations, str):
             abbreviations = [abbreviations]
-        self.check_abbreviation_unique(abbreviations)
+        self.check_abbreviation_unique(abbreviations, window_filter)
         if not replace_existing_hotkey:
-            self.check_hotkey_unique(hotkey)
+            self.check_hotkey_unique(hotkey, window_filter)
         else:
             existing_item = self.get_item_with_hotkey(hotkey)
             if not isinstance(existing_item, configmanager.configmanager.GlobalHotkey):
@@ -470,18 +470,18 @@ Folders created within temporary folders must themselves be set temporary")
         self.configManager.remove_all_temporary(folder,
                 in_temp_parent)
 
-    def check_abbreviation_unique(self, abbreviations):
+    def check_abbreviation_unique(self, abbreviations, window_filter):
         if not abbreviations:
             return
         for abbr in abbreviations:
-            if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
+            if not self.configManager.check_abbreviation_unique(abbr, window_filter, None)[0]:
                 raise ValueError("The specified abbreviation '{}' is already in use.".format(abbr))
 
-    def check_hotkey_unique(self, hotkey):
+    def check_hotkey_unique(self, hotkey, window_filter):
         if not hotkey:
             return
         modifiers = sorted(hotkey[0])
-        if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], None, None)[0]:
+        if not self.configManager.check_hotkey_unique(modifiers, hotkey[1], window_filter, None)[0]:
             raise ValueError("The specified hotkey and modifier combination is already in use: {}".format(hotkey))
 
     def get_item_with_hotkey(self, hotkey):
