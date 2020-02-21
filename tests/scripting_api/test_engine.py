@@ -98,18 +98,18 @@ def replace_folder_param_in_args(folder, args):
      {"hotkey": (["Not a valid modifier"], "w")},
      "hotkey is not checked as valid Key (invalid modifier)"],
     [(folder_param, "name", "contents",),
-     {"hotkey": ([], "train")},
-     "hotkey is not checked as valid Key (invalid key)"],
+        {"hotkey": ([], "train")},
+        "hotkey is not checked as valid Key (invalid key)"],
     [(folder_param, "name", "contents",),
-     {"hotkey": ("<ctrl>", "t")},
-     "hotkey modifiers not checked as list."],
+        {"hotkey": ("<ctrl>", "t")},
+        "hotkey modifiers not checked as list."],
     # (folder_param, "name",
     # "contents", {"hotkey": (["<alt>"], "6")}),
     # "hotkey modifiers fails single valid str"
     # (folder_param, "name",
     # "contents", {"hotkey": (["<ctrl>", "<shift>"], "<alt>")}),
     # "hotkey key is allowed to be a modifier"
-])
+    ])
 def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engine, args, kwargs, error_msg):
     engine, folder = create_engine
     for arg in args:
@@ -119,19 +119,19 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engi
         #     error_check = engine.create_phrase(folder, "test phrase",
     # "contents", hotkey=(["<ctrl>"], "a"))
         assert_that(
-            calling(engine.create_phrase).with_args(*args, **kwargs),
-            raises(ValueError), error_msg)
+                calling(engine.create_phrase).with_args(*args, **kwargs),
+                raises(ValueError), error_msg)
 
-def test_engine_create_phrase_valid_input_types_not_raises_value_error(create_engine):
-    engine, folder = create_engine
+        def test_engine_create_phrase_valid_input_types_not_raises_value_error(create_engine):
+            engine, folder = create_engine
     with patch("autokey.model.Phrase.persist"):
         assert_that(
-            calling(engine.create_phrase).with_args(folder, "name",
-                "contents", abbreviations=["t1", "t2"]),
-            not_(raises(ValueError)), "abbreviations is not checked for type=list")
+                calling(engine.create_phrase).with_args(folder, "name",
+                    "contents", abbreviations=["t1", "t2"]),
+                not_(raises(ValueError)), "abbreviations is not checked for type=list")
 
-def test_engine_create_phrase_adds_phrase_to_parent(create_engine):
-    engine, folder = create_engine
+        def test_engine_create_phrase_adds_phrase_to_parent(create_engine):
+            engine, folder = create_engine
     with patch("autokey.model.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC")
         assert_that(folder.items, has_item(phrase))
@@ -475,6 +475,22 @@ def test_engine_remove_temporary(create_engine):
         calling(engine.create_phrase).with_args(folder, "test hotkey2",
                                                 "contents", hotkey=(["<ctrl>"], "a"), temporary=True),
         not_(raises(ValueError)), "Doesn't ungrab hotkeys (duplicate hotkey warning received)")
+
+
+def test_engine_create_phrase_regex(create_engine):
+    import re
+    engine, folder = create_engine
+    with patch("autokey.model.Phrase.persist"):
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter=".*"),
+            not_(raises(re.error)),
+            "Basic window_filter valid regex raises an error"
+        )
+        assert_that(
+            calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter="*"),
+            raises(re.error),
+            "Invalid window_filter regex does not raise an error"
+        )
 
 
 @pytest.mark.skip(reason="For this to work, engine needs to be initialised with a PhraseRunner that isn't a mock. Sadly, that requires an app that isn't a mock.")
