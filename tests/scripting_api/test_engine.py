@@ -164,32 +164,72 @@ def test_engine_create_phrase_duplicate_hotkey_different_window_filter(create_en
             assert False, "Creating duplicate hotkeys with different window filters raises a ValueError: {0}".format(e)
 
 
-
-
 def test_engine_create_phrase_override_duplicate_hotkey(create_engine):
     engine, folder = create_engine
     # --- Setup ---
     hotkey=(["<ctrl>"], "a")
     originalHotkey = create_test_hotkey(engine, folder, hotkey)
     assert_that(folder.items, has_item(originalHotkey))
+    assert_that(get_item_with_hotkey(engine, hotkey),
+                is_(originalHotkey))
     # --- Run ---
     duplicateHotkey = create_test_hotkey(engine, folder, hotkey,
             replaceExisting=True)
     # --- Assess ---
+    assert_that(duplicateHotkey, not_(is_(None)))
     assert_that(folder.items, has_item(duplicateHotkey))
+    # assert_that(not(folder.items, has_item(originalHotkey)))
+    assert_that(get_item_with_hotkey(engine, hotkey),
+                is_(duplicateHotkey))
     duplicateHotkey.unset_hotkey()
+    # Assert duplicateHotkey was the only phrase left with that hotkey (ie,
+    # originalHotkey no longer has that hotkey).
     assert_that(get_item_with_hotkey(engine, hotkey), is_(None))
     # TODO: test that this will also work if the original hotkey belongs
     # to a folder. Currently can't test because we can't create folders
     # with hotkeys easily.
 
-def create_test_hotkey(engine, folder, hotkey, replaceExisting=False):
+
+def test_engine_create_phrase_override_duplicate_hotkey_no_duplicate(create_engine):
+    engine, folder = create_engine
+    # --- Setup ---
+    hotkey=(["<ctrl>"], "a")
+    originalHotkey = create_test_hotkey(engine, folder, hotkey,
+                                        replaceExisting=True)
+    assert_that(folder.items, has_item(originalHotkey))
+
+
+def test_engine_create_phrase_override_different_filter(create_engine):
+    engine, folder = create_engine
+    # --- Setup ---
+    hotkey=(["<ctrl>"], "a")
+    originalHotkey = create_test_hotkey(engine, folder, hotkey,
+                                        windowFilter="Chrome*")
+    # # --- Run ---
+    duplicateHotkey = create_test_hotkey(engine, folder, hotkey,
+            replaceExisting=True, windowFilter="Firefox*")
+    # # --- Assess ---
+    assert_that(folder.items, has_item(originalHotkey))
+    assert_that(folder.items, has_item(duplicateHotkey))
+    assert_both_phrases_with_hotkey_exist(engine, originalHotkey, duplicateHotkey, hotkey)
+
+def assert_both_phrases_with_hotkey_exist(engine, p1, p2, hotkey):
+    for _ in [p1, p2]:
+        phrase=get_item_with_hotkey(engine, hotkey)
+        assert phrase == p1 or phrase == p2
+        # assert_that(phrase, is_(p1 or p2))
+        phrase.unset_hotkey()
+
+
+def create_test_hotkey(engine, folder, hotkey, replaceExisting=False,
+                       windowFilter=None):
     with patch("autokey.model.Phrase.persist"):
         return engine.create_phrase(folder,
                 create_random_string(),
                 "ABC",
                 hotkey=hotkey,
                 replace_existing_hotkey=replaceExisting,
+                window_filter=windowFilter,
                 )
 
 def get_item_with_hotkey(engine, hotkey):
