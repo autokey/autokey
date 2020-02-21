@@ -56,7 +56,7 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
 
 
 def create_random_string(length=10):
-    ''.join([random.choice(string.ascii_letters + string.digits) for n in
+    return ''.join([random.choice(string.ascii_letters + string.digits) for n in
         range(length)])
 
 
