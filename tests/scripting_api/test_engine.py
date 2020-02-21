@@ -138,7 +138,6 @@ def test_engine_create_phrase_adds_phrase_to_parent(create_engine):
         hotkey = engine.create_phrase(folder, "Phrase", "ABC", hotkey=(["<ctrl>"], "a"))
         assert_that(folder.items, has_item(hotkey))
 
-
 def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine):
     engine, folder = create_engine
     with patch("autokey.model.Phrase.persist"):
@@ -148,6 +147,24 @@ def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine)
             calling(engine.create_phrase).with_args(folder, "Phrase2", "ABC", hotkey=(["<ctrl>"], "a")),
             raises(ValueError)
         )
+
+def test_engine_create_phrase_duplicate_hotkey_different_window_filter(create_engine):
+    engine, folder = create_engine
+    hotkey=(["<ctrl>"], "a")
+    with patch("autokey.model.Phrase.persist"):
+        phrase = engine.create_phrase(folder, "Phrase", "ABC",
+                                      hotkey=hotkey,
+                                      window_filter="Chrome*")
+        assert_that(folder.items, has_item(phrase))
+        try:
+            phrase2 = engine.create_phrase(folder, "Phrase2", "ABC",
+                                          hotkey=hotkey,
+                                          window_filter="Firefox*")
+        except ValueError as e:
+            assert False, "Creating duplicate hotkeys with different window filters raises a ValueError: {0}".format(e)
+
+
+
 
 def test_engine_create_phrase_override_duplicate_hotkey(create_engine):
     engine, folder = create_engine
