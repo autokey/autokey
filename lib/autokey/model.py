@@ -337,10 +337,16 @@ class AbstractWindowFilter:
             return ""
 
     def filter_matches(self, otherFilter):
+        # XXX Should this be and?
         if otherFilter is None or self.get_applicable_regex() is None:
             return True
 
         return otherFilter == self.get_applicable_regex().pattern
+
+    def same_filter_as_item(self, otherItem):
+        if not isinstance(otherItem, AbstractWindowFilter):
+            return False
+        return self.filter_matches(otherItem.get_applicable_regex)
 
     def get_applicable_regex(self, forChild=False):
         if self.windowInfoRegex is not None:
