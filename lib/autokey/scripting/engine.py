@@ -221,12 +221,13 @@ Folders created within temporary folders must themselves be set temporary")
         if abbreviations and isinstance(abbreviations, str):
             abbreviations = [abbreviations]
         check_abbreviation_unique(self.configManager, abbreviations, window_filter)
+
         if not replace_existing_hotkey:
             check_hotkey_unique(self.configManager, hotkey, window_filter)
         else:
-            existing_item = self.get_item_with_hotkey(hotkey)
-            if not isinstance(existing_item, configmanager.configmanager.GlobalHotkey):
-                existing_item.unset_hotkey()
+            # XXX If something causes the phrase creation to fail after this,
+            # this will unset the hotkey without replacing it.
+            self.__clear_existing_hotkey(hotkey, window_filter)
 
 
 
@@ -255,6 +256,12 @@ Folders created within temporary folders must themselves be set temporary")
             self.monitor.unsuspend()
             self.configManager.config_altered(False)
 
+
+    def __clear_existing_hotkey(self, hotkey, window_filter):
+        existing_item = self.get_item_with_hotkey(hotkey)
+        if existing_item and not isinstance(existing_item, configmanager.configmanager.GlobalHotkey):
+            if existing_item.filter_matches(window_filter):
+                existing_item.unset_hotkey()
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
