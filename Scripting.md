@@ -803,3 +803,113 @@ working_directory = working_directory[:-2]
 command = "nautilus " + working_directory 
 os.system(command)
 ```
+
+### Simple IP Manager
+**Author**: [Kreezxil](https://kreezcraft.com)
+
+**Description**: I created this to manage to going to ip addresses that for whatever reason aren't named.
+```python
+# Maybe you don't want to set up a name server or you got some sites
+# you goto that are just ips, w/e the reason this works too.
+ipaddresses = []
+ipaddresses.append(["my system",  "127.0.0.1"])
+ipaddresses.append(["Mom's PC",  "10.0.0.1", "default"])
+ipaddresses.append(["John's Filth Can",  "10.0.0.1"])
+# clearly mom needs lots of remote work and nobody goes near john's filth can
+
+menuBuilder = []
+defEntry = ""
+menuEntry = "{} {}"
+for x in ipaddresses:
+  entry=menuEntry.format(x[0],x[1])
+  if x.count("default") == 1:
+      defEntry=entry
+  menuBuilder.append(entry)
+
+retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+if retCode == 0:
+    selection="{}"
+    keyboard.send_keys(selection.format(
+        ipaddresses[
+            menuBuilder.index(choice)
+        ][1]
+    ))
+```
+
+### Password Manager
+
+**Author**: [Kreezxil](https://kreezcraft.com)
+
+**Description**: Post-it notes suck, writing on your hand sucks, using various adware loaded programs suck. Why not write your own password manager?
+
+```python
+passMap1 = []
+
+# you should only have one line where the 4th element has the world "default"
+# the last line to have default in it will be the default in the list
+# these are all local ips obviously and the passwords are stupid (3rd element)
+# on purpose
+# some entries look like they are being used for titles, they are, good eye!
+passMap1.append( [  "category",  "title",  "" ])
+passMap1.append( [  "       ",  "mom",  "makescookies", "default"])
+passMap1.append( [  "       ",  "john", "mybrother"])
+
+menuBuilder = []
+defEntry = ""
+menuEntry = "{} {} {}"
+for x in passMap1:
+  entry=menuEntry.format(x[0],x[1],x[2])
+  if x.count("default") == 1:
+      defEntry=entry
+  menuBuilder.append(entry)
+
+retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+if retCode == 0:
+    selection="{}"
+    keyboard.send_keys(selection.format(
+        passMap1[
+            menuBuilder.index(choice)
+        ][2]
+    ))
+```
+
+### SSH Manager
+
+**Author**: [Kreezxil](https://kreezcraft.com)
+
+**Description**: Similar to the password manager. As long as you have sshpass installed and you are in the terminal this script will save your fingers some major typing time.
+
+```python
+#Required: sshpass
+#        : and for you to be in the terminal already
+
+# you should only have one line where the 4th element has the world "default"
+# the last line to have default in it will be the default in the list
+# these are all local ips obviously and the passwords are stupid (3rd element)
+# on purpose
+systems = []
+systems.append( [ "127.0.0.1",  "root",  "reallyhardpasswordnot",  "default"])
+systems.append( [ "10.0.0.1",  "mom",  "makescookies"])
+systems.append( [ "192.168.1.1",  "john",  "mybrother"])
+
+
+menuBuilder = []
+defEntry = ""
+menuEntry = "{} {} {}"
+for x in systems:
+  entry=menuEntry.format(x[0],x[1],x[2])
+  if x.count("default") == 1:
+      defEntry=entry
+  menuBuilder.append(entry)
+
+retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+if retCode == 0:
+    command="sshpass -p {} ssh -o StrictHostKeyChecking=no {}@{}"
+    keyboard.send_keys(command.format(
+        systems[menuBuilder.index(choice)][2],
+        systems[menuBuilder.index(choice)][1],
+        systems[menuBuilder.index(choice)][0]
+    ))
+```
+
+
