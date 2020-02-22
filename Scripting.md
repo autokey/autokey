@@ -15,6 +15,7 @@ Some guides on porting code to Python 3:
  - http://diveintopython3.problemsolving.io/porting-code-to-python-3-with-2to3.html
 
 # Basic Scripts
+Jump to [[Scripting#advanced-scripts]]
 
 ### Display Active Window Information
 
