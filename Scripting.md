@@ -807,7 +807,7 @@ os.system(command)
 ### Simple IP Manager
 **Author**: [Kreezxil](https://kreezcraft.com)
 
-**Description**: I created this to manage to going to ip addresses that for whatever reason aren't named.
+**Description**: I created this to manage going to ip addresses that for whatever reason aren't named.
 ```python
 # Maybe you don't want to set up a name server or you got some sites
 # you goto that are just ips, w/e the reason this works too.
