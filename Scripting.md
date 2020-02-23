@@ -893,7 +893,6 @@ systems.append( [ "127.0.0.1",  "root",  "reallyhardpasswordnot",  "default"])
 systems.append( [ "10.0.0.1",  "mom",  "makescookies"])
 systems.append( [ "192.168.1.1",  "john",  "mybrother"])
 
-
 menuBuilder = []
 defEntry = ""
 menuEntry = "{} {} {}"
@@ -913,4 +912,24 @@ if retCode == 0:
     ))
 ```
 
+### Url Wrangler
 
+**Author**: [Kreezxil](https://kreezcraft.com)
+
+**Description**: If you follow me you know that I have 100 projects at https://www.curseforge.com/members/kreezxil/projects and that I am frequent updater of my modpacks. In order to build my changelogs after I copy the download link I use a hot key to trigger this device to help me paste a changelog. 
+
+```python
+import time
+
+data = clipboard.get_clipboard()
+time.sleep(0.2)
+
+if data=="":
+    dialog.info_dialog("Empty","The Clipboard is empty!")
+else:
+    rawName = data[9:]
+    parts = rawName.split("/")
+    theLink = "https://{}/{}/{}/{}".format(parts[0],parts[1],parts[2],parts[3])
+    changeLog = "{}/files/{}".format(theLink,parts[5])
+    keyboard.send_keys("{}\n".format(changeLog))
+```
