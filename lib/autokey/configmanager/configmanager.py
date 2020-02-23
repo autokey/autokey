@@ -24,6 +24,7 @@ import threading
 import typing
 import re
 import json
+import itertools
 
 from autokey import common, model
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
@@ -608,25 +609,25 @@ class ConfigManager:
 
             self.config_altered(False)
 
-    def check_abbreviation_unique(self, abbreviation, newFilterPattern, targetItem):
+    def check_abbreviation_unique(self, abbreviation, filterPattern, targetItem):
         """
         Checks that the given abbreviation is not already in use.
 
         @param abbreviation: the abbreviation to check
-        @param newFilterPattern:
+        @param filterPattern: The filter pattern associated with the abbreviation
         @param targetItem: the phrase for which the abbreviation to be used
         """
-        for item in self.allFolders:
-            if model.TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
-
-        for item in self.allItems:
-            if model.TriggerMode.ABBREVIATION in item.modes:
-                if abbreviation in item.abbreviations and item.filter_matches(newFilterPattern):
+        for item in itertools.chain(self.allFolders, self.allItems):
+            if ConfigManager.item_has_abbreviation(item, abbreviation) and \
+                    item.filter_matches(filterPattern):
                     return item is targetItem, item
 
         return True, None
+
+    @staticmethod
+    def item_has_abbreviation(item, abbreviation):
+        return model.TriggerMode.ABBREVIATION in item.modes and \
+            abbreviation in item.abbreviations
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
@@ -669,22 +670,41 @@ class ConfigManager:
         @param newFilterPattern:
         @param targetItem: the phrase for which the hotKey to be used
         """
-        for item in self.allFolders:
-            if model.TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+        item = self.get_item_with_hotkey(modifiers, hotKey, newFilterPattern)
+        if item:
+            return item is targetItem, item
+        else:
+            return True, None
 
-        for item in self.allItems:
-            if model.TriggerMode.HOTKEY in item.modes:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+    def get_item_with_hotkey(self, modifiers, hotKey, newFilterPattern=None):
+        """
+        Gets first item with the specified hotkey. Also checks the
+        special hotkeys configured from the advanced settings dialog.
+        Checks folders first, then phrases, then special hotkeys.
+
+        @param modifiers: modifiers for the hotkey
+        @param hotKey: the hotkey to check
+        @param newFilterPattern:
+        """
+        for item in itertools.chain(self.allFolders, self.allItems):
+            if model.TriggerMode.HOTKEY in item.modes and \
+                    ConfigManager.item_has_same_hotkey(item,
+                                              modifiers,
+                                              hotKey,
+                                              newFilterPattern):
+                return item
 
         for item in self.globalHotkeys:
-            if item.enabled:
-                if item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern):
-                    return item is targetItem, item
+            if item.enabled and ConfigManager.item_has_same_hotkey(item,
+                                             modifiers,
+                                             hotKey,
+                                             newFilterPattern):
+                return item
+        return None
 
-        return True, None
+    @staticmethod
+    def item_has_same_hotkey(item, modifiers, hotKey, newFilterPattern):
+        return item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern)
 
 
     def remove_all_temporary(self, folder=None, in_temp_parent=False):
@@ -723,6 +743,7 @@ class ConfigManager:
             self.remove_all_temporary(subfolder, in_temp_parent)
 
     def __deleteHotkeys(self, removed_item):
+        removed_item.unset_hotkey()
         if model.TriggerMode.HOTKEY in removed_item.modes:
             self.app.hotkey_removed(removed_item)
 

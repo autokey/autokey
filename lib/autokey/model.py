@@ -343,10 +343,16 @@ class AbstractWindowFilter:
             return ""
 
     def filter_matches(self, otherFilter):
+        # XXX Should this be and?
         if otherFilter is None or self.get_applicable_regex() is None:
             return True
 
         return otherFilter == self.get_applicable_regex().pattern
+
+    def same_filter_as_item(self, otherItem):
+        if not isinstance(otherItem, AbstractWindowFilter):
+            return False
+        return self.filter_matches(otherItem.get_applicable_regex)
 
     def get_applicable_regex(self, forChild=False):
         if self.windowInfoRegex is not None:
@@ -391,6 +397,12 @@ class AbstractHotkey(AbstractWindowFilter):
         self.hotKey = key
         if key is not None:
             self.modes.append(TriggerMode.HOTKEY)
+
+    def unset_hotkey(self):
+        self.modifiers = None
+        self.hotkey = None
+        if TriggerMode.HOTKEY in self.modes:
+            self.modes.remove(TriggerMode.HOTKEY)
 
     def check_hotkey(self, modifiers, key, windowTitle):
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
