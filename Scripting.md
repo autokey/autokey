@@ -806,6 +806,8 @@ os.system(command)
 
 **Description**: I created this to manage going to ip addresses that for whatever reason aren't named.
 ```python
+from autokey.common import USING_QT
+
 # Maybe you don't want to set up a name server or you got some sites
 # you goto that are just ips, w/e the reason this works too.
 ipaddresses = []
@@ -823,7 +825,12 @@ for x in ipaddresses:
       defEntry=entry
   menuBuilder.append(entry)
 
-retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+# Gtk seems to easily support dimensions whereas QT not so much
+if USING_QT:
+    retCode, choice = dialog.list_menu(menuBuilder, default=defEntry)
+else:
+    retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+
 if retCode == 0:
     selection="{}"
     keyboard.send_keys(selection.format(
@@ -840,6 +847,8 @@ if retCode == 0:
 **Description**: Post-it notes suck, writing on your hand sucks, using various adware loaded programs suck. Why not write your own password manager?
 
 ```python
+from autokey.common import USING_QT
+
 passMap1 = []
 
 # you should only have one line where the 4th element has the world "default"
@@ -860,7 +869,11 @@ for x in passMap1:
       defEntry=entry
   menuBuilder.append(entry)
 
-retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+if USING_QT:
+    retCode, choice = dialog.list_menu(menuBuilder, default=defEntry)
+else:
+    retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+
 if retCode == 0:
     selection="{}"
     keyboard.send_keys(selection.format(
@@ -877,6 +890,8 @@ if retCode == 0:
 **Description**: Similar to the password manager. As long as you have sshpass installed and you are in the terminal this script will save your fingers some major typing time.
 
 ```python
+from autokey.common import USING_QT
+
 #Required: sshpass
 #        : and for you to be in the terminal already
 
@@ -898,7 +913,11 @@ for x in systems:
       defEntry=entry
   menuBuilder.append(entry)
 
-retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+if USING_QT:
+    retCode, choice = dialog.list_menu(menuBuilder, default=defEntry)
+else:
+    retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+
 if retCode == 0:
     command="sshpass -p {} ssh -o StrictHostKeyChecking=no {}@{}"
     keyboard.send_keys(command.format(
