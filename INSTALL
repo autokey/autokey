@@ -1,7 +1,7 @@
 $Id$
 
-The full application can be installed using the setup script:
-python3 setup.py install
+The full application can be installed using pip3 from the cloned repository:
+pip3 install .
 
 Alternatively, you can build Debian packages using the following command:
 
