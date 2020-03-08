@@ -2,6 +2,12 @@
 
 This page contains solutions to problems frequently experienced by users of AutoKey.
 
+## I have remapped my Caps-lock key to something else (like `[Ctrl]`). My defined abbreviations don’t work or the output case is inverted after pressing the Caps-lock key. How do I fix this?
+
+Due to the way AutoKey monitors the keyboard, it still sees the remapped Caps-lock key as "Caps-lock", even though other applications see the remapped key. So AutoKey can not automatically detect this situation. Support for remapped Caps-lock keys was added in version 0.05.10.
+
+So to fix this, make sure you run at least version 0.95.10. Then go to the AutoKey applications settings and check the option "Disable handling of the Capslock key", then restart AutoKey (Use `File` → `Quit`, then start AutoKey again). 
+
 ## AutoKey (Qt) + KDE desktop: Automatically starting AutoKey shows the GUI during login, even if `Show main window when starting` is disabled
 
 Explanation:\
@@ -38,13 +44,15 @@ To enable it, run the following:
 
 You must then enable accessible technologies via the Gnome Accessibility Settings applet. Another way to get this interface up and running is to install an application called Accersizer. The first time you start Accersizer, it will enable the correct settings for you.
 
-## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window.
+## I disabled the notification icon, and I don't know the hotkey for displaying the configuration window. How do I bring it up?
 
-Simply start AutoKey again while it is already running, and this will cause the configuration window to be shown.
+The default key binding to show the main window is `<Super>+k`. (On most keyboards,`<Super>` is the Windows logo key.)
+
+As an alternative, or if you disabled / changed the hotkey, simply start AutoKey again while it is already running. This will cause the configuration window to be shown.
 
 ## How can one send em dash or another Unicode special character in new, python3 version of AutoKey? 
 
-One of the many options is to use the sample script bellow and modify `TextToType="—"` to your desired special character (or sequence), for example `TextToType="≠≠≠"` ([source](https://github.com/autokey/autokey/issues/29#issuecomment-437426992)).
+One of the many options is to use the sample script below and modify `TextToType="—"` to your desired special character (or sequence), for example `TextToType="≠≠≠"` ([source](https://github.com/autokey/autokey/issues/29#issuecomment-437426992)).
 ```
 OldClipboard=clipboard.get_clipboard()
 TextToType="┐(´-｀)┌"
