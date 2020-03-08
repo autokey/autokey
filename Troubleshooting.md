@@ -4,7 +4,7 @@ This page contains solutions to problems frequently experienced by users of Auto
 
 ## I have remapped my Caps-lock key to something else (like `[Ctrl]`). My defined abbreviations don’t work or the output case is inverted after pressing the Caps-lock key. How do I fix this?
 
-Due to the way AutoKey monitors the keyboard, it still sees the remapped Caps-lock key as "Caps-lock", even though other applications see the remapped key. So AutoKey can not automatically detect this situation. Support for remapped Caps-lock keys was added in version 0.05.10.
+Due to the way AutoKey monitors the keyboard, it still sees the remapped Caps-lock key as "Caps-lock", even though other applications see the remapped key. So AutoKey can not automatically detect this situation. Support for remapped Caps-lock keys was added in version 0.95.10.
 
 So to fix this, make sure you run at least version 0.95.10. Then go to the AutoKey applications settings and check the option "Disable handling of the Capslock key", then restart AutoKey (Use `File` → `Quit`, then start AutoKey again). 
 
