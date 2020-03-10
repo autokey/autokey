@@ -6,8 +6,9 @@
   <!-- interface-name AutoKey -->
   <!-- interface-copyright 2020 -->
   <!-- interface-authors Thomas Hess -->
-  <object class="GtkDialog">
+  <object class="GtkDialog" id="show_script_errors_dialog">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Show recorded errors from Scripts</property>
     <property name="type_hint">dialog</property>
     <child>
       <placeholder/>
@@ -22,13 +23,14 @@
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="clear_all_errors_button">
                 <property name="label">gtk-clear</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Clear the whole error list and close this window</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="clear_all_errors" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -37,13 +39,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="delete_currently_shown_error_button">
                 <property name="label">gtk-delete</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Delete the currently shown error record</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="delete_currently_shown_error" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -52,7 +55,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="hide_button">
                 <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -60,6 +63,7 @@
                 <property name="tooltip_text" translatable="yes">Close this window, keeping all error records.</property>
                 <property name="use_stock">True</property>
                 <property name="always_show_image">True</property>
+                <signal name="clicked" handler="on_close" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -103,7 +107,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton">
+              <object class="GtkSpinButton" id="current_error_spin_box">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="input_purpose">number</property>
@@ -129,7 +133,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLabel">
+              <object class="GtkLabel" id="total_error_count_label">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">{}</property>
@@ -144,13 +148,14 @@
               <placeholder/>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="first_error_button">
                 <property name="label">gtk-goto-first</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show the oldest recorded script error</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="show_first_error" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -159,13 +164,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="previous_error_button">
                 <property name="label">gtk-go-back</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show the previous recorded script error</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="show_previous_error" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -174,13 +180,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="next_error_button">
                 <property name="label">gtk-go-forward</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show the next recorded script error</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="show_next_error" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -189,13 +196,14 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton">
+              <object class="GtkButton" id="last_error_button">
                 <property name="label">gtk-goto-last</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show the newest recorded script error</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="show_last_error" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -275,7 +283,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTextView">
+              <object class="GtkTextView" id="script_name_field">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">The name of the failed Script.</property>
@@ -290,7 +298,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTextView">
+              <object class="GtkTextView" id="script_start_time_field">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Timestamp at which the Script execution started</property>
@@ -306,7 +314,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTextView">
+              <object class="GtkTextView" id="script_crash_time_field">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="tooltip_text" translatable="yes">Timestamp at which the error occured</property>
@@ -322,7 +330,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkTextView">
+              <object class="GtkTextView" id="script_triggered_by_field">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="margin_top">2</property>
@@ -355,7 +363,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTextView">
+          <object class="GtkTextView" id="crash_stack_trace_field">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hexpand">True</property>
