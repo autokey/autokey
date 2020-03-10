@@ -15,25 +15,21 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-from gi.repository import Gtk, Gdk
-
-#import gettext
 import locale
+import re
+import typing
+
+from gi.repository import Gtk, Gdk
 
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-#for module in Gtk.glade, gettext:
-#    module.bindtextdomain(GETTEXT_DOMAIN)
-#    module.textdomain(GETTEXT_DOMAIN)
 
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-from .. import model, iomediator
+from autokey import model, iomediator
 from ..iomediator.key import Key
-# from . import configwindow
 from .configwindow0 import get_ui
 
 WORD_CHAR_OPTIONS = {

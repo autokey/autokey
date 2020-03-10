@@ -34,9 +34,6 @@ from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-#for module in Gtk.glade, gettext:
-#    module.bindtextdomain(GETTEXT_DOMAIN)
-#    module.textdomain(GETTEXT_DOMAIN)
 
 
 from . import dialogs
@@ -59,11 +56,7 @@ PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
 from .configwindow0 import get_ui
-# def get_ui(fileName):
-#     builder = Gtk.Builder()
-#     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
-#     builder.add_from_file(uiFile)
-#     return builder
+
 
 def set_linkbutton(button, path):
     button.set_sensitive(True)
@@ -313,6 +306,7 @@ class SettingsWidget:
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
         return getattr(self.ui, attr)
 
+
 class BlankPage:
 
     def __init__(self, parentWindow):
@@ -340,6 +334,7 @@ class BlankPage:
 
     def set_dirty(self):
         self.parentWindow.set_dirty(True)
+
 
 class FolderPage:
 
@@ -743,7 +738,6 @@ class PhrasePage(ScriptPage):
         self.editor.set_sensitive(True)
 
 
-
 class ConfigWindow:
 
     def __init__(self, app):
@@ -786,8 +780,6 @@ class ConfigWindow:
             ("Tools", None, _("_Tools")),
             ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
             ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
-            #("Settings", None, _("_Settings"), None, None, None),
-            #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
             ("Help", None, _("_Help")),
             ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
             ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
@@ -798,9 +790,9 @@ class ConfigWindow:
         actionGroup.add_actions(actions)
 
         toggleActions = [
-                         ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord keyboard/mouse"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
-                         ]
+            ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
+            ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord keyboard/mouse"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
+        ]
         actionGroup.add_toggle_actions(toggleActions)
 
         self.uiManager.insert_action_group(actionGroup, 0)
@@ -1673,4 +1665,3 @@ class AkTreeModel(Gtk.TreeStore):
             # return cmp(str(item1), str(item2))
             a, b = str(item1), str(item2)
             return (a > b) - (a < b)
-
