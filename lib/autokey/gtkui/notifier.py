@@ -138,10 +138,11 @@ class IndicatorNotifier:
         
     def on_show_error(self, widget, data=None):
         # Work around the current GUI design: the UI is destroyed when the main window is closed.
-        # This causes the show_script_error method below to fail. So open the main window first to circumvent issues.
-        # TODO: If the GTK GUI gets rewritten to not always destroy it’s UI, remove this comment and workaround.
-        self.on_show_configure(widget, data)
-        self.app.show_script_error(self.app.configWindow.ui)
+        # This causes the show_script_error method below to fail because self.app.configWindow.ui doesn’t exist
+        if self.app.configWindow is not None:
+            self.app.show_script_error(self.app.configWindow.ui)
+        else:
+            self.app.show_script_error(None)
         self.errorItem.hide()
         self.update_visible_status()
             

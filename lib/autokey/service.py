@@ -16,11 +16,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import traceback
+
 import collections
-import time
-import threading
+import datetime
 import pathlib
+import threading
+import time
+import traceback
+import typing
+
 
 from autokey.iomediator.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
@@ -38,8 +42,8 @@ MAX_STACK_LENGTH = 150
 
 def threaded(f):
 
-    def wrapper(*args):
-        t = threading.Thread(target=f, args=args, name="Phrase-thread")
+    def wrapper(*args, **kwargs):
+        t = threading.Thread(target=f, args=args, kwargs=kwargs, name="Phrase-thread")
         t.setDaemon(False)
         t.start()
 
@@ -222,7 +226,6 @@ class Service:
 
         self.app.show_popup_menu([folder])
 
-
     def run_phrase(self, name):
         phrase = self.__findItem(name, model.Phrase, "phrase")
         self.phraseRunner.execute(phrase)
@@ -235,7 +238,7 @@ class Service:
             self.scriptRunner.execute_path(path)
         else:
             script = self.__findItem(name, model.Script, "script")
-            self.scriptRunner.execute(script)
+            self.scriptRunner.execute_script(script)
 
     def __findItem(self, name, objType, typeDescription):
         for item in self.configManager.allItems:
@@ -246,7 +249,7 @@ class Service:
 
     @threaded
     def item_selected(self, item):
-        time.sleep(0.25) # wait for window to be active
+        time.sleep(0.25)  # wait for window to be active
         self.lastMenu = None # if an item has been selected, the menu has been hidden
         self.__processItem(item, self.lastStackState)
 
@@ -353,7 +356,7 @@ class Service:
         if isinstance(item, model.Phrase):
             self.phraseRunner.execute(item, buffer)
         else:
-            self.scriptRunner.execute(item, buffer)
+            self.scriptRunner.execute_script(item, buffer)
 
 
 
@@ -461,7 +464,7 @@ class ScriptRunner:
     def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
-        self.error = ''
+        self.error_records = []  # type: typing.List[model.ScriptErrorRecord]
         self.scope = globals()
         self.scope["highlevel"] = autokey.scripting.highlevel
         self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
@@ -475,8 +478,11 @@ class ScriptRunner:
 
         self.engine = self.scope["engine"]
 
+    def clear_error_records(self):
+        self.error_records.clear()
+
     @threaded
-    def execute(self, script: model.Script, buffer=''):
+    def execute_script(self, script: model.Script, buffer=''):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
@@ -489,28 +495,59 @@ class ScriptRunner:
         if script.path is not None:
             # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
             scope["__file__"] = script.path
-        try:
-            exec(script.code, scope)
-        except Exception as e:
-            logger.exception("Script error")
-            self.error = "Script name: '{}'\n{}".format(script.description, traceback.format_exc())
-            self.app.notify_error("The script '{}' encountered an error".format(script.description))
+        self._execute(scope, script)
 
         self.mediator.send_string(trigger_character)
 
     @threaded
-    def execute_path(self, path: pathlib.Path, buffer=''):
+    def execute_path(self, path: pathlib.Path):
         logger.debug("Script runner executing: {}".format(path))
         scope = self.scope.copy()
-        # scope["store"] = script.store
         # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
-        scope["__file__"] = path.resolve()
+        scope["__file__"] = str(path.resolve())
+        self._execute(scope, path)
+
+    def _record_error(self, script: typing.Union[model.Script, pathlib.Path], start_time: time.time):
+        error_time = datetime.datetime.now().time()
+        logger.exception("Script error")
+        traceback_str = traceback.format_exc()
+        error_record = model.ScriptErrorRecord(
+                script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
+        )
+        self.error_records.append(error_record)
+        self.app.notify_error(error_record)
+
+    def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
+        start_time = datetime.datetime.now().time()
+        # noinspection PyBroadException
         try:
-            exec(path.read_text(), scope)
-        except Exception as e:
-            logger.exception("Script error")
-            self.error = "Script name: '{}'\n{}".format(path, traceback.format_exc())
-            self.app.notify_error("The script '{}' encountered an error".format(path))
+            compiled_code = self._compile_script(script)
+            exec(compiled_code, scope)
+        except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
+            self._record_error(script, start_time)
+
+    @staticmethod
+    def _compile_script(script: typing.Union[model.Script, pathlib.Path]):
+        script_code, script_name = ScriptRunner._get_script_source_code_and_name(script)
+        compiled_code = compile(script_code, script_name, 'exec')
+        return compiled_code
+
+    @staticmethod
+    def _get_script_source_code_and_name(script: typing.Union[model.Script, pathlib.Path]) -> typing.Tuple[str, str]:
+        if isinstance(script, pathlib.Path):
+            script_code = script.read_text()
+            script_name = str(script)
+        elif isinstance(script, model.Script):
+            script_code = script.code
+            if script.path is None:
+                script_name = "<string>"
+            else:
+                script_name = str(script.path)
+        else:
+            raise TypeError(
+                "Unknown script type passed in, expected one of [autokey.model.Script, pathlib.Path], got {}".format(
+                    type(script)))
+        return script_code, script_name
 
     @staticmethod
     def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
@@ -525,12 +562,13 @@ class ScriptRunner:
             )
             engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
 
-    def run_subscript(self, script):
+    def run_subscript(self, script: typing.Union[model.Script, pathlib.Path]):
         scope = self.scope.copy()
-        scope["store"] = script.store
-        exec(script.code, scope)
+        if isinstance(script, model.Script):
+            scope["store"] = script.store
+            scope["__file__"] = str(script.path)
+        else:
+            scope["__file__"] = str(script.resolve())
 
-    def run_subscript_path(self, path):
-        scope = self.scope.copy()
-        scope["__file__"] = path
-        exec(pathlib.Path(path).read_text(), scope)
+        compiled_code = self._compile_script(script)
+        exec(compiled_code, scope)

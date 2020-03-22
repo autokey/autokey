@@ -36,10 +36,11 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 gettext.install("autokey")
 
 import autokey.argument_parser
-from autokey import service, monitor
+from autokey import service, monitor, model
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
+from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger, configure_root_logger
@@ -226,12 +227,13 @@ class Application:
         os.remove(common.LOCK_FILE)
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: model.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
 
     def update_notifier_visibility(self):
@@ -274,21 +276,18 @@ class Application:
         """
         Show the last script error (if any)
         """
-        if self.service.scriptRunner.error != '':
-            dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
-                                     message_format=self.service.scriptRunner.error)
-            self.service.scriptRunner.error = ''
+        if self.service.scriptRunner.error_records:
+            dlg = ShowScriptErrorsDialog(self)
             # revert the tray icon
             self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON])
             self.notifier.errorItem.hide()
             self.notifier.update_visible_status()
-
         else:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))
 
-        dlg.set_title(_("View script error"))
-        dlg.set_transient_for(parent)
+            dlg.set_title(_("View script error"))
+            dlg.set_transient_for(parent)
         dlg.run()
         dlg.destroy()
 

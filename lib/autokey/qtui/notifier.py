@@ -114,7 +114,6 @@ class Notifier(QSystemTrayIcon):
             None, "&View script error", self.reset_tray_icon,
             "View the last script error."
         )
-        self.action_view_script_error.triggered.connect(self.app.show_script_error)
         # The action should disable itself
         self.action_view_script_error.setDisabled(True)
         self.action_view_script_error.triggered.connect(self.action_view_script_error.setEnabled)

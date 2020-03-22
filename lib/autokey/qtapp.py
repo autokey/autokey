@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 from autokey import common
 common.USING_QT = True
 
-from autokey import service, monitor
+from autokey import service, monitor, model
 
 import autokey.argument_parser
 import autokey.configmanager.configmanager as cm
@@ -106,9 +106,6 @@ class Application(QApplication):
         logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
-
-            # Initialise logger
-
             if self._verify_not_running():
                 self._create_lock_file()
 
@@ -119,6 +116,11 @@ class Application(QApplication):
             self._try_start_service()
             self.notifier = Notifier(self)
             self.configWindow = ConfigWindow(self)
+            # Connect the mutual connections between the tray icon and the main window
+            self.configWindow.action_show_last_script_errors.triggered.connect(self.notifier.reset_tray_icon)
+            self.notifier.action_view_script_error.triggered.connect(
+                self.configWindow.show_script_errors_dialog.update_and_show)
+
             self.monitor.start()
             # Initialise user code dir
             if self.configManager.userCodeDir is not None:
@@ -264,13 +266,15 @@ class Application(QApplication):
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: model.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.exec_in_main(self.notifier.notify_error, message)
+        self.configWindow.script_errors_available.emit(True)
 
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()
@@ -300,18 +304,6 @@ class Application(QApplication):
         if details:
             message_box.setDetailedText(details)
         message_box.exec_()
-
-    def show_script_error(self):
-        """
-        Show the last script error (if any)
-        """
-        # TODO: i18n
-        if self.service.scriptRunner.error:
-            details = self.service.scriptRunner.error
-            self.service.scriptRunner.error = ''
-        else:
-            details = "No error information available"
-        QMessageBox.information(None, "View Script Error Details", details)
 
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:
