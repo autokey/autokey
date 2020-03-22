@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>..
 
+import datetime
 import threading
 
 import gi
@@ -42,6 +43,12 @@ class IndicatorNotifier:
     
     def __init__(self, autokeyApp):
         Notify.init("AutoKey")
+        # Used to rate-limit error notifications to 1 per second. Without this, two notifications per second cause the
+        # following exception, which in turn completely locks up the GUI:
+        # gi.repository.GLib.GError: g-io-error-quark:
+        # GDBus.Error:org.freedesktop.Notifications.Error.ExcessNotificationGeneration:
+        # Created too many similar notifications in quick succession (36)
+        self.last_notification_timestamp = datetime.datetime.now()
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
@@ -115,7 +122,10 @@ class IndicatorNotifier:
         self.indicator.set_menu(self.menu)
         
     def notify_error(self, message):
-        self.show_notify(message, Gtk.STOCK_DIALOG_ERROR)
+        now = datetime.datetime.now()
+        if self.last_notification_timestamp + datetime.timedelta(seconds=1) < now:
+            self.show_notify(message, Gtk.STOCK_DIALOG_ERROR)
+            self.last_notification_timestamp = now
         self.errorItem.show()
         self.indicator.set_status(AppIndicator3.IndicatorStatus.ATTENTION)
         
