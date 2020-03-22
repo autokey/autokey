@@ -27,7 +27,7 @@ class Keyboard:
     def __init__(self, mediator):
         self.mediator = mediator  # type: iomediator.IoMediator
 
-    def send_keys(self, key_string, send_mode: typing.Union[model.SendMode, int]=model.SendMode.KEYBOARD):
+    def send_keys(self, key_string, send_mode: typing.Union[model.SendMode, int] = model.SendMode.KEYBOARD):
         """
         Send a sequence of keys via keyboard events as the default or via clipboard pasting.
         Because the clipboard can only contain
@@ -42,24 +42,10 @@ class Keyboard:
         @param key_string: string of keys to send. Special keys are only possible in keyboard mode.
         @param send_mode: Determines how the string is send.
         """
+
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
-        if isinstance(send_mode, int):
-            if send_mode in range(len(model.SendMode)):
-                send_mode = tuple(model.SendMode)[send_mode]  # type: mode.SendMode
-            else:
-                permissible = "\n".join(
-                    "{}: keyboard.{}".format(
-                        number, str(constant)) for number, constant in enumerate(model.SendMode)
-                )
-                raise ValueError(
-                    "send_mode out of range for index-based access. "
-                    "Permissible values are:\n{}".format(permissible))
-        if not isinstance(send_mode, model.SendMode):
-            permissible = "\n".join("keyboard.{}".format(mode) for mode in map(str, model.SendMode))
-            raise TypeError(
-                "send_mode must be set to an element from keyboard.SendMode (or an interger for index-based access). "
-                "Permissible values are:\n{}".format(permissible))
+        send_mode = _validate_send_mode(send_mode)
         self.mediator.interface.begin_send()
         try:
             if send_mode is model.SendMode.KEYBOARD:
@@ -136,3 +122,30 @@ class Keyboard:
             modifiers = []
         w = iomediator.Waiter(key, modifiers, None, timeOut)
         return w.wait()
+
+
+def _validate_send_mode(send_mode):
+    permissible_values = "\n".join("keyboard.{}".format(mode) for mode in map(str, model.SendMode))
+    if isinstance(send_mode, int):
+        if send_mode in range(len(model.SendMode)):
+            send_mode = tuple(model.SendMode)[send_mode]  # type: model.SendMode
+        else:
+            permissible_values = "\n".join(
+                "{}: keyboard.{}".format(
+                    number, str(constant)) for number, constant in enumerate(model.SendMode)
+            )
+            raise ValueError(
+                "send_mode out of range for index-based access. "
+                "Permissible values are:\n{}".format(permissible_values))
+    elif isinstance(send_mode, model.SendMode):
+        raise TypeError(
+            "send_mode must be set to an element from keyboard.SendMode (or an interger for index-based access). "
+            "Permissible values are:\n{}".format(permissible_values))
+    elif isinstance(send_mode, str):
+        try:
+            send_mode = model.SendMode(send_mode)
+        except ValueError as v:
+            raise ValueError("Permissible values are: " + permissible_values) from v
+    elif not isinstance(send_mode, model.SendMode):
+        raise TypeError("Unsupported type for send_mode parameter. Use one of: " + permissible_values)
+    return send_mode
