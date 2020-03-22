@@ -637,9 +637,8 @@ class WindowFilterSettingsDialog(DialogBase):
             item.set_window_titles(regex)
         except re.error:
             logger.error(
-                    "Invalid window filter regex: '{}'. \
-                            Discarding without saving.".format(regex)
-                            )
+                "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
+            )
         item.set_filter_recursive(self.get_is_recursive())
 
     def reset(self):

@@ -4,6 +4,23 @@ Changelog
 .. contents::
 
 
+Version 0.95.10 <2019-02-16>
+============================
+
+Bug fixes
+---------
+
+- Mitigate crashes when entering invalid Python regular expressions in the window filter dialogue. Fixes issue #212
+- Added option to disable the handling of the Capslock modifier key.
+  Fixes issues when that key is remapped to something else, for example Ctrl.
+  The new option can be found in the settings dialogue. Fixes issues #95, #291
+- API function `system.exec_command()` now only trims the last character in the output,
+  if it is actually a newline character. If the executed command does not output a newline at the end,
+  the full output is returned. Fixes issue #354
+- Fixed wrong optional argument in man page for `autokey-run`. Fixed by pull request #361
+- Removed unnecessarily set executable bit from several AutoKey SVG icons. Fixed by pull request #363
+
+
 Version 0.95.9 <2019-12-07>
 ===========================
 

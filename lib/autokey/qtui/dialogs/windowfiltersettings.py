@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import re
+
 from PyQt5.QtWidgets import QDialog
 
 from autokey.qtui import common as ui_common
@@ -53,9 +55,8 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
             item.set_window_titles(regex)
         except re.error:
             logger.error(
-                    "Invalid window filter regex: '{}'. \
-                            Discarding without saving.".format(regex)
-                            )
+                "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
+            )
         item.set_filter_recursive(self.get_is_recursive())
 
     def get_is_recursive(self):
