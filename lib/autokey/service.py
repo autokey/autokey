@@ -464,7 +464,6 @@ class ScriptRunner:
     def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
-        self.error = ''  # TODO: Deprecated
         self.error_records = []  # type: typing.List[model.ScriptErrorRecord]
         self.scope = globals()
         self.scope["highlevel"] = autokey.scripting.highlevel
