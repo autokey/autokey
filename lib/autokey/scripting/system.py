@@ -20,7 +20,7 @@ class System:
     """
     Simplified access to some system commands.
     """
-
+    @staticmethod
     def exec_command(command, getOutput=True):
         """
         Execute a shell command
@@ -43,9 +43,10 @@ class System:
                     stdout=subprocess.PIPE,
                     universal_newlines=True) as p:
                 output = p.communicate()[0]
-                if output[-1] == "\n":
+                if output.endswith("\n"):
                     # Most shell output has a new line at the end, which we
-                    # don't want. Drop the trailing newline character
+                    # don't want. Drop the trailing newline character,
+                    # if the command output something that ends on "\n"
                     output = output[:-1]
                 if p.returncode:
                     raise subprocess.CalledProcessError(p.returncode, output)
@@ -53,7 +54,8 @@ class System:
         else:
             subprocess.Popen(command, shell=True, bufsize=-1)
 
-    def create_file(fileName, contents=""):
+    @staticmethod
+    def create_file(file_name, contents=""):
         """
         Create a file with contents
 
@@ -62,5 +64,5 @@ class System:
         @param fileName: full path to the file to be created
         @param contents: contents to insert into the file
         """
-        with open(fileName, "w") as written_file:
+        with open(file_name, "w") as written_file:
             written_file.write(contents)
