@@ -40,6 +40,7 @@ from autokey import service, monitor, model
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
+from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger, configure_root_logger
@@ -275,21 +276,18 @@ class Application:
         """
         Show the last script error (if any)
         """
-        if self.service.scriptRunner.error != '':
-            dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
-                                     message_format=self.service.scriptRunner.error)
-            self.service.scriptRunner.error = ''
+        if self.service.scriptRunner.error_records:
+            dlg = ShowScriptErrorsDialog(self)
             # revert the tray icon
             self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON])
             self.notifier.errorItem.hide()
             self.notifier.update_visible_status()
-
         else:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))
 
-        dlg.set_title(_("View script error"))
-        dlg.set_transient_for(parent)
+            dlg.set_title(_("View script error"))
+            dlg.set_transient_for(parent)
         dlg.run()
         dlg.destroy()
 

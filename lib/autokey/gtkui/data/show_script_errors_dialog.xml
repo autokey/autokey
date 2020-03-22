@@ -10,6 +10,8 @@
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Show recorded errors from Scripts</property>
     <property name="type_hint">dialog</property>
+    <property name="urgency_hint">True</property>
+    <property name="has_resize_grip">True</property>
     <child>
       <placeholder/>
     </child>
@@ -98,7 +100,7 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Currently showing error</property>
+                <property name="label" translatable="yes">Currently showing error: </property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -107,12 +109,10 @@
               </packing>
             </child>
             <child>
-              <object class="GtkSpinButton" id="current_error_spin_box">
+              <object class="GtkLabel" id="current_error_label">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="input_purpose">number</property>
-                <property name="numeric">True</property>
-                <property name="value">1</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">{}</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -124,12 +124,12 @@
               <object class="GtkLabel">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="label" translatable="yes">/</property>
+                <property name="label" translatable="yes"> / </property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
@@ -141,11 +141,20 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkLabel">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="hexpand">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">5</property>
+              </packing>
             </child>
             <child>
               <object class="GtkButton" id="first_error_button">
@@ -160,7 +169,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">5</property>
+                <property name="position">6</property>
               </packing>
             </child>
             <child>
@@ -176,7 +185,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">6</property>
+                <property name="position">7</property>
               </packing>
             </child>
             <child>
@@ -192,7 +201,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">7</property>
+                <property name="position">8</property>
               </packing>
             </child>
             <child>
@@ -208,7 +217,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">8</property>
+                <property name="position">9</property>
               </packing>
             </child>
           </object>
@@ -363,13 +372,22 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTextView" id="crash_stack_trace_field">
+          <object class="GtkScrolledWindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="hexpand">True</property>
             <property name="vexpand">True</property>
-            <property name="editable">False</property>
-            <property name="monospace">True</property>
+            <property name="shadow_type">in</property>
+            <child>
+              <object class="GtkTextView" id="crash_stack_trace_field">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="hexpand">True</property>
+                <property name="vexpand">True</property>
+                <property name="editable">False</property>
+                <property name="monospace">True</property>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>

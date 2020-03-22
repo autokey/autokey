@@ -19,7 +19,7 @@ import locale
 import re
 import typing
 
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Pango, Gio
 
 GETTEXT_DOMAIN = 'autokey'
 
@@ -87,6 +87,106 @@ class DialogBase:
         if responseId < 0:
             self.hide()
             self.emit_stop_by_name('response')
+
+
+class ShowScriptErrorsDialog(DialogBase):
+
+    def __init__(self, app):
+        builder = get_ui("show_script_errors_dialog.xml")
+
+        self.ui = builder.get_object("show_script_errors_dialog")
+        self.show_first_error_button = builder.get_object("first_error_button")
+        self.show_previous_error_button = builder.get_object("previous_error_button")
+        self.show_next_error_button = builder.get_object("next_error_button")
+        self.show_last_error_button = builder.get_object("last_error_button")
+        self.current_error_label = builder.get_object("current_error_label")
+        self.total_error_count_label = builder.get_object("total_error_count_label")
+        self.script_name_field = builder.get_object("script_name_field")
+        self.script_start_time_field = builder.get_object("script_start_time_field")
+        self.script_crash_time_field = builder.get_object("script_crash_time_field")
+        self.script_triggered_by_field = builder.get_object("script_triggered_by_field")
+        self.crash_stack_trace_field = builder.get_object("crash_stack_trace_field")
+        # TODO: When setting the compatibility to GTK >= 3.16, remove the next three code lines and replace them with:
+        # self.crash_stack_trace_field.set_monospace(True)
+        settings = Gio.Settings.new("org.gnome.desktop.interface")
+        monospace_font_description = Pango.font_description_from_string(settings.get_string("monospace-font-name"))
+        self.crash_stack_trace_field.modify_font(monospace_font_description)
+
+        builder.connect_signals(self)
+
+        self.set_default_size(800, 600)
+        self.script_runner = app.service.scriptRunner
+        self.error_list = self.script_runner.error_records  # type: typing.List[model.ScriptErrorRecord]
+        self.currently_shown_error_index = 0
+        self.parent = app.configWindow
+        if self.parent is not None:
+            self.ui.set_transient_for(self.parent.ui)
+        self.show_error_at_current_index()
+        super(ShowScriptErrorsDialog, self).__init__()
+
+    def show_first_error(self, button):
+        self.currently_shown_error_index = 0
+        self.show_error_at_current_index()
+
+    def show_previous_error(self, button):
+        self.currently_shown_error_index -= 1
+        self.show_error_at_current_index()
+
+    def show_next_error(self, button):
+        self.currently_shown_error_index += 1
+        self.show_error_at_current_index()
+
+    def show_last_error(self, button):
+        self.currently_shown_error_index = self.get_error_count() - 1
+        self.show_error_at_current_index()
+
+    def clear_all_errors(self, button):
+        self.error_list.clear()
+        self.on_close(button)
+
+    def delete_currently_shown_error(self, button):
+        if self.get_error_count() == 1:
+            self.clear_all_errors(button)
+        else:
+            del self.error_list[self.currently_shown_error_index]
+            if self.currently_shown_error_index == self.get_error_count():
+                # Go to previous error if at the end of the error list. Else shows the next error in the list.
+                self.currently_shown_error_index -= 1
+            self.show_error_at_current_index()
+
+    def get_error_count(self) -> int:
+        return len(self.error_list)
+
+    def _update_navigation_gui_states(self):
+        self._update_total_error_count()
+        self._update_navigation_button_states()
+
+    def _update_total_error_count(self):
+        current_error_str = str(self.currently_shown_error_index + 1)
+        error_count_str = str(self.get_error_count())
+        self.current_error_label.set_text(current_error_str)
+        self.total_error_count_label.set_text(error_count_str)
+
+    def _update_navigation_button_states(self):
+        self.show_first_error_button.set_sensitive(True)
+        self.show_previous_error_button.set_sensitive(True)
+        self.show_next_error_button.set_sensitive(True)
+        self.show_last_error_button.set_sensitive(True)
+        if self.currently_shown_error_index == 0:
+            self.show_first_error_button.set_sensitive(False)
+            self.show_previous_error_button.set_sensitive(False)
+        if self.currently_shown_error_index == self.get_error_count() - 1:
+            self.show_next_error_button.set_sensitive(False)
+            self.show_last_error_button.set_sensitive(False)
+
+    def show_error_at_current_index(self):
+        self._update_navigation_gui_states()
+        print(f"About to show error at index {self.currently_shown_error_index}")
+        error = self.error_list[self.currently_shown_error_index]
+        self.script_name_field.get_buffer().set_text(error.script_name)
+        self.script_start_time_field.get_buffer().set_text(str(error.start_time))
+        self.script_crash_time_field.get_buffer().set_text(str(error.error_time))
+        self.crash_stack_trace_field.get_buffer().set_text(error.error_traceback)
 
 
 class AbbrSettingsDialog(DialogBase):
