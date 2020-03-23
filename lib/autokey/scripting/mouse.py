@@ -16,7 +16,7 @@
 import typing
 
 if typing.TYPE_CHECKING:
-    import autokey.iomediator
+    import autokey.iomediator.iomediator
 
 
 class Mouse:
@@ -24,7 +24,7 @@ class Mouse:
     Provides access to send mouse clicks
     """
     def __init__(self, mediator):
-        self.mediator = mediator  # type: autokey.iomediator.IoMediator
+        self.mediator = mediator  # type: autokey.iomediator.iomediator.IoMediator
         self.interface = self.mediator.interface
 
     def click_relative(self, x, y, button):
@@ -73,5 +73,5 @@ class Mouse:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)
-        w = autokey.iomediator.Waiter(None, None, button, timeOut)
+        w = autokey.iomediator.waiter.Waiter(None, None, button, timeOut)
         w.wait()

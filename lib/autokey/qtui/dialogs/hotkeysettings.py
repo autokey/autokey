@@ -77,7 +77,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
         """
         self.recorded_key_label.setText("Press a key or combination...")  # TODO: i18n
         logger.debug("User starts to record a key combination.")
-        self.grabber = iomediator.KeyGrabber(self)
+        self.grabber = iomediator.keygrabber.KeyGrabber(self)
         self.grabber.start()
 
     def load(self, item: Item):

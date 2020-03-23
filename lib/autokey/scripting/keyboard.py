@@ -122,7 +122,7 @@ class Keyboard:
         """
         if modifiers is None:
             modifiers = []
-        w = iomediator.Waiter(key, modifiers, None, timeOut)
+        w = iomediator.waiter.Waiter(key, modifiers, None, timeOut)
         return w.wait()
 
 

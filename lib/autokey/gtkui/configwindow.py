@@ -46,8 +46,8 @@ from .settingsdialog import SettingsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey.iomediator import Recorder
-from .. import model, common
+import autokey.iomediator.keygrabber
+from autokey import common
 
 CONFIG_WINDOW_TITLE = "AutoKey"
 
@@ -528,7 +528,7 @@ class ScriptPage:
 
     def record_keystrokes(self, isActive):
         if isActive:
-            self.recorder = Recorder(self)
+            self.recorder = autokey.iomediator.keygrabber.Recorder(self)
             dlg = dialogs.RecordDialog(self.ui, self.on_rec_response)
             dlg.run()
         else:
@@ -705,7 +705,7 @@ class PhrasePage(ScriptPage):
             dlg.run()
             dlg.destroy()
             self.editor.set_sensitive(False)
-            self.recorder = Recorder(self)
+            self.recorder = autokey.iomediator.keygrabber.Recorder(self)
             self.recorder.set_record_keyboard(True)
             self.recorder.set_record_mouse(True)
             self.recorder.start_withgrab()

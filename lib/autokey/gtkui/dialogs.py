@@ -24,6 +24,8 @@ from gi.repository import Gtk, Gdk, Pango, Gio
 import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
+import autokey.iomediator.keygrabber
+import autokey.iomediator.windowgrabber
 
 GETTEXT_DOMAIN = 'autokey'
 
@@ -32,7 +34,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-from autokey import model, iomediator
+from autokey import model
 from autokey.model.key import Key
 from .configwindow0 import get_ui
 
@@ -540,7 +542,7 @@ class HotkeySettingsDialog(DialogBase):
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
         self.keyLabel.set_text(_("Press a key..."))
-        self.grabber = iomediator.KeyGrabber(self)
+        self.grabber = autokey.iomediator.keygrabber.KeyGrabber(self)
         self.grabber.start()
 
 
@@ -679,7 +681,7 @@ class WindowFilterSettingsDialog(DialogBase):
     def on_detectButton_pressed(self, widget, data=None):
         #self.__dlg =
         widget.set_sensitive(False)
-        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber = autokey.iomediator.windowgrabber.WindowGrabber(self)
         self.grabber.start()
 
 

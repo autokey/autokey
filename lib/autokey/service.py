@@ -29,7 +29,7 @@ import autokey.model.phrase
 import autokey.model.script
 import autokey.model.store
 from autokey.model.key import Key, KEY_FIND_RE
-from autokey.iomediator import IoMediator
+from autokey.iomediator.iomediator import IoMediator
 
 from autokey.macro import MacroManager
 

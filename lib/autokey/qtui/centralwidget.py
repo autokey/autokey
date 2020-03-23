@@ -27,7 +27,7 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
-from autokey import iomediator
+import autokey.iomediator.keygrabber
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
@@ -47,7 +47,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.setupUi(self)
         self.dirty = False
         self.configManager = None
-        self.recorder = iomediator.Recorder(self.scriptPage)
+        self.recorder = autokey.iomediator.keygrabber.Recorder(self.scriptPage)
 
         self.cutCopiedItems = []
         for column_index in range(3):

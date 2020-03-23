@@ -18,6 +18,7 @@ import re
 
 from PyQt5.QtWidgets import QDialog
 
+import autokey.iomediator.windowgrabber
 import autokey.model.folder
 import autokey.model.modelTypes
 from autokey.qtui import common as ui_common
@@ -34,7 +35,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
         super(WindowFilterSettingsDialog, self).__init__(parent)
         self.setupUi(self)
         self.target_item = None
-        self.grabber = None  # type: iomediator.WindowGrabber
+        self.grabber = None  # type: autokey.iomediator._windowgrabber.WindowGrabber
 
     def load(self, item: autokey.model.modelTypes.Item):
         self.target_item = item
@@ -90,7 +91,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
 
     def on_detect_window_properties_button_pressed(self):
         self.detect_window_properties_button.setEnabled(False)
-        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber = iomediator.windowgrabber.WindowGrabber(self)
         self.grabber.start()
 
     # --- event handlers ---

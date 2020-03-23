@@ -29,7 +29,7 @@ import time
 import autokey.model.phrase
 
 if typing.TYPE_CHECKING:
-    from autokey.iomediator import IoMediator
+    from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
 
 
