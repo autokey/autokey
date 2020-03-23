@@ -23,7 +23,7 @@ import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey.iomediator.key import Key
+from autokey.model.key import Key
 
 
 import autokey.qtui.common as ui_common

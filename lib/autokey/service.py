@@ -25,13 +25,14 @@ import time
 import traceback
 import typing
 
-
-from autokey.iomediator.key import Key, KEY_FIND_RE
+import autokey.model.phrase
+import autokey.model.script
+import autokey.model.store
+from autokey.model.key import Key, KEY_FIND_RE
 from autokey.iomediator import IoMediator
 
 from autokey.macro import MacroManager
 
-from autokey import model
 import autokey.scripting
 from autokey.configmanager.configmanager import ConfigManager, save_config
 import autokey.configmanager.configmanager_constants as cm_constants
@@ -92,7 +93,7 @@ class Service:
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        model.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
+        autokey.model.store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
     def unpause(self):
@@ -190,7 +191,7 @@ class Service:
                     item, menu = self.__checkTextMatches(
                         self.configManager.allFolders,
                         self.configManager.allItems,
-                        currentInput, window_info)  # type: model.Phrase, list
+                        currentInput, window_info)  # type: autokey.model.phrase.Phrase, list
 
                 if item:
                     self.__tryReleaseLock()
@@ -227,7 +228,7 @@ class Service:
         self.app.show_popup_menu([folder])
 
     def run_phrase(self, name):
-        phrase = self.__findItem(name, model.Phrase, "phrase")
+        phrase = self.__findItem(name, autokey.model.phrase.Phrase, "phrase")
         self.phraseRunner.execute(phrase)
 
     def run_script(self, name):
@@ -237,7 +238,7 @@ class Service:
         if pathlib.PurePath(path).is_absolute() and path.exists():
             self.scriptRunner.execute_path(path)
         else:
-            script = self.__findItem(name, model.Script, "script")
+            script = self.__findItem(name, autokey.model.script.Script, "script")
             self.scriptRunner.execute_script(script)
 
     def __findItem(self, name, objType, typeDescription):
@@ -353,7 +354,7 @@ class Service:
         self.inputStack.clear()
         self.lastStackState = ''
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             self.phraseRunner.execute(item, buffer)
         else:
             self.scriptRunner.execute_script(item, buffer)
@@ -397,7 +398,7 @@ class PhraseRunner:
 
     @threaded
     #@synchronized(iomediator.SEND_LOCK)
-    def execute(self, phrase: model.Phrase, buffer=''):
+    def execute(self, phrase: autokey.model.phrase.Phrase, buffer=''):
         mediator = self.service.mediator  # type: IoMediator
         mediator.interface.begin_send()
         try:
@@ -407,7 +408,7 @@ class PhraseRunner:
 
             self.contains_special_keys = self.phrase_contains_special_keys(expansion)
             mediator.send_backspace(expansion.backspaces)
-            if phrase.sendMode == model.SendMode.KEYBOARD:
+            if phrase.sendMode == autokey.model.phrase.SendMode.KEYBOARD:
                 mediator.send_string(expansion.string)
             else:
                 mediator.paste_string(expansion.string, phrase.sendMode)
@@ -424,7 +425,7 @@ class PhraseRunner:
         return can_undo
 
     @staticmethod
-    def phrase_contains_special_keys(expansion: model.Expansion) -> bool:
+    def phrase_contains_special_keys(expansion: autokey.model.phrase.Expansion) -> bool:
         """
         Determine if the expansion contains any special keys, including those resulting from any processed macros
         (<script>, <file>, etc). If any are found, the phrase cannot be undone.
@@ -482,7 +483,7 @@ class ScriptRunner:
         self.error_records.clear()
 
     @threaded
-    def execute_script(self, script: model.Script, buffer=''):
+    def execute_script(self, script: autokey.model.script.Script, buffer=''):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
@@ -507,17 +508,17 @@ class ScriptRunner:
         scope["__file__"] = str(path.resolve())
         self._execute(scope, path)
 
-    def _record_error(self, script: typing.Union[model.Script, pathlib.Path], start_time: time.time):
+    def _record_error(self, script: typing.Union[autokey.model.script.Script, pathlib.Path], start_time: time.time):
         error_time = datetime.datetime.now().time()
         logger.exception("Script error")
         traceback_str = traceback.format_exc()
-        error_record = model.ScriptErrorRecord(
+        error_record = autokey.model.script.ScriptErrorRecord(
                 script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
         )
         self.error_records.append(error_record)
         self.app.notify_error(error_record)
 
-    def _execute(self, scope, script: typing.Union[model.Script, pathlib.Path]):
+    def _execute(self, scope, script: typing.Union[autokey.model.script.Script, pathlib.Path]):
         start_time = datetime.datetime.now().time()
         # noinspection PyBroadException
         try:
@@ -527,17 +528,17 @@ class ScriptRunner:
             self._record_error(script, start_time)
 
     @staticmethod
-    def _compile_script(script: typing.Union[model.Script, pathlib.Path]):
+    def _compile_script(script: typing.Union[autokey.model.script.Script, pathlib.Path]):
         script_code, script_name = ScriptRunner._get_script_source_code_and_name(script)
         compiled_code = compile(script_code, script_name, 'exec')
         return compiled_code
 
     @staticmethod
-    def _get_script_source_code_and_name(script: typing.Union[model.Script, pathlib.Path]) -> typing.Tuple[str, str]:
+    def _get_script_source_code_and_name(script: typing.Union[autokey.model.script.Script, pathlib.Path]) -> typing.Tuple[str, str]:
         if isinstance(script, pathlib.Path):
             script_code = script.read_text()
             script_name = str(script)
-        elif isinstance(script, model.Script):
+        elif isinstance(script, autokey.model.script.Script):
             script_code = script.code
             if script.path is None:
                 script_name = "<string>"
@@ -562,9 +563,9 @@ class ScriptRunner:
             )
             engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
 
-    def run_subscript(self, script: typing.Union[model.Script, pathlib.Path]):
+    def run_subscript(self, script: typing.Union[autokey.model.script.Script, pathlib.Path]):
         scope = self.scope.copy()
-        if isinstance(script, model.Script):
+        if isinstance(script, autokey.model.script.Script):
             scope["store"] = script.store
             scope["__file__"] = str(script.path)
         else:

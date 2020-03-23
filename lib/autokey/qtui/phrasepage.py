@@ -13,11 +13,12 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+
 import subprocess
 
 from PyQt5.QtWidgets import QMessageBox
 
-from autokey import model
+import autokey.model.phrase
 from autokey.qtui import common as ui_common
 
 
@@ -34,18 +35,18 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         self.setupUi(self)
 
         self.initialising = True
-        self.current_phrase = None  # type: model.Phrase
+        self.current_phrase = None  # type: autokey.model.phrase.Phrase
 
-        for val in sorted(model.SEND_MODES.keys()):
+        for val in sorted(autokey.model.phrase.SEND_MODES.keys()):
             self.sendModeCombo.addItem(val)
         self.initialising = False
 
-    def load(self, phrase: model.Phrase):
+    def load(self, phrase: autokey.model.phrase.Phrase):
         self.current_phrase = phrase
         self.phraseText.setPlainText(phrase.phrase)
         self.showInTrayCheckbox.setChecked(phrase.show_in_tray_menu)
 
-        for k, v in model.SEND_MODES.items():
+        for k, v in autokey.model.phrase.SEND_MODES.items():
             if v == phrase.sendMode:
                 self.sendModeCombo.setCurrentIndex(self.sendModeCombo.findText(k))
                 break
@@ -67,7 +68,7 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         self.current_phrase.phrase = str(self.phraseText.toPlainText())
         self.current_phrase.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
 
-        self.current_phrase.sendMode = model.SEND_MODES[str(self.sendModeCombo.currentText())]
+        self.current_phrase.sendMode = autokey.model.phrase.SEND_MODES[str(self.sendModeCombo.currentText())]
 
         # TODO - re-enable me if restoring predictive functionality
         #if self.predictCheckbox.isChecked():

@@ -23,7 +23,7 @@ import autokey.configmanager.autostart
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey import common
-from autokey.iomediator.key import Key
+from autokey.model.key import Key
 
 
 from .dialogs import GlobalHotkeyDialog

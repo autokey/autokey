@@ -15,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import autokey.dbus_service
+import autokey.model.script
 from . import common
 common.USING_QT = False
 
@@ -36,7 +37,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 gettext.install("autokey")
 
 import autokey.argument_parser
-from autokey import service, monitor, model
+from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
@@ -227,7 +228,7 @@ class Application:
         os.remove(common.LOCK_FILE)
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, error: model.ScriptErrorRecord):
+    def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
         Show an error notification popup.
 

@@ -23,6 +23,10 @@ import webbrowser
 
 from gi import require_version
 
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
 
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
@@ -132,7 +136,7 @@ class SettingsWidget:
         self.currentItem = item
 
         self.abbrDialog.load(self.currentItem)
-        if model.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
             self.abbrLabel.set_text(item.get_abbreviations())
             self.clearAbbrButton.set_sensitive(True)
             self.abbrEnabled = True
@@ -142,7 +146,7 @@ class SettingsWidget:
             self.abbrEnabled = False
 
         self.hotkeyDialog.load(self.currentItem)
-        if model.TriggerMode.HOTKEY in item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
             self.hotkeyLabel.set_text(item.get_hotkey_string())
             self.clearHotkeyButton.set_sensitive(True)
             self.hotkeyEnabled = True
@@ -166,7 +170,7 @@ class SettingsWidget:
 
     def save(self):
         # Perform hotkey ungrab
-        if model.TriggerMode.HOTKEY in self.currentItem.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in self.currentItem.modes:
             self.parentWindow.app.hotkey_removed(self.currentItem)
 
         self.currentItem.set_modes([])
@@ -610,7 +614,7 @@ class PhrasePage(ScriptPage):
         vbox.pack_start(self.settingsWidget.ui, False, False, 0)
 
         # Populate combo
-        l = list(model.SEND_MODES.keys())
+        l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()
         for val in l:
             self.sendModeCombo.append_text(val)
@@ -651,9 +655,9 @@ class PhrasePage(ScriptPage):
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
 
-        l = list(model.SEND_MODES.keys())
+        l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()
-        for k, v in model.SEND_MODES.items():
+        for k, v in autokey.model.phrase.SEND_MODES.items():
             if v == thePhrase.sendMode:
                 self.sendModeCombo.set_active(l.index(k))
                 break
@@ -665,7 +669,7 @@ class PhrasePage(ScriptPage):
 
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.show_in_tray_menu = self.showInTrayCheckbox.get_active()
-        self.currentItem.sendMode = model.SEND_MODES[self.sendModeCombo.get_active_text()]
+        self.currentItem.sendMode = autokey.model.phrase.SEND_MODES[self.sendModeCombo.get_active_text()]
 
         self.settingsWidget.save()
         self.currentItem.persist()
@@ -886,14 +890,14 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             canPlay = False
             enableAny = False
         else:
-            canCreate = isinstance(items[0], model.Folder) and len(items) == 1
+            canCreate = isinstance(items[0], autokey.model.folder.Folder) and len(items) == 1
             canCopy = True
-            canRecord = (not isinstance(items[0], model.Folder)) and len(items) == 1
-            canMacro = isinstance(items[0], model.Phrase) and len(items) == 1
-            canPlay = isinstance(items[0], model.Script) and len(items) == 1
+            canRecord = (not isinstance(items[0], autokey.model.folder.Folder)) and len(items) == 1
+            canMacro = isinstance(items[0], autokey.model.phrase.Phrase) and len(items) == 1
+            canPlay = isinstance(items[0], autokey.model.script.Script) and len(items) == 1
             enableAny = True
             for item in items:
-                if isinstance(item, model.Folder):
+                if isinstance(item, autokey.model.folder.Folder):
                     canCopy = False
                     break
 
@@ -996,7 +1000,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __getRealParent(self, parentIter):
         theModel = self.treeView.get_model()
         parentModelItem = theModel.get_value(parentIter, AkTreeModel.OBJECT_COLUMN)
-        if not isinstance(parentModelItem, model.Folder):
+        if not isinstance(parentModelItem, autokey.model.folder.Folder):
             return theModel.iter_parent(parentIter)
 
         return parentIter
@@ -1012,7 +1016,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __createFolder(self, title, parentIter, path=None):
         self.app.monitor.suspend()
         theModel = self.treeView.get_model()
-        newFolder = model.Folder(title, path=path)
+        newFolder = autokey.model.folder.Folder(title, path=path)
 
         newIter = theModel.append_item(newFolder, parentIter)
         newFolder.persist()
@@ -1046,7 +1050,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newPhrase = model.Phrase(name, "Enter phrase contents")
+            newPhrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
             newIter = theModel.append_item(newPhrase, parentIter)
             newPhrase.persist()
             self.app.monitor.unsuspend()
@@ -1062,7 +1066,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newScript = model.Script(name, "# Enter script code")
+            newScript = autokey.model.script.Script(name, "# Enter script code")
             newIter = theModel.append_item(newScript, parentIter)
             newScript.persist()
             self.app.monitor.unsuspend()
@@ -1097,10 +1101,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         sourceObjects = self.__getTreeSelection()
 
         for source in sourceObjects:
-            if isinstance(source, model.Phrase):
-                newObj = model.Phrase('', '')
+            if isinstance(source, autokey.model.phrase.Phrase):
+                newObj = autokey.model.phrase.Phrase('', '')
             else:
-                newObj = model.Script('', '')
+                newObj = autokey.model.script.Script('', '')
             newObj.copy(source)
             self.cutCopiedItems.append(newObj)
 
@@ -1112,7 +1116,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         newIters = []
         for item in self.cutCopiedItems:
             newIter = theModel.append_item(item, parentIter)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 theModel.populate_store(newIter, item)
             newIters.append(newIter)
             item.path = None
@@ -1136,10 +1140,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         parentIter = theModel.iter_parent(sourceIter)
         self.app.monitor.suspend()
 
-        if isinstance(source, model.Phrase):
-            newObj = model.Phrase('', '')
+        if isinstance(source, autokey.model.phrase.Phrase):
+            newObj = autokey.model.phrase.Phrase('', '')
         else:
-            newObj = model.Script('', '')
+            newObj = autokey.model.script.Script('', '')
         newObj.copy(source)
         newObj.persist()
 
@@ -1159,7 +1163,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         if len(refs) == 1:
             item = theModel[refs[0].get_path()].iter
             modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
-            if isinstance(modelItem, model.Folder):
+            if isinstance(modelItem, autokey.model.folder.Folder):
                 msg = _("Are you sure you want to delete the %s and all the items in it?") % str(modelItem)
             else:
                 msg = _("Are you sure you want to delete the %s?") % str(modelItem)
@@ -1211,15 +1215,15 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.on_tree_selection_changed(self.treeView)
 
     def __deleteHotkeys(self, theItem):
-        if model.TriggerMode.HOTKEY in theItem.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in theItem.modes:
             self.app.hotkey_removed(theItem)
 
-        if isinstance(theItem, model.Folder):
+        if isinstance(theItem, autokey.model.folder.Folder):
             for subFolder in theItem.folders:
                 self.__deleteHotkeys(subFolder)
 
             for item in theItem.items:
-                if model.TriggerMode.HOTKEY in item.modes:
+                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
                     self.app.hotkey_removed(item)
 
     def on_undo(self, widget, data=None):
@@ -1298,7 +1302,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         selection.unselect_all()
         self.treeView.set_cursor(selectedPaths[0], self.treeView.get_column(0), False)
         selectedObject = self.__getTreeSelection()[0]
-        if isinstance(selectedObject, model.Folder):
+        if isinstance(selectedObject, autokey.model.folder.Folder):
             oldName = selectedObject.title
         else:
 
@@ -1373,10 +1377,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         elif len(selectedObjects) == 1:
             selectedObject = selectedObjects[0]
 
-            if isinstance(selectedObject, model.Folder):
+            if isinstance(selectedObject, autokey.model.folder.Folder):
                 self.stack.set_current_page(1)
                 self.folderPage.load(selectedObject)
-            elif isinstance(selectedObject, model.Phrase):
+            elif isinstance(selectedObject, autokey.model.phrase.Phrase):
                 self.stack.set_current_page(2)
                 self.phrasePage.load(selectedObject)
             else:
@@ -1410,7 +1414,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         newIters = []
         for item in self.__sourceObjects:
             newIter = theModel.append_item(item, targetIter)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 theModel.populate_store(newIter, item)
                 self.__dropRecurseUpdate(item)
             else:
@@ -1450,13 +1454,13 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             targetIter = theModel.get_iter(path)
             targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
 
-            if isinstance(targetModelItem, model.Folder):
+            if isinstance(targetModelItem, autokey.model.folder.Folder):
                 # prevent dropping a folder onto itself
                 return path in self.__sourceRows
             elif targetModelItem is None:
                 # Target is top level
                 for item in self.__sourceObjects:
-                    if not isinstance(item, model.Folder):
+                    if not isinstance(item, autokey.model.folder.Folder):
                         # drop not permitted for top level because not folder
                         return True
 
@@ -1466,7 +1470,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         else:
             # target is top level with no drop info
             for item in self.__sourceObjects:
-                if not isinstance(item, model.Folder):
+                if not isinstance(item, autokey.model.folder.Folder):
                     # drop not permitted for no drop info because not folder
                     return True
 
@@ -1584,11 +1588,11 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __getCurrentPage(self):
         #selectedObject = self.__getTreeSelection()
 
-        if isinstance(self.selectedObject, model.Folder):
+        if isinstance(self.selectedObject, autokey.model.folder.Folder):
             return self.folderPage
-        elif isinstance(self.selectedObject, model.Phrase):
+        elif isinstance(self.selectedObject, autokey.model.phrase.Phrase):
             return self.phrasePage
-        elif isinstance(self.selectedObject, model.Script):
+        elif isinstance(self.selectedObject, autokey.model.script.Script):
             return self.scriptPage
         else:
             return None
@@ -1624,7 +1628,7 @@ class AkTreeModel(Gtk.TreeStore):
             return self.append(None, item.get_tuple())
         else:
             parentFolder = self.get_value(parentIter, self.OBJECT_COLUMN)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 parentFolder.add_folder(item)
             else:
                 parentFolder.add_item(item)
@@ -1637,7 +1641,7 @@ class AkTreeModel(Gtk.TreeStore):
         if item.parent is None:
             self.folders.remove(item)
         else:
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 item.parent.remove_folder(item)
             else:
                 item.parent.remove_item(item)
@@ -1657,9 +1661,11 @@ class AkTreeModel(Gtk.TreeStore):
         item1 = theModel.get_value(iter1, AkTreeModel.OBJECT_COLUMN)
         item2 = theModel.get_value(iter2, AkTreeModel.OBJECT_COLUMN)
 
-        if isinstance(item1, model.Folder) and (isinstance(item2, model.Phrase) or isinstance(item2, model.Script)):
+        if isinstance(item1, autokey.model.folder.Folder) and (isinstance(item2, autokey.model.phrase.Phrase) or isinstance(item2,
+                                                                                                                            autokey.model.script.Script)):
             return -1
-        elif isinstance(item2, model.Folder) and (isinstance(item1, model.Phrase) or isinstance(item1, model.Script)):
+        elif isinstance(item2, autokey.model.folder.Folder) and (isinstance(item1, autokey.model.phrase.Phrase) or isinstance(item1,
+                                                                                                                              autokey.model.script.Script)):
             return 1
         else:
             # return cmp(str(item1), str(item2))

@@ -4,10 +4,10 @@ import queue
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
-from autokey.model import SendMode
+from autokey.model.phrase import SendMode
 
-from .key import Key
-from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from .constants import X_RECORD_INTERFACE
 
 CURRENT_INTERFACE = None
 

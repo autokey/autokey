@@ -1,9 +1,8 @@
 import datetime
 import time
 
-from .constants import MODIFIERS
 from ._iomediator import IoMediator
-from .key import Key
+from autokey.model.key import Key, MODIFIERS
 from . import _iomediator
 
 

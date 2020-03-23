@@ -29,10 +29,11 @@ from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QMessageBox, QApplication
 
+import autokey.model.script
 from autokey import common
 common.USING_QT = True
 
-from autokey import service, monitor, model
+from autokey import service, monitor
 
 import autokey.argument_parser
 import autokey.configmanager.configmanager as cm
@@ -266,7 +267,7 @@ class Application(QApplication):
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, error: model.ScriptErrorRecord):
+    def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
         Show an error notification popup.
 

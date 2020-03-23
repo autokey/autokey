@@ -19,7 +19,13 @@ from collections.abc import Iterable
 
 from typing import Tuple, Optional, List, Union
 
-from autokey import model, iomediator, configmanager
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
+from autokey import configmanager
+from autokey.model.key import Key
+
 from autokey.scripting.system import System
 
 
@@ -30,8 +36,8 @@ class Engine:
     Note that any configuration changes made using this API while the configuration window
     is open will not appear until it is closed and re-opened.
     """
-    SendMode = model.SendMode
-    Key = model.Key
+    SendMode = autokey.model.phrase.SendMode
+    Key = Key
 
     def __init__(self, config_manager, runner):
         self.configManager = config_manager
@@ -84,7 +90,7 @@ class Engine:
         """
         validateType(title, "title", str)
         validateType(parent_folder, "parent_folder",
-                [model.Folder, pathlib.Path])
+                     [autokey.model.folder.Folder, pathlib.Path])
         validateType(temporary, "temporary", bool)
         # XXX Doesn't check if a folder already exists at this path in autokey.
         if isinstance(parent_folder, pathlib.Path):
@@ -94,14 +100,14 @@ class Engine:
                         cannot use absolute paths.")
             path = parent_folder.expanduser() / title
             path.mkdir(parents=True, exist_ok=True)
-            new_folder = model.Folder(title, path=str(path.resolve()))
+            new_folder = autokey.model.folder.Folder(title, path=str(path.resolve()))
             self.configManager.allFolders.append(new_folder)
             return new_folder
         # TODO: Convert this to use get_folder, when we change to specifying
         # the exact folder by more than just title.
         if parent_folder is None:
             parent_folders = self.configManager.allFolders
-        elif isinstance(parent_folder, model.Folder):
+        elif isinstance(parent_folder, autokey.model.folder.Folder):
             parent_folders = parent_folder.folders
         else:
             # Input is previously validated, must match one of the above.
@@ -111,7 +117,7 @@ class Engine:
             if folder.title == title:
                 return folder
         else:
-            new_folder = model.Folder(title)
+            new_folder = autokey.model.folder.Folder(title)
             if parent_folder is None:
                 self.configManager.allFolders.append(new_folder)
             else:
@@ -129,8 +135,8 @@ Folders created within temporary folders must themselves be set temporary")
 
     def create_phrase(self, folder, name: str, contents: str,
                       abbreviations: Union[str, List[str]]=None,
-                      hotkey: Tuple[List[Union[model.Key, str]], Union[model.Key, str]]=None,
-                      send_mode: model.SendMode=model.SendMode.KEYBOARD, window_filter: str=None,
+                      hotkey: Tuple[List[Union[Key, str]], Union[Key, str]]=None,
+                      send_mode: autokey.model.phrase.SendMode = autokey.model.phrase.SendMode.KEYBOARD, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False,
                       temporary=False, replace_existing_hotkey=False):
         """
@@ -233,8 +239,8 @@ Folders created within temporary folders must themselves be set temporary")
 
         self.monitor.suspend()
         try:
-            p = model.Phrase(name, contents)
-            if send_mode in model.SendMode:
+            p = autokey.model.phrase.Phrase(name, contents)
+            if send_mode in autokey.model.phrase.SendMode:
                 p.sendMode = send_mode
             if abbreviations:
                 p.add_abbreviations(abbreviations)
@@ -283,8 +289,8 @@ Folders created within temporary folders must themselves be set temporary")
             raise Exception("The specified abbreviation is already in use")
 
         self.monitor.suspend()
-        p = model.Phrase(description, contents)
-        p.modes.append(model.TriggerMode.ABBREVIATION)
+        p = autokey.model.phrase.Phrase(description, contents)
+        p.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
         p.abbreviations = [abbr]
         folder.add_item(p)
         p.persist()
@@ -324,8 +330,8 @@ Folders created within temporary folders must themselves be set temporary")
             raise Exception("The specified hotkey and modifier combination is already in use")
 
         self.monitor.suspend()
-        p = model.Phrase(description, contents)
-        p.modes.append(model.TriggerMode.HOTKEY)
+        p = autokey.model.phrase.Phrase(description, contents)
+        p.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
         p.set_hotkey(modifiers, key)
         folder.add_item(p)
         p.persist()
@@ -352,7 +358,7 @@ Folders created within temporary folders must themselves be set temporary")
         else:
             target_script = None
             for item in self.configManager.allItems:
-                if item.description == description and isinstance(item, model.Script):
+                if item.description == description and isinstance(item, autokey.model.script.Script):
                     target_script = item
 
             if target_script is not None:
@@ -519,20 +525,20 @@ def check_hotkey_unique(configmanager, hotkey, window_filter):
 
 def isValidHotkeyType(item):
     fail=False
-    if isinstance(item, model.Key):
+    if isinstance(item, Key):
         fail=False
     elif isinstance(item, str):
         if len(item) == 1:
             fail=False
         else:
-            fail = not iomediator.key.Key.is_key(item)
+            fail = not Key.is_key(item)
     else:
         fail=True
     return not fail
 
 
 def validateHotkey(hotkey):
-    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of model.Key or str, not {}".format(type(hotkey))
+    failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of Key or str, not {}".format(type(hotkey))
     if hotkey is None:
         return
     fail=False
@@ -563,7 +569,7 @@ def validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary,
                           replace_existing_hotkey):
-    validateType(folder, "folder", model.Folder)
+    validateType(folder, "folder", autokey.model.folder.Folder)
     # For when we allow pathlib.Path
     # validateType(folder, "folder",
     #         [model.Folder, pathlib.Path])
@@ -571,7 +577,7 @@ def validateArguments(folder, name, contents,
     validateType(contents, "contents", str)
     validateAbbreviations(abbreviations)
     validateHotkey(hotkey)
-    validateType(send_mode, "send_mode", model.SendMode)
+    validateType(send_mode, "send_mode", autokey.model.phrase.SendMode)
     validateType(window_filter, "window_filter", str)
     validateType(show_in_system_tray, "show_in_system_tray", bool)
     validateType(always_prompt, "always_prompt", bool)

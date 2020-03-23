@@ -21,6 +21,10 @@ import typing
 
 from gi.repository import Gtk, Gdk, Pango, Gio
 
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
@@ -29,13 +33,13 @@ locale.setlocale(locale.LC_ALL, '')
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from autokey import model, iomediator
-from ..iomediator.key import Key
+from autokey.model.key import Key
 from .configwindow0 import get_ui
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word": model.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -236,7 +240,7 @@ class AbbrSettingsDialog(DialogBase):
         self.targetItem = item
         self.abbrList.get_model().clear()
 
-        if model.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
             self.removeButton.set_sensitive(True)
@@ -258,16 +262,16 @@ class AbbrSettingsDialog(DialogBase):
                     break
         else:
             # Custom wordchar regex used
-            self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex))
+            self.wordCharCombo.append_text(autokey.model.helpers.extract_wordchars(wordCharRegex))
             self.wordCharCombo.set_active(len(WORD_CHAR_OPTIONS))
 
-        if isinstance(item, model.Folder):
+        if isinstance(item, autokey.model.folder.Folder):
             self.omitTriggerCheckbox.hide()
         else:
             self.omitTriggerCheckbox.show()
             self.omitTriggerCheckbox.set_active(item.omitTrigger)
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             self.matchCaseCheckbox.show()
             self.matchCaseCheckbox.set_active(item.matchCase)
         else:
@@ -278,7 +282,7 @@ class AbbrSettingsDialog(DialogBase):
         self.immediateCheckbox.set_active(item.immediate)
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.ABBREVIATION)
+        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 
@@ -288,12 +292,12 @@ class AbbrSettingsDialog(DialogBase):
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
-            item.set_word_chars(model.make_wordchar_re(option))
+            item.set_word_chars(autokey.model.helpers.make_wordchar_re(option))
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.get_active()
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             item.matchCase = self.matchCaseCheckbox.get_active()
 
         item.ignoreCase = self.ignoreCaseCheckbox.get_active()
@@ -436,7 +440,7 @@ class HotkeySettingsDialog(DialogBase):
     def load(self, item):
         self.targetItem = item
         self.setButton.set_sensitive(True)
-        if model.TriggerMode.HOTKEY in item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
             self.controlButton.set_active(Key.CONTROL in item.modifiers)
             self.altButton.set_active(Key.ALT in item.modifiers)
             self.shiftButton.set_active(Key.SHIFT in item.modifiers)
@@ -456,7 +460,7 @@ class HotkeySettingsDialog(DialogBase):
             self.reset()
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.HOTKEY)
+        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
 
         # Build modifier list
         modifiers = self.build_modifiers()
@@ -619,7 +623,7 @@ class WindowFilterSettingsDialog(DialogBase):
     def load(self, item):
         self.targetItem = item
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             self.recursiveButton.hide()
         else:
             self.recursiveButton.show()

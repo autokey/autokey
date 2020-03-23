@@ -19,14 +19,18 @@ import typing
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialogButtonBox
 
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
 from autokey.qtui import common as ui_common
 
-from autokey import iomediator, model
+from autokey import iomediator
 import autokey.configmanager.configmanager as cm
-from autokey.iomediator.key import Key
+from autokey.model.key import Key
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-Item = typing.Union[model.Folder, model.Script, model.Phrase]
+Item = typing.Union[autokey.model.folder.Folder, autokey.model.script.Script, autokey.model.phrase.Phrase]
 
 
 class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeysettings")):
@@ -78,7 +82,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
 
     def load(self, item: Item):
         self.target_item = item
-        if model.TriggerMode.HOTKEY in item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
             self.mod_control_button.setChecked(Key.CONTROL in item.modifiers)
             self.mod_alt_button.setChecked(Key.ALT in item.modifiers)
             self.mod_shift_button.setChecked(Key.SHIFT in item.modifiers)
@@ -97,7 +101,7 @@ class HotkeySettingsDialog(*ui_common.inherits_from_ui_file_with_name("hotkeyset
             self.reset()
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.HOTKEY)
+        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
 
         # Build modifier list
         modifiers = self.build_modifiers()

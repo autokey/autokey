@@ -20,7 +20,7 @@ import subprocess
 from PyQt5 import Qsci
 from PyQt5.QtWidgets import QMessageBox
 
-from autokey import model
+import autokey.model.script
 from autokey.qtui import common as ui_common
 
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
@@ -41,7 +41,7 @@ class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
         api = Qsci.QsciAPIs(lex)
         api.load(API_FILE)
         api.prepare()
-        self.current_script = None  # type: model.Script
+        self.current_script = None  # type: autokey.model.script.Script
         self.scriptCodeEditor.setLexer(lex)
 
         self.scriptCodeEditor.setBraceMatching(Qsci.QsciScintilla.SloppyBraceMatch)
@@ -55,7 +55,7 @@ class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
         self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNoContext)
         lex.setFont(ui_common.monospace_font())
 
-    def load(self, script: model.Script):
+    def load(self, script: autokey.model.script.Script):
         self.current_script = script
         self.scriptCodeEditor.clear()
         self.scriptCodeEditor.append(script.code)
