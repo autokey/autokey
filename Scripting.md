@@ -948,3 +948,29 @@ else:
     changeLog = "{}/files/{}".format(theLink,parts[5])
     keyboard.send_keys("{}\n".format(changeLog))
 ```
+### Googling query from anywhere
+
+**Author**: [Slothworks](https://askubuntu.com/a/685551/1058011)
+
+**Description**: Being able to search any selected text by activating a python script (below) everytime I pressed a set of keyboard buttons.
+```
+import webbrowser
+base="http://www.google.com/search?q="
+phrase=clipboard.get_selection()
+
+#Remove trailing or leading white space and find if there are multiple 
+#words. 
+phrase=phrase.strip()
+singleWord=False
+if phrase.find(' ')<0:
+    singleWord=True
+
+#Generate search URL. 
+if singleWord:
+    search_url=base+phrase
+if (not singleWord):
+    phrase='+'.join(phrase.split())
+    search_url=base+phrase
+
+webbrowser.open_new_tab(search_url)
+```
