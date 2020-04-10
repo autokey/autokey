@@ -974,3 +974,71 @@ if (not singleWord):
 
 webbrowser.open_new_tab(search_url)
 ```
+
+### Search your phrases and scripts
+
+**Author**: [Caspx](https://github.com/caspx)
+
+**Description**: This script will help you to quickly find those old sneaky phrases you can't seem to find.
+
+```python
+import os
+
+from os import walk
+from os.path import join
+
+
+# very simple logger
+def log(line):
+    system.exec_command('echo "{}" >> /tmp/autokey.log'.format(line))
+
+
+# Location to Autokey data dir - You can set it manually
+USER = os.getenv('USER')
+AUTOKEY_DATA_DIR = '/home/{}/.config/autokey/data'.format(USER)
+
+
+# List all phrases and scripts located in the data dir
+DATA_FILES = []
+for (dirpath, dirnames, filenames) in walk(AUTOKEY_DATA_DIR):
+    files = [join(dirpath, f) for f in filenames if f.endswith(('.txt', '.py'))]
+    DATA_FILES.extend(files)
+
+
+while True:
+    ret_code, query = dialog.input_dialog(title="Search",
+                                          message='Enter a query')
+    if ret_code != 0:
+        exit(1)
+
+    # Currently check query against file path and name only
+    candidates = {}
+    query = query.lower()
+    for f in DATA_FILES:
+        if query in f.lower():
+            path = f
+            name = os.path.basename(f).split('.')[0]
+            # known issue - May run over a phrase with the same name
+            candidates[name] = path
+
+    # show a dialog list with what we have found
+    choices = candidates.keys()
+    ret_code, choice = dialog.list_menu(choices,
+                                        title='Search',
+                                        text='Results',
+                                        height="500",
+                                        width="400")
+
+    # Printing the selected phrase
+    if ret_code == 0:
+        path = candidates[choice]
+        try:
+            with open(path) as f:
+                phrase = f.read()
+            keyboard.send_keys(phrase)
+        except Exception as e:
+            pass
+
+        exit(0)
+    else:
+        continue
