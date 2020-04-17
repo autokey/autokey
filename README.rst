@@ -80,7 +80,7 @@ We'd appreciate it if you take a look at `Problem reporting guide`_ before posti
 .. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: irc://irc.freenode.net/#autokey
 .. _Gitter: https://gitter.im/autokey/autokey
-.. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
+.. _Problem reporting guide: https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
 =============================
