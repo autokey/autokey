@@ -1,10 +1,8 @@
 import datetime
 from abc import abstractmethod
 import shlex
-import re
 
-from autokey.iomediator.constants import KEY_SPLIT_RE
-from autokey.iomediator.key import Key
+from autokey.model.key import Key, KEY_SPLIT_RE
 from autokey import common
 
 

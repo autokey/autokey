@@ -14,14 +14,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
-import typing
 
 from PyQt5.QtWidgets import QMessageBox
 
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.qtui.common as ui_common
 
-from autokey.model import Folder
+from autokey.model.folder import Folder
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 PROBLEM_MSG_PRIMARY = "Some problems were found"

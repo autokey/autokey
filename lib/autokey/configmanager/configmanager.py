@@ -26,7 +26,13 @@ import re
 import json
 import itertools
 
-from autokey import common, model
+import autokey.model.abstract_hotkey
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
+from autokey.model import key
+from autokey import common
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
@@ -34,8 +40,8 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     DISABLED_MODIFIERS
 import autokey.configmanager.version_upgrading
 import autokey.configmanager.predefined_user_files
-from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS
-from autokey.iomediator import key
+from autokey.iomediator.constants import X_RECORD_INTERFACE
+from autokey.model.key import MODIFIERS
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -262,12 +268,12 @@ class ConfigManager:
             for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
                 if os.path.isdir(entryPath):
                     logger.debug("Loading folder at '%s'", entryPath)
-                    f = model.Folder("", path=entryPath)
+                    f = autokey.model.folder.Folder("", path=entryPath)
                     f.load(None)
                     self.folders.append(f)
 
             for folderPath in data["folders"]:
-                f = model.Folder("", path=folderPath)
+                f = autokey.model.folder.Folder("", path=folderPath)
                 f.load()
                 self.folders.append(f)
 
@@ -307,7 +313,7 @@ class ConfigManager:
             # --- handle directories added
 
             if os.path.isdir(path):
-                f = model.Folder("", path=path)
+                f = autokey.model.folder.Folder("", path=path)
 
                 if directory == CONFIG_DEFAULT_FOLDER:
                     self.folders.append(f)
@@ -329,9 +335,9 @@ class ConfigManager:
                 if i is None:
                     isNew = True
                     if baseName.endswith(".txt"):
-                        i = model.Phrase("", "", path=path)
+                        i = autokey.model.phrase.Phrase("", "", path=path)
                     elif baseName.endswith(".py"):
-                        i = model.Script("", "", path=path)
+                        i = autokey.model.script.Script("", "", path=path)
 
                 if i is not None:
                     folder = self.__checkExistingFolder(directory)
@@ -475,7 +481,7 @@ class ConfigManager:
 
         for folderPath in data["folders"]:
             if folderPath not in existingPaths:
-                f = model.Folder("", path=folderPath)
+                f = autokey.model.folder.Folder("", path=folderPath)
                 f.load()
                 self.folders.append(f)
 
@@ -495,8 +501,8 @@ class ConfigManager:
         if self.VERSION < '0.70.0':
             logger.info("Doing upgrade to 0.70.0")
             for item in self.allItems:
-                if isinstance(item, model.Phrase):
-                    item.sendMode = model.SendMode.KEYBOARD
+                if isinstance(item, autokey.model.phrase.Phrase):
+                    item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
 
         if self.VERSION < "0.82.3":
             self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
@@ -531,7 +537,7 @@ class ConfigManager:
         self.allItems = []
 
         for folder in self.folders:
-            if model.TriggerMode.HOTKEY in folder.modes:
+            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
 
@@ -561,7 +567,7 @@ class ConfigManager:
             self.app.monitor.add_watch(parentFolder.path)
 
         for folder in parentFolder.folders:
-            if model.TriggerMode.HOTKEY in folder.modes:
+            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
                 self.hotKeyFolders.append(folder)
             self.allFolders.append(folder)
 
@@ -571,18 +577,18 @@ class ConfigManager:
             self.__processFolder(folder)
 
         for item in parentFolder.items:
-            if model.TriggerMode.HOTKEY in item.modes:
+            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
                 self.hotKeys.append(item)
-            if model.TriggerMode.ABBREVIATION in item.modes:
+            if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
                 self.abbreviations.append(item)
             self.allItems.append(item)
 
     # TODO Future functionality
     def add_recent_entry(self, entry):
         if RECENT_ENTRIES_FOLDER not in self.folders:
-            folder = model.Folder(RECENT_ENTRIES_FOLDER)
+            folder = autokey.model.folder.Folder(RECENT_ENTRIES_FOLDER)
             folder.set_hotkey(["<super>"], "<f7>")
-            folder.set_modes([model.TriggerMode.HOTKEY])
+            folder.set_modes([autokey.model.helpers.TriggerMode.HOTKEY])
             self.folders[RECENT_ENTRIES_FOLDER] = folder
             self.recentEntries = []
 
@@ -601,9 +607,9 @@ class ConfigManager:
                 else:
                     description = theEntry
 
-                p = model.Phrase(description, theEntry)
+                p = autokey.model.phrase.Phrase(description, theEntry)
                 if self.SETTINGS[RECENT_ENTRY_SUGGEST]:
-                    p.set_modes([model.TriggerMode.PREDICTIVE])
+                    p.set_modes([autokey.model.helpers.TriggerMode.PREDICTIVE])
 
                 folder.add_item(p)
 
@@ -626,8 +632,8 @@ class ConfigManager:
 
     @staticmethod
     def item_has_abbreviation(item, abbreviation):
-        return model.TriggerMode.ABBREVIATION in item.modes and \
-            abbreviation in item.abbreviations
+        return autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes and \
+               abbreviation in item.abbreviations
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
@@ -687,7 +693,7 @@ class ConfigManager:
         @param newFilterPattern:
         """
         for item in itertools.chain(self.allFolders, self.allItems):
-            if model.TriggerMode.HOTKEY in item.modes and \
+            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes and \
                     ConfigManager.item_has_same_hotkey(item,
                                               modifiers,
                                               hotKey,
@@ -744,26 +750,26 @@ class ConfigManager:
 
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
-        if model.TriggerMode.HOTKEY in removed_item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
             self.app.hotkey_removed(removed_item)
 
-        if isinstance(removed_item, model.Folder):
+        if isinstance(removed_item, autokey.model.folder.Folder):
             for subFolder in removed_item.folders:
                 self.__deleteHotkeys(subFolder)
 
             for item in removed_item.items:
-                if model.TriggerMode.HOTKEY in item.modes:
+                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
                     self.app.hotkey_removed(item)
 
 
-class GlobalHotkey(model.AbstractHotkey):
+class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):
     """
     A global application hotkey, configured from the advanced settings dialog.
     Allows a method call to be attached to the hotkey.
     """
 
     def __init__(self):
-        model.AbstractHotkey.__init__(self)
+        autokey.model.abstract_hotkey.AbstractHotkey.__init__(self)
         self.enabled = False
         self.windowInfoRegex = None
         self.isRecursive = False
@@ -774,11 +780,11 @@ class GlobalHotkey(model.AbstractHotkey):
         d = {
             "enabled": self.enabled
             }
-        d.update(model.AbstractHotkey.get_serializable(self))
+        d.update(autokey.model.abstract_hotkey.AbstractHotkey.get_serializable(self))
         return d
 
     def load_from_serialized(self, data):
-        model.AbstractHotkey.load_from_serialized(self, data)
+        autokey.model.abstract_hotkey.AbstractHotkey.load_from_serialized(self, data)
         self.enabled = data["enabled"]
 
     def set_closure(self, closure):
@@ -789,7 +795,7 @@ class GlobalHotkey(model.AbstractHotkey):
 
     def check_hotkey(self, modifiers, key, windowTitle):
         # TODO: Doesn’t this always return False? (as long as no exceptions are thrown)
-        if model.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
+        if autokey.model.abstract_hotkey.AbstractHotkey.check_hotkey(self, modifiers, key, windowTitle) and self.enabled:
             logger.debug("Triggered global hotkey using modifiers: %r key: %r", modifiers, key)
             self.closure()
         return False

@@ -23,7 +23,10 @@ This eases maintenance of predefined user scripts, because those are not stored 
 from typing import NamedTuple, List, Optional
 import pathlib
 
-from autokey.model import Folder, Script, Phrase, TriggerMode
+from autokey.model.folder import Folder
+from autokey.model.script import Script
+from autokey.model.phrase import Phrase
+from autokey.model.helpers import TriggerMode
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 # A Hotkey is defined by a list of modifier keys and a printable key.

@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ["XRecordInterface", "AtSpiInterface"]
+__all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
 
 from abc import abstractmethod
 import logging
@@ -26,9 +26,10 @@ import queue
 import subprocess
 import time
 
+import autokey.model.phrase
+
 if typing.TYPE_CHECKING:
-    from autokey.iomediator import IoMediator
-from autokey import model
+    from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
 
 
@@ -592,7 +593,7 @@ class XInterfaceBase(threading.Thread):
             except ValueError:
                 return "<code%d>" % keyCode
 
-    def send_string_clipboard(self, string: str, paste_command: model.SendMode):
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
         """
         This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
         :param string: The to-be pasted string
@@ -602,18 +603,18 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string via clipboard: " + string)
         if common.USING_QT:
-            if paste_command in (None, model.SendMode.SELECTION):
+            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
             else:
                 self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
         else:
-            if paste_command in (None, model.SendMode.SELECTION):
+            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self._send_string_selection, string)
             else:
                 self.__enqueue(self._send_string_clipboard, string, paste_command)
         logger.debug("Sending via clipboard enqueued.")
 
-    def _send_string_clipboard(self, string: str, paste_command: model.SendMode):
+    def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
         """
         Use the clipboard to send a string.
         """
@@ -1265,8 +1266,7 @@ class AtSpiInterface(XInterfaceBase):
         return True
 
 
-from autokey.iomediator.constants import MODIFIERS
-from autokey.iomediator.key import Key
+from autokey.model.key import Key, MODIFIERS
 import autokey.configmanager.configmanager as cm
 
 XK.load_keysym_group('xkb')

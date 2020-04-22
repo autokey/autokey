@@ -20,7 +20,9 @@ from PyQt5.QtCore import Qt, QEvent, QModelIndex
 from PyQt5.QtGui import QKeySequence, QIcon, QKeyEvent, QMouseEvent, QDragMoveEvent, QDropEvent
 from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView
 
-from autokey import model
+import autokey.model.folder
+import autokey.model.phrase
+import autokey.model.script
 
 
 class AkTreeWidget(QTreeWidget):
@@ -67,7 +69,7 @@ class AkTreeWidget(QTreeWidget):
 
 class FolderWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent: Optional[QTreeWidgetItem], folder: model.Folder):
+    def __init__(self, parent: Optional[QTreeWidgetItem], folder: autokey.model.folder.Folder):
         QTreeWidgetItem.__init__(self)
         self.folder = folder
         self.setIcon(0, QIcon.fromTheme("folder"))
@@ -100,7 +102,7 @@ class FolderWidgetItem(QTreeWidgetItem):
 
 class PhraseWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent: Optional[FolderWidgetItem], phrase: model.Phrase):
+    def __init__(self, parent: Optional[FolderWidgetItem], phrase: autokey.model.phrase.Phrase):
         QTreeWidgetItem.__init__(self)
         self.phrase = phrase
         self.setIcon(0, QIcon.fromTheme("text-x-generic"))
@@ -133,7 +135,7 @@ class PhraseWidgetItem(QTreeWidgetItem):
 
 class ScriptWidgetItem(QTreeWidgetItem):
 
-    def __init__(self, parent: Optional[FolderWidgetItem], script: model.Script):
+    def __init__(self, parent: Optional[FolderWidgetItem], script: autokey.model.script.Script):
         QTreeWidgetItem.__init__(self)
         self.script = script
         self.setIcon(0, QIcon.fromTheme("text-x-python"))
@@ -163,13 +165,13 @@ class ScriptWidgetItem(QTreeWidgetItem):
             return False
 
 
-ItemType = Union[model.Folder, model.Phrase, model.Script]
+ItemType = Union[autokey.model.folder.Folder, autokey.model.phrase.Phrase, autokey.model.script.Script]
 ItemWidgetType = Union[FolderWidgetItem, PhraseWidgetItem, ScriptWidgetItem]
 
 
 class WidgetItemFactory:
 
-    def __init__(self, root_folders: List[model.Folder]):
+    def __init__(self, root_folders: List[autokey.model.folder.Folder]):
         self.folders = root_folders
 
     def get_root_folder_list(self):
@@ -183,7 +185,7 @@ class WidgetItemFactory:
         return root_items
 
     @staticmethod
-    def process_folder(parent_item: ItemWidgetType, parent_folder: model.Folder):
+    def process_folder(parent_item: ItemWidgetType, parent_folder: autokey.model.folder.Folder):
         for folder in parent_folder.folders:
             item = WidgetItemFactory._build_item(parent_item, folder)
             WidgetItemFactory.process_folder(item, folder)
@@ -193,9 +195,9 @@ class WidgetItemFactory:
 
     @staticmethod
     def _build_item(parent: Optional[FolderWidgetItem], item: ItemType) -> ItemWidgetType:
-        if isinstance(item, model.Folder):
+        if isinstance(item, autokey.model.folder.Folder):
             return FolderWidgetItem(parent, item)
-        elif isinstance(item, model.Phrase):
+        elif isinstance(item, autokey.model.phrase.Phrase):
             return PhraseWidgetItem(parent, item)
-        elif isinstance(item, model.Script):
+        elif isinstance(item, autokey.model.script.Script):
             return ScriptWidgetItem(parent, item)

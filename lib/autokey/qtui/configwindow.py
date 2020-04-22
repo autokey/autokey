@@ -14,8 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import threading
-import time
 import webbrowser
 
 from PyQt5.QtCore import pyqtSignal, QTimer
@@ -24,11 +22,13 @@ from PyQt5.QtWidgets import QApplication, QAction, QMenu
 
 
 import autokey.common
+import autokey.model.folder
+import autokey.model.phrase
+import autokey.model.script
 import autokey.qtui.common
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey import model
 from .settings import SettingsDialog
 from . import dialogs
 
@@ -205,10 +205,10 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         
     def update_actions(self, items, changed):
         if len(items) > 0:
-            can_create = isinstance(items[0], model.Folder) and len(items) == 1
+            can_create = isinstance(items[0], autokey.model.folder.Folder) and len(items) == 1
             can_copy = True
             for item in items:
-                if isinstance(item, model.Folder):
+                if isinstance(item, autokey.model.folder.Folder):
                     can_copy = False
                     break
             
@@ -220,9 +220,9 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
             self.action_copy_item.setEnabled(can_copy)
             self.action_clone_item.setEnabled(can_copy)
             self.action_paste_item.setEnabled(can_create and len(self.central_widget.cutCopiedItems) > 0)
-            self.action_record_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
-            self.action_run_script.setEnabled(isinstance(items[0], model.Script) and len(items) == 1)
-            self.menu_insert_macros.setEnabled(isinstance(items[0], model.Phrase) and len(items) == 1)
+            self.action_record_script.setEnabled(isinstance(items[0], autokey.model.script.Script) and len(items) == 1)
+            self.action_run_script.setEnabled(isinstance(items[0], autokey.model.script.Script) and len(items) == 1)
+            self.menu_insert_macros.setEnabled(isinstance(items[0], autokey.model.phrase.Phrase) and len(items) == 1)
 
             if changed:
                 self.action_save.setEnabled(False)

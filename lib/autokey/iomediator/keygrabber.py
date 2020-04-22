@@ -1,10 +1,24 @@
+# Copyright (C) 2011 Chris Dekter
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import datetime
 import time
 
-from .constants import MODIFIERS
-from ._iomediator import IoMediator
-from .key import Key
-from . import _iomediator
+from .iomediator import IoMediator
+from autokey.model.key import Key, MODIFIERS
+from . import iomediator
 
 
 class KeyGrabber:
@@ -16,21 +30,21 @@ class KeyGrabber:
         self.target_parent = parent
 
     def start(self):
-        # In QT version, sometimes the mouseclick event arrives before we finish initialising
+        # In QT version, sometimes the mouse click event arrives before we finish initialising
         # sleep slightly to prevent this
         time.sleep(0.1)
         IoMediator.listeners.append(self)
-        _iomediator.CURRENT_INTERFACE.grab_keyboard()
+        iomediator.CURRENT_INTERFACE.grab_keyboard()
 
     def handle_keypress(self, raw_key, modifiers, key, *args):
         if raw_key not in MODIFIERS:
             IoMediator.listeners.remove(self)
             self.target_parent.set_key(raw_key, modifiers)
-            _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
+            iomediator.CURRENT_INTERFACE.ungrab_keyboard()
 
     def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
         IoMediator.listeners.remove(self)
-        _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
+        iomediator.CURRENT_INTERFACE.ungrab_keyboard()
         self.target_parent.cancel_grab()
 
 
@@ -62,7 +76,7 @@ class Recorder(KeyGrabber):
         self.start_time = time.time()
         self.delay = 0
         self.delay_finished = True
-        _iomediator.CURRENT_INTERFACE.grab_keyboard()
+        iomediator.CURRENT_INTERFACE.grab_keyboard()
 
     def stop(self):
         if self in IoMediator.listeners:
@@ -72,7 +86,7 @@ class Recorder(KeyGrabber):
             self.insideKeys = False
 
     def stop_withgrab(self):
-        _iomediator.CURRENT_INTERFACE.ungrab_keyboard()
+        iomediator.CURRENT_INTERFACE.ungrab_keyboard()
         if self in IoMediator.listeners:
             IoMediator.listeners.remove(self)
             if self.insideKeys:

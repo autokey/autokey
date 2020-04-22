@@ -17,10 +17,11 @@
 
 from PyQt5.QtWidgets import QDialog
 
+import autokey.model.helpers
+import autokey.model.modelTypes
 from autokey.qtui.common import inherits_from_ui_file_with_name
 from autokey.qtui.dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
 
-from autokey import model
 
 
 class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
@@ -39,32 +40,32 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.abbr_settings_dialog = AbbrSettingsDialog(self)
         self.hotkey_settings_dialog = HotkeySettingsDialog(self)
         self.window_filter_dialog = WindowFilterSettingsDialog(self)
-        self.current_item = None  # type: model.Item
+        self.current_item = None  # type: autokey.model.modelTypes.Item
         self.abbreviation_enabled = False
         self.hotkey_enabled = False
         self.window_filter_enabled = False
 
-    def load(self, item: model.Item):
+    def load(self, item: autokey.model.modelTypes.Item):
         self.current_item = item
         self._load_abbreviation_data(item)
         self._load_hotkey_data(item)
         self._load_window_filter_data(item)
 
-    def _load_abbreviation_data(self, item: model.Item):
+    def _load_abbreviation_data(self, item: autokey.model.modelTypes.Item):
         self.abbr_settings_dialog.load(item)
-        item_has_abbreviation = model.TriggerMode.ABBREVIATION in item.modes
+        item_has_abbreviation = autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes
         self.abbreviation_label.setText(item.get_abbreviations() if item_has_abbreviation else "(None configured)")
         self.clear_abbreviation_button.setEnabled(item_has_abbreviation)
         self.abbreviation_enabled = item_has_abbreviation
 
-    def _load_hotkey_data(self, item: model.Item):
+    def _load_hotkey_data(self, item: autokey.model.modelTypes.Item):
         self.hotkey_settings_dialog.load(item)
-        item_has_hotkey = model.TriggerMode.HOTKEY in item.modes
+        item_has_hotkey = autokey.model.helpers.TriggerMode.HOTKEY in item.modes
         self.hotkey_label.setText(item.get_hotkey_string() if item_has_hotkey else "(None configured)")
         self.clear_hotkey_button.setEnabled(item_has_hotkey)
         self.hotkey_enabled = item_has_hotkey
 
-    def _load_window_filter_data(self, item: model.Item):
+    def _load_window_filter_data(self, item: autokey.model.modelTypes.Item):
         self.window_filter_dialog.load(item)
         item_has_window_filter = item.has_filter() or item.inherits_filter()
         self.window_filter_label.setText(item.get_filter_regex() if item_has_window_filter else "(None configured)")
@@ -78,7 +79,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
 
     def save(self):
         # Perform hotkey ungrab
-        if model.TriggerMode.HOTKEY in self.current_item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in self.current_item.modes:
             self.window().app.hotkey_removed(self.current_item)
 
         self.current_item.set_modes([])

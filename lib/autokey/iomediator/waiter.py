@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # Copyright (C) 2011 Chris Dekter
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,26 +13,35 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
 import threading
 
-from ._iomediator import IoMediator
-
-SEND_LOCK = threading.Lock()  # TODO: This is never accessed anywhere. Does creating this lock do anything?
+from .iomediator import IoMediator
 
 
-class WindowGrabber:
+class Waiter:
+    """
+    Waits for a specified event to occur
+    """
 
-    def __init__(self, dialog):
-        self.dialog = dialog
-
-    def start(self):
-        time.sleep(0.1)
+    def __init__(self, raw_key, modifiers, button, time_out):
         IoMediator.listeners.append(self)
+        self.raw_key = raw_key
+        self.modifiers = modifiers
+        self.button = button
+        self.event = threading.Event()
+        self.time_out = time_out
+
+        if modifiers is not None:
+            self.modifiers.sort()
+
+    def wait(self):
+        return self.event.wait(self.time_out)
 
     def handle_keypress(self, raw_key, modifiers, key, *args):
-        pass
+        if raw_key == self.raw_key and modifiers == self.modifiers:
+            IoMediator.listeners.remove(self)
+            self.event.set()
 
     def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
-        IoMediator.listeners.remove(self)
-        self.dialog.receive_window_info(window_info)
+        if button == self.button:
+            self.event.set()

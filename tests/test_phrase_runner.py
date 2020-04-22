@@ -19,9 +19,9 @@ import pytest
 from hamcrest import *
 
 import autokey.service
-import autokey.iomediator.key
+import autokey.model.key
 from autokey.service import PhraseRunner
-from autokey.model import Phrase
+from autokey.model.phrase import Phrase
 
 
 def _create_phrase_runner(phrase_content: str) -> PhraseRunner:
@@ -63,7 +63,7 @@ def generate_test_cases_for_test_can_undo_expansion():
     yield "abc<ALT>12", False
     yield "<Ctrl>", False
     yield "<abc<up>>", False
-    for key in autokey.iomediator.key.Key:
+    for key in autokey.model.key.Key:
         yield key, False
 
 

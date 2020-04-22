@@ -43,8 +43,9 @@ def create_keyboard(fail_sending: bool = False) -> Keyboard:
     # Only string values allowed for key_string
     (12, Keyboard.SendMode.KEYBOARD, TypeError),
     (b"abc", Keyboard.SendMode.KEYBOARD, TypeError),
-    # send_mode must be a SendMode element
-    ("AB", "kb", TypeError),
+
+    ("AB", "ueue", ValueError),  # Unsupported string value for send_mode
+
     ("123", 42.5, TypeError),
     ("123", len(Keyboard.SendMode), ValueError),  # Index based lookup is supported. Error if out of range
     ("123", -1, ValueError),  # Index based lookup is supported. Error if out of range
@@ -111,13 +112,20 @@ def test_send_keys_send_mode_keyboard_index(cause_error: bool):
 
 
 @pytest.mark.parametrize("send_mode, cause_error", itertools.product(
-                         itertools.chain(Keyboard.SendMode, range(len(Keyboard.SendMode))), [False, True]))
+                         itertools.chain(
+                             Keyboard.SendMode,
+                             range(len(Keyboard.SendMode)),
+                             (mode.value for mode in Keyboard.SendMode)),
+                         [False, True]))
 def test_send_keys_send_mode_clipboard(send_mode: Union[Keyboard.SendMode, int], cause_error: bool):
     kb_mode = Keyboard.SendMode.KEYBOARD
     mode_list = list(Keyboard.SendMode)
-    if send_mode is kb_mode or send_mode == mode_list.index(kb_mode):
+    if send_mode is kb_mode \
+            or (isinstance(send_mode, int) and send_mode == mode_list.index(kb_mode)) \
+            or send_mode == kb_mode.value:
         # Skip keyboard mode for both value- and index-based access
         return
+    print(type(send_mode), send_mode)
     keyboard = create_keyboard(cause_error)
     sent_string = "ABC"
     if cause_error:
@@ -129,7 +137,13 @@ def test_send_keys_send_mode_clipboard(send_mode: Union[Keyboard.SendMode, int],
         keyboard.send_keys(sent_string, send_mode=send_mode)
     mock_mediator: MagicMock = keyboard.mediator
     mock_mediator.send_string.assert_not_called()
-    mock_mediator.paste_string.assert_called_once_with(
-        sent_string,
-        send_mode if isinstance(send_mode, Keyboard.SendMode) else mode_list[send_mode])
+
+    if isinstance(send_mode, str):
+        send_mode = Keyboard.SendMode(send_mode)
+    elif send_mode is None:
+        send_mode = Keyboard.SendMode.SELECTION
+    elif isinstance(send_mode, int):
+        send_mode = mode_list[send_mode]
+
+    mock_mediator.paste_string.assert_called_once_with(sent_string, send_mode)
     mock_mediator.interface.finish_send.assert_called_once()

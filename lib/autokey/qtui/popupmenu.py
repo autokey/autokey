@@ -24,11 +24,15 @@ from PyQt5.QtWidgets import QMenu, QAction, QWidget
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.model
+import autokey.model.abstract_hotkey
+import autokey.model.folder
+import autokey.model.phrase
+import autokey.model.script
 import autokey.service
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-FolderList = List[autokey.model.Folder]
-Item = Union[autokey.model.Script, autokey.model.Phrase]
+FolderList = List[autokey.model.folder.Folder]
+Item = Union[autokey.model.script.Script, autokey.model.phrase.Phrase]
 
 
 class PopupMenu(QMenu):
@@ -152,7 +156,7 @@ class SubMenu(QAction):
 
 class ItemAction(QAction):
 
-    action_sig = pyqtSignal([autokey.model.AbstractHotkey], name="action_sig")
+    action_sig = pyqtSignal([autokey.model.abstract_hotkey.AbstractHotkey], name="action_sig")
 
     def __init__(self, parent: QWidget, description: str, item: Item, target):
         icon = ItemAction._icon_for_item(item)
@@ -164,12 +168,12 @@ class ItemAction(QAction):
 
     @staticmethod
     def _icon_for_item(item: Item) -> QIcon:
-        if isinstance(item, autokey.model.Script):
+        if isinstance(item, autokey.model.script.Script):
             return QIcon.fromTheme("text-x-python")
-        elif isinstance(item, autokey.model.Phrase):
+        elif isinstance(item, autokey.model.phrase.Phrase):
             return QIcon.fromTheme("text-x-generic")
         else:
-            error_msg = "ItemAction got unknown item. Expected Union[autokey.model.Script, autokey.model.Phrase], " \
+            error_msg = "ItemAction got unknown item. Expected Union[autokey.model.script.Script, autokey.model.phrase.Phrase], " \
                         "got '{}'".format(str(type(item)))
             logger.error(error_msg)
             raise ValueError(error_msg)

@@ -1,13 +1,28 @@
+# Copyright (C) 2011 Chris Dekter
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import threading
 import queue
 
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
-from autokey.model import SendMode
+from autokey.model.phrase import SendMode
 
-from .key import Key
-from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from .constants import X_RECORD_INTERFACE
 
 CURRENT_INTERFACE = None
 
@@ -35,16 +50,16 @@ class IoMediator(threading.Thread):
         
         # Modifier tracking
         self.modifiers = {
-                          Key.CONTROL: False,
-                          Key.ALT: False,
-                          Key.ALT_GR: False,
-                          Key.SHIFT: False,
-                          Key.SUPER: False,
-                          Key.HYPER: False,
-                          Key.META: False,
-                          Key.CAPSLOCK: False,
-                          Key.NUMLOCK: False
-                          }
+            Key.CONTROL: False,
+            Key.ALT: False,
+            Key.ALT_GR: False,
+            Key.SHIFT: False,
+            Key.SUPER: False,
+            Key.HYPER: False,
+            Key.META: False,
+            Key.CAPSLOCK: False,
+            Key.NUMLOCK: False
+        }
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)

@@ -18,11 +18,13 @@ import re
 
 from PyQt5.QtWidgets import QDialog
 
+import autokey.iomediator.windowgrabber
+import autokey.model.folder
+import autokey.model.modelTypes
 from autokey.qtui import common as ui_common
 from .detectdialog import DetectDialog
 
 from autokey import iomediator
-from autokey import model
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -33,12 +35,12 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
         super(WindowFilterSettingsDialog, self).__init__(parent)
         self.setupUi(self)
         self.target_item = None
-        self.grabber = None  # type: iomediator.WindowGrabber
+        self.grabber = None  # type: autokey.iomediator._windowgrabber.WindowGrabber
 
-    def load(self, item: model.Item):
+    def load(self, item: autokey.model.modelTypes.Item):
         self.target_item = item
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             self.apply_recursive_check_box.hide()
         else:
             self.apply_recursive_check_box.show()
@@ -89,7 +91,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
 
     def on_detect_window_properties_button_pressed(self):
         self.detect_window_properties_button.setEnabled(False)
-        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber = iomediator.windowgrabber.WindowGrabber(self)
         self.grabber.start()
 
     # --- event handlers ---

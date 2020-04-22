@@ -25,9 +25,9 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hamcrest import *
 
+import autokey.model.folder
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.service import PhraseRunner
-import autokey.model
 import autokey.service
 from autokey.scripting import Engine
 
@@ -39,14 +39,14 @@ def get_autokey_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
 @pytest.fixture
-def create_engine() -> typing.Tuple[Engine, autokey.model.Folder]:
+def create_engine() -> typing.Tuple[Engine, autokey.model.folder.Folder]:
     # Make sure to not write to the hard disk
-    test_folder = autokey.model.Folder("Test folder")
+    test_folder = autokey.model.folder.Folder("Test folder")
     test_folder.persist = MagicMock()
 
     # Mock load_global_config to add the test folder to the known folders. This causes the ConfigManager to skip it’s
     # first-run logic.
-    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"),\
+    with patch("autokey.model.phrase.Phrase.persist"), patch("autokey.model.folder.Folder.persist"),\
          patch("autokey.configmanager.configmanager.ConfigManager.load_global_config",
                new=(lambda self: self.folders.append(test_folder))):
         engine = Engine(ConfigManager(MagicMock()), MagicMock(spec=PhraseRunner))
@@ -115,7 +115,7 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engi
     for arg in args:
         if arg==folder_param:
             arg=folder
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         #     error_check = engine.create_phrase(folder, "test phrase",
     # "contents", hotkey=(["<ctrl>"], "a"))
         assert_that(
@@ -124,7 +124,7 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engi
 
         def test_engine_create_phrase_valid_input_types_not_raises_value_error(create_engine):
             engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         assert_that(
                 calling(engine.create_phrase).with_args(folder, "name",
                     "contents", abbreviations=["t1", "t2"]),
@@ -132,7 +132,7 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engi
 
         def test_engine_create_phrase_adds_phrase_to_parent(create_engine):
             engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC")
         assert_that(folder.items, has_item(phrase))
         hotkey = engine.create_phrase(folder, "Phrase", "ABC", hotkey=(["<ctrl>"], "a"))
@@ -140,7 +140,7 @@ def test_engine_create_phrase_invalid_input_types_raises_value_error(create_engi
 
 def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", hotkey=(["<ctrl>"], "a"))
         assert_that(folder.items, has_item(phrase))
         assert_that(
@@ -151,7 +151,7 @@ def test_engine_create_phrase_duplicate_hotkey_raises_value_error(create_engine)
 def test_engine_create_phrase_duplicate_hotkey_different_window_filter(create_engine):
     engine, folder = create_engine
     hotkey=(["<ctrl>"], "a")
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC",
                                       hotkey=hotkey,
                                       window_filter="Chrome*")
@@ -223,7 +223,7 @@ def assert_both_phrases_with_hotkey_exist(engine, p1, p2, hotkey):
 
 def create_test_hotkey(engine, folder, hotkey, replaceExisting=False,
                        windowFilter=None):
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         return engine.create_phrase(folder,
                 create_random_string(),
                 "ABC",
@@ -240,7 +240,7 @@ def get_item_with_hotkey(engine, hotkey):
 
 def test_engine_create_phrase_duplicate_abbreviation_raises_value_error(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", abbreviations="abbr")
         assert_that(folder.items, has_item(phrase))
         assert_that(
@@ -257,7 +257,7 @@ def test_engine_create_phrase_duplicate_abbreviation_raises_value_error(create_e
 ])
 def test_engine_create_phrase_invalid_abbreviation_type(invalid_abbreviations, create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         assert_that(
             calling(engine.create_phrase).with_args(folder, "Phrase", "ABC", abbreviations=invalid_abbreviations),
             raises(ValueError)
@@ -266,21 +266,21 @@ def test_engine_create_phrase_invalid_abbreviation_type(invalid_abbreviations, c
 
 def test_engine_create_phrase_set_single_abbreviation(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", abbreviations="abbr")
     assert_that(phrase.abbreviations, contains("abbr"))
 
 
 def test_engine_create_phrase_set_list_of_abbreviations(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", abbreviations=["abbr", "Short"])
     assert_that(phrase.abbreviations, contains_inanyorder("abbr", "Short"))
 
 
 def test_engine_create_phrase_set_always_prompt(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase_without_prompt = engine.create_phrase(folder, "Phrase", "ABC", always_prompt=False)
         phrase_with_prompt = engine.create_phrase(folder, "Phrase2", "ABC", always_prompt=True)
     assert_that(phrase_with_prompt.prompt, is_(equal_to(True)))
@@ -289,7 +289,7 @@ def test_engine_create_phrase_set_always_prompt(create_engine):
 
 def test_engine_create_phrase_set_show_in_tray(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase_not_in_tray = engine.create_phrase(folder, "Phrase", "ABC", show_in_system_tray=False)
         phrase_in_tray = engine.create_phrase(folder, "Phrase2", "ABC", show_in_system_tray=True)
     assert_that(phrase_in_tray.show_in_tray_menu, is_(equal_to(True)))
@@ -299,14 +299,14 @@ def test_engine_create_phrase_set_show_in_tray(create_engine):
 @pytest.mark.parametrize("send_mode", Engine.SendMode)
 def test_engine_create_phrase_set_send_mode(send_mode: Engine.SendMode, create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", send_mode=send_mode)
     assert_that(phrase.sendMode, is_(equal_to(send_mode)))
 
 
 def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         parent = engine.create_folder("parent",
             parent_folder=folder, temporary=True)
         assert_that(
@@ -329,7 +329,7 @@ def test_engine_create_nontemp_phrase_with_temp_parent_raises_value_error(create
 def test_engine_create_folder_invalid_types_raises_value_error(args, kwargs, error_msg, create_engine):
     engine, folder = create_engine
     args = replace_folder_param_in_args(folder, args)
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         assert_that(
             calling(engine.create_folder).with_args(*args, **kwargs),
             raises(ValueError), error_msg)
@@ -345,7 +345,7 @@ def test_engine_create_folder_invalid_types_raises_value_error(args, kwargs, err
 def test_engine_create_folder_valid_types_not_raises_value_error(args, kwargs, error_msg, create_engine):
     engine, folder = create_engine
     args = replace_folder_param_in_args(folder, args)
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         assert_that(
             calling(engine.create_folder).with_args(*args, **kwargs),
             not_(raises(ValueError)), error_msg)
@@ -353,7 +353,7 @@ def test_engine_create_folder_valid_types_not_raises_value_error(args, kwargs, e
 
 def test_engine_create_folder(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         test_folder = engine.create_folder("New folder")
         assert_that(engine.configManager.allFolders, has_item(test_folder), "doesn't create new top-level folder")
 
@@ -375,7 +375,7 @@ def test_engine_create_folder_subfolder(create_engine):
 
 def test_engine_create_nontemp_subfolder_with_temp_parent_raises_value_error(create_engine):
     engine, folder = create_engine
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         parent = engine.create_folder("parent",
             parent_folder=folder, temporary=True)
         assert_that(
@@ -391,7 +391,7 @@ def test_engine_create_folder_from_path(create_engine):
     fullpath=path / title
     fullpathStr="/tmp/autokey/path folder"
     # fullpathStr=str(fullpath)
-    with patch("autokey.model.Folder.persist"):
+    with patch("autokey.model.folder.Folder.persist"):
         with patch("pathlib.Path.mkdir"):
             test_folder = engine.create_folder(title, parent_folder=path)
             # XXX This is probably an erroneous assertion.
@@ -409,7 +409,7 @@ def test_engine_remove_temporary_toplevel(create_engine):
     # Folder acts as a non-temp top-level folder.
     test_phrase = engine.create_phrase(folder, "test phrase",
         "contents", temporary=True)
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         test_phrase_nontemp = engine.create_phrase(folder,
                 "test phrase nontemp", "contents")
     test_folder = engine.create_folder("New folder",
@@ -435,13 +435,13 @@ def test_engine_remove_temporary(create_engine):
     test_phrase = engine.create_phrase(test_subfolder, "test phrase",
     "contents", temporary=True)
     # No longer permitted behavior
-    # with patch("autokey.model.Folder.persist"):
+    # with patch("autokey.model.folder.Folder.persist"):
     #     test_subfolder_nontemp = engine.create_folder("New subfolder",
     #             parent_folder = folder)
     #     test_subsubfolder_nontemp = engine.create_folder(
     #             "New subfolder nontemp",
     #             parent_folder = test_subfolder)
-    # with patch("autokey.model.Phrase.persist"):
+    # with patch("autokey.model.phrase.Phrase.persist"):
     #     test_phrase_nontemp = engine.create_phrase(test_subfolder,
     #             "test phrase nontemp", "contents")
 
@@ -480,7 +480,7 @@ def test_engine_remove_temporary(create_engine):
 def test_engine_create_phrase_regex(create_engine):
     import re
     engine, folder = create_engine
-    with patch("autokey.model.Phrase.persist"):
+    with patch("autokey.model.phrase.Phrase.persist"):
         assert_that(
             calling(engine.create_phrase).with_args(folder, "name", "contents", window_filter=".*"),
             not_(raises(re.error)),
@@ -497,7 +497,7 @@ def test_engine_create_phrase_regex(create_engine):
 def test_run_script():
     # Makes use of running script from absolute path.
     engine, folder = create_engine()
-    with patch("autokey.model.Phrase.persist"), patch("autokey.model.Folder.persist"):
-        dummy_folder = autokey.model.Folder("dummy")
+    with patch("autokey.model.phrase.Phrase.persist"), patch("autokey.model.folder.Folder.persist"):
+        dummy_folder = autokey.model.folder.Folder("dummy")
         script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
         assert_that(engine.run_script(script, arg1="arg 1"), is_(equal_to("arg 1")))

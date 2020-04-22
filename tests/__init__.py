@@ -21,7 +21,3 @@ sys.path.insert(0, str(pathlib.Path(__file__).parent / "lib"))
 
 import autokey.common
 autokey.common.USING_QT = True
-# FIXME: This hack is required to import autokey modules without triggering circular dependency issues.
-# It seems that modules are not decoupled enough
-import autokey.iomediator
-import autokey.configmanager

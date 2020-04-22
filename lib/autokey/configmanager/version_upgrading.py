@@ -37,7 +37,10 @@ happen with LTS distribution releases that skip several autokey versions during 
 import os
 from pathlib import Path
 
-from autokey import common, model
+import autokey.model.folder
+import autokey.model.phrase
+import autokey.model.script
+from autokey import common
 import autokey.configmanager.configmanager_constants as cm_constants
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -82,7 +85,7 @@ def _convert_v0_70_to_v0_80(config_data, old_version: str):
 
 
 def _convert_v0_70_to_v0_80_folder(folder_data, parent):
-    f = model.Folder("")
+    f = autokey.model.folder.Folder("")
     f.inject_json_data(folder_data)
     f.parent = parent
     f.persist()
@@ -93,10 +96,10 @@ def _convert_v0_70_to_v0_80_folder(folder_data, parent):
     for itemData in folder_data["items"]:
         i = None
         if itemData["type"] == "script":
-            i = model.Script("", "")
+            i = autokey.model.script.Script("", "")
             i.code = itemData["code"]
         elif itemData["type"] == "phrase":
-            i = model.Phrase("", "")
+            i = autokey.model.phrase.Phrase("", "")
             i.phrase = itemData["phrase"]
 
         if i is not None:
