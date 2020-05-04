@@ -757,7 +757,22 @@ class XInterfaceBase(threading.Thread):
                 keyCode, offset = self.__findUsableKeycode(keyCodeList)
                 if keyCode is not None:
                     if offset == 0:
-                        self.__sendKeyCode(keyCode, theWindow=focus)
+                        if self.localDisplay.lookup_string(ord(char)) is None:
+                            # No reasonable translation of key to string found
+                            # Try typing this as Unicode: <control><shift>u + hex
+                            ukeyCodeList = self.localDisplay.keysym_to_keycodes(ord('u'))
+                            ukeyCode, uOffset = self.__findUsableKeycode(ukeyCodeList)
+                            self.__sendKeyCode(ukeyCode, self.modMasks[Key.CONTROL] | self.modMasks[Key.SHIFT], focus)
+                            self.__releaseKey(Key.CONTROL)
+                            self.__releaseKey(Key.SHIFT)
+                            char_as_hex_string = '{:X}'.format(ord(char))
+                            for hex_char in char_as_hex_string:
+                                hexKeyCodeList = self.localDisplay.keysym_to_keycodes(ord(hex_char))
+                                hexKeyCode, hexOffset = self.__findUsableKeycode(hexKeyCodeList)
+                                self.__sendKeyCode(hexKeyCode)
+                            self.__pressKey(Key.ENTER)
+                        else:
+                            self.__sendKeyCode(keyCode, theWindow=focus)
                     if offset == 1:
                         self.__pressKey(Key.SHIFT)
                         self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
