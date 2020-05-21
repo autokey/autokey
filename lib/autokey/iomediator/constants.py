@@ -3,6 +3,7 @@ import re
 from .key import Key
 
 X_RECORD_INTERFACE = "XRecord"
+U_RECORD_INTERFACE = "URecord"
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
 
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]

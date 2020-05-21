@@ -269,9 +269,9 @@ class Application:
 
     def main(self):
         logging.info("Entering main()")
-        Gdk.threads_enter()
+        # Gdk.threads_enter() # TODO: Can this be removed safely? sounds like it may be deprecated
         Gtk.main()
-        Gdk.threads_leave()
+        # Gdk.threads_leave() # TODO: Can this be removed safely? sounds like it may be deprecated
 
     def show_error_dialog(self, message, details=None):
         """

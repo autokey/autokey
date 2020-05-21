@@ -4,11 +4,11 @@ import logging
 
 from ..configmanager import ConfigManager
 from ..configmanager_constants import INTERFACE_TYPE
-from ..interface import XRecordInterface, AtSpiInterface
+from ..interface import XRecordInterface, AtSpiInterface, URecordInterface
 from autokey.model import SendMode
 
 from .key import Key
-from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from .constants import X_RECORD_INTERFACE, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS, U_RECORD_INTERFACE
 
 CURRENT_INTERFACE = None
 _logger = logging.getLogger("iomediator")
@@ -48,6 +48,8 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
+        if self.interfaceType == U_RECORD_INTERFACE:
+            self.interface = URecordInterface(self, service.app)
         else:
             self.interface = AtSpiInterface(self, service.app)
 

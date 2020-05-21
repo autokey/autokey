@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ["XRecordInterface", "AtSpiInterface"]
+__all__ = ["XRecordInterface", "URecordInterface", "AtSpiInterface"]
 
 from abc import abstractmethod
 import typing
@@ -25,6 +25,7 @@ import logging
 import queue
 import subprocess
 import time
+import keyboard
 
 if typing.TYPE_CHECKING:
     from autokey.iomediator import IoMediator
@@ -189,7 +190,7 @@ else:
 
 class XInterfaceBase(threading.Thread):
     """
-    Encapsulates the common functionality for the two X interface classes.
+    Encapsulates the common functionality for the X interface classes.
     """
 
     def __init__(self, mediator, app):
@@ -207,19 +208,19 @@ class XInterfaceBase(threading.Thread):
         self.queue = queue.Queue()
         
         # Event listener
-        self.listenerThread = threading.Thread(target=self.__flushEvents)
+        # self.listenerThread = threading.Thread(target=self.__flushEvents) // TODO: Without event loop hotkeys and such wont work
         self.clipboard = Clipboard()
 
-        self.__initMappings()
+        # self.__initMappings()
 
         # Set initial lock state
-        ledMask = self.localDisplay.get_keyboard_control().led_mask
-        mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
-        mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
-
-        # Window name atoms
-        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
-        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
+        # ledMask = self.localDisplay.get_keyboard_control().led_mask
+        # mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
+        # mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
+        #
+        # # Window name atoms
+        # self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
+        # self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
         
         if not common.USING_QT:
             self.keyMap = Gdk.Keymap.get_default()
@@ -228,7 +229,7 @@ class XInterfaceBase(threading.Thread):
         self.__ignoreRemap = False
         
         self.eventThread.start()
-        self.listenerThread.start()
+        # self.listenerThread.start() // FIXME
         
     def __eventLoop(self):
         while True:
@@ -253,13 +254,13 @@ class XInterfaceBase(threading.Thread):
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
             time.sleep(0.2)
-            self.__enqueue(self.__ungrabAllHotkeys)
-            self.__enqueue(self.__delayedInitMappings)
+            # self.__enqueue(self.__ungrabAllHotkeys)
+            # self.__enqueue(self.__delayedInitMappings)
         else:
             logger.debug("Ignored keymap change event")
 
     def __delayedInitMappings(self):        
-        self.__initMappings()
+        #self.__initMappings() # FIXME
         self.__ignoreRemap = False
 
     def __initMappings(self):
@@ -574,22 +575,26 @@ class XInterfaceBase(threading.Thread):
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
             return "<unknown>"
-
-        keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
-
-        if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
-            return XK_TO_AK_NUMLOCKED[keySym]
-
-        elif keySym in XK_TO_AK_MAP:
-            return XK_TO_AK_MAP[keySym]
-        else:
-            index = 0
-            if shifted: index += 1
-            if altGrid: index += 4
-            try:
-                return chr(self.localDisplay.keycode_to_keysym(keyCode, index))
-            except ValueError:
-                return "<code%d>" % keyCode
+        scan_codes = keyboard.key_to_scan_codes(keyCode)
+        if len(scan_codes) > 0:
+            return scan_codes[0]
+        return "<unknown>"
+        # TODO: use altGrid, numlock, shifted?
+        # keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
+        #
+        # if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
+        #     return XK_TO_AK_NUMLOCKED[keySym]
+        #
+        # elif keySym in XK_TO_AK_MAP:
+        #     return XK_TO_AK_MAP[keySym]
+        # else:
+        #     index = 0
+        #     if shifted: index += 1
+        #     if altGrid: index += 4
+        #     try:
+        #         return chr(self.localDisplay.keycode_to_keysym(keyCode, index))
+        #     except ValueError:
+        #         return "<code%d>" % keyCode
 
     def send_string_clipboard(self, string: str, paste_command: model.SendMode):
         """
@@ -940,14 +945,14 @@ class XInterfaceBase(threading.Thread):
         self.__enqueue(self.__handleKeyPress, keyCode)
     
     def __handleKeyPress(self, keyCode):
-        focus = self.localDisplay.get_input_focus().focus
+        # focus = self.localDisplay.get_input_focus().focus # FIXME
 
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
-        else:
-            window_info = self.get_window_info(focus)
-            self.mediator.handle_keypress(keyCode, window_info)
+        # else:
+            # window_info = self.get_window_info(focus) # FIXME
+            # self.mediator.handle_keypress(keyCode, window_info) # FIXME
 
     def handle_keyrelease(self, keyCode):
         self.__enqueue(self.__handleKeyrelease, keyCode)
@@ -1166,7 +1171,7 @@ class XInterfaceBase(threading.Thread):
         logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
         self.shutdown = True
         logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
-        self.listenerThread.join()
+        # self.listenerThread.join() // FIXME
         self.eventThread.join()
         self.localDisplay.flush()
         self.localDisplay.close()
@@ -1230,6 +1235,30 @@ class XRecordInterface(XInterfaceBase):
                 self.handle_keyrelease(event.detail)
             elif event.type == X.ButtonPress:
                 self.handle_mouseclick(event.detail, event.root_x, event.root_y)
+
+
+class URecordInterface(XInterfaceBase):
+
+    def initialise(self):
+        logger.info("URecord interface initialising")
+
+    def start(self):
+        logger.info("URecord interface thread starting")
+        keyboard.on_press(self.__processKeyPress)
+        keyboard.on_release(self.__processKeyRelease)
+        # mouse.on_click(self.__processMouseClick)
+
+    def cancel(self):
+        keyboard.unhook_all()
+
+    def __processKeyPress(self, keyboardEvent):
+        self.handle_keypress(keyboardEvent.scan_code)
+
+    def __processKeyRelease(self, keyboardEvent):
+        self.handle_keyrelease(keyboardEvent.scan_code)
+
+    # def __processMouseClick(self, args):
+        # self.handle_mouseclick(event.detail, event.root_x, event.root_y) # TODO
 
 
 class AtSpiInterface(XInterfaceBase):

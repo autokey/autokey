@@ -26,7 +26,7 @@ import re
 from pathlib import Path
 
 from autokey import common
-from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS
+from autokey.iomediator.constants import X_RECORD_INTERFACE, MODIFIERS, U_RECORD_INTERFACE
 from autokey.iomediator import key
 
 import json
@@ -367,7 +367,7 @@ class ConfigManager:
                 PROMPT_TO_SAVE:False,
                 #PREDICTIVE_LENGTH: 5,
                 ENABLE_QT4_WORKAROUND: False,
-                INTERFACE_TYPE: X_RECORD_INTERFACE,
+                INTERFACE_TYPE: U_RECORD_INTERFACE,
                 UNDO_USING_BACKSPACE: True,
                 WINDOW_DEFAULT_SIZE: (600, 400),
                 HPANE_POSITION: 150,
