@@ -93,3 +93,93 @@ import time
 time.sleep(0.2)
 webbrowser.open("http://www.google.de/search?q="+clipboard.get_clipboard())
 ```
+
+## Ping or TracePath Mojang Minecraft Services Servers
+Author: [Kreezxil](https://kreezcraft.com)
+
+While this could've been done easier in a shell script I thought it would be fun to do it in Autokey.
+The script contains an array of Mojang servers that can cause issue for players if they are down. There is an action array too so you can see how to easily add more actions. 
+
+Each time you trigger it the script will have you choose which server you would like to perform an action on, it defaults to all. Then it will ask you what action you would like to perform on what you just chose in the server section, this will default to **ping -c 1**.
+
+```python
+from autokey.common import USING_QT
+
+mjservers = []
+mjservers.append(["all","default"])
+mjservers.append(["minecraft.net"])
+mjservers.append(["account.mojang.com"])
+mjservers.append(["authserver.mojang.com"])
+mjservers.append(["sessionserver.mojang.com"])
+mjservers.append(["skins.minecraft.net"])
+mjservers.append(["textures.minecraft.net"])
+
+mjactions = []
+mjactions.append(["ping -c 1","default"])
+mjactions.append(["ping -c 10"])
+mjactions.append(["tracepath"])
+
+menuBuilder = []
+defEntry = ""
+menuEntry = "{}"
+for x in mjservers:
+  entry=menuEntry.format(x[0])
+  if x.count("default") == 1:
+      defEntry=entry
+  menuBuilder.append(entry)
+
+# We use the boolean check to see which toolkit we're using
+# the different toolkits receive extra parameters differently
+if USING_QT:
+    retCode, choice = dialog.list_menu(menuBuilder, title="Which server?", default=defEntry)
+else:
+    retCode, choice = dialog.list_menu(menuBuilder, title="Which server?", height='800',width='350',default=defEntry)
+
+if retCode:
+    #message canceled, tortue ended
+    exit()
+else:
+    selection="{}"
+    server=selection.format(
+        mjservers[
+            menuBuilder.index(choice)
+        ][0]
+    )
+        
+menuBuilder = []
+defEntry = ""
+menuEntry = "{}"
+for x in mjactions:
+  entry=menuEntry.format(x[0])
+  if x.count("default") == 1:
+      defEntry=entry
+  menuBuilder.append(entry)
+
+# We use the boolean check to see which toolkit we're using
+# the different toolkits receive extra parameters differently
+if USING_QT:
+    retCode, choice = dialog.list_menu(menuBuilder, title="Which action?", default=defEntry)
+else:
+    retCode, choice = dialog.list_menu(menuBuilder, title="Which action?", height='800',width='350',default=defEntry)
+
+if retCode:
+    exit()
+else:
+    selection="{}"
+    action=selection.format(
+        mjactions[
+            menuBuilder.index(choice)
+        ][0]
+    )
+        
+if server == "all":
+    for x in mjservers:
+        thisbethat="{} {}"
+        if x[0] != "all":
+            keyboard.send_keys(thisbethat.format(action,x[0]))
+            keyboard.send_key("<enter>")
+else:
+    thisbethat="{} {}"
+    keyboard.send_keys(thisbethat.format(action,server))
+    keyboard.send_key("<enter>")
+```
