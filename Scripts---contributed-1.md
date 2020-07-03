@@ -100,7 +100,7 @@ Author: [Kreezxil](https://kreezcraft.com)
 While this could've been done easier in a shell script I thought it would be fun to do it in Autokey.
 The script contains an array of Mojang servers that can cause issue for players if they are down. There is an action array too so you can see how to easily add more actions. 
 
-Each time you trigger it the script will have you choose which server you would like to perform an action on, it defaults to all. Then it will ask you what action you would like to perform on what you just chose in the server section, this will default to **ping -c 1**.
+Each time you trigger it the script will have you choose which server you would like to perform an action on, it defaults to all. Then it will ask you what action you would like to perform on what you just chose in the server section, this will default to `ping -c 1`.
 
 ```python
 from autokey.common import USING_QT
