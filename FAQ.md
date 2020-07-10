@@ -18,7 +18,7 @@ Most likely Autokey has indeed started, and these are just benign messages from 
 No. AutoKey's built-in Python scripting is arguably much more powerful than the AHK language and makes it possible to do many of the things that AutoHotKey? scripts can do on Windows, in addition to some things AHK doesn't support.
 
 ### Is AutoKey available on Microsoft Windows?
-No. There are similar alternatives on Windows like [PhraseExpress](http://www.phraseexpress.com/) and [AutoHotKey](http://www.autohotkey.com/)
+No. There are similar alternatives on Windows like [PhraseExpress](http://www.phraseexpress.com/) and [AutoHotKey](http://www.autohotkey.com/). For an alternative that both uses Python and is free on Github, there's [Pywinauto](https://github.com/pywinauto/pywinauto).
 
 ### Can I temporarily suspend/resume AutoKey?
 To toggle !Autokey from suspend/resume, use the hotkey which you have specified in Settings -> Advanced Settings -> Special Hotkeys->Use a hotkey to toggle expansions. Alternatively this can be controlled from the system tray Autokey popup menu.
