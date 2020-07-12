@@ -109,14 +109,18 @@ class IoMediator(threading.Thread):
             shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
             key = self.interface.lookup_string(keyCode, shifted, numLock, self.modifiers[Key.ALT_GR])
             rawKey = self.interface.lookup_string(keyCode, False, False, False)
-            
-            for target in self.listeners:
+
+            # We make a copy here because the wait_for... functions modify the listeners,
+            # and we want this processing cycle to complete before changing what happens
+            for target in self.listeners.copy():
                 target.handle_keypress(rawKey, modifiers, key, window_info)
                 
             self.queue.task_done()
             
     def handle_mouse_click(self, rootX, rootY, relX, relY, button, windowInfo):
-        for target in self.listeners:
+        # We make a copy here because the wait_for... functions modify the listeners,
+        # and we want this processing cycle to complete before changing what happens
+        for target in self.listeners.copy():
             target.handle_mouseclick(rootX, rootY, relX, relY, button, windowInfo)
         
     # Methods for expansion service ----

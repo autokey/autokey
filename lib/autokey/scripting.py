@@ -23,6 +23,7 @@ from typing import NamedTuple, Union, List
 
 from autokey import common, model
 from autokey import iomediator
+from typing import Callable
 
 if common.USING_QT:
     from PyQt5.QtGui import QClipboard
@@ -174,8 +175,48 @@ class Keyboard:
         """
         if modifiers is None:
             modifiers = []
-        w = iomediator.Waiter(key, modifiers, None, timeOut)
+        w = iomediator.Waiter(key, modifiers, None, None, None, timeOut)
         return w.wait()
+
+
+    def wait_for_keyevent(self, check: Callable[[iomediator.Waiter,str,list,str], bool], name: str = None, timeOut=10.0):
+        """
+        Wait for a key event, potentially accumulating the intervening characters
+
+        Usage: C{keyboard.wait_for_keypress(self, check, name=None, timeOut=10.0)}
+
+        @param check: a function that returns True or False to signify we've finished waiting
+        @param name: only one waiter can have this name. Used to prevent more threads waiting on this.
+        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+
+        Example:
+        # Accumulate the traditional emacs C-u prefix arguments
+        # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html
+        def check(waiter,rawKey,modifiers,key,*args):
+            isCtrlU = (key == 'u' and len(modifiers) == 1 and modifiers[0] == '<ctrl>')
+            if isCtrlU: # If we get here, they've already pressed C-u at least 2x
+                try:
+                    val = int(waiter.result) * 4
+                    waiter.result = str(val)
+                except ValueError:
+                    waiter.result = "16"
+                return False
+            elif any(m == "<ctrl>" or m == "<alt>" or m == "<meta>" or m == "<super>" or m == "<hyper>" for m in modifiers):
+                # Some other control character is an indication we're done.
+                if waiter.result is None or waiter.result == "":
+                    waiter.result = "4"
+                store.set_global_value("emacs-prefix-arg", waiter.result)
+                return True
+            else: # accumulate as a string
+                waiter.result = waiter.result + key
+                return False
+
+        keyboard.wait_for_keyevent(check, "emacs-prefix")
+        """
+        if name is None or not any(elem.name == name for elem in iomediator.IoMediator.listeners):
+            w = iomediator.Waiter(None, None, None, check, name, timeOut)
+            return w.wait()
+        return False
         
 
 class Mouse:
@@ -232,7 +273,7 @@ class Mouse:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)
-        w = iomediator.Waiter(None, None, button, timeOut)
+        w = iomediator.Waiter(None, None, button, None, None, timeOut)
         w.wait()
 
 
