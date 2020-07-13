@@ -348,7 +348,7 @@ class ConfigManager:
 
                 # --- handle changes to folder settings
 
-                if baseName == ".folder.json":
+                if baseName == "folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         folder.load_from_serialized()

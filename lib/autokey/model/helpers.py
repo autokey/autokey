@@ -19,7 +19,7 @@ import os
 import re
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
-JSON_FILE_PATTERN = "{}/.{}.json"
+JSON_FILE_PATTERN = "{}/{}.json"
 SPACES_RE = re.compile(r"^ | $")
 
 
@@ -41,12 +41,12 @@ def get_safe_path(base_path, name, ext=""):
         n = 2
     else:
         path = base_path + '/' + safe_name + ext
-        jsonPath = base_path + '/.' + safe_name + ".json"
+        jsonPath = base_path + '/' + safe_name + ".json"
         n = 1
 
     while os.path.exists(path) or os.path.exists(jsonPath):
         path = base_path + '/' + safe_name + str(n) + ext
-        jsonPath = base_path + '/.' + safe_name + str(n) + ".json"
+        jsonPath = base_path + '/' + safe_name + str(n) + ".json"
         n += 1
 
     return path
