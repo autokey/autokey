@@ -365,7 +365,11 @@ class ConfigManager:
                         loaded = True
 
                 # --- handle changes to folder settings
+<<<<<<< HEAD:lib/autokey/configmanager/configmanager.py
 
+=======
+                            
+>>>>>>> 4f860871774c50b5758d33cd0a234dd105d36469:lib/autokey/configmanager.py
                 if baseName == "folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
