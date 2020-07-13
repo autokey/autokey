@@ -139,23 +139,23 @@ class Keyboard:
         # Accumulate the traditional emacs C-u prefix arguments
         # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html
         def check(waiter,rawKey,modifiers,key,*args):
-        isCtrlU = (key == 'u' and len(modifiers) == 1 and modifiers[0] == '<ctrl>')
-        if isCtrlU: # If we get here, they've already pressed C-u at least 2x
-            try:
-                val = int(waiter.result) * 4
-                waiter.result = str(val)
-            except ValueError:
-                waiter.result = "16"
-            return False
-        elif any(m == "<ctrl>" or m == "<alt>" or m == "<meta>" or m == "<super>" or m == "<hyper>" for m in modifiers):
-            # Some other control character is an indication we're done.
-            if waiter.result is None or waiter.result == "":
-                waiter.result = "4"
-            store.set_global_value("emacs-prefix-arg", waiter.result)
-            return True
-        else: # accumulate as a string
-            waiter.result = waiter.result + key
-            return False
+            isCtrlU = (key == 'u' and len(modifiers) == 1 and modifiers[0] == '<ctrl>')
+            if isCtrlU: # If we get here, they've already pressed C-u at least 2x
+                try:
+                    val = int(waiter.result) * 4
+                    waiter.result = str(val)
+                except ValueError:
+                    waiter.result = "16"
+                return False
+            elif any(m == "<ctrl>" or m == "<alt>" or m == "<meta>" or m == "<super>" or m == "<hyper>" for m in modifiers):
+                # Some other control character is an indication we're done.
+                if waiter.result is None or waiter.result == "":
+                    waiter.result = "4"
+                store.set_global_value("emacs-prefix-arg", waiter.result)
+                return True
+            else: # accumulate as a string
+                waiter.result = waiter.result + key
+                return False
         keyboard.wait_for_keyevent(check, "emacs-prefix")
         """
         if name is None or not any(elem.name == name for elem in self.mediator.listeners):
