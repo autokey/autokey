@@ -156,6 +156,7 @@ class Keyboard:
             else: # accumulate as a string
                 waiter.result = waiter.result + key
                 return False
+                
         keyboard.wait_for_keyevent(check, "emacs-prefix")
         """
         if name is None or not any(elem.name == name for elem in self.mediator.listeners):
