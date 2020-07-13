@@ -34,7 +34,7 @@ _logger = logging.getLogger("model")
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 
-JSON_FILE_PATTERN = "{}/.{}.json"
+JSON_FILE_PATTERN = "{}/{}.json"
 SPACES_RE = re.compile(r"^ | $")
 
 
@@ -441,7 +441,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if not os.path.exists(self.path):
             os.mkdir(self.path)
 
-        with open(self.path + "/.folder.json", 'w') as outFile:
+        with open(self.path + "/folder.json", 'w') as outFile:
             json.dump(self.get_serializable(), outFile, indent=4)
 
     def get_serializable(self):
@@ -492,7 +492,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def load_from_serialized(self):
         try:
-            with open(self.path + "/.folder.json", 'r') as inFile:
+            with open(self.path + "/folder.json", 'r') as inFile:
                 data = json.load(inFile)
                 self.inject_json_data(data)
         except Exception:
@@ -545,7 +545,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
                     raise
 
     def get_json_path(self):
-        return self.path + "/.folder.json"
+        return self.path + "/folder.json"
 
     def get_tuple(self):
         return "folder", self.title, self.get_abbreviations(), self.get_hotkey_string(), self

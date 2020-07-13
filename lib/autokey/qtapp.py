@@ -29,6 +29,7 @@ import time
 import dbus
 import argparse
 from typing import NamedTuple, Iterable
+import traceback
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
@@ -111,6 +112,7 @@ class Application(QApplication):
             self._create_storage_directories()
             self._configure_root_logger()
         except Exception as e:
+            traceback.print_exc()
             logging.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
@@ -147,6 +149,7 @@ class Application(QApplication):
             self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
         except Exception as e:
+            traceback.print_exc()
             logging.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)

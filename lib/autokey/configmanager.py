@@ -283,13 +283,29 @@ def apply_settings(settings):
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
 
+def _convertFolder_v96(p: Path):
+    for name in p.glob('.*.json'):
+        new_json = p / name.name[1:]
+        name.rename(new_json)
+
+    for name in p.iterdir():
+        if name.is_dir():
+            _convertFolder_v96(name)
+
+def convert_v96(configData):
+    _logger.info("Converting v%s configuration data to v0.96.0", configData["version"])
+
+    for name in configData["folders"]:
+        _convertFolder_v96(Path(name))
+
+    configData["version"] = common.VERSION
 
 def convert_v07_to_v08(configData):
     oldVersion = configData["version"]
     os.rename(CONFIG_FILE, CONFIG_FILE + oldVersion)
     _logger.info("Converting v%s configuration data to v0.80.0", oldVersion)
     for folderData in configData["folders"]:
-        _convertFolder(folderData, None)
+        _convertFolder_v07_to_v08(folderData, None)
         
     configData["folders"] = []
     configData["version"] = common.VERSION
@@ -302,14 +318,14 @@ def convert_v07_to_v08(configData):
     _logger.info("Conversion succeeded")
         
         
-def _convertFolder(folderData, parent):
+def _convertFolder_v07_to_v08(folderData, parent):
     f = model.Folder("")
     f.inject_json_data(folderData)
     f.parent = parent
     f.persist()    
     
     for subfolder in folderData["folders"]:
-        _convertFolder(subfolder, f)
+        _convertFolder_v07_to_v08(subfolder, f)
     
     for itemData in folderData["items"]:
         i = None
@@ -528,26 +544,33 @@ dialog.info_dialog("Window information",
             }
         return d
 
+    def upgrade_config_files(self, data):
+        version = data["version"]
+
+        if version < "0.80.0":
+            try:
+                convert_v07_to_v08(data)
+                self.config_altered(True)
+            except Exception as e:
+                _logger.exception("Problem occurred during conversion.")
+                _logger.error("Existing config file has been saved as %s%s",
+                              CONFIG_FILE, version)
+                raise
+
+        if version < "0.95.3":
+            convert_rename_autostart_entries_for_v0_95_3()
+
+        if version < "0.96.0":
+            convert_v96(data)
+
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
             _logger.info("Loading config from existing file: " + CONFIG_FILE)
             
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
-                version = data["version"]
-                
-            if version < "0.80.0":
-                try:
-                    convert_v07_to_v08(data)
-                    self.config_altered(True)
-                except Exception as e:
-                    _logger.exception("Problem occurred during conversion.")
-                    _logger.error("Existing config file has been saved as %s%s",
-                                  CONFIG_FILE, version)
-                    raise
 
-            if version < "0.95.3":
-                convert_rename_autostart_entries_for_v0_95_3()
+            self.upgrade_config_files(data)
                 
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
@@ -639,7 +662,7 @@ dialog.info_dialog("Window information",
                         
                 # --- handle changes to folder settings
                             
-                if baseName == ".folder.json":
+                if baseName == "folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         folder.load_from_serialized()
