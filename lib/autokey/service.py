@@ -84,6 +84,7 @@ class Service:
         self.inputStack = collections.deque(maxlen=MAX_STACK_LENGTH)
         self.lastStackState = ''
         self.lastMenu = None
+        self.name = None
 
     def start(self):
         self.mediator = IoMediator(self)
@@ -525,6 +526,7 @@ class ScriptRunner:
             compiled_code = self._compile_script(script)
             exec(compiled_code, scope)
         except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
+            traceback.print_exc()
             self._record_error(script, start_time)
 
     @staticmethod
