@@ -86,6 +86,7 @@ class Application:
             self.initialise(args.show_config_window)
 
         except Exception as e:
+            traceback.print_exc()
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)

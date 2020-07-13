@@ -146,7 +146,6 @@ def apply_settings(settings):
     for key, value in settings.items():
         ConfigManager.SETTINGS[key] = value
 
-
 class ConfigManager:
     """
     Contains all application configuration, and provides methods for updating and
@@ -246,6 +245,25 @@ class ConfigManager:
             "configHotkey": self.configHotkey.get_serializable()
             }
         return d
+
+    def upgrade_config_files(self, data):
+        version = data["version"]
+
+        if version < "0.80.0":
+            try:
+                convert_v07_to_v08(data)
+                self.config_altered(True)
+            except Exception as e:
+                _logger.exception("Problem occurred during conversion.")
+                _logger.error("Existing config file has been saved as %s%s",
+                              CONFIG_FILE, version)
+                raise
+
+        if version < "0.95.3":
+            convert_rename_autostart_entries_for_v0_95_3()
+
+        if version < "0.96.0":
+            convert_v96(data)
 
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
@@ -348,7 +366,7 @@ class ConfigManager:
 
                 # --- handle changes to folder settings
 
-                if baseName == ".folder.json":
+                if baseName == "folder.json":
                     folder = self.__checkExistingFolder(directory)
                     if folder is not None:
                         folder.load_from_serialized()
