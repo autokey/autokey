@@ -316,6 +316,30 @@ else:
 #
 ```
 
+### Toggle an Application ###
+
+**Author**: mindfulsource
+
+**Description**: this script toggles the primary window of any application like this example for Firefox. 'winClass' and binary path will vary depending on your scenario. Install 'xdotool' package if needed.
+
+```python
+#
+import subprocess
+command = 'wmctrl -lx'
+output = system.exec_command(command, getOutput=True)
+
+if 'Navigator.Firefox' in output:
+    winClass = window.get_active_class()
+    if winClass == 'Navigator.Firefox':
+        system.exec_command("xdotool windowminimize $(xdotool getactivewindow)", getOutput=False)
+    else:
+        system.exec_command("wmctrl -xa Navigator.Firefox", getOutput=False) 
+else:
+    subprocess.Popen(["/usr/bin/firefox"])
+#
+```
+
+
 ### RSS Zoomer ###
 
 **Author**: Jack
