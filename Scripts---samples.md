@@ -1,7 +1,7 @@
 See [[Scripting#advanced-scripts]].
 
-**Author**: Kreezxil
-**Purpose**: Use emoji to write a sentence, for instance on Discord.
+- **Author**: Kreezxil
+- **Purpose**: Use emoji to write a sentence, for instance on Discord.
 
 ```python
 retCode, phrase = dialog.input_dialog(title='Give me a phrase',message='to make regional?',default='')
