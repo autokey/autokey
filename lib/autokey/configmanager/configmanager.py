@@ -37,7 +37,7 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
     SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE, \
-    DISABLED_MODIFIERS
+    DISABLED_MODIFIERS, GTK_THEME
 import autokey.configmanager.version_upgrading
 import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE
@@ -184,7 +184,8 @@ class ConfigManager:
                 #RECENT_ENTRY_COUNT: 5,
                 #RECENT_ENTRY_MINLENGTH: 10,
                 #RECENT_ENTRY_SUGGEST: True
-                SCRIPT_GLOBALS: {}
+                SCRIPT_GLOBALS: {},
+                GTK_THEME: "classic"
                 }
 
     def __init__(self, app):
