@@ -4,7 +4,7 @@ Changelog
 .. contents::
 
 
-Version 0.95.10 <2019-02-16>
+Version 0.95.10 <2019-12-16>
 ============================
 
 Bug fixes
