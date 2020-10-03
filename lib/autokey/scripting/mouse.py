@@ -73,5 +73,5 @@ class Mouse:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)
-        w = autokey.iomediator.waiter.Waiter(None, None, button, timeOut)
+        w = autokey.iomediator.waiter.Waiter(None, None, button, None, None, timeOut)
         w.wait()
