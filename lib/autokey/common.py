@@ -84,3 +84,11 @@ class AppService(dbus.service.Object):
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
     def run_folder(self, name):
         self.app.service.run_folder(name)
+
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='', out_signature='')
+    def pause_service(self):
+        self.app.pause_service()
+
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='', out_signature='')
+    def unpause_service(self):
+        self.app.unpause_service()
