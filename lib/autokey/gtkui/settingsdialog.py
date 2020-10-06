@@ -111,7 +111,9 @@ class SettingsDialog:
         else:
             autokey.configmanager.autostart.delete_autostart_entry()
 
-        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.promptToSaveCheckbox.get_active()
+
+        #promptToSaveCheckbox no longer exists? This prevented saving in the Preferences window from what I can tell
+        #cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.promptToSaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
         #cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
