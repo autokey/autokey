@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
-from gi.repository import Gtk
+from gi.repository import Gtk, GtkSource
 
 
 import autokey.configmanager.autostart
@@ -60,6 +60,18 @@ class SettingsDialog:
         # Added by Trey Blancher (ectospasm) 2015-09-16
         self.triggerItemByInitial = builder.get_object("triggerItemByInitial")
         self.enableUndoCheckbox = builder.get_object("enableUndoCheckbox")
+
+        self.gtkThemeCombo = Gtk.ComboBoxText.new()
+        hboxgtktheme = builder.get_object("hboxgtktheme")
+        hboxgtktheme.pack_start(self.gtkThemeCombo, False, True, 0)
+        hboxgtktheme.show_all()
+
+        self.themeList = GtkSource.StyleSchemeManager().get_scheme_ids()
+        for item in self.themeList:
+            self.gtkThemeCombo.append_text(item)
+
+        self.gtkThemeCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME])
+        self.gtkThemeCombo.set_active(self.themeList.index(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         
         self.iconStyleCombo = Gtk.ComboBoxText.new()
         hbox = builder.get_object("hbox4")
@@ -115,6 +127,7 @@ class SettingsDialog:
         #promptToSaveCheckbox no longer exists? This prevented saving in the Preferences window from what I can tell
         #cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.promptToSaveCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.showTrayCheckbox.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME] = self.gtkThemeCombo.get_active_text()
         #cm.ConfigManager.SETTINGS[MENU_TAKES_FOCUS] = self.allowKbNavCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sortByUsageCheckbox.get_active()
         # Added by Trey Blancher (ectospasm) 2015-09-16
