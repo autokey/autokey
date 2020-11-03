@@ -49,7 +49,7 @@ MAINTAINER_EMAIL = 'guociz@gmail.com'
 BUG_EMAIL = "guociz@gmail.com"
 
 FAQ_URL = "https://github.com/autokey/autokey/wiki/FAQ"
-API_URL = "https://autokey.github.io/"
+API_URL = "https://github.com/autokey/autokey/wiki/API-Examples"
 HELP_URL = "https://github.com/autokey/autokey/wiki/Troubleshooting"
 BUG_URL = HOMEPAGE + "/issues"
 
