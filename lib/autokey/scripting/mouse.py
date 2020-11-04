@@ -75,3 +75,53 @@ class Mouse:
         button = int(button)
         w = autokey.iomediator.waiter.Waiter(None, None, button, timeOut)
         w.wait()
+
+    def move_cursor(self, x,y, tracking=False):
+        """
+        Move mouse cursor to xy location on screen
+
+        Usage: C{mouse.move_cursor(x,y,tracking=False)}
+
+        @param x: x-coordinate in pixels, relative to upper left corner of window
+        @param y: y-coordinate in pixels, relative to upper left corner of window
+        @param tracking: Move the cursor gradually across the screen
+        """
+        self.interface.move_cursor(x,y,tracking)
+
+    def mouse_down(self, x, y, button):
+        """
+        Send mouse down signal at given location
+
+        Usage: C{mouse.mouse_button_down(x,y,)}
+
+        @param x: x-coordinate in pixels, relative to upper left corner of window
+        @param y: y-coordinate in pixels, relative to upper left corner of window
+        @param button: the mouse button to press down
+        """
+        self.interface.mouse_down(x,y,button)
+
+    def mouse_up(self, x, y, button):
+        """
+        Send mouse up signal at given location (does the location matter? I don't know)
+
+        Usage: C{mouse.mouse_button_down(x,y,)}
+
+        @param x: x-coordinate in pixels, relative to upper left corner of window
+        @param y: y-coordinate in pixels, relative to upper left corner of window
+        @param button: the mouse button to press down
+        """
+        self.interface.mouse_up(x,y,button)
+
+    def get_location(self):
+        """
+        Returns the current location of the mouse
+        """
+
+        return self.interface.mouse_location()
+
+    def drag_and_select(self, startx, starty, endx, endy, button):
+        """
+        Moves mouse to (startx, starty) presses down button
+        Drag the mouse across from startx,starty to endx,endy, 
+        """
+        self.interface.drag_select(startx, starty, endx, endy, button)
