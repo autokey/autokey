@@ -882,6 +882,7 @@ class XInterfaceBase(threading.Thread):
         if xCoord==xDest and yCoord==yDest:
             self.__flush()
         else:
+            #x handling
             if xCoord < xDest:
                 xCoord+=1
             elif xCoord > xDest:

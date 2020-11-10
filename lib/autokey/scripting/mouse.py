@@ -84,15 +84,15 @@ class Mouse:
 
         @param x: x-coordinate in pixels, relative to upper left corner of window
         @param y: y-coordinate in pixels, relative to upper left corner of window
-        @param tracking: Move the cursor gradually across the screen
+        @param tracking: Boolean to determine if the cursor warps or gradually moves across the screen
         """
         self.interface.move_cursor(x,y,tracking)
 
     def mouse_down(self, x, y, button):
         """
-        Send mouse down signal at given location
+        Send mouse button down signal at given location
 
-        Usage: C{mouse.mouse_button_down(x,y,)}
+        Usage: C{mouse.mouse_button_down(x,y,button)}
 
         @param x: x-coordinate in pixels, relative to upper left corner of window
         @param y: y-coordinate in pixels, relative to upper left corner of window
@@ -102,9 +102,9 @@ class Mouse:
 
     def mouse_up(self, x, y, button):
         """
-        Send mouse up signal at given location (does the location matter? I don't know)
+        Send mouse button up signal at given location (does the location matter? I don't know)
 
-        Usage: C{mouse.mouse_button_down(x,y,)}
+        Usage: C{mouse.mouse_button_down(x,y,button)}
 
         @param x: x-coordinate in pixels, relative to upper left corner of window
         @param y: y-coordinate in pixels, relative to upper left corner of window
@@ -115,6 +115,11 @@ class Mouse:
     def get_location(self):
         """
         Returns the current location of the mouse
+
+        Usage: C{mouse.get_location()}
+
+        @return: x,y location of the mouse
+        @rtype: C{tuple(int,int)}
         """
 
         return self.interface.mouse_location()
