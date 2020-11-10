@@ -127,6 +127,15 @@ class Mouse:
     def drag_and_select(self, startx, starty, endx, endy, button):
         """
         Moves mouse to (startx, starty) presses down button
-        Drag the mouse across from startx,starty to endx,endy, 
+        Drag the mouse across from startx,starty to endx,endy
+        Once mouse reaches final location sends button up signal
+
+        Usage: C{mouse.drag_and_select(self, startx, starty, endx, endy, button)}
+
+        @param startx: x-coordinate in pixels, relative to upper left corner of window
+        @param starty: y-coordinate in pixels, relative to upper left corner of window
+        @param endx: x-coordinate in pixels, relative to upper left corner of window
+        @param endy: y-coordinate in pixels, relative to upper left corner of window
+        @param button: the mouse button to press down
         """
         self.interface.drag_select(startx, starty, endx, endy, button)
