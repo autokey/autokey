@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Provides access to run system commands through C{subprocess} and basic file creation"""
+
 import subprocess
 
 

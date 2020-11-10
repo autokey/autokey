@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Engine backend for Autokey"""
+
 import pathlib
 
 from collections.abc import Iterable
@@ -40,6 +42,8 @@ class Engine:
     Key = Key
 
     def __init__(self, config_manager, runner):
+        """
+        """
         self.configManager = config_manager
         self.runner = runner
         self.monitor = config_manager.app.monitor
@@ -491,6 +495,12 @@ Folders created within temporary folders must themselves be set temporary")
 
 
 def validateAbbreviations(abbreviations):
+    """
+    Checks if the given abbreviations are a list/iterable of strings
+
+    @param abbreviations: Abbreviations list to be validated
+    @raise ValueError: Raises C{ValueError} if C{abbreviations} is anything other than C{str} or C{Iterable}
+    """
     if abbreviations is None:
         return
     fail=False
@@ -508,6 +518,14 @@ def validateAbbreviations(abbreviations):
 
 
 def check_abbreviation_unique(configmanager, abbreviations, window_filter):
+    """
+    Checks if the given abbreviations are unique
+
+    @param configmanager: ConfigManager Instance to check abbrevations
+    @param abbreviations: List of abbreviations to be checked
+    @param window_filter: Window filter that the abbreviation will apply to.
+    @raise ValueError: Raises C{ValueError} if an abbreviation is already in use.
+    """
     if not abbreviations:
         return
     for abbr in abbreviations:
@@ -516,6 +534,13 @@ def check_abbreviation_unique(configmanager, abbreviations, window_filter):
 
 
 def check_hotkey_unique(configmanager, hotkey, window_filter):
+    """
+    Checks if the given hotkey is unique
+
+    @param configmanager: ConfigManager Instance used to check hotkey
+    @param hotkey: hotkey to be check if unique
+    @param window_filter: Window filter to be applied to the hotkey
+    """
     if not hotkey:
         return
     modifiers = sorted(hotkey[0])
@@ -524,6 +549,12 @@ def check_hotkey_unique(configmanager, hotkey, window_filter):
 
 
 def isValidHotkeyType(item):
+    """
+    Checks if the hotkey is valid.
+
+    @param item: Hotkey to be checked
+    @return: Returns C{True} if hotkey is valid, C{False} otherwise
+    """
     fail=False
     if isinstance(item, Key):
         fail=False
@@ -538,6 +569,9 @@ def isValidHotkeyType(item):
 
 
 def validateHotkey(hotkey):
+    """
+
+    """
     failmsg = "Expected hotkey to be a tuple of modifiers then keys, as lists of Key or str, not {}".format(type(hotkey))
     if hotkey is None:
         return
