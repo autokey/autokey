@@ -16,3 +16,4 @@
 * [Development]()
   * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
   * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
+  * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
