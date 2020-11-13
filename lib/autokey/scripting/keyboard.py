@@ -16,6 +16,7 @@
 import typing
 
 import autokey.model.phrase
+import autokey.iomediator.waiter
 from autokey import iomediator, model
 from typing import Callable
 
