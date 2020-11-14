@@ -18,6 +18,7 @@ import typing
 if typing.TYPE_CHECKING:
     import autokey.iomediator.iomediator
 
+import autokey.iomediator.waiter
 
 class Mouse:
     """
