@@ -1380,6 +1380,9 @@ class ConfigWindow:
         self.expanded_rows.remove(path.to_string())
 
     def on_treeWidget_row_expanded(self, widget, tIter, path, data=None):
+        for row in self.expanded_rows:
+            if row==path.to_string():
+                return
         self.expanded_rows.append(path.to_string())
 
     def on_treeview_buttonpress(self, widget, event, data=None):
@@ -1572,7 +1575,9 @@ class ConfigWindow:
 
         path = Gtk.TreePath()
         for row in self.expanded_rows:
-            self.treeView.expand_to_path(path.new_from_string(row))
+            p = path.new_from_string(row)
+            if not p is None:
+                self.treeView.expand_to_path(p)
 
     def __popupMenu(self, event):
         menu = self.uiManager.get_widget("/Context")
