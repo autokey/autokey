@@ -180,12 +180,20 @@ class Application:
     def path_created_or_modified(self, path):
         time.sleep(0.5)
         changed = self.configManager.path_created_or_modified(path)
+        if not self.monitor.has_watch(path) and os.path.isdir(path): 
+            self.monitor.suspend()
+            self.monitor.add_watch(path)
+            self.monitor.unsuspend()
         if changed and self.configWindow is not None:
             self.configWindow.config_modified()
 
     def path_removed(self, path):
         time.sleep(0.5)
         changed = self.configManager.path_removed(path)
+        if self.monitor.has_watch(path) and os.path.isdir(path):
+            self.monitor.suspend()
+            self.monitor.remove_watch(path)
+            self.monitor.unsuspend()
         if changed and self.configWindow is not None:
             self.configWindow.config_modified()
 

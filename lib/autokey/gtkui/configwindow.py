@@ -903,8 +903,8 @@ class ConfigWindow:
         path = Gtk.TreePath()
         for row in self.expanded_rows:
             self.treeView.expand_to_path(path.new_from_string(row))
-        for row in rows[1]:
-            selection.select_path(row)
+        selection.select_path(path.new_from_string(self.last_open))
+        self.on_tree_selection_changed(self.treeView)
 
     def update_actions(self, items, changed):
         if len(items) == 0:
@@ -956,6 +956,7 @@ class ConfigWindow:
 
     def rebuild_tree(self):
         self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
+
 
     def refresh_tree(self):
         model, selectedPaths = self.treeView.get_selection().get_selected_rows()
@@ -1377,12 +1378,26 @@ class ConfigWindow:
 
     def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
         widget.columns_autosize()
-        self.expanded_rows.remove(path.to_string())
+        p = path.to_string()
+        path_len = len(p)
+        row_copy = self.expanded_rows.copy() #make a copy of the rows to avoid weird
+        if path_len == 1: #closing one of the base dirs
+            for row in row_copy:
+                if row[0] == p:
+                    # print("Removing ", row)
+                    self.expanded_rows.remove(row)
+            return
+        for row in row_copy:
+            if p == row[:path_len]:
+                # print("Removing ", row)
+                self.expanded_rows.remove(row)
+        # print(self.expanded_rows)
 
     def on_treeWidget_row_expanded(self, widget, tIter, path, data=None):
         for row in self.expanded_rows:
-            if row==path.to_string():
+            if row==path.to_string(): #don't add already existing
                 return
+        # print("Adding row ", path.to_string())
         self.expanded_rows.append(path.to_string())
 
     def on_treeview_buttonpress(self, widget, event, data=None):
@@ -1423,7 +1438,7 @@ class ConfigWindow:
 
         elif len(selectedObjects) == 1:
             selectedObject = selectedObjects[0]
-            self.last_open = widget.get_selection().get_selected_rows()[1][0].to_string()
+            self.last_open = self.treeView.get_selection().get_selected_rows()[1][0].to_string()
 
             if isinstance(selectedObject, autokey.model.folder.Folder):
                 self.stack.set_current_page(1)
