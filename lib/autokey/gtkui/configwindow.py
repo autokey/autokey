@@ -843,6 +843,9 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TOOLBAR])
         toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
 
+        self.expanded_rows = cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS]
+        self.last_open = cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN]
+
         self.treeView = builder.get_object("treeWidget")
         self.__initTreeWidget()
 
@@ -858,7 +861,7 @@ class ConfigWindow:
 
         rootIter = self.treeView.get_model().get_iter_first()
         if rootIter is not None:
-            self.treeView.get_selection().select_iter(rootIter)
+            self.treeView.get_selection().select_path(self.last_open)
 
         self.on_tree_selection_changed(self.treeView)
 
@@ -891,18 +894,17 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
 
     def config_modified(self):
-        if not self.__warnedOfChanges:
-            Gdk.threads_enter()
-            msg = _("Changes made in other programs will not be displayed until you \
-close and reopen the AutoKey window.\nThis message is only shown once per session.")
-            dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
-                                   message_format= _("Configuration has been changed on disk."))
-            dlg.format_secondary_text(msg)
-
-            dlg.run()
-            dlg.destroy()
-            Gdk.threads_leave()
-            self.__warnedOfChanges = True
+        #save tree view selection
+        selection = self.treeView.get_selection()
+        rows = selection.get_selected_rows()
+        self.rebuild_tree()
+        #get selection for new treeview
+        selection = self.treeView.get_selection()
+        path = Gtk.TreePath()
+        for row in self.expanded_rows:
+            self.treeView.expand_to_path(path.new_from_string(row))
+        for row in rows[1]:
+            selection.select_path(row)
 
     def update_actions(self, items, changed):
         if len(items) == 0:
@@ -952,6 +954,9 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def set_redo_available(self, state):
         self.uiManager.get_action("/MenuBar/Edit/redo").set_sensitive(state)
 
+    def rebuild_tree(self):
+        self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
+
     def refresh_tree(self):
         model, selectedPaths = self.treeView.get_selection().get_selected_rows()
         for path in selectedPaths:
@@ -989,6 +994,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def on_close(self, widget, data=None):
         cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
         cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS] = self.expanded_rows
+        cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN] = self.last_open
         self.cancel_record()
         if self.queryClose():
             return True
@@ -1002,6 +1009,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         #if not self.queryClose():
         cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
         cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS] = self.expanded_rows
+        cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN] = self.last_open
         self.app.shutdown()
 
     # File Menu
@@ -1360,6 +1369,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         dlg.destroy()
 
     def on_treeWidget_row_activated(self, widget, path, viewColumn, data=None):
+        """This function is called when a row is double clicked"""
         if widget.row_expanded(path):
             widget.collapse_row(path)
         else:
@@ -1367,6 +1377,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
         widget.columns_autosize()
+        self.expanded_rows.remove(path.to_string())
+
+    def on_treeWidget_row_expanded(self, widget, tIter, path, data=None):
+        self.expanded_rows.append(path.to_string())
 
     def on_treeview_buttonpress(self, widget, event, data=None):
         return self.dirty
@@ -1406,6 +1420,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
         elif len(selectedObjects) == 1:
             selectedObject = selectedObjects[0]
+            self.last_open = widget.get_selection().get_selected_rows()[1][0].to_string()
 
             if isinstance(selectedObject, autokey.model.folder.Folder):
                 self.stack.set_current_page(1)
@@ -1554,6 +1569,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         column3.set_expand(False)
         column3.set_min_width(100)
         self.treeView.append_column(column3)
+
+        path = Gtk.TreePath()
+        for row in self.expanded_rows:
+            self.treeView.expand_to_path(path.new_from_string(row))
 
     def __popupMenu(self, event):
         menu = self.uiManager.get_widget("/Context")
