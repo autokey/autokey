@@ -249,3 +249,73 @@ class Window:
             return 1, 'ERROR: Please install wmctrl'
 
         return returncode, output
+
+    def get_window_list(self, filter_desktop=None):
+        """
+        Returns a list of windows matching an optional desktop filter, requires C{wmctrl}!
+
+        Each list item consists of: C{[hexid, desktop, hostname, title]}
+
+        Where the C{hexid} is the ID used for some other functions (like L{import -window} from ImageMagick).
+
+        C{desktop} is the number of which desktop (sometimes called workspaces) the item appears upon.
+
+        C{hostname} is the hostname of your computer (I'm not sure why this is included as it seems to be the same for everything I have seen)
+        
+        C{title} is the title that you would usually see in your window manager of choice.
+
+        @param filter_desktop: String, (usually 0-n) to filter the windows by. Any window not on the given desktop will not be returned.
+        @return: C{[[hexid1, desktop1, hostname1, title1], [hexid2,desktop2,hostname2,title2], ...etc]}
+        Returns C{[]} if no windows are found.
+        """
+        windowList = self._run_wmctrl(["-l"])[1].split("\n")
+        output = []
+        for window in windowList:
+            info = window.split("  ")[1] #the remaining information
+            hexid = window.split("  ")[0] #the hexid of the window
+            desktop, hostname, window_title = info.split(" ", 2)
+            if filter_desktop is not None:
+                if not filter_desktop==desktop:
+                    continue
+            output.append([hexid,desktop,hostname, window_title])
+        return output
+
+    def get_window_hex(self, window_title):
+        """
+        Returns the hexid of the first window to match window_title.
+
+        @param window_title: Window title to match for returning hexid
+        @return: Returns hexid of the window to be used for other functions See L{get_window_geom}, L{visgrep_by_window_id}
+
+        Returns none if no matches are found
+        """
+        windowList = self.get_window_list()
+        for window in windowList:
+            if window_title in window[3]:
+                return window[0]
+        return None
+
+
+
+
+    def get_window_geom(self, window_id):
+        """
+        Uses C{wmctrl} to return the window geom of the given window_id. Returns where the location of the 
+        top left hand corner of the window is and how long/tall the window is.
+
+
+        @return: C{[offsetx, offsety, sizex, sizey]} Returns none if no matches are found
+        """
+
+        windowList = self._run_wmctrl(["-lG"])[1].split("\n")
+        output = []
+        for window in windowList:
+            w_split= window.split("  ")
+            hexid = w_split[0]
+            geom1 = w_split[1].split(" ")[1:]
+            geom2 = w_split[2].split(" ")
+
+
+            if hexid==window_id:
+                return [geom1+geom2]
+        return None
