@@ -862,8 +862,9 @@ This script gets the geometry of the active window and then displays an info dia
 
 ### Get window geometry script ###
 
-	winGeometry = 'X-origin: %s\nY-origin: %s\nWidth: %s\nHeight: %s'  %(winXOrigin, winYOrigin, winWidth, winHeight)
-	dialog.info_dialog(title='Window geometry', message=winGeometry)
+	geo = window.get_active_geometry()
+        winGeometry = 'X-origin: %s\nY-origin: %s\nWidth: %s\nHeight: %s'  %(geo[0], geo[1], geo[2], geo[3])
+        dialog.info_dialog(title='Window geometry', message=winGeometry)
 
 
 ## Move window to different desktop ##
