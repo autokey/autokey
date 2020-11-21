@@ -213,7 +213,8 @@ class Service:
 
     def __tryReleaseLock(self):
         try:
-            self.configManager.lock.release()
+            if self.configManager.lock.locked():
+                self.configManager.lock.release()
         except:
             logger.exception("Ignored locking error in handle_keypress")
 
