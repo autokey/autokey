@@ -121,4 +121,5 @@ _ALL_MODIFIERS_ = (
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
-HELD_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
+HELD_MODIFIERS = [Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META
+]
