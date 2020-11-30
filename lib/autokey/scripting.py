@@ -494,11 +494,12 @@ class System:
                     stdout=subprocess.PIPE,
                     universal_newlines=True) as p:
                 output = p.communicate()[0]
-                if output.endswith("\n"):
-                    # Most shell output has a new line at the end, which we
-                    # don't want. Drop the trailing newline character,
-                    # if the command output something that ends on "\n"
-                    output = output[:-1]
+                if len(output) > 0:
+                    if output.endswith("\n"):
+                        # Most shell output has a new line at the end, which we
+                        # don't want. Drop the trailing newline character,
+                        # if the command output something that ends on "\n"
+                        output = output[:-1]
                 if p.returncode:
                     raise subprocess.CalledProcessError(p.returncode, output)
                 return output
