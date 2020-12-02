@@ -66,6 +66,62 @@ class Application:
         GLib.threads_init()
         Gdk.threads_init()
 
+        #import testing (this wouldn't necessarily catch import errors that happen at the top of this file)
+        # however those are not really the errors we are having issues with
+        # based on this https://docs.python.org/3/py-modindex.html
+        # it is safe to assume that a number of modules will always be available on any
+        # normal python3 installation. This includes re, importlib, subprocess, shutil, sys, os etc. etc.
+        # I guess we will still check for them however because it can't hurt?
+        import importlib
+        from shutil import which
+
+        #these seem to be "default" python modules used by the program
+        python_modules = ['argparse', 'collections', 'enum', 'faulthandler', 
+            'gettext', 'inspect', 'itertools', 'logging', 'os', 'select', 'shlex',
+            'shutil', 'subprocess', 'sys', 'threading', 'time', 'traceback', 'typing',
+            'warnings', 'webbrowser']
+
+        #modules that have to be installed
+        modules = ['Xlib', 'dbus', 'pyinotify']
+
+        #modules specific to gtk
+        gtk_modules = ['gi']
+
+
+        for module in python_modules+modules+gtk_modules:
+            spec = importlib.util.find_spec(module)
+            if spec is None: #module has not been imported/found correctly
+                self.show_error_dialog("Python module: "+module+" has not been imported correctly",
+                    "This python module is required for AutoKey to function properly")
+                sys.exit("Missing python modules")
+            else: 
+                # print(spec)
+                pass
+
+        #test for if command line programs used by AutoKey are installed on the system
+        # visgrep comes from xautomation
+        # import, png2pat from imagemagick.
+        # ps is a command that most if not all systems will have installed fwik
+        # zenity and xdg-open are pretty bog standard gnome/gtk stuff
+
+        linux_programs = ['ps']
+
+        # programs = ['visgrep', 'import', 'png2pat', 'xte', 'wmctrl', 'xmousepos']
+        programs = ['wmctrl']
+
+        gtk_programs = ['zenity']
+
+        for program in linux_programs+programs+gtk_programs:
+            if which(program) is None:
+                # file not found by shell
+                self.show_error_dialog(program+" was not found installed on your system.",
+                    "This program is needed for autokey to function properly")
+                sys.exit("Missing command line program")
+            else:
+                #file was found fine.
+                pass
+
+
         args = autokey.argument_parser.parse_args()
 
         try:
