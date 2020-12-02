@@ -135,6 +135,7 @@
    <addaction name="action_redo"/>
    <addaction name="separator"/>
    <addaction name="action_run_script"/>
+   <addaction name="action_show_last_script_errors"/>
   </widget>
   <action name="action_new_top_folder">
    <property name="icon">
