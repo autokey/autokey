@@ -87,16 +87,11 @@ class Application:
         #modules specific to gtk
         gtk_modules = ['gi']
 
-
+        missing_modules = []
         for module in python_modules+modules+gtk_modules:
             spec = importlib.util.find_spec(module)
             if spec is None: #module has not been imported/found correctly
-                self.show_error_dialog("Python module: "+module+" has not been imported correctly",
-                    "This python module is required for AutoKey to function properly")
-                sys.exit("Missing python modules")
-            else: 
-                # print(spec)
-                pass
+                missing_modules.append(module)
 
         #test for if command line programs used by AutoKey are installed on the system
         # visgrep comes from xautomation
@@ -111,15 +106,21 @@ class Application:
 
         gtk_programs = ['zenity']
 
+        missing_programs = []
         for program in linux_programs+programs+gtk_programs:
             if which(program) is None:
                 # file not found by shell
-                self.show_error_dialog(program+" was not found installed on your system.",
-                    "This program is needed for autokey to function properly")
-                sys.exit("Missing command line program")
-            else:
-                #file was found fine.
-                pass
+                missing_programs.append(program)
+
+        if len(missing_programs)>0 or len(missing_modules)>0:
+            error_message = ""
+            for item in missing_programs:
+                error_message+= "Program: "+item+"\n"
+            for item in missing_modules:
+                error_message+= "Python Module: "+item+"\n"
+
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", error_message)
+            sys.exit("missing programs or modules:\n"+str(missing_programs)+str(missing_modules))
 
 
         args = autokey.argument_parser.parse_args()
