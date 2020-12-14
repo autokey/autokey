@@ -863,55 +863,18 @@ class XInterfaceBase(threading.Thread):
 
         self.__flush()
 
-    def move_cursor(self, xCoord, yCoord, tracking):
-        self.__enqueue(self.__moveCursor, xCoord, yCoord, tracking)
+    def mouse_press(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
 
-    def __moveCursor(self, xCoord, yCoord, tracking):
-        if tracking: #need to slow move the cursor for drag select
-            self.__enqueue(self.__moveCursorTracking, xCoord, yCoord)
-        else:
-            self.rootWindow.warp_pointer(xCoord,yCoord)
-            self.__flush()
-
-
-    def __moveCursorTracking(self, xDest, yDest):
-        pos = self.rootWindow.query_pointer()
-        xCoord = pos.root_x
-        yCoord = pos.root_y
-
-        if xCoord==xDest and yCoord==yDest:
-            self.__flush()
-        else:
-            #x handling
-            if xCoord < xDest:
-                xCoord+=1
-            elif xCoord > xDest:
-                xCoord-=1
-            elif xCoord == xDest:
-                pass
-            #y handling
-            if yCoord < yDest:
-                yCoord+=1
-            elif yCoord > yDest:
-                yCoord-=1
-            elif yCoord == yDest:
-                pass
-            time.sleep(0.001)
-            self.rootWindow.warp_pointer(xCoord, yCoord)
-            self.__enqueue(self.__moveCursorTracking, xDest, yDest)
-
-    def mouse_down(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mouseDown, xCoord, yCoord, button)
-
-    def __mouseDown(self, xCoord, yCoord, button):
+    def __mousePress(self, xCoord, yCoord, button):
         focus = self.localDisplay.get_input_focus().focus
         xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
         self.__flush()
 
-    def mouse_up(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mouseUp, xCoord, yCoord, button)
+    def mouse_release(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
 
-    def __mouseUp(self, xCoord, yCoord, button):
+    def __mouseRelease(self, xCoord, yCoord, button):
         focus = self.localDisplay.get_input_focus().focus
         xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
         self.__flush()
@@ -920,28 +883,20 @@ class XInterfaceBase(threading.Thread):
         pos = self.rootWindow.query_pointer()
         return (pos.root_x, pos.root_y)
 
-    def drag_select(self, startx, starty, endx, endy, button):
-        self.rootWindow.warp_pointer(startx,starty)
-        xCoord, yCoord = self.mouse_location()
-        self.__mouseDown(xCoord, yCoord, button)
-        while xCoord!=endx and yCoord!=endy:
-            xCoord, yCoord = self.mouse_location()
-            if xCoord < endx:
-                xCoord+=1
-            elif xCoord > endx:
-                xCoord-=1
-            elif xCoord == endx:
-                pass
-            #y handling
-            if yCoord < endy:
-                yCoord+=1
-            elif yCoord > endy:
-                yCoord-=1
-            elif yCoord == endy:
-                pass
-            time.sleep(0.001)
-            self.rootWindow.warp_pointer(xCoord, yCoord)
-        self.__mouseUp(xCoord, yCoord, button)
+        # self.__enqueue(self.__mouseLocation)
+
+    # def __mouseLocation(self):
+        # pos = self.rootWindow.query_pointer()
+        # self.__flush()
+        # return (pos.root_x, pos.root_y)
+
+
+    def move_cursor(self, xCoord, yCoord):
+        self.__enqueue(self.__moveCursor, xCoord, yCoord)
+
+    def __moveCursor(self, xCoord, yCoord):
+        self.rootWindow.warp_pointer(xCoord,yCoord)
+        self.__flush()
 
     def send_mouse_click_relative(self, xoff, yoff, button):
         self.__enqueue(self.__sendMouseClickRelative, xoff, yoff, button)
