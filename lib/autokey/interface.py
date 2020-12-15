@@ -883,12 +883,24 @@ class XInterfaceBase(threading.Thread):
         pos = self.rootWindow.query_pointer()
         return (pos.root_x, pos.root_y)
 
-        # self.__enqueue(self.__mouseLocation)
+    def scroll_down(self, number):
+        for i in range(0,number):
+            self.__enqueue(self.__scroll, True)
 
-    # def __mouseLocation(self):
-        # pos = self.rootWindow.query_pointer()
-        # self.__flush()
-        # return (pos.root_x, pos.root_y)
+    def scroll_up(self):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, False)
+
+    def __scroll(self, down):
+        if down:
+            button = 5
+        else:
+            button = 4
+        focus = self.localDisplay.get_input_focus().focus
+        x,y = self.mouse_location()
+        xtest.fake_input(focus, X.ButtonPress, button, x, y)
+        xtest.fake_input(focus, X.ButtonRelease, button, x, y)
+        self.__flush()
 
 
     def move_cursor(self, xCoord, yCoord):
