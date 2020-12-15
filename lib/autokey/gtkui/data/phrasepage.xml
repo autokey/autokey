@@ -33,7 +33,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkLinkButton" id="linkButton1">
+              <object class="GtkLinkButton" id="jsonLinkButton">
                 <property name="label" translatable="yes">(Unsaved)</property>
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>

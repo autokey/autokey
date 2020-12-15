@@ -71,9 +71,11 @@ def set_linkbutton(button, path, filename_only=False):
         text = path.replace(os.path.expanduser("~"), "~")
 
     if filename_only:
-        button.set_label(path[path.rindex("/")+1:])
+        filename = os.path.basename(path)
+        button.set_label(filename)
     else:
         button.set_label(text)
+
     button.set_uri("file://" + path)
     label = button.get_child()
     label.set_ellipsize(Pango.EllipsizeMode.START)
@@ -353,7 +355,7 @@ class FolderPage:
 
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
-        self.jsonLinkButton = builder.get_object("linkButton1")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
@@ -446,7 +448,7 @@ class ScriptPage:
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
-        self.jsonLinkButton = builder.get_object("linkButton1")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
@@ -625,7 +627,7 @@ class PhrasePage(ScriptPage):
         sendModeHbox.pack_start(self.sendModeCombo, False, False, 0)
 
         self.linkButton = builder.get_object("linkButton")
-        self.jsonLinkButton = builder.get_object("linkButton1")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
