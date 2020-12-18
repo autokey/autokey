@@ -70,14 +70,13 @@ class Application:
         args = autokey.argument_parser.parse_args()
         configure_root_logger(args)
 
+        checkOptionalPrograms()
         missing_reqs = checkRequirements()
         if len(missing_reqs)>0:
             Gdk.threads_enter()
             self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
             Gdk.threads_leave()
             sys.exit("Missing required programs and/or python modules, exiting")
-
-        checkOptionalPrograms()
 
         try:
             # Create configuration directory

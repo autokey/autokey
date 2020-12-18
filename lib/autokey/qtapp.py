@@ -106,11 +106,11 @@ class Application(QApplication):
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
 
+        checkOptionalPrograms()
         missing_reqs = checkRequirements()
         if len(missing_reqs)>0:
             self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
             sys.exit("Missing required programs and/or python modules, exiting")
-        checkOptionalPrograms()
 
         logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))

@@ -7,13 +7,13 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 common_modules = ['argparse', 'collections', 'enum', 'faulthandler', 
             'gettext', 'inspect', 'itertools', 'logging', 'os', 'select', 'shlex',
             'shutil', 'subprocess', 'sys', 'threading', 'time', 'traceback', 'typing',
-            'warnings', 'webbrowser', 'dbus', 'pyinotify', "asddgs"]
+            'warnings', 'webbrowser', 'dbus', 'pyinotify']
 gtk_modules = ['gi', 'gi.repository.Gtk', 'gi.repository.Gdk', 'gi.repository.Pango',
             'gi.repository.Gio', 'gi.repository.GtkSource']
 qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
             'PyQt5.Qsci']
 
-common_programs = ['wmctrl', 'ps', "sxvbsd"]
+common_programs = ['wmctrl', 'ps']
 # Checking some of these appears to be redundant as some are provided by the same packages on my system but 
 # better safe than sorry.
 optional_programs = ['visgrep', 'import', 'png2pat', 'xte', 'xmousepos']
@@ -30,20 +30,23 @@ def checkModuleImports(modules):
 
     return missing_modules
 
-def checkProgramImports(programs):
+def checkProgramImports(programs, optional=False):
     missing_programs = []
     for program in programs:
         if which(program) is None:
             # file not found by shell
-            logger.debug("Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
+            if optional:
+                logger.debug("Optional Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
+            else:
+                logger.debug("Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
             missing_programs.append(program)
     return missing_programs
 
 def checkOptionalPrograms():
     if common.USING_QT:
-        checkProgramImports(optional_programs)
+        checkProgramImports(optional_programs, optional=True)
     else:
-        checkProgramImports(optional_programs)
+        checkProgramImports(optional_programs, optional=True)
 
 def getErrorMessage(item_type, missing_items):
     error_message = ""
