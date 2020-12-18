@@ -45,6 +45,7 @@ from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger, configure_root_logger
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
 
 logger = get_logger(__name__)
 
@@ -66,81 +67,17 @@ class Application:
         GLib.threads_init()
         Gdk.threads_init()
 
-        #import testing (this wouldn't necessarily catch import errors that happen at the top of this file)
-        # however those are not really the errors we are having issues with
-        # based on this https://docs.python.org/3/py-modindex.html
-        # it is safe to assume that a number of modules will always be available on any
-        # normal python3 installation. This includes re, importlib, subprocess, shutil, sys, os etc. etc.
-        # I guess we will still check for them however because it can't hurt?
-        import importlib
-        from shutil import which
-
-        #these seem to be "default" python modules used by the program
-        python_modules = ['argparse', 'collections', 'enum', 'faulthandler', 
-            'gettext', 'inspect', 'itertools', 'logging', 'os', 'select', 'shlex',
-            'shutil', 'subprocess', 'sys', 'threading', 'time', 'traceback', 'typing',
-            'warnings', 'webbrowser']
-
-        #modules that have to be installed
-        modules = ['Xlib', 'dbus', 'pyinotify']
-
-        #modules specific to gtk
-        gtk_modules = ['gi']
-
-        missing_modules = []
-        for module in python_modules+modules+gtk_modules:
-            spec = importlib.util.find_spec(module)
-            if spec is None: #module has not been imported/found correctly
-                missing_modules.append(module)
-
-        #test for if command line programs used by AutoKey are installed on the system
-        # visgrep comes from xautomation
-        # import, png2pat from imagemagick.
-        # ps is a command that most if not all systems will have installed fwik
-        # zenity and xdg-open are pretty bog standard gnome/gtk stuff
-
-        linux_programs = ['ps']
-
-        programs = ['wmctrl']
-
-        gtk_programs = ['zenity']
-
-        missing_programs = []
-        for program in linux_programs+programs+gtk_programs:
-            if which(program) is None:
-                # file not found by shell
-                missing_programs.append(program)
-
-        missing_optional_programs = []
-        optional_programs = ['visgrep', 'import', 'png2pat', 'xte', 'wmctrl', 'xmousepos']
-        for program in optional_programs:
-            if which(program) is None:
-                missing_optional_programs.append(program)
-
-        if len(missing_programs)>0 or len(missing_modules)>0:
-            error_message = ""
-            for item in missing_programs:
-                error_message+= "Program: "+item+"\n"
-            for item in missing_modules:
-                error_message+= "Python Module: "+item+"\n"
-
-            #might not be required to enter and leave thread probably best practice to even tho the app exits immediately after.
-            Gdk.threads_enter()
-            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", error_message)
-            Gdk.threads_leave()
-            sys.exit("missing programs or modules:\n"+str(missing_programs)+str(missing_modules))
-
-        if len(missing_optional_programs)>0:
-            error_message = ""
-            for item in missing_optional_programs:
-                error_message += "Program: "+item+"\n"
-
-            #entering and leaving thread appears to be required to not hang main window
-            Gdk.threads_enter()
-            self.show_warning_dialog("Some optional dependencies for AutoKey were not detected on your system", error_message)
-            Gdk.threads_leave()
-
         args = autokey.argument_parser.parse_args()
+        configure_root_logger(args)
+
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            Gdk.threads_enter()
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
+            Gdk.threads_leave()
+            sys.exit("Missing required programs and/or python modules, exiting")
+
+        checkOptionalPrograms()
 
         try:
             # Create configuration directory
@@ -153,7 +90,6 @@ class Application:
             if not os.path.exists(common.RUN_DIR):
                 os.makedirs(common.RUN_DIR)
 
-            configure_root_logger(args)
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
@@ -336,22 +272,15 @@ class Application:
         Gtk.main()
         Gdk.threads_leave()
 
-    def show_error_dialog(self, message, details=None):
+    def show_error_dialog(self, message, details=None, dialog_type=Gtk.MessageType.ERROR):
         """
         Convenience method for showing an error dialog.
-        """
-        dlg = Gtk.MessageDialog(type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
-                                 message_format=message)
-        if details is not None:
-            dlg.format_secondary_text(details)
-        dlg.run()
-        dlg.destroy()
 
-    def show_warning_dialog(self, message, details=None):
+        @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
+            defaults to Gtk.MessageType.ERROR
         """
-        Another convenience method for showing info dialog
-        """
-        dlg = Gtk.MessageDialog(type=Gtk.MessageType.WARNING, buttons=Gtk.ButtonsType.OK,
+        logger.info("Displaying "+dialog_type.value_name+" Dialog")
+        dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
         if details is not None:
             dlg.format_secondary_text(details)
