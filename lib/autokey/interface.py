@@ -45,6 +45,7 @@ from Xlib.error import ConnectionClosedError
 
 
 from . import common
+from autokey.model.button import Button
 
 if common.USING_QT:
     from PyQt5.QtGui import QClipboard
@@ -883,25 +884,27 @@ class XInterfaceBase(threading.Thread):
         pos = self.rootWindow.query_pointer()
         return (pos.root_x, pos.root_y)
 
+    def relative_mouse_location(self, window=None):
+        #return relative mouse location within given window
+        if window==None:
+            window = self.localDisplay.get_input_focus().focus
+        pos = window.query_pointer()
+        return (pos.win_x, pos.win_y)
+
     def scroll_down(self, number):
-        for i in range(0,number):
-            self.__enqueue(self.__scroll, True)
-
-    def scroll_up(self):
         for i in range(0, number):
-            self.__enqueue(self.__scroll, False)
+            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
 
-    def __scroll(self, down):
-        if down:
-            button = 5
-        else:
-            button = 4
+    def scroll_up(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_UP)
+
+    def __scroll(self, button):
         focus = self.localDisplay.get_input_focus().focus
         x,y = self.mouse_location()
-        xtest.fake_input(focus, X.ButtonPress, button, x, y)
-        xtest.fake_input(focus, X.ButtonRelease, button, x, y)
+        xtest.fake_input(self=focus, event_type=X.ButtonPress, detail=button, x=x, y=y)
+        xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
         self.__flush()
-
 
     def move_cursor(self, xCoord, yCoord):
         self.__enqueue(self.__moveCursor, xCoord, yCoord)

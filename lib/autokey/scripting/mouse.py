@@ -19,11 +19,15 @@ import time
 if typing.TYPE_CHECKING:
     import autokey.iomediator.iomediator
 
+from autokey.model.button import Button
 
 class Mouse:
     """
     Provides access to send mouse clicks
     """
+
+    Button = Button
+
     def __init__(self, mediator):
         self.mediator = mediator  # type: autokey.iomediator.iomediator.IoMediator
         self.interface = self.mediator.interface
@@ -127,7 +131,7 @@ class Mouse:
         @param warp: If True method will return cursor to the position it was at at the start of execution
         """
         #store mouse location
-        x,y = self.get_location()
+        x,y = self.interface.mouse_location()
         self.interface.move_cursor(startx, starty)
         self.interface.mouse_press(startx, starty, button)
         if down:
@@ -157,9 +161,24 @@ class Mouse:
         time.sleep(0.05)
         return self.interface.mouse_location()
 
+    def get_relative_location(self):
+        """
+        Returns the relative location of the mouse in the window that has input focus
+        Incorporates a tiny delay in order to make sure AutoKey executes any queued commands
+
+        Usage: C{mouse.get_relative_location()}
+        
+        @return: x,y location of the mouse relative to the top left hand corner of the window that has input focus
+        @rtype: C{tuple(int, int)}
+        """
+        time.sleep(0.05)
+        return self.interface.relative_mouse_location()
+
     def scroll_down(self, number):
         """
         Fires the mouse button 5 signal the specified number of times.
+
+        Note that the behavior of these methods are effected (and untested) by programs like imwheel.
         
         Usage: C{mouse.scroll_down()}
     
@@ -170,6 +189,8 @@ class Mouse:
     def scroll_up(self, number):
         """
         Fires the mouse button 4 signal the specified number of times.
+
+        Note that the behavior of these methods are effected (and untested) by programs like imwheel.
 
         Usage: C{mouse.scroll_up()}
 
