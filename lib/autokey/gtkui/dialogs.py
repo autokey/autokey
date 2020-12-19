@@ -430,6 +430,7 @@ class HotkeySettingsDialog(DialogBase):
 
         self.controlButton = builder.get_object("controlButton")
         self.altButton = builder.get_object("altButton")
+        self.altgrButton = builder.get_object("altgrButton")
         self.shiftButton = builder.get_object("shiftButton")
         self.superButton = builder.get_object("superButton")
         self.hyperButton = builder.get_object("hyperButton")
@@ -445,6 +446,7 @@ class HotkeySettingsDialog(DialogBase):
         if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
             self.controlButton.set_active(Key.CONTROL in item.modifiers)
             self.altButton.set_active(Key.ALT in item.modifiers)
+            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
             self.shiftButton.set_active(Key.SHIFT in item.modifiers)
             self.superButton.set_active(Key.SUPER in item.modifiers)
             self.hyperButton.set_active(Key.HYPER in item.modifiers)
@@ -479,6 +481,7 @@ class HotkeySettingsDialog(DialogBase):
     def reset(self):
         self.controlButton.set_active(False)
         self.altButton.set_active(False)
+        self.altgrButton.set_active(False)
         self.shiftButton.set_active(False)
         self.superButton.set_active(False)
         self.hyperButton.set_active(False)
@@ -498,6 +501,7 @@ class HotkeySettingsDialog(DialogBase):
         self.key = key
         self.controlButton.set_active(Key.CONTROL in modifiers)
         self.altButton.set_active(Key.ALT in modifiers)
+        self.altgrButton.set_active(Key.ALT_GR in modifiers)
         self.shiftButton.set_active(Key.SHIFT in modifiers)
         self.superButton.set_active(Key.SUPER in modifiers)
         self.hyperButton.set_active(Key.HYPER in modifiers)
@@ -518,6 +522,8 @@ class HotkeySettingsDialog(DialogBase):
             modifiers.append(Key.CONTROL)
         if self.altButton.get_active():
             modifiers.append(Key.ALT)
+        if self.altgrButton.get_active():
+            modifiers.append(Key.ALT_GR)
         if self.shiftButton.get_active():
             modifiers.append(Key.SHIFT)
         if self.superButton.get_active():
@@ -553,6 +559,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         if item.enabled:
             self.controlButton.set_active(Key.CONTROL in item.modifiers)
             self.altButton.set_active(Key.ALT in item.modifiers)
+            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
             self.shiftButton.set_active(Key.SHIFT in item.modifiers)
             self.superButton.set_active(Key.SUPER in item.modifiers)
             self.hyperButton.set_active(Key.HYPER in item.modifiers)

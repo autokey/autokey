@@ -23,6 +23,7 @@ from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 from .constants import X_RECORD_INTERFACE
+from .waiter import Waiter
 
 CURRENT_INTERFACE = None
 
@@ -47,6 +48,7 @@ class IoMediator(threading.Thread):
         self.queue = queue.Queue()
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
+        self.waiter = Waiter
         
         # Modifier tracking
         self.modifiers = {
@@ -124,14 +126,18 @@ class IoMediator(threading.Thread):
             shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
             key = self.interface.lookup_string(key_code, shifted, num_lock, self.modifiers[Key.ALT_GR])
             raw_key = self.interface.lookup_string(key_code, False, False, False)
-            
-            for target in self.listeners:
+
+            # We make a copy here because the wait_for... functions modify the listeners,
+            # and we want this processing cycle to complete before changing what happens
+            for target in self.listeners.copy():
                 target.handle_keypress(raw_key, modifiers, key, window_info)
 
             self.queue.task_done()
             
     def handle_mouse_click(self, root_x, root_y, rel_x, rel_y, button, window_info):
-        for target in self.listeners:
+        # We make a copy here because the wait_for... functions modify the listeners,
+        # and we want this processing cycle to complete before changing what happens
+        for target in self.listeners.copy():
             target.handle_mouseclick(root_x, root_y, rel_x, rel_y, button, window_info)
         
     # Methods for expansion service ----

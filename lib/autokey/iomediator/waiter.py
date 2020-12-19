@@ -15,7 +15,8 @@
 
 import threading
 
-from .iomediator import IoMediator
+# from .iomediator import IoMediator
+from typing import Callable, Any
 
 
 class Waiter:
@@ -23,13 +24,16 @@ class Waiter:
     Waits for a specified event to occur
     """
 
-    def __init__(self, raw_key, modifiers, button, time_out):
-        IoMediator.listeners.append(self)
+    def __init__(self, raw_key, modifiers, button, check: Callable[[Any,str,list,str], bool], name: str, time_out):
+        # IoMediator.listeners.append(self)
         self.raw_key = raw_key
         self.modifiers = modifiers
         self.button = button
         self.event = threading.Event()
+        self.check = check
+        self.name = name
         self.time_out = time_out
+        self.result = ''
 
         if modifiers is not None:
             self.modifiers.sort()
@@ -38,8 +42,8 @@ class Waiter:
         return self.event.wait(self.time_out)
 
     def handle_keypress(self, raw_key, modifiers, key, *args):
-        if raw_key == self.raw_key and modifiers == self.modifiers:
-            IoMediator.listeners.remove(self)
+        if (raw_key == self.raw_key and modifiers == self.modifiers) or (self.check is not None and self.check(self, raw_key, modifiers, key, *args)):
+            # IoMediator.listeners.remove(self)
             self.event.set()
 
     def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):

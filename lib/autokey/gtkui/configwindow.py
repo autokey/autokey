@@ -62,7 +62,7 @@ PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 from .configwindow0 import get_ui
 
 
-def set_linkbutton(button, path):
+def set_linkbutton(button, path, filename_only=False):
     button.set_sensitive(True)
 
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
@@ -70,7 +70,12 @@ def set_linkbutton(button, path):
     else:
         text = path.replace(os.path.expanduser("~"), "~")
 
-    button.set_label(text)
+    if filename_only:
+        filename = os.path.basename(path)
+        button.set_label(filename)
+    else:
+        button.set_label(text)
+
     button.set_uri("file://" + path)
     label = button.get_child()
     label.set_ellipsize(Pango.EllipsizeMode.START)
@@ -350,8 +355,12 @@ class FolderPage:
 
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+
+        label1 = self.jsonLinkButton.get_child()
+        label1.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -365,8 +374,11 @@ class FolderPage:
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentFolder.path)
+            set_linkbutton(self.jsonLinkButton, self.currentFolder.get_json_path(), True)
 
     def save(self):
         self.currentFolder.show_in_tray_menu = self.showInTrayCheckbox.get_active()
@@ -436,8 +448,12 @@ class ScriptPage:
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+
+        label1 = self.jsonLinkButton.get_child()
+        label1.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -447,7 +463,7 @@ class ScriptPage:
         self.__m = GtkSource.LanguageManager()
         self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(self.__m.get_language("python"))
-        self.buffer.set_style_scheme(self.__sm.get_scheme("classic"))
+        self.buffer.set_style_scheme(self.__sm.get_scheme(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         self.editor.set_auto_indent(True)
         self.editor.set_smart_home_end(True)
         self.editor.set_insert_spaces_instead_of_tabs(True)
@@ -471,8 +487,11 @@ class ScriptPage:
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
+            set_linkbutton(self.jsonLinkButton, self.currentItem.get_json_path(), True)
 
     def save(self):
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)
@@ -608,6 +627,7 @@ class PhrasePage(ScriptPage):
         sendModeHbox.pack_start(self.sendModeCombo, False, False, 0)
 
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -652,8 +672,11 @@ class PhrasePage(ScriptPage):
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
+            set_linkbutton(self.jsonLinkButton, self.currentItem.get_json_path(), True)
 
         l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()

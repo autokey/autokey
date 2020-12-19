@@ -224,9 +224,10 @@ class XInterfaceBase(threading.Thread):
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
         
-        if not common.USING_QT:
-            self.keyMap = Gdk.Keymap.get_default()
-            self.keyMap.connect("keys-changed", self.on_keys_changed)
+        #move detection of key map changes to X event thread in order to have QT and GTK detection
+        # if not common.USING_QT:
+            # self.keyMap = Gdk.Keymap.get_default()
+            # self.keyMap.connect("keys-changed", self.on_keys_changed)
         
         self.__ignoreRemap = False
         
@@ -966,6 +967,9 @@ class XInterfaceBase(threading.Thread):
                             createdWindows.append(event.window)
                         if event.type == X.DestroyNotify:
                             destroyedWindows.append(event.window)
+                        if event.type == X.MappingNotify:
+                            logger.debug("X Mapping Event Detected")
+                            self.on_keys_changed()
                             
                     for window in createdWindows:
                         if window not in destroyedWindows:

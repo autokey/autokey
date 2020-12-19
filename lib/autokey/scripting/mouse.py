@@ -19,7 +19,11 @@ import time
 if typing.TYPE_CHECKING:
     import autokey.iomediator.iomediator
 
+
 from autokey.model.button import Button
+
+import autokey.iomediator.waiter
+
 
 class Mouse:
     """
@@ -78,7 +82,7 @@ class Mouse:
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         button = int(button)
-        w = autokey.iomediator.waiter.Waiter(None, None, button, timeOut)
+        w = autokey.iomediator.waiter.Waiter(None, None, button, None, None, timeOut)
         w.wait()
 
     def move_cursor(self, x,y):
