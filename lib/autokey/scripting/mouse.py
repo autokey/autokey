@@ -89,12 +89,35 @@ class Mouse:
         """
         Move mouse cursor to xy location on screen without warping back to the start location
 
-        Usage: C{mouse.move_cursor(x,y,tracking=False)}
+        Usage: C{mouse.move_cursor(x,y)}
+
+        @param x: x-coordinate in pixels, relative to upper left corner of screen
+        @param y: y-coordinate in pixels, relative to upper left corner of screen
+        """
+        self.interface.move_cursor(x,y)
+
+    def move_relative(self, x, y):
+        """
+        Move cursor relative to xy location based on the top left hand corner of the window that has input focus
+
+        Usage: C{mouse.move_relative(x,y)}
 
         @param x: x-coordinate in pixels, relative to upper left corner of window
         @param y: y-coordinate in pixels, relative to upper left corner of window
         """
-        self.interface.move_cursor(x,y)
+        self.interface.move_cursor(x,y,relative=True)
+
+
+    def move_relative_self(self, x, y):
+        """
+        Move cursor relative to the location of the mouse cursor
+
+        Usage: C{mouse.move_relative_self(x,y)}
+
+        @param x: x-coordinate in pixels, relative to current position of mouse cursor
+        @param y: y-coordinate in pixels, relative to current position of mouse cursor
+        """
+        self.interface.move_cursor(x, y, relative_self=True)
 
     def press_button(self, button):
         """

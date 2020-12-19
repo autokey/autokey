@@ -907,10 +907,21 @@ class XInterfaceBase(threading.Thread):
         xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
         self.__flush()
 
-    def move_cursor(self, xCoord, yCoord):
-        self.__enqueue(self.__moveCursor, xCoord, yCoord)
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
 
-    def __moveCursor(self, xCoord, yCoord):
+    def __moveCursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        if relative:
+            focus = self.localDisplay.get_input_focus().focus
+            focus.warp_pointer(xCoord, yCoord)
+            self.__flush()
+            return
+
+        if relative_self:
+            pos = self.rootWindow.query_pointer()
+            xCoord += pos.root_x
+            yCoord += pos.root_y
+        
         self.rootWindow.warp_pointer(xCoord,yCoord)
         self.__flush()
 
