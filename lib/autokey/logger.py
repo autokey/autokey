@@ -46,7 +46,13 @@ def configure_root_logger(args: Namespace):
     file_handler.setLevel(logging.INFO)
 
     stdout_stream_handler = logging.StreamHandler(sys.stdout)
-    stdout_stream_handler.setLevel(logging.DEBUG if args.verbose else logging.INFO)
+    logging_level = logging.INFO
+    if args.verbose:
+        logging_level = logging.DEBUG
+    if args.mouse_logging:
+        logging_level = 9
+    
+    stdout_stream_handler.setLevel(logging_level)
     stdout_stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
     root_logger.addHandler(stdout_stream_handler)

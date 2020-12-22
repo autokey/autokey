@@ -60,6 +60,12 @@ def _generate_argument_parser() -> argparse.ArgumentParser:
         help="Connect to a locally running cutelog instance with default settings to display the full program log. "
              "See https://github.com/busimus/cutelog"
     )
+    parser.add_argument(
+        "-m", "--mouse",
+        action="store_true",
+        dest="mouse_logging",
+        help="Similar to -l/--verbose but includes mouse button events"
+    )
     return parser
 
 

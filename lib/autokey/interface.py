@@ -45,6 +45,7 @@ from Xlib.error import ConnectionClosedError
 
 
 from . import common
+from autokey.model.button import Button
 
 if common.USING_QT:
     from PyQt5.QtGui import QClipboard
@@ -862,6 +863,66 @@ class XInterfaceBase(threading.Thread):
 
         self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
 
+        self.__flush()
+
+    def mouse_press(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
+
+    def __mousePress(self, xCoord, yCoord, button):
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
+        self.__flush()
+
+    def mouse_release(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
+
+    def __mouseRelease(self, xCoord, yCoord, button):
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
+        self.__flush()
+
+    def mouse_location(self):
+        pos = self.rootWindow.query_pointer()
+        return (pos.root_x, pos.root_y)
+
+    def relative_mouse_location(self, window=None):
+        #return relative mouse location within given window
+        if window==None:
+            window = self.localDisplay.get_input_focus().focus
+        pos = window.query_pointer()
+        return (pos.win_x, pos.win_y)
+
+    def scroll_down(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
+
+    def scroll_up(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_UP)
+
+    def __scroll(self, button):
+        focus = self.localDisplay.get_input_focus().focus
+        x,y = self.mouse_location()
+        xtest.fake_input(self=focus, event_type=X.ButtonPress, detail=button, x=x, y=y)
+        xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
+        self.__flush()
+
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
+
+    def __moveCursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        if relative:
+            focus = self.localDisplay.get_input_focus().focus
+            focus.warp_pointer(xCoord, yCoord)
+            self.__flush()
+            return
+
+        if relative_self:
+            pos = self.rootWindow.query_pointer()
+            xCoord += pos.root_x
+            yCoord += pos.root_y
+        
+        self.rootWindow.warp_pointer(xCoord,yCoord)
         self.__flush()
 
     def send_mouse_click_relative(self, xoff, yoff, button):
