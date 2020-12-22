@@ -119,7 +119,7 @@ class Service:
         # logger.debug("Received mouse click - resetting buffer")
         self.inputStack.clear()
 
-        logger.debug("Mouse click at root:("+str(rootX)+", "+str(rootY)+") Relative:("+str(relX)+","+str(relY)+") Button: "+str(button)+" In window: "+str(windowTitle))
+        logger.log(level=9, msg="Mouse click at root:("+str(rootX)+", "+str(rootY)+") Relative:("+str(relX)+","+str(relY)+") Button: "+str(button)+" In window: "+str(windowTitle))
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
         self.lastMenu = None
