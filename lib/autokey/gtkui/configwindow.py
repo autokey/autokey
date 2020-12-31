@@ -205,19 +205,12 @@ class SettingsWidget:
         for abbr in abbreviations:
             unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
             if not unique:
-                msg = _("The abbreviation '%s' is already in use by the %s") % (abbr, str(conflicting))
-                f = conflicting.get_applicable_regex()
-                if f is not None:
-                    msg += _(" for windows matching '%s'.") % f.pattern
-                ret.append(msg)
+                ret.append(self.build_msg_for_item_in_use(conflicting,
+                                                     "abbreviation"))
 
         unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
         if not unique:
-            msg = _("The hotkey '%s' is already in use by the %s") % (conflicting.get_hotkey_string(), str(conflicting))
-            f = conflicting.get_applicable_regex()
-            if f is not None:
-                msg += _(" for windows matching '%s'.") % f.pattern
-            ret.append(msg)
+            ret.append(self.build_msg_for_item_in_use(conflicting, "hotkey"))
 
         return ret
 
@@ -243,6 +236,12 @@ class SettingsWidget:
                 filterExpression = r.pattern
         return abbreviations, modifiers, key, filterExpression
 
+    def build_msg_for_item_in_use(self, conflicting, itemtype):
+        msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))
+        f = conflicting.get_applicable_regex()
+        if f is not None:
+            msg += _(" for windows matching '%s'.") % f.pattern
+        return msg
 
 
     # ---- Signal handlers
