@@ -76,6 +76,8 @@ It seems that the AUR package specifies some run-time dependencies (programs use
 
 If you wish to manually install AutoKey, use the dependencies specified in the AUR as a reference, for what has to be installed.
 
+Errors with QT plugins may be solved by updating the QT plugin path. `export QT_PLUGIN_PATH=/usr/lib/qt/plugins`
+
 # `pip` Installation
 
 If you are using a distribution other than those listed above or if you want to install AutoKey from GitHub you can use this [`pip`][pip] installation method.
