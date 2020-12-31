@@ -19,7 +19,6 @@
 
 import sys
 import os.path
-import subprocess
 import queue
 import time
 import dbus
@@ -46,6 +45,7 @@ from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
 from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
 del get_logger
@@ -116,7 +116,7 @@ class Application(QApplication):
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
             if self._verify_not_running():
-                self._create_lock_file()
+                UI_common.create_lock_file()
 
             self.monitor = monitor.FileMonitor(self)
             self.configManager = cm.create_config_manager_instance(self)
@@ -169,18 +169,10 @@ class Application(QApplication):
 
     def _verify_not_running(self):
         if os.path.exists(common.LOCK_FILE):
-            with open(common.LOCK_FILE, "r") as lock_file:
-                pid = lock_file.read()
-            try:
-                # Check if the pid file contains garbage
-                int(pid)
-            except ValueError:
-                logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
-                sys.exit(1)
+            pid = UI_common.read_pid_from_lock_file()
 
             # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()
+            output = UI_common.get_process_details(pid)
             if "autokey" in output:
                 logger.debug("AutoKey is already running as pid " + pid)
                 bus = dbus.SessionBus()
