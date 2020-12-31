@@ -196,26 +196,7 @@ class SettingsWidget:
 
     def validate(self):
         # Start by getting all applicable information
-        if self.abbrEnabled:
-            abbreviations = self.abbrDialog.get_abbrs()
-        else:
-            abbreviations = []
-
-        if self.hotkeyEnabled:
-            modifiers = self.hotkeyDialog.build_modifiers()
-            key = self.hotkeyDialog.key
-        else:
-            modifiers = []
-            key = None
-
-        filterExpression = None
-        if self.filterEnabled:
-            filterExpression = self.filterDialog.get_filter_text()
-        elif self.currentItem.parent is not None:
-            r = self.currentItem.parent.get_applicable_regex(True)
-            if r is not None:
-                filterExpression = r.pattern
-
+        abbreviations, modifiers, key, filterExpression = self.get_item_details()
         # Validate
         ret = []
 
@@ -239,6 +220,30 @@ class SettingsWidget:
             ret.append(msg)
 
         return ret
+
+    def get_item_details(self):
+        if self.abbrEnabled:
+            abbreviations = self.abbrDialog.get_abbrs()
+        else:
+            abbreviations = []
+
+        if self.hotkeyEnabled:
+            modifiers = self.hotkeyDialog.build_modifiers()
+            key = self.hotkeyDialog.key
+        else:
+            modifiers = []
+            key = None
+
+        filterExpression = None
+        if self.filterEnabled:
+            filterExpression = self.filterDialog.get_filter_text()
+        elif self.currentItem.parent is not None:
+            r = self.currentItem.parent.get_applicable_regex(True)
+            if r is not None:
+                filterExpression = r.pattern
+        return abbreviations, modifiers, key, filterExpression
+
+
 
     # ---- Signal handlers
 
