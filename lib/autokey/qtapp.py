@@ -182,25 +182,16 @@ class Application(QApplication):
         self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
-        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
-
+        UI_common.path_removed(self.configManager, self.configWindow, path)
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).

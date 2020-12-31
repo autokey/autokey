@@ -135,35 +135,16 @@ class Application:
         self.notifier.rebuild_menu()
 
     def hotkey_created(self, item):
-        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        self.__set_file_watched(path, True)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
-
-    def __set_file_watched(self, path, watch):
-        if not self.monitor.has_watch(path) and os.path.isdir(path): 
-            self.monitor.suspend()
-            if watch:
-                self.monitor.add_watch(path)
-            else:
-                self.monitor.remove_watch(path)
-            self.monitor.unsuspend()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        self.__set_file_watched(path, False)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_removed(self.configManager, self.configWindow, path)
 
     def unpause_service(self):
         """
