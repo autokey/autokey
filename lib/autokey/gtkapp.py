@@ -45,7 +45,7 @@ from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 
 logger = get_logger(__name__)
 
@@ -79,15 +79,7 @@ class Application:
             sys.exit("Missing required programs and/or python modules, exiting")
 
         try:
-            # Create configuration directory
-            if not os.path.exists(common.CONFIG_DIR):
-                os.makedirs(common.CONFIG_DIR)
-            # Create data directory (for log file)
-            if not os.path.exists(common.DATA_DIR):
-                os.makedirs(common.DATA_DIR)
-            # Create run directory (for lock file)
-            if not os.path.exists(common.RUN_DIR):
-                os.makedirs(common.RUN_DIR)
+            create_storage_directories()
 
             if self.__verifyNotRunning():
                 self.__createLockFile()

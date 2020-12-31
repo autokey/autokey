@@ -1,4 +1,5 @@
 import importlib
+import os.path
 from shutil import which
 from . import common
 
@@ -65,3 +66,17 @@ def checkRequirements():
     errorMessage += getErrorMessage("Python Modules",missing_modules)
     errorMessage += getErrorMessage("Programs",missing_programs)
     return errorMessage
+
+
+def create_storage_directories():
+    """Create various storage directories, if those do not exist."""
+    # Create configuration directory
+    makedir_if_not_exists(common.CONFIG_DIR)
+    # Create data directory (for log file)
+    makedir_if_not_exists(common.DATA_DIR)
+    # Create run directory (for lock file)
+    makedir_if_not_exists(common.RUN_DIR)
+
+def makedir_if_not_exists(d):
+    if not os.path.exists(d):
+        os.makedirs(d)

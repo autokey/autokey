@@ -45,7 +45,7 @@ from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 
 logger = get_logger(__name__)
 del get_logger
@@ -99,7 +99,7 @@ class Application(QApplication):
         self.handler = CallbackEventHandler()
         self.args = autokey.argument_parser.parse_args()
         try:
-            self._create_storage_directories()
+            create_storage_directories()
             configure_root_logger(self.args)
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
@@ -161,19 +161,6 @@ class Application(QApplication):
             self.serviceDisabled = True
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
-
-    @staticmethod
-    def _create_storage_directories():
-        """Create various storage directories, if those do not exist."""
-        # Create configuration directory
-        if not os.path.exists(common.CONFIG_DIR):
-            os.makedirs(common.CONFIG_DIR)
-        # Create data directory (for log file)
-        if not os.path.exists(common.DATA_DIR):
-            os.makedirs(common.DATA_DIR)
-        # Create run directory (for lock file)
-        if not os.path.exists(common.RUN_DIR):
-            os.makedirs(common.RUN_DIR)
 
     @staticmethod
     def _create_lock_file():
