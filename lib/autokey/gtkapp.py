@@ -92,22 +92,17 @@ class Application:
             sys.exit(1)
 
     def __verifyNotRunning(self):
-        if os.path.exists(common.LOCK_FILE):
-            pid = UI_common.read_pid_from_lock_file()
-            # Check that the found PID is running and is autokey
-            output = UI_common.get_process_details(pid)
-            if "autokey" in output:
-                logger.debug("AutoKey is already running as pid %s", pid)
-                bus = dbus.SessionBus()
+        if UI_common.is_existing_running_autokey():
+            bus = dbus.SessionBus()
 
-                try:
-                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logger.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
-                    sys.exit(1)
+            try:
+                dbusService = bus.get_object("org.autokey.Service", "/AppService")
+                dbusService.show_configure(dbus_interface="org.autokey.Service")
+                sys.exit(0)
+            except dbus.DBusException as e:
+                logger.exception("Error communicating with Dbus service")
+                self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
+                sys.exit(1)
 
         return True
 

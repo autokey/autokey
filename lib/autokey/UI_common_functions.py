@@ -1,3 +1,4 @@
+import dbus
 import importlib
 import os.path
 from shutil import which
@@ -106,3 +107,12 @@ def get_process_details(pid):
 def check_pid_is_a_running_autokey(pid):
     output = get_process_details(pid)
 
+def is_existing_running_autokey():
+    if os.path.exists(common.LOCK_FILE):
+        pid = read_pid_from_lock_file()
+        # Check that the found PID is running and is autokey
+        output = get_process_details(pid)
+        if "autokey" in output:
+            logger.debug("AutoKey is already running as pid %s", pid)
+            return True
+    return False
