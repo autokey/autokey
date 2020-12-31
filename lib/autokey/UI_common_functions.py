@@ -4,6 +4,7 @@ import os.path
 from shutil import which
 import subprocess
 import sys
+import time
 from . import common
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -118,7 +119,6 @@ def is_existing_running_autokey():
             return True
     return False
 
-
 def test_Dbus_response(app):
     bus = dbus.SessionBus()
     try:
@@ -133,3 +133,33 @@ def test_Dbus_response(app):
             message=message,
             details=str(e))
         sys.exit(1)
+
+
+# def init_global_hotkeys(app, configManager):
+#     logger.info("Initialise global hotkeys")
+#     configManager.toggleServiceHotkey.set_closure(app.toggle_service)
+#     configManager.configHotkey.set_closure(app.show_configure_signal.emit)
+#     This line replaces the above line in the gtk app. Need to find out
+#     what the difference is before continuing.
+#     configManager.configHotkey.set_closure(app.show_configure_async)
+
+
+def hotkey_created(app_service, item):
+    logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
+    app_service.mediator.interface.grab_hotkey(item)
+
+def hotkey_removed(app_service, item):
+    logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
+    app_service.mediator.interface.ungrab_hotkey(item)
+
+def path_created_or_modified(configManager, configWindow, path):
+    time.sleep(0.5)
+    changed = configManager.path_created_or_modified(path)
+    if changed and configWindow is not None:
+        configWindow.config_modified()
+
+def path_removed(configManager, configWindow, path):
+    time.sleep(0.5)
+    changed = configManager.path_removed(path)
+    if changed and configWindow is not None:
+        configWindow.config_modified()
