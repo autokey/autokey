@@ -169,19 +169,7 @@ class Application(QApplication):
 
     def _verify_not_running(self):
         if UI_common.is_existing_running_autokey():
-            bus = dbus.SessionBus()
-
-            try:
-                dbus_service = bus.get_object("org.autokey.Service", "/AppService")
-                dbus_service.show_configure(dbus_interface="org.autokey.Service")
-                sys.exit(0)
-            except dbus.DBusException as e:
-                logger.exception("Error communicating with Dbus service")
-                self.show_error_dialog(
-                    message="AutoKey is already running as pid {} but is not responding".format(pid),
-                    details=str(e))
-                sys.exit(1)
-
+            UI_common.test_Dbus_response(self)
         return True
 
     def init_global_hotkeys(self, configManager):
