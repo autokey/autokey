@@ -1,6 +1,7 @@
 import importlib
 import os.path
 from shutil import which
+import subprocess
 from . import common
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -80,3 +81,28 @@ def create_storage_directories():
 def makedir_if_not_exists(d):
     if not os.path.exists(d):
         os.makedirs(d)
+
+def create_lock_file():
+    with open(common.LOCK_FILE, "w") as lock_file:
+        lock_file.write(str(os.getpid()))
+
+def read_pid_from_lock_file() -> str:
+    with open(common.LOCK_FILE, "r") as lock_file:
+        pid = lock_file.read()
+    try:
+        # Check if the pid file contains garbage
+        int(pid)
+    except ValueError:
+        logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
+        sys.exit(1)
+    return pid
+
+
+def get_process_details(pid):
+    with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+        output = p.communicate()[0].decode()
+    return output
+
+def check_pid_is_a_running_autokey(pid):
+    output = get_process_details(pid)
+

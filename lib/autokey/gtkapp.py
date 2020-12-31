@@ -21,7 +21,6 @@ common.USING_QT = False
 
 import sys
 import os.path
-import subprocess
 import time
 import threading
 
@@ -44,6 +43,7 @@ from autokey.gtkui.configwindow import ConfigWindow
 from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+import autokey.UI_common_functions as UI_common
 from autokey.logger import get_logger, configure_root_logger
 from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 
@@ -82,7 +82,7 @@ class Application:
             create_storage_directories()
 
             if self.__verifyNotRunning():
-                self.__createLockFile()
+                UI_common.create_lock_file()
 
             self.initialise(args.show_config_window)
 
@@ -91,19 +91,12 @@ class Application:
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def __createLockFile(self):
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
-
     def __verifyNotRunning(self):
         if os.path.exists(common.LOCK_FILE):
-            pid = Application._read_pid_from_lock_file()
-
+            pid = UI_common.read_pid_from_lock_file()
             # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0]
-
-            if "autokey" in output.decode():
+            output = UI_common.get_process_details(pid)
+            if "autokey" in output:
                 logger.debug("AutoKey is already running as pid %s", pid)
                 bus = dbus.SessionBus()
 
@@ -117,11 +110,6 @@ class Application:
                     sys.exit(1)
 
         return True
-
-    @staticmethod
-    def _read_pid_from_lock_file() -> str:
-        with open(common.LOCK_FILE, 'r') as lock_file:
-            return lock_file.read()
 
     def initialise(self, configure):
         logger.info("Initialising application")
