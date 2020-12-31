@@ -3,6 +3,7 @@ import importlib
 import os.path
 from shutil import which
 import subprocess
+import sys
 from . import common
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -116,3 +117,19 @@ def is_existing_running_autokey():
             logger.debug("AutoKey is already running as pid %s", pid)
             return True
     return False
+
+
+def test_Dbus_response(app):
+    bus = dbus.SessionBus()
+    try:
+        dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+        dbus_service.show_configure(dbus_interface="org.autokey.Service")
+        sys.exit(0)
+    except dbus.DBusException as e:
+        message="AutoKey is already running as pid {} but is not responding".format(pid)
+        logger.exception(
+            "Error communicating with Dbus service. {}".format(message))
+        app.show_error_dialog(
+            message=message,
+            details=str(e))
+        sys.exit(1)
