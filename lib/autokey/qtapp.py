@@ -168,25 +168,19 @@ class Application(QApplication):
             lock_file.write(str(os.getpid()))
 
     def _verify_not_running(self):
-        if os.path.exists(common.LOCK_FILE):
-            pid = UI_common.read_pid_from_lock_file()
+        if UI_common.is_existing_running_autokey():
+            bus = dbus.SessionBus()
 
-            # Check that the found PID is running and is autokey
-            output = UI_common.get_process_details(pid)
-            if "autokey" in output:
-                logger.debug("AutoKey is already running as pid " + pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbus_service = bus.get_object("org.autokey.Service", "/AppService")
-                    dbus_service.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logger.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(
-                        message="AutoKey is already running as pid {} but is not responding".format(pid),
-                        details=str(e))
-                    sys.exit(1)
+            try:
+                dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+                dbus_service.show_configure(dbus_interface="org.autokey.Service")
+                sys.exit(0)
+            except dbus.DBusException as e:
+                logger.exception("Error communicating with Dbus service")
+                self.show_error_dialog(
+                    message="AutoKey is already running as pid {} but is not responding".format(pid),
+                    details=str(e))
+                sys.exit(1)
 
         return True
 
