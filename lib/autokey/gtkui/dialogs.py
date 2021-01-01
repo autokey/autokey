@@ -472,18 +472,7 @@ class HotkeySettingsDialog(DialogBase):
             button.set_active(key in modifiers)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
-
-        modifiers = self.build_modifiers()
-
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey(self, item)
 
     def reset(self):
         for button in self.MODIFIER_BUTTONS:
