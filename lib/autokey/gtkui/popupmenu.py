@@ -38,7 +38,43 @@ class PopupMenu(Gtk.Menu):
             folders = []
         self.__i = 1
         self.service = service
-        
+
+        folders, items = self.set_up_initial_sort(folders, items)
+        self.set_up_trigger_position()
+
+        single_desktop_folder = len(folders) == 1 and not items and onDesktop
+        if single_desktop_folder:
+            # Only one folder - create menu with just its folders and items
+            self.create_menu_item(folders[0].folders, service, onDesktop)
+            self.__addItemsToSelf(folders[0].items, service, onDesktop)
+
+        else:
+            # Create phrase folder section
+            self.create_menu_item(folders, service, onDesktop,
+                                  multiple_folders=True)
+            self.__addItemsToSelf(items, service, onDesktop)
+
+        self.show_all()
+
+    def create_menu_item(self, folders, service, onDesktop, multiple_folders=False):
+        for folder in folders:
+            menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
+            if multiple_folders:
+                onDesktop=False
+            menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, onDesktop))
+            menuItem.set_use_underline(True)
+            self.append(menuItem)
+        if len(folders) > 0:
+            self.append(Gtk.SeparatorMenuItem())
+
+    def set_up_trigger_position(self):
+        if cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL]:
+            self.triggerInitial = 1
+        else:
+            logger.debug("Triggering menu item by position in list")
+            self.triggerInitial = 0
+
+    def set_up_initial_sort(self, folders, items):
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -46,43 +82,8 @@ class PopupMenu(Gtk.Menu):
         else:
             logger.debug("Sorting phrase menu by item name/title")
             folders.sort(key=lambda obj: str(obj))
-            items.sort(key=lambda obj: str(obj))      
-        
-        if cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL]:
-            logger.debug("Triggering menu item by first initial")
-            self.triggerInitial = 1
-        else:
-            logger.debug("Triggering menu item by position in list")
-            self.triggerInitial = 0
-
-
-        if len(folders) == 1 and not items and onDesktop:
-            # Only one folder - create menu with just its folders and items
-            for folder in folders[0].folders:
-                menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
-                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, onDesktop))
-                menuItem.set_use_underline(True)
-                self.append(menuItem)
-    
-            if len(folders[0].folders) > 0:
-                self.append(Gtk.SeparatorMenuItem())
-            
-            self.__addItemsToSelf(folders[0].items, service, onDesktop)
-        
-        else:
-            # Create phrase folder section
-            for folder in folders:
-                menuItem = Gtk.MenuItem(label=self.__getMnemonic(folder.title, onDesktop))
-                menuItem.set_submenu(PopupMenu(service, folder.folders, folder.items, False))
-                menuItem.set_use_underline(True)
-                self.append(menuItem)
-    
-            if len(folders) > 0:
-                self.append(Gtk.SeparatorMenuItem())
-    
-            self.__addItemsToSelf(items, service, onDesktop)
-            
-        self.show_all()
+            items.sort(key=lambda obj: str(obj))
+        return folders, items
         
     def __getMnemonic(self, desc, onDesktop):
         if 1 < 10 and '_' not in desc and onDesktop:  # TODO: if 1 < 10 ??
@@ -113,7 +114,6 @@ class PopupMenu(Gtk.Menu):
         else:
             items.sort(key=lambda obj: str(obj))
         
-        i = 1
         for item in items:
             #if onDesktop:
             #    menuItem = Gtk.MenuItem(item.get_description(service.lastStackState), False)
