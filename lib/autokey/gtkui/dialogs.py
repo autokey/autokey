@@ -35,6 +35,7 @@ locale.setlocale(locale.LC_ALL, '')
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from autokey import model
+from autokey import UI_common_functions as UI_common
 from autokey.model.key import Key
 from .shared import get_ui
 
@@ -616,16 +617,8 @@ class WindowFilterSettingsDialog(DialogBase):
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
 
-    # It seriously bugs me how much duplication there is between the two GUIs.
     def save(self, item):
-        regex = self.get_filter_text()
-        try:
-            item.set_window_titles(regex)
-        except re.error:
-            logger.error(
-                "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
-            )
-        item.set_filter_recursive(self.get_is_recursive())
+        UI_common.save_item_filter(self, item)
 
     def reset(self):
         self.triggerRegexEntry.set_text("")
