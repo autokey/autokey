@@ -445,24 +445,28 @@ class HotkeySettingsDialog(DialogBase):
         self.targetItem = item
         self.setButton.set_sensitive(True)
         if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
-
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
-
+            self.populate_hotkey_details(item)
         else:
             self.reset()
+
+    def populate_hotkey_details(self, item):
+        self.activate_modifier_buttons(item)
+        key = item.hotKey
+        if key in self.KEY_MAP:
+            keyText = self.KEY_MAP[key]
+        else:
+            keyText = key
+        self._setKeyLabel(keyText)
+        self.key = keyText
+
+    def activate_modifier_buttons(self, item):
+        self.controlButton.set_active(Key.CONTROL in item.modifiers)
+        self.altButton.set_active(Key.ALT in item.modifiers)
+        self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
+        self.shiftButton.set_active(Key.SHIFT in item.modifiers)
+        self.superButton.set_active(Key.SUPER in item.modifiers)
+        self.hyperButton.set_active(Key.HYPER in item.modifiers)
+        self.metaButton.set_active(Key.META in item.modifiers)
 
     def save(self, item):
         item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
