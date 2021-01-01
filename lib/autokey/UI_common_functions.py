@@ -129,6 +129,7 @@ def test_Dbus_response(app):
         dbus_service.show_configure(dbus_interface="org.autokey.Service")
         sys.exit(0)
     except dbus.DBusException as e:
+        pid = read_pid_from_lock_file()
         message="AutoKey is already running as pid {} but is not responding".format(pid)
         logger.exception(
             "Error communicating with Dbus service. {}".format(message))
