@@ -525,10 +525,17 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
 
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hotkey."), None, self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
+
+    def check_nonempty_key(self):
+        return validate(
+            self.key is not None,
+            _("You must specify a key for the hotkey."),
+            None,
+            self.ui)
 
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
@@ -548,7 +555,6 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
             self.reset()
 
     def save(self, item):
-        # Build modifier list
         modifiers = self.build_modifiers()
 
         keyText = self.key
@@ -575,11 +581,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
                         self.ui):
             return False
 
-        if not validate(
-                self.key is not None,
-                _("You must specify a key for the hotkey."),
-                None,
-                self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
