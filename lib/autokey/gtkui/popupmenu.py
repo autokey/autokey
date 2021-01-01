@@ -46,13 +46,13 @@ class PopupMenu(Gtk.Menu):
         if single_desktop_folder:
             # Only one folder - create menu with just its folders and items
             self.create_menu_item(folders[0].folders, service, onDesktop)
-            self.__addItemsToSelf(folders[0].items, service, onDesktop)
+            self.__addItemsToSelf(folders[0].items, onDesktop)
 
         else:
             # Create phrase folder section
             self.create_menu_item(folders, service, onDesktop,
                                   multiple_folders=True)
-            self.__addItemsToSelf(items, service, onDesktop)
+            self.__addItemsToSelf(items, onDesktop)
 
         self.show_all()
 
@@ -107,7 +107,7 @@ class PopupMenu(Gtk.Menu):
         self.popdown()
         Gdk.threads_leave()
         
-    def __addItemsToSelf(self, items, service, onDesktop):
+    def __addItemsToSelf(self, items, onDesktop):
         # Create phrase section
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
@@ -115,9 +115,6 @@ class PopupMenu(Gtk.Menu):
             items.sort(key=lambda obj: str(obj))
         
         for item in items:
-            #if onDesktop:
-            #    menuItem = Gtk.MenuItem(item.get_description(service.lastStackState), False)
-            #else:
             menuItem = Gtk.MenuItem(label=self.__getMnemonic(item.description, onDesktop))
             menuItem.connect("activate", self.__itemSelected, item)
             menuItem.set_use_underline(True)
