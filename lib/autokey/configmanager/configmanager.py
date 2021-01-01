@@ -31,7 +31,6 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
-import autokey.item_management as item_management
 from autokey.model import key
 from autokey import common
 from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DEFAULT_FOLDER, CONFIG_FILE_BACKUP, \
@@ -752,9 +751,22 @@ class ConfigManager:
                 pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    def delete_hotkeys(self, removed_item):
+        return self.__deleteHotkeys(removed_item)
+
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
-        item_management.delete_hotkeys(self.app, removed_item)
+        app = self.app
+        if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
+            app.hotkey_removed(removed_item)
+
+        if isinstance(removed_item, autokey.model.folder.Folder):
+            for subFolder in removed_item.folders:
+                self.delete_hotkeys(subFolder)
+
+            for item in removed_item.items:
+                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+                    app.hotkey_removed(item)
 
 
 class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):
