@@ -27,7 +27,6 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
-import autokey.item_management as items
 
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
@@ -1250,7 +1249,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.on_tree_selection_changed(self.treeView)
 
     def __deleteHotkeys(self, theItem):
-        items.delete_hotkeys(self.app, theItem)
+        self.app.configManager.delete_hotkeys(theItem)
 
     def on_undo(self, widget, data=None):
         self.__getCurrentPage().undo()
