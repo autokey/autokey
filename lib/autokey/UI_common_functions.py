@@ -178,11 +178,19 @@ def path_removed(configManager, configWindow, path):
 
 
 def save_item_filter(app, item):
-    regex = app.get_filter_text()
+    filter_regex = app.get_filter_text()
     try:
-        item.set_window_titles(regex)
+        item.set_window_titles(filter_regex)
     except re.error:
         logger.error(
-            "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
+            "Invalid window filter regex: '{}'. Discarding without saving.".format(filter_regex)
         )
     item.set_filter_recursive(app.get_is_recursive())
+
+
+def get_hotkey_text(app, key):
+    if key in app.KEY_MAP:
+        keyText = app.KEY_MAP[key]
+    else:
+        keyText = key
+    return keyText
