@@ -39,7 +39,7 @@ class PopupMenu(Gtk.Menu):
         self.__i = 1
         self.service = service
 
-        folders, items = self.set_up_initial_sort(folders, items)
+        folders, items = self.sort_popup_items(folders, items)
         self.set_up_trigger_position()
 
         single_desktop_folder = len(folders) == 1 and not items and onDesktop
@@ -74,7 +74,7 @@ class PopupMenu(Gtk.Menu):
             logger.debug("Triggering menu item by position in list")
             self.triggerInitial = 0
 
-    def set_up_initial_sort(self, folders, items):
+    def sort_popup_items(self, folders, items):
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
