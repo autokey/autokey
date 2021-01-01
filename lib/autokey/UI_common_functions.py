@@ -2,6 +2,7 @@ import dbus
 import importlib
 import os.path
 from shutil import which
+import re
 import subprocess
 import sys
 import time
@@ -174,3 +175,14 @@ def path_removed(configManager, configWindow, path):
     set_file_watched(configManager.app.monitor, path, False)
     if changed and configWindow is not None:
         configWindow.config_modified()
+
+
+def save_item_filter(app, item):
+    regex = app.get_filter_text()
+    try:
+        item.set_window_titles(regex)
+    except re.error:
+        logger.error(
+            "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
+        )
+    item.set_filter_recursive(app.get_is_recursive())
