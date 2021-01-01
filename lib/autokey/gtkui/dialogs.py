@@ -438,6 +438,15 @@ class HotkeySettingsDialog(DialogBase):
         self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
+        self.MODIFIER_BUTTONS = {
+            self.controlButton: Key.CONTROL,
+            self.altButton: Key.ALT,
+            self.altgrButton: Key.ALT_GR,
+            self.shiftButton: Key.SHIFT,
+            self.superButton: Key.SUPER,
+            self.hyperButton: Key.HYPER,
+            self.metaButton: Key.META,
+        }
 
         DialogBase.__init__(self)
 
@@ -460,13 +469,8 @@ class HotkeySettingsDialog(DialogBase):
         self.key = keyText
 
     def activate_modifier_buttons(self, modifiers):
-        self.controlButton.set_active(Key.CONTROL in modifiers)
-        self.altButton.set_active(Key.ALT in modifiers)
-        self.altgrButton.set_active(Key.ALT_GR in modifiers)
-        self.shiftButton.set_active(Key.SHIFT in modifiers)
-        self.superButton.set_active(Key.SUPER in modifiers)
-        self.hyperButton.set_active(Key.HYPER in modifiers)
-        self.metaButton.set_active(Key.META in modifiers)
+        for button, key in self.MODIFIER_BUTTONS.items():
+            button.set_active(key in modifiers)
 
     def save(self, item):
         item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
