@@ -111,31 +111,23 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
             button.setChecked(key in modifiers)
 
     def save(self, item):
-        UI_common.save_hotkey(self, item)
+        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
+        UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
-        self.mod_control_button.setChecked(False)
-        self.mod_alt_button.setChecked(False)
-        self.mod_shift_button.setChecked(False)
-        self.mod_super_button.setChecked(False)
-        self.mod_hyper_button.setChecked(False)
-        self.mod_meta_button.setChecked(False)
+        for button in self.MODIFIER_BUTTONS:
+            button.setChecked(False)
 
         self._update_key(None)
 
     def set_key(self, key, modifiers: typing.List[Key] = None):
         """This is called when the user successfully finishes recording a key combination."""
         if modifiers is None:
-            modifiers = []  # type: typing.List[Key]
+            modifiers = []
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._update_key(key)
-        self.mod_control_button.setChecked(Key.CONTROL in modifiers)
-        self.mod_alt_button.setChecked(Key.ALT in modifiers)
-        self.mod_shift_button.setChecked(Key.SHIFT in modifiers)
-        self.mod_super_button.setChecked(Key.SUPER in modifiers)
-        self.mod_hyper_button.setChecked(Key.HYPER in modifiers)
-        self.mod_meta_button.setChecked(Key.META in modifiers)
+        self.activate_modifier_buttons(modifiers)
         self.recording_finished.emit(True)
 
     def cancel_grab(self):
@@ -148,19 +140,9 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
 
     def build_modifiers(self):
         modifiers = []
-        if self.mod_control_button.isChecked():
-            modifiers.append(Key.CONTROL)
-        if self.mod_alt_button.isChecked():
-            modifiers.append(Key.ALT)
-        if self.mod_shift_button.isChecked():
-            modifiers.append(Key.SHIFT)
-        if self.mod_super_button.isChecked():
-            modifiers.append(Key.SUPER)
-        if self.mod_hyper_button.isChecked():
-            modifiers.append(Key.HYPER)
-        if self.mod_meta_button.isChecked():
-            modifiers.append(Key.META)
-
+        for button, key in self.MODIFIER_BUTTONS.items():
+            if button.isChecked():
+                modifiers.append(key)
         modifiers.sort()
         return modifiers
 
@@ -174,32 +156,9 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item: cm.GlobalHotkey):
         self.target_item = item
         if item.enabled:
-            self.mod_control_button.setChecked(Key.CONTROL in item.modifiers)
-            self.mod_alt_button.setChecked(Key.ALT in item.modifiers)
-            self.mod_shift_button.setChecked(Key.SHIFT in item.modifiers)
-            self.mod_super_button.setChecked(Key.SUPER in item.modifiers)
-            self.mod_hyper_button.setChecked(Key.HYPER in item.modifiers)
-            self.mod_meta_button.setChecked(Key.META in item.modifiers)
-
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                key_text = self.KEY_MAP[key]
-            else:
-                key_text = key
-            self._update_key(key_text)
-
+            self.populate_hotkey_details(item)
         else:
             self.reset()
 
     def save(self, item: cm.GlobalHotkey):
-        # Build modifier list
-        modifiers = self.build_modifiers()
-
-        if self.key in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[self.key]
-        else:
-            key = self.key
-
-        if key is None:
-            raise RuntimeError("Attempt to set hotkey with no key")
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey_settings_dialog(self, item)
