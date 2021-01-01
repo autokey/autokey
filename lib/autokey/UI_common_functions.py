@@ -212,3 +212,16 @@ def save_hotkey_settings_dialog(app, item):
         raise RuntimeError("Attempt to set hotkey with no key")
     logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
     item.set_hotkey(modifiers, key)
+
+def load_hotkey_settings_dialog(app, item):
+    app.targetItem = item
+    if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+        app.populate_hotkey_details(item)
+    else:
+        app.reset()
+
+def load_global_hotkey_dialog(app, item):
+    if item.enabled:
+        app.populate_hotkey_details(item)
+    else:
+        app.reset()

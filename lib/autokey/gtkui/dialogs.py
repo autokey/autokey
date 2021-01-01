@@ -452,12 +452,9 @@ class HotkeySettingsDialog(DialogBase):
         DialogBase.__init__(self)
 
     def load(self, item):
-        self.targetItem = item
         self.setButton.set_sensitive(True)
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-            self.populate_hotkey_details(item)
-        else:
-            self.reset()
+        UI_common.load_hotkey_settings_dialog(self,
+                                              item)
 
     def populate_hotkey_details(self, item):
         self.activate_modifier_buttons(item.modifiers)
@@ -537,11 +534,8 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item):
         self.targetItem = item
-        if item.enabled:
-            self.populate_hotkey_details(item)
-
-        else:
-            self.reset()
+        UI_common.load_global_hotkey_dialog(self,
+                                            item)
 
 
     def save(self, item):
