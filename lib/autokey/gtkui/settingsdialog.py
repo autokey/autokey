@@ -27,7 +27,7 @@ from autokey.model.key import Key
 
 
 from .dialogs import GlobalHotkeyDialog
-from .configwindow0 import get_ui
+from .shared import get_ui
 
 
 ICON_NAME_MAP = {
