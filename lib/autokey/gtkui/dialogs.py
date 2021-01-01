@@ -462,12 +462,10 @@ class HotkeySettingsDialog(DialogBase):
     def populate_hotkey_details(self, item):
         self.activate_modifier_buttons(item.modifiers)
         key = item.hotKey
-        if key in self.KEY_MAP:
-            keyText = self.KEY_MAP[key]
-        else:
-            keyText = key
+        keyText = UI_common.get_hotkey_text(self, key)
         self._setKeyLabel(keyText)
         self.key = keyText
+        logger.debug("Loaded item {}, key: {}, modifiers: {}".format(item, keyText, item.modifiers))
 
     def activate_modifier_buttons(self, modifiers):
         for button, key in self.MODIFIER_BUTTONS.items():
