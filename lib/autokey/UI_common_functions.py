@@ -198,7 +198,7 @@ def get_hotkey_text(app, key):
     return keyText
 
 
-def save_hotkey(app, item):
+def save_hotkey_settings_dialog(app, item):
     item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
 
     modifiers = app.build_modifiers()
