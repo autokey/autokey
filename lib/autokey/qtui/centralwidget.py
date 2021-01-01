@@ -28,6 +28,7 @@ import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
 import autokey.iomediator.keygrabber
+import autokey.item_management as items
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
@@ -581,17 +582,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(new_index))
 
     def __deleteHotkeys(self, removed_item):
-        if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
-            self.window().app.hotkey_removed(removed_item)
-
-        if isinstance(removed_item, autokey.model.folder.Folder):
-            for subFolder in removed_item.folders:
-                self.__deleteHotkeys(subFolder)
-
-            for item in removed_item.items:
-                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                    self.window().app.hotkey_removed(item)
-
+        items.delete_hotkeys(self.window().app, removed_item)
 
 class ListWidgetHandler(logging.Handler):
 
