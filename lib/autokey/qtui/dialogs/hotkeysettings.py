@@ -92,11 +92,8 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         self.grabber.start()
 
     def load(self, item: Item):
-        self.target_item = item
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-            self.populate_hotkey_details(item)
-        else:
-            self.reset()
+        UI_common.load_hotkey_settings_dialog(self,
+                                              item)
 
     def populate_hotkey_details(self, item):
         self.activate_modifier_buttons(item.modifiers)
@@ -155,10 +152,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item: cm.GlobalHotkey):
         self.target_item = item
-        if item.enabled:
-            self.populate_hotkey_details(item)
-        else:
-            self.reset()
+        UI_common.load_global_hotkey_dialog(self, item)
 
     def save(self, item: cm.GlobalHotkey):
         UI_common.save_hotkey_settings_dialog(self, item)
