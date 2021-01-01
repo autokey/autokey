@@ -6,7 +6,9 @@ import re
 import subprocess
 import sys
 import time
+
 from . import common
+import autokey.model.helpers
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -183,3 +185,19 @@ def get_hotkey_text(app, key):
     else:
         keyText = key
     return keyText
+
+
+def save_hotkey(app, item):
+    item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
+
+    modifiers = app.build_modifiers()
+
+    if app.key in app.REVERSE_KEY_MAP:
+        key = app.REVERSE_KEY_MAP[app.key]
+    else:
+        key = app.key
+
+    if key is None:
+        raise RuntimeError("Attempt to set hotkey with no key")
+    logger.info("Item {} updated with hotkey {} and modifiers {}".format(item, key, modifiers))
+    item.set_hotkey(modifiers, key)
