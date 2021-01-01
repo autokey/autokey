@@ -36,7 +36,7 @@ __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySetting
 
 from autokey import model
 from autokey.model.key import Key
-from .configwindow0 import get_ui
+from .shared import get_ui
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 

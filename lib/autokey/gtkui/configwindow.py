@@ -59,7 +59,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
-from .configwindow0 import get_ui
+from .shared import get_ui
 
 
 def set_linkbutton(button, path, filename_only=False):
