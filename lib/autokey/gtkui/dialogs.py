@@ -475,7 +475,6 @@ class HotkeySettingsDialog(DialogBase):
     def save(self, item):
         item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
 
-        # Build modifier list
         modifiers = self.build_modifiers()
 
         keyText = self.key
@@ -488,13 +487,8 @@ class HotkeySettingsDialog(DialogBase):
         item.set_hotkey(modifiers, key)
 
     def reset(self):
-        self.controlButton.set_active(False)
-        self.altButton.set_active(False)
-        self.altgrButton.set_active(False)
-        self.shiftButton.set_active(False)
-        self.superButton.set_active(False)
-        self.hyperButton.set_active(False)
-        self.metaButton.set_active(False)
+        for button in self.MODIFIER_BUTTONS:
+            button.set_active(False)
 
         self._setKeyLabel(_("(None)"))
         self.key = None
@@ -521,21 +515,9 @@ class HotkeySettingsDialog(DialogBase):
 
     def build_modifiers(self):
         modifiers = []
-        if self.controlButton.get_active():
-            modifiers.append(Key.CONTROL)
-        if self.altButton.get_active():
-            modifiers.append(Key.ALT)
-        if self.altgrButton.get_active():
-            modifiers.append(Key.ALT_GR)
-        if self.shiftButton.get_active():
-            modifiers.append(Key.SHIFT)
-        if self.superButton.get_active():
-            modifiers.append(Key.SUPER)
-        if self.hyperButton.get_active():
-            modifiers.append(Key.HYPER)
-        if self.metaButton.get_active():
-            modifiers.append(Key.META)
-
+        for button, key in self.MODIFIER_BUTTONS.items():
+            if button.get_active():
+                modifiers.append(key)
         modifiers.sort()
         return modifiers
 
@@ -560,21 +542,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
     def load(self, item):
         self.targetItem = item
         if item.enabled:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
-
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
+            self.populate_hotkey_details(item)
 
         else:
             self.reset()
