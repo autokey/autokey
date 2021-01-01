@@ -84,7 +84,7 @@ class PopupMenu(Gtk.Menu):
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))
         return folders, items
-        
+
     def __getMnemonic(self, desc, onDesktop):
         if 1 < 10 and '_' not in desc and onDesktop:  # TODO: if 1 < 10 ??
             if self.triggerInitial:
@@ -101,24 +101,24 @@ class PopupMenu(Gtk.Menu):
         time.sleep(0.2)
         self.popup(None, None, None, None, 1, 0)
         Gdk.threads_leave()
-        
+
     def remove_from_desktop(self):
         Gdk.threads_enter()
         self.popdown()
         Gdk.threads_leave()
-        
+
     def __addItemsToSelf(self, items, onDesktop):
         # Create phrase section
         if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))
-        
+
         for item in items:
             menuItem = Gtk.MenuItem(label=self.__getMnemonic(item.description, onDesktop))
             menuItem.connect("activate", self.__itemSelected, item)
             menuItem.set_use_underline(True)
             self.append(menuItem)
-            
+
     def __itemSelected(self, widget, item):
         self.service.item_selected(item)
