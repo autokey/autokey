@@ -450,7 +450,7 @@ class HotkeySettingsDialog(DialogBase):
             self.reset()
 
     def populate_hotkey_details(self, item):
-        self.activate_modifier_buttons(item)
+        self.activate_modifier_buttons(item.modifiers)
         key = item.hotKey
         if key in self.KEY_MAP:
             keyText = self.KEY_MAP[key]
@@ -459,14 +459,14 @@ class HotkeySettingsDialog(DialogBase):
         self._setKeyLabel(keyText)
         self.key = keyText
 
-    def activate_modifier_buttons(self, item):
-        self.controlButton.set_active(Key.CONTROL in item.modifiers)
-        self.altButton.set_active(Key.ALT in item.modifiers)
-        self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
-        self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-        self.superButton.set_active(Key.SUPER in item.modifiers)
-        self.hyperButton.set_active(Key.HYPER in item.modifiers)
-        self.metaButton.set_active(Key.META in item.modifiers)
+    def activate_modifier_buttons(self, modifiers):
+        self.controlButton.set_active(Key.CONTROL in modifiers)
+        self.altButton.set_active(Key.ALT in modifiers)
+        self.altgrButton.set_active(Key.ALT_GR in modifiers)
+        self.shiftButton.set_active(Key.SHIFT in modifiers)
+        self.superButton.set_active(Key.SUPER in modifiers)
+        self.hyperButton.set_active(Key.HYPER in modifiers)
+        self.metaButton.set_active(Key.META in modifiers)
 
     def save(self, item):
         item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
@@ -504,13 +504,7 @@ class HotkeySettingsDialog(DialogBase):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.controlButton.set_active(Key.CONTROL in modifiers)
-        self.altButton.set_active(Key.ALT in modifiers)
-        self.altgrButton.set_active(Key.ALT_GR in modifiers)
-        self.shiftButton.set_active(Key.SHIFT in modifiers)
-        self.superButton.set_active(Key.SUPER in modifiers)
-        self.hyperButton.set_active(Key.HYPER in modifiers)
-        self.metaButton.set_active(Key.META in modifiers)
+        self.activate_modifier_buttons(modifiers)
 
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
