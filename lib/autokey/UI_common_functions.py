@@ -25,7 +25,7 @@ def checkModuleImports(modules):
     for module in modules:
         spec = importlib.util.find_spec(module)
         if spec is None: #module has not been imported/found correctly
-            logger.debug("Python module: \""+module+"\" was not found/able to be imported correctly on the system check that the module(s) are installed correctly")
+            logger.error("Python module: \""+module+"\" was not found/able to be imported correctly on the system check that the module(s) are installed correctly")
             missing_modules.append(module)
 
     return missing_modules
@@ -36,9 +36,9 @@ def checkProgramImports(programs, optional=False):
         if which(program) is None:
             # file not found by shell
             if optional:
-                logger.debug("Optional Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
+                logger.info("Optional Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
             else:
-                logger.debug("Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
+                logger.error("Commandline Program: \""+program+"\" was not found/able to be used correctly by AutoKey. Check that this program is correctly installed on your system.")
             missing_programs.append(program)
     return missing_programs
 

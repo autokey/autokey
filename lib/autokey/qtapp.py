@@ -303,7 +303,7 @@ class Application(QApplication):
         Convenience method for showing an error dialog.
         """
         # TODO: i18n
-        logger.info("Displaying Error Dialog")
+        logger.debug("Displaying Error Dialog")
         message_box = QMessageBox(
             QMessageBox.Critical,
             "Error",

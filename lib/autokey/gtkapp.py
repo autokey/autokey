@@ -278,7 +278,7 @@ class Application:
         @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
             defaults to Gtk.MessageType.ERROR
         """
-        logger.info("Displaying "+dialog_type.value_name+" Dialog")
+        logger.debug("Displaying "+dialog_type.value_name+" Dialog")
         dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
         if details is not None:
