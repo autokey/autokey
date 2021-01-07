@@ -45,6 +45,7 @@ from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
 
 logger = get_logger(__name__)
 del get_logger
@@ -104,6 +105,13 @@ class Application(QApplication):
             logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
+
+        checkOptionalPrograms()
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
+            sys.exit("Missing required programs and/or python modules, exiting")
+
         logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
@@ -295,6 +303,7 @@ class Application(QApplication):
         Convenience method for showing an error dialog.
         """
         # TODO: i18n
+        logger.debug("Displaying Error Dialog")
         message_box = QMessageBox(
             QMessageBox.Critical,
             "Error",

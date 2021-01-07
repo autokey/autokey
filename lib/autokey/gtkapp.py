@@ -45,6 +45,7 @@ from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger, configure_root_logger
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
 
 logger = get_logger(__name__)
 
@@ -67,6 +68,15 @@ class Application:
         Gdk.threads_init()
 
         args = autokey.argument_parser.parse_args()
+        configure_root_logger(args)
+
+        checkOptionalPrograms()
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            Gdk.threads_enter()
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
+            Gdk.threads_leave()
+            sys.exit("Missing required programs and/or python modules, exiting")
 
         try:
             # Create configuration directory
@@ -79,7 +89,6 @@ class Application:
             if not os.path.exists(common.RUN_DIR):
                 os.makedirs(common.RUN_DIR)
 
-            configure_root_logger(args)
             if self.__verifyNotRunning():
                 self.__createLockFile()
 
@@ -262,11 +271,15 @@ class Application:
         Gtk.main()
         Gdk.threads_leave()
 
-    def show_error_dialog(self, message, details=None):
+    def show_error_dialog(self, message, details=None, dialog_type=Gtk.MessageType.ERROR):
         """
         Convenience method for showing an error dialog.
+
+        @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
+            defaults to Gtk.MessageType.ERROR
         """
-        dlg = Gtk.MessageDialog(type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
+        logger.debug("Displaying "+dialog_type.value_name+" Dialog")
+        dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
         if details is not None:
             dlg.format_secondary_text(details)
