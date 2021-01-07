@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""Class for creating Gtk Window dialogs"""
+
 import re
 import subprocess
 
@@ -27,7 +29,7 @@ class GtkDialog:
     not specifically handled, use keyword arguments. For example, to pass the --timeout argument to Zenity
     pass C{timeout="15"} as one of the parameters. All keyword arguments must be given as strings.
 
-    A note on exit codes: an exit code of 0 indicates that the user clicked OK.
+    @note: Exit codes: an exit code of 0 indicates that the user clicked OK.
     """
 
     def _run_zenity(self, title, args, kwargs) -> DialogData:

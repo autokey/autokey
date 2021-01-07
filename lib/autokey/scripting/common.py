@@ -13,6 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+Contains common functions for both Qt and Gtk versions
+"""
+
 from typing import NamedTuple, Union, List
 
 
@@ -20,6 +24,7 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
     """Colour data type for colour chooser dialogs."""
     @property
     def hex_code(self) -> str:
+        """Returns rgb in hex format"""
         return "{0:02x}{1:02x}{2:02x}".format(self.r, self.g, self.b)
 
     @property
@@ -36,6 +41,7 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
     def from_html(html_style_colour_str: str):
         """
         Parser for KDialog output, which outputs a HTML style hex code like #55aa00
+
         @param html_style_colour_str: HTML style hex string encoded colour. (#rrggbb)
         @return: ColourData instance
         @rtype: ColourData
@@ -49,6 +55,7 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
         """
         Parser for Zenity output, which outputs a named tuple-like string: "rgb(R, G, B)", where R, G, B are base10
         integers.
+        
         @param zenity_tuple_str: tuple-like string: "rgb(r, g, b), where r, g, b are base10 integers.
         @return: ColourData instance
         @rtype: ColourData
@@ -58,7 +65,7 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
 
 
 class DialogData(NamedTuple("DialogData", (("return_code", int), ("data", Union[ColourData, str, List[str], None])))):
-    """"""
+    """Dialog data type for return values from input dialogs"""
     @property
     def successful(self) -> bool:
         """

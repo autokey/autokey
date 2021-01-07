@@ -1,3 +1,7 @@
+"""
+Highlevel scripting API, requires xautomation to be installed
+"""
+
 import time
 import os
 import subprocess
@@ -7,26 +11,37 @@ import struct
 
 
 class PatternNotFound(Exception):
+    """Exception raised by functions"""
     pass
 
 # numeric representation of the mouse buttons. For use in visgrep.
 LEFT = 1
+"""Left mouse button"""
 MIDDLE = 2
+"""Middle mouse button"""
 RIGHT = 3
+"""Right mouse button"""
 
 
 def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
     """
-    visgrep(scr: str, pat: str, tolerance: int = 0) -> int
-    Visual grep of scr for pattern pat.
-    Requires xautomation (http://hoopajoo.net/projects/xautomation.html).
-    visgrep("screen.png", "pat.png")
-    Exceptions raised: ValueError, PatternNotFound, FileNotFoundError
+    Usage: C{visgrep(scr: str, pat: str, tolerance: int = 0) -> int}
 
-    :param scr: path of PNG image to be grepped.
-    :param pat: path of pattern image (PNG) to look for in scr.
-    :param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
-    :returns: coordinates of the topleft point of the match, if any. Raises PatternNotFound exception otherwise.
+    Visual grep of scr for pattern pat.
+
+    Requires xautomation (http://hoopajoo.net/projects/xautomation.html).
+
+    Usage: C{visgrep("screen.png", "pat.png")}
+
+    
+
+    @param scr: path of PNG image to be grepped.
+    @param pat: path of pattern image (PNG) to look for in scr.
+    @param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches.
+    @raise ValueError: Raised if tolerance is negative or not convertable to int
+    @raise PatternNotFound: Raised if C{pat} not found.
+    @raise FileNotFoundError: Raised if either file is not found
+    @returns: Coordinates of the topleft point of the match, if any. Raises L{PatternNotFound} exception otherwise.
     """
     tol = int(tolerance)
     if tol < 0:
@@ -50,10 +65,12 @@ def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
 
 def get_png_dim(filepath: str) -> int:
     """
-    get_png_dim(filepath:str) -> (int)
+    Usage: C{get_png_dim(filepath:str) -> (int)}
+
     Finds the dimension of a PNG.
-    :param filepath: file path of the PNG.
-    :returns: (width, height).
+    @param filepath: file path of the PNG.
+    @returns: (width, height).
+    @raise Exception: Raised if the file is not a png
     """
     if not imghdr.what(filepath) == 'png':
         raise Exception("not PNG")
@@ -62,32 +79,59 @@ def get_png_dim(filepath: str) -> int:
 
 
 def mouse_move(x: int, y: int, display: str=''):
+    """
+    Moves the mouse using xte C{mousemove} from xautomation
+
+    @param x: x location to move the mouse to
+    @param y: y location to move the mouse to
+    @param display: X display to pass to C{xte}
+    """
     subprocess.call(['xte', '-x', display, "mousemove {} {}".format(int(x), int(y))])
 
 
 def mouse_rmove(x: int, y: int, display: str=''):
+    """
+    Moves the mouse using xte C{mousermove} command from xautomation
+
+    @param x: x location to move the mouse to
+    @param y: y location to move the mouse to
+    @param display: X display to pass to C{xte}
+    """
     subprocess.call(['xte', '-x', display, "mousermove {} {}".format(int(x), int(y))])
 
 
 def mouse_click(button: int, display: str=''):
+    """
+    Clicks the mouse in the current location using xte C{mouseclick} from xautomation
+
+    @param button: Which button signal to send from the mouse
+    @param display: X display to pass to C{xte}
+    """
     subprocess.call(['xte', '-x', display, "mouseclick {}".format(int(button))])
 
 
 def mouse_pos():
+    """
+    Returns the current location of the mouse.
+
+    @returns: Returns the mouse location in a C{list}
+    """
     tmp = subprocess.check_output("xmousepos").decode().split()
     return list(map(int, tmp))[:2]
 
 
 def click_on_pat(pat: str, mousebutton: int=1, offset: (float, float)=None, tolerance: int=0, restore_pos: bool=False) -> None:
     """
-    Requires imagemagick, xautomation, xwd.
+    Requires C{imagemagick}, C{xautomation}, C{xwd}.
+
     Click on a pattern at a specified offset (x,y) in percent of the pattern dimension. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.
-    Exception PatternNotFound is raised when the pattern is not found on the screen.
-    :param pat: path of pattern image (PNG) to click on.
-    :param mousebutton: mouse button number used for the click
-    :param offset: offset from the top left point of the match. (float,float)
-    :param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
-    :param restore_pos: return to the initial mouse position after the click.
+
+    @param pat: path of pattern image (PNG) to click on.
+    @param mousebutton: mouse button number used for the click
+    @param offset: offset from the top left point of the match. (float,float)
+    @param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
+    @param restore_pos: return to the initial mouse position after the click.
+    @raises: L{PatternNotFound}: Raised when the pattern is not found on the screen
     """
     x0, y0 = mouse_pos()
     move_to_pat(pat, offset, tolerance)
@@ -97,7 +141,7 @@ def click_on_pat(pat: str, mousebutton: int=1, offset: (float, float)=None, tole
 
 
 def move_to_pat(pat: str, offset: (float, float)=None, tolerance: int=0) -> None:
-    """See help for click_on_pat"""
+    """See L{click_on_pat}"""
     with tempfile.NamedTemporaryFile() as f:
         subprocess.call('''
         xwd -root -silent -display :0 | 

@@ -12,6 +12,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+GtkClipboard Functions
+"""
 
 from gi.repository import Gtk, Gdk
 
@@ -22,9 +25,26 @@ class GtkClipboard:
     """
 
     def __init__(self, app):
+        """
+        Initialize the Gtk version of the Clipboard
+
+        Usage: Called when GtkClipboard is imported
+
+        @param app: refers to the application instance
+        """
+
         self.clipBoard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        """
+        Refers to the data contained in the Gtk Clipboard (conventional clipboard)
+        """
         self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+        """
+        Refers to the "selection" of the clipboard or the highlighted text
+        """
         self.app = app
+        """
+        Refers to the application instance
+        """
 
     def fill_selection(self, contents):
         """
@@ -38,6 +58,13 @@ class GtkClipboard:
         self.__fillSelection(contents)
 
     def __fillSelection(self, string):
+        """
+        Backend for the C{fill_selection} method
+        
+        Sets the selection text to the C{string} value
+
+        @param string: Value to change the selection to
+        """
         Gdk.threads_enter()
         self.selection.set_text(string, -1)
         Gdk.threads_leave()
@@ -46,6 +73,8 @@ class GtkClipboard:
     def get_selection(self):
         """
         Read text from the X selection
+
+        The X selection refers to the currently highlighted text.
 
         Usage: C{clipboard.get_selection()}
 

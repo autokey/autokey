@@ -12,6 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""Keyboard Functions"""
 
 import typing
 
@@ -27,7 +28,9 @@ class Keyboard:
     SendMode = autokey.model.phrase.SendMode
 
     def __init__(self, mediator):
+        """Initialize the Keyboard"""
         self.mediator = mediator  # type: iomediator.IoMediator
+        """See C{IoMediator} documentation"""
 
     def send_keys(self, key_string, send_mode: typing.Union[
         autokey.model.phrase.SendMode, int] = autokey.model.phrase.SendMode.KEYBOARD):
@@ -43,7 +46,7 @@ class Keyboard:
         Usage: C{keyboard.send_keys(keyString)}
 
         @param key_string: string of keys to send. Special keys are only possible in keyboard mode.
-        @param send_mode: Determines how the string is send.
+        @param send_mode: Determines how the string is sent.
         """
 
         if not isinstance(key_string, str):
