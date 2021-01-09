@@ -150,6 +150,7 @@ class ShowScriptErrorsDialog(DialogBase):
 
     def clear_all_errors(self, button):
         self.error_list.clear()
+        self.parent.set_has_errors(False)
         self.on_close(button)
 
     def delete_currently_shown_error(self, button):

@@ -912,6 +912,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             canMacro = False
             canPlay = False
             enableAny = False
+            hasError = False
         else:
             canCreate = isinstance(items[0], autokey.model.folder.Folder) and len(items) == 1
             canCopy = True
@@ -919,6 +920,8 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             canMacro = isinstance(items[0], autokey.model.phrase.Phrase) and len(items) == 1
             canPlay = isinstance(items[0], autokey.model.script.Script) and len(items) == 1
             enableAny = True
+            hasError = self.app.service.scriptRunner.error_records
+                
             for item in items:
                 if isinstance(item, autokey.model.folder.Folder):
                     canCopy = False
@@ -933,11 +936,15 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)
         self.uiManager.get_action("/MenuBar/Tools/record").set_sensitive(canRecord)
         self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canPlay)
+        self.uiManager.get_action("/MenuBar/Tools/script-error").set_sensitive(hasError)
 
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/undo").set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/redo").set_sensitive(False)
+
+    def set_has_errors(self, state):
+        self.uiManager.get_action("/MenuBar/Tools/script-error").set_sensitive(state)
 
     def set_undo_available(self, state):
         self.uiManager.get_action("/MenuBar/Edit/undo").set_sensitive(state)

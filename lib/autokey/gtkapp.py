@@ -245,6 +245,8 @@ class Application:
         """
         message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
+        if self.configWindow is not None:
+            self.configWindow.set_has_errors(True)
 
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()

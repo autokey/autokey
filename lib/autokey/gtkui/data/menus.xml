@@ -57,6 +57,7 @@
             <toolitem action="delete-item" />
             <separator />
             <toolitem action="run" />
+            <toolitem action="script-error"/>
         </toolbar>
         <popup name="NewDropdown">
 		    <menuitem action="new-top-folder" />
