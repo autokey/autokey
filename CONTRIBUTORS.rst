@@ -15,9 +15,10 @@ This will stop the push if tests fail.
 
 Testing
 =======
-Running the tests is simple: Checkout `develop` and run `python3 setup.py test`
+Running the tests is simple: Checkout `develop` and run `python3 setup.py test`. Running individual test files or folders, or using pytest arguments, can be done with `python3 -m pytest tests/[test file] [--opt]`
 
-It requires py.test and PyHamcrest as new test-time only dependencies.
+
+Testing requires pytest and PyHamcrest as new test-time only dependencies.
 
 The current `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
 The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
