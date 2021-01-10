@@ -2,6 +2,17 @@ Contributing
 ============
 When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and I’ll try to answer any questions that arise. I suggest writing new features on top of develop.
 
+Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
+
+.. code:: sh
+    remote="$1"
+    url="$2"
+
+    python3 setup.py test
+    exit $?
+
+This will stop the push if tests fail.
+
 Testing
 =======
 Running the tests is simple: Checkout `develop` and run `python3 setup.py test`
