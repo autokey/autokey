@@ -30,6 +30,7 @@ from autokey.model.key import Key
 
 from autokey.scripting.system import System
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class Engine:
     """
