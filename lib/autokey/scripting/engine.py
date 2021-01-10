@@ -159,7 +159,7 @@ Folders created within temporary folders must themselves be set temporary")
         C{
         engine.create_phrase(folder, "My new Phrase", "This is the Phrase content", abbreviations=["abc", "def"],
         hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V,
-        window_filter="konsole\.Konsole", show_in_system_tray=True)
+        window_filter="konsole\\.Konsole", show_in_system_tray=True)
         }
 
         Descriptions for the optional arguments:
