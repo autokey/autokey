@@ -39,9 +39,12 @@ def get_autokey_dir():
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
     # --- Setup ---
-    hotkey=(["<ctrl>", "<alt>", "<super>", "<shift>"], "a")
+    modifiers = ["<ctrl>", "<alt>", "<super>", "<shift>"]
+    key = "a"
+    hotkey=(modifiers, key)
     testHK = create_test_hotkey(engine, folder, hotkey)
-    resultHK = engine.configManager.get_item_with_hotkey(engine, hotkey)
+    resultHK = engine.configManager.get_item_with_hotkey(modifiers,
+                                                         key, None)
     assert_that(resultHK, is_(equal_to(testHK)))
 
 # TODO: check multiple folders, and global/special hotkeys.

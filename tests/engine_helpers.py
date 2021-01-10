@@ -38,7 +38,7 @@ def create_engine() -> typing.Tuple[Engine, autokey.model.folder.Folder]:
     test_folder = autokey.model.folder.Folder("Test folder")
     test_folder.persist = MagicMock()
 
-    # Mock load_global_config to add the test folder to the known folders. This causes the ConfigManager to skip it’s
+    # Mock load_global_config to add the test folder to the known folders. This causes the ConfigManager to skip its
     # first-run logic.
     with patch("autokey.model.phrase.Phrase.persist"), patch("autokey.model.folder.Folder.persist"),\
          patch("autokey.configmanager.configmanager.ConfigManager.load_global_config",
