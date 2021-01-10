@@ -212,14 +212,14 @@ def test_engine_create_phrase_set_single_abbreviation(create_engine):
     engine, folder = create_engine
     with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", abbreviations="abbr")
-    assert_that(phrase.abbreviations, contains("abbr"))
+    assert_that(phrase.abbreviations, has_items("abbr"))
 
 
 def test_engine_create_phrase_set_list_of_abbreviations(create_engine):
     engine, folder = create_engine
     with patch("autokey.model.phrase.Phrase.persist"):
         phrase = engine.create_phrase(folder, "Phrase", "ABC", abbreviations=["abbr", "Short"])
-    assert_that(phrase.abbreviations, contains_inanyorder("abbr", "Short"))
+    assert_that(phrase.abbreviations, has_items("abbr", "Short"))
 
 
 def test_engine_create_phrase_set_always_prompt(create_engine):
