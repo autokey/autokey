@@ -35,18 +35,6 @@ from autokey.scripting import Engine
 def get_autokey_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
-# This should really probably test the function in configmanager.py
-# instead, but since that doesn't have a test file and is tricky to
-# set up test mocks for, we'll just test this one for now.
-def test_get_item_with_hotkey(create_engine):
-    engine, folder = create_engine
-    # --- Setup ---
-    hotkey=(["<ctrl>", "<alt>", "<super>", "<shift>"], "a")
-    testHK = create_test_hotkey(engine, folder, hotkey)
-    resultHK = get_item_with_hotkey(engine, hotkey)
-    assert_that(resultHK, is_(equal_to(testHK)))
-
-
 @pytest.mark.parametrize("args, kwargs, error_msg", [
     [("Not a folder", "name", "contents",),
      {},
