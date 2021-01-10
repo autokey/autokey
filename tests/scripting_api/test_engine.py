@@ -24,6 +24,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 from hamcrest import *
+from tests.engine_helpers import *
 
 import autokey.model.folder
 from autokey.configmanager.configmanager import ConfigManager
@@ -31,40 +32,20 @@ from autokey.service import PhraseRunner
 import autokey.service
 from autokey.scripting import Engine
 
-# For use in paramerizations.
-# Call replace_folder_in_args(folder, args) to use.
-folder_param="create_new_folder"
-
 def get_autokey_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
 
-@pytest.fixture
-def create_engine() -> typing.Tuple[Engine, autokey.model.folder.Folder]:
-    # Make sure to not write to the hard disk
-    test_folder = autokey.model.folder.Folder("Test folder")
-    test_folder.persist = MagicMock()
+# This should really probably test the function in configmanager.py
+# instead, but since that doesn't have a test file and is tricky to
+# set up test mocks for, we'll just test this one for now.
+def test_get_item_with_hotkey(create_engine):
+    engine, folder = create_engine
+    # --- Setup ---
+    hotkey=(["<ctrl>", "<alt>", "<super>", "<shift>"], "a")
+    testHK = create_test_hotkey(engine, folder, hotkey)
+    resultHK = get_item_with_hotkey(engine, hotkey)
+    assert_that(resultHK, is_(equal_to(testHK)))
 
-    # Mock load_global_config to add the test folder to the known folders. This causes the ConfigManager to skip it’s
-    # first-run logic.
-    with patch("autokey.model.phrase.Phrase.persist"), patch("autokey.model.folder.Folder.persist"),\
-         patch("autokey.configmanager.configmanager.ConfigManager.load_global_config",
-               new=(lambda self: self.folders.append(test_folder))):
-        engine = Engine(ConfigManager(MagicMock()), MagicMock(spec=PhraseRunner))
-        engine.configManager.config_altered(False)
-
-    return engine, test_folder
-
-
-def create_random_string(length=10):
-    return ''.join([random.choice(string.ascii_letters + string.digits) for n in
-        range(length)])
-
-
-def replace_folder_param_in_args(folder, args):
-    if isinstance(args, str):
-        return args
-    args = [folder if x == folder_param else x for x in args]
-    return args
 
 @pytest.mark.parametrize("args, kwargs, error_msg", [
     [("Not a folder", "name", "contents",),
@@ -212,31 +193,6 @@ def test_engine_create_phrase_override_different_filter(create_engine):
     assert_that(folder.items, has_item(originalHotkey))
     assert_that(folder.items, has_item(duplicateHotkey))
     assert_both_phrases_with_hotkey_exist(engine, originalHotkey, duplicateHotkey, hotkey)
-
-def assert_both_phrases_with_hotkey_exist(engine, p1, p2, hotkey):
-    for _ in [p1, p2]:
-        phrase=get_item_with_hotkey(engine, hotkey)
-        assert phrase == p1 or phrase == p2
-        # assert_that(phrase, is_(p1 or p2))
-        phrase.unset_hotkey()
-
-
-def create_test_hotkey(engine, folder, hotkey, replaceExisting=False,
-                       windowFilter=None):
-    with patch("autokey.model.phrase.Phrase.persist"):
-        return engine.create_phrase(folder,
-                create_random_string(),
-                "ABC",
-                hotkey=hotkey,
-                replace_existing_hotkey=replaceExisting,
-                window_filter=windowFilter,
-                )
-
-def get_item_with_hotkey(engine, hotkey):
-    modifiers = sorted(hotkey[0])
-    item = engine.configManager.get_item_with_hotkey(modifiers, hotkey[1])
-    return item
-
 
 def test_engine_create_phrase_duplicate_abbreviation_raises_value_error(create_engine):
     engine, folder = create_engine
