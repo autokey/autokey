@@ -72,19 +72,18 @@ class Application(AutokeyApplication):
         self.UI = self
 
         try:
-            self.initialise(args.show_config_window)
+            self.initialise()
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def initialise(self, configure):
+    def initialise(self):
 
         self.notifier = get_notifier(self)
         self.configWindow = None
 
-        if configure:
-            self.show_configure()
+        UI_common.show_config_window(self)
 
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")

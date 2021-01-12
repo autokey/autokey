@@ -113,7 +113,6 @@ class AutokeyApplication:
 
         self.create_DBus_service()
         # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-        self._show_config_window()
 
         # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
@@ -151,12 +150,22 @@ class AutokeyApplication:
             self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
 
-    def _show_config_window(self):
-        if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
-            cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
-            self.args.show_config_window = True
-        if self.args.show_config_window:
-            self.show_configure()
+    def __try_start_monitor(self):
+        try:
+            self.monitor.start()
+        except Exception as e:
+            logger.exception("Error starting file monitor. Error: " + str(e))
+            self.UI.show_error_dialog("Error starting file monitor. Error: " + str(e))
+
+    def ctrlc_interrupt_handler(self, signal, frame):
+        logger.info("Recieved keyboard interrupt. Shutting down")
+        self.UI.shutdown()
+
+    def __register_ctrlc_handler(self):
+        """
+        Handles keyboard interrupts (ctrl-c) when run from command line.
+        """
+        signal.signal(signal.SIGINT, self.ctrlc_interrupt_handler)
 
     @staticmethod
     def _create_lock_file():
