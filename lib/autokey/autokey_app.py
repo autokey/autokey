@@ -119,6 +119,7 @@ class AutokeyApplication:
 
         self.__register_ctrlc_handler()
 
+        logger.info("Autokey services ready")
         # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
     def __create_DBus_service(self):

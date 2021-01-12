@@ -168,7 +168,8 @@ setup(
     entry_points={
         'console_scripts': [
             'autokey-gtk=autokey.gtkui.__main__:main',
-            'autokey-qt=autokey.qtui.__main__:Application'
+            'autokey-qt=autokey.qtui.__main__:Application',
+            'autokey-headless=autokey.headless_app:main',
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
