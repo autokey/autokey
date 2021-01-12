@@ -35,7 +35,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-from autokey.AutokeyApp import AutokeyApplication
+from autokey.autokey_app import AutokeyApplication
 import autokey.argument_parser
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
