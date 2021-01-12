@@ -84,14 +84,6 @@ def checkRequirements():
 #     configManager.configHotkey.set_closure(app.show_configure_async)
 
 
-def hotkey_created(app_service, item):
-    logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-    app_service.mediator.interface.grab_hotkey(item)
-
-def hotkey_removed(app_service, item):
-    logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-    app_service.mediator.interface.ungrab_hotkey(item)
-
 def path_created_or_modified(configManager, configWindow, path):
     time.sleep(0.5)
     changed = configManager.path_created_or_modified(path)

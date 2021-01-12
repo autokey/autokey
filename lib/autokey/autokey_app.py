@@ -17,12 +17,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import atexit
 import sys
 import os.path
 import queue
 import time
 import dbus
 import dbus.mainloop.glib
+import signal
 import subprocess
 from typing import NamedTuple, Iterable
 
@@ -106,6 +108,7 @@ class AutokeyApplication:
         AutokeyApplication.create_storage_directories()
         if self.__verify_not_running():
             AutokeyApplication.create_lock_file()
+            atexit.register(os.remove, common.LOCK_FILE)
 
         self.__initialise_services()
         # self.notifier = Notifier(self)
@@ -116,6 +119,8 @@ class AutokeyApplication:
         self.__create_DBus_service()
         # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
         self._show_config_window()
+
+        self.__register_ctrlc_handler()
 
         # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
@@ -170,6 +175,16 @@ class AutokeyApplication:
             # Maybe this func should be in UI common and called from the
             # init of the UIs.
             self.show_configure()
+
+    def ctrlc_interrupt_handler(self, signal, frame):
+        logger.info("Recieved keyboard interrupt. Shutting down")
+        self.UI.shutdown()
+
+    def __register_ctrlc_handler(self):
+        """
+        Handles keyboard interrupts (ctrl-c) when run from command line.
+        """
+        signal.signal(signal.SIGINT, self.ctrlc_interrupt_handler)
 
     def __verify_not_running(self):
         if self.__is_existing_running_autokey():
@@ -249,16 +264,19 @@ class AutokeyApplication:
         # self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
-        UI_common.hotkey_created(self.service, item)
+        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
+        self.service.mediator.interface.grab_hotkey(item)
 
     def hotkey_removed(self, item):
-        UI_common.hotkey_removed(self.service, item)
+        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
+        self.service.mediator.interface.ungrab_hotkey(item)
 
     # def path_created_or_modified(self, path):
         # UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     # def path_removed(self, path):
         # UI_common.path_removed(self.configManager, self.configWindow, path)
+
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
@@ -275,24 +293,19 @@ class AutokeyApplication:
         """
         Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
-        self.monitoring_disabled.emit(not self.service.is_running())
         if self.service.is_running():
             self.pause_service()
         else:
             self.unpause_service()
 
-    def shutdown(self):
+    def autokey_shutdown(self):
         """
         Shut down the entire application.
         """
-        logger.info("Shutting down")
-        self.closeAllWindows()
-        self.notifier.hide()
+        logger.debug("Shutting down service and file monitor...")
         self.service.shutdown()
         self.monitor.stop()
-        self.quit()
-        os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
-        logger.debug("All shutdown tasks complete... quitting")
+        logger.debug("Finished shutting down service and file monitor...")
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
