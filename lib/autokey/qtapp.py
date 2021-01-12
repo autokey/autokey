@@ -186,16 +186,14 @@ class Application(QApplication, AutokeyApplication):
 
     def shutdown(self):
         """
-        Shut down the entire application.
+        Shut down qt application.
         """
         logger.info("Shutting down")
         self.closeAllWindows()
         self.notifier.hide()
-        self.service.shutdown()
-        self.monitor.stop()
-        self.quit()
-        os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
+        super().autokey_shutdown()
         logger.debug("All shutdown tasks complete... quitting")
+        self.quit()
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """

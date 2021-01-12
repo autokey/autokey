@@ -109,33 +109,24 @@ class Application(AutokeyApplication):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
-        self.service.unpause()
+        super().pause_service()
         self.notifier.update_tool_tip()
 
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
-        self.service.pause()
+        super().pause_service()
         self.notifier.update_tool_tip()
-
-    def toggle_service(self):
-        """
-        Convenience method for toggling the expansion service on or off.
-        """
-        if self.service.is_running():
-            self.pause_service()
-        else:
-            self.unpause_service()
 
     def shutdown(self):
         """
-        Shut down the entire application.
+        Shut down gtk application.
         """
+        logger.info("Shutting down")
         if self.configWindow is not None:
             if self.configWindow.promptToSave():
                 return
-
             self.configWindow.hide()
 
         self.notifier.hide_icon()
@@ -144,13 +135,10 @@ class Application(AutokeyApplication):
         t.start()
 
     def __completeShutdown(self):
-        logger.info("Shutting down")
-        self.service.shutdown()
-        self.monitor.stop()
+        super().autokey_shutdown()
         Gdk.threads_enter()
         Gtk.main_quit()
         Gdk.threads_leave()
-        os.remove(common.LOCK_FILE)
         logger.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
