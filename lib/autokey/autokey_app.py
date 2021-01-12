@@ -20,8 +20,6 @@
 import atexit
 import sys
 import os.path
-import queue
-import time
 import dbus
 import dbus.mainloop.glib
 import signal
@@ -270,12 +268,6 @@ class AutokeyApplication:
     def hotkey_removed(self, item):
         logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
         self.service.mediator.interface.ungrab_hotkey(item)
-
-    # def path_created_or_modified(self, path):
-        # UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
-
-    # def path_removed(self, path):
-        # UI_common.path_removed(self.configManager, self.configWindow, path)
 
     def unpause_service(self):
         """

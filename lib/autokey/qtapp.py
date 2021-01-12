@@ -20,8 +20,6 @@
 import sys
 import os.path
 import queue
-import time
-import dbus
 from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
@@ -33,11 +31,8 @@ from autokey import common
 common.USING_QT = True
 
 from autokey.autokey_app import AutokeyApplication
-from autokey import service, monitor
 
 import autokey.argument_parser
-import autokey.configmanager.configmanager as cm
-import autokey.configmanager.configmanager_constants as cm_constants
 
 from autokey.qtui import common as qtui_common
 from autokey.qtui.notifier import Notifier
@@ -131,16 +126,6 @@ class Application(QApplication, AutokeyApplication):
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
 
-    @staticmethod
-    def _create_lock_file():
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
-
-    def _verify_not_running(self):
-        if UI_common.is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
-        return True
-
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
@@ -150,47 +135,27 @@ class Application(QApplication, AutokeyApplication):
         self.configManager.config_altered(persistGlobal)
         self.notifier.create_assign_context_menu()
 
-    def hotkey_created(self, item):
-        UI_common.hotkey_created(self.service, item)
-
-    def hotkey_removed(self, item):
-        UI_common.hotkey_removed(self.service, item)
-
     def path_created_or_modified(self, path):
         UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
         UI_common.path_removed(self.configManager, self.configWindow, path)
-    def unpause_service(self):
-        """
-        Unpause the expansion service (start responding to keyboard and mouse events).
-        """
-        self.service.unpause()
-
-    def pause_service(self):
-        """
-        Pause the expansion service (stop responding to keyboard and mouse events).
-        """
-        self.service.pause()
 
     def toggle_service(self):
         """
         Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
         self.monitoring_disabled.emit(not self.service.is_running())
-        if self.service.is_running():
-            self.pause_service()
-        else:
-            self.unpause_service()
+        super().toggle_service()
 
     def shutdown(self):
         """
         Shut down qt application.
         """
         logger.info("Shutting down")
+        super().autokey_shutdown()
         self.closeAllWindows()
         self.notifier.hide()
-        super().autokey_shutdown()
         logger.debug("All shutdown tasks complete... quitting")
         self.quit()
 
