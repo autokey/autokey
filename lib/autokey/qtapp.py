@@ -39,13 +39,12 @@ import autokey.argument_parser
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey.qtui import common as ui_common
+from autokey.qtui import common as qtui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
-from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+from autokey.logger import get_logger
 import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
@@ -110,7 +109,7 @@ class Application(QApplication, AutokeyApplication):
             sys.exit(self.exec_())
 
     def initialise(self):
-        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
+        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, qtui_common.load_icon(qtui_common.AutoKeyIcon.AUTOKEY)))
         self.handler = CallbackEventHandler()
         self.notifier = Notifier(self)
         self.configWindow = ConfigWindow(self)

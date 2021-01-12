@@ -23,6 +23,7 @@ import queue
 import time
 import dbus
 import dbus.mainloop.glib
+import subprocess
 from typing import NamedTuple, Iterable
 
 import autokey.model.script
@@ -36,7 +37,6 @@ import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.dbus_service
 
 from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
@@ -103,9 +103,9 @@ class AutokeyApplication:
     def __initialise(self):
         configure_root_logger(self.args)
         self.__warn_about_missing_requirements()
-        create_storage_directories()
+        AutokeyApplication.create_storage_directories()
         if self.__verify_not_running():
-            UI_common.create_lock_file()
+            AutokeyApplication.create_lock_file()
 
         self.__initialise_services()
         # self.notifier = Notifier(self)
@@ -139,8 +139,8 @@ class AutokeyApplication:
         self.__try_start_monitor()
 
     def __warn_about_missing_requirements(self):
-        checkOptionalPrograms()
-        missing_reqs = checkRequirements()
+        UI_common.checkOptionalPrograms()
+        missing_reqs = UI_common.checkRequirements()
         if len(missing_reqs)>0:
             self.UI.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
             sys.exit("Missing required programs and/or python modules, exiting")
@@ -171,15 +171,73 @@ class AutokeyApplication:
             # init of the UIs.
             self.show_configure()
 
+    def __verify_not_running(self):
+        if self.__is_existing_running_autokey():
+            self.__try_to_show_existing_autokey_UI_and_exit()
+        return True
+
+    def __try_to_show_existing_autokey_UI_and_exit(self):
+        try:
+            self.__show_running_autokey_window()
+            sys.exit(0)
+        except dbus.DBusException as e:
+            pid = self.__read_pid_from_lock_file()
+            message="AutoKey is already running as pid {} but is not responding".format(pid)
+            logger.exception(
+                "Error communicating with Dbus service. {}".format(message))
+            self.UI.show_error_dialog(
+                message=message,
+                details=str(e))
+            sys.exit(1)
+
+    def __show_running_autokey_window(self):
+        bus = dbus.SessionBus()
+        dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+        dbus_service.show_configure(dbus_interface="org.autokey.Service")
+        # return dbus_service
+
     @staticmethod
-    def _create_lock_file():
+    def create_storage_directories():
+        """Create various storage directories, if those do not exist."""
+        # Create configuration directory
+        os.makedirs(common.CONFIG_DIR, exist_ok=True)
+        # Create data directory (for log file)
+        os.makedirs(common.DATA_DIR, exist_ok=True)
+        # Create run directory (for lock file)
+        os.makedirs(common.RUN_DIR, exist_ok=True)
+
+    @staticmethod
+    def create_lock_file():
         with open(common.LOCK_FILE, "w") as lock_file:
             lock_file.write(str(os.getpid()))
 
-    def __verify_not_running(self):
-        if UI_common.is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
-        return True
+    def __is_existing_running_autokey(self):
+        if os.path.exists(common.LOCK_FILE):
+            pid = self.__read_pid_from_lock_file()
+            pid_is_a_running_autokey = "autokey" in self.__get_process_details(pid)
+            if pid_is_a_running_autokey:
+                logger.debug("AutoKey is already running as pid %s", pid)
+                return True
+        return False
+
+    def __read_pid_from_lock_file(self) -> str:
+        with open(common.LOCK_FILE, "r") as lock_file:
+            pid = lock_file.read()
+        self.__exit_if_lock_file_corrupt(pid)
+        return pid
+
+    def __exit_if_lock_file_corrupt(self, pid):
+        try:
+            # Check if the pid file contains garbage
+            int(pid)
+        except ValueError:
+            logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
+            sys.exit(1)
+
+    def __get_process_details(self, pid):
+        with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+            output = p.communicate()[0].decode()
+        return output
 
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")
