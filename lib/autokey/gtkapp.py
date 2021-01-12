@@ -37,7 +37,6 @@ gettext.install("autokey")
 
 from autokey.autokey_app import AutokeyApplication
 import autokey.argument_parser
-from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
@@ -93,12 +92,6 @@ class Application(AutokeyApplication):
         self.configManager.config_altered(persistGlobal)
         self.notifier.rebuild_menu()
 
-    def hotkey_created(self, item):
-        UI_common.hotkey_created(self.service, item)
-
-    def hotkey_removed(self, item):
-        UI_common.hotkey_removed(self.service, item)
-
     def path_created_or_modified(self, path):
         UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
@@ -117,6 +110,13 @@ class Application(AutokeyApplication):
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
         super().pause_service()
+        self.notifier.update_tool_tip()
+
+    def toggle_service(self):
+        """
+        Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
+        """
+        super().toggle_service()
         self.notifier.update_tool_tip()
 
     def shutdown(self):
