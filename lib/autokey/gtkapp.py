@@ -36,6 +36,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 gettext.install("autokey")
 
 from autokey.autokey_app import AutokeyApplication
+from autokey.abstract_ui import AutokeyUIInterface
 import autokey.argument_parser
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
@@ -56,7 +57,7 @@ DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
 
-class Application(AutokeyApplication):
+class Application(AutokeyApplication, AutokeyUIInterface):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.

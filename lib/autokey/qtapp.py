@@ -31,6 +31,7 @@ from autokey import common
 common.USING_QT = True
 
 from autokey.autokey_app import AutokeyApplication
+from autokey.abstract_ui import AutokeyUIInterface
 
 import autokey.argument_parser
 
@@ -80,7 +81,7 @@ about_data = AboutData(
 )
 
 
-class Application(QApplication, AutokeyApplication):
+class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
