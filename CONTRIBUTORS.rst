@@ -1,8 +1,8 @@
 Contributing
 ============
-When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and I’ll try to answer any questions that arise. I suggest writing new features on top of develop.
+When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise. We suggest writing new features on top of develop.
 
-Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
+Please make sure tests pass before you submit PRs. To ensure this happens automatically, we recommend adding the following lines to the file `.git/hooks/pre-push`:
 
 .. code:: sh
     remote="$1"
@@ -11,7 +11,9 @@ Please make sure tests pass before you submit PRs. To ensure this happens automa
     python3 setup.py test
     exit $?
 
-This will stop the push if tests fail.
+This will abort the push if any tests fail.
+
+It may also be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
 
 Testing
 =======
