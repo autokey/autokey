@@ -9,6 +9,8 @@ import time
 
 from . import common
 import autokey.model.helpers
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -143,3 +145,11 @@ def load_global_hotkey_dialog(app, item):
         app.populate_hotkey_details(item)
     else:
         app.reset()
+
+def show_config_window(app):
+    if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
+        cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
+        app.args.show_config_window = True
+    if app.args.show_config_window:
+        app.show_configure()
+

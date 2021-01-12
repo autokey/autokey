@@ -117,6 +117,7 @@ class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
         self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
 
         self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
+        UI_common.show_config_window(self)
 
     def _try_start_service(self):
         try:

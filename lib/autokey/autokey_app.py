@@ -116,7 +116,6 @@ class AutokeyApplication:
 
         self.__create_DBus_service()
         # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-        self._show_config_window()
 
         self.__register_ctrlc_handler()
 
@@ -164,16 +163,6 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Error starting file monitor. Error: " + str(e))
             self.UI.show_error_dialog("Error starting file monitor. Error: " + str(e))
-
-    def _show_config_window(self):
-        if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
-            cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
-            self.args.show_config_window = True
-        if self.args.show_config_window:
-            # show_configure should be a method in the UI class, I guess.
-            # Maybe this func should be in UI common and called from the
-            # init of the UIs.
-            self.show_configure()
 
     def ctrlc_interrupt_handler(self, signal, frame):
         logger.info("Recieved keyboard interrupt. Shutting down")
