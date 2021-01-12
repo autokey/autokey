@@ -32,7 +32,7 @@ import autokey.model.script
 from autokey import common
 common.USING_QT = True
 
-from autokey.AutokeyApp import AutokeyApplication
+from autokey.autokey_app import AutokeyApplication
 from autokey import service, monitor
 
 import autokey.argument_parser
