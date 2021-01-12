@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2020 BlueDrink9
+# Copyright (C) 2021 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ from abc import abstractmethod
 class AutokeyUIInterface():
 
     @abstractmethod
-    def show_error_dialog(self):
+    def show_error_dialog(self, message: str, details: str=None):
         raise NotImplementedError
 
 
