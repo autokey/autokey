@@ -35,6 +35,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
+from autokey import AutokeyApp
 import autokey.argument_parser
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
@@ -57,7 +58,7 @@ DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
 
-class Application:
+class Application(AutokeyApplication):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
@@ -69,20 +70,10 @@ class Application:
 
         args = autokey.argument_parser.parse_args()
         configure_root_logger(args)
-
-        checkOptionalPrograms()
-        missing_reqs = checkRequirements()
-        if len(missing_reqs)>0:
-            Gdk.threads_enter()
-            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
-            Gdk.threads_leave()
-            sys.exit("Missing required programs and/or python modules, exiting")
+        super.__init__(argv =[], UI=self)
 
         try:
             create_storage_directories()
-
-            if self.__verifyNotRunning():
-                UI_common.create_lock_file()
 
             self.initialise(args.show_config_window)
 
@@ -97,23 +88,6 @@ class Application:
         return True
 
     def initialise(self, configure):
-        logger.info("Initialising application")
-        self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.create_config_manager_instance(self)
-        self.service = service.Service(self)
-        self.serviceDisabled = False
-
-        # Initialise user code dir
-        if self.configManager.userCodeDir is not None:
-            sys.path.append(self.configManager.userCodeDir)
-
-        try:
-            self.service.start()
-        except Exception as e:
-            logger.exception("Error starting interface: " + str(e))
-            self.serviceDisabled = True
-            self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                     "Check your system/configuration."), str(e))
 
         self.notifier = get_notifier(self)
         self.configWindow = None
@@ -237,6 +211,10 @@ class Application:
         @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
             defaults to Gtk.MessageType.ERROR
         """
+        # TODO check if gtk threads entered.
+            # Gdk.threads_enter()
+            # display error
+            # Gdk.threads_leave()
         logger.debug("Displaying "+dialog_type.value_name+" Dialog")
         dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)

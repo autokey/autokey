@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2020 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,28 +22,19 @@ import os.path
 import queue
 import time
 import dbus
+import dbus.mainloop.glib
 from typing import NamedTuple, Iterable
-
-from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
-from PyQt5.QtGui import QCursor, QIcon
-from PyQt5.QtWidgets import QMessageBox, QApplication
 
 import autokey.model.script
 from autokey import common
-common.USING_QT = True
 
-from autokey.AutokeyApp import AutokeyApplication
 from autokey import service, monitor
 
 import autokey.argument_parser
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+import autokey.dbus_service
 
-from autokey.qtui import common as ui_common
-from autokey.qtui.notifier import Notifier
-from autokey.qtui.popupmenu import PopupMenu
-from autokey.qtui.configwindow import ConfigWindow
-from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
 from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 import autokey.UI_common_functions as UI_common
@@ -86,42 +77,69 @@ about_data = AboutData(
 )
 
 
-class Application(QApplication, AutokeyApplication):
+class AutokeyApplication:
     """
-    Main application class; starting and stopping of the application is controlled
+    Main application interface; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
+    Handles starting service and responding to dbus requests. Should have an
+    associated UI.
     """
 
-    monitoring_disabled = pyqtSignal(bool, name="monitoring_disabled")
-    show_configure_signal = pyqtSignal()
-
-    def __init__(self, argv: list=sys.argv):
-        super().__init__(argv)
-        self.UI = self
-        logger.info("Initialising QT application")
-
+    def __init__(self, argv: list=sys.argv, UI=None):
+        super().__init__() # Forward any arguments
+        # self.handler = CallbackEventHandler()
+        self.args = autokey.argument_parser.parse_args()
+        self.UI = UI
         try:
-            self.initialise()
+            self.warn_about_missing_requirements()
+            create_storage_directories()
+            configure_root_logger(self.args)
+            if self._verify_not_running():
+                UI_common.create_lock_file()
+
+            self.initialise_services()
+            # self.notifier = Notifier(self)
+            # self.configWindow = ConfigWindow(self)
+
+            self.monitor.start()
+            self.initialise_user_code_dir()
+
+            self.create_DBus_service()
+            # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+            self._show_config_window()
+
+            # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
+
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
-            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
+            if self.UI is not None:
+                self.UI.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
-        else:
-            sys.exit(self.exec_())
 
-    def initialise(self):
-        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
-        self.handler = CallbackEventHandler()
-        self.notifier = Notifier(self)
-        self.configWindow = ConfigWindow(self)
-        # Connect the mutual connections between the tray icon and the main window
-        self.configWindow.action_show_last_script_errors.triggered.connect(self.notifier.reset_tray_icon)
-        self.notifier.action_view_script_error.triggered.connect(
-            self.configWindow.show_script_errors_dialog.update_and_show)
+    def create_DBus_service(self):
+        logger.info("Creating DBus service")
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+        self.dbusService = autokey.dbus_service.AppService(self)
+        logger.debug("DBus service created")
 
-        self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+    def initialise_user_code_dir(self):
+        if self.configManager.userCodeDir is not None:
+            sys.path.append(self.configManager.userCodeDir)
 
-        self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
+    def initialise_services(self):
+        logger.info("Initialising application")
+        self.monitor = monitor.FileMonitor(self)
+        self.configManager = cm.create_config_manager_instance(self)
+        self.service = service.Service(self)
+        self.serviceDisabled = False
+        self._try_start_service()
+
+    def warn_about_missing_requirements(self):
+        checkOptionalPrograms()
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            self.UI.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
+            sys.exit("Missing required programs and/or python modules, exiting")
 
     def _try_start_service(self):
         try:
@@ -129,8 +147,15 @@ class Application(QApplication, AutokeyApplication):
         except Exception as e:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
+            self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
+
+    def _show_config_window(self):
+        if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
+            cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
+            self.args.show_config_window = True
+        if self.args.show_config_window:
+            self.show_configure()
 
     @staticmethod
     def _create_lock_file():
@@ -145,11 +170,11 @@ class Application(QApplication, AutokeyApplication):
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
-        configManager.configHotkey.set_closure(self.show_configure_signal.emit)
+        # configManager.configHotkey.set_closure(self.show_configure_signal.emit)
 
     def config_altered(self, persistGlobal):
         self.configManager.config_altered(persistGlobal)
-        self.notifier.create_assign_context_menu()
+        # self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
         UI_common.hotkey_created(self.service, item)
@@ -157,11 +182,11 @@ class Application(QApplication, AutokeyApplication):
     def hotkey_removed(self, item):
         UI_common.hotkey_removed(self.service, item)
 
-    def path_created_or_modified(self, path):
-        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
+    # def path_created_or_modified(self, path):
+        # UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
-    def path_removed(self, path):
-        UI_common.path_removed(self.configManager, self.configWindow, path)
+    # def path_removed(self, path):
+        # UI_common.path_removed(self.configManager, self.configWindow, path)
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
@@ -207,8 +232,8 @@ class Application(QApplication, AutokeyApplication):
         self.exec_in_main(self.notifier.notify_error, message)
         self.configWindow.script_errors_available.emit(True)
 
-    def update_notifier_visibility(self):
-        self.notifier.update_visible_status()
+    # def update_notifier_visibility(self):
+    #     self.notifier.update_visible_status()
 
     def show_configure(self):
         """
@@ -225,7 +250,7 @@ class Application(QApplication, AutokeyApplication):
         Convenience method for showing an error dialog.
         """
         # TODO: i18n
-        logger.debug("Displaying Error Dialog")
+        logger.info("Displaying Error Dialog")
         message_box = QMessageBox(
             QMessageBox.Critical,
             "Error",
@@ -256,37 +281,37 @@ class Application(QApplication, AutokeyApplication):
         self.handler.postEventWithCallback(callback, *args)
 
 
-class CallbackEventHandler(QObject):
+# class CallbackEventHandler(QObject):
 
-    def __init__(self):
-        QObject.__init__(self)
-        self.queue = queue.Queue()
+#     def __init__(self):
+#         QObject.__init__(self)
+#         self.queue = queue.Queue()
 
-    def customEvent(self, event):
-        while True:
-            try:
-                callback, args = self.queue.get_nowait()
-            except queue.Empty:
-                break
-            try:
-                callback(*args)
-            except Exception:
-                logger.exception("callback event failed: %r %r", callback, args, exc_info=True)
+#     def customEvent(self, event):
+#         while True:
+#             try:
+#                 callback, args = self.queue.get_nowait()
+#             except queue.Empty:
+#                 break
+#             try:
+#                 callback(*args)
+#             except Exception:
+#                 logger.exception("callback event failed: %r %r", callback, args, exc_info=True)
 
-    def postEventWithCallback(self, callback, *args):
-        self.queue.put((callback, args))
-        app = QApplication.instance()
-        app.postEvent(self, QEvent(QEvent.User))
+#     def postEventWithCallback(self, callback, *args):
+#         self.queue.put((callback, args))
+#         app = QApplication.instance()
+#         app.postEvent(self, QEvent(QEvent.User))
 
 
-class KeyboardChangeFilter(QObject):
+# class KeyboardChangeFilter(QObject):
 
-    def __init__(self, interface):
-        QObject.__init__(self)
-        self.interface = interface
+#     def __init__(self, interface):
+#         QObject.__init__(self)
+#         self.interface = interface
 
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.KeyboardLayoutChange:
-            self.interface.on_keys_changed()
+#     def eventFilter(self, obj, event):
+#         if event.type() == QEvent.KeyboardLayoutChange:
+#             self.interface.on_keys_changed()
 
-        return QObject.eventFilter(obj, event)
+#         return QObject.eventFilter(obj, event)
