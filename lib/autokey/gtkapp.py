@@ -86,12 +86,11 @@ class Application(AutokeyApplication, AutokeyUIInterface):
             self.show_configure()
 
     def init_global_hotkeys(self, configManager):
-        logger.info("Initialise global hotkeys")
-        configManager.toggleServiceHotkey.set_closure(self.toggle_service)
+        super().init_global_hotkeys(configManager)
         configManager.configHotkey.set_closure(self.show_configure_async)
 
     def config_altered(self, persistGlobal):
-        self.configManager.config_altered(persistGlobal)
+        super().config_altered(persistGlobal)
         self.notifier.rebuild_menu()
 
     def path_created_or_modified(self, path):
