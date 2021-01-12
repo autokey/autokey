@@ -47,11 +47,13 @@ out a new version without removing a current installation.
 .. code:: sh
 
    cd lib
+   # For the GTK UI (likely to work best with Gnome, e.g. Ubuntu.)
    python3 -m autokey.gtkui
-   # or for KDE
+   # or for the QT UI (best on KDE).
    python3 -m autokey.qtui
+   # or for no UI at all, if you only want to configure autokey using the scripting API.
 
-2. Start the Autokey UI (if desired) by appending the --configure or -c command line switch to the end of the command.
+2. Show the Autokey config window on startup (if desired) by appending the --configure or -c command line switch to the end of the command.
 
 The commands accept CLI switches just like the regular installation, so
 :code:`python3 -m autokey.qtui -lc` works as expected.
