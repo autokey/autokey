@@ -35,7 +35,7 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-from autokey import AutokeyApp
+from autokey.AutokeyApp import AutokeyApplication
 import autokey.argument_parser
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
@@ -67,34 +67,21 @@ class Application(AutokeyApplication):
     def __init__(self):
         GLib.threads_init()
         Gdk.threads_init()
-
         args = autokey.argument_parser.parse_args()
-        configure_root_logger(args)
-        super.__init__(argv =[], UI=self)
+        super().__init__(args)
+        self.UI = self
 
         try:
-            create_storage_directories()
-
             self.initialise(args.show_config_window)
-
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def __verifyNotRunning(self):
-        if UI_common.is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
-        return True
-
     def initialise(self, configure):
 
         self.notifier = get_notifier(self)
         self.configWindow = None
-        self.monitor.start()
-
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.dbusService = autokey.dbus_service.AppService(self)
 
         if configure:
             self.show_configure()

@@ -88,32 +88,34 @@ class AutokeyApplication:
         super().__init__() # Forward any arguments
         # self.handler = CallbackEventHandler()
         self.args = autokey.argument_parser.parse_args()
-        self.UI = UI
+        self.UI = UI  # Should be overridden by child UIs
         try:
-            self.__warn_about_missing_requirements()
-            UI_common.create_storage_directories()
-            configure_root_logger(self.args)
-            if self._verify_not_running():
-                UI_common.create_lock_file()
-
-            self.initialise_services()
-            # self.notifier = Notifier(self)
-            # self.configWindow = ConfigWindow(self)
-
-            self.monitor.start()
-            self.initialise_user_code_dir()
-
-            self.create_DBus_service()
-            # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-            self._show_config_window()
-
-            # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
-
+            self.__initialise()
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
             if self.UI is not None:
                 self.UI.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
+
+    def __initialise(self):
+        self.__warn_about_missing_requirements()
+        UI_common.create_storage_directories()
+        configure_root_logger(self.args)
+        if self._verify_not_running():
+            UI_common.create_lock_file()
+
+        self.initialise_services()
+        # self.notifier = Notifier(self)
+        # self.configWindow = ConfigWindow(self)
+
+        self.monitor.start()
+        self.initialise_user_code_dir()
+
+        self.create_DBus_service()
+        # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+        self._show_config_window()
+
+        # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
     def create_DBus_service(self):
         logger.info("Creating DBus service")
