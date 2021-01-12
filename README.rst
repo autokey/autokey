@@ -94,6 +94,13 @@ Bug reports and PRs are welcome. Please use the `GitHub Issue Tracker`_ for bug 
 
 .. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
 
+Contributing or modifying the source
+====================================
+
+If you wish to modify the source code (and especially if you wish to contribute to the code here), useful tips can be found in CONTRIBUTORS.rst__
+
+__ https://github.com/autokey/autokey/blob/master/CONTRIBUTORS.rst
+
 Running the unit tests
 ======================
 
