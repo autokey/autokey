@@ -157,7 +157,7 @@ class IndicatorNotifier:
         self.update_visible_status()
             
     def on_enable_toggled(self, widget, data=None):
-        if widget.active:
+        if widget.get_active():
             self.app.unpause_service()
         else:
             self.app.pause_service()
