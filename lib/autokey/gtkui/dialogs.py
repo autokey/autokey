@@ -494,7 +494,7 @@ class HotkeySettingsDialog(DialogBase):
         self.setButton.set_sensitive(True)
         self._setKeyLabel(self.key)
 
-    def build_modifiers(self):
+    def get_active_modifiers(self):
         modifiers = []
         for button, key in self.MODIFIER_BUTTONS.items():
             if button.get_active():
@@ -538,7 +538,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def valid(self):
         configManager = self.configManager
-        modifiers = self.build_modifiers()
+        modifiers = self.get_active_modifiers()
         regex = self.targetItem.get_applicable_regex()
         pattern = None
         if regex is not None:

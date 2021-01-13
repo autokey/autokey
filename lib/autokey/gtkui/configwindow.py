@@ -223,7 +223,7 @@ class SettingsWidget:
             abbreviations = []
 
         if self.hotkeyEnabled:
-            modifiers = self.hotkeyDialog.build_modifiers()
+            modifiers = self.hotkeyDialog.get_active_modifiers()
             key = self.hotkeyDialog.key
         else:
             modifiers = []
@@ -274,7 +274,7 @@ class SettingsWidget:
             self.set_dirty()
             self.hotkeyEnabled = True
             key = self.hotkeyDialog.key
-            modifiers = self.hotkeyDialog.build_modifiers()
+            modifiers = self.hotkeyDialog.get_active_modifiers()
             self.hotkeyLabel.set_text(self.currentItem.get_hotkey_string(key, modifiers))
             self.clearHotkeyButton.set_sensitive(True)
 

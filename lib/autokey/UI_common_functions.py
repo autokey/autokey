@@ -133,7 +133,7 @@ def get_hotkey_text(app, key):
 
 
 def save_hotkey_settings_dialog(app, item):
-    modifiers = app.build_modifiers()
+    modifiers = app.get_active_modifiers()
 
     if app.key in app.REVERSE_KEY_MAP:
         key = app.REVERSE_KEY_MAP[app.key]

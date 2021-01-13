@@ -93,7 +93,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         if self.show_config_dlg.result() == QDialog.Accepted:
             self.use_config_hotkey = True
             key = self.show_config_dlg.key
-            modifiers = self.show_config_dlg.build_modifiers()
+            modifiers = self.show_config_dlg.get_active_modifiers()
             self.config_key_label.setText(self.show_config_dlg.target_item.get_hotkey_string(key, modifiers))
             self.clear_config_button.setEnabled(True)
 
@@ -109,7 +109,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         if self.toggle_monitor_dlg.result() == QDialog.Accepted:
             self.use_service_hotkey = True
             key = self.toggle_monitor_dlg.key
-            modifiers = self.toggle_monitor_dlg.build_modifiers()
+            modifiers = self.toggle_monitor_dlg.get_active_modifiers()
             self.monitor_key_label.setText(self.toggle_monitor_dlg.target_item.get_hotkey_string(key, modifiers))
             self.clear_monitor_button.setEnabled(True)
 
