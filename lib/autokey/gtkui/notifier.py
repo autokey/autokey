@@ -89,18 +89,18 @@ class IndicatorNotifier:
 
     def rebuild_menu(self):
         # Main Menu items
-        self.errorItem = Gtk.MenuItem(_("View script error"))
+        self.errorItem = Gtk.MenuItem(label=_("View script error"))
         
-        enableMenuItem = Gtk.CheckMenuItem(_("Enable Expansions"))
+        enableMenuItem = Gtk.CheckMenuItem(label=_("Enable Expansions"))
         enableMenuItem.set_active(self.app.service.is_running())
         enableMenuItem.set_sensitive(not self.app.serviceDisabled)
         
-        configureMenuItem = Gtk.ImageMenuItem(_("Show Main Window"))
+        configureMenuItem = Gtk.ImageMenuItem(label=_("Show Main Window"))
         configureMenuItem.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_PREFERENCES, Gtk.IconSize.MENU))
         
         
         
-        removeMenuItem = Gtk.ImageMenuItem(_("Remove icon"))
+        removeMenuItem = Gtk.ImageMenuItem(label=_("Remove icon"))
         removeMenuItem.set_image(Gtk.Image.new_from_stock(Gtk.STOCK_CLOSE, Gtk.IconSize.MENU))
         
         quitMenuItem = Gtk.ImageMenuItem.new_from_stock(Gtk.STOCK_QUIT, None)
