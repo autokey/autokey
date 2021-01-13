@@ -45,9 +45,6 @@ class AbstractHotkey(AbstractWindowFilter):
         modifiers.sort()
         self.modifiers = modifiers
         self.hotKey = key
-        # TODO removing the next two lines fixes a bug where the "clear" button
-        # for hotkeys does not persist the clearance between restarts. Unsure
-        # whether these lines are needed, or why they fix the bug.
         if key is not None and TriggerMode.HOTKEY not in self.modes:
             self.modes.append(TriggerMode.HOTKEY)
 

@@ -469,7 +469,6 @@ class HotkeySettingsDialog(DialogBase):
             button.set_active(key in modifiers)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
         UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):

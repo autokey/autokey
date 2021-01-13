@@ -119,8 +119,6 @@ def get_hotkey_text(app, key):
 
 
 def save_hotkey_settings_dialog(app, item):
-    item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
-
     modifiers = app.build_modifiers()
 
     if app.key in app.REVERSE_KEY_MAP:
