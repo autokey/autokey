@@ -15,6 +15,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+"""
+This file handles interactions with X, mainly grabbing hotkeys.
+A better name might be "keyboard_interface.py".
+"""
+
 __all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
 
 import logging
@@ -173,7 +178,7 @@ class XInterfaceBase(threading.Thread):
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
             time.sleep(0.2)
-            self.__enqueue(self.__ungrabAllHotkeys)
+            self.__enqueue(self.__ungrab_all_hotkeys)
             self.__enqueue(self.__delayedInitMappings)
         else:
             logger.debug("Ignored keymap change event")
@@ -199,7 +204,7 @@ class XInterfaceBase(threading.Thread):
 
         logger.debug("Modifier masks: %r", self.modMasks)
 
-        self.__grabHotkeys()
+        self.__grab_all_hotkeys()
         self.localDisplay.flush()
 
         self.__availableKeycodes = self.__get_unused_keycodes()
@@ -273,7 +278,7 @@ class XInterfaceBase(threading.Thread):
                 
         return False
 
-    def __grabHotkeys(self):
+    def __grab_all_hotkeys(self):
         """
         Run during startup to grab global and specific hotkeys in all open windows
         """
@@ -283,41 +288,23 @@ class XInterfaceBase(threading.Thread):
         # Grab global hotkeys in root window
         for item in c.globalHotkeys:
             if item.enabled:
-                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-                if self.__needsMutterWorkaround(item):
-                    self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
-
+                self.__enqueue_grab(item)
         # Grab hotkeys without a filter in root window
         for item in hotkeys:
             if item.get_applicable_regex() is None:
-                self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-                if self.__needsMutterWorkaround(item):
-                    self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
-
+                 self.__enqueue_grab(item)
         self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
 
+    def __enqueue_grab(self, item):
+        self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
+        if self.__needsMutterWorkaround(item):
+            self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
+
     def __recurseTree(self, parent, hotkeys):
-        # Grab matching hotkeys in all open child windows
-        try:
-            children = parent.query_tree().children
-        except:
-            return # window has been destroyed
-            
-        for window in children:
-            try:
-                window_info = self.get_window_info(window, False)
-                
-                if window_info.wm_title or window_info.wm_class:
-                    for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
-                            self.__grabHotkey(item.hotKey, item.modifiers, window)
-                            self.__grabRecurse(item, window, False)
-                        
-                self.__enqueue(self.__recurseTree, window, hotkeys)
-            except:
-                logger.exception("grab on window failed")
-                
-    def __ungrabAllHotkeys(self):
+        self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=True)
+
+
+    def __ungrab_all_hotkeys(self):
         """
         Ungrab all hotkeys in preparation for keymap change
         """
@@ -327,39 +314,50 @@ class XInterfaceBase(threading.Thread):
         # Ungrab global hotkeys in root window, recursively
         for item in c.globalHotkeys:
             if item.enabled:
-                self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
-                if self.__needsMutterWorkaround(item):
-                    self.__ungrabRecurse(item, self.rootWindow, False)
-        
+                self.__recursive_ungrab(item)
         # Ungrab hotkeys without a filter in root window, recursively
         for item in hotkeys:
             if item.get_applicable_regex() is None:
-                self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
-                if self.__needsMutterWorkaround(item):
-                    self.__ungrabRecurse(item, self.rootWindow, False)
-                
+                 self.__recursive_ungrab(item)
+
         self.__recurseTreeUngrab(self.rootWindow, hotkeys)
-                
+
+    def __recursive_ungrab(self, item):
+        self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
+        if self.__needsMutterWorkaround(item):
+            self.__ungrabRecurse(item, self.rootWindow, False)
+
     def __recurseTreeUngrab(self, parent, hotkeys):
-        # Ungrab matching hotkeys in all open child windows
+        self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=False)
+
+    def __recurse_tree_grab_ungrab(self, parent, hotkeys, grab=True):
+        """
+        (Un)grab matching hotkeys in all open child windows
+        """
         try:
             children = parent.query_tree().children
         except:
             return # window has been destroyed
-            
+
         for window in children:
             try:
                 window_info = self.get_window_info(window, False)
-                
+
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
                         if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
-                            self.__ungrabHotkey(item.hotKey, item.modifiers, window)
-                            self.__ungrabRecurse(item, window, False)
-                        
-                self.__enqueue(self.__recurseTreeUngrab, window, hotkeys)
+                            if grab:
+                                self.__grabHotkey(item.hotKey, item.modifiers, window)
+                                self.__grabRecurse(item, window, False)
+                            else:
+                                self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                                self.__ungrabRecurse(item, window, False)
+
+                self.__enqueue(self.__recurse_tree_grab_ungrab, window, hotkeys, grab)
             except:
-                logger.exception("ungrab on window failed")
+                ungrab = "" if grab else "un"
+                logger.exception("{}grab on window failed".format(ungrab))
+
 
     def __grabHotkeysForWindow(self, window):
         """
