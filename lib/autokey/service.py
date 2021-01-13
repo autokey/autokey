@@ -178,7 +178,6 @@ class Service:
         if itemMatch is not None:
             self.__tryReleaseLock()
             self.__processItem(itemMatch)
-        return menu
 
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
@@ -188,7 +187,7 @@ class Service:
         self.__check_global_hotkeys(modifiers, rawKey, window_info)
 
         if self.__shouldProcess(window_info):
-            menu = self.__process_hotkey(modifiers, rawKey, window_info)
+            self.__process_hotkey(modifiers, rawKey, window_info)
 
             modifierCount = len(modifiers)
             hotkey_uses_nonprinting_modifiers = modifierCount > 1 or \
