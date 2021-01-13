@@ -50,18 +50,18 @@ def test_application_runs_without_errors(caplog):
     app.autokey_shutdown()
     hm.assert_that(get_errors_in_log(caplog), hm.empty())
 
-@skip
-@patch('sys.argv', ['autokey-headless'])
-def test_headless_runs():
-    x = threading.Thread(target=app.main())
-    x.daemon = True
-    x.start()
-    x.join()
-    sleep(3)
 
-@skip
-def test_headless_runs_without_errors(caplog):
-    pass
+def test_write_read_lock_file(tmpdir):
+    app = create_mock_app()
+    lockfile = tmpdir.join("lockfile")
+    pid = str(os.getpid())
+    with patch('common.LOCK_FILE', lockfile):
+        ak.AutokeyApplication.create_lock_file()
+        hm.assert_that(
+            app._AutokeyApplication__read_pid_from_lock_file(),
+            hm.equal_to(pid),
+            "PID written then read from lock file is not the same"
+        )
 
 
 @skip
@@ -81,16 +81,3 @@ def test_add_user_code_dir_to_path():
     with patch(app.configManager.userCodeDir, mock_path):
         app.__add_user_code_dir_to_path()
         hm.assert_that(sys.path, hm.has_item(mock_path))
-
-
-def test_write_read_lock_file(tmpdir):
-    app = create_mock_app()
-    lockfile = tmpdir.join("lockfile")
-    pid = str(os.getpid())
-    with patch('common.LOCK_FILE', lockfile):
-        ak.AutokeyApplication.create_lock_file()
-        hm.assert_that(
-            app._AutokeyApplication__read_pid_from_lock_file(),
-            hm.equal_to(pid),
-            "PID written then read from lock file is not the same"
-        )
