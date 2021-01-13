@@ -378,14 +378,7 @@ class XInterfaceBase(threading.Thread):
         """
         Grab a specific hotkey in the given window
         """
-        logger.debug("Grabbing hotkey: %r %r", modifiers, key)
-        try:
-            keycode = self.__lookupKeyCode(key)
-            masks = self.__build_modifier_mask(modifiers)
-            for mask in masks:
-                window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
-        except Exception as e:
-            logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
+        self.__grab_ungrab_hotkey(key, modifiers, window, grab=True)
 
     def __build_modifier_mask(self, modifiers):
         masks = []
@@ -459,18 +452,30 @@ class XInterfaceBase(threading.Thread):
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
         self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=False)
 
-    def __ungrabHotkey(self, key, modifiers, window):
+    def __grab_ungrab_hotkey(self, key, modifiers, window, grab=True):
         """
-        Ungrab a specific hotkey in the given window
+        (Un)Grab a specific hotkey in the given window
         """
-        logger.debug("Ungrabbing hotkey: %r %r", modifiers, key)
+        un = "" if grab else "un"
+        logger.debug("%sgrabbing hotkey: %r %r",
+                     un, modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
             masks = self.__build_modifier_mask(modifiers)
             for mask in masks:
-                window.ungrab_key(keycode, mask)
+                if grab:
+                    window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+                else:
+                    window.ungrab_key(keycode, mask)
         except Exception as e:
-            logger.warning("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
+            logger.warning("Failed to %sgrab hotkey %r %r: %s",
+                           un, modifiers, key, str(e))
+
+    def __ungrabHotkey(self, key, modifiers, window):
+        """
+        Ungrab a specific hotkey in the given window
+        """
+        self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
 
     def lookup_string(self, keyCode, shifted, numlock, altGrid):
         if keyCode == 0:
