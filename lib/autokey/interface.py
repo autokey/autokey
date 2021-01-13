@@ -672,54 +672,65 @@ class XInterfaceBase(threading.Thread):
 
         for char in string:
             try:
-                keyCode, offset = self.__get_usable_char_keycode_and_offset(char)
-                if keyCode is not None:
-                    if offset == 0:
-                        if self.localDisplay.lookup_string(ord(char)) is None:
-                            # No reasonable translation of key to string found
-                            # Try typing this as Unicode: <control><shift>u + hex
-                            ukeyCodeList = self.localDisplay.keysym_to_keycodes(ord('u'))
-                            ukeyCode, uOffset = self.__findUsableKeycode(ukeyCodeList)
-                            self.__sendKeyCode(ukeyCode, self.modMasks[Key.CONTROL] | self.modMasks[Key.SHIFT], focus)
-                            self.__releaseKey(Key.CONTROL)
-                            self.__releaseKey(Key.SHIFT)
-                            char_as_hex_string = '{:X}'.format(ord(char))
-                            for hex_char in char_as_hex_string:
-                                hexKeyCodeList = self.localDisplay.keysym_to_keycodes(ord(hex_char))
-                                hexKeyCode, hexOffset = self.__findUsableKeycode(hexKeyCodeList)
-                                self.__sendKeyCode(hexKeyCode)
-                            self.__pressKey(Key.ENTER)
-                        else:
-                            self.__sendKeyCode(keyCode, theWindow=focus)
-                    if offset == 1:
-                        self.__pressKey(Key.SHIFT)
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
-                        self.__releaseKey(Key.SHIFT)
-                    if offset == 4:
-                        self.__pressKey(Key.ALT_GR)
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR], focus)
-                        self.__releaseKey(Key.ALT_GR)
-                    if offset == 5:
-                        self.__pressKey(Key.ALT_GR)
-                        self.__pressKey(Key.SHIFT)
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.ALT_GR]|self.modMasks[Key.SHIFT], focus)
-                        self.__releaseKey(Key.SHIFT)
-                        self.__releaseKey(Key.ALT_GR)
-
-                elif char in self.remappedChars:
-                    keyCode, offset = self.remappedChars[char]
-                    if offset == 0:
-                        self.__sendKeyCode(keyCode, theWindow=focus)
-                    if offset == 1:
-                        self.__pressKey(Key.SHIFT)
-                        self.__sendKeyCode(keyCode, self.modMasks[Key.SHIFT], focus)
-                        self.__releaseKey(Key.SHIFT)
-                else:
-                    logger.warning("Unable to send character %r", char)
+                self.__send_keycode_for_char(char, focus)
             except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
 
         self.__ignoreRemap = False
+
+    def __send_keycode_for_char(self, char, focus):
+        keyCode, offset = self.__get_usable_char_keycode_and_offset(char)
+        if keyCode is not None:
+            if offset == 0:
+                if self.localDisplay.lookup_string(ord(char)) is None:
+                    # No reasonable translation of key to string found
+                    self.__sendByTypingAsUnicodePoint(char, focus)
+                else:
+                    self.__sendKeyCode(keyCode, theWindow=focus)
+            if offset == 1:
+                self.__send_keycode_with_modifiers_pressed(
+                    keyCode, Key.SHIFT, focus)
+            if offset == 4:
+                self.__send_keycode_with_modifiers_pressed(
+                    keyCode, Key.ALT_GR, focus)
+            if offset == 5:
+                self.__send_keycode_with_modifiers_pressed(
+                    keyCode, [Key.SHIFT, Key.ALT_GR], focus)
+        elif char in self.remappedChars:
+            keyCode, offset = self.remappedChars[char]
+            if offset == 0:
+                self.__sendKeyCode(keyCode, theWindow=focus)
+            if offset == 1:
+                self.__send_keycode_with_modifiers_pressed(
+                    keyCode, Key.SHIFT, focus)
+        else:
+            logger.warning("Unable to send character %r", char)
+
+    def __sendByTypingAsUnicodePoint(self, char, focus):
+        # Try typing this as Unicode: <control><shift>u + hex
+        ukeyCodeList = self.localDisplay.keysym_to_keycodes(ord('u'))
+        ukeyCode, uOffset = self.__findUsableKeycode(ukeyCodeList)
+        self.__send_keycode_with_modifiers_pressed(ukeyCode, [Key.CONTROL, Key.SHIFT], focus)
+        self.__send_char_as_hex_string(char)
+        self.__pressKey(Key.ENTER)
+
+    def __send_char_as_hex_string(self, char):
+        char_as_hex_string = '{:X}'.format(ord(char))
+        for hex_char in char_as_hex_string:
+            hexKeyCodeList = self.localDisplay.keysym_to_keycodes(ord(hex_char))
+            hexKeyCode, hexOffset = self.__findUsableKeycode(hexKeyCodeList)
+            self.__sendKeyCode(hexKeyCode)
+
+    def __send_keycode_with_modifiers_pressed(self, keyCode, modifier_keys, focus):
+        mask = 0
+        for key in modifier_keys:
+            mask |= self.modMasks[key]
+
+        for key in modifier_keys:
+            self.__pressKey(key)
+        self.__sendKeyCode(keyCode, mask, focus)
+        for key in modifier_keys:
+            self.__releaseKey(key)
 
 
     def send_key(self, keyName):
