@@ -698,16 +698,16 @@ class XInterfaceBase(threading.Thread):
         else:
             logger.warning("Unable to send character %r", char)
 
-    def __send_keycode_with_modifiers_pressed(self, keyCode, modifier_keys, focus):
+    def __send_keycode_with_modifiers_pressed(self, keyCode, modifier_keys, focus=None):
         mask = 0
-        for key in modifier_keys:
-            mask |= self.modMasks[key]
+        for modkey in modifier_keys: mask |= self.modMasks[modkey]
 
-        for key in modifier_keys:
-            self.__pressKey(key)
-        self.__sendKeyCode(keyCode, mask, focus)
-        for key in modifier_keys:
-            self.__releaseKey(key)
+        for modkey in modifier_keys: self.__pressKey(modkey)
+        if focus:
+            self.__sendKeyCode(keyCode, mask, focus)
+        else:
+            self.__sendKeyCode(keyCode, mask)
+        for modkey in modifier_keys: self.__releaseKey(modkey)
 
 
     def send_key(self, keyName):
@@ -751,13 +751,9 @@ class XInterfaceBase(threading.Thread):
     def __sendModifiedKey(self, keyName, modifiers):
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
         try:
-            mask = 0
-            for mod in modifiers:
-                mask |= self.modMasks[mod]
             keyCode = self.__lookupKeyCode(keyName)
-            for mod in modifiers: self.__pressKey(mod)
-            self.__sendKeyCode(keyCode, mask)
-            for mod in modifiers: self.__releaseKey(mod)
+            self.__send_keycode_with_modifiers_pressed(keyCode,
+                                                       modifiers)
         except Exception as e:
             logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
 
