@@ -142,6 +142,44 @@ class Service:
                 return item
         return None
 
+    def get_folder_with_properties(self, modifiers, rawKey, window_info):
+        for folder in self.configManager.hotKeyFolders:
+            if folder.check_hotkey_has_properties(modifiers, rawKey, window_info):
+                return folder
+        return None
+
+    def __process_hotkey(self, modifiers, rawKey, window_info):
+        menu = None
+        itemMatch = self.get_hotkey_with_properties(
+            modifiers, rawKey, window_info)
+
+        if itemMatch is not None:
+            logger.info(
+                'Matched {} "{}" with hotkey and prompt={}'.format(
+                itemMatch.__class__.__name__,
+                itemMatch.description,
+                itemMatch.prompt
+            ))
+            if itemMatch.prompt:
+                menu = ([], [itemMatch])
+        else:
+            folderMatch = self.get_folder_with_properties(
+                modifiers, rawKey, window_info)
+            if folderMatch is not None: menu = ([folderMatch], [])
+
+        if menu is not None:
+            logger.debug("Matched Folder with hotkey - showing menu")
+            if self.lastMenu is not None:
+                self.app.hide_menu()
+            self.lastStackState = ''
+            self.lastMenu = menu
+            self.app.show_popup_menu(*menu)
+
+        if itemMatch is not None:
+            self.__tryReleaseLock()
+            self.__processItem(itemMatch)
+        return menu
+
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
         logger.debug("Window visible title: %r, Window class: %r" % window_info)
@@ -150,42 +188,12 @@ class Service:
         self.__check_global_hotkeys(modifiers, rawKey, window_info)
 
         if self.__shouldProcess(window_info):
-            menu = None
-            itemMatch = self.get_hotkey_with_properties(modifiers, rawKey, window_info)
-
-            if itemMatch is not None:
-                logger.info('Matched {} "{}" with hotkey and prompt={}'.format(
-                    itemMatch.__class__.__name__, itemMatch.description, itemMatch.prompt
-                ))
-                if itemMatch.prompt:
-                    menu = ([], [itemMatch])
-            else:
-                for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey_has_properties(modifiers, rawKey, window_info):
-                        #menu = PopupMenu(self, [folder], [])
-                        menu = ([folder], [])
-
-
-            if menu is not None:
-                logger.debug("Matched Folder with hotkey - showing menu")
-                if self.lastMenu is not None:
-                    #self.lastMenu.remove_from_desktop()
-                    self.app.hide_menu()
-                self.lastStackState = ''
-                self.lastMenu = menu
-                #self.lastMenu.show_on_desktop()
-                self.app.show_popup_menu(*menu)
-
-            if itemMatch is not None:
-                self.__tryReleaseLock()
-                self.__processItem(itemMatch)
-
-
-            ### --- end of hotkey processing --- ###
+            menu = self.__process_hotkey(modifiers, rawKey, window_info)
 
             modifierCount = len(modifiers)
-
-            if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
+            hotkey_uses_nonprinting_modifiers = modifierCount > 1 or \
+                (modifierCount == 1 and Key.SHIFT not in modifiers)
+            if hotkey_uses_nonprinting_modifiers:
                 self.inputStack.clear()
                 self.__tryReleaseLock()
                 return
@@ -204,8 +212,11 @@ class Service:
 
                 if item:
                     self.__tryReleaseLock()
-                    logger.info('Matched {} "{}" having abbreviations "{}" against current input'.format(
-                        item.__class__.__name__, item.description, item.abbreviations))
+                    logger.info(
+                        'Matched {} "{}" having abbreviations "{}" against current input'.format(
+                        item.__class__.__name__,
+                            item.description,
+                            item.abbreviations))
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
