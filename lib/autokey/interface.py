@@ -278,22 +278,34 @@ class XInterfaceBase(threading.Thread):
                 
         return False
 
+    def __grab_ungrab_all_hotkeys(self, grab=True):
+        c = self.app.configManager
+        hotkeys = c.hotKeys + c.hotKeyFolders
+
+        # (un)grab global hotkeys in root window
+        for item in c.globalHotkeys:
+            if item.enabled:
+                if grab:
+                    self.__enqueue_grab(item)
+                else:
+                    self.__recursive_ungrab(item)
+        # Grab hotkeys without a filter in root window
+        for item in hotkeys:
+            if item.get_applicable_regex() is None:
+                if grab:
+                    self.__enqueue_grab(item)
+                else:
+                    self.__recursive_ungrab(item)
+        if grab:
+            self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
+        else:
+            self.__recurseTreeUngrab(self.rootWindow, hotkeys)
+
     def __grab_all_hotkeys(self):
         """
         Run during startup to grab global and specific hotkeys in all open windows
         """
-        c = self.app.configManager
-        hotkeys = c.hotKeys + c.hotKeyFolders
-
-        # Grab global hotkeys in root window
-        for item in c.globalHotkeys:
-            if item.enabled:
-                self.__enqueue_grab(item)
-        # Grab hotkeys without a filter in root window
-        for item in hotkeys:
-            if item.get_applicable_regex() is None:
-                 self.__enqueue_grab(item)
-        self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
+        self.__grab_ungrab_all_hotkeys(grab=True)
 
     def __enqueue_grab(self, item):
         self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
@@ -308,27 +320,12 @@ class XInterfaceBase(threading.Thread):
         """
         Ungrab all hotkeys in preparation for keymap change
         """
-        c = self.app.configManager
-        hotkeys = c.hotKeys + c.hotKeyFolders
-
-        # Ungrab global hotkeys in root window, recursively
-        for item in c.globalHotkeys:
-            if item.enabled:
-                self.__recursive_ungrab(item)
-        # Ungrab hotkeys without a filter in root window, recursively
-        for item in hotkeys:
-            if item.get_applicable_regex() is None:
-                 self.__recursive_ungrab(item)
-
-        self.__recurseTreeUngrab(self.rootWindow, hotkeys)
+        self.__grab_ungrab_all_hotkeys(grab=False)
 
     def __recursive_ungrab(self, item):
         self.__ungrabHotkey(item.hotKey, item.modifiers, self.rootWindow)
         if self.__needsMutterWorkaround(item):
             self.__ungrabRecurse(item, self.rootWindow, False)
-
-    def __recurseTreeUngrab(self, parent, hotkeys):
-        self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=False)
 
     def __recurse_tree_grab_ungrab(self, parent, hotkeys, grab=True):
         """
@@ -358,6 +355,9 @@ class XInterfaceBase(threading.Thread):
                 ungrab = "" if grab else "un"
                 logger.exception("{}grab on window failed".format(ungrab))
 
+
+    def __recurseTreeUngrab(self, parent, hotkeys):
+        self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=False)
 
     def __grabHotkeysForWindow(self, window):
         """
