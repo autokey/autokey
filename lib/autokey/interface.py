@@ -26,6 +26,7 @@ import subprocess
 import time
 
 import autokey.model.phrase
+from autokey.clipboard import Clipboard
 
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
@@ -68,8 +69,8 @@ except ImportError:
     
 from Xlib.protocol import rq, event
 
-
 logger = __import__("autokey.logger").logger.get_logger(__name__)
+
 MASK_INDEXES = [
                (X.ShiftMapIndex, X.ShiftMask),
                (X.ControlMapIndex, X.ControlMask),
@@ -128,9 +129,7 @@ class XInterfaceBase(threading.Thread):
         self.__initMappings()
 
         # Set initial lock state
-        ledMask = self.localDisplay.get_keyboard_control().led_mask
-        mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
-        mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
+        self.__set_lock_keys_state()
 
         # Window name atoms
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
@@ -145,6 +144,11 @@ class XInterfaceBase(threading.Thread):
         
         self.eventThread.start()
         self.listenerThread.start()
+
+    def __set_lock_keys_state(self):
+        ledMask = self.localDisplay.get_keyboard_control().led_mask
+        self.mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
+        self.mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
         
     def __eventLoop(self):
         while True:
@@ -157,7 +161,7 @@ class XInterfaceBase(threading.Thread):
             try:
                 method(*args)
             except Exception as e:
-                logger.exception("Error in X event loop thread")
+                logger.exception("Error in X event loop thread: {}".format(e))
 
             self.queue.task_done()
 
@@ -191,7 +195,20 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("Enabling sending using Alt-Grid")
                 break
 
-        # Build modifier mask mapping
+        self.__build_modifier_mask_mapping()
+
+        logger.debug("Modifier masks: %r", self.modMasks)
+
+        self.__grabHotkeys()
+        self.localDisplay.flush()
+
+        self.__availableKeycodes = self.__get_unused_keycodes(self)
+        self.remappedChars = {}
+
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            self.keymap_test()
+
+    def __build_modifier_mask_mapping(self):
         self.modMasks = {}
         mapping = self.localDisplay.get_modifier_mapping()
 
@@ -209,13 +226,8 @@ class XInterfaceBase(threading.Thread):
 
                     if found: break
 
-        logger.debug("Modifier masks: %r", self.modMasks)
-
-        self.__grabHotkeys()
-        self.localDisplay.flush()
-
+    def __get_unused_keycodes(self):
         # --- get list of keycodes that are unused in the current keyboard mapping
-
         keyCode = 8
         avail = []
         for keyCodeMapping in self.localDisplay.get_keyboard_mapping(keyCode, 200):
@@ -229,12 +241,7 @@ class XInterfaceBase(threading.Thread):
                 avail.append(keyCode)
 
             keyCode += 1
-
-        self.__availableKeycodes = avail
-        self.remappedChars = {}
-
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            self.keymap_test()
+        return avail
 
     def keymap_test(self):
         code = self.localDisplay.keycode_to_keysym(108, 0)
