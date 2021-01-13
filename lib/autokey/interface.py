@@ -383,25 +383,27 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Grabbing hotkey: %r %r", modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
-            masks = []
-            basemask = 0
-            for mod in modifiers:
-                basemask |= self.modMasks[mod]
-
-            masks.append(basemask)
-
-            if Key.NUMLOCK in self.modMasks:
-                masks.append(basemask|self.modMasks[Key.NUMLOCK])
-            if Key.CAPSLOCK in self.modMasks:
-                masks.append(basemask|self.modMasks[Key.CAPSLOCK])
-            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
-                masks.append(basemask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
-
+            masks = self.__build_modifier_mask(modifiers)
             for mask in masks:
                 window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
-
         except Exception as e:
             logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
+
+    def __build_modifier_mask(self, modifiers):
+        masks = []
+        basemask = 0
+        for mod in modifiers:
+            basemask |= self.modMasks[mod]
+
+        masks.append(basemask)
+
+        if Key.NUMLOCK in self.modMasks:
+            masks.append(basemask|self.modMasks[Key.NUMLOCK])
+        if Key.CAPSLOCK in self.modMasks:
+            masks.append(basemask|self.modMasks[Key.CAPSLOCK])
+        if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
+            masks.append(basemask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
+        return masks
 
     def grab_hotkey(self, item):
         """
@@ -479,20 +481,9 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Ungrabbing hotkey: %r %r", modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
-            mask = 0
-            for mod in modifiers:
-                mask |= self.modMasks[mod]
-
-            window.ungrab_key(keycode, mask)
-
-            if Key.NUMLOCK in self.modMasks:
-                window.ungrab_key(keycode, mask|self.modMasks[Key.NUMLOCK])
-
-            if Key.CAPSLOCK in self.modMasks:
-                window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK])
-
-            if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
-                window.ungrab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
+            masks = self.__build_modifier_mask(modifiers)
+            for mask in masks:
+                window.ungrab_key(keycode, mask)
         except Exception as e:
             logger.warning("Failed to ungrab hotkey %r %r: %s", modifiers, key, str(e))
 
