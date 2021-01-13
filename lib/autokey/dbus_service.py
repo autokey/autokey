@@ -30,6 +30,9 @@ class AppService(dbus.service.Object):
         self.app = app
         logger.debug("Created DBus service")
 
+    def unregister(self):
+        self.remove_from_connection()
+
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='', out_signature='')
     def show_configure(self):
         self.app.show_configure()

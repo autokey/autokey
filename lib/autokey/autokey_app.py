@@ -287,5 +287,6 @@ class AutokeyApplication:
         """
         logger.debug("Shutting down service and file monitor...")
         self.service.shutdown()
+        self.dbusService.unregister()
         self.monitor.stop()
         logger.debug("Finished shutting down service and file monitor...")
