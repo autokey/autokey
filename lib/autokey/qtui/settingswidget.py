@@ -197,6 +197,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.set_dirty()
         self.hotkey_enabled = False
         self.clear_hotkey_button.setEnabled(False)
+        self.current_item.unset_hotkey()
         self.hotkey_label.setText("(None configured)")  # TODO: i18n
         self.hotkey_settings_dialog.reset()
 
