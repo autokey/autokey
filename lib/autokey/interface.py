@@ -595,6 +595,7 @@ class XInterfaceBase(threading.Thread):
         return None, None
 
     def send_string(self, string):
+        # Asynchronous send string.
         self.__enqueue(self.__sendString, string)
 
     def __chars_need_remapping(self, string):
@@ -675,6 +676,8 @@ class XInterfaceBase(threading.Thread):
         self.__ignoreRemap = False
 
     def __send_keycode_for_char(self, char, focus):
+        # Offset encodes the modifiers needed to convert the base key press
+        # into the desired result symbol.
         keyCode, offset = self.__get_usable_char_keycode_and_offset(char)
         if keyCode is not None:
             if offset == 0:
@@ -689,6 +692,7 @@ class XInterfaceBase(threading.Thread):
                 self.__send_keycode_with_modifiers_pressed(
                     keyCode, [Key.SHIFT, Key.ALT_GR], focus)
         elif char in self.remappedChars:
+            # Symbols remapped to virtual keys.
             keyCode, offset = self.remappedChars[char]
             if offset == 0:
                 self.__sendKeyCode(keyCode, theWindow=focus)
@@ -998,12 +1002,20 @@ class XInterfaceBase(threading.Thread):
         if len(self.lastChars) > 10:
             self.lastChars.pop(0)
 
-    def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
+    def send_key_press_release_event(self, keyCode, modifiers, theWindow=None,
+                       press=True):
+        """
+        Generate an Event object for the keypress/keyrelease and send it to X11.
+        """
         if theWindow is None:
             focus = self.localDisplay.get_input_focus().focus
         else:
             focus = theWindow
-        keyEvent = event.KeyPress(
+        if press:
+            event_ = event.KeyPress
+        else:
+            event_ = event.KeyRelease
+        keyEvent = event_(
                                   detail=keyCode,
                                   time=X.CurrentTime,
                                   root=self.rootWindow,
@@ -1018,25 +1030,11 @@ class XInterfaceBase(threading.Thread):
                                   )
         focus.send_event(keyEvent)
 
+    def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
+        self.send_key_press_release_event(keyCode, modifiers, theWindow)
+
     def __sendKeyReleaseEvent(self, keyCode, modifiers, theWindow=None):
-        if theWindow is None:
-            focus = self.localDisplay.get_input_focus().focus
-        else:
-            focus = theWindow
-        keyEvent = event.KeyRelease(
-                                  detail=keyCode,
-                                  time=X.CurrentTime,
-                                  root=self.rootWindow,
-                                  window=focus,
-                                  child=X.NONE,
-                                  root_x=1,
-                                  root_y=1,
-                                  event_x=1,
-                                  event_y=1,
-                                  state=modifiers,
-                                  same_screen=1
-                                  )
-        focus.send_event(keyEvent)
+        self.send_key_press_release_event(keyCode, modifiers, theWindow)
 
     def __lookupKeyCode(self, char: str) -> int:
         if char in AK_TO_XK_MAP:
