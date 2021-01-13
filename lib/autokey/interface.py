@@ -17,7 +17,6 @@
 
 __all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
 
-from abc import abstractmethod
 import logging
 import typing
 import threading
@@ -47,24 +46,18 @@ from Xlib.error import ConnectionClosedError
 from . import common
 from autokey.model.button import Button
 
-if common.USING_QT:
-    from PyQt5.QtGui import QClipboard
-    from PyQt5.QtWidgets import QApplication
-else:
-    import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, Gdk
+import gi
 
-    try:
-        gi.require_version('Atspi', '2.0')
-        import pyatspi
-        HAS_ATSPI = True
-    except ImportError:
-        HAS_ATSPI = False
-    except ValueError:
-        HAS_ATSPI = False
-    except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
-        HAS_ATSPI = False
+try:
+    gi.require_version('Atspi', '2.0')
+    import pyatspi
+    HAS_ATSPI = True
+except ImportError:
+    HAS_ATSPI = False
+except ValueError:
+    HAS_ATSPI = False
+except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
+    HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
 try:
@@ -107,87 +100,6 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
 
 # This tuple is used to return requested window properties.
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
-
-
-class AbstractClipboard:
-    """
-    Abstract interface for clipboard interactions.
-    This is an abstraction layer for platform dependent clipboard handling.
-    It unifies clipboard handling for Qt and GTK.
-    """
-    @property
-    @abstractmethod
-    def text(self):
-        """Get and set the keyboard clipboard content."""
-        return
-
-    @property
-    @abstractmethod
-    def selection(self):
-        """Get and set the mouse selection clipboard content."""
-        return
-
-
-if common.USING_QT:
-    class Clipboard(AbstractClipboard):
-        def __init__(self):
-            self._clipboard = QApplication.clipboard()
-
-        @property
-        def text(self):
-            return self._clipboard.text(QClipboard.Clipboard)
-
-        @text.setter
-        def text(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Clipboard)
-
-        @property
-        def selection(self):
-            return self._clipboard.text(QClipboard.Selection)
-
-        @selection.setter
-        def selection(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Selection)
-
-else:
-    class Clipboard(AbstractClipboard):
-        def __init__(self):
-            self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-            self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
-
-        @property
-        def text(self):
-            Gdk.threads_enter()
-            text = self._clipboard.wait_for_text()
-            Gdk.threads_leave()
-            return text
-
-        @text.setter
-        def text(self, new_content: str):
-            Gdk.threads_enter()
-            try:
-                # This call might fail and raise an Exception.
-                # If it does, make sure to release the mutex and not deadlock AutoKey.
-                self._clipboard.set_text(new_content, -1)
-            finally:
-                Gdk.threads_leave()
-
-        @property
-        def selection(self):
-            Gdk.threads_enter()
-            text = self._selection.wait_for_text()
-            Gdk.threads_leave()
-            return text
-
-        @selection.setter
-        def selection(self, new_content: str):
-            Gdk.threads_enter()
-            try:
-                # This call might fail and raise an Exception.
-                # If it does, make sure to release the mutex and not deadlock AutoKey.
-                self._selection.set_text(new_content, -1)
-            finally:
-                Gdk.threads_leave()
 
 
 class XInterfaceBase(threading.Thread):
