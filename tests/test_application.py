@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import signal
 import sys
@@ -24,7 +25,7 @@ import unittest
 from unittest.mock import patch
 import pytest
 skip = pytest.mark.skip
-from hamcrest import *
+import hamcrest as hm
 
 import autokey.autokey_app as ak
 import autokey.headless_app as app
@@ -38,10 +39,16 @@ def create_mock_app():
             patch('sys.argv', ['autokey-headless']):
         return ak.AutokeyApplication()
 
-def test_application_runs():
-    with patch('sys.argv', ['autokey-app-testing']):
-        app = ak.AutokeyApplication()
-        app.autokey_shutdown()
+def get_errors_in_log(caplog):
+    errors = [record for record in caplog.get_records('call') if record.levelno >= logging.ERROR]
+    return errors
+
+
+@patch('sys.argv', ['autokey-app-testing'])
+def test_application_runs_without_errors(caplog):
+    app = ak.AutokeyApplication()
+    app.autokey_shutdown()
+    hm.assert_that(get_errors_in_log(caplog), hm.empty())
 
 @skip
 @patch('sys.argv', ['autokey-headless'])
@@ -73,7 +80,7 @@ def test_add_user_code_dir_to_path():
     mock_path = 'test/dummy/path'
     with patch(app.configManager.userCodeDir, mock_path):
         app.__add_user_code_dir_to_path()
-        assert_that(sys.path, has_item(mock_path))
+        hm.assert_that(sys.path, hm.has_item(mock_path))
 
 
 def test_write_read_lock_file(tmpdir):
@@ -82,7 +89,8 @@ def test_write_read_lock_file(tmpdir):
     pid = str(os.getpid())
     with patch('common.LOCK_FILE', lockfile):
         ak.AutokeyApplication.create_lock_file()
-        assert_that(
+        hm.assert_that(
             app._AutokeyApplication__read_pid_from_lock_file(),
-            equal_to(pid)
+            hm.equal_to(pid),
+            "PID written then read from lock file is not the same"
         )
