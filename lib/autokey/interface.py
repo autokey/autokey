@@ -380,6 +380,25 @@ class XInterfaceBase(threading.Thread):
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=True)
 
+    def __grab_ungrab_hotkey(self, key, modifiers, window, grab=True):
+        """
+        (Un)Grab a specific hotkey in the given window
+        """
+        un = "" if grab else "un"
+        logger.debug("%sgrabbing hotkey: %r %r",
+                     un, modifiers, key)
+        try:
+            keycode = self.__lookupKeyCode(key)
+            masks = self.__build_modifier_mask(modifiers)
+            for mask in masks:
+                if grab:
+                    window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+                else:
+                    window.ungrab_key(keycode, mask)
+        except Exception as e:
+            logger.warning("Failed to %sgrab hotkey %r %r: %s",
+                           un, modifiers, key, str(e))
+
     def __build_modifier_mask(self, modifiers):
         masks = []
         basemask = 0
@@ -451,25 +470,6 @@ class XInterfaceBase(threading.Thread):
 
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
         self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=False)
-
-    def __grab_ungrab_hotkey(self, key, modifiers, window, grab=True):
-        """
-        (Un)Grab a specific hotkey in the given window
-        """
-        un = "" if grab else "un"
-        logger.debug("%sgrabbing hotkey: %r %r",
-                     un, modifiers, key)
-        try:
-            keycode = self.__lookupKeyCode(key)
-            masks = self.__build_modifier_mask(modifiers)
-            for mask in masks:
-                if grab:
-                    window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
-                else:
-                    window.ungrab_key(keycode, mask)
-        except Exception as e:
-            logger.warning("Failed to %sgrab hotkey %r %r: %s",
-                           un, modifiers, key, str(e))
 
     def __ungrabHotkey(self, key, modifiers, window):
         """
@@ -600,17 +600,8 @@ class XInterfaceBase(threading.Thread):
 
     def send_string(self, string):
         self.__enqueue(self.__sendString, string)
-        
-    def __sendString(self, string):
-        """
-        Send a string of printable characters.
-        """
-        logger.debug("Sending string: %r", string)
-        # Determine if workaround is needed
-        if not cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND]:
-            self.__checkWorkaroundNeeded()
 
-        # First find out if any chars need remapping
+    def __chars_need_remapping(self, string):
         remapNeeded = False
         for char in string:
             keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
@@ -618,8 +609,9 @@ class XInterfaceBase(threading.Thread):
             if usableCode is None and char not in self.remappedChars:
                 remapNeeded = True
                 break
+        return remapNeeded
 
-        # Now we know chars need remapping, do it
+    def __remap_characters(self, remapNeeded, string):
         if remapNeeded:
             self.__ignoreRemap = True
             self.remappedChars = {}
@@ -658,6 +650,20 @@ class XInterfaceBase(threading.Thread):
             mapping = [tuple(l) for l in mapping]
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
+
+    def __sendString(self, string):
+        """
+        Send a string of printable characters.
+        """
+        logger.debug("Sending string: %r", string)
+        # Determine if workaround is needed
+        if not cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND]:
+            self.__checkWorkaroundNeeded()
+
+        # First find out if any chars need remapping
+        remapNeeded = self.__chars_need_remapping(string)
+        # Now we know chars need remapping, do it
+        self.__remap_characters(remapNeeded, string)
 
         focus = self.localDisplay.get_input_focus().focus
 
