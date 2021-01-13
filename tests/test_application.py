@@ -55,10 +55,10 @@ def test_write_read_lock_file(tmpdir):
     app = create_mock_app()
     lockfile = tmpdir.join("lockfile")
     pid = str(os.getpid())
-    with patch('common.LOCK_FILE', lockfile):
+    with patch('autokey.common.LOCK_FILE', lockfile):
         ak.AutokeyApplication.create_lock_file()
         hm.assert_that(
-            app._AutokeyApplication__read_pid_from_lock_file(),
+            ak.AutokeyApplication.read_pid_from_lock_file(),
             hm.equal_to(pid),
             "PID written then read from lock file is not the same"
         )
