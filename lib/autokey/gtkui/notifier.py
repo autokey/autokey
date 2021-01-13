@@ -137,11 +137,9 @@ class IndicatorNotifier:
         self.indicator.set_status(AppIndicator3.IndicatorStatus.ATTENTION)
         
     def show_notify(self, message, iconName):
-        Gdk.threads_enter()
         n = Notify.Notification.new("AutoKey", message, iconName)
         n.set_urgency(Notify.Urgency.LOW)
         n.show()
-        Gdk.threads_leave()
         
     def update_tool_tip(self):
         pass

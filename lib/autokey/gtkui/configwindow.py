@@ -897,7 +897,6 @@ class ConfigWindow:
 
     def config_modified(self):
         if not self.__warnedOfChanges:
-            Gdk.threads_enter()
             msg = _("Changes made in other programs will not be displayed until you\
 close and reopen the AutoKey window.\nThis message is only shown once per session.")
             dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
@@ -906,7 +905,6 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
             dlg.run()
             dlg.destroy()
-            Gdk.threads_leave()
             self.__warnedOfChanges = True
 
     def update_actions(self, items, changed):

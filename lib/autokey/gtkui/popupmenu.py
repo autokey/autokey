@@ -97,15 +97,11 @@ class PopupMenu(Gtk.Menu):
             return desc
 
     def show_on_desktop(self):
-        Gdk.threads_enter()
         time.sleep(0.2)
         self.popup(None, None, None, None, 1, 0)
-        Gdk.threads_leave()
 
     def remove_from_desktop(self):
-        Gdk.threads_enter()
         self.popdown()
-        Gdk.threads_leave()
 
     def __addItemsToSelf(self, items, onDesktop):
         # Create phrase section
