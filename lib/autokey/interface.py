@@ -128,7 +128,7 @@ class XInterfaceBase(threading.Thread):
         self.queue = queue.Queue()
 
         # Event listener
-        self.listenerThread = threading.Thread(target=self.__flushEvents)
+        self.listenerThread = threading.Thread(target=self.__flush_events_loop)
         self.clipboard = Clipboard()
 
         self.__initMappings()
@@ -898,30 +898,11 @@ class XInterfaceBase(threading.Thread):
     def __releaseKey(self, keyName):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
-    def __flushEvents(self):
+    def __flush_events_loop(self):
         logger.debug("__flushEvents: Entering event loop.")
         while True:
             try:
-                readable, w, e = select.select([self.localDisplay], [], [], 1)
-                time.sleep(1)
-                if self.localDisplay in readable:
-                    createdWindows = []
-                    destroyedWindows = []
-
-                    for x in range(self.localDisplay.pending_events()):
-                        event = self.localDisplay.next_event()
-                        if event.type == X.CreateNotify:
-                            createdWindows.append(event.window)
-                        if event.type == X.DestroyNotify:
-                            destroyedWindows.append(event.window)
-                        if event.type == X.MappingNotify:
-                            logger.debug("X Mapping Event Detected")
-                            self.on_keys_changed()
-
-                    for window in createdWindows:
-                        if window not in destroyedWindows:
-                            self.__enqueue(self.__grabHotkeysForWindow, window)
-
+                self.__flush_events()
                 if self.shutdown:
                     break
             except ConnectionClosedError:
@@ -931,13 +912,35 @@ class XInterfaceBase(threading.Thread):
                 # Maybe react to a dbus message that announces the session end, before the X server forcefully closes
                 # the connection.
                 # See https://github.com/autokey/autokey/issues/198 for details
-                logger.exception("__flushEvents: Connection to the X server closed. Forcefully exiting Autokey now.")
+                logger.exception("__flush_events_loop: Connection to the X server closed. Forcefully exiting Autokey now.")
                 import os
                 os._exit(1)
-            except Exception:
-                logger.exception("__flushEvents: Some exception occured:")
+            except Exception as e:
+                logger.exception(
+                    "Some exception occured in the flush events loop: {}".format(e))
                 pass
-        logger.debug("__flushEvents: Left event loop.")
+        logger.debug("Left event loop.")
+
+    def __flush_events(self):
+        readable, _, _ = select.select([self.localDisplay], [], [], 1)
+        time.sleep(1)
+        if self.localDisplay in readable:
+            createdWindows = []
+            destroyedWindows = []
+
+            for _ in range(self.localDisplay.pending_events()):
+                event = self.localDisplay.next_event()
+                if event.type == X.CreateNotify:
+                    createdWindows.append(event.window)
+                if event.type == X.DestroyNotify:
+                    destroyedWindows.append(event.window)
+                if event.type == X.MappingNotify:
+                    logger.debug("X Mapping Event Detected")
+                    self.on_keys_changed()
+
+            for window in createdWindows:
+                if window not in destroyedWindows:
+                    self.__enqueue(self.__grabHotkeysForWindow, window)
 
     def handle_keypress(self, keyCode):
         self.__enqueue(self.__handleKeyPress, keyCode)
