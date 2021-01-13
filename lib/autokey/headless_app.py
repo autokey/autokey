@@ -36,7 +36,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
             self.initialise(args)
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
-            logger.exception("Fatal error starting AutoKey: " + str(e))
+            logger.error("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
     def initialise(self, configure):
