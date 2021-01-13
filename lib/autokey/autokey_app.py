@@ -112,7 +112,7 @@ class AutokeyApplication:
         # self.notifier = Notifier(self)
         # self.configWindow = ConfigWindow(self)
 
-        self.__initialise_user_code_dir()
+        self.__add_user_code_dir_to_path()
 
         self.__create_DBus_service()
         # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
@@ -128,7 +128,7 @@ class AutokeyApplication:
         self.dbusService = autokey.dbus_service.AppService(self)
         logger.debug("DBus service created")
 
-    def __initialise_user_code_dir(self):
+    def __add_user_code_dir_to_path(self):
         if self.configManager.userCodeDir is not None:
             sys.path.append(self.configManager.userCodeDir)
 
@@ -216,17 +216,18 @@ class AutokeyApplication:
 
     def __is_existing_running_autokey(self):
         if os.path.exists(common.LOCK_FILE):
-            pid = self.__read_pid_from_lock_file()
+            pid = AutokeyApplication.read_pid_from_lock_file()
+            self.__exit_if_lock_file_corrupt(pid)
             pid_is_a_running_autokey = "autokey" in self.__get_process_details(pid)
             if pid_is_a_running_autokey:
                 logger.debug("AutoKey is already running as pid %s", pid)
                 return True
         return False
 
-    def __read_pid_from_lock_file(self) -> str:
+    @staticmethod
+    def read_pid_from_lock_file() -> str:
         with open(common.LOCK_FILE, "r") as lock_file:
             pid = lock_file.read()
-        self.__exit_if_lock_file_corrupt(pid)
         return pid
 
     def __exit_if_lock_file_corrupt(self, pid):
