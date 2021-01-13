@@ -383,20 +383,22 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Grabbing hotkey: %r %r", modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
-            mask = 0
+            masks = []
+            basemask = 0
             for mod in modifiers:
-                mask |= self.modMasks[mod]
+                basemask |= self.modMasks[mod]
 
-            window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
+            masks.append(basemask)
 
             if Key.NUMLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
-
+                masks.append(basemask|self.modMasks[Key.NUMLOCK])
             if Key.CAPSLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
-
+                masks.append(basemask|self.modMasks[Key.CAPSLOCK])
             if Key.CAPSLOCK in self.modMasks and Key.NUMLOCK in self.modMasks:
-                window.grab_key(keycode, mask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK], True, X.GrabModeAsync, X.GrabModeAsync)
+                masks.append(basemask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
+
+            for mask in masks:
+                window.grab_key(keycode, mask, True, X.GrabModeAsync, X.GrabModeAsync)
 
         except Exception as e:
             logger.warning("Failed to grab hotkey %r %r: %s", modifiers, key, str(e))
