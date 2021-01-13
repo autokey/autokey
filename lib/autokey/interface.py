@@ -1030,6 +1030,8 @@ class XInterfaceBase(threading.Thread):
         """
         Generate an Event object for the keypress/keyrelease and send it to X11.
         """
+        # Send to the given window, if any is given, or to the current
+        # window focus, if not.
         if theWindow is None:
             focus = self.localDisplay.get_input_focus().focus
         else:
