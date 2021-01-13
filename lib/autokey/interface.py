@@ -405,74 +405,61 @@ class XInterfaceBase(threading.Thread):
             masks.append(basemask|self.modMasks[Key.CAPSLOCK]|self.modMasks[Key.NUMLOCK])
         return masks
 
-    def grab_hotkey(self, item):
+    def __enqueue_hotkey_grab_ungrab(self, item, grab=True):
         """
-        Grab a hotkey.
-
-        If the hotkey has no filter regex, it is global and is grabbed recursively from the root window
-        If it has a filter regex, iterate over all children of the root and grab from matching windows
+        If the hotkey has no filter regex, it is global and is (un)/grabbed recursively from the root window
+        If it has a filter regex, iterate over all children of the root and (un)grab from matching windows
         """
-        if item.get_applicable_regex() is None:
-            self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
-            if self.__needsMutterWorkaround(item):
-                self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
+        if grab:
+            grab_func = self.__grabHotkey
+            grab_recurse_func = self.__grabRecurse
         else:
-            self.__enqueue(self.__grabRecurse, item, self.rootWindow)
+            grab_func = self.__ungrabHotkey
+            grab_recurse_func = self.__ungrabRecurse
+
+        if item.get_applicable_regex() is None:
+            self.__enqueue(grab_func, item.hotKey, item.modifiers, self.rootWindow)
+            if self.__needsMutterWorkaround(item):
+                self.__enqueue(grab_recurse_func, item, self.rootWindow, False)
+        else:
+            self.__enqueue(grab_recurse_func, item, self.rootWindow)
+        return
+
+    def grab_hotkey(self, item):
+        self.__enqueue_hotkey_grab_ungrab(item, grab=True)
+
+    def __grab_ungrab_recurse(self, item, parent, checkWinInfo=True, grab=True):
+        try:
+            children = parent.query_tree().children
+        except:
+            return # window has been destroyed
+
+        for window in children:
+            shouldTrigger = False
+
+            if checkWinInfo:
+                window_info = self.get_window_info(window, False)
+                shouldTrigger = item._should_trigger_window_title(window_info)
+
+            if shouldTrigger or not checkWinInfo:
+                if grab:
+                    self.__grabHotkey(item.hotKey, item.modifiers, window)
+                else:
+                    self.__ungrabHotkey(item.hotKey, item.modifiers, window)
+                self.__grab_ungrab_recurse(item, window, False, grab=grab)
+            else:
+                self.__grab_ungrab_recurse(item, window, grab=grab)
 
     def __grabRecurse(self, item, parent, checkWinInfo=True):
-        try:
-            children = parent.query_tree().children
-        except:
-            return # window has been destroyed
-                     
-        for window in children:
-            shouldTrigger = False
-            
-            if checkWinInfo:
-                window_info = self.get_window_info(window, False)
-                shouldTrigger = item._should_trigger_window_title(window_info)
-
-            if shouldTrigger or not checkWinInfo:
-                self.__grabHotkey(item.hotKey, item.modifiers, window)
-                self.__grabRecurse(item, window, False)
-            else:
-                self.__grabRecurse(item, window)
+        self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=True)
 
     def ungrab_hotkey(self, item):
-        """
-        Ungrab a hotkey.
-
-        If the hotkey has no filter regex, it is global and is grabbed recursively from the root window
-        If it has a filter regex, iterate over all children of the root and ungrab from matching windows
-        """
         import copy
         newItem = copy.copy(item)
-        
-        if item.get_applicable_regex() is None:
-            self.__enqueue(self.__ungrabHotkey, newItem.hotKey, newItem.modifiers, self.rootWindow)
-            if self.__needsMutterWorkaround(item):
-                self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow, False)
-        else:
-            self.__enqueue(self.__ungrabRecurse, newItem, self.rootWindow)
+        self.__enqueue_hotkey_grab_ungrab(newItem, grab=False)
 
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
-        try:
-            children = parent.query_tree().children
-        except:
-            return # window has been destroyed
-                     
-        for window in children:
-            shouldTrigger = False
-            
-            if checkWinInfo:
-                window_info = self.get_window_info(window, False)
-                shouldTrigger = item._should_trigger_window_title(window_info)
-
-            if shouldTrigger or not checkWinInfo:
-                self.__ungrabHotkey(item.hotKey, item.modifiers, window)
-                self.__ungrabRecurse(item, window, False)
-            else:
-                self.__ungrabRecurse(item, window)
+        self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=False)
 
     def __ungrabHotkey(self, key, modifiers, window):
         """
