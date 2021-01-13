@@ -132,23 +132,26 @@ class Service:
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last()
 
+    def __check_global_hotkeys(self, modifiers, rawKey, window_info):
+        for hotkey in self.configManager.globalHotkeys:
+            hotkey.check_hotkey_has_properties(modifiers, rawKey, window_info)
+
+    def get_hotkey_with_properties(self, modifiers, rawKey, window_info):
+        for item in self.configManager.hotKeys:
+            if item.check_hotkey_has_properties(modifiers, rawKey, window_info):
+                return item
+        return None
+
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
         logger.debug("Window visible title: %r, Window class: %r" % window_info)
         self.configManager.lock.acquire()
 
-        # Always check global hotkeys
-        for hotkey in self.configManager.globalHotkeys:
-            hotkey.check_hotkey(modifiers, rawKey, window_info)
+        self.__check_global_hotkeys(modifiers, rawKey, window_info)
 
         if self.__shouldProcess(window_info):
-            itemMatch = None
             menu = None
-
-            for item in self.configManager.hotKeys:
-                if item.check_hotkey(modifiers, rawKey, window_info):
-                    itemMatch = item
-                    break
+            itemMatch = self.get_hotkey_with_properties(modifiers, rawKey, window_info)
 
             if itemMatch is not None:
                 logger.info('Matched {} "{}" with hotkey and prompt={}'.format(
@@ -156,10 +159,9 @@ class Service:
                 ))
                 if itemMatch.prompt:
                     menu = ([], [itemMatch])
-
             else:
                 for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey(modifiers, rawKey, window_info):
+                    if folder.check_hotkey_has_properties(modifiers, rawKey, window_info):
                         #menu = PopupMenu(self, [folder], [])
                         menu = ([folder], [])
 
