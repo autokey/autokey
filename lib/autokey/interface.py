@@ -600,8 +600,7 @@ class XInterfaceBase(threading.Thread):
     def __chars_need_remapping(self, string):
         remapNeeded = False
         for char in string:
-            keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-            usableCode, offset = self.__findUsableKeycode(keyCodeList)
+            usableCode, _ = self.__get_usable_char_keycode_and_offset(char)
             if usableCode is None and char not in self.remappedChars:
                 remapNeeded = True
                 break
@@ -614,8 +613,7 @@ class XInterfaceBase(threading.Thread):
             remapChars = []
 
             for char in string:
-                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-                usableCode, offset = self.__findUsableKeycode(keyCodeList)
+                usableCode, _ = self.__get_usable_char_keycode_and_offset(char)
                 if usableCode is None:
                     remapChars.append(char)
 
@@ -647,6 +645,11 @@ class XInterfaceBase(threading.Thread):
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
 
+    def __get_usable_char_keycode_and_offset(self, char):
+        keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
+        keyCode, offset = self.__findUsableKeycode(keyCodeList)
+        return keyCode, offset
+
     def __sendString(self, string):
         """
         Send a string of printable characters.
@@ -665,8 +668,7 @@ class XInterfaceBase(threading.Thread):
 
         for char in string:
             try:
-                keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
-                keyCode, offset = self.__findUsableKeycode(keyCodeList)
+                keyCode, offset = self.__get_usable_char_keycode_and_offset(char)
                 if keyCode is not None:
                     if offset == 0:
                         self.__sendKeyCode(keyCode, theWindow=focus)
