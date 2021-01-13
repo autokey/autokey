@@ -21,7 +21,9 @@ from time import sleep
 import typing
 
 import unittest
+from unittest.mock import patch
 import pytest
+skip = pytest.mark.skip
 from hamcrest import *
 
 import autokey.autokey_app as ak
@@ -31,22 +33,18 @@ def ret_arg(arg):
     return arg
 
 def create_mock_app():
-    with unittest.mock.patch(
+    with patch(
         'autokey.autokey_app.AutokeyApplication._AutokeyApplication__initialise'), \
-            unittest.mock.patch('sys.argv', ['autokey-headless']):
+            patch('sys.argv', ['autokey-headless']):
         return ak.AutokeyApplication()
 
-@pytest.mark.skip
 def test_application_runs():
-    x = threading.Thread(target=ak.AutokeyApplication(), args=([]))
-    x.start()
-    signal.interrupt(3)
-    sleep(3)
-    # _ = ak.AutokeyApplication()
-    # pass
+    with patch('sys.argv', ['autokey-app-testing']):
+        app = ak.AutokeyApplication()
+        app.autokey_shutdown()
 
-@pytest.mark.skip
-@unittest.mock.patch('sys.argv', ['autokey-headless'])
+@skip
+@patch('sys.argv', ['autokey-headless'])
 def test_headless_runs():
     x = threading.Thread(target=app.main())
     x.daemon = True
@@ -54,26 +52,26 @@ def test_headless_runs():
     x.join()
     sleep(3)
 
-@pytest.mark.skip
+@skip
 def test_headless_runs_without_errors(caplog):
     pass
 
 
-@pytest.mark.skip
+@skip
 def test_autokey_application_creates_lock():
     pass
 
 
-@pytest.mark.skip
+@skip
 def test_autokey_already_running():
     pass
 
 
-@pytest.mark.skip
+@skip
 def test_add_user_code_dir_to_path():
     app = create_mock_app()
     mock_path = 'test/dummy/path'
-    with unittest.mock.patch(app.configManager.userCodeDir, mock_path):
+    with patch(app.configManager.userCodeDir, mock_path):
         app.__add_user_code_dir_to_path()
         assert_that(sys.path, has_item(mock_path))
 
@@ -82,6 +80,9 @@ def test_write_read_lock_file(tmpdir):
     app = create_mock_app()
     lockfile = tmpdir.join("lockfile")
     pid = str(os.getpid())
-    with unittest.mock.patch('common.LOCK_FILE', lockfile):
+    with patch('common.LOCK_FILE', lockfile):
         ak.AutokeyApplication.create_lock_file()
-        assert_that(app._AutokeyApplication__read_pid_from_lock_file(), equal_to(pid))
+        assert_that(
+            app._AutokeyApplication__read_pid_from_lock_file(),
+            equal_to(pid)
+        )
