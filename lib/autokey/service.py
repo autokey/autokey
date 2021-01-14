@@ -293,30 +293,16 @@ class Service:
 
         @return: True if further action is needed
         """
-        #if self.lastMenu is not None:
-        #    if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-        #        self.app.hide_menu()
-        #
-        #    self.lastMenu = None
 
-        if key == Key.ENTER:
-            # Special case - map Enter to \n
-            key = '\n'
-        if key == Key.TAB:
-            # Special case - map Tab to \t
-            key = '\t'
+        key = self.__map_special_key_to_escape_code(key)
 
         if key == Key.BACKSPACE:
-            if ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
+            should_undo = ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo()
+            if should_undo:
                 self.phraseRunner.undo_expansion()
             else:
                 # handle backspace by dropping the last saved character
-                try:
-                    self.inputStack.pop()
-                except IndexError:
-                    # in case self.inputStack is empty
-                    pass
-
+                self.__drop_last_saved_char()
             return False
 
         elif len(key) > 1:
@@ -330,6 +316,22 @@ class Service:
             # if len(self.inputStack) == MAX_STACK_LENGTH, front items will removed for appending new items.
             self.inputStack.append(key)
             return True
+
+    def __map_special_key_to_escape_code(self, key):
+        if key == Key.ENTER:
+            # Special case - map Enter to \n
+            return '\n'
+        if key == Key.TAB:
+            # Special case - map Tab to \t
+            return '\t'
+        return key
+
+    def __drop_last_saved_char(self):
+        try:
+            self.inputStack.pop()
+        except IndexError:
+            # in case self.inputStack is empty
+            pass
 
     def __checkTextMatches(self, folders, items, buffer, windowInfo, immediate=False):
         """
