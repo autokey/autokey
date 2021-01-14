@@ -832,17 +832,17 @@ class ConfigManager:
 
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
-        app = self.app
         if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
-            app.hotkey_removed(removed_item)
-
+            self.app.hotkey_removed(removed_item)
         if isinstance(removed_item, autokey.model.folder.Folder):
-            for subFolder in removed_item.folders:
-                self.delete_hotkeys(subFolder)
+            self.__delete_hotkeys_from_folder_and_items(removed_item)
 
-            for item in removed_item.items:
-                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                    app.hotkey_removed(item)
+    def __delete_hotkeys_from_folder_and_items(self, folder):
+        for subFolder in folder.folders:
+            self.delete_hotkeys(subFolder)
+        for item in folder.items:
+            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+                self.app.hotkey_removed(item)
 
 
 class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):
