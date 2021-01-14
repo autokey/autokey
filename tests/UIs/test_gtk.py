@@ -40,41 +40,42 @@ def get_errors_in_log(caplog):
 
 # Automatically patch config dirs wherever needed, so that tests don't
 # overwrite or rely on user config.
-@pytest.fixture(scope="function", autouse=True)
-def create_file_patches(tmp_path, request):
-    patches = []
-    # Patching relies on namespaces. Since configmanager uses from
-    # ..constants import X, we have to use configmanager's namespace
-    # as well as of common.
-    patch_paths = {
-        'CONFIG_DIR': str(tmp_path),
-        'CONFIG_DEFAULT_FOLDER': str(tmp_path / "data"), 
-        'CONFIG_FILE': str(tmp_path / "autokey.json"),
-        'CONFIG_FILE_BACKUP': str(tmp_path / "autokey.json~"),
-        'LOCK_FILE': str(tmp_path / "autokey.pid"),
-    }
-    namespaces = ['autokey.common', 'autokey.configmanager.configmanager']
+# @pytest.fixture(scope="function", autouse=True)
+# def create_file_patches(tmp_path, request):
+#     patches = []
+#     # Patching relies on namespaces. Since configmanager uses from
+#     # ..constants import X, we have to use configmanager's namespace
+#     # as well as of common.
+#     patch_paths = {
+#         'CONFIG_DIR': str(tmp_path),
+#         'CONFIG_DEFAULT_FOLDER': str(tmp_path / "data"), 
+#         'CONFIG_FILE': str(tmp_path / "autokey.json"),
+#         'CONFIG_FILE_BACKUP': str(tmp_path / "autokey.json~"),
+#         'LOCK_FILE': str(tmp_path / "autokey.pid"),
+#     }
+#     namespaces = ['autokey.common', 'autokey.configmanager.configmanager']
 
-    for name in namespaces:
-        for patched, path in patch_paths.items():
-            patches.append(
-                patch(name + '.' + patched, path)
-            )
-    for p in patches:
-        try:
-            p.__enter__()
-        except AttributeError:
-            continue
+#     for name in namespaces:
+#         for patched, path in patch_paths.items():
+#             patches.append(
+#                 patch(name + '.' + patched, path)
+#             )
+#     for p in patches.copy():
+#         try:
+#             p.__enter__()
+#         except AttributeError:
+#             patches.remove(p)
+#             continue
 
-    def unpatch():
-        for p in patches:
-            p.__exit__()
-    request.addfinalizer(unpatch)
+#     def unpatch():
+#         for p in patches:
+#             p.__exit__()
+#     request.addfinalizer(unpatch)
 
 
 
 @patch('sys.argv', ['autokey-app-testing'])
-def test_application_runs_without_errors(caplog):
+def test_gtk_application_runs_without_errors(caplog):
     app = gtkui.Application()
     app.show_configure()
     app._Application__completeShutdown()
