@@ -93,10 +93,12 @@ def upgrade_configuration_after_load(configuration_manager, config_data: dict):
 
 def convert_to_v0_70(config_manager):
     logger.info("Doing upgrade to 0.70.0")
-    for item in config_manager.allItems:
+    self.__update_sendmode_of_phrases()
+
+def __update_sendmode_of_phrases(self):
+    for item in self.allItems:
         if isinstance(item, autokey.model.phrase.Phrase):
             item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
-
 
 def convert_to_v0_82_3(configuration_manager):
     logger.info("Doing upgrade to 0.82.3")
