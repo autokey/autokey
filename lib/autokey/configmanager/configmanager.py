@@ -211,15 +211,6 @@ class ConfigManager:
                 GTK_THEME: "classic"
                 }
 
-    def func_jhdrbcgm(self):
-        self.configHotkey = GlobalHotkey()
-        self.configHotkey.set_hotkey(["<super>"], "k")
-        self.configHotkey.enabled = True
-
-        self.toggleServiceHotkey = GlobalHotkey()
-        self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
-        self.toggleServiceHotkey.enabled = True
-
     def __init__(self, app):
         """
         Create initial default configuration
@@ -231,7 +222,7 @@ class ConfigManager:
         self.folders = []
         self.userCodeDir = None  # type: str
 
-        self.func_jhdrbcgm()
+        self.__set_default_global_hotkeys()
 
         # Set the attribute to the default first. Without this, AK breaks, if started for the first time. See #274
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
@@ -240,23 +231,36 @@ class ConfigManager:
 
         self.load_global_config()
 
-        self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
-        self.app.monitor.add_watch(common.CONFIG_DIR)
+        self.__watch_config_dirs()
 
+        # if load_global_config found an exiting config to load
         if self.folders:
             return
 
         # --- Code below here only executed if no persisted config data provided
+        self.__create_sample_folders()
+        # TODO - future functionality
+        self.recentEntries = []
+        self.config_altered(True)
 
+    def __set_default_global_hotkeys(self):
+        self.configHotkey = GlobalHotkey()
+        self.configHotkey.set_hotkey(["<super>"], "k")
+        self.configHotkey.enabled = True
+
+        self.toggleServiceHotkey = GlobalHotkey()
+        self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
+        self.toggleServiceHotkey.enabled = True
+
+    def __watch_config_dirs(self):
+        self.app.monitor.add_watch(CONFIG_DEFAULT_FOLDER)
+        self.app.monitor.add_watch(common.CONFIG_DIR)
+
+    def __create_sample_folders(self):
         logger.info("No configuration found - creating new one")
         self.folders.append(autokey.configmanager.predefined_user_files.create_my_phrases_folder())
         self.folders.append(autokey.configmanager.predefined_user_files.create_sample_scripts_folder())
         logger.debug("Initial folders generated and populated with example data.")
-
-        # TODO - future functionality
-        self.recentEntries = []
-
-        self.config_altered(True)
 
     def get_serializable(self):
         extraFolders = []
