@@ -327,6 +327,29 @@ class ConfigManager:
             f.load()
             self.folders.append(f)
 
+    def path_created_or_modified(self, path):
+        directory, baseName = os.path.split(path)
+        loaded = False
+
+        if path == CONFIG_FILE:
+            self.reload_global_config()
+
+        elif directory != common.CONFIG_DIR:
+            # ignore all other changes in top dir
+
+            if os.path.isdir(path):
+                loaded = self.__handle_dir_created_or_modified(
+                    path, directory, loaded)
+            elif os.path.isfile(path):
+                # -- handle txt or py files added or modified
+                loaded = self.__handle_file_created_or_modified(
+                    path, baseName, directory, loaded)
+            if not loaded:
+                logger.warning("No action taken for create/update event at %s", path)
+            else:
+                self.config_altered(False)
+            return loaded
+
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found
         for item in self.allItems:
@@ -342,72 +365,74 @@ class ConfigManager:
 
         return None
 
-    def path_created_or_modified(self, path):
-        directory, baseName = os.path.split(path)
-        loaded = False
+    def __handle_dir_created_or_modified(self, path, directory, loaded):
+        f = autokey.model.folder.Folder("", path=path)
 
-        if path == CONFIG_FILE:
-            self.reload_global_config()
+        if directory == CONFIG_DEFAULT_FOLDER:
+            self.folders.append(f)
+            f.load()
+            loaded = True
+        else:
+            folder = self.__checkExistingFolder(directory)
+            if folder is not None:
+                # TODO is this actually doing anything?
+                f.load(folder)
+                folder.add_folder(f)
+                loaded = True
+        return loaded
 
-        elif directory != common.CONFIG_DIR:  # ignore all other changes in top dir
+    def __load_folder(self, directory, loaded):
+        folder = self.__checkExistingFolder(directory)
+        if folder is not None:
+            folder.load_from_serialized()
+            loaded = True
+        return loaded
 
-            # --- handle directories added
+    def __load_item_matching_path(self, path, loaded):
+        for item in self.allItems:
+            if item.get_json_path() == path:
+                item.load_from_serialized()
+                loaded = True
+        return loaded
 
-            if os.path.isdir(path):
-                f = autokey.model.folder.Folder("", path=path)
+    def __create_item_with_path(self, baseName, path):
+        if baseName.endswith(".txt"):
+            item_at_path = autokey.model.phrase.Phrase("", "", path=path)
+        elif baseName.endswith(".py"):
+            item_at_path = autokey.model.script.Script("", "", path=path)
+        else:
+            item_at_path = None
+        return item_at_path
 
-                if directory == CONFIG_DEFAULT_FOLDER:
-                    self.folders.append(f)
-                    f.load()
-                    loaded = True
-                else:
-                    folder = self.__checkExistingFolder(directory)
-                    if folder is not None:
-                        f.load(folder)
-                        folder.add_folder(f)
-                        loaded = True
+    def __add_item_to_folder(self, directory, item_at_path, isNew, loaded):
+        folder = self.__checkExistingFolder(directory)
+        if folder is not None:
+            # load sets the parent folder and brings in the item data.
+            item_at_path.load(folder)
+            if isNew: folder.add_item(item_at_path)
+            loaded = True
+        return loaded
 
-            # -- handle txt or py files added or modified
+    def __handle_file_created_or_modified(self, path, baseName, directory,
+                                          loaded):
+        item_at_path = self.__checkExisting(path)
+        isNew = False
 
-            elif os.path.isfile(path):
-                i = self.__checkExisting(path)
-                isNew = False
+        if item_at_path is None:
+            isNew = True
+            item_at_path = self.__create_item_with_path(baseName, path)
 
-                if i is None:
-                    isNew = True
-                    if baseName.endswith(".txt"):
-                        i = autokey.model.phrase.Phrase("", "", path=path)
-                    elif baseName.endswith(".py"):
-                        i = autokey.model.script.Script("", "", path=path)
+        if item_at_path is not None:
+            loaded = self.__add_item_to_folder(directory, item_at_path, isNew, loaded)
 
-                if i is not None:
-                    folder = self.__checkExistingFolder(directory)
-                    if folder is not None:
-                        i.load(folder)
-                        if isNew: folder.add_item(i)
-                        loaded = True
+        # --- handle changes to folder settings
+        if baseName == "folder.json":
+            loaded = self.__load_folder(directory, loaded)
 
-                # --- handle changes to folder settings
-
-                if baseName == "folder.json":
-                    folder = self.__checkExistingFolder(directory)
-                    if folder is not None:
-                        folder.load_from_serialized()
-                        loaded = True
-
-                # --- handle changes to item settings
-
-                if baseName.endswith(".json"):
-                    for item in self.allItems:
-                        if item.get_json_path() == path:
-                            item.load_from_serialized()
-                            loaded = True
-
-            if not loaded:
-                logger.warning("No action taken for create/update event at %s", path)
-            else:
-                self.config_altered(False)
-            return loaded
+        # --- handle changes to item settings
+        if baseName.endswith(".json"):
+            loaded = self.__load_item_matching_path(path, loaded)
+        return loaded
 
     def path_removed(self, path):
         directory, baseName = os.path.split(path)
@@ -420,15 +445,11 @@ class ConfigManager:
         item = self.__checkExisting(path)
 
         if folder is not None:
-            if folder.parent is None:
-                self.folders.remove(folder)
-            else:
-                folder.parent.remove_folder(folder)
+            self.__remove_folder(folder)
             deleted = True
 
         elif item is not None:
             item.parent.remove_item(item)
-            #item.remove_data()
             deleted = True
 
         if not deleted:
