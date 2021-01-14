@@ -607,6 +607,15 @@ class ConfigManager:
             if isinstance(item, autokey.model.phrase.Phrase):
                 item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
 
+    def __clear_loaded_entries(self):
+        self.hotKeyFolders = []
+        self.hotKeys = []
+
+        self.abbreviations = []
+
+        self.allFolders = []
+        self.allItems = []
+
     def config_altered(self, persistGlobal):
         """
         Called when some element of configuration has been altered, to update
@@ -617,33 +626,10 @@ class ConfigManager:
         logger.info("Configuration changed - rebuilding in-memory structures")
 
         self.lock.acquire()
-        # Rebuild root folder list
-        #rootFolders = self.folders
-        #self.folders = []
-        #for folder in rootFolders:
-        #    self.folders.append(folder)
 
-        self.hotKeyFolders = []
-        self.hotKeys = []
-
-        self.abbreviations = []
-
-        self.allFolders = []
-        self.allItems = []
-
-        for folder in self.folders:
-            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
-                self.hotKeyFolders.append(folder)
-            self.allFolders.append(folder)
-
-            if not self.app.monitor.has_watch(folder.path):
-                self.app.monitor.add_watch(folder.path)
-
-            self.__processFolder(folder)
-
-        self.globalHotkeys = []
-        self.globalHotkeys.append(self.configHotkey)
-        self.globalHotkeys.append(self.toggleServiceHotkey)
+        self.__clear_loaded_entries()
+        self.__reload_folders()
+        self.__reload_global_hotkeys()
         #_logger.debug("Global hotkeys: %s", self.globalHotkeys)
 
         #_logger.debug("Hotkey folders: %s", self.hotKeyFolders)
@@ -656,6 +642,23 @@ class ConfigManager:
             save_config(self)
 
         self.lock.release()
+
+    def __reload_folders(self):
+        for folder in self.folders:
+            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
+                self.hotKeyFolders.append(folder)
+
+            self.allFolders.append(folder)
+
+            if not self.app.monitor.has_watch(folder.path):
+                self.app.monitor.add_watch(folder.path)
+
+            self.__processFolder(folder)
+
+    def __reload_global_hotkeys(self):
+        self.globalHotkeys = []
+        self.globalHotkeys.append(self.configHotkey)
+        self.globalHotkeys.append(self.toggleServiceHotkey)
 
     def __processFolder(self, parentFolder):
         if not self.app.monitor.has_watch(parentFolder.path):
