@@ -505,14 +505,13 @@ class ConfigManager:
     @staticmethod
     def disable_modifier(modifier: typing.Union[key.Key, str]):
         """
-        Permanently disable a modifier key. This can be used to disable unwanted modifier keys, like CAPSLOCK,
-        if the user remapped the physical key to something else.
+        Permanently disable a modifier key. This can be used to disable
+        unwanted modifier keys, like CAPSLOCK, if the user remapped the
+        physical key to something else.
         :param modifier: Modifier key to disable.
         :return:
         """
-        if isinstance(modifier, str):
-            modifier = key.Key(modifier)
-        ConfigManager._check_if_modifier(modifier)
+        modifier = ConfigManager._ensure_valid_modifier_key(modifier)
         try:
             logger.info("Disabling modifier key {} on user request.".format(modifier))
             MODIFIERS.remove(modifier)
@@ -522,15 +521,20 @@ class ConfigManager:
             ConfigManager.SETTINGS[DISABLED_MODIFIERS].append(modifier)
 
     @staticmethod
+    def _ensure_valid_modifier_key(modifier):
+        if isinstance(modifier, str):
+            modifier = key.Key(modifier)
+        ConfigManager._check_if_modifier(modifier)
+        return modifier
+
+    @staticmethod
     def enable_modifier(modifier: typing.Union[key.Key, str]):
         """
         Enable a previously disabled modifier key.
         :param modifier: Modifier key to re-enable
         :return:
         """
-        if isinstance(modifier, str):
-            modifier = key.Key(modifier)
-        ConfigManager._check_if_modifier(modifier)
+        modifier = ConfigManager._ensure_valid_modifier_key(modifier)
         if modifier not in MODIFIERS:
             logger.info("Re-eabling modifier key {} on user request.".format(modifier))
             MODIFIERS.append(modifier)
