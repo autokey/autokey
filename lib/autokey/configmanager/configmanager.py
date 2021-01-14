@@ -468,20 +468,31 @@ class ConfigManager:
 
     def load_disabled_modifiers(self):
         """
-        Load all disabled modifier keys from the configuration file. Called during startup, after the configuration
-        is read into the SETTINGS dictionary.
+        Load all disabled modifier keys from the configuration file. Called
+        during startup, after the configuration is read into the SETTINGS
+        dictionary.
         :return:
         """
         try:
-            self.SETTINGS[DISABLED_MODIFIERS] = [key.Key(value) for value in self.SETTINGS[DISABLED_MODIFIERS]]
+            self.SETTINGS[DISABLED_MODIFIERS] = \
+                self.__convert_to_keys(self.SETTINGS[DISABLED_MODIFIERS])
         except ValueError:
-            logger.error("Unknown value in the disabled modifier list found. Unexpected: {}".format(
-                self.SETTINGS[DISABLED_MODIFIERS]))
+            logger.error(
+                "Unknown value in the disabled modifier list found. Unexpected: {}" \
+                .format(self.SETTINGS[DISABLED_MODIFIERS]))
             self.SETTINGS[DISABLED_MODIFIERS] = []
 
-        for possible_modifier in self.SETTINGS[DISABLED_MODIFIERS]:
+        self.__disable_modifiers(self.SETTINGS[DISABLED_MODIFIERS])
+
+    def __convert_to_keys(self, modifiers):
+        return [key.Key(value) for value in modifiers]
+
+    def __disable_modifiers(self, modifiers):
+        for possible_modifier in modifiers:
             self._check_if_modifier(possible_modifier)
-            logger.info("Disabling modifier key {} based on the stored configuration file.".format(possible_modifier))
+            logger.info(
+                "Disabling modifier key {} based on the stored configuration file." \
+                .format(possible_modifier))
             MODIFIERS.remove(possible_modifier)
 
     @staticmethod
