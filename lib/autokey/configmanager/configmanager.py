@@ -323,9 +323,12 @@ class ConfigManager:
 
     def __collect_additional_user_config_folders(self, data):
         for folderPath in data["folders"]:
-            f = autokey.model.folder.Folder("", path=folderPath)
-            f.load()
-            self.folders.append(f)
+            self.__load_folder_from_path(folderPath)
+
+    def __load_folder_from_path(self, folderPath):
+        f = autokey.model.folder.Folder("", path=folderPath)
+        f.load()
+        self.folders.append(f)
 
     def path_created_or_modified(self, path):
         directory, baseName = os.path.split(path)
@@ -558,22 +561,27 @@ class ConfigManager:
         apply_settings(data["settings"])
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
 
-        existingPaths = []
-        for folder in self.folders:
-            if folder.parent is None and not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
-                existingPaths.append(folder.path)
-
-        for folderPath in data["folders"]:
-            if folderPath not in existingPaths:
-                f = autokey.model.folder.Folder("", path=folderPath)
-                f.load()
-                self.folders.append(f)
+        existingPaths = self.__get_existing_nondefault_toplevel_folder_paths()
+        self.__load_new_folders_from_paths(data["folders"], existingPaths)
 
         self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
         self.configHotkey.load_from_serialized(data["configHotkey"])
 
         self.config_altered(False)
         logger.info("Successfully reloaded global configuration")
+
+    def __load_new_folders_from_paths(self, folderPaths, existingPaths):
+        for folderPath in folderPaths:
+            if folderPath not in existingPaths:
+                self.__load_folder_from_path(folderPath)
+
+    def __get_existing_nondefault_toplevel_folder_paths(self):
+        existingPaths = []
+        for folder in self.folders:
+            if folder.parent is None and not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
+                existingPaths.append(folder.path)
+
+        return existingPaths
 
     def upgrade(self):
         logger.info("Checking if upgrade is needed from version %s", self.VERSION)
