@@ -77,7 +77,7 @@ def get_errors_in_log(caplog):
 @patch('sys.argv', ['autokey-app-testing'])
 def test_gtk_application_runs_without_errors(caplog):
     app = gtkui.Application()
-    app.show_configure()
+    # app.show_configure()
     app._Application__completeShutdown()
     hm.assert_that(get_errors_in_log(caplog), hm.empty())
 
