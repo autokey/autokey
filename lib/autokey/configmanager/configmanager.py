@@ -141,9 +141,10 @@ def _remove_non_serializable_store_entries(store: dict):
     """
     removed_key_list = []
     for key, value in store.items():
-        if not (_is_serializable(key) and _is_serializable(value)):
+        no_serialisable_part = not _is_serializable(key) or not _is_serializable(value)
+        if no_serialisable_part:
             logger.info("Remove non-serializable item from the global script store. Key: '{}', Value: '{}'. "
-                         "This item cannot be saved and therefore will be lost.".format(key, value))
+                        "This item cannot be saved and therefore will be lost.".format(key, value))
             removed_key_list.append(key)
     for key in removed_key_list:
         del store[key]
@@ -210,6 +211,15 @@ class ConfigManager:
                 GTK_THEME: "classic"
                 }
 
+    def func_jhdrbcgm(self):
+        self.configHotkey = GlobalHotkey()
+        self.configHotkey.set_hotkey(["<super>"], "k")
+        self.configHotkey.enabled = True
+
+        self.toggleServiceHotkey = GlobalHotkey()
+        self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
+        self.toggleServiceHotkey.enabled = True
+
     def __init__(self, app):
         """
         Create initial default configuration
@@ -221,13 +231,7 @@ class ConfigManager:
         self.folders = []
         self.userCodeDir = None  # type: str
 
-        self.configHotkey = GlobalHotkey()
-        self.configHotkey.set_hotkey(["<super>"], "k")
-        self.configHotkey.enabled = True
-
-        self.toggleServiceHotkey = GlobalHotkey()
-        self.toggleServiceHotkey.set_hotkey(["<super>", "<shift>"], "k")
-        self.toggleServiceHotkey.enabled = True
+        self.func_jhdrbcgm()
 
         # Set the attribute to the default first. Without this, AK breaks, if started for the first time. See #274
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
