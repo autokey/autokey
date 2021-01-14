@@ -46,11 +46,6 @@ from autokey.model.key import MODIFIERS
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-def restore_backup_config():
-    os.remove(CONFIG_FILE)
-    shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
-
-
 def create_config_manager_instance(auto_key_app, had_error=False):
     create_default_folder()
     try:
@@ -65,7 +60,7 @@ def create_config_manager_instance(auto_key_app, had_error=False):
             raise
         logger.exception(
             "Error while loading configuration. Backup has been restored.")
-        restore_backup_config()
+        _restore_backup_config()
         return create_config_manager_instance(auto_key_app, True)
     logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return config_manager
@@ -76,24 +71,39 @@ def create_default_folder():
         os.mkdir(CONFIG_DEFAULT_FOLDER)
 
 
-def save_config(config_manager):
-    logger.info("Persisting configuration")
-    config_manager.app.monitor.suspend()
-    # Back up configuration if it exists
+def _try_persist_settings(config_manager):
     # TODO: maybe use with-statement instead of try-except?
-    if os.path.exists(CONFIG_FILE):
-        logger.info("Backing up existing config file")
-        shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
     try:
         _persist_settings(config_manager)
         logger.info("Finished persisting configuration - no errors")
     except Exception as e:
-        if os.path.exists(CONFIG_FILE_BACKUP):
-            shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
-        logger.exception("Error while saving configuration. Backup has been restored (if found).")
-        raise Exception("Error while saving configuration. Backup has been restored (if found).")
-    finally:
-        config_manager.app.monitor.unsuspend()
+        # unsure why this originally didn't try to delete the current one. May
+        # actually be ok to try deleting current, in which case this func can
+        # be altered.
+        _restore_backup_config(delete_current=False)
+        msg = "Error while saving configuration. Backup has been restored (if found)."
+        logger.exception(msg)
+        raise Exception(msg)
+
+
+def save_config(config_manager):
+    logger.info("Persisting configuration")
+    config_manager.app.monitor.suspend()
+    _back_up_config()
+    _try_persist_settings(config_manager)
+    config_manager.app.monitor.unsuspend()
+
+
+def _back_up_config():
+    if os.path.exists(CONFIG_FILE):
+        logger.info("Backing up existing config file")
+        shutil.copy2(CONFIG_FILE, CONFIG_FILE_BACKUP)
+
+def _restore_backup_config(delete_current=True):
+    if os.path.exists(CONFIG_FILE) and delete_current:
+        os.remove(CONFIG_FILE)
+    if os.path.exists(CONFIG_FILE_BACKUP):
+        shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
 
 
 def _persist_settings(config_manager):
@@ -106,14 +116,15 @@ def _persist_settings(config_manager):
     """
     serializable_data = config_manager.get_serializable()
     try:
-        _try_persist_settings(serializable_data)
+        _write_settings_file(serializable_data)
     except (TypeError, ValueError):
         # The user added non-serializable data to the store, so remove all non-serializable keys or values.
-        _remove_non_serializable_store_entries(serializable_data["settings"][SCRIPT_GLOBALS])
-        _try_persist_settings(serializable_data)
+        _remove_non_serializable_store_entries(
+            serializable_data["settings"][SCRIPT_GLOBALS])
+        _write_settings_file(serializable_data)
 
 
-def _try_persist_settings(serializable_data: dict):
+def _write_settings_file(serializable_data: dict):
     """
     Write the settings as JSON to the configuration file
     :raises TypeError: If the user tries to store non-serializable types
