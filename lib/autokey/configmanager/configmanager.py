@@ -592,9 +592,7 @@ class ConfigManager:
 
         if self.VERSION < '0.70.0':
             logger.info("Doing upgrade to 0.70.0")
-            for item in self.allItems:
-                if isinstance(item, autokey.model.phrase.Phrase):
-                    item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
+            self.__update_sendmode_of_phrases()
 
         if self.VERSION < "0.82.3":
             self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
@@ -603,6 +601,11 @@ class ConfigManager:
 
         self.VERSION = common.VERSION
         self.config_altered(True)
+
+    def __update_sendmode_of_phrases(self):
+        for item in self.allItems:
+            if isinstance(item, autokey.model.phrase.Phrase):
+                item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
 
     def config_altered(self, persistGlobal):
         """
