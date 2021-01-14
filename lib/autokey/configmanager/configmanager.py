@@ -796,28 +796,36 @@ class ConfigManager:
             searchFolders = folder.folders
             searchItems = folder.items
 
-        for item in searchItems:
+        self.__remove_temp_items_from_folder(searchItems, in_temp_parent)
+
+        for subfolder in searchFolders:
+            in_temp_parent = self.__remove_temp_folders_from_subfolder(
+                folder, subfolder, searchFolders, in_temp_parent)
+            self.remove_all_temporary(subfolder, in_temp_parent)
+
+    def __remove_temp_items_from_folder(self, folder, in_temp_parent):
+        for item in folder:
             try:
                 if item.temporary or in_temp_parent:
                     self.__deleteHotkeys(item)
-                    searchItems.remove(item)
+                    folder.remove(item)
             # Items created before this update don't have a 'temporary' field.
             except AttributeError:
                 pass
 
-        for subfolder in searchFolders:
-            self.__deleteHotkeys(subfolder)
-            try:
-                if subfolder.temporary or in_temp_parent:
-                    in_temp_parent = True
-                    if folder is not None:
-                        folder.remove_folder(subfolder)
-                    else:
-                        searchFolders.remove(subfolder)
-            # Items created before this update don't have a 'temporary' field.
-            except AttributeError:
-                pass
-            self.remove_all_temporary(subfolder, in_temp_parent)
+    def __remove_temp_folders_from_subfolder(self, folder, subfolder, searchFolders, in_temp_parent):
+        self.__deleteHotkeys(subfolder)
+        try:
+            if subfolder.temporary or in_temp_parent:
+                in_temp_parent = True
+                if folder is not None:
+                    folder.remove_folder(subfolder)
+                else:
+                    searchFolders.remove(subfolder)
+        # Items created before this update don't have a 'temporary' field.
+        except AttributeError:
+            pass
+        return in_temp_parent
 
     def delete_hotkeys(self, removed_item):
         return self.__deleteHotkeys(removed_item)
