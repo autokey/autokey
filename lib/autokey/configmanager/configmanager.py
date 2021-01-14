@@ -596,7 +596,9 @@ class ConfigManager:
         self.lock.acquire()
 
         self.__clear_loaded_entries()
-        self.__reload_folders()
+        for folder in self.folders:
+            self.__sort_and_watch_folder(folder)
+            self.__processFolder(folder)
         self.__reload_global_hotkeys()
         #_logger.debug("Global hotkeys: %s", self.globalHotkeys)
 
@@ -611,6 +613,11 @@ class ConfigManager:
 
         self.lock.release()
 
+    def __reload_global_hotkeys(self):
+        self.globalHotkeys = []
+        self.globalHotkeys.append(self.configHotkey)
+        self.globalHotkeys.append(self.toggleServiceHotkey)
+
     def __clear_loaded_entries(self):
         self.hotKeyFolders = []
         self.hotKeys = []
@@ -620,43 +627,32 @@ class ConfigManager:
         self.allFolders = []
         self.allItems = []
 
-    def __reload_folders(self):
-        for folder in self.folders:
-            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
-                self.hotKeyFolders.append(folder)
-
-            self.allFolders.append(folder)
-
-            if not self.app.monitor.has_watch(folder.path):
-                self.app.monitor.add_watch(folder.path)
-
-            self.__processFolder(folder)
-
-    def __reload_global_hotkeys(self):
-        self.globalHotkeys = []
-        self.globalHotkeys.append(self.configHotkey)
-        self.globalHotkeys.append(self.toggleServiceHotkey)
-
     def __processFolder(self, parentFolder):
         if not self.app.monitor.has_watch(parentFolder.path):
             self.app.monitor.add_watch(parentFolder.path)
 
         for folder in parentFolder.folders:
-            if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
-                self.hotKeyFolders.append(folder)
-            self.allFolders.append(folder)
-
-            if not self.app.monitor.has_watch(folder.path):
-                self.app.monitor.add_watch(folder.path)
-
+            self.__sort_and_watch_folder(folder)
             self.__processFolder(folder)
 
         for item in parentFolder.items:
-            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                self.hotKeys.append(item)
-            if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
-                self.abbreviations.append(item)
-            self.allItems.append(item)
+            self.__sort_item(item)
+
+    def __sort_and_watch_folder(self, folder):
+        if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
+            self.hotKeyFolders.append(folder)
+
+        self.allFolders.append(folder)
+
+        if not self.app.monitor.has_watch(folder.path):
+            self.app.monitor.add_watch(folder.path)
+
+    def __sort_item(self, item):
+        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+            self.hotKeys.append(item)
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+            self.abbreviations.append(item)
+        self.allItems.append(item)
 
     # TODO Future functionality
     def add_recent_entry(self, entry):
