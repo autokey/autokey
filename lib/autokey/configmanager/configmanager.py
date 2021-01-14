@@ -274,6 +274,38 @@ class ConfigManager:
             }
         return d
 
+    def load_global_config(self):
+        if not os.path.exists(CONFIG_FILE):
+            return
+        logger.info("Loading config from existing file: " + CONFIG_FILE)
+
+        with open(CONFIG_FILE, 'r') as pFile:
+            data = json.load(pFile)
+
+        autokey.configmanager.version_upgrading.upgrade_configuration(
+            self, data)
+
+        self.VERSION = data["version"]
+        self.userCodeDir = data["userCodeDir"]
+        apply_settings(data["settings"])
+
+        self.load_disabled_modifiers()
+
+        self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
+
+        # These populate self.folders
+        self.__collect_default_config_subfolders()
+        self.__collect_additional_user_config_folders(data)
+
+        self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
+        self.configHotkey.load_from_serialized(data["configHotkey"])
+
+        if self.VERSION < self.CLASS_VERSION:
+            self.upgrade()
+
+        self.config_altered(False)
+        logger.info("Successfully loaded configuration")
+
     def __get_nondefault_config_folders(self):
         extraFolders = []
         for folder in self.folders:
@@ -281,44 +313,19 @@ class ConfigManager:
                 extraFolders.append(folder.path)
         return extraFolders
 
-    def load_global_config(self):
-        if os.path.exists(CONFIG_FILE):
-            logger.info("Loading config from existing file: " + CONFIG_FILE)
-
-            with open(CONFIG_FILE, 'r') as pFile:
-                data = json.load(pFile)
-                version = data["version"]
-
-            autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
-
-            self.VERSION = data["version"]
-            self.userCodeDir = data["userCodeDir"]
-            apply_settings(data["settings"])
-
-            self.load_disabled_modifiers()
-
-            self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
-
-            for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
-                if os.path.isdir(entryPath):
-                    logger.debug("Loading folder at '%s'", entryPath)
-                    f = autokey.model.folder.Folder("", path=entryPath)
-                    f.load(None)
-                    self.folders.append(f)
-
-            for folderPath in data["folders"]:
-                f = autokey.model.folder.Folder("", path=folderPath)
-                f.load()
+    def __collect_default_config_subfolders(self):
+        for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+            if os.path.isdir(entryPath):
+                logger.debug("Loading folder at '%s'", entryPath)
+                f = autokey.model.folder.Folder("", path=entryPath)
+                f.load(None)
                 self.folders.append(f)
 
-            self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
-            self.configHotkey.load_from_serialized(data["configHotkey"])
-
-            if self.VERSION < self.CLASS_VERSION:
-                self.upgrade()
-
-            self.config_altered(False)
-            logger.info("Successfully loaded configuration")
+    def __collect_additional_user_config_folders(self, data):
+        for folderPath in data["folders"]:
+            f = autokey.model.folder.Folder("", path=folderPath)
+            f.load()
+            self.folders.append(f)
 
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found
