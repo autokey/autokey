@@ -14,6 +14,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import logging
+from time import sleep
 
 import unittest
 from unittest.mock import patch
@@ -78,3 +79,15 @@ def test_application_runs_without_errors(caplog):
     app.show_configure()
     app._Application__completeShutdown()
     hm.assert_that(get_errors_in_log(caplog), hm.empty())
+
+# @patch('sys.argv', ['autokey-app-testing'])
+# def test_clear_hotkey_button():
+#     app = gtkui.Application()
+
+#     app.show_configure()
+#     while app.configWindow is None:
+#         sleep(0.1)
+#     app.configWindow.treeView.get_selection().settingsWidget.on_clearHotkeyButton_clicked()
+
+#     app._Application__completeShutdown()
+
