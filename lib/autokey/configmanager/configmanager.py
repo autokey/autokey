@@ -265,11 +265,7 @@ class ConfigManager:
         logger.debug("Initial folders generated and populated with example data.")
 
     def get_serializable(self):
-        extraFolders = []
-        for folder in self.folders:
-            if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
-                extraFolders.append(folder.path)
-
+        extraFolders = self.__get_nondefault_config_folders()
         d = {
             "version": self.VERSION,
             "userCodeDir": self.userCodeDir,
@@ -279,6 +275,13 @@ class ConfigManager:
             "configHotkey": self.configHotkey.get_serializable()
             }
         return d
+
+    def __get_nondefault_config_folders(self):
+        extraFolders = []
+        for folder in self.folders:
+            if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
+                extraFolders.append(folder.path)
+        return extraFolders
 
     def load_global_config(self):
         if os.path.exists(CONFIG_FILE):
