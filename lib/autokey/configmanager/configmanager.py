@@ -46,24 +46,34 @@ from autokey.model.key import MODIFIERS
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
+def restore_backup_config():
+    os.remove(CONFIG_FILE)
+    shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
+
+
 def create_config_manager_instance(auto_key_app, had_error=False):
-    if not os.path.exists(CONFIG_DEFAULT_FOLDER):
-        logger.info("Default config dir not found. Default config will be rebuilt.")
-        os.mkdir(CONFIG_DEFAULT_FOLDER)
+    create_default_folder()
     try:
         config_manager = ConfigManager(auto_key_app)
     except Exception as e:
-        if had_error or not os.path.exists(CONFIG_FILE_BACKUP) or not os.path.exists(CONFIG_FILE):
-            logger.exception("Error while loading configuration. Cannot recover.")
+        no_config_or_backup_file = \
+            not os.path.exists(CONFIG_FILE_BACKUP) or \
+            not os.path.exists(CONFIG_FILE)
+        if had_error or no_config_or_backup_file:
+            logger.exception(
+                "Error while loading configuration. Cannot recover.")
             raise
-
-        logger.exception("Error while loading configuration. Backup has been restored.")
-        os.remove(CONFIG_FILE)
-        shutil.copy2(CONFIG_FILE_BACKUP, CONFIG_FILE)
+        logger.exception(
+            "Error while loading configuration. Backup has been restored.")
+        restore_backup_config()
         return create_config_manager_instance(auto_key_app, True)
-
     logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return config_manager
+
+def create_default_folder():
+    if not os.path.exists(CONFIG_DEFAULT_FOLDER):
+        logger.info("Default config dir not found. Default config will be rebuilt.")
+        os.mkdir(CONFIG_DEFAULT_FOLDER)
 
 
 def save_config(config_manager):
