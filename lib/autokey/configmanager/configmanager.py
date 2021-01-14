@@ -763,19 +763,19 @@ class ConfigManager:
         @param hotKey: the hotkey to check
         @param newFilterPattern:
         """
+        for item in self.globalHotkeys:
+            if item.enabled and ConfigManager.item_has_same_hotkey(item,
+                                             modifiers,
+                                             hotKey,
+                                             newFilterPattern):
+                return item
+
         for item in itertools.chain(self.allFolders, self.allItems):
             if autokey.model.helpers.TriggerMode.HOTKEY in item.modes and \
                     ConfigManager.item_has_same_hotkey(item,
                                               modifiers,
                                               hotKey,
                                               newFilterPattern):
-                return item
-
-        for item in self.globalHotkeys:
-            if item.enabled and ConfigManager.item_has_same_hotkey(item,
-                                             modifiers,
-                                             hotKey,
-                                             newFilterPattern):
                 return item
         return None
 
