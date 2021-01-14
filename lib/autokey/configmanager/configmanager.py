@@ -435,28 +435,35 @@ class ConfigManager:
         return loaded
 
     def path_removed(self, path):
-        directory, baseName = os.path.split(path)
-        deleted = False
-
+        directory, _ = os.path.split(path)
         if directory == common.CONFIG_DIR: # ignore all deletions in top dir
             return
 
-        folder = self.__checkExistingFolder(path)
-        item = self.__checkExisting(path)
-
-        if folder is not None:
-            self.__remove_folder(folder)
-            deleted = True
-
-        elif item is not None:
-            item.parent.remove_item(item)
-            deleted = True
+        deleted = self.__remove_entry(path)
 
         if not deleted:
             logger.warning("No action taken for delete event at %s", path)
         else:
             self.config_altered(False)
         return deleted
+
+    def __remove_entry(self, path):
+        folder = self.__checkExistingFolder(path)
+        item = self.__checkExisting(path)
+
+        if folder is not None:
+            self.__remove_folder(folder)
+            return True
+        elif item is not None:
+            item.parent.remove_item(item)
+            return True
+        return False
+
+    def __remove_folder(self, folder):
+        if folder.parent is None:
+            self.folders.remove(folder)
+        else:
+            folder.parent.remove_folder(folder)
 
 
     def load_disabled_modifiers(self):
