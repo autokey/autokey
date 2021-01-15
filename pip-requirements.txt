@@ -1,0 +1,5 @@
+dbus-python
+pyinotify
+python-xlib
+PyGObject
+PyQt5
