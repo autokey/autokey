@@ -1,3 +1,4 @@
+# This almost always causes a circular import if used.
 import typing
 
 from .folder import Folder
