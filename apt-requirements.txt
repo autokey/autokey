@@ -1,3 +1,7 @@
+dbus
+libdbus-1-dev
+libpython3-dev
+libdbus-glib-1-dev
 libgirepository1.0-dev
 wmctrl
 gir1.2-gtk-3.0
