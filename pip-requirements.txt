@@ -1,0 +1,7 @@
+dbus-python
+pyinotify
+python-xlib
+PyGObject
+PyQt5
+QScintilla
+pyhamcrest

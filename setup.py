@@ -172,9 +172,12 @@ setup(
         'pyinotify',
         'python-xlib'
     ],
+    # These two options are deprecated. TODO switch to another system, like
+    # tox. See https://pypi.org/project/pytest-runner/
     setup_requires=["pytest-runner"],
     tests_require=[
         "pytest",
+        "pytest-cov",
         "pyhamcrest>=1.8.1"
     ],
     test_suite="pytest",
