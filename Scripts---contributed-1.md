@@ -90,15 +90,111 @@ script:
 ```python
 import  webbrowser
 import time
-time.sleep(0.2)
+
+time.sleep(0.1)
 webbrowser.open("http://www.google.de/search?q="+clipboard.get_clipboard())
 ```
+
+## open a certain website:
+
+script:
+```python
+import webbrowser
+import time
+
+time.sleep(0.1)
+site = "youtube.com"
+webbrowser.get('google-chrome').open_new_tab(site)
+# webbrowser.get('firefox').open_new(site) # in case you want to open a new site in firefox
+# webbrowser.get('firefox').open_new_tab(site)
+```
+
+## Unpack all zipped files from the Download folder and delete the zip file afterwards.
+Author: [kolibril13](https://github.com/kolibril13)
+script:
+```py
+import os, zipfile, subprocess
+from pathlib import Path
+
+path = Path.home() / "Downloads"
+dir_name = str(path) + "/"
+extension = ".zip"
+file_to_delete = 'checklist.csv' # assuming there is one file "checklist.csv" that one does not want to have in the unpacked folder.
+os.chdir(dir_name)  # change directory from working dir to dir with files
+
+for item in os.listdir(dir_name):  # loop through items in dir
+    if item.endswith(extension):  # check for ".zip" extension
+        item_name=item[:-4]
+        file_name = os.path.abspath(item)  # get full path of files
+        zip_ref = zipfile.ZipFile(file_name)  # create zipfile object
+        zip_ref.extractall(dir_name + item_name)  # extract file to dir
+        print(os.listdir(dir_name + item_name + '/'))
+        if file_to_delete in os.listdir(dir_name + item_name + '/'):  # deletes 'checklist.csv'
+            os.remove(dir_name + item_name + '/' + file_to_delete)
+        zip_ref.close()  # close file
+        os.remove(file_name)  # delete zipped file
+        subprocess.Popen(['xdg-open', dir_name + item_name + '/'])
+```
+
+## Reduce image qualities in a certain folder
+Author: [kolibril13](https://github.com/kolibril13)
+script:
+```python
+
+from pathlib import Path
+import os
+suffix = ".jpg"
+input_path= Path.home() / "Downloads"
+file_paths= [subp for subp in input_path.rglob('*') if  suffix == subp.suffix]
+file_paths.sort()
+
+output_path =  Path.home() / "Downloads/processed"
+output_path.mkdir(parents=True, exist_ok=True)
+
+
+for file_p in file_paths:
+	input = str(file_p)
+	output = str(  output_path / file_p.name  ) 
+	command = f"ffmpeg -i {input} -q:v 10 {output}"
+	os.system(command)
+```
+
+## Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard.
+Author: [kolibril13](https://github.com/kolibril13)
+script:
+```py
+# requires:
+# * sudo apt-get install gnome-screenshot
+# * sudo apt-get install xclip 
+
+
+import time
+import os
+
+working_directory = "~/Downloads/"
+
+command = "gnome-screenshot -a  -f '/tmp/temp.png' "
+os.system(command)
+
+name = dialog.input_dialog(title='', message='Screenshot name:', default='').data
+
+from_path = '/tmp/temp.png'
+if name == "" :
+    os.system("xclip -selection clipboard -t image/png -i /tmp/temp.png")
+    
+else:
+    to_path = working_directory + name + '.png'
+    command2 = "mv " + from_path + " " + to_path
+    os.system(command2)
+```
+
+
 
 ## Ping or TracePath Mojang Minecraft Services Servers
 Author: [Kreezxil](https://kreezcraft.com)
 
 While this could've been done easier in a shell script I thought it would be fun to do it in Autokey.
-The script contains an array of Mojang servers that can cause issue for players if they are down. There is an action array too so you can see how to easily add more actions. 
+The script contains an array of Mojang servers that can cause issues for players if they are down. There is an action array too so you can see how to easily add more actions. 
 
 Each time you trigger it the script will have you choose which server you would like to perform an action on, it defaults to all. Then it will ask you what action you would like to perform on what you just chose in the server section, this will default to `ping -c 1`.
 
