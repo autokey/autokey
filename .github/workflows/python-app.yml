@@ -54,19 +54,21 @@ jobs:
         use-isort: false
         extra-pylint-options: ""
         extra-pycodestyle-options: ""
+        # select = stop the build if there are Python syntax errors or undefined names
+        # exit-zero treats all errors as warnings.
+        # "_" is part of gettext, not actually a built-in, but used almost
+        # everywhere without explicit definition.
+        # The GitHub editor is 127 chars wide.
         extra-flake8-options: >
-          "--count"
-          # select = stop the build if there are Python syntax errors or undefined names
-          "--select=E9,F63,F7,F82"
-          "--show-source"
-          "--statistics"
-          # Part of gettext, not actually a built-in, but used almost
-          # everywhere without explicit definition.
-          "--builtins=_"
-          "--max-complexity=10"
-          # The GitHub editor is 127 chars wide.
-          "--max-line-length=127"
-          # exit-zero treats all errors as warnings.
+          "
+          --count
+          --select=E9,F63,F7,F82
+          --show-source
+          --statistics
+          --builtins='_'
+          --max-complexity=10
+          --max-line-length=127
+          "
         extra-black-options: ""
         extra-mypy-options: ""
         extra-isort-options: ""
