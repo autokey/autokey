@@ -512,7 +512,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             return selected_items[0]
         else:
             # The user deselected the item, so fall back to scan the whole tree for the desired item
-            currently_edited_item = self.stack.currentWidget().get_current_item()  # type: typing.Optional[model.Item]
+            currently_edited_item = self.stack.currentWidget().get_current_item()
             if currently_edited_item is None:
                 raise RuntimeError("Tried to perform an action on an item, while none is opened.")
 
