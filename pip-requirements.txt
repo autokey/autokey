@@ -4,3 +4,4 @@ python-xlib
 PyGObject
 PyQt5
 QScintilla
+pyhamcrest
