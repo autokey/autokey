@@ -8,3 +8,6 @@ __pycache__
 # IDE's
 .idea
 .vscode
+
+test_coverage_annotated_source/
+test_coverage_report_html/
