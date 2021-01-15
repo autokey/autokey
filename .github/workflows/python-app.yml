@@ -51,7 +51,7 @@ jobs:
 
     - name: Test with pytest
       run: |
-        pytest --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+        ./setup.py test
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v2
