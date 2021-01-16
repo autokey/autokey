@@ -273,7 +273,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def parsePositionTokens(self, expansion):
         # Check the string for cursor positioning token and apply lefts and ups as appropriate
-        if CURSOR_POSITION_TOKEN in expansion.string:  # TODO: Undefined local variable?
+        # TODO make this a constant elsewhere, and check what it should
+        # actually be defined as. This is a guess, since this func is
+        # currently unused.
+        CURSOR_POSITION_TOKEN = "|"
+        if CURSOR_POSITION_TOKEN in expansion.string:
             firstpart, secondpart = expansion.string.split(CURSOR_POSITION_TOKEN)
             foundNavigationKey = False
 

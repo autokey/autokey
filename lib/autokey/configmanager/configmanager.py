@@ -181,7 +181,7 @@ class ConfigManager:
                 DISABLED_MODIFIERS: [],
                 # TODO - Future functionality
                 #TRACK_RECENT_ENTRY: True,
-                #RECENT_ENTRY_COUNT: 5,
+                # RECENT_ENTRY_COUNT: 5,
                 #RECENT_ENTRY_MINLENGTH: 10,
                 #RECENT_ENTRY_SUGGEST: True
                 SCRIPT_GLOBALS: {},
@@ -597,7 +597,7 @@ class ConfigManager:
 
         if entry not in self.recentEntries:
             self.recentEntries.append(entry)
-            while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]:
+            while len(self.recentEntries) > self.SETTINGS[RECENT_ENTRY_COUNT]: # noqa: F821
                 self.recentEntries.pop(0)
 
             folder.items = []
@@ -609,7 +609,7 @@ class ConfigManager:
                     description = theEntry
 
                 p = autokey.model.phrase.Phrase(description, theEntry)
-                if self.SETTINGS[RECENT_ENTRY_SUGGEST]:
+                if self.SETTINGS[RECENT_ENTRY_SUGGEST]: # noqa: F821
                     p.set_modes([autokey.model.helpers.TriggerMode.PREDICTIVE])
 
                 folder.add_item(p)

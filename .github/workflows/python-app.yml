@@ -1,0 +1,85 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python application
+
+on:
+  push:
+    branches: [ master, develop ]
+  pull_request:
+    branches: [ master, develop ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-cov wheel
+        pip install -r pip-requirements.txt
+
+    - name: Python Code Quality and Lint
+      uses: ricardochaves/python-lint@v1.3.0
+      with:
+        python-root-list: "lib/autokey tests"
+        use-pylint: false
+        use-pycodestyle: false
+        use-flake8: true
+        use-black: false
+        use-mypy: false
+        use-isort: false
+        extra-pylint-options: ""
+        extra-pycodestyle-options: ""
+        # select = stop the build if there are Python syntax errors or undefined names
+        # exit-zero treats all errors as warnings.
+        # "_" is part of gettext, not actually a built-in, but used almost
+        # everywhere without explicit definition.
+        # The GitHub editor is 127 chars wide.
+        extra-flake8-options: >
+          --count
+          --select=E9,F63,F7,F82
+          --show-source
+          --statistics
+          --builtins=_
+          --max-complexity=10
+          --max-line-length=127
+        extra-black-options: ""
+        extra-mypy-options: ""
+        extra-isort-options: ""
+
+    - name: Test with pytest
+      run: |
+        ./setup.py test
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-results-${{ matrix.python-version }}
+        path: junit/test-results-${{ matrix.python-version }}.xml
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+

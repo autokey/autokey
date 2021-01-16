@@ -147,10 +147,8 @@ class AbstractMacro:
                 raise ValueError("Missing mandatory argument '{}' for macro '{}'".format(arg, self.ID))
         for arg in args:
             if arg not in expected_args:
-                raise ValueError("Unexpected argument '{}' for macro '{}'".format(k, self.ID))
+                raise ValueError("Unexpected argument '{}' for macro '{}'".format(arg, self.ID))
         return args
-
-        return ret
 
     def _extract_macro(self, section):
         content = extract_tag(section)

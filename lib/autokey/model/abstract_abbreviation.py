@@ -56,8 +56,7 @@ class AbstractAbbreviation:
         self.triggerInside = data["triggerInside"]
         self.set_word_chars(data["wordChars"])
 
-    def copy_abbreviation(self, abbr  # type: Item
-                          ):
+    def copy_abbreviation(self, abbr):
         self.abbreviations = abbr.abbreviations
         self.backspace = abbr.backspace
         self.ignoreCase = abbr.ignoreCase

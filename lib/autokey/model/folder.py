@@ -44,7 +44,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         AbstractWindowFilter.__init__(self)
         self.title = title
         self.folders = []
-        self.items = []  # type: typing.List[Item]
+        self.items = []
         self.modes = []  # type: typing.List[TriggerMode]
         self.usageCount = 0
         self.show_in_tray_menu = show_in_tray_menu

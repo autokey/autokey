@@ -25,6 +25,7 @@ import time
 import traceback
 import typing
 
+import autokey.model
 import autokey.model.phrase
 import autokey.model.script
 import autokey.model.store
@@ -468,7 +469,7 @@ class ScriptRunner:
     def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
-        self.error_records = []  # type: typing.List[model.ScriptErrorRecord]
+        self.error_records = []  # type: typing.List[autokey.model.ScriptErrorRecord]
         self.scope = globals()
         self.scope["highlevel"] = autokey.scripting.highlevel
         self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
