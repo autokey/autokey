@@ -56,6 +56,12 @@ def create_config_manager_instance(auto_key_app, had_error=False):
     logger.debug("Global settings: %r", ConfigManager.SETTINGS)
     return config_manager
 
+def create_default_folder():
+    if not os.path.exists(CONFIG_DEFAULT_FOLDER):
+        logger.info("Default config dir not found. Default config will be rebuilt.")
+        os.mkdir(CONFIG_DEFAULT_FOLDER)
+
+
 def _recover_config_backup(had_error, error):
     no_config_or_backup_file = \
         not os.path.exists(CONFIG_FILE_BACKUP) or \
@@ -68,12 +74,6 @@ def _recover_config_backup(had_error, error):
         "Error while loading configuration. Backup has been restored.")
     _restore_backup_config()
     return no_config_or_backup_file
-
-
-def create_default_folder():
-    if not os.path.exists(CONFIG_DEFAULT_FOLDER):
-        logger.info("Default config dir not found. Default config will be rebuilt.")
-        os.mkdir(CONFIG_DEFAULT_FOLDER)
 
 
 def _try_persist_settings(config_manager):
