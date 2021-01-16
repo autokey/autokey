@@ -44,7 +44,8 @@ def test_create_default_folder(tmp_path):
     with patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER", 
                default_folder):
         configmanager.create_default_folder()
-        assert_that(default_folder.exists())
+        assert_that(default_folder.exists(),
+                    "creating default config folder fails")
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
