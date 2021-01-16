@@ -24,6 +24,7 @@ from hamcrest import *
 from tests.engine_helpers import *
 
 import autokey.model.folder
+from autokey.configmanager import configmanager
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import CONFIG_DEFAULT_FOLDER
 import autokey.configmanager.predefined_user_files
@@ -31,12 +32,21 @@ from autokey.service import PhraseRunner
 import autokey.service
 from autokey.scripting import Engine
 
+confman_module_path = "autokey.configmanager.configmanager"
 # These tests currently use the scripting API to create test phrases.
 # If we can do it a better way, we probably should, to reduce dependencies for
 # these tests.
 
 def get_autokey_dir():
     return os.path.dirname(os.path.realpath(sys.argv[0]))
+
+def test_create_default_folder(tmp_path):
+    default_folder = tmp_path / "autokey"
+    assert_that(not_(default_folder.exists()))
+    with patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER", 
+               default_folder):
+        configmanager.create_default_folder()
+        assert_that(default_folder.exists())
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
