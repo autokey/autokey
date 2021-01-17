@@ -53,8 +53,7 @@ def test_recover_backup_config(tmp_path):
     config = tmp_path / "autokey.json"
     backup = tmp_path / "autokey.json~"
     backup.touch()
-    assert not config.exists()
-    assert backup.exists()
+    assert not config.exists() and backup.exists()
     with \
             patch(confman_module_path + ".CONFIG_FILE", config), \
             patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup), \
@@ -66,8 +65,7 @@ def test_recover_backup_config(tmp_path):
 def test_recover_backup_config_without_backup_raises_error(tmp_path):
     config = tmp_path / "autokey.json"
     backup = tmp_path / "autokey.json~"
-    assert not config.exists()
-    assert not backup.exists()
+    assert not config.exists() and not backup.exists()
     with \
             patch(confman_module_path + ".CONFIG_FILE", config), \
             patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup):
