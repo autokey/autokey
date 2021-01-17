@@ -896,18 +896,7 @@ class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):
             key = self.hotKey
             modifiers = self.modifiers
 
-        ret = ""
-
-        for modifier in modifiers:
-            ret += modifier
-            ret += "+"
-
-        if key == ' ':
-            ret += "<space>"
-        else:
-            ret += key
-
-        return ret
+        return autokey.model.abstract_hotkey.AbstractHotkey.build_hotkey_string(modifiers, key)
 
     def __str__(self):
         return "AutoKey global hotkeys"  # TODO: i18n

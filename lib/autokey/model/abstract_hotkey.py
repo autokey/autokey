@@ -70,15 +70,17 @@ class AbstractHotkey(AbstractWindowFilter):
             key = self.hotKey
             modifiers = self.modifiers
 
-        ret = ""
+        return AbstractHotkey.build_hotkey_string(modifiers, key)
 
+    @staticmethod
+    def build_hotkey_string(modifiers, key):
+        ret = ""
         for modifier in modifiers:
             ret += modifier
             ret += "+"
-
         if key == ' ':
             ret += "<space>"
         else:
             ret += key
-
         return ret
+
