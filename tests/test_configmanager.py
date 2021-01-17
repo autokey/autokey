@@ -13,6 +13,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import inspect
+import json
 import typing
 import sys
 import os
@@ -35,8 +37,13 @@ confman_module_path = "autokey.configmanager.configmanager"
 # If we can do it a better way, we probably should, to reduce dependencies for
 # these tests.
 
-def get_autokey_dir():
-    return os.path.dirname(os.path.realpath(sys.argv[0]))
+# def get_autokey_dir():
+#     # return os.path.dirname(os.path.realpath(sys.argv[0]))
+#     return os.path.realpath(autokey.__file__)
+
+script_dir = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+
+dummy_config_path =  script_dir + "/dummy_files/dummy_config.json"
 
 def test_create_default_folder(tmp_path):
     default_folder = tmp_path / "autokey"
@@ -93,6 +100,13 @@ def test_restore_config(tmp_path):
         configmanager._restore_backup_config()
         assert_that(config.exists(),
                     "restoring backup config doesn't create a new config")
+
+def test_sanitise_serializable_store_entries(tmp_path):
+    # This test is basically just for coverage.
+    with open(dummy_config_path, 'r') as f:
+        store = json.load(f)
+    configmanager._sanitise_serializable_store_entries(store)
+
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
