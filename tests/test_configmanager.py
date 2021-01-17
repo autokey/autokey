@@ -70,6 +70,18 @@ def test_recover_backup_config_without_backup_raises_error(tmp_path):
         with pytest.raises(OSError):
             configmanager._recover_config_backup(False, OSError())
 
+def test_back_up_config(tmp_path):
+    config = tmp_path / "autokey.json"
+    config.touch()
+    backup = tmp_path / "autokey.json~"
+    assert config.exists() and not backup.exists()
+    with \
+            patch(confman_module_path + ".CONFIG_FILE", config), \
+            patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup):
+        configmanager._back_up_config()
+        assert_that(backup.exists(),
+                    "Backing up config doesn't create a backup")
+
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
     # --- Setup ---
