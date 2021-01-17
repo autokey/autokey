@@ -89,9 +89,9 @@ class Service:
 
     def start(self):
         self.mediator = self.__start_new_IoMediator()
-        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         autokey.model.store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
