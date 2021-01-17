@@ -167,6 +167,14 @@ def _is_serializable(data):
         return True
 
 
+def apply_settings(settings):
+    """
+    Allows new settings to be added without users having to lose all their configuration
+    """
+    for key, value in settings.items():
+        ConfigManager.SETTINGS[key] = value
+
+
 class ConfigManager:
     """
     Contains all application configuration, and provides methods for updating and
@@ -285,7 +293,7 @@ class ConfigManager:
 
         self.VERSION = data["version"]
         self.userCodeDir = data["userCodeDir"]
-        self._apply_settings(data["settings"])
+        apply_settings(data["settings"])
 
         self.load_disabled_modifiers()
 
@@ -303,14 +311,6 @@ class ConfigManager:
 
         self.config_altered(False)
         logger.info("Successfully loaded configuration")
-
-    def _apply_settings(self, settings):
-        """
-        Allows new settings to be added without users having to lose all their configuration
-        """
-        for key, value in settings.items():
-            self.SETTINGS[key] = value
-
 
     def __get_nondefault_config_folders(self):
         extraFolders = []
@@ -564,7 +564,7 @@ class ConfigManager:
             data = json.load(pFile)
 
         self.userCodeDir = data["userCodeDir"]
-        self._apply_settings(data["settings"])
+        apply_settings(data["settings"])
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
 
         existingPaths = self.__get_existing_nondefault_toplevel_folder_paths()
