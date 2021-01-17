@@ -101,13 +101,13 @@ def test_restore_config(tmp_path):
         assert_that(config.exists(),
                     "restoring backup config doesn't create a new config")
 
-def test_sanitise_serializable_store_entries(tmp_path):
+def test_sanitise_serializable_store_entries():
     # This test is basically just for coverage.
     with open(dummy_config_path, 'r') as f:
         store = json.load(f)
     configmanager._sanitise_serializable_store_entries(store)
 
-def test_apply_settings(tmp_path):
+def test_apply_settings():
     # This test is basically just for coverage.
     with open(dummy_config_path, 'r') as f:
         data = json.load(f)
@@ -117,6 +117,9 @@ def test_apply_settings(tmp_path):
         has_entries({"dummy_variable": "You found me!"}),
         "Applying settings doesn't add all entries to ConfigManager.SETTINGS")
 
+
+def test_member(tmp_path):
+    cm = ConfigManager(MagicMock())
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
