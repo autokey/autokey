@@ -123,7 +123,7 @@ def _persist_settings(config_manager):
         _write_settings_file(serializable_data)
     except (TypeError, ValueError):
         # The user added non-serializable data to the store, so remove all non-serializable keys or values.
-        _sanitise_serializable_store_entries(
+        serializable_data["settings"][SCRIPT_GLOBALS] = _sanitise_serializable_store_entries(
             serializable_data["settings"][SCRIPT_GLOBALS])
         _write_settings_file(serializable_data)
 
@@ -152,6 +152,7 @@ def _sanitise_serializable_store_entries(store: dict):
             removed_key_list.append(key)
     for key in removed_key_list:
         del store[key]
+    return store
 
 
 def _is_serializable(data):
