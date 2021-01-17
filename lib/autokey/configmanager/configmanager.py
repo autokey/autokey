@@ -123,7 +123,7 @@ def _persist_settings(config_manager):
         _write_settings_file(serializable_data)
     except (TypeError, ValueError):
         # The user added non-serializable data to the store, so remove all non-serializable keys or values.
-        _remove_non_serializable_store_entries(
+        _sanitise_serializable_store_entries(
             serializable_data["settings"][SCRIPT_GLOBALS])
         _write_settings_file(serializable_data)
 
@@ -138,7 +138,7 @@ def _write_settings_file(serializable_data: dict):
             json.dump(serializable_data, json_file, indent=4)
 
 
-def _remove_non_serializable_store_entries(store: dict):
+def _sanitise_serializable_store_entries(store: dict):
     """
     This function is called if there are non-serializable items in the global script storage.
     This function removes all such items.
