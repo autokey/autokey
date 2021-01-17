@@ -40,12 +40,36 @@ def get_autokey_dir():
 
 def test_create_default_folder(tmp_path):
     default_folder = tmp_path / "autokey"
-    assert_that(not_(default_folder.exists()))
-    with patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER", 
+    assert not default_folder.exists()
+    with patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER",
                default_folder):
         configmanager.create_default_folder()
         assert_that(default_folder.exists(),
                     "creating default config folder fails")
+
+def test_recover_backup_config(tmp_path):
+    config = tmp_path / "autokey.json"
+    backup = tmp_path / "autokey.json~"
+    backup.touch()
+    assert not config.exists()
+    assert backup.exists()
+    with \
+            patch(confman_module_path + ".CONFIG_FILE", config), \
+            patch(confman_module_path + "._restore_backup_config") as mock:
+        configmanager._recover_config_backup(False)
+        mock.assert_called_once()
+                    # "creating default config folder fails")
+
+def test_recover_backup_config_without_backup_raises_error(tmp_path):
+    config = tmp_path / "autokey.json"
+    backup = tmp_path / "autokey.json~"
+    assert not config.exists()
+    assert not backup.exists()
+    with \
+            patch(confman_module_path + ".CONFIG_FILE", config), \
+            patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup):
+        with pytest.raises(OSError):
+            configmanager._recover_config_backup(False, OSError())
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
