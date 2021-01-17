@@ -82,6 +82,18 @@ def test_back_up_config(tmp_path):
         assert_that(backup.exists(),
                     "Backing up config doesn't create a backup")
 
+def test_restore_config(tmp_path):
+    config = tmp_path / "autokey.json"
+    backup = tmp_path / "autokey.json~"
+    backup.touch()
+    assert not config.exists() and backup.exists()
+    with \
+            patch(confman_module_path + ".CONFIG_FILE", config), \
+            patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup):
+        configmanager._restore_backup_config()
+        assert_that(config.exists(),
+                    "restoring backup config doesn't create a new config")
+
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
     # --- Setup ---
