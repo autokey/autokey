@@ -15,6 +15,7 @@
 
 import inspect
 import json
+from shutil import copy
 import typing
 import sys
 import os
@@ -44,6 +45,28 @@ confman_module_path = "autokey.configmanager.configmanager"
 script_dir = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
 
 dummy_config_path =  script_dir + "/dummy_files/dummy_config.json"
+
+def make_dummy_config(tmp_path):
+    config = tmp_path / "autokey.json"
+    copy(dummy_config_path, config)
+    return config
+
+def test_init(tmp_path):
+    backup = str(tmp_path / "autokey.json~")
+    config = str(make_dummy_config(tmp_path))
+    with \
+            patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER",
+                  str(tmp_path)), \
+            patch(confman_module_path + ".CONFIG_FILE",
+                  config), \
+            patch(confman_module_path + ".CONFIG_FILE_BACKUP",
+                  backup):
+        cm = ConfigManager(MagicMock())
+        assert_that(
+            ConfigManager.SETTINGS,
+            has_entries({"dummy_variable": "You found me!"}),
+            "Initialising configmanager doesn't load settings")
+
 
 def test_create_default_folder(tmp_path):
     default_folder = tmp_path / "autokey"
@@ -117,9 +140,6 @@ def test_apply_settings():
         has_entries({"dummy_variable": "You found me!"}),
         "Applying settings doesn't add all entries to ConfigManager.SETTINGS")
 
-
-def test_member(tmp_path):
-    cm = ConfigManager(MagicMock())
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
