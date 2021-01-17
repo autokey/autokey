@@ -55,8 +55,9 @@ def test_recover_backup_config(tmp_path):
     assert backup.exists()
     with \
             patch(confman_module_path + ".CONFIG_FILE", config), \
+            patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup), \
             patch(confman_module_path + "._restore_backup_config") as mock:
-        configmanager._recover_config_backup(False)
+        configmanager._recover_config_backup(False, Exception())
         mock.assert_called_once()
                     # "creating default config folder fails")
 

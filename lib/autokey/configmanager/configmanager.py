@@ -63,17 +63,16 @@ def create_default_folder():
 
 
 def _recover_config_backup(had_error, error):
-    no_config_or_backup_file = \
-        not os.path.exists(CONFIG_FILE_BACKUP) or \
+    no_config_and_backup_file = \
+        not os.path.exists(CONFIG_FILE_BACKUP) and \
         not os.path.exists(CONFIG_FILE)
-    if had_error or no_config_or_backup_file:
+    if had_error or no_config_and_backup_file:
         logger.exception(
             "Error while loading configuration. Cannot recover.")
         raise error
     logger.exception(
         "Error while loading configuration. Backup has been restored.")
     _restore_backup_config()
-    return no_config_or_backup_file
 
 
 def _try_persist_settings(config_manager):
