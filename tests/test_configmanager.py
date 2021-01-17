@@ -107,6 +107,16 @@ def test_sanitise_serializable_store_entries(tmp_path):
         store = json.load(f)
     configmanager._sanitise_serializable_store_entries(store)
 
+def test_apply_settings(tmp_path):
+    # This test is basically just for coverage.
+    with open(dummy_config_path, 'r') as f:
+        data = json.load(f)
+    configmanager.apply_settings(data["settings"])
+    assert_that(
+        ConfigManager.SETTINGS,
+        has_entries({"dummy_variable": "You found me!"}),
+        "Applying settings doesn't add all entries to ConfigManager.SETTINGS")
+
 
 def test_get_item_with_hotkey(create_engine):
     engine, folder = create_engine
