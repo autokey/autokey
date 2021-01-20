@@ -102,9 +102,10 @@ if retCode:
 if validate(x)==False:
     terminate("X Coord not a valid integer")
 
-retCode, y = dialog.input_dialog(title="Y Coord",message="This coord is pointless, but you may enter it anyways.")
-if retCode:
-    terminate()
+if chosenType=="block":
+    retCode, y = dialog.input_dialog(title="Y Coord",message="This coord is pointless, but you may enter it anyways.")
+    if retCode:
+       terminate()
 
 retCode, z = dialog.input_dialog(title="Z Coord",message="Enter the Z coordinate.")
 if retCode:
