@@ -1,6 +1,7 @@
 See [[Scripting#advanced-scripts]].
 
-- **Author**: Kreezxil
+## Emoji Speak for chat services such as Discord
+- **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use emoji to write a sentence, for instance on Discord.
 - **Notes**: removed the comment and the if statements, decided to go 100% dictionary lookup method. It is certainly cleaner to look up. It feels a bit faster too.
 
@@ -63,9 +64,9 @@ for x in lPhrase:
     keyboard.send_keys(" ")
 
 ``` 
-
-- **Porting Author**: Kreezxil
-- **Original Author**: sebkuip
+## Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
+- **Porting Author**: [Kreezxil](https://kreezcraft.com)
+- **Original Author**: [sebkuip](https://github.com/sebkuip)
 - **Original Location**: https://github.com/sebkuip/minecraft-region-calculator
 - **Purpose**: Takes x y z coordinates and a type for the coordinates given and tells you which region those coordinates are listed in, which chunks they are associated with, and the block range associated with it.
 - **Notes**: the regex import might not be needed now.
