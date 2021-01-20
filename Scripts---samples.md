@@ -70,6 +70,7 @@ for x in lPhrase:
 - **Original Location**: https://github.com/sebkuip/minecraft-region-calculator
 - **Purpose**: Takes x y z coordinates and a type for the coordinates given and tells you which region those coordinates are listed in, which chunks they are associated with, and the block range associated with it.
 - **Notes**: the regex import might not be needed now.
+- **Video**: https://youtu.be/imUh8PCT9f4
 
 ```python
 import re
