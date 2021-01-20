@@ -63,3 +63,68 @@ for x in lPhrase:
     keyboard.send_keys(" ")
 
 ``` 
+
+- **Porting Author**: Kreezxil
+- **Original Author**: sebkuip
+- **Original Location**: https://github.com/sebkuip/minecraft-region-calculator
+- **Purpose**: Takes x y z coordinates and a type for the coordinates given and tells you which region those coordinates are listed in, which chunks they are associated with, and the block range associated with it.
+- **Notes**: the regex import might not be needed now.
+
+```python
+import re
+
+def terminate(*args):
+    if len(args)>0:
+        msg = args[0]
+    else:
+        msg = "Program Terminated"
+    dialog.info_dialog(message=msg)
+    exit()
+
+def validate(data):
+    try:
+        test=int(data)
+        return True
+    except:
+        return False
+
+coordType = ["block","chunk","region"]
+coordType.sort()
+
+retCode, chosenType = dialog.list_menu(options=coordType,title="Type",message="Please choose a coordinate type")
+if retCode:
+    terminate()
+
+retCode, x = dialog.input_dialog(title="X Cord",message="Enter the X coordinate.")
+if retCode:
+    terminate()
+if validate(x)==False:
+    terminate("X Coord not a valid integer")
+
+retCode, y = dialog.input_dialog(title="Y Coord",message="This coord is pointless, but you may enter it anyways.")
+if retCode:
+    terminate()
+
+retCode, z = dialog.input_dialog(title="Z Coord",message="Enter the Z coordinate.")
+if retCode:
+    terminate()
+if validate(z)==False:
+    terminate("Z Coord not a valid integer")
+
+utype = chosenType[0]
+ux = int(x)
+uz = int(z)
+
+title=f"type: {utype} x: {ux} z: {uz}"
+
+if utype == "b":
+    msg=f"block {ux},{uz} is inside chunk {ux//16},{uz//16} and within region {ux//512},{uz//512}"
+
+elif utype == "c":
+    msg=f"chunk {ux},{uz} contains blocks {ux*16},{uz*16} to {(ux+1)*16-1},{(uz+1)*16-1} and is within region {ux//32},{uz//32}"
+
+elif utype == "r":
+    msg=f"region{ux},{uz} contains blocks {ux*512},{uz*512} to {(ux+1)*512-1},{(uz+1)*512-1} and contains chunks {ux*32},{uz*32} to {(ux+1)*32-1},{(uz+1)*32-1}"
+
+dialog.info_dialog(title=title,message=msg)
+```
