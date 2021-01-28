@@ -4,8 +4,10 @@ See [[Scripting#advanced-scripts]].
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use emoji to write a sentence, for instance on Discord.
 - **Notes**: removed the comment and the if statements, decided to go 100% dictionary lookup method. It is certainly cleaner to look up. It feels a bit faster too.
+- **Edited**: 1/28/21 - now even faster!
 
 ```python
+import time
 retCode, phrase = dialog.input_dialog(title='Give me a phrase',message='to make regional?',default='')
 lPhrase = phrase.lower()
 
@@ -56,12 +58,18 @@ dictionary = {
 if retCode == 0:
     exit
 
+buildPhrase = ""
+
 for x in lPhrase:
     if  x in dictionary:
-        keyboard.send_keys(dictionary[x])
+        buildPhrase += dictionary[x]
     else:
-        keyboard.send_keys(x)
-    keyboard.send_keys(" ")
+        buildPhrase += x
+    buildPhrase += " "
+
+clipboard.fill_clipboard(buildPhrase)
+time.sleep(0.2)
+keyboard.send_keys("<ctrl>+v")
 
 ``` 
 ## Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
