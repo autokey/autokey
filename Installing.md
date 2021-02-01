@@ -5,7 +5,7 @@
 * [Package Manager Installation](#package-manager-installation)
 
   * [Debian and Derivatives](#debian-and-derivatives)
-  * [Arch](#arch)
+  * [Arch](#arch-linux)
   * [Gentoo](#gentoo)
   
 * [`pip` Installation](#pip-installation)
