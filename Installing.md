@@ -6,7 +6,6 @@
 
   * [Debian and Derivatives](#debian-and-derivatives)
   * [Arch](#arch-linux)
-  * [Gentoo](#gentoo)
   
 * [`pip` Installation](#pip-installation)
 
