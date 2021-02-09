@@ -614,7 +614,7 @@ The script waits for a maximum of 10 seconds for a left click. When the click is
 - [Remove value](#remove-value)
 - [Set global value](#set-global-value)
 - [Set value](#set-value)
-
+- [Example](https://github.com/autokey/autokey/wiki/Scripts---samples#autoclicker-with-toggle-using-globals)
 
 ## Get global value ##
 
