@@ -139,3 +139,27 @@ elif utype == "r":
 
 dialog.info_dialog(title=title,message=msg)
 ```
+## Autoclicker with toggle using Globals
+- **Author**: [Kreezxil](https://kreezcraft.com)
+- **Purpose**: clicks where the mouse is at, when the script is run again, it turns off.
+```python
+import time
+
+x = store.get_global_value("clicker_status")
+
+if x == "on":
+    #turn it off if it is on
+    store.set_global_value("clicker_status","off")
+
+else:
+    #any other value is considered off, should cover nulls
+    store.set_global_value("clicker_status","on")
+
+while True:
+    time.sleep(0.1)
+    mouse.click_relative_self(0,0,1)
+    x = store.get_global_value("clicker_status")
+    if x == "off":
+        #leave the execution if we've been toggled off
+        break
+```
