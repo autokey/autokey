@@ -143,8 +143,6 @@ dialog.info_dialog(title=title,message=msg)
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: clicks where the mouse is at, when the script is run again, it turns off.
 ```python
-import time
-
 x = store.get_global_value("clicker_status")
 
 if x == "on":
