@@ -654,7 +654,7 @@ This script checks to see if a value has been stored by checking to see if the k
 ### Has key script ###
 
     if store.has_key("myValue"):
-        dialog.info_dialog(title="Global Value Exists?",message="true")
+        dialog.info_dialog(title="Value Exists?",message="true")
 
 ## Remove global value ##
 
