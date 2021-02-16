@@ -610,6 +610,7 @@ The script waits for a maximum of 10 seconds for a left click. When the click is
 
 - [Get global value](#get-global-value)
 - [Get value](#get-value)
+- [Has key](#has-key)
 - [Remove global value](#remove-global-value)
 - [Remove value](#remove-value)
 - [Set global value](#set-global-value)
@@ -646,6 +647,14 @@ Script variables can be accessed only by the script that wrote them. The values 
     dialog.info_dialog(title='Value of local value myValue', 
         message=x, width='200') 
 
+## Has key ##
+
+This script checks to see if a value has been stored by checking to see if the key is defined. This function makes no differentiation between a local and global value in regards to the Store. The function returns a boolean of true or false.
+
+### Has key script ###
+
+    if store.has_key("myValue"):
+        dialog.info_dialog(title="Global Value Exists?",message="true")
 
 ## Remove global value ##
 
