@@ -43,10 +43,8 @@ class System:
                     stdout=subprocess.PIPE,
                     universal_newlines=True) as p:
                 output = p.communicate()[0]
-                if len(output) > 0:
-                    # Most shell output has a new line at the end, which we
-                    # don't want. Strip trailing newline.
-                    output = output.rstrip('\n')
+                # Most shell output has a new line at the end, which we don't want.
+                output = output.rstrip("\n")
                 if p.returncode:
                     raise subprocess.CalledProcessError(p.returncode, output)
                 return output
