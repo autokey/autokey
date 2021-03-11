@@ -27,3 +27,25 @@ The old tests are scheduled to be replaced by a new suite in the `develop` branc
 
 The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
 
+Program Structure
+=================
+
+Entry points to autokey are through the various UIs, which implement AutokeyApplication.
+AutokeyApplication starts the autokey service and file monitor when it initialises.
+
+The autokey service starts a new IoMediator, ScriptRunner and PhraseRunner.
+
+If another autokey process is running, the application tries to show its config window then exit.
+This is done by a lock file containing the original process's PID, and checking that that PID's command contains "autokey"
+
+Communication between autokey and autokey-run is done via DBus.
+AutokeyApplication registers itself with DBus for this.
+
+`interface.py` handles communication with X. This includes grabbing hotkeys and sending keypresses.
+It also handles a lot of clipboard mechanics.
+
+https://github.com/autokey/autokey/issues/255 contains a good explanation of how sending text works.
+
+Creating and modifying phrases and hotkeys is done through the ConfigManager.
+
+For a detailed walkthrough of how phrases work, see [this comment](https://github.com/autokey/autokey/issues/334#issuecomment-564203873)
