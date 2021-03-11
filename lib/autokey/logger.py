@@ -37,7 +37,7 @@ def get_logger(full_module_path: str) -> logging.Logger:
 def configure_root_logger(args: Namespace):
     """Initialise logging system"""
     root_logger.setLevel(1)
-
+    pathlib.Path(DATA_DIR).mkdir(parents=True, exist_ok=True)
     file_handler = logging.handlers.RotatingFileHandler(
         LOG_FILE,
         maxBytes=MAX_LOG_SIZE,
