@@ -4,6 +4,25 @@ Changelog
 .. contents::
 
 
+Version 0.96.00 <202?-mm-dd>
+============================
+
+This has been a massive refactor and automatic tested effort, and has picked up a few new features through PRs since the last major release.
+
+A lot of code paths have been touched, so if you need stability, wait a while before updating.
+
+Features
+---------
+
+Better macro system (allows spaces and arguments to system commands).
+
+Headless app
+
+Other changes in `develop` branch
+
+Bug fixes
+---------
+
 Version 0.95.10 <2019-02-16>
 ============================
 
