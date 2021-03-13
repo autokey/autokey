@@ -175,6 +175,15 @@ setup(
         'wheel',
         'dbus-python'
     ],
+    extras_require={
+            "QT": [
+                "PyQt5",
+                "QScintilla"
+                ],
+            "GTK": [
+                "PyGObject"
+                ]
+            },
     # These two options are deprecated. TODO switch to another system, like
     # tox. See https://pypi.org/project/pytest-runner/
     setup_requires=["pytest-runner"],
