@@ -159,6 +159,8 @@ Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user onl
 AutoKey will be located in your user directory: `~/.local/bin/autokey`
 
 If you run pip3 as root and omit the `--user` switch, AutoKey will be installed globally.
+
+For versions > 0.96, you can install the Pypi dependencies for either of the UIs by specifying `[UI]` after the install name or URL (where "`UI`" is "`GTK`" or "`QT`". For example: `$ pip3 install --user ./autokey'[QT]'`
   
 ## Running AutoKey
 
