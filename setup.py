@@ -192,6 +192,15 @@ setup(
         'python-xlib',
         'packaging',
     ],
+    extras_require={
+            "QT": [
+                "PyQt5",
+                "QScintilla"
+                ],
+            "GTK": [
+                "PyGObject"
+                ]
+            },
     test_suite="pytest",
     classifiers=[
         'Development Status :: 4 - Beta',
