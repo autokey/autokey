@@ -171,7 +171,9 @@ setup(
     scripts=['autokey-run', 'autokey-shell'],
     install_requires=[
         'pyinotify',
-        'python-xlib'
+        'python-xlib',
+        'wheel',
+        'dbus-python'
     ],
     # These two options are deprecated. TODO switch to another system, like
     # tox. See https://pypi.org/project/pytest-runner/
