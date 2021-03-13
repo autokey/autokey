@@ -3,7 +3,7 @@ Name: autokey
 # Also modify common.py to make version match.
 Version: 0.96.0B-dev
 Summary: Desktop automation utility
-Home-page: http://autokey.googlecode.com/
+Home-page: https://github.com/autokey/autokey
 Author: Chris Dekter
 Author-email: cdekter@gmail.com
 License: GPL v3
