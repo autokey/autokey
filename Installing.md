@@ -70,8 +70,7 @@ Since AutoKey is a Python3 application, it is largely independent of particular 
 
 ## Arch Linux
 
-Up to date packages are available in the Arch User Repository ([AUR package][aur]). It supports both the GTK and Qt GUI, but make sure to install the optional dependencies for the GUI you want.
-It seems that the AUR package specifies some run-time dependencies (programs used in certain API calls, like kdialog) as optional dependencies, so check the program log for errors caused by missing programs, when API calls fail.
+Up to date packages for both the [GTK](aur-gtk) and [Qt](aur-qt) versions are available in the Arch User Repository.
 
 If you wish to manually install AutoKey, use the dependencies specified in the AUR as a reference, for what has to be installed.
 
@@ -139,7 +138,7 @@ The Qt5-based GUI additionally depends on:
 
 ### Installing Dependencies for Arch Linux
 The AUR package lists all packages needed with their respective Arch-specific names:
-https://aur.archlinux.org/packages/autokey
+https://aur.archlinux.org/packages/autokey-common/
 
 ### Installing Dependencies from PyPI
 TODO.
@@ -185,7 +184,8 @@ November 2011
 Original author, Keith W. Daniels
 Edited by Joseph Pollock, troxor, ersanchez and Thomas Hess
 
-[aur]: https://aur.archlinux.org/packages/autokey/
+[aur-gtk]: https://aur.archlinux.org/packages/autokey-gtk/
+[aur-qt]: https://aur.archlinux.org/packages/autokey-qt/
 [autorepo]: https://github.com/autokey/autokey
 [installgit]: https://git-scm.com/download/linux
 [installpip]: https://packaging.python.org/install_requirements_linux/#installing-pip-setuptools-wheel-with-linux-package-managers
