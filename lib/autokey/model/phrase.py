@@ -47,7 +47,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = False
         self.parent = None
         self.show_in_tray_menu = False
-        self.sendMode = SendMode.KEYBOARD
+        self.sendMode = SendMode.CB_CTRL_V
         self.path = path
 
     def build_path(self, base_name=None):
