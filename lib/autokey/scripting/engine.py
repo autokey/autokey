@@ -141,7 +141,7 @@ Folders created within temporary folders must themselves be set temporary")
     def create_phrase(self, folder, name: str, contents: str,
                       abbreviations: Union[str, List[str]]=None,
                       hotkey: Tuple[List[Union[Key, str]], Union[Key, str]]=None,
-                      send_mode: autokey.model.phrase.SendMode = autokey.model.phrase.SendMode.KEYBOARD, window_filter: str=None,
+                      send_mode: autokey.model.phrase.SendMode = autokey.model.phrase.SendMode.CB_CTRL_V, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False,
                       temporary=False, replace_existing_hotkey=False):
         """
@@ -204,7 +204,7 @@ Folders created within temporary folders must themselves be set temporary")
         @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.
                        First element is a list of modifiers, second element is the key.
         @param send_mode: The pasting mode that will be used to expand the Phrase.
-                          Used to configure, how the Phrase is expanded. Defaults to typing using the "Keyboard" method.
+                          Used to configure, how the Phrase is expanded. Defaults to typing using the "CTRL+V" method.
         @param window_filter: A string containing a regular expression that will be used as the window filter.
         @param show_in_system_tray: A boolean defaulting to False.
                                     If set to True, the new Phrase will be shown in the tray icon context menu.
