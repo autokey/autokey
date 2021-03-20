@@ -1,5 +1,53 @@
 See [[Scripting#advanced-scripts]].
 
+## Url Displayer
+- **Author**: [Kreezxil](https://kreezcraft.com)
+- **Purpose**: Use a dictionary (associative array) to manage a list of urls using short names
+- **Notes**: Great generate links in a chats such as discord or gitter, emails and elsewhere
+
+```python
+packs = {}
+
+def append(name,url):
+    packs[name]=url
+
+def printUrl(part):
+    clipboard.fill_clipboard("{}".format(part))
+    time.sleep(0.2)
+    keyboard.send_keys("<ctrl>+v<shift>+<enter>")
+    time.sleep(0.1)
+
+append("Sky Client","https://www.curseforge.com/minecraft/modpacks/sky-client")
+append("Skyblock: Godless","https://www.curseforge.com/minecraft/modpacks/skyblock-godless")
+append("Hell Block","https://www.curseforge.com/minecraft/modpacks/hell-block")
+append("Sky Adventure","https://www.curseforge.com/minecraft/modpacks/sky-adventure")
+append("Sky Colony","https://www.curseforge.com/minecraft/modpacks/sky-colony")
+append("Gog Tech","https://www.curseforge.com/minecraft/modpacks/gog-tech")
+append("Binary 6 Squared Sky Challenge","https://www.curseforge.com/minecraft/modpacks/binary-6-squared-sky-challenge")
+append("NSL Mini-Mega Sky Challenge","https://www.curseforge.com/minecraft/modpacks/nsl-mini-mega-sky-challenge")
+append("Kreezcraft Presents Skycraft","https://www.curseforge.com/minecraft/modpacks/kreezcraft-presents-skycraft")
+append("UNFMP Sky Challenge","https://www.curseforge.com/minecraft/modpacks/unfmp-sky-challenge")
+append("Kreezcraft Presents Phantasmagoria","https://www.curseforge.com/minecraft/modpacks/kreezcraft-presents-phantasmagoria")
+append("Philosopher's Life","https://www.curseforge.com/minecraft/modpacks/philosophers-life")
+append("Ultra Mini Omnia","https://www.curseforge.com/minecraft/modpacks/ultra-mini-omnia")
+
+choices = list(packs.keys())
+choices.sort()
+choices.insert(0,"All")
+
+retCode, choice = dialog.list_menu( title="Dragon Packs!",options=choices )
+if retCode == 0:
+    if choice == "All":
+        urls = list(packs.values())
+        urls.sort()
+        for element in urls:
+            printUrl(element)
+    else:
+        printUrl(packs[choice])
+else:
+    exit()
+
+```
 ## Emoji Speak for chat services such as Discord
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use emoji to write a sentence, for instance on Discord.
