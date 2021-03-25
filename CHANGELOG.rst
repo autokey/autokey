@@ -3,6 +3,8 @@ Changelog
 =========
 .. contents::
 
+- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
+
 
 Version 0.95.10 <2019-02-16>
 ============================
