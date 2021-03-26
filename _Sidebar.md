@@ -1,4 +1,4 @@
-* [Home](https://github.com/autokey/autokey/wiki)
+* [Home](https://github.com/autokey/autokey/wiki
   * [Linux Distros Shipping AutoKey](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
 * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * [Installing](https://github.com/autokey/autokey/wiki/Installing)
