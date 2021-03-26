@@ -1,4 +1,4 @@
-* [Home](https://github.com/autokey/autokey/wiki
+* [Home](https://github.com/autokey/autokey/wiki)
   * [Linux Distros Shipping AutoKey](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
 * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * [Installing](https://github.com/autokey/autokey/wiki/Installing)
@@ -13,7 +13,6 @@
   * [Example Scripts cont.](https://github.com/autokey/autokey/wiki/Scripts---samples)
 * [Advanced Topics](https://github.com/autokey/autokey/wiki/Advanced-Topics)
   * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
-* [Development]()
-  * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
+* [Development]()  
   * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
   * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
