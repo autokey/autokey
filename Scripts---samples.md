@@ -209,3 +209,29 @@ while True:
         #leave the execution if we've been toggled off
         break
 ```
+
+## Check held keys (workaround!)
+Hacky way to check what keys are held down on a device. Uses the `evdev` library which requires additional setup. Check out their readme for more details on installation and what it is capable of. 
+
+https://python-evdev.readthedocs.io/en/latest/
+
+```python
+import asyncio
+import time
+import evdev
+from evdev import ecodes as e
+
+
+async def check_key():
+    await asyncio.sleep(1)
+    device = evdev.InputDevice('/dev/input/event5')
+
+    if e.KEY_A in device.active_keys():
+        print("Key A")
+
+
+loop = asyncio.new_event_loop()
+loop.run_until_complete(check_key())
+
+loop.close()
+```
