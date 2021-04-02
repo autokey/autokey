@@ -18,6 +18,8 @@ GtkClipboard Functions
 
 from gi.repository import Gtk, Gdk
 
+from pathlib import Path
+
 
 class GtkClipboard:
     """
@@ -122,3 +124,22 @@ class GtkClipboard:
             return text
         else:
             raise Exception("No text found on clipboard")
+
+    def set_clipboard_image(self, path):
+        """
+        Set clipboard to image
+
+        Usage: C{clipboard.set_clipboard_image(path)}
+
+        @param path: Path to image file
+        @raise OSError: If path does not exist
+
+        """
+        image_path = Path(path).expanduser()
+        if image_path.exists():
+            copied_image = Gtk.Image.new_from_file(str(image_path))
+            self.clipBoard.set_image(copied_image.get_pixbuf())
+        else:
+            raise OSError("Image file not found")
+
+
