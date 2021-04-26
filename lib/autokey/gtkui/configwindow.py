@@ -1380,26 +1380,27 @@ class ConfigWindow:
     def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
         widget.columns_autosize()
         p = path.to_string()
-        path_len = len(p)
-        row_copy = self.expanded_rows.copy() #make a copy of the rows to avoid weird
-        if path_len == 1: #closing one of the base dirs
-            for row in row_copy:
-                if row[0] == p:
-                    # print("Removing ", row)
-                    self.expanded_rows.remove(row)
+        if len(p) == 1: #closing one of the base dirs
+            self.__hide_row_with_path_up_to(p, 1)
             return
-        for row in row_copy:
-            if p == row[:path_len]:
+        self.__hide_row_with_path_up_to(p, len(p))
+
+    def __hide_row_with_path_up_to(self, pathStr, up_to):
+        to_remove = []
+        for row in self.expanded_rows:
+            if row[:up_to] == pathStr:
                 # print("Removing ", row)
-                self.expanded_rows.remove(row)
+                to_remove.append(row)
         # print(self.expanded_rows)
+        for row in to_remove:
+            self.expanded_rows.remove(row)
 
     def on_treeWidget_row_expanded(self, widget, tIter, path, data=None):
+        pathS = path.to_string()
         for row in self.expanded_rows:
-            if row==path.to_string(): #don't add already existing
+            if row == pathS: #don't add already existing
                 return
-        # print("Adding row ", path.to_string())
-        self.expanded_rows.append(path.to_string())
+        self.expanded_rows.append(pathS)
 
     def on_treeview_buttonpress(self, widget, event, data=None):
         return self.dirty
