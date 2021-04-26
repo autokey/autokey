@@ -897,7 +897,7 @@ class ConfigWindow:
         logger.info("Modifications detected to open files. Reloading...")
         #save tree view selection
         selection = self.treeView.get_selection()
-        rows = selection.get_selected_rows()
+        selection.get_selected_rows()
         self.rebuild_tree()
         #get selection for new treeview
         selection = self.treeView.get_selection()
