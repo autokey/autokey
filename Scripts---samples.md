@@ -3,49 +3,68 @@ See [[Scripting#advanced-scripts]].
 ## Url Displayer
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use a dictionary (associative array) to manage a list of urls using short names
-- **Notes**: Great generate links in a chats such as discord or gitter, emails and elsewhere
+- **Notes**: now discerns if a browser is being used, if you give it the browsers you use.
 
 ```python
-packs = {}
-
-def append(name,url):
-    packs[name]=url
+# you can click in a chatEntity like discord and this will make a newline without forcing the message, which is intended behavor
+# but you can click in the url bar of a browser and use it and it will make a new page/tab without forcing a new browser shift+enter
 
 def printUrl(part):
     clipboard.fill_clipboard("{}".format(part))
     time.sleep(0.2)
-    keyboard.send_keys("<ctrl>+v<shift>+<enter>")
+    keyboard.send_keys("<ctrl>+v"+newline)
     time.sleep(0.1)
 
-append("Sky Client","https://www.curseforge.com/minecraft/modpacks/sky-client")
-append("Skyblock: Godless","https://www.curseforge.com/minecraft/modpacks/skyblock-godless")
-append("Hell Block","https://www.curseforge.com/minecraft/modpacks/hell-block")
-append("Sky Adventure","https://www.curseforge.com/minecraft/modpacks/sky-adventure")
-append("Sky Colony","https://www.curseforge.com/minecraft/modpacks/sky-colony")
-append("Gog Tech","https://www.curseforge.com/minecraft/modpacks/gog-tech")
-append("Binary 6 Squared Sky Challenge","https://www.curseforge.com/minecraft/modpacks/binary-6-squared-sky-challenge")
-append("NSL Mini-Mega Sky Challenge","https://www.curseforge.com/minecraft/modpacks/nsl-mini-mega-sky-challenge")
-append("Kreezcraft Presents Skycraft","https://www.curseforge.com/minecraft/modpacks/kreezcraft-presents-skycraft")
-append("UNFMP Sky Challenge","https://www.curseforge.com/minecraft/modpacks/unfmp-sky-challenge")
-append("Kreezcraft Presents Phantasmagoria","https://www.curseforge.com/minecraft/modpacks/kreezcraft-presents-phantasmagoria")
-append("Philosopher's Life","https://www.curseforge.com/minecraft/modpacks/philosophers-life")
-append("Ultra Mini Omnia","https://www.curseforge.com/minecraft/modpacks/ultra-mini-omnia")
+urlBook = {}
+urlBook.append("Vacations","https://disney.com")
+urlBook.append("Politics", "https://whitehouse.gov")
+urlBook.append("Steam Alternative","https://itch.io")
 
-choices = list(packs.keys())
+# The shift enter is for Discord and other chat mechanisms, so we'll scan for an app to exempt.
+# Add the browsers or apps you use to exempt them from the shift enter issue.
+# Oh you don't know. If you put an address in a url box and hit shift enter it opens a new
+# window!
+
+exemption=[]
+exemption.append("Chrome")
+exemption.append("Firefox")
+exemption.append("Edge")
+exemption.append("Brave")
+
+targetScan = window.get_active_title()
+
+# There maybe an easier way to do this, in fact I'm sure of it, because Python is the language that
+# deals with lists, if you know of it or discover please update the wiki entry.
+# Or shoot me a message on Gitter or our Discord.
+
+newline = "<shift>+<enter>" # Our default
+for test in exemption:
+    if targetScan.find(test) > -1:
+        #dialog.info_dialog(title="Info",message="Found "+test)
+        time.sleep(0.2)
+        newline="<enter>"
+        break
+
+choices = list(urlBook.keys())
 choices.sort()
 choices.insert(0,"All")
 
-retCode, choice = dialog.list_menu( title="Dragon Packs!",options=choices )
+retCode, choice = dialog.list_menu( title="urlBook!",options=choices )
 if retCode == 0:
     if choice == "All":
-        urls = list(packs.values())
+        urls = list(urlBook.values())
         urls.sort()
+        count=1
         for element in urls:
-            printUrl(element)
+            printUrl("{}: {}".format(count,element))
+            count+=1
+            if count%10==0:
+                keyboard.send_keys("<enter>")
     else:
-        printUrl(packs[choice])
+        printUrl(urlBook[choice])
 else:
     exit()
+
 
 ```
 ## Emoji Speak for chat services such as Discord
