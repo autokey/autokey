@@ -894,6 +894,7 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
 
     def config_modified(self):
+        logger.info("Modifications detected to open files. Reloading...")
         #save tree view selection
         selection = self.treeView.get_selection()
         rows = selection.get_selected_rows()
