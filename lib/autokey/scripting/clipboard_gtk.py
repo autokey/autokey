@@ -137,8 +137,10 @@ class GtkClipboard:
         """
         image_path = Path(path).expanduser()
         if image_path.exists():
+            Gdk.threads_enter()
             copied_image = Gtk.Image.new_from_file(str(image_path))
             self.clipBoard.set_image(copied_image.get_pixbuf())
+            Gdk.threads_leave()
         else:
             raise OSError("Image file not found")
 

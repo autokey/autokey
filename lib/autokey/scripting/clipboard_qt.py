@@ -99,6 +99,9 @@ class QtClipboard:
         @param path: Path to image file
         @raise OSError: If path does not exist
         """
+        self.__execAsync(self.__set_clipboard_image, path)
+
+    def __set_clipboard_image(self, path):
         image_path = Path(path).expanduser()
         if image_path.exists():
             copied_image = QImage()

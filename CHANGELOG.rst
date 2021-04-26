@@ -4,7 +4,7 @@ Changelog
 .. contents::
 
 - Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
-
+- Add `set_clipboard_image` methods for both Gtk and Qt. Takes a file path to an image to load into the clipboard.
 
 Version 0.95.10 <2019-02-16>
 ============================
