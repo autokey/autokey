@@ -1,0 +1,852 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>autokey.scripting.engine &mdash; AutoKey v0.95.11 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoKey</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>autokey.scripting.engine</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for autokey.scripting.engine</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2011 Chris Dekter</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Engine backend for Autokey&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pathlib</span>
+
+<span class="kn">from</span> <span class="nn">collections.abc</span> <span class="kn">import</span> <span class="n">Iterable</span>
+
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span> <span class="nn">autokey.model.folder</span>
+<span class="kn">import</span> <span class="nn">autokey.model.helpers</span>
+<span class="kn">import</span> <span class="nn">autokey.model.phrase</span>
+<span class="kn">import</span> <span class="nn">autokey.model.script</span>
+<span class="kn">from</span> <span class="nn">autokey</span> <span class="kn">import</span> <span class="n">configmanager</span>
+<span class="kn">from</span> <span class="nn">autokey.model.key</span> <span class="kn">import</span> <span class="n">Key</span>
+
+<span class="kn">from</span> <span class="nn">autokey.scripting.system</span> <span class="kn">import</span> <span class="n">System</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;autokey.logger&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Engine"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine">[docs]</a><span class="k">class</span> <span class="nc">Engine</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides access to the internals of AutoKey.</span>
+
+<span class="sd">    Note that any configuration changes made using this API while the configuration window</span>
+<span class="sd">    is open will not appear until it is closed and re-opened.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SendMode</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span>
+    <span class="n">Key</span> <span class="o">=</span> <span class="n">Key</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_manager</span><span class="p">,</span> <span class="n">runner</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span> <span class="o">=</span> <span class="n">config_manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runner</span> <span class="o">=</span> <span class="n">runner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span> <span class="o">=</span> <span class="n">config_manager</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">monitor</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_macro_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_script_args</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_script_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_triggered_abbreviation</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># type: Optional[str]</span>
+
+<div class="viewcode-block" id="Engine.get_folder"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.get_folder">[docs]</a>    <span class="k">def</span> <span class="nf">get_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve a folder by its title</span>
+
+<span class="sd">        Usage: C{engine.get_folder(title)}</span>
+
+<span class="sd">        Note that if more than one folder has the same title, only the first match will be</span>
+<span class="sd">        returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">validateType</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">allFolders</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">folder</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">folder</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Engine.create_folder"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_folder">[docs]</a>    <span class="k">def</span> <span class="nf">create_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parent_folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">temporary</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create and return a new folder.</span>
+
+<span class="sd">        Usage: C{engine.create_folder(&quot;new folder&quot;), parent_folder=folder, temporary=True}</span>
+
+<span class="sd">        Descriptions for the optional arguments:</span>
+
+<span class="sd">        @param parentFolder: Folder to make this folder a subfolder of. If</span>
+<span class="sd">        passed as a folder, it will be that folder within auotkey.</span>
+<span class="sd">        If passed as pathlib.Path, it will be created or added at that path.</span>
+<span class="sd">        Paths expand ~ to $HOME.</span>
+<span class="sd">        @param temporary: Folders created with temporary=True are</span>
+<span class="sd">                                    not persisted.</span>
+<span class="sd">                                    Used for single-source rc-style scripts.</span>
+<span class="sd">                                    Cannot be used if parent_folder is a Path.</span>
+
+<span class="sd">        If a folder of that name already exists, this will return it unchanged.</span>
+<span class="sd">        If the folder wasn&#39;t already added to autokey, it will be.</span>
+<span class="sd">        The &#39;temporary&#39; property is not touched to avoid deleting an existing</span>
+<span class="sd">        folder.</span>
+<span class="sd">        Note that if more than one folder has the same title, only the first match will be</span>
+<span class="sd">        returned.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">validateType</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="n">validateType</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="s2">&quot;parent_folder&quot;</span><span class="p">,</span>
+                     <span class="p">[</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">Folder</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">])</span>
+        <span class="n">validateType</span><span class="p">(</span><span class="n">temporary</span><span class="p">,</span> <span class="s2">&quot;temporary&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="c1"># XXX Doesn&#39;t check if a folder already exists at this path in autokey.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">temporary</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter &#39;temporary&#39; is True, but a path </span><span class="se">\</span>
+<span class="s2">                        was given as the parent folder. Temporary folders </span><span class="se">\</span>
+<span class="s2">                        cannot use absolute paths.&quot;</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">parent_folder</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span> <span class="o">/</span> <span class="n">title</span>
+            <span class="n">path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">new_folder</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">Folder</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">allFolders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_folder</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">new_folder</span>
+        <span class="c1"># TODO: Convert this to use get_folder, when we change to specifying</span>
+        <span class="c1"># the exact folder by more than just title.</span>
+        <span class="k">if</span> <span class="n">parent_folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">parent_folders</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">allFolders</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parent_folder</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">Folder</span><span class="p">):</span>
+            <span class="n">parent_folders</span> <span class="o">=</span> <span class="n">parent_folder</span><span class="o">.</span><span class="n">folders</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Input is previously validated, must match one of the above.</span>
+            <span class="k">pass</span>
+
+        <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">parent_folders</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">folder</span><span class="o">.</span><span class="n">title</span> <span class="o">==</span> <span class="n">title</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">folder</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_folder</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">Folder</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">parent_folder</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">allFolders</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_folder</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parent_folder</span><span class="o">.</span><span class="n">add_folder</span><span class="p">(</span><span class="n">new_folder</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">temporary</span> <span class="ow">and</span> <span class="n">parent_folder</span><span class="o">.</span><span class="n">temporary</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter &#39;temporary&#39; is False, but parent folder is a temporary one. </span><span class="se">\</span>
+<span class="s2">Folders created within temporary folders must themselves be set temporary&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">temporary</span><span class="p">:</span>
+                <span class="n">new_folder</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_folder</span><span class="o">.</span><span class="n">temporary</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="n">new_folder</span></div>
+
+
+<div class="viewcode-block" id="Engine.create_phrase"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_phrase">[docs]</a>    <span class="k">def</span> <span class="nf">create_phrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">contents</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                      <span class="n">abbreviations</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">hotkey</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="n">Key</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span> <span class="n">Union</span><span class="p">[</span><span class="n">Key</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">send_mode</span><span class="p">:</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="o">.</span><span class="n">CB_CTRL_V</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">:</span> <span class="nb">str</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                      <span class="n">show_in_system_tray</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">always_prompt</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                      <span class="n">temporary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">replace_existing_hotkey</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder</span>
+<span class="sd">        you wish to create the Phrase in. If the folder is a temporary</span>
+<span class="sd">        one, the phrase will be created as temporary.</span>
+
+<span class="sd">        The first three arguments (folder, name and contents) are required. All further arguments are optional and</span>
+<span class="sd">        considered to be keyword-argument only. Do not rely on the order of the optional arguments.</span>
+<span class="sd">        The optional parameters can be used to configure the newly created Phrase.</span>
+
+<span class="sd">        Usage (minimal example): C{engine.create_phrase(folder, name, contents)}</span>
+
+<span class="sd">        Further concrete examples:</span>
+<span class="sd">        C{</span>
+<span class="sd">        engine.create_phrase(folder, &quot;My new Phrase&quot;, &quot;This is the Phrase content&quot;, abbreviations=[&quot;abc&quot;, &quot;def&quot;],</span>
+<span class="sd">        hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V,</span>
+<span class="sd">        window_filter=&quot;konsole\\.Konsole&quot;, show_in_system_tray=True)</span>
+<span class="sd">        }</span>
+
+<span class="sd">        Descriptions for the optional arguments:</span>
+
+<span class="sd">        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation</span>
+<span class="sd">        to the newly created phrase.</span>
+
+<span class="sd">        hotkey parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first</span>
+<span class="sd">        element and an unshifted (lowercase) key as the second element.</span>
+<span class="sd">        Modifier keys must be given as a list of strings (or Key enum instances), with the following</span>
+<span class="sd">        values permitted:</span>
+<span class="sd">            &lt;ctrl&gt;</span>
+<span class="sd">            &lt;alt&gt;</span>
+<span class="sd">            &lt;super&gt;</span>
+<span class="sd">            &lt;hyper&gt;</span>
+<span class="sd">            &lt;meta&gt;</span>
+<span class="sd">            &lt;shift&gt;</span>
+<span class="sd">        The key must be an unshifted character (i.e. lowercase) or a Key enum instance. Modifier keys from the list</span>
+<span class="sd">        above are NOT allowed here. Example: ([&quot;&lt;ctrl&gt;&quot;, &quot;&lt;alt&gt;&quot;], &quot;9&quot;) to assign &quot;&lt;Ctrl&gt;+&lt;Alt&gt;+9&quot; as a hotkey.</span>
+<span class="sd">        The Key enum contains objects representing various special keys and is available as an attribute of the &quot;engine&quot;</span>
+<span class="sd">        object, named &quot;Key&quot;. So to access a function key, you can use the string &quot;&lt;f12&gt;&quot; or engine.Key.F12</span>
+<span class="sd">        See the AutoKey Wiki for an overview of all available keys in the enumeration.</span>
+
+<span class="sd">        send_mode: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting</span>
+<span class="sd">        using the clipboard. It accepts items from the SendMode enumeration, which is also available from the engine</span>
+<span class="sd">        object as engine.SendMode. The parameter defaults to</span>
+<span class="sd">        engine.SendMode.KEYBOARD. Available send modes are:</span>
+<span class="sd">            KEYBOARD</span>
+<span class="sd">            CB_CTRL_V</span>
+<span class="sd">            CB_CTRL_SHIFT_V</span>
+<span class="sd">            CB_SHIFT_INSERT</span>
+<span class="sd">            SELECTION</span>
+<span class="sd">        To paste the Phrase using &quot;&lt;shift&gt;+&lt;insert&gt;, set send_mode=engine.SendMode.CB_SHIFT_INSERT</span>
+
+<span class="sd">        window_filter: Accepts a string which will be used as a regular expression to match window titles or</span>
+<span class="sd">        applications using the WM_CLASS attribute.</span>
+
+<span class="sd">        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}</span>
+<span class="sd">        @param name: Name/description for the phrase.</span>
+<span class="sd">        @param contents: the expansion text</span>
+<span class="sd">        @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase</span>
+<span class="sd">        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.</span>
+<span class="sd">                       First element is a list of modifiers, second element is the key.</span>
+<span class="sd">        @param send_mode: The pasting mode that will be used to expand the Phrase.</span>
+<span class="sd">                          Used to configure, how the Phrase is expanded. Defaults to typing using the &quot;CTRL+V&quot; method.</span>
+<span class="sd">        @param window_filter: A string containing a regular expression that will be used as the window filter.</span>
+<span class="sd">        @param show_in_system_tray: A boolean defaulting to False.</span>
+<span class="sd">                                    If set to True, the new Phrase will be shown in the tray icon context menu.</span>
+<span class="sd">        @param always_prompt: A boolean defaulting to False. If set to True,</span>
+<span class="sd">                              the Phrase expansion has to be manually confirmed, each time it is triggered.</span>
+<span class="sd">        @param temporary: Hotkeys created with temporary=True are</span>
+<span class="sd">                                    not persisted as .jsons, and are replaced if the description is not</span>
+<span class="sd">                                    unique within the folder.</span>
+<span class="sd">                                     Used for single-source rc-style scripts.</span>
+<span class="sd">        @param replace_existing_hotkey: If true, instead of warning if the hotkey</span>
+<span class="sd">            is already in use by another phrase or folder, it removes the hotkey</span>
+<span class="sd">            from those clashes and keeps this phrase&#39;s hotkey.</span>
+<span class="sd">        @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid</span>
+<span class="sd">        @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw</span>
+<span class="sd">          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.</span>
+<span class="sd">          It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own</span>
+<span class="sd">          risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">validateArguments</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span>
+                          <span class="n">abbreviations</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">,</span> <span class="n">send_mode</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">,</span>
+                          <span class="n">show_in_system_tray</span><span class="p">,</span> <span class="n">always_prompt</span><span class="p">,</span> <span class="n">temporary</span><span class="p">,</span>
+                               <span class="n">replace_existing_hotkey</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">abbreviations</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">abbreviations</span> <span class="o">=</span> <span class="p">[</span><span class="n">abbreviations</span><span class="p">]</span>
+        <span class="n">check_abbreviation_unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="p">,</span> <span class="n">abbreviations</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">replace_existing_hotkey</span><span class="p">:</span>
+            <span class="n">check_hotkey_unique</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># XXX If something causes the phrase creation to fail after this,</span>
+            <span class="c1"># this will unset the hotkey without replacing it.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__clear_existing_hotkey</span><span class="p">(</span><span class="n">hotkey</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">)</span>
+
+
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">suspend</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">Phrase</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">send_mode</span> <span class="ow">in</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">sendMode</span> <span class="o">=</span> <span class="n">send_mode</span>
+            <span class="k">if</span> <span class="n">abbreviations</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">add_abbreviations</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">hotkey</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">set_hotkey</span><span class="p">(</span><span class="o">*</span><span class="n">hotkey</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">window_filter</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">set_window_titles</span><span class="p">(</span><span class="n">window_filter</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">show_in_tray_menu</span> <span class="o">=</span> <span class="n">show_in_system_tray</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">always_prompt</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">temporary</span> <span class="o">=</span> <span class="n">temporary</span>
+
+            <span class="n">folder</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="c1"># Don&#39;t save a json if it is a temporary hotkey. Won&#39;t persist across</span>
+            <span class="c1"># reloads.</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">temporary</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">p</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">unsuspend</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">config_altered</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__clear_existing_hotkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">):</span>
+        <span class="n">existing_item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_item_with_hotkey</span><span class="p">(</span><span class="n">hotkey</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">existing_item</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">existing_item</span><span class="p">,</span> <span class="n">configmanager</span><span class="o">.</span><span class="n">configmanager</span><span class="o">.</span><span class="n">GlobalHotkey</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">existing_item</span><span class="o">.</span><span class="n">filter_matches</span><span class="p">(</span><span class="n">window_filter</span><span class="p">):</span>
+                <span class="n">existing_item</span><span class="o">.</span><span class="n">unset_hotkey</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Engine.create_abbreviation"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_abbreviation">[docs]</a>    <span class="k">def</span> <span class="nf">create_abbreviation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">abbr</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.</span>
+<span class="sd">        Create a new text phrase inside the given folder and assign the abbreviation given.</span>
+
+<span class="sd">        Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}</span>
+
+<span class="sd">        When the given abbreviation is typed, it will be replaced with the given</span>
+<span class="sd">        text.</span>
+
+<span class="sd">        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}</span>
+<span class="sd">        @param description: description for the phrase</span>
+<span class="sd">        @param abbr: the abbreviation that will trigger the expansion</span>
+<span class="sd">        @param contents: the expansion text</span>
+<span class="sd">        @raise Exception: if the specified abbreviation is not unique</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">check_abbreviation_unique</span><span class="p">(</span><span class="n">abbr</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The specified abbreviation is already in use&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">suspend</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">Phrase</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">TriggerMode</span><span class="o">.</span><span class="n">ABBREVIATION</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">abbreviations</span> <span class="o">=</span> <span class="p">[</span><span class="n">abbr</span><span class="p">]</span>
+        <span class="n">folder</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">unsuspend</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">config_altered</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Engine.create_hotkey"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_hotkey">[docs]</a>    <span class="k">def</span> <span class="nf">create_hotkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.</span>
+
+<span class="sd">        Create a text hotkey</span>
+
+<span class="sd">        Usage: C{engine.create_hotkey(folder, description, modifiers, key, contents)}</span>
+
+<span class="sd">        When the given hotkey is pressed, it will be replaced with the given</span>
+<span class="sd">        text. Modifiers must be given as a list of strings, with the following</span>
+<span class="sd">        values permitted:</span>
+
+<span class="sd">        &lt;ctrl&gt;</span>
+<span class="sd">        &lt;alt&gt;</span>
+<span class="sd">        &lt;super&gt;</span>
+<span class="sd">        &lt;hyper&gt;</span>
+<span class="sd">        &lt;meta&gt;</span>
+<span class="sd">        &lt;shift&gt;</span>
+
+<span class="sd">        The key must be an unshifted character (i.e. lowercase)</span>
+
+<span class="sd">        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}</span>
+<span class="sd">        @param description: description for the phrase</span>
+<span class="sd">        @param modifiers: modifiers to use with the hotkey (as a list)</span>
+<span class="sd">        @param key: the hotkey</span>
+<span class="sd">        @param contents: the expansion text</span>
+<span class="sd">        @raise Exception: if the specified hotkey is not unique</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">modifiers</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">check_hotkey_unique</span><span class="p">(</span><span class="n">modifiers</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;The specified hotkey and modifier combination is already in use&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">suspend</span><span class="p">()</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">Phrase</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="n">contents</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">modes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">helpers</span><span class="o">.</span><span class="n">TriggerMode</span><span class="o">.</span><span class="n">HOTKEY</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">set_hotkey</span><span class="p">(</span><span class="n">modifiers</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+        <span class="n">folder</span><span class="o">.</span><span class="n">add_item</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">persist</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monitor</span><span class="o">.</span><span class="n">unsuspend</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">config_altered</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Engine.run_script"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.run_script">[docs]</a>    <span class="k">def</span> <span class="nf">run_script</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Run an existing script using its description or path to look it up</span>
+
+<span class="sd">        Usage: C{engine.run_script(description, &#39;foo&#39;, &#39;bar&#39;, foobar=&#39;foobar&#39;})}</span>
+
+<span class="sd">        @param description: description of the script to run. If parsable as</span>
+<span class="sd">        an absolute path to an existing file, that will be run instead.</span>
+<span class="sd">        @raise Exception: if the specified script does not exist</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_script_args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_script_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">description</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span>
+        <span class="c1"># Check if absolute path.</span>
+        <span class="k">if</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">PurePath</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">is_absolute</span><span class="p">()</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_subscript</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target_script</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">allItems</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">item</span><span class="o">.</span><span class="n">description</span> <span class="o">==</span> <span class="n">description</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">script</span><span class="o">.</span><span class="n">Script</span><span class="p">):</span>
+                    <span class="n">target_script</span> <span class="o">=</span> <span class="n">item</span>
+
+            <span class="k">if</span> <span class="n">target_script</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">run_subscript</span><span class="p">(</span><span class="n">target_script</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;No script with description &#39;</span><span class="si">%s</span><span class="s2">&#39; found&quot;</span> <span class="o">%</span> <span class="n">description</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span></div>
+
+<div class="viewcode-block" id="Engine.run_script_from_macro"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.run_script_from_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_script_from_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used internally by AutoKey for phrase macros</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_macro_args</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="s2">&quot;args&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">run_script</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># TODO: Log more information here, instead of setting the return</span>
+            <span class="c1"># value.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_return_value</span><span class="p">(</span><span class="s2">&quot;{ERROR: </span><span class="si">%s</span><span class="s2">}&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Engine.run_system_command_from_macro"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.run_system_command_from_macro">[docs]</a>    <span class="k">def</span> <span class="nf">run_system_command_from_macro</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used internally by AutoKey for system macros</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="n">exec_command</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="s2">&quot;command&quot;</span><span class="p">],</span> <span class="n">getOutput</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_return_value</span><span class="p">(</span><span class="s2">&quot;{ERROR: </span><span class="si">%s</span><span class="s2">}&quot;</span> <span class="o">%</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Engine.get_script_arguments"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.get_script_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">get_script_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the arguments supplied to the current script via the scripting api</span>
+
+<span class="sd">        Usage: C{engine.get_script_arguments()}</span>
+
+<span class="sd">        @return: the arguments</span>
+<span class="sd">        @rtype: C{list[Any]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_script_args</span></div>
+
+<div class="viewcode-block" id="Engine.get_script_keyword_arguments"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.get_script_keyword_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">get_script_keyword_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the arguments supplied to the current script via the scripting api</span>
+<span class="sd">        as keyword args.</span>
+
+<span class="sd">        Usage: C{engine.get_script_keyword_arguments()}</span>
+
+<span class="sd">        @return: the arguments</span>
+<span class="sd">        @rtype: C{Dict[str, Any]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_script_kwargs</span></div>
+
+<div class="viewcode-block" id="Engine.get_macro_arguments"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.get_macro_arguments">[docs]</a>    <span class="k">def</span> <span class="nf">get_macro_arguments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the arguments supplied to the current script via its macro</span>
+
+<span class="sd">        Usage: C{engine.get_macro_arguments()}</span>
+
+<span class="sd">        @return: the arguments</span>
+<span class="sd">        @rtype: C{list(str())}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_macro_args</span></div>
+
+<div class="viewcode-block" id="Engine.set_return_value"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.set_return_value">[docs]</a>    <span class="k">def</span> <span class="nf">set_return_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Store a return value to be used by a phrase macro</span>
+
+<span class="sd">        Usage: C{engine.set_return_value(val)}</span>
+
+<span class="sd">        @param val: value to be stored</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span> <span class="o">=</span> <span class="n">val</span></div>
+
+    <span class="k">def</span> <span class="nf">_get_return_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used internally by AutoKey for phrase macros</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_return_value</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+        <span class="k">return</span> <span class="n">ret</span>
+
+    <span class="k">def</span> <span class="nf">_set_triggered_abbreviation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">abbreviation</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">trigger_character</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Used internally by AutoKey to provide the abbreviation and trigger that caused the script to execute.</span>
+<span class="sd">        @param abbreviation: Abbreviation that caused the script to execute</span>
+<span class="sd">        @param trigger_character: Possibly empty &quot;trigger character&quot;. As defined in the abbreviation configuration.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_triggered_abbreviation</span> <span class="o">=</span> <span class="n">abbreviation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_triggered_character</span> <span class="o">=</span> <span class="n">trigger_character</span>
+
+<div class="viewcode-block" id="Engine.get_triggered_abbreviation"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.get_triggered_abbreviation">[docs]</a>    <span class="k">def</span> <span class="nf">get_triggered_abbreviation</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function can be queried by a script to get the abbreviation text that triggered it’s execution.</span>
+
+<span class="sd">        If a script is triggered by an abbreviation, this function returns a tuple containing two strings. First element</span>
+<span class="sd">        is the abbreviation text. The second element is the trigger character that finally caused the execution. It is</span>
+<span class="sd">        typically some whitespace character, like &#39; &#39;, &#39;\t&#39; or a newline character. It is empty, if the abbreviation was</span>
+<span class="sd">        configured to &quot;trigger immediately&quot;.</span>
+
+<span class="sd">        If the script execution was triggered by a hotkey, a call to the DBus interface, the tray icon, the &quot;Run&quot;</span>
+<span class="sd">        button in the main window or any other means, this function returns a tuple containing two None values.</span>
+
+<span class="sd">        Usage: C{abbreviation, trigger_character = engine.get_triggered_abbreviation()}</span>
+<span class="sd">        You can determine if the script was triggered by an abbreviation by simply testing the truth value of the first</span>
+<span class="sd">        returned value.</span>
+
+<span class="sd">        @return: Abbreviation that triggered the script execution, if any.</span>
+<span class="sd">        @rtype: C{Tuple[Optional[str], Optional[str]]}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_triggered_abbreviation</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_triggered_character</span></div>
+
+
+<div class="viewcode-block" id="Engine.remove_all_temporary"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.remove_all_temporary">[docs]</a>    <span class="k">def</span> <span class="nf">remove_all_temporary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">in_temp_parent</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Removes all temporary folders and phrases, as well as any within</span>
+<span class="sd">        temporary folders.</span>
+<span class="sd">        Useful for rc-style scripts that want to change a set of keys.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">remove_all_temporary</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span>
+                <span class="n">in_temp_parent</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_item_with_hotkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hotkey</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="n">modifiers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hotkey</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">configManager</span><span class="o">.</span><span class="n">get_item_with_hotkey</span><span class="p">(</span><span class="n">modifiers</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+
+<span class="k">def</span> <span class="nf">validateAbbreviations</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the given abbreviations are a list/iterable of strings</span>
+
+<span class="sd">    @param abbreviations: Abbreviations list to be validated</span>
+<span class="sd">    @raise ValueError: Raises C{ValueError} if C{abbreviations} is anything other than C{str} or C{Iterable}</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">abbreviations</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">):</span>
+            <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">abbreviations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">if</span> <span class="n">fail</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected abbreviations to be a single string or a list/iterable of strings, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">type</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">))</span>
+            <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">check_abbreviation_unique</span><span class="p">(</span><span class="n">configmanager</span><span class="p">,</span> <span class="n">abbreviations</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the given abbreviations are unique</span>
+
+<span class="sd">    @param configmanager: ConfigManager Instance to check abbrevations</span>
+<span class="sd">    @param abbreviations: List of abbreviations to be checked</span>
+<span class="sd">    @param window_filter: Window filter that the abbreviation will apply to.</span>
+<span class="sd">    @raise ValueError: Raises C{ValueError} if an abbreviation is already in use.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">abbreviations</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">for</span> <span class="n">abbr</span> <span class="ow">in</span> <span class="n">abbreviations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">configmanager</span><span class="o">.</span><span class="n">check_abbreviation_unique</span><span class="p">(</span><span class="n">abbr</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">,</span> <span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified abbreviation &#39;</span><span class="si">{}</span><span class="s2">&#39; is already in use.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">abbr</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">check_hotkey_unique</span><span class="p">(</span><span class="n">configmanager</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the given hotkey is unique</span>
+
+<span class="sd">    @param configmanager: ConfigManager Instance used to check hotkey</span>
+<span class="sd">    @param hotkey: hotkey to be check if unique</span>
+<span class="sd">    @param window_filter: Window filter to be applied to the hotkey</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hotkey</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">modifiers</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">hotkey</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">configmanager</span><span class="o">.</span><span class="n">check_hotkey_unique</span><span class="p">(</span><span class="n">modifiers</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">window_filter</span><span class="p">,</span> <span class="kc">None</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;The specified hotkey and modifier combination is already in use: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hotkey</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">isValidHotkeyType</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Checks if the hotkey is valid.</span>
+
+<span class="sd">    @param item: Hotkey to be checked</span>
+<span class="sd">    @return: Returns C{True} if hotkey is valid, C{False} otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Key</span><span class="p">):</span>
+        <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">fail</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">Key</span><span class="o">.</span><span class="n">is_key</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">fail</span>
+
+
+<span class="k">def</span> <span class="nf">validateHotkey</span><span class="p">(</span><span class="n">hotkey</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">failmsg</span> <span class="o">=</span> <span class="s2">&quot;Expected hotkey to be a tuple of modifiers then keys, as lists of Key or str, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">hotkey</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">hotkey</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">fail</span><span class="o">=</span><span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hotkey</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">):</span>
+        <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hotkey</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># First check modifiers is list of valid hotkeys.</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hotkey</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">hotkey</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">isValidHotkeyType</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                        <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+                        <span class="n">failmsg</span> <span class="o">=</span> <span class="s2">&quot;Hotkey is not a valid modifier: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">failmsg</span> <span class="o">=</span> <span class="s2">&quot;Hotkey modifiers is not a list&quot;</span>
+            <span class="c1"># Then check second element is a key or str</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">isValidHotkeyType</span><span class="p">(</span><span class="n">hotkey</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+                <span class="n">fail</span><span class="o">=</span><span class="kc">True</span>
+                <span class="n">failmsg</span> <span class="o">=</span> <span class="s2">&quot;Hotkey is not a valid key: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">hotkey</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">fail</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">failmsg</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">validateArguments</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span>
+                          <span class="n">abbreviations</span><span class="p">,</span> <span class="n">hotkey</span><span class="p">,</span> <span class="n">send_mode</span><span class="p">,</span> <span class="n">window_filter</span><span class="p">,</span>
+                          <span class="n">show_in_system_tray</span><span class="p">,</span> <span class="n">always_prompt</span><span class="p">,</span> <span class="n">temporary</span><span class="p">,</span>
+                          <span class="n">replace_existing_hotkey</span><span class="p">):</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;folder&quot;</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">folder</span><span class="o">.</span><span class="n">Folder</span><span class="p">)</span>
+    <span class="c1"># For when we allow pathlib.Path</span>
+    <span class="c1"># validateType(folder, &quot;folder&quot;,</span>
+    <span class="c1">#         [model.Folder, pathlib.Path])</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">contents</span><span class="p">,</span> <span class="s2">&quot;contents&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">validateAbbreviations</span><span class="p">(</span><span class="n">abbreviations</span><span class="p">)</span>
+    <span class="n">validateHotkey</span><span class="p">(</span><span class="n">hotkey</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">send_mode</span><span class="p">,</span> <span class="s2">&quot;send_mode&quot;</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">window_filter</span><span class="p">,</span> <span class="s2">&quot;window_filter&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">show_in_system_tray</span><span class="p">,</span> <span class="s2">&quot;show_in_system_tray&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">always_prompt</span><span class="p">,</span> <span class="s2">&quot;always_prompt&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">temporary</span><span class="p">,</span> <span class="s2">&quot;temporary&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">validateType</span><span class="p">(</span><span class="n">replace_existing_hotkey</span><span class="p">,</span> <span class="s2">&quot;replace_existing_hotkey&quot;</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="c1"># TODO: The validation should be done by some controller functions in the model base classes.</span>
+
+    <span class="k">if</span> <span class="n">folder</span><span class="o">.</span><span class="n">temporary</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">temporary</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Parameter &#39;temporary&#39; is False, but parent folder is a temporary one. </span><span class="se">\</span>
+<span class="s2">    Phrases created within temporary folders must themselves be explicitly set temporary&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">validateType</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; type_ may be a list, in which case if item matches</span>
+<span class="sd">    any type, no error is raised.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">item</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">type_</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="n">failed</span><span class="o">=</span><span class="kc">True</span>
+        <span class="k">for</span> <span class="n">type__</span> <span class="ow">in</span> <span class="n">type_</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">type__</span><span class="p">):</span>
+                <span class="n">failed</span><span class="o">=</span><span class="kc">False</span>
+        <span class="k">if</span> <span class="n">failed</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2"> to be one of </span><span class="si">{}</span><span class="s2">, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">type_</span><span class="p">,</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">type_</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Expected </span><span class="si">{}</span><span class="s2"> to be </span><span class="si">{}</span><span class="s2">, not </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">name</span><span class="p">,</span>
+                <span class="n">type_</span><span class="p">,</span>
+                <span class="nb">type</span><span class="p">(</span><span class="n">item</span><span class="p">)))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Various.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

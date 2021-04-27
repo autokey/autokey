@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>autokey.scripting.window &mdash; AutoKey v0.95.11 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html">
+          
+
+          
+            
+            <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoKey</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>autokey.scripting.window</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for autokey.scripting.window</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2011 Chris Dekter</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="sd">&quot;&quot;&quot;Basic window management. Requies C{wmctrl} to be installed.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="Window"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window">[docs]</a><span class="k">class</span> <span class="nc">Window</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Basic window management using wmctrl</span>
+
+<span class="sd">    Note: in all cases where a window title is required (with the exception of wait_for_focus()),</span>
+<span class="sd">    two special values of window title are permitted:</span>
+
+<span class="sd">    :ACTIVE: - select the currently active window</span>
+<span class="sd">    :SELECT: - select the desired window by clicking on it</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediator</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span> <span class="o">=</span> <span class="n">mediator</span>
+
+<div class="viewcode-block" id="Window.wait_for_focus"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.wait_for_focus">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_focus</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">timeOut</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for window with the given title to have focus</span>
+
+<span class="sd">        Usage: C{window.wait_for_focus(title, timeOut=5)}</span>
+
+<span class="sd">        If the window becomes active, returns True. Otherwise, returns False if</span>
+<span class="sd">        the window has not become active by the time the timeout has elapsed.</span>
+
+<span class="sd">        @param title: title to match against (as a regular expression)</span>
+<span class="sd">        @param timeOut: period (seconds) to wait before giving up</span>
+<span class="sd">        @rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">waited</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">waited</span> <span class="o">&lt;=</span> <span class="n">timeOut</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_window_title</span><span class="p">()):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">timeOut</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># zero length timeout, if not matched go straight to end</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+            <span class="n">waited</span> <span class="o">+=</span> <span class="mf">0.3</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Window.wait_for_exist"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.wait_for_exist">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_exist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">timeOut</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for window with the given title to be created</span>
+
+<span class="sd">        Usage: C{window.wait_for_exist(title, timeOut=5)}</span>
+
+<span class="sd">        If the window is in existence, returns True. Otherwise, returns False if</span>
+<span class="sd">        the window has not been created by the time the timeout has elapsed.</span>
+
+<span class="sd">        @param title: title to match against (as a regular expression)</span>
+<span class="sd">        @param timeOut: period (seconds) to wait before giving up</span>
+<span class="sd">        @rtype: boolean</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">waited</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">waited</span> <span class="o">&lt;=</span> <span class="n">timeOut</span><span class="p">:</span>
+            <span class="n">retCode</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-l&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">regex</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">line</span><span class="p">[</span><span class="mi">14</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">if</span> <span class="n">timeOut</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>  <span class="c1"># zero length timeout, if not matched go straight to end</span>
+
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.3</span><span class="p">)</span>
+            <span class="n">waited</span> <span class="o">+=</span> <span class="mf">0.3</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Window.activate"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.activate">[docs]</a>    <span class="k">def</span> <span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">switchDesktop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">matchClass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Activate the specified window, giving it input focus</span>
+
+<span class="sd">        Usage: C{window.activate(title, switchDesktop=False, matchClass=False)}</span>
+
+<span class="sd">        If switchDesktop is False (default), the window will be moved to the current desktop</span>
+<span class="sd">        and activated. Otherwise, switch to the window&#39;s current desktop and activate it there.</span>
+
+<span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
+<span class="sd">        @param switchDesktop: whether or not to switch to the window&#39;s current desktop</span>
+<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">switchDesktop</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-R&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
+            <span class="n">args</span> <span class="o">+=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">(</span><span class="n">args</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.close"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">matchClass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the specified window gracefully</span>
+
+<span class="sd">        Usage: C{window.close(title, matchClass=False)}</span>
+
+<span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
+<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-x&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Window.resize_move"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.resize_move">[docs]</a>    <span class="k">def</span> <span class="nf">resize_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">xOrigin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">yOrigin</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">width</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">height</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">matchClass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resize and/or move the specified window</span>
+
+<span class="sd">        Usage: C{window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False)}</span>
+
+<span class="sd">        Leaving and of the position/dimension values as the default (-1) will cause that</span>
+<span class="sd">        value to be left unmodified.</span>
+
+<span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
+<span class="sd">        @param xOrigin: new x origin of the window (upper left corner)</span>
+<span class="sd">        @param yOrigin: new y origin of the window (upper left corner)</span>
+<span class="sd">        @param width: new width of the window</span>
+<span class="sd">        @param height: new height of the window</span>
+<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mvArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">xOrigin</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">yOrigin</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">height</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-e&quot;</span><span class="p">,</span> <span class="s1">&#39;,&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">mvArgs</span><span class="p">)]</span> <span class="o">+</span> <span class="n">xArgs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.move_to_desktop"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.move_to_desktop">[docs]</a>    <span class="k">def</span> <span class="nf">move_to_desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">deskNum</span><span class="p">,</span> <span class="n">matchClass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Move the specified window to the given desktop</span>
+
+<span class="sd">        Usage: C{window.move_to_desktop(title, deskNum, matchClass=False)}</span>
+
+<span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
+<span class="sd">        @param deskNum: desktop to move the window to (note: zero based)</span>
+<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-t&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">deskNum</span><span class="p">)]</span> <span class="o">+</span> <span class="n">xArgs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.switch_desktop"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.switch_desktop">[docs]</a>    <span class="k">def</span> <span class="nf">switch_desktop</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deskNum</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Switch to the specified desktop</span>
+
+<span class="sd">        Usage: C{window.switch_desktop(deskNum)}</span>
+
+<span class="sd">        @param deskNum: desktop to switch to (note: zero based)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-s&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">deskNum</span><span class="p">)])</span></div>
+
+<div class="viewcode-block" id="Window.set_property"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.set_property">[docs]</a>    <span class="k">def</span> <span class="nf">set_property</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">prop</span><span class="p">,</span> <span class="n">matchClass</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Set a property on the given window using the specified action</span>
+
+<span class="sd">        Usage: C{window.set_property(title, action, prop, matchClass=False)}</span>
+
+<span class="sd">        Allowable actions: C{add, remove, toggle}</span>
+<span class="sd">        Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,</span>
+<span class="sd">        skip_pager, hidden, fullscreen, above}</span>
+
+<span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
+<span class="sd">        @param action: one of the actions listed above</span>
+<span class="sd">        @param prop: one of the properties listed above</span>
+<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-r&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-b&quot;</span> <span class="o">+</span> <span class="n">action</span> <span class="o">+</span> <span class="s1">&#39;,&#39;</span> <span class="o">+</span> <span class="n">prop</span><span class="p">]</span> <span class="o">+</span> <span class="n">xArgs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Window.get_active_geometry"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.get_active_geometry">[docs]</a>    <span class="k">def</span> <span class="nf">get_active_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geometry of the currently active window</span>
+
+<span class="sd">        Usage: C{window.get_active_geometry()}</span>
+
+<span class="sd">        @return: a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)</span>
+<span class="sd">        @rtype: C{tuple(int, int, int, int)}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">active</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_window_title</span><span class="p">()</span>
+        <span class="n">result</span><span class="p">,</span> <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-l&quot;</span><span class="p">,</span> <span class="s2">&quot;-G&quot;</span><span class="p">])</span>
+        <span class="n">matchingLine</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">output</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">active</span> <span class="ow">in</span> <span class="n">line</span><span class="p">[</span><span class="mi">34</span><span class="p">:]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+                <span class="n">matchingLine</span> <span class="o">=</span> <span class="n">line</span>
+
+        <span class="k">if</span> <span class="n">matchingLine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">output</span> <span class="o">=</span> <span class="n">matchingLine</span><span class="o">.</span><span class="n">split</span><span class="p">()[</span><span class="mi">2</span><span class="p">:</span><span class="mi">6</span><span class="p">]</span>
+            <span class="c1"># return [int(x) for x in output]</span>
+            <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">output</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="Window.get_active_title"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.get_active_title">[docs]</a>    <span class="k">def</span> <span class="nf">get_active_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the visible title of the currently active window</span>
+
+<span class="sd">        Usage: C{window.get_active_title()}</span>
+
+<span class="sd">        @return: the visible title of the currentle active window</span>
+<span class="sd">        @rtype: C{str}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_window_title</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Window.get_active_class"><a class="viewcode-back" href="../../../api/window.html#autokey.scripting.Window.get_active_class">[docs]</a>    <span class="k">def</span> <span class="nf">get_active_class</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the class of the currently active window</span>
+
+<span class="sd">        Usage: C{window.get_active_class()}</span>
+
+<span class="sd">        @return: the class of the currentle active window</span>
+<span class="sd">        @rtype: C{str}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">get_window_class</span><span class="p">()</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_wmctrl</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="s2">&quot;wmctrl&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span> <span class="k">as</span> <span class="n">p</span><span class="p">:</span>
+                <span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Drop trailing newline</span>
+                <span class="n">returncode</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span>
+        <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;ERROR: Please install wmctrl&#39;</span>
+
+        <span class="k">return</span> <span class="n">returncode</span><span class="p">,</span> <span class="n">output</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Various.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
