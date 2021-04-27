@@ -7,6 +7,7 @@
   * [Script Debugging](https://github.com/autokey/autokey/wiki/Script-Debugging)
   * [Upgrading AutoKey](https://github.com/autokey/autokey/wiki/Upgrading-AutoKey)
   * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
+  * [[Discussions]]
 * [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide)
 * [API](https://github.com/autokey/autokey/wiki/API-Examples)
 * [Example Scripts](https://github.com/autokey/autokey/wiki/Scripts---contributed-1)
