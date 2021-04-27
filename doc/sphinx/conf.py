@@ -13,7 +13,7 @@
 import os
 import sys
 #TODO this needs to be dealt with for github actions
-sys.path.insert(0, os.path.abspath('/home/sam/git/ak/lib'))
+sys.path.insert(0, os.path.abspath('../../lib'))
 
 
 # -- Project information -----------------------------------------------------
