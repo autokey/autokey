@@ -47,6 +47,7 @@ Features
 - Allow disabling Capslock in settings
 - Link to script `.py` and `.json` above editor.
 - Add appropriate keywords to `.desktop` files for both UIs.
+- (GTK) refresh UI if script files are modified externally
 
 Bug fixes
 ---------
