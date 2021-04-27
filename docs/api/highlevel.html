@@ -1,0 +1,363 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>HighLevel API &mdash; AutoKey v0.95.11 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Common API" href="common.html" />
+    <link rel="prev" title="Engine API" href="engine.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html">
+          
+
+          
+            
+            <img src="../_static/autokey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Autokey API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="keyboard.html">Keyboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mouse.html">Mouse API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="store.html">Store API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtdialog.html">QtDialog API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtclipboard.html">QtClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gtkdialog.html">GtkDialog API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gtkclipboard.html">GtkClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">System API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="window.html">Window API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine.html">Engine API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">HighLevel API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoKey</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../api.html">Autokey API</a> &raquo;</li>
+        
+      <li>HighLevel API</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/highlevel.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-autokey.scripting.highlevel">
+<span id="highlevel-api"></span><h1>HighLevel API<a class="headerlink" href="#module-autokey.scripting.highlevel" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="autokey.scripting.highlevel.PatternNotFound">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">PatternNotFound</span></code><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#PatternNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.PatternNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception raised by functions</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.visgrep">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">visgrep</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scr</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pat</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tolerance</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#visgrep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.visgrep" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">visgrep(scr:</span> <span class="pre">str,</span> <span class="pre">pat:</span> <span class="pre">str,</span> <span class="pre">tolerance:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0)</span> <span class="pre">-&gt;</span> <span class="pre">int</span></code></p>
+<p>Visual grep of scr for pattern pat.</p>
+<p>Requires xautomation (<a class="reference external" href="http://hoopajoo.net/projects/xautomation.html">http://hoopajoo.net/projects/xautomation.html</a>).</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">visgrep(&quot;screen.png&quot;,</span> <span class="pre">&quot;pat.png&quot;)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scr</strong> – path of PNG image to be grepped.</p></li>
+<li><p><strong>pat</strong> – path of pattern image (PNG) to look for in scr.</p></li>
+<li><p><strong>tolerance</strong> – An integer ≥ 0 to specify the level of tolerance for ‘fuzzy’ matches.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValueError</strong> – Raised if tolerance is negative or not convertable to int</p></li>
+<li><p><a class="reference internal" href="#autokey.scripting.highlevel.PatternNotFound" title="autokey.scripting.highlevel.PatternNotFound"><strong>PatternNotFound</strong></a> – Raised if <code class="xref py py-obj docutils literal notranslate"><span class="pre">pat</span></code> not found.</p></li>
+<li><p><strong>FileNotFoundError</strong> – Raised if either file is not found</p></li>
+</ul>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Coordinates of the topleft point of the match, if any. Raises <a class="reference internal" href="#autokey.scripting.highlevel.PatternNotFound" title="autokey.scripting.highlevel.PatternNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PatternNotFound</span></code></a> exception otherwise.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.get_png_dim">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">get_png_dim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#get_png_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.get_png_dim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_png_dim(filepath:str)</span> <span class="pre">-&gt;</span> <span class="pre">(int)</span></code></p>
+<p>Finds the dimension of a PNG.
+:param filepath: file path of the PNG.
+:returns: (width, height).
+:raise Exception: Raised if the file is not a png</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.mouse_move">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">mouse_move</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#mouse_move"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.mouse_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the mouse using xte <code class="xref py py-obj docutils literal notranslate"><span class="pre">mousemove</span></code> from xautomation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – x location to move the mouse to</p></li>
+<li><p><strong>y</strong> – y location to move the mouse to</p></li>
+<li><p><strong>display</strong> – X display to pass to <code class="xref py py-obj docutils literal notranslate"><span class="pre">xte</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.mouse_rmove">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">mouse_rmove</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#mouse_rmove"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.mouse_rmove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves the mouse using xte <code class="xref py py-obj docutils literal notranslate"><span class="pre">mousermove</span></code> command from xautomation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> – x location to move the mouse to</p></li>
+<li><p><strong>y</strong> – y location to move the mouse to</p></li>
+<li><p><strong>display</strong> – X display to pass to <code class="xref py py-obj docutils literal notranslate"><span class="pre">xte</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.mouse_click">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">mouse_click</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">button</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#mouse_click"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.mouse_click" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clicks the mouse in the current location using xte <code class="xref py py-obj docutils literal notranslate"><span class="pre">mouseclick</span></code> from xautomation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>button</strong> – Which button signal to send from the mouse</p></li>
+<li><p><strong>display</strong> – X display to pass to <code class="xref py py-obj docutils literal notranslate"><span class="pre">xte</span></code></p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.mouse_pos">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">mouse_pos</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#mouse_pos"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.mouse_pos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current location of the mouse.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Returns the mouse location in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.click_on_pat">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">click_on_pat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pat:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">mousebutton:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">1</span></em>, <em class="sig-param"><span class="pre">offset:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;)</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">tolerance:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em>, <em class="sig-param"><span class="pre">restore_pos:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">False</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#click_on_pat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.click_on_pat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Requires <code class="xref py py-obj docutils literal notranslate"><span class="pre">imagemagick</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">xautomation</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">xwd</span></code>.</p>
+<p>Click on a pattern at a specified offset (x,y) in percent of the pattern dimension. x is the horizontal distance from the top left corner, y is the vertical distance from the top left corner. By default, the offset is (50,50), which means that the center of the pattern will be clicked at.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pat</strong> – path of pattern image (PNG) to click on.</p></li>
+<li><p><strong>mousebutton</strong> – mouse button number used for the click</p></li>
+<li><p><strong>offset</strong> – offset from the top left point of the match. (float,float)</p></li>
+<li><p><strong>tolerance</strong> – An integer ≥ 0 to specify the level of tolerance for ‘fuzzy’ matches. If negative or not convertible to int, raises ValueError.</p></li>
+<li><p><strong>restore_pos</strong> – return to the initial mouse position after the click.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference internal" href="#autokey.scripting.highlevel.PatternNotFound" title="autokey.scripting.highlevel.PatternNotFound"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PatternNotFound</span></code></a>: Raised when the pattern is not found on the screen</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.move_to_pat">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">move_to_pat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">pat:</span> <span class="pre">str</span></em>, <em class="sig-param"><span class="pre">offset:</span> <span class="pre">(&lt;class</span> <span class="pre">'float'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'float'&gt;)</span> <span class="pre">=</span> <span class="pre">None</span></em>, <em class="sig-param"><span class="pre">tolerance:</span> <span class="pre">int</span> <span class="pre">=</span> <span class="pre">0</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#move_to_pat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.move_to_pat" title="Permalink to this definition">¶</a></dt>
+<dd><p>See <a class="reference internal" href="#autokey.scripting.highlevel.click_on_pat" title="autokey.scripting.highlevel.click_on_pat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">click_on_pat</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="autokey.scripting.highlevel.acknowledge_gnome_notification">
+<code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">acknowledge_gnome_notification</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#acknowledge_gnome_notification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.acknowledge_gnome_notification" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves mouse pointer to the bottom center of the screen and clicks on it.</p>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="common.html" class="btn btn-neutral float-right" title="Common API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="engine.html" class="btn btn-neutral float-left" title="Engine API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Various.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
