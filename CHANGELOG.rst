@@ -13,7 +13,7 @@ Changelog
 .. Other changes
 .. ---------
 
-Version Develop
+Version 0.96.0-beta.1
 ============================
 
 Important misc changes
