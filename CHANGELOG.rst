@@ -19,7 +19,7 @@ Version Develop
 Important misc changes
 ----------------------
 
-- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted.
+- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted, but if switch back to versions prior to this one, you will need to copy or symlink them back to dotfile form.
 - Scripting API files are now in Python packages, which may require adjusting imports if you have scripts that import them directly.
 - Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
 - This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
