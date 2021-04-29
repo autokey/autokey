@@ -86,7 +86,7 @@ html_context = {
     'display_github': True,
     'github_user': 'autokey',
     'github_repo': 'autokey',
-    'github_version': 'docs',
+    'github_version': 'docs/',
 }
 
 html_sidebars = {
