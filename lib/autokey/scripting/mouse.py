@@ -195,7 +195,7 @@ class Mouse:
         Incorporates a tiny delay in order to make sure AutoKey executes any queued commands
 
         Usage: C{mouse.get_relative_location()}
-        
+
         @return: x,y location of the mouse relative to the top left hand corner of the window that has input focus
         @rtype: C{tuple(int, int)}
         """
@@ -207,9 +207,9 @@ class Mouse:
         Fires the mouse button 5 signal the specified number of times.
 
         Note that the behavior of these methods are effected (and untested) by programs like imwheel.
-        
-        Usage: C{mouse.scroll_down()}
-    
+
+        Usage: C{mouse.scroll_down(number)}
+
         @param number: The number of times the scroll up signal will be fired.
         """
         self.interface.scroll_down(number)
@@ -220,7 +220,7 @@ class Mouse:
 
         Note that the behavior of these methods are effected (and untested) by programs like imwheel.
 
-        Usage: C{mouse.scroll_up()}
+        Usage: C{mouse.scroll_up(number)}
 
         @param number: The number of times the scroll up signal will be fired.
         """

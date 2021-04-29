@@ -11,10 +11,11 @@ import struct
 
 
 class PatternNotFound(Exception):
-    """Exception raised by functions"""
+    """Exception raised by functions when the given pattern is not found in the provided area by visgrep"""
     pass
 
 # numeric representation of the mouse buttons. For use in visgrep.
+# TODO use autokey.model.button instead of these constants
 LEFT = 1
 """Left mouse button"""
 MIDDLE = 2
@@ -32,8 +33,6 @@ def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
     Requires xautomation (http://hoopajoo.net/projects/xautomation.html).
 
     Usage: C{visgrep("screen.png", "pat.png")}
-
-    
 
     @param scr: path of PNG image to be grepped.
     @param pat: path of pattern image (PNG) to look for in scr.
@@ -68,8 +67,9 @@ def get_png_dim(filepath: str) -> int:
     Usage: C{get_png_dim(filepath:str) -> (int)}
 
     Finds the dimension of a PNG.
+
     @param filepath: file path of the PNG.
-    @returns: (width, height).
+    @returns: C{(width, height)}
     @raise Exception: Raised if the file is not a png
     """
     if not imghdr.what(filepath) == 'png':
@@ -114,7 +114,7 @@ def mouse_pos():
     """
     Returns the current location of the mouse.
 
-    @returns: Returns the mouse location in a C{list}
+    @returns: C{x,y} location of the mouse as a list
     """
     tmp = subprocess.check_output("xmousepos").decode().split()
     return list(map(int, tmp))[:2]
