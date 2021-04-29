@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Keyboard API &mdash; AutoKey v0.95.11 documentation</title>
+  <title>Keyboard API &mdash; AutoKey latest documentation</title>
   
 
   
@@ -64,6 +64,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -162,7 +169,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/keyboard.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsapi/keyboard.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -186,10 +193,12 @@
 <dt id="autokey.scripting.Keyboard.SendMode">
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">SendMode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autokey.scripting.Keyboard.SendMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enumeration class for phrase send modes</p>
-<p>KEYBOARD: Send using key events
-CB_CTRL_V: Send via clipboard and paste with Ctrl+v
-CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
-SELECTION: Send via X selection and paste with middle mouse button</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">KEYBOARD</span></code>: Send using key events</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CB_CTRL_V</span></code>: Send via clipboard and paste with <code class="docutils literal notranslate"><span class="pre">Ctrl+v</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CB_CTRL_SHIFT_V</span></code>: Send via clipboard and paste with <code class="docutils literal notranslate"><span class="pre">Ctrl+Shift+v</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SELECTION</span></code>: Send via X selection and paste with middle mouse button</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
@@ -197,12 +206,12 @@ SELECTION: Send via X selection and paste with middle mouse button</p>
 <code class="sig-name descname"><span class="pre">fake_keypress</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">repeat</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/keyboard.html#Keyboard.fake_keypress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Keyboard.fake_keypress" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fake a keypress</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboard.fake_keypress(key,</span> <span class="pre">repeat=1)</span></code></p>
-<p>Uses XTest to ‘fake’ a keypress. This is useful to send keypresses to some
-applications which won’t respond to keyboard.send_key()</p>
+<p>Uses <a class="reference external" href="https://github.com/python-xlib/python-xlib/blob/master/Xlib/ext/xtest.py">XTest</a> to ‘fake’ a keypress. This is useful to send keypresses to some
+applications which won’t respond to <code class="docutils literal notranslate"><span class="pre">keyboard.send_key()</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – they key to be sent (e.g. “s” or “&lt;enter&gt;”)</p></li>
+<li><p><strong>key</strong> – they key to be sent (e.g. <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code>)</p></li>
 <li><p><strong>repeat</strong> – number of times to repeat the key event</p></li>
 </ul>
 </dd>
@@ -220,8 +229,8 @@ applications which won’t respond to keyboard.send_key()</p>
 <code class="sig-name descname"><span class="pre">press_key</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/keyboard.html#Keyboard.press_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Keyboard.press_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a key down event</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboard.press_key(key)</span></code></p>
-<p>The key will be treated as down until a matching release_key() is sent.
-:param key: they key to be pressed (e.g. “s” or “&lt;enter&gt;”)</p>
+<p>The key will be treated as down until a matching <code class="docutils literal notranslate"><span class="pre">release_key()</span></code> is sent.
+:param key: they key to be pressed (e.g. <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code>)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -229,9 +238,9 @@ applications which won’t respond to keyboard.send_key()</p>
 <code class="sig-name descname"><span class="pre">release_key</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/keyboard.html#Keyboard.release_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Keyboard.release_key" title="Permalink to this definition">¶</a></dt>
 <dd><p>Send a key up event</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboard.release_key(key)</span></code></p>
-<p>If the specified key was not made down using press_key(), the event will be
+<p>If the specified key was not made down using <code class="docutils literal notranslate"><span class="pre">press_key()</span></code>, the event will be
 ignored.
-:param key: they key to be released (e.g. “s” or “&lt;enter&gt;”)</p>
+:param key: they key to be released (e.g. <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code>)</p>
 </dd></dl>
 
 <dl class="py method">
@@ -242,7 +251,7 @@ ignored.
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> – they key to be sent (e.g. “s” or “&lt;enter&gt;”)</p></li>
+<li><p><strong>key</strong> – they key to be sent (e.g. <code class="docutils literal notranslate"><span class="pre">s</span></code> or <code class="docutils literal notranslate"><span class="pre">&lt;enter&gt;</span></code>)</p></li>
 <li><p><strong>repeat</strong> – number of times to repeat the key event</p></li>
 </ul>
 </dd>
@@ -256,7 +265,7 @@ ignored.
 Because the clipboard can only contain
 printable characters, special keys and embedded key combinations can only be sent in keyboard mode.</p>
 <p>Trying to send special keys using a clipboard pasting method will paste the literal representation
-(e.g. “&lt;ctrl&gt;+&lt;f11&gt;”) instead of the actual special key or key combination.</p>
+(e.g. <code class="docutils literal notranslate"><span class="pre">&lt;ctrl&gt;+&lt;f11&gt;</span></code>) instead of the actual special key or key combination.</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboard.send_keys(keyString)</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -270,8 +279,44 @@ printable characters, special keys and embedded key combinations can only be sen
 
 <dl class="py method">
 <dt id="autokey.scripting.Keyboard.wait_for_keyevent">
-<code class="sig-name descname"><span class="pre">wait_for_keyevent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">check</span></em>, <em class="sig-param"><span class="pre">&quot;emacs-prefix&quot;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/keyboard.html#Keyboard.wait_for_keyevent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Keyboard.wait_for_keyevent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">wait_for_keyevent</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">check</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">any</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">,</span> </span><span class="pre">list</span><span class="p"><span class="pre">,</span> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span> <span class="o"><span class="pre">=</span></span> <span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeOut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10.0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/keyboard.html#Keyboard.wait_for_keyevent"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Keyboard.wait_for_keyevent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wait for a key event, potentially accumulating the intervening characters</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">keyboard.wait_for_keypress(self,</span> <span class="pre">check,</span> <span class="pre">name=None,</span> <span class="pre">timeOut=10.0)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>check</strong> – a function that returns True or False to signify we’ve finished waiting</p></li>
+<li><p><strong>name</strong> – only one waiter can have this name. Used to prevent more threads waiting on this.</p></li>
+<li><p><strong>timeOut</strong> – maximum time, in seconds, to wait for the keypress to occur</p></li>
+</ul>
+</dd>
+</dl>
+<p>Example:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Accumulate the traditional emacs C-u prefix arguments</span>
+<span class="c1"># See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html</span>
+<span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="n">waiter</span><span class="p">,</span><span class="n">rawKey</span><span class="p">,</span><span class="n">modifiers</span><span class="p">,</span><span class="n">key</span><span class="p">,</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">isCtrlU</span> <span class="o">=</span> <span class="p">(</span><span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">modifiers</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">modifiers</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;&lt;ctrl&gt;&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">isCtrlU</span><span class="p">:</span> <span class="c1"># If we get here, they&#39;ve already pressed C-u at least 2x</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">waiter</span><span class="o">.</span><span class="n">result</span><span class="p">)</span> <span class="o">*</span> <span class="mi">4</span>
+            <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;16&quot;</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">m</span> <span class="o">==</span> <span class="s2">&quot;&lt;ctrl&gt;&quot;</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">==</span> <span class="s2">&quot;&lt;alt&gt;&quot;</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">==</span> <span class="s2">&quot;&lt;meta&gt;&quot;</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">==</span> <span class="s2">&quot;&lt;super&gt;&quot;</span> <span class="ow">or</span> <span class="n">m</span> <span class="o">==</span> <span class="s2">&quot;&lt;hyper&gt;&quot;</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">modifiers</span><span class="p">):</span>
+        <span class="c1"># Some other control character is an indication we&#39;re done.</span>
+        <span class="k">if</span> <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="s2">&quot;4&quot;</span>
+        <span class="n">store</span><span class="o">.</span><span class="n">set_global_value</span><span class="p">(</span><span class="s2">&quot;emacs-prefix-arg&quot;</span><span class="p">,</span> <span class="n">waiter</span><span class="o">.</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># accumulate as a string</span>
+        <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">=</span> <span class="n">waiter</span><span class="o">.</span><span class="n">result</span> <span class="o">+</span> <span class="n">key</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">keyboard</span><span class="o">.</span><span class="n">wait_for_keyevent</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="s2">&quot;emacs-prefix&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="py method">
 <dt id="autokey.scripting.Keyboard.wait_for_keypress">

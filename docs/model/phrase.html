@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Autokey Phrase &mdash; AutoKey v0.95.11 documentation</title>
+  <title>Autokey Phrase &mdash; AutoKey latest documentation</title>
   
 
   
@@ -65,6 +65,13 @@
           </a>
 
           
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
+          
 
           
 <div role="search">
@@ -93,6 +100,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Autokey Phrase</a></li>
 <li class="toctree-l2"><a class="reference internal" href="script.html">Autokey Script</a></li>
 <li class="toctree-l2"><a class="reference internal" href="folder.html">Autokey Folder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="key.html">Autokey Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="button.html">Autokey Button</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
@@ -153,7 +162,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/model/phrase.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsmodel/phrase.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -192,10 +201,12 @@ Always returns true if the phrase has been triggered using predictive mode.</p>
 <dt id="autokey.model.phrase.SendMode">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">autokey.model.phrase.</span></code><code class="sig-name descname"><span class="pre">SendMode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/model/phrase.html#SendMode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.model.phrase.SendMode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Enumeration class for phrase send modes</p>
-<p>KEYBOARD: Send using key events
-CB_CTRL_V: Send via clipboard and paste with Ctrl+v
-CB_CTRL_SHIFT_V: Send via clipboard and paste with Ctrl+Shift+v
-SELECTION: Send via X selection and paste with middle mouse button</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">KEYBOARD</span></code>: Send using key events</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CB_CTRL_V</span></code>: Send via clipboard and paste with <code class="docutils literal notranslate"><span class="pre">Ctrl+v</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CB_CTRL_SHIFT_V</span></code>: Send via clipboard and paste with <code class="docutils literal notranslate"><span class="pre">Ctrl+Shift+v</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SELECTION</span></code>: Send via X selection and paste with middle mouse button</p></li>
+</ul>
 </dd></dl>
 
 </div>

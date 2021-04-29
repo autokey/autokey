@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Window API &mdash; AutoKey v0.95.11 documentation</title>
+  <title>Window API &mdash; AutoKey latest documentation</title>
   
 
   
@@ -64,6 +64,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -162,7 +169,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/window.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsapi/window.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -201,14 +208,14 @@ two special values of window title are permitted:</p>
 <code class="sig-name descname"><span class="pre">activate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">switchDesktop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matchClass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/window.html#Window.activate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Window.activate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Activate the specified window, giving it input focus</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">window.activate(title,</span> <span class="pre">switchDesktop=False,</span> <span class="pre">matchClass=False)</span></code></p>
-<p>If switchDesktop is False (default), the window will be moved to the current desktop
+<p>If <code class="docutils literal notranslate"><span class="pre">switchDesktop</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> (default), the window will be moved to the current desktop
 and activated. Otherwise, switch to the window’s current desktop and activate it there.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>title</strong> – window title to match against (as case-insensitive substring match)</p></li>
 <li><p><strong>switchDesktop</strong> – whether or not to switch to the window’s current desktop</p></li>
-<li><p><strong>matchClass</strong> – if True, match on the window class instead of the title</p></li>
+<li><p><strong>matchClass</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, match on the window class instead of the title</p></li>
 </ul>
 </dd>
 </dl>
@@ -223,7 +230,7 @@ and activated. Otherwise, switch to the window’s current desktop and activate 
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>title</strong> – window title to match against (as case-insensitive substring match)</p></li>
-<li><p><strong>matchClass</strong> – if True, match on the window class instead of the title</p></li>
+<li><p><strong>matchClass</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, match on the window class instead of the title</p></li>
 </ul>
 </dd>
 </dl>
@@ -284,7 +291,7 @@ and activated. Otherwise, switch to the window’s current desktop and activate 
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>title</strong> – window title to match against (as case-insensitive substring match)</p></li>
 <li><p><strong>deskNum</strong> – desktop to move the window to (note: zero based)</p></li>
-<li><p><strong>matchClass</strong> – if True, match on the window class instead of the title</p></li>
+<li><p><strong>matchClass</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, match on the window class instead of the title</p></li>
 </ul>
 </dd>
 </dl>
@@ -305,7 +312,7 @@ value to be left unmodified.</p>
 <li><p><strong>yOrigin</strong> – new y origin of the window (upper left corner)</p></li>
 <li><p><strong>width</strong> – new width of the window</p></li>
 <li><p><strong>height</strong> – new height of the window</p></li>
-<li><p><strong>matchClass</strong> – if True, match on the window class instead of the title</p></li>
+<li><p><strong>matchClass</strong> – if <code class="docutils literal notranslate"><span class="pre">True</span></code>, match on the window class instead of the title</p></li>
 </ul>
 </dd>
 </dl>
@@ -316,9 +323,27 @@ value to be left unmodified.</p>
 <code class="sig-name descname"><span class="pre">set_property</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matchClass</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/window.html#Window.set_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Window.set_property" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set a property on the given window using the specified action</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">window.set_property(title,</span> <span class="pre">action,</span> <span class="pre">prop,</span> <span class="pre">matchClass=False)</span></code></p>
-<p>Allowable actions: <code class="xref py py-obj docutils literal notranslate"><span class="pre">add,</span> <span class="pre">remove,</span> <span class="pre">toggle</span></code>
-Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
-skip_pager, hidden, fullscreen, above}</p>
+<dl class="simple">
+<dt>Allowable actions:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">add</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">remove</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">toggle</span></code></p></li>
+</ul>
+</dd>
+<dt>Allowable properties:</dt><dd><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">modal</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sticky</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maximized_vert</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">maximized_horz</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">shaded</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_taskbar</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">skip_pager</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">hidden</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fullscreen</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">above</span></code></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -358,7 +383,7 @@ the window has not been created by the time the timeout has elapsed.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>boolean</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>
@@ -368,7 +393,7 @@ the window has not been created by the time the timeout has elapsed.</p>
 <code class="sig-name descname"><span class="pre">wait_for_focus</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeOut</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/window.html#Window.wait_for_focus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Window.wait_for_focus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Wait for window with the given title to have focus</p>
 <p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">window.wait_for_focus(title,</span> <span class="pre">timeOut=5)</span></code></p>
-<p>If the window becomes active, returns True. Otherwise, returns False if
+<p>If the window becomes active, returns <code class="docutils literal notranslate"><span class="pre">True</span></code>. Otherwise, returns <code class="docutils literal notranslate"><span class="pre">False</span></code> if
 the window has not become active by the time the timeout has elapsed.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -378,7 +403,7 @@ the window has not become active by the time the timeout has elapsed.</p>
 </ul>
 </dd>
 <dt class="field-even">Return type</dt>
-<dd class="field-even"><p>boolean</p>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">bool</span></code></p>
 </dd>
 </dl>
 </dd></dl>

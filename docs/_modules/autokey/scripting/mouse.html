@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>autokey.scripting.mouse &mdash; AutoKey v0.95.11 documentation</title>
+  <title>autokey.scripting.mouse &mdash; AutoKey latest documentation</title>
   
 
   
@@ -62,6 +62,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -352,7 +359,7 @@
 <span class="sd">        Incorporates a tiny delay in order to make sure AutoKey executes any queued commands</span>
 
 <span class="sd">        Usage: C{mouse.get_relative_location()}</span>
-<span class="sd">        </span>
+
 <span class="sd">        @return: x,y location of the mouse relative to the top left hand corner of the window that has input focus</span>
 <span class="sd">        @rtype: C{tuple(int, int)}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -364,9 +371,9 @@
 <span class="sd">        Fires the mouse button 5 signal the specified number of times.</span>
 
 <span class="sd">        Note that the behavior of these methods are effected (and untested) by programs like imwheel.</span>
-<span class="sd">        </span>
-<span class="sd">        Usage: C{mouse.scroll_down()}</span>
-<span class="sd">    </span>
+
+<span class="sd">        Usage: C{mouse.scroll_down(number)}</span>
+
 <span class="sd">        @param number: The number of times the scroll up signal will be fired.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">interface</span><span class="o">.</span><span class="n">scroll_down</span><span class="p">(</span><span class="n">number</span><span class="p">)</span></div>
@@ -377,7 +384,7 @@
 
 <span class="sd">        Note that the behavior of these methods are effected (and untested) by programs like imwheel.</span>
 
-<span class="sd">        Usage: C{mouse.scroll_up()}</span>
+<span class="sd">        Usage: C{mouse.scroll_up(number)}</span>
 
 <span class="sd">        @param number: The number of times the scroll up signal will be fired.</span>
 <span class="sd">        &quot;&quot;&quot;</span>

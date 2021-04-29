@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>autokey.scripting.window &mdash; AutoKey v0.95.11 documentation</title>
+  <title>autokey.scripting.window &mdash; AutoKey latest documentation</title>
   
 
   
@@ -62,6 +62,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -197,12 +204,12 @@
 
 <span class="sd">        Usage: C{window.wait_for_focus(title, timeOut=5)}</span>
 
-<span class="sd">        If the window becomes active, returns True. Otherwise, returns False if</span>
+<span class="sd">        If the window becomes active, returns ``True``. Otherwise, returns ``False`` if</span>
 <span class="sd">        the window has not become active by the time the timeout has elapsed.</span>
 
 <span class="sd">        @param title: title to match against (as a regular expression)</span>
 <span class="sd">        @param timeOut: period (seconds) to wait before giving up</span>
-<span class="sd">        @rtype: boolean</span>
+<span class="sd">        @rtype: C{bool}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="n">waited</span> <span class="o">=</span> <span class="mi">0</span>
@@ -229,7 +236,7 @@
 
 <span class="sd">        @param title: title to match against (as a regular expression)</span>
 <span class="sd">        @param timeOut: period (seconds) to wait before giving up</span>
-<span class="sd">        @rtype: boolean</span>
+<span class="sd">        @rtype: C{bool}</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">regex</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
         <span class="n">waited</span> <span class="o">=</span> <span class="mi">0</span>
@@ -253,12 +260,12 @@
 
 <span class="sd">        Usage: C{window.activate(title, switchDesktop=False, matchClass=False)}</span>
 
-<span class="sd">        If switchDesktop is False (default), the window will be moved to the current desktop</span>
+<span class="sd">        If ``switchDesktop`` is ``False`` (default), the window will be moved to the current desktop</span>
 <span class="sd">        and activated. Otherwise, switch to the window&#39;s current desktop and activate it there.</span>
 
 <span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
 <span class="sd">        @param switchDesktop: whether or not to switch to the window&#39;s current desktop</span>
-<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        @param matchClass: if ``True``, match on the window class instead of the title</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">switchDesktop</span><span class="p">:</span>
             <span class="n">args</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-a&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">]</span>
@@ -275,7 +282,7 @@
 <span class="sd">        Usage: C{window.close(title, matchClass=False)}</span>
 
 <span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
-<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        @param matchClass: if ``True``, match on the window class instead of the title</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_wmctrl</span><span class="p">([</span><span class="s2">&quot;-c&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="s2">&quot;-x&quot;</span><span class="p">])</span>
@@ -296,7 +303,7 @@
 <span class="sd">        @param yOrigin: new y origin of the window (upper left corner)</span>
 <span class="sd">        @param width: new width of the window</span>
 <span class="sd">        @param height: new height of the window</span>
-<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        @param matchClass: if ``True``, match on the window class instead of the title</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">mvArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;0&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">xOrigin</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">yOrigin</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">width</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">height</span><span class="p">)]</span>
         <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
@@ -313,7 +320,7 @@
 
 <span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
 <span class="sd">        @param deskNum: desktop to move the window to (note: zero based)</span>
-<span class="sd">        @param matchClass: if True, match on the window class instead of the title</span>
+<span class="sd">        @param matchClass: if ``True``, match on the window class instead of the title</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">matchClass</span><span class="p">:</span>
             <span class="n">xArgs</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;-x&quot;</span><span class="p">]</span>
@@ -337,9 +344,22 @@
 
 <span class="sd">        Usage: C{window.set_property(title, action, prop, matchClass=False)}</span>
 
-<span class="sd">        Allowable actions: C{add, remove, toggle}</span>
-<span class="sd">        Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,</span>
-<span class="sd">        skip_pager, hidden, fullscreen, above}</span>
+<span class="sd">        Allowable actions:</span>
+<span class="sd">            - ``add``</span>
+<span class="sd">            - ``remove``</span>
+<span class="sd">            - ``toggle``</span>
+
+<span class="sd">        Allowable properties:</span>
+<span class="sd">            - ``modal``</span>
+<span class="sd">            - ``sticky``</span>
+<span class="sd">            - ``maximized_vert``</span>
+<span class="sd">            - ``maximized_horz``</span>
+<span class="sd">            - ``shaded``</span>
+<span class="sd">            - ``skip_taskbar``</span>
+<span class="sd">            - ``skip_pager``</span>
+<span class="sd">            - ``hidden``</span>
+<span class="sd">            - ``fullscreen``</span>
+<span class="sd">            - ``above``</span>
 
 <span class="sd">        @param title: window title to match against (as case-insensitive substring match)</span>
 <span class="sd">        @param action: one of the actions listed above</span>
