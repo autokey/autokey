@@ -1,9 +1,70 @@
 =========
 Changelog
 =========
-.. contents::
 
-- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
+.. Version Develop
+.. ============================
+.. Important misc changes
+.. ----------------------
+.. Features
+.. ---------
+.. Bug fixes
+.. ---------
+.. Other changes
+.. ---------
+
+Version Develop
+============================
+
+Important misc changes
+----------------------
+
+- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted.
+- Scripting API files are now in Python packages, which may require adjusting imports if you have scripts that import them directly.
+- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
+- This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
+
+
+Features
+---------
+
+- Add mouse drag, click and scroll options to the API.
+- Expose Alt_GR as a hotkey modifier on GTK.
+- Add `wait_for_keyevent` scripting function.
+- Add setting to change GtkSourceView theme, (defaults to classic).
+- (GTK) Warn user about missing required and optional programs on startup.
+- Redone script error logging system, with a neat Script Error Dialog to go with it.
+- `<script>` script macros accept absolute paths.
+- Macro arguments can be quoted, allowing arguments containing spaces.
+- Macro arguments can contain angle bracket characters, if escaped.
+- Add `<system>` macro for replacing phrase contents with output of an external process.
+- (Scripting API) Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
+- (Scripting API) Allow overriding existing hotkeys when creating phrases with hotkeys.
+- (Scripting API) Allow creation of folders.
+- Allow `autokey-run` to accept full paths to python scripts (if no full path is given, will treat as an existing Autokey script name instead).
+- Use system monospace font
+- Expand unicode characters using code points (hacky workaround for being unable to send actual unicode).
+- Allow disabling Capslock in settings
+- Link to script `.py` and `.json` above editor.
+- Add appropriate keywords to `.desktop` files for both UIs.
+- (GTK) refresh UI if script files are modified externally
+
+Bug fixes
+---------
+
+- Fix imports in `autokey-shell`
+- `system.exec_command()` API function doesn't crash on empty process output (and strips whitespace from any output it does receive).
+- Both QT and GTK versions will reload hotkeys after a keymap change event.
+- Fix locking issue
+
+Other changes
+---------
+
+- Add CI for testing
+- Update pip installation requirements
+- Tray notifications are rate-limited.
+- Rebuild testing system for python3
+- Add CONTRIBUTERS.rst
 
 
 Version 0.95.10 <2019-02-16>
