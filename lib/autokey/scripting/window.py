@@ -40,12 +40,12 @@ class Window:
 
         Usage: C{window.wait_for_focus(title, timeOut=5)}
 
-        If the window becomes active, returns True. Otherwise, returns False if
+        If the window becomes active, returns ``True``. Otherwise, returns ``False`` if
         the window has not become active by the time the timeout has elapsed.
 
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
-        @rtype: boolean
+        @rtype: C{bool}
         """
         regex = re.compile(title)
         waited = 0
@@ -72,7 +72,7 @@ class Window:
 
         @param title: title to match against (as a regular expression)
         @param timeOut: period (seconds) to wait before giving up
-        @rtype: boolean
+        @rtype: C{bool}
         """
         regex = re.compile(title)
         waited = 0
@@ -96,12 +96,12 @@ class Window:
 
         Usage: C{window.activate(title, switchDesktop=False, matchClass=False)}
 
-        If switchDesktop is False (default), the window will be moved to the current desktop
+        If ``switchDesktop`` is ``False`` (default), the window will be moved to the current desktop
         and activated. Otherwise, switch to the window's current desktop and activate it there.
 
         @param title: window title to match against (as case-insensitive substring match)
         @param switchDesktop: whether or not to switch to the window's current desktop
-        @param matchClass: if True, match on the window class instead of the title
+        @param matchClass: if ``True``, match on the window class instead of the title
         """
         if switchDesktop:
             args = ["-a", title]
@@ -118,7 +118,7 @@ class Window:
         Usage: C{window.close(title, matchClass=False)}
 
         @param title: window title to match against (as case-insensitive substring match)
-        @param matchClass: if True, match on the window class instead of the title
+        @param matchClass: if ``True``, match on the window class instead of the title
         """
         if matchClass:
             self._run_wmctrl(["-c", title, "-x"])
@@ -139,7 +139,7 @@ class Window:
         @param yOrigin: new y origin of the window (upper left corner)
         @param width: new width of the window
         @param height: new height of the window
-        @param matchClass: if True, match on the window class instead of the title
+        @param matchClass: if ``True``, match on the window class instead of the title
         """
         mvArgs = ["0", str(xOrigin), str(yOrigin), str(width), str(height)]
         if matchClass:
@@ -156,7 +156,7 @@ class Window:
 
         @param title: window title to match against (as case-insensitive substring match)
         @param deskNum: desktop to move the window to (note: zero based)
-        @param matchClass: if True, match on the window class instead of the title
+        @param matchClass: if ``True``, match on the window class instead of the title
         """
         if matchClass:
             xArgs = ["-x"]
@@ -180,9 +180,22 @@ class Window:
 
         Usage: C{window.set_property(title, action, prop, matchClass=False)}
 
-        Allowable actions: C{add, remove, toggle}
-        Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
-        skip_pager, hidden, fullscreen, above}
+        Allowable actions:
+            - ``add``
+            - ``remove``
+            - ``toggle``
+
+        Allowable properties:
+            - ``modal``
+            - ``sticky``
+            - ``maximized_vert``
+            - ``maximized_horz``
+            - ``shaded``
+            - ``skip_taskbar``
+            - ``skip_pager``
+            - ``hidden``
+            - ``fullscreen``
+            - ``above``
 
         @param title: window title to match against (as case-insensitive substring match)
         @param action: one of the actions listed above

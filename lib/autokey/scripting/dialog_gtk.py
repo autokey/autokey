@@ -26,8 +26,8 @@ class GtkDialog:
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
 
     This version uses Zenity to integrate well with GNOME. To pass additional arguments to Zenity that are
-    not specifically handled, use keyword arguments. For example, to pass the --timeout argument to Zenity
-    pass C{timeout="15"} as one of the parameters. All keyword arguments must be given as strings.
+    not specifically handled, use keyword arguments. For example, to pass the ``--timeout`` argument to Zenity
+    pass ``timeout="15"`` as one of the parameters. All keyword arguments must be given as strings.
 
     @note: Exit codes: an exit code of 0 indicates that the user clicked OK.
     """

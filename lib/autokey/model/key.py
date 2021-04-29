@@ -8,8 +8,13 @@ _code_point_re = re.compile(r"<code(0|[1-9][0-9]*)>", re.UNICODE)
 
 @enum.unique
 class Key(str, enum.Enum):
-
+    """
+    An enumeration of the "special" keys Autokey is able to listen for/send
+    """
+    #TODO tedieous but I think it would be valuable to have these listed in a 
+    # user facing manner
     LEFT = "<left>"
+    """LEFT arrow key"""
     RIGHT = "<right>"
     UP = "<up>"
     DOWN = "<down>"
