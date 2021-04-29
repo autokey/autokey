@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>HighLevel API &mdash; AutoKey v0.95.11 documentation</title>
+  <title>HighLevel API &mdash; AutoKey latest documentation</title>
   
 
   
@@ -64,6 +64,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -162,7 +169,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/highlevel.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsapi/highlevel.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -181,7 +188,7 @@
 <dl class="py class">
 <dt id="autokey.scripting.highlevel.PatternNotFound">
 <em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">PatternNotFound</span></code><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#PatternNotFound"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.PatternNotFound" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception raised by functions</p>
+<dd><p>Exception raised by functions when the given pattern is not found in the provided area by visgrep</p>
 </dd></dl>
 
 <dl class="py function">
@@ -216,10 +223,18 @@
 <dt id="autokey.scripting.highlevel.get_png_dim">
 <code class="sig-prename descclassname"><span class="pre">autokey.scripting.highlevel.</span></code><code class="sig-name descname"><span class="pre">get_png_dim</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filepath</span></span><span class="p"><span class="pre">:</span></span> <span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">int</span><a class="reference internal" href="../_modules/autokey/scripting/highlevel.html#get_png_dim"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.highlevel.get_png_dim" title="Permalink to this definition">¶</a></dt>
 <dd><p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">get_png_dim(filepath:str)</span> <span class="pre">-&gt;</span> <span class="pre">(int)</span></code></p>
-<p>Finds the dimension of a PNG.
-:param filepath: file path of the PNG.
-:returns: (width, height).
-:raise Exception: Raised if the file is not a png</p>
+<p>Finds the dimension of a PNG.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filepath</strong> – file path of the PNG.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">(width,</span> <span class="pre">height)</span></code></p>
+</dd>
+<dt class="field-odd">Raises</dt>
+<dd class="field-odd"><p><strong>Exception</strong> – Raised if the file is not a png</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -272,7 +287,7 @@
 <dd><p>Returns the current location of the mouse.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p>Returns the mouse location in a <code class="xref py py-obj docutils literal notranslate"><span class="pre">list</span></code></p>
+<dd class="field-odd"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">x,y</span></code> location of the mouse as a list</p>
 </dd>
 </dl>
 </dd></dl>

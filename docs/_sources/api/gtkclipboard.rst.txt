@@ -1,8 +1,5 @@
 GtkClipboard API
 ================
 
-.. automodule:: autokey.scripting
-   :no-members:
-   :noindex:
-.. autoclass:: GtkClipboard
+.. autoclass:: autokey.scripting.clipboard_gtk.GtkClipboard
    :members:

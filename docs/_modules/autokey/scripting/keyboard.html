@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>autokey.scripting.keyboard &mdash; AutoKey v0.95.11 documentation</title>
+  <title>autokey.scripting.keyboard &mdash; AutoKey latest documentation</title>
   
 
   
@@ -62,6 +62,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -186,7 +193,7 @@
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediator</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initialize the Keyboard&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span> <span class="o">=</span> <span class="n">mediator</span>  <span class="c1"># type: iomediator.IoMediator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span> <span class="o">=</span> <span class="n">mediator</span>  <span class="c1">#: type: iomediator.IoMediator</span>
         <span class="sd">&quot;&quot;&quot;See C{IoMediator} documentation&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="Keyboard.send_keys"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.send_keys">[docs]</a>    <span class="k">def</span> <span class="nf">send_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_string</span><span class="p">,</span> <span class="n">send_mode</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
@@ -197,7 +204,7 @@
 <span class="sd">        printable characters, special keys and embedded key combinations can only be sent in keyboard mode.</span>
 
 <span class="sd">        Trying to send special keys using a clipboard pasting method will paste the literal representation</span>
-<span class="sd">        (e.g. &quot;&lt;ctrl&gt;+&lt;f11&gt;&quot;) instead of the actual special key or key combination.</span>
+<span class="sd">        (e.g. ``&lt;ctrl&gt;+&lt;f11&gt;``) instead of the actual special key or key combination.</span>
 
 
 <span class="sd">        Usage: C{keyboard.send_keys(keyString)}</span>
@@ -224,7 +231,7 @@
 
 <span class="sd">        Usage: C{keyboard.send_key(key, repeat=1)}</span>
 
-<span class="sd">        @param key: they key to be sent (e.g. &quot;s&quot; or &quot;&lt;enter&gt;&quot;)</span>
+<span class="sd">        @param key: they key to be sent (e.g. ``s`` or ``&lt;enter&gt;``)</span>
 <span class="sd">        @param repeat: number of times to repeat the key event</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeat</span><span class="p">):</span>
@@ -237,8 +244,8 @@
 
 <span class="sd">        Usage: C{keyboard.press_key(key)}</span>
 
-<span class="sd">        The key will be treated as down until a matching release_key() is sent.</span>
-<span class="sd">        @param key: they key to be pressed (e.g. &quot;s&quot; or &quot;&lt;enter&gt;&quot;)</span>
+<span class="sd">        The key will be treated as down until a matching ``release_key()`` is sent.</span>
+<span class="sd">        @param key: they key to be pressed (e.g. ``s`` or ``&lt;enter&gt;``)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">press_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
 
@@ -248,9 +255,9 @@
 
 <span class="sd">        Usage: C{keyboard.release_key(key)}</span>
 
-<span class="sd">        If the specified key was not made down using press_key(), the event will be</span>
+<span class="sd">        If the specified key was not made down using ``press_key()``, the event will be</span>
 <span class="sd">        ignored.</span>
-<span class="sd">        @param key: they key to be released (e.g. &quot;s&quot; or &quot;&lt;enter&gt;&quot;)</span>
+<span class="sd">        @param key: they key to be released (e.g. ``s`` or ``&lt;enter&gt;``)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">release_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
 
@@ -260,11 +267,13 @@
 
 <span class="sd">        Usage: C{keyboard.fake_keypress(key, repeat=1)}</span>
 
-<span class="sd">        Uses XTest to &#39;fake&#39; a keypress. This is useful to send keypresses to some</span>
-<span class="sd">        applications which won&#39;t respond to keyboard.send_key()</span>
+<span class="sd">        Uses `XTest`_ to &#39;fake&#39; a keypress. This is useful to send keypresses to some</span>
+<span class="sd">        applications which won&#39;t respond to ``keyboard.send_key()``</span>
 
-<span class="sd">        @param key: they key to be sent (e.g. &quot;s&quot; or &quot;&lt;enter&gt;&quot;)</span>
+<span class="sd">        @param key: they key to be sent (e.g. ``s`` or ``&lt;enter&gt;``)</span>
 <span class="sd">        @param repeat: number of times to repeat the key event</span>
+
+<span class="sd">        .. _XTest: https://github.com/python-xlib/python-xlib/blob/master/Xlib/ext/xtest.py</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeat</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">fake_keypress</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
@@ -292,33 +301,39 @@
 <div class="viewcode-block" id="Keyboard.wait_for_keyevent"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.wait_for_keyevent">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_keyevent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">any</span><span class="p">,</span><span class="nb">str</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeOut</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Wait for a key event, potentially accumulating the intervening characters</span>
+
 <span class="sd">        Usage: C{keyboard.wait_for_keypress(self, check, name=None, timeOut=10.0)}</span>
+
 <span class="sd">        @param check: a function that returns True or False to signify we&#39;ve finished waiting</span>
 <span class="sd">        @param name: only one waiter can have this name. Used to prevent more threads waiting on this.</span>
 <span class="sd">        @param timeOut: maximum time, in seconds, to wait for the keypress to occur</span>
+
 <span class="sd">        Example:</span>
-<span class="sd">        # Accumulate the traditional emacs C-u prefix arguments</span>
-<span class="sd">        # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html</span>
-<span class="sd">        def check(waiter,rawKey,modifiers,key,*args):</span>
-<span class="sd">            isCtrlU = (key == &#39;u&#39; and len(modifiers) == 1 and modifiers[0] == &#39;&lt;ctrl&gt;&#39;)</span>
-<span class="sd">            if isCtrlU: # If we get here, they&#39;ve already pressed C-u at least 2x</span>
-<span class="sd">                try:</span>
-<span class="sd">                    val = int(waiter.result) * 4</span>
-<span class="sd">                    waiter.result = str(val)</span>
-<span class="sd">                except ValueError:</span>
-<span class="sd">                    waiter.result = &quot;16&quot;</span>
-<span class="sd">                return False</span>
-<span class="sd">            elif any(m == &quot;&lt;ctrl&gt;&quot; or m == &quot;&lt;alt&gt;&quot; or m == &quot;&lt;meta&gt;&quot; or m == &quot;&lt;super&gt;&quot; or m == &quot;&lt;hyper&gt;&quot; for m in modifiers):</span>
-<span class="sd">                # Some other control character is an indication we&#39;re done.</span>
-<span class="sd">                if waiter.result is None or waiter.result == &quot;&quot;:</span>
-<span class="sd">                    waiter.result = &quot;4&quot;</span>
-<span class="sd">                store.set_global_value(&quot;emacs-prefix-arg&quot;, waiter.result)</span>
-<span class="sd">                return True</span>
-<span class="sd">            else: # accumulate as a string</span>
-<span class="sd">                waiter.result = waiter.result + key</span>
-<span class="sd">                return False</span>
-<span class="sd">                </span>
-<span class="sd">        keyboard.wait_for_keyevent(check, &quot;emacs-prefix&quot;)</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Accumulate the traditional emacs C-u prefix arguments</span>
+<span class="sd">            # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html</span>
+<span class="sd">            def check(waiter,rawKey,modifiers,key,*args):</span>
+<span class="sd">                isCtrlU = (key == &#39;u&#39; and len(modifiers) == 1 and modifiers[0] == &#39;&lt;ctrl&gt;&#39;)</span>
+<span class="sd">                if isCtrlU: # If we get here, they&#39;ve already pressed C-u at least 2x</span>
+<span class="sd">                    try:</span>
+<span class="sd">                        val = int(waiter.result) * 4</span>
+<span class="sd">                        waiter.result = str(val)</span>
+<span class="sd">                    except ValueError:</span>
+<span class="sd">                        waiter.result = &quot;16&quot;</span>
+<span class="sd">                    return False</span>
+<span class="sd">                elif any(m == &quot;&lt;ctrl&gt;&quot; or m == &quot;&lt;alt&gt;&quot; or m == &quot;&lt;meta&gt;&quot; or m == &quot;&lt;super&gt;&quot; or m == &quot;&lt;hyper&gt;&quot; for m in modifiers):</span>
+<span class="sd">                    # Some other control character is an indication we&#39;re done.</span>
+<span class="sd">                    if waiter.result is None or waiter.result == &quot;&quot;:</span>
+<span class="sd">                        waiter.result = &quot;4&quot;</span>
+<span class="sd">                    store.set_global_value(&quot;emacs-prefix-arg&quot;, waiter.result)</span>
+<span class="sd">                    return True</span>
+<span class="sd">                else: # accumulate as a string</span>
+<span class="sd">                    waiter.result = waiter.result + key</span>
+<span class="sd">                    return False</span>
+
+<span class="sd">                keyboard.wait_for_keyevent(check, &quot;emacs-prefix&quot;)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="p">):</span>
             <span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">waiter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">timeOut</span><span class="p">)</span>

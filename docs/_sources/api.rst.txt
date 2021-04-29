@@ -1,6 +1,8 @@
 Autokey API
 ===========
 
+The API provides a number of different libraries to easily automate common tasks
+
 .. toctree::
    api/keyboard.rst
    api/mouse.rst

@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>autokey.scripting.engine &mdash; AutoKey v0.95.11 documentation</title>
+  <title>autokey.scripting.engine &mdash; AutoKey latest documentation</title>
   
 
   
@@ -62,6 +62,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -217,7 +224,9 @@
 
 <span class="sd">        Usage: C{engine.get_folder(title)}</span>
 
-<span class="sd">        Note that if more than one folder has the same title, only the first match will be</span>
+<span class="sd">        @param title: Title of the folder to be returned</span>
+
+<span class="sd">        Note that if more than one folder has the same title, only the first match will be \</span>
 <span class="sd">        returned.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">validateType</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
@@ -234,13 +243,14 @@
 
 <span class="sd">        Descriptions for the optional arguments:</span>
 
-<span class="sd">        @param parentFolder: Folder to make this folder a subfolder of. If</span>
-<span class="sd">        passed as a folder, it will be that folder within auotkey.</span>
-<span class="sd">        If passed as pathlib.Path, it will be created or added at that path.</span>
+<span class="sd">        @param parentFolder: Folder to make this folder a subfolder of. If \</span>
+<span class="sd">        passed as a folder, it will be that folder within Autokey. \</span>
+<span class="sd">        If passed as pathlib.Path, it will be created or added at that path. \</span>
 <span class="sd">        Paths expand ~ to $HOME.</span>
-<span class="sd">        @param temporary: Folders created with temporary=True are</span>
-<span class="sd">                                    not persisted.</span>
-<span class="sd">                                    Used for single-source rc-style scripts.</span>
+
+<span class="sd">        @param temporary: Folders created with temporary=True are \</span>
+<span class="sd">                                    not persisted. \</span>
+<span class="sd">                                    Used for single-source rc-style scripts. \</span>
 <span class="sd">                                    Cannot be used if parent_folder is a Path.</span>
 
 <span class="sd">        If a folder of that name already exists, this will return it unchanged.</span>
@@ -303,82 +313,82 @@
                       <span class="n">temporary</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">replace_existing_hotkey</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder</span>
-<span class="sd">        you wish to create the Phrase in. If the folder is a temporary</span>
-<span class="sd">        one, the phrase will be created as temporary.</span>
+<span class="sd">        you wish to create the Phrase in. If the folder is a temporary one, the phrase will be created as temporary.</span>
 
-<span class="sd">        The first three arguments (folder, name and contents) are required. All further arguments are optional and</span>
-<span class="sd">        considered to be keyword-argument only. Do not rely on the order of the optional arguments.</span>
+<span class="sd">        The first three arguments (folder, name and contents) are required. All further arguments are optional and \</span>
+<span class="sd">        considered to be keyword-argument only. Do not rely on the order of the optional arguments. \</span>
 <span class="sd">        The optional parameters can be used to configure the newly created Phrase.</span>
 
-<span class="sd">        Usage (minimal example): C{engine.create_phrase(folder, name, contents)}</span>
+<span class="sd">        Usage (minimal example):</span>
+<span class="sd">            C{engine.create_phrase(folder, name, contents)}</span>
 
 <span class="sd">        Further concrete examples:</span>
-<span class="sd">        C{</span>
-<span class="sd">        engine.create_phrase(folder, &quot;My new Phrase&quot;, &quot;This is the Phrase content&quot;, abbreviations=[&quot;abc&quot;, &quot;def&quot;],</span>
-<span class="sd">        hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V,</span>
-<span class="sd">        window_filter=&quot;konsole\\.Konsole&quot;, show_in_system_tray=True)</span>
-<span class="sd">        }</span>
+<span class="sd">            C{engine.create_phrase(folder, &quot;My new Phrase&quot;, &quot;This is the Phrase content&quot;, abbreviations=[&quot;abc&quot;, &quot;def&quot;], hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V, window_filter=&quot;konsole\\.Konsole&quot;, show_in_system_tray=True)}</span>
 
 <span class="sd">        Descriptions for the optional arguments:</span>
 
-<span class="sd">        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation</span>
+<span class="sd">        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation \</span>
 <span class="sd">        to the newly created phrase.</span>
 
-<span class="sd">        hotkey parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first</span>
+<span class="sd">        ``hotkey`` parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first \</span>
 <span class="sd">        element and an unshifted (lowercase) key as the second element.</span>
-<span class="sd">        Modifier keys must be given as a list of strings (or Key enum instances), with the following</span>
+<span class="sd">        Modifier keys must be given as a list of strings (or Key enum instances), with the following \</span>
 <span class="sd">        values permitted:</span>
-<span class="sd">            &lt;ctrl&gt;</span>
-<span class="sd">            &lt;alt&gt;</span>
-<span class="sd">            &lt;super&gt;</span>
-<span class="sd">            &lt;hyper&gt;</span>
-<span class="sd">            &lt;meta&gt;</span>
-<span class="sd">            &lt;shift&gt;</span>
+
+<span class="sd">            - ``&lt;ctrl&gt;``</span>
+<span class="sd">            - ``&lt;alt&gt;``</span>
+<span class="sd">            - ``&lt;super&gt;``</span>
+<span class="sd">            - ``&lt;hyper&gt;``</span>
+<span class="sd">            - ``&lt;meta&gt;``</span>
+<span class="sd">            - ``&lt;shift&gt;``</span>
+
 <span class="sd">        The key must be an unshifted character (i.e. lowercase) or a Key enum instance. Modifier keys from the list</span>
 <span class="sd">        above are NOT allowed here. Example: ([&quot;&lt;ctrl&gt;&quot;, &quot;&lt;alt&gt;&quot;], &quot;9&quot;) to assign &quot;&lt;Ctrl&gt;+&lt;Alt&gt;+9&quot; as a hotkey.</span>
 <span class="sd">        The Key enum contains objects representing various special keys and is available as an attribute of the &quot;engine&quot;</span>
 <span class="sd">        object, named &quot;Key&quot;. So to access a function key, you can use the string &quot;&lt;f12&gt;&quot; or engine.Key.F12</span>
 <span class="sd">        See the AutoKey Wiki for an overview of all available keys in the enumeration.</span>
 
-<span class="sd">        send_mode: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting</span>
+<span class="sd">        ``send_mode``: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting</span>
 <span class="sd">        using the clipboard. It accepts items from the SendMode enumeration, which is also available from the engine</span>
 <span class="sd">        object as engine.SendMode. The parameter defaults to</span>
 <span class="sd">        engine.SendMode.KEYBOARD. Available send modes are:</span>
-<span class="sd">            KEYBOARD</span>
-<span class="sd">            CB_CTRL_V</span>
-<span class="sd">            CB_CTRL_SHIFT_V</span>
-<span class="sd">            CB_SHIFT_INSERT</span>
-<span class="sd">            SELECTION</span>
-<span class="sd">        To paste the Phrase using &quot;&lt;shift&gt;+&lt;insert&gt;, set send_mode=engine.SendMode.CB_SHIFT_INSERT</span>
 
-<span class="sd">        window_filter: Accepts a string which will be used as a regular expression to match window titles or</span>
+<span class="sd">            - ``KEYBOARD``</span>
+<span class="sd">            - ``CB_CTRL_V``</span>
+<span class="sd">            - ``CB_CTRL_SHIFT_V``</span>
+<span class="sd">            - ``CB_SHIFT_INSERT``</span>
+<span class="sd">            - ``SELECTION``</span>
+
+<span class="sd">        To paste the Phrase using ``&lt;shift&gt;+&lt;insert&gt;``, set ``send_mode=engine.SendMode.CB_SHIFT_INSERT``</span>
+
+<span class="sd">        ``window_filter``: Accepts a string which will be used as a regular expression to match window titles or \</span>
 <span class="sd">        applications using the WM_CLASS attribute.</span>
 
 <span class="sd">        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}</span>
 <span class="sd">        @param name: Name/description for the phrase.</span>
 <span class="sd">        @param contents: the expansion text</span>
 <span class="sd">        @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase</span>
-<span class="sd">        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.</span>
-<span class="sd">                       First element is a list of modifiers, second element is the key.</span>
-<span class="sd">        @param send_mode: The pasting mode that will be used to expand the Phrase.</span>
-<span class="sd">                          Used to configure, how the Phrase is expanded. Defaults to typing using the &quot;CTRL+V&quot; method.</span>
+<span class="sd">        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey. \</span>
+<span class="sd">            First element is a list of modifiers, second element is the key.</span>
+<span class="sd">        @param send_mode: The pasting mode that will be used to expand the Phrase. \</span>
+<span class="sd">            Used to configure, how the Phrase is expanded. Defaults to typing using the &quot;CTRL+V&quot; method.</span>
 <span class="sd">        @param window_filter: A string containing a regular expression that will be used as the window filter.</span>
-<span class="sd">        @param show_in_system_tray: A boolean defaulting to False.</span>
-<span class="sd">                                    If set to True, the new Phrase will be shown in the tray icon context menu.</span>
-<span class="sd">        @param always_prompt: A boolean defaulting to False. If set to True,</span>
-<span class="sd">                              the Phrase expansion has to be manually confirmed, each time it is triggered.</span>
-<span class="sd">        @param temporary: Hotkeys created with temporary=True are</span>
-<span class="sd">                                    not persisted as .jsons, and are replaced if the description is not</span>
-<span class="sd">                                    unique within the folder.</span>
-<span class="sd">                                     Used for single-source rc-style scripts.</span>
-<span class="sd">        @param replace_existing_hotkey: If true, instead of warning if the hotkey</span>
-<span class="sd">            is already in use by another phrase or folder, it removes the hotkey</span>
+<span class="sd">        @param show_in_system_tray: A boolean defaulting to False. If set to True, the new Phrase will be \</span>
+<span class="sd">            shown in the tray icon context menu.</span>
+<span class="sd">        @param always_prompt: A boolean defaulting to False. If set to True, \</span>
+<span class="sd">            the Phrase expansion has to be manually confirmed, each time it is triggered.</span>
+<span class="sd">        @param temporary: Hotkeys created with temporary=True are \</span>
+<span class="sd">            not persisted as .jsons, and are replaced if the description is not \</span>
+<span class="sd">            unique within the folder. Used for single-source rc-style scripts.</span>
+<span class="sd">        @param replace_existing_hotkey: If true, instead of warning if the hotkey \</span>
+<span class="sd">            is already in use by another phrase or folder, it removes the hotkey \</span>
 <span class="sd">            from those clashes and keeps this phrase&#39;s hotkey.</span>
 <span class="sd">        @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid</span>
-<span class="sd">        @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw</span>
-<span class="sd">          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.</span>
-<span class="sd">          It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own</span>
+<span class="sd">        @returns: The created Phrase object. This object is NOT considered part of the public API and exposes the raw \</span>
+<span class="sd">          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it. \</span>
+<span class="sd">          It can be used for *really* advanced use cases, where further customizations are desired. Use at your own \</span>
 <span class="sd">          risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.</span>
+
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">validateArguments</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span>
@@ -433,7 +443,9 @@
 
 <div class="viewcode-block" id="Engine.create_abbreviation"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_abbreviation">[docs]</a>    <span class="k">def</span> <span class="nf">create_abbreviation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">abbr</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.</span>
+<span class="sd">        **DEPRECATED!**</span>
+<span class="sd">        ---</span>
+<span class="sd">        Use C{engine.create_phrase()} with appropriate keyword arguments instead.</span>
 <span class="sd">        Create a new text phrase inside the given folder and assign the abbreviation given.</span>
 
 <span class="sd">        Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}</span>
@@ -461,7 +473,9 @@
 
 <div class="viewcode-block" id="Engine.create_hotkey"><a class="viewcode-back" href="../../../api/engine.html#autokey.scripting.Engine.create_hotkey">[docs]</a>    <span class="k">def</span> <span class="nf">create_hotkey</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">folder</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">contents</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.</span>
+<span class="sd">        **DEPRECATED!**</span>
+<span class="sd">        ---</span>
+<span class="sd">        Use C{engine.create_phrase()} with appropriate keyword arguments instead.</span>
 
 <span class="sd">        Create a text hotkey</span>
 
@@ -506,7 +520,7 @@
 
 <span class="sd">        Usage: C{engine.run_script(description, &#39;foo&#39;, &#39;bar&#39;, foobar=&#39;foobar&#39;})}</span>
 
-<span class="sd">        @param description: description of the script to run. If parsable as</span>
+<span class="sd">        @param description: description of the script to run. If parsable as \</span>
 <span class="sd">        an absolute path to an existing file, that will be run instead.</span>
 <span class="sd">        @raise Exception: if the specified script does not exist</span>
 <span class="sd">        &quot;&quot;&quot;</span>

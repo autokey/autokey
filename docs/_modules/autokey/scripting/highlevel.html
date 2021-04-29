@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>autokey.scripting.highlevel &mdash; AutoKey v0.95.11 documentation</title>
+  <title>autokey.scripting.highlevel &mdash; AutoKey latest documentation</title>
   
 
   
@@ -62,6 +62,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -168,10 +175,11 @@
 
 
 <div class="viewcode-block" id="PatternNotFound"><a class="viewcode-back" href="../../../api/highlevel.html#autokey.scripting.highlevel.PatternNotFound">[docs]</a><span class="k">class</span> <span class="nc">PatternNotFound</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception raised by functions&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Exception raised by functions when the given pattern is not found in the provided area by visgrep&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
 <span class="c1"># numeric representation of the mouse buttons. For use in visgrep.</span>
+<span class="c1"># TODO use autokey.model.button instead of these constants</span>
 <span class="n">LEFT</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="sd">&quot;&quot;&quot;Left mouse button&quot;&quot;&quot;</span>
 <span class="n">MIDDLE</span> <span class="o">=</span> <span class="mi">2</span>
@@ -189,8 +197,6 @@
 <span class="sd">    Requires xautomation (http://hoopajoo.net/projects/xautomation.html).</span>
 
 <span class="sd">    Usage: C{visgrep(&quot;screen.png&quot;, &quot;pat.png&quot;)}</span>
-
-<span class="sd">    </span>
 
 <span class="sd">    @param scr: path of PNG image to be grepped.</span>
 <span class="sd">    @param pat: path of pattern image (PNG) to look for in scr.</span>
@@ -225,8 +231,9 @@
 <span class="sd">    Usage: C{get_png_dim(filepath:str) -&gt; (int)}</span>
 
 <span class="sd">    Finds the dimension of a PNG.</span>
+
 <span class="sd">    @param filepath: file path of the PNG.</span>
-<span class="sd">    @returns: (width, height).</span>
+<span class="sd">    @returns: C{(width, height)}</span>
 <span class="sd">    @raise Exception: Raised if the file is not a png</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">imghdr</span><span class="o">.</span><span class="n">what</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;png&#39;</span><span class="p">:</span>
@@ -271,7 +278,7 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the current location of the mouse.</span>
 
-<span class="sd">    @returns: Returns the mouse location in a C{list}</span>
+<span class="sd">    @returns: C{x,y} location of the mouse as a list</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tmp</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">check_output</span><span class="p">(</span><span class="s2">&quot;xmousepos&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
     <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">tmp</span><span class="p">))[:</span><span class="mi">2</span><span class="p">]</span></div>

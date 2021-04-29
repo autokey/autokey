@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>Mouse API &mdash; AutoKey v0.95.11 documentation</title>
+  <title>Mouse API &mdash; AutoKey latest documentation</title>
   
 
   
@@ -64,6 +64,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -162,7 +169,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/mouse.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsapi/mouse.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -185,7 +192,19 @@
 <dl class="py class">
 <dt id="autokey.scripting.Mouse.Button">
 <em class="property"><span class="pre">class</span> </em><code class="sig-name descname"><span class="pre">Button</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#autokey.scripting.Mouse.Button" title="Permalink to this definition">¶</a></dt>
-<dd><p>An enumeration.</p>
+<dd><p>Enum of Mouse buttons recognized by the X11 server (1-10)</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">LEFT</span> <span class="pre">=</span> <span class="pre">1</span></code> - left mouse button</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">MIDDLE</span> <span class="pre">=</span> <span class="pre">2</span></code> - middle or scrollwheel</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">RIGHT</span> <span class="pre">=</span> <span class="pre">3</span></code> - right mouse button</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCROLL_UP</span> <span class="pre">=</span> <span class="pre">4</span></code> - scroll up</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCROLL_DOWN</span> <span class="pre">=</span> <span class="pre">5</span></code> - scroll down</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCROLL_LEFT</span> <span class="pre">=</span> <span class="pre">6</span></code> - scroll left</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">SCROLL_RIGHT</span> <span class="pre">=</span> <span class="pre">7</span></code> - scroll right</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BACKWARD</span> <span class="pre">=</span> <span class="pre">8</span></code> - backward button</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FORWARD</span> <span class="pre">=</span> <span class="pre">9</span></code> - forward button</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BUTTON10</span> <span class="pre">=</span> <span class="pre">10</span></code> - “button10”</p></li>
+</ul>
 </dd></dl>
 
 <dl class="py method">
@@ -344,7 +363,7 @@ Incorporates a tiny delay in order to make sure AutoKey executes any queued comm
 <code class="sig-name descname"><span class="pre">scroll_down</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/mouse.html#Mouse.scroll_down"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Mouse.scroll_down" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fires the mouse button 5 signal the specified number of times.</p>
 <p>Note that the behavior of these methods are effected (and untested) by programs like imwheel.</p>
-<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">mouse.scroll_down()</span></code></p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">mouse.scroll_down(number)</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>number</strong> – The number of times the scroll up signal will be fired.</p>
@@ -357,7 +376,7 @@ Incorporates a tiny delay in order to make sure AutoKey executes any queued comm
 <code class="sig-name descname"><span class="pre">scroll_up</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/mouse.html#Mouse.scroll_up"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.Mouse.scroll_up" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fires the mouse button 4 signal the specified number of times.</p>
 <p>Note that the behavior of these methods are effected (and untested) by programs like imwheel.</p>
-<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">mouse.scroll_up()</span></code></p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">mouse.scroll_up(number)</span></code></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>number</strong> – The number of times the scroll up signal will be fired.</p>

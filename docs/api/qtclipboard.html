@@ -7,7 +7,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   
-  <title>QtClipboard API &mdash; AutoKey v0.95.11 documentation</title>
+  <title>QtClipboard API &mdash; AutoKey latest documentation</title>
   
 
   
@@ -64,6 +64,13 @@
           
           </a>
 
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
           
 
           
@@ -162,7 +169,7 @@
         
           
             
-              <a href="https://github.com/sebastiansam55/autokey-sphinx/blob/gh-pages/develop/api/qtclipboard.rst" class="fa fa-github"> Edit on GitHub</a>
+              <a href="https://github.com/autokey/autokey/blob/docsapi/qtclipboard.rst" class="fa fa-github"> Edit on GitHub</a>
             
           
         
@@ -178,6 +185,90 @@
             
   <div class="section" id="qtclipboard-api">
 <h1>QtClipboard API<a class="headerlink" href="#qtclipboard-api" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">autokey.scripting.clipboard_qt.</span></code><code class="sig-name descname"><span class="pre">QtClipboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_qt.html#QtClipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read/write access to the X selection and clipboard - QT version</p>
+<dl class="py attribute">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.app">
+<code class="sig-name descname"><span class="pre">app</span></code><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.app" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refers to the application instance</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.clipBoard">
+<code class="sig-name descname"><span class="pre">clipBoard</span></code><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.clipBoard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refers to the Qt clipboard object</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.fill_clipboard">
+<code class="sig-name descname"><span class="pre">fill_clipboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_qt.html#QtClipboard.fill_clipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.fill_clipboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy text into the clipboard</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.fill_clipboard(contents)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – string to be placed in the selection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.fill_selection">
+<code class="sig-name descname"><span class="pre">fill_selection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_qt.html#QtClipboard.fill_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.fill_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy text into the X selection</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.fill_selection(contents)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – string to be placed in the selection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.get_clipboard">
+<code class="sig-name descname"><span class="pre">get_clipboard</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_qt.html#QtClipboard.get_clipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.get_clipboard" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read text from the clipboard</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.get_clipboard()</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>text contents of the clipboard</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.get_selection">
+<code class="sig-name descname"><span class="pre">get_selection</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_qt.html#QtClipboard.get_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.get_selection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Read text from the X selection</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.get_selection()</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>text contents of the mouse selection</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.sem">
+<code class="sig-name descname"><span class="pre">sem</span></code><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.sem" title="Permalink to this definition">¶</a></dt>
+<dd><p>Qt semaphore object used for asynchronous method execution</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="autokey.scripting.clipboard_qt.QtClipboard.text">
+<code class="sig-name descname"><span class="pre">text</span></code><a class="headerlink" href="#autokey.scripting.clipboard_qt.QtClipboard.text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Used to temporarily store the value of the selection or clipboard</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
