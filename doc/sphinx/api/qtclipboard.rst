@@ -1,8 +1,5 @@
 QtClipboard API
 ===============
 
-.. automodule:: autokey.scripting
-   :no-members:
-   :noindex:
-.. autoclass:: QtClipboard
+.. autoclass:: autokey.scripting.clipboard_qt.QtClipboard
    :members:
