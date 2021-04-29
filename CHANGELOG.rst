@@ -19,7 +19,7 @@ Version Develop
 Important misc changes
 ----------------------
 
-- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted.
+- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted, but if switch back to versions prior to this one, you will need to copy or symlink them back to dotfile form.
 - Scripting API files are now in Python packages, which may require adjusting imports if you have scripts that import them directly.
 - Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
 - This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
@@ -33,6 +33,7 @@ Features
 - Add `wait_for_keyevent` scripting function.
 - Add setting to change GtkSourceView theme, (defaults to classic).
 - (GTK) Warn user about missing required and optional programs on startup.
+- (GTK) UI will now update when changes are detected to watched files.
 - Redone script error logging system, with a neat Script Error Dialog to go with it.
 - `<script>` script macros accept absolute paths.
 - Macro arguments can be quoted, allowing arguments containing spaces.
