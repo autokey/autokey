@@ -23,7 +23,7 @@ copyright = '2021, Various'
 author = 'Various'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.95.11'
+release = version = 'latest'
 
 
 # -- General configuration ---------------------------------------------------
@@ -37,7 +37,6 @@ extensions = [
     'recommonmark',
     'sphinx_rtd_theme',
     'sphinx_epytext',
-    'sphinx_multiversion'
 ]
 
 
@@ -74,10 +73,10 @@ html_theme = 'sphinx_rtd_theme'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-html_logo = 'autokey.png'
+html_logo = '../../config/autokey.png'
 html_theme_options = {
     'logo_only': True,
-    'display_version': False,
+    'display_version': True,
 }
 html_favicon = 'favicon.ico'
 
@@ -85,9 +84,9 @@ html_favicon = 'favicon.ico'
 # this enables the "edit on github behavior for the top right corners of webpages
 html_context = {
     'display_github': True,
-    'github_user': 'sebastiansam55',
-    'github_repo': 'autokey-sphinx',
-    'github_version': 'gh-pages/develop/',
+    'github_user': 'autokey',
+    'github_repo': 'autokey',
+    'github_version': 'docs',
 }
 
 html_sidebars = {
@@ -95,6 +94,13 @@ html_sidebars = {
         'versioning.html',
     ],
 }
+
+#added based on PR #487, required modules
+autodoc_mock_imports = [
+    "PyQt5",
+    "gi",
+
+]
 
 # this code is to workaround the module docstring being posted at the top of every
 # api page.
