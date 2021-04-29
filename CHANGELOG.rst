@@ -33,6 +33,7 @@ Features
 - Add `wait_for_keyevent` scripting function.
 - Add setting to change GtkSourceView theme, (defaults to classic).
 - (GTK) Warn user about missing required and optional programs on startup.
+- (GTK) UI will now update when changes are detected to watched files.
 - Redone script error logging system, with a neat Script Error Dialog to go with it.
 - `<script>` script macros accept absolute paths.
 - Macro arguments can be quoted, allowing arguments containing spaces.
