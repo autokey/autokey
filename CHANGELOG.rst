@@ -28,45 +28,91 @@ Important misc changes
 Features
 ---------
 
+Scripting API
+^^^^^^^^^^^^^
+
+**engine API object**
+
+- Deprecated: Confusingly named engine.create_abbreviation() and engine.create_hotkey() are deprecated and will be removed in the future. Use engine.create_phrase() with appropriate arguments instead.
+- Extended: engine.create_phrase() now supports multiple new optional arguments, allowing to fully configure the created phrase. It can set everything the GUI can do.
+- New: Scripts can use engine.get_triggered_abbreviation() to read which abbreviation triggered it’s execution.
+- The function returns a tuple containing the abbreviation and the trigger character (the character that 'completed' or 'confirmed' the abbreviation. Both tuple elements are None, if the script was not triggered by an abbreviation. The trigger character is None, if the script was configured to 'trigger immediately'. The function always returns a tuple, so direct tuple unpacking like abbreviation, trigger = engine.get_triggered_abbreviation() will always work.
+- Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
+- Allow overriding existing hotkeys when creating phrases with hotkeys.
+- Allow creation of folders.
+
+**keyboard API object**
+
+- keyboard.send_keys() got a new optional parameter send_mode, allowing to specify how the given text is sent. It basically offers the same pasting options as are available to AutoKey Phrases.
+- keyboard.send_keys() now raises a TypeError instead of a generic AssertionError, if parameters don’t match the expected types.
+
+**New mouse API object**
+
 - Add mouse drag, click and scroll options to the API.
-- Expose Alt_GR as a hotkey modifier on GTK.
-- Add `wait_for_keyevent` scripting function.
-- Add setting to change GtkSourceView theme, (defaults to classic).
+
+Command line interface
+++++++++++++++++++++++
+
+- Added a --version command line switch. It prints the current AutoKey version on the standard output and then exits.
+
+Graphical user interfaces
++++++++++++++++++++++++++
+
 - (GTK) Warn user about missing required and optional programs on startup.
 - (GTK) UI will now update when changes are detected to watched files.
+- (GTK) refresh UI if script files are modified externally
+- Use system monospace font
+- Add setting to change GtkSourceView theme, (defaults to classic).
+
+Other
++++++
+
+- Add `wait_for_keyevent` scripting function.
 - Redone script error logging system, with a neat Script Error Dialog to go with it.
 - `<script>` script macros accept absolute paths.
 - Macro arguments can be quoted, allowing arguments containing spaces.
 - Macro arguments can contain angle bracket characters, if escaped.
 - Add `<system>` macro for replacing phrase contents with output of an external process.
-- (Scripting API) Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
-- (Scripting API) Allow overriding existing hotkeys when creating phrases with hotkeys.
-- (Scripting API) Allow creation of folders.
 - Allow `autokey-run` to accept full paths to python scripts (if no full path is given, will treat as an existing Autokey script name instead).
-- Use system monospace font
 - Expand unicode characters using code points (hacky workaround for being unable to send actual unicode).
 - Allow disabling Capslock in settings
 - Link to script `.py` and `.json` above editor.
 - Add appropriate keywords to `.desktop` files for both UIs.
-- (GTK) refresh UI if script files are modified externally
 
 Bug fixes
 ---------
 
 - Fix imports in `autokey-shell`
-- `system.exec_command()` API function doesn't crash on empty process output (and strips whitespace from any output it does receive).
 - Both QT and GTK versions will reload hotkeys after a keymap change event.
 - Fix locking issue
+- Expose Alt_GR as a hotkey modifier on GTK.
+- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383 
+
+Scripting API
++++++++++++++
+
+- Fixed API call `system.exec_command()` crashing, if output capturing is active, but the executed command has empty output. Fixes issue #379
+
+Packaging
++++++++++
+
+- Fixed AutoKey PNG icon size. Now, the icon size is 96x96 pixels, fixing Lintian warnings on Debian. Fixes issue #369
 
 Other changes
 ---------
 
 - Add CI for testing
 - Update pip installation requirements
-- Tray notifications are rate-limited.
-- Rebuild testing system for python3
 - Add CONTRIBUTERS.rst
+- Internal Code cleanup. The configuration handling module is split into multiple modules inside a dedicated package.
+- AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
 
+**New Dependencies (test-time only)**
+
+The new unit tests introduce two new, *test-time only* dependencies. These are used for unit tests only and not during normal AutoKey execution.
+
+- `pytest`
+- `PyHamcrest`
 
 Version 0.95.10 <2019-02-16>
 ============================
