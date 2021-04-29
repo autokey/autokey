@@ -1,0 +1,9 @@
+debhelper-compat
+dh-python
+pyqt5-dev-tools
+python3-all
+gir1.2-gtk-3.0
+python3-pyqt5.qsci
+python3-pyqt5.qtsvg
+python3-xlib
+devscripts

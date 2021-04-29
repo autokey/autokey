@@ -1,0 +1,107 @@
+# This workflow will install Python dependencies, build debs, and upload to pypi.
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python build
+
+on:
+  push:
+    branches: [ CI, master, beta ]
+    # tags:
+    #   - 'v*.*.*'
+
+jobs:
+
+  # build_and_upload_deb:
+  #   runs-on: ubuntu-latest
+  #   strategy:
+  #     matrix:
+  #       python-version: [3.9]
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - name: Set up Python ${{ matrix.python-version }}
+  #     uses: actions/setup-python@v2
+  #     with:
+  #       python-version: ${{ matrix.python-version }}
+
+  #   - name: Cache pip
+  #     uses: actions/cache@v2
+  #     with:
+  #       # This path is specific to Ubuntu
+  #       path: ~/.cache/pip
+  #       # Look to see if there is a cache hit for the corresponding requirements file
+  #       key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+  #       restore-keys: |
+  #         ${{ runner.os }}-pip-
+  #         ${{ runner.os }}-
+  #   - name: Install dependencies
+  #     run: |
+  #       sudo apt install $(cat apt-requirements.txt)
+  #       python -m pip install --upgrade pip
+  #       pip install flake8 pytest pytest-cov wheel
+  #       pip install -r pip-requirements.txt
+
+  #   - name: Build .deb
+  #     # Developed from instructions on the wiki
+  #     # The debian/ folder contains dependencies etc, so all this action needs to do is activate the process.
+  #     run: |
+  #       debian/build.sh
+
+  #   - name: Upload .deb
+  #     uses: actions/upload-artifact@v2
+  #     with:
+  #       name: autokey.deb
+  #       path: debian/build/autokey.deb???
+
+  #   - name: Upload binaries to release
+  #     uses: svenstaro/upload-release-action@v2
+  #     with:
+  #       repo_token: ${{ secrets.GITHUB_TOKEN }}
+  #       file: [../autokey-common_0.95.10-beta.1-0_all.deb, ../autokey-gtk_0.95.10-beta.1-0_all.deb, ../autokey-qt_0.95.10-beta.1-0_all.deb]
+  #       asset_name: autokey_${{ github.ref }}.deb
+  #       # Current commit
+  #       tag: ${{ github.ref }}
+  #       overwrite: true
+  #       body: "Release"
+
+  build_and_upload_pypi_wheel:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: |
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install build
+
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python -m
+        build
+        --sdist
+        --wheel
+        --outdir dist/
+
+    - name: Publish a Python distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
