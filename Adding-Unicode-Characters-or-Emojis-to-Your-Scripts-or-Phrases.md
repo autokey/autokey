@@ -6,7 +6,7 @@ There's a bit of a trick to using Unicode characters in AutoKey scripts and phra
 ### Important rules to keep in mind:
 - You should use `keyboard.send_keys()` for these, because they're multi-byte characters.
 - You cannot use `keyboard.send_key()` for these, because they're not technically single characters.
-- This will only work on Unicode character-codes that contain **all digits and no letters**.
+- This will only work on Unicode character-codes that use the **base-ten positional numeral system** (that contain **all digits and no letters**).
 - This will display any Unicode character that has **only four digits in its Unicode character-code**.
 - This will **not display the result in color** even if an actual character or emote is in color.
 - If a Unicode character will be the **last or only character** you print, **an additional key-press is required to get rid of the tooltip**. In the examples, I inserted a space or a plus sign at the end of each string. Note that neither the space nor the plus sign will be printed, but are simply a way to communicate with AutoKey that you're done creating the character. If a space or plus sign is desired after the Unicode character, an additional space or plus sign must be inserted.
@@ -68,7 +68,7 @@ You can use the key-combination that creates a Unicode character inside of a phr
 
 ### Important rules to keep in mind:
 - You should use the key-combination that creates a Unicode character for these (a press of the Ctrl key, Shift key, u, and the Unicode character-code done by stringing them together with plus signs).
-- This will only work on Unicode character-codes that contain **all digits and no letters**.
+- This will only work on Unicode character-codes that use the **base-ten positional numeral system** (that contain **all digits and no letters**).
 - This will display any Unicode character that has **only four digits in its Unicode character-code**.
 - This will **not display the result in color** even if an actual character or emote is in color.
 - If a Unicode character will be the **last or only character** you print, **an additional key-press is required to get rid of the tooltip**. In the examples, I inserted a space or a plus sign at the end of each string. Note that neither the space nor the plus sign will be printed, but are simply a way to communicate with AutoKey that you're done creating the character. If a space or plus sign is desired after the Unicode character, an additional space or plus sign must be inserted.
