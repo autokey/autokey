@@ -127,11 +127,14 @@ setup(
     python_requires=">=3.5",
     packages=[
         'autokey',
-        'autokey.iomediator',
         'autokey.gtkui',
         'autokey.qtui',
         'autokey.qtui.dialogs',
         'autokey.qtui.settings'
+        'autokey.iomediator',
+        'autokey.model',
+        'autokey.configmanager',
+        'autokey.scripting',
     ],
     package_dir={'': 'lib'},
 
