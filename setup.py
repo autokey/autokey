@@ -127,11 +127,14 @@ setup(
     python_requires=">=3.5",
     packages=[
         'autokey',
-        'autokey.iomediator',
         'autokey.gtkui',
         'autokey.qtui',
         'autokey.qtui.dialogs',
-        'autokey.qtui.settings'
+        'autokey.qtui.settings',
+        'autokey.iomediator',
+        'autokey.model',
+        'autokey.configmanager',
+        'autokey.scripting',
     ],
     package_dir={'': 'lib'},
 
@@ -170,7 +173,7 @@ setup(
     scripts=['autokey-run', 'autokey-shell'],
     install_requires=[
         'pyinotify',
-        'python-xlib'
+        'python-xlib',
     ],
     # These two options are deprecated. TODO switch to another system, like
     # tox. See https://pypi.org/project/pytest-runner/
@@ -178,7 +181,7 @@ setup(
     tests_require=[
         "pytest",
         "pytest-cov",
-        "pyhamcrest>=1.8.1"
+        "pyhamcrest>=1.8.1",
     ],
     test_suite="pytest",
     classifiers=[
