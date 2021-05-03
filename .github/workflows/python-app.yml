@@ -107,5 +107,6 @@ jobs:
     - name: Test installation
       run: |
         pip install "${GITHUB_WORKSPACE}"
+        export PYTHONPATH=$PYTHONPATH:/lib/python3/dist-packages
         autokey-gtk --help
         autokey-qt --help
