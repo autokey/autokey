@@ -106,6 +106,6 @@ jobs:
 
     - name: Test installation
       run: |
-        pip install "${GITHUB_WORKSPACE}/autokey/autokey"
+        pip install "${GITHUB_WORKSPACE}"
         autokey-gtk --help
         autokey-qt --help
