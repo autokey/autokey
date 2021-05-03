@@ -13,7 +13,7 @@ gir1.2-glib-2.0
 gir1.2-notify-0.7
 python3-gi
 python-gi
-python3-goobject
+python-gobject
 zenity
 kdialog
 pyqt5-dev-tools
