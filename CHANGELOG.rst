@@ -36,7 +36,7 @@ Scripting API
 - Deprecated: Confusingly named engine.create_abbreviation() and engine.create_hotkey() are deprecated and will be removed in the future. Use engine.create_phrase() with appropriate arguments instead.
 - Extended: engine.create_phrase() now supports multiple new optional arguments, allowing to fully configure the created phrase. It can set everything the GUI can do.
 - New: Scripts can use engine.get_triggered_abbreviation() to read which abbreviation triggered it’s execution.
-- The function returns a tuple containing the abbreviation and the trigger character (the character that 'completed' or 'confirmed' the abbreviation. Both tuple elements are None, if the script was not triggered by an abbreviation. The trigger character is None, if the script was configured to 'trigger immediately'. The function always returns a tuple, so direct tuple unpacking like abbreviation, trigger = engine.get_triggered_abbreviation() will always work.
+  The function returns a tuple containing the abbreviation and the trigger character (the character that 'completed' or 'confirmed' the abbreviation. Both tuple elements are None if the script was not triggered by an abbreviation. The trigger character is None if the script was configured to 'trigger immediately'. The function always returns a tuple, so direct tuple unpacking like abbreviation, trigger = engine.get_triggered_abbreviation() will always work.
 - Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
 - Allow overriding existing hotkeys when creating phrases with hotkeys.
 - Allow creation of folders.
@@ -68,7 +68,7 @@ Other
 +++++
 
 - Add `wait_for_keyevent` scripting function.
-- Redone script error logging system, with a neat Script Error Dialog to go with it.
+- Rewrote script error logging system, with a neat Script Error Dialog to go with it.
 - `<script>` script macros accept absolute paths.
 - Macro arguments can be quoted, allowing arguments containing spaces.
 - Macro arguments can contain angle bracket characters, if escaped.
@@ -82,7 +82,6 @@ Other
 Bug fixes
 ---------
 
-- Fix imports in `autokey-shell`
 - Both QT and GTK versions will reload hotkeys after a keymap change event.
 - Fix locking issue
 - Expose Alt_GR as a hotkey modifier on GTK.
