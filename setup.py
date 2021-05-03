@@ -173,7 +173,6 @@ setup(
     scripts=['autokey-run', 'autokey-shell'],
     install_requires=[
         'pyinotify',
-        'dbus-python',
         'python-xlib',
     ],
     # These two options are deprecated. TODO switch to another system, like

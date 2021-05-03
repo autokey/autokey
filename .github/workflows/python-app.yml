@@ -103,10 +103,10 @@ jobs:
       run: |
         sudo apt install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
+        pip install dbus-python gobject pygobject
 
     - name: Test installation
       run: |
         pip install "${GITHUB_WORKSPACE}"
-        export PYTHONPATH=$PYTHONPATH:/lib/python3/dist-packages
         autokey-gtk --help
         autokey-qt --help
