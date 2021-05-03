@@ -173,7 +173,8 @@ setup(
     scripts=['autokey-run', 'autokey-shell'],
     install_requires=[
         'pyinotify',
-        'python-xlib'
+        'dbus-python',
+        'python-xlib',
     ],
     # These two options are deprecated. TODO switch to another system, like
     # tox. See https://pypi.org/project/pytest-runner/
@@ -181,7 +182,7 @@ setup(
     tests_require=[
         "pytest",
         "pytest-cov",
-        "pyhamcrest>=1.8.1"
+        "pyhamcrest>=1.8.1",
     ],
     test_suite="pytest",
     classifiers=[
