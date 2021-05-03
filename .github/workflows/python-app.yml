@@ -83,3 +83,29 @@ jobs:
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
 
+  test-install:
+    # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install OS dependencies only
+      run: |
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+
+    - name: Test installation
+      run: |
+        pip --user install "${GITHUB_WORKSPACE}/autokey/autokey"
+        autokey-gtk --help
+        autokey-qt --help
