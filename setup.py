@@ -130,7 +130,7 @@ setup(
         'autokey.gtkui',
         'autokey.qtui',
         'autokey.qtui.dialogs',
-        'autokey.qtui.settings'
+        'autokey.qtui.settings',
         'autokey.iomediator',
         'autokey.model',
         'autokey.configmanager',
