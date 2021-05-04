@@ -14,10 +14,13 @@ Version Develop
 Bug fixes
 ---------
 
-- Fix clear button not unsetting hotkeys
+Version 0.96.0-beta.2
+============================
 
-Other changes
----------
+- Fix issue with pip installation reporting a missing module
+
+Version 0.96.0-beta.1
+============================
 
 Important misc changes
 ----------------------
