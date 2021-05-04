@@ -13,6 +13,11 @@ Changelog
 .. Other changes
 .. ---------
 
+Version 0.96.0-beta.2
+============================
+
+- Fix issue with pip installation reporting a missing module
+
 Version 0.96.0-beta.1
 ============================
 
