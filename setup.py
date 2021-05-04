@@ -20,7 +20,7 @@ import sys
 import re
 from collections import namedtuple
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePath
 import warnings
 import shutil
 
@@ -112,11 +112,16 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
 
 
 ak_data = extract_autokey_data()
+this_directory = PurePath(__file__).parent
+with open(this_directory / 'README.rst', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='autokey',
     version=ak_data.version,
     description='AutoKey (Python 3)',
+    long_description=long_description,
+    long_description_content_type='text/rest',
     author=ak_data.author,
     author_email=ak_data.author_email,
     maintainer=ak_data.maintainer,
