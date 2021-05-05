@@ -39,7 +39,7 @@ jobs:
       run: |
         sudo apt install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov wheel
+        pip install flake8 pytest pytest-cov tox wheel
         pip install -r pip-requirements.txt
 
     - name: Python Code Quality and Lint
@@ -71,15 +71,27 @@ jobs:
         extra-mypy-options: ""
         extra-isort-options: ""
 
-    - name: Test with pytest
+    - name: Test with tox and pytest
       run: |
-        ./setup.py test
+        tox -e clean,coverage,report
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v2
       with:
         name: pytest-results-${{ matrix.python-version }}
         path: junit/test-results-${{ matrix.python-version }}.xml
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+
+    - name: Archive test coverage report
+      run: |
+        tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
+
+    - name: Upload test coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_coverage_report-${{ matrix.python-version }}.tar.gz
+        path: test_coverage_report-${{ matrix.python-version }}.tar.gz
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
 
