@@ -177,17 +177,30 @@
 <div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">remote</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$1</span><span class="s2">&quot;</span>
 <span class="nv">url</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$2</span><span class="s2">&quot;</span>
 
-python3 setup.py <span class="nb">test</span>
+tox
 <span class="nb">exit</span> <span class="nv">$?</span>
 </pre></div>
 </div>
 <p>This will stop the push if tests fail.</p>
+<p>GitHub Actions are used to run tests on pull requests to <cite>master</cite> and
+<cite>develop</cite> branches.</p>
+<p>Tagged releases merged into <cite>develop</cite>, <cite>beta</cite> and <cite>master</cite> will
+automatically be built.</p>
 </div>
 <div class="section" id="testing">
 <h1>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h1>
-<p>Running the tests is simple: Checkout <cite>develop</cite> and run <cite>python3 setup.py test</cite>. Running individual test files or folders, or using pytest arguments, can be done with <cite>python3 -m pytest tests/[test file] [–opt]</cite></p>
-<p>Testing requires pytest and PyHamcrest as new test-time only dependencies.</p>
-<p>The current <cite>master</cite> tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
+<p>Running the tests is simple: Checkout <cite>develop</cite> (or v&gt;0.96.0) and run <cite>tox</cite>
+(<cite>tox</cite> must be installed).
+Running individual test files or folders, or using pytest arguments, can be
+done with <cite>tox – tests/[test file] [–opt]</cite>.</p>
+<p>Test coverage reports can be generated with
+<cite>tox -e clean,coverage,report</cite></p>
+<p>Testing requires tox, pytest and PyHamcrest as new test-time only
+dependencies. Tox will install pytest and pyhamcrest in its virtualenv when
+run, so you do not need to worry about it.  Tox itself does need manual
+installation.  Install <cite>tox</cite> through <cite>pip</cite> or <cite>python-tox</cite> through your
+package manager.</p>
+<p>The current (0.95.x) <cite>master</cite> tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
 The old tests are scheduled to be replaced by a new suite in the <cite>develop</cite> branch, which will be merged as 0.96.0.</p>
 <p>The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can’t be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.</p>
 </div>
