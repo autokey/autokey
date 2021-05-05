@@ -26,7 +26,10 @@ Testing
 Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
 (`tox` must be installed).
 Running individual test files or folders, or using pytest arguments, can be
-done with `tox -- tests/[test file] [--opt]`
+done with `tox -- tests/[test file] [--opt]`.
+
+Test coverage reports can be generated with
+`tox -e clean,coverage,report`
 
 
 Testing requires tox, pytest and PyHamcrest as new test-time only
