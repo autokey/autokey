@@ -35,7 +35,8 @@ from autokey.macro import *
 
 
 def get_autokey_dir():
-    return os.path.dirname(os.path.realpath(sys.argv[0]))
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)),
+    "..")
 
 
 path =  get_autokey_dir() + "/tests/dummy_file.txt"
@@ -231,9 +232,9 @@ def test_macro_expansion(test_input, expected, error_msg):
 
 def test_system_macro():
     engine, folder = create_engine()
-    home=os.environ['HOME']
-    test="one<system command='echo $HOME'>two"
-    expected="one{}two".format(home)
+    lang=os.environ['LANG']
+    test="one<system command='echo $LANG'>two"
+    expected="one{}two".format(lang)
     assert_that(expandMacro(engine, test), is_(equal_to(expected)),
                 "system macro fails")
 
