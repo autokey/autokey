@@ -20,7 +20,7 @@ import sys
 import re
 from collections import namedtuple
 import subprocess
-from pathlib import Path, PurePath
+from pathlib import Path
 import warnings
 import shutil
 
@@ -38,13 +38,13 @@ if sys.version_info < (3, 5, 0):
     sys.exit(1)
 
 
-AutoKeyMetadata = namedtuple("AutoKeyMetadata", ["version", "author", "author_email", "maintainer", "maintainer_email"])
+AutoKeyData = namedtuple("AutoKeyData", ["version", "author", "author_email", "maintainer", "maintainer_email"])
 
 
-def extract_autokey_metadata() -> AutoKeyMetadata:
+def extract_autokey_data() -> AutoKeyData:
     source_file_name = "./lib/autokey/common.py"
-    with open(source_file_name, "r") as metadata_source_file:
-        source = metadata_source_file.read()
+    with open(source_file_name, "r") as data_source_file:
+        source = data_source_file.read()
     if not source:
         print("Cannot read AutoKey source file containing required information. Unreadable: {}".format(
             source_file_name))
@@ -57,7 +57,7 @@ def extract_autokey_metadata() -> AutoKeyMetadata:
             re.M
         ).group(1)[1:-1]  # Cut off outer quotation marks
 
-    return AutoKeyMetadata(
+    return AutoKeyData(
         version=search_for("VERSION"),
         author=search_for("AUTHOR"),
         author_email=search_for("AUTHOR_EMAIL"),
@@ -82,7 +82,7 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             else:
                 # If here, compilation failed for a known reason, so include the resource files directly.
                 # Ok, always include this for now. setup.py seems to not like this
-                # self.package_metadata["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
+                # self.package_data["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
                 pass
         super(BuildWithQtResources, self).run()
 
@@ -111,47 +111,35 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             shutil.copy(str(icon), str(target_directory))
 
 
-ak_metadata = extract_autokey_metadata()
-this_directory = PurePath(__file__).parent
-with open(this_directory / 'README.rst', encoding='utf-8') as f:
-    long_description = f.read()
+ak_data = extract_autokey_data()
 
 setup(
     name='autokey',
-    version=ak_metadata.version,
-    description='Keyboard and GUI automation on Linux (X11)',
-    long_description=long_description,
-    long_description_content_type='text/x-rst',
-    author=ak_metadata.author,
-    author_email=ak_metadata.author_email,
-    maintainer=ak_metadata.maintainer,
-    maintainer_email=ak_metadata.maintainer_email,
+    version=ak_data.version,
+    description='AutoKey (Python 3)',
+    author=ak_data.author,
+    author_email=ak_data.author_email,
+    maintainer=ak_data.maintainer,
+    maintainer_email=ak_data.maintainer_email,
     url='https://github.com/autokey/autokey',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
-    # setuptools_scm removes need for MANIFEST.in. Allows setuptools to get which files to
-    # include in source distributions from git.
-    setup_requires=['setuptools_scm'],
-    # Use setuptools_scm to get version number from git! (Gives tag, plus dev
-    # commit details since most recent tag if not on tagged commit).
-    # If using this, would have to also set common.VERSION from this so that
-    # the autokey 'about' menu shows the correct version.
-    # use_scm_version=True,
     python_requires=">=3.5",
-    # This requires autokey submodules (subdirectories) to contain their own `__init__.py` file (i.e.
-    # they advertise themselves as modules).
-    # find_namespace_packages might be a better alternative that doesn't
-    # require this.
-    # https://setuptools.readthedocs.io/en/latest/userguide/package_discovery.html#using-find-namespace-or-find-namespace-packages
-    packages=setuptools.find_packages('lib'),
+    packages=[
+        'autokey',
+        'autokey.gtkui',
+        'autokey.qtui',
+        'autokey.qtui.dialogs',
+        'autokey.qtui.settings',
+        'autokey.iomediator',
+        'autokey.model',
+        'autokey.configmanager',
+        'autokey.scripting',
+    ],
     package_dir={'': 'lib'},
-    include_package_data=True,
-    package_data={'autokey': ["configmanager/predefined_user_scripts/*"],
-        'autokey.qtui': ['data/*',
-            'resources/icons/*',
-            'resources/ui/*.ui'],
-        'autokey.gtkui': ['data/*'],
-        },
+
+    package_data={'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
+                  'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
                   'config/autokey-status.svg',
@@ -179,18 +167,13 @@ setup(
     entry_points={
         'console_scripts': [
             'autokey-gtk=autokey.gtkui.__main__:main',
-            'autokey-qt=autokey.qtui.__main__:Application',
-            'autokey-headless=autokey.headless_app:main',
+            'autokey-qt=autokey.qtui.__main__:Application'
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
-    # Minimal installation pre-requisite python packages.
-    # Some are not included here because they should be installed
-    # through the system package manager, not pip.
     install_requires=[
         'pyinotify',
         'python-xlib',
-        'packaging',
     ],
     test_suite="pytest",
     classifiers=[
@@ -202,5 +185,4 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.5',
     ],
-    keywords='automation hotkey expansion expander phrase',
 )
