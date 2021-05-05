@@ -12,8 +12,14 @@
 #
 import os
 import sys
+import shutil
+
 #TODO this needs to be dealt with for github actions
 sys.path.insert(0, os.path.abspath('../../lib'))
+## copy rst files from base repo to appropriate locations for use
+files = ["../../CHANGELOG.rst", "../../CONTRIBUTORS.rst", "../../README.rst"]
+for file in files:
+    shutil.copy(file, "./")
 
 
 # -- Project information -----------------------------------------------------
