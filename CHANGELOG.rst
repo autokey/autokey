@@ -397,17 +397,17 @@ Changed
 
 .. code-block:: python
 
-        p = subprocess.Popen([…], stdout=subprocess.PIPE)
-        retCode = p.wait()
-        output = p.stdout.read()[:-1] # Drop trailing newline
+  p = subprocess.Popen([...], stdout=subprocess.PIPE)
+  retCode = p.wait()
+  output = p.stdout.read()[:-1] # Drop trailing newline
 
 to
 
-.. code:: python
+.. code-block:: python
 
-        p = subprocess.Popen([…], stdout=subprocess.PIPE)
-        output = p.communicate()[0].decode()[:-1] # Drop trailing newline
-        retCode = p.returncode
+  p = subprocess.Popen([...], stdout=subprocess.PIPE)
+  output = p.communicate()[0].decode()[:-1] # Drop trailing newline
+  retCode = p.returncode
 
 The former may cause a deadlock, for more information, see `Python docs`_. This pattern appears several times in the source codes.
 

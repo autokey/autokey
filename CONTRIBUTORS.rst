@@ -4,7 +4,8 @@ When you want to contribute new features or fix things, you are free to take vir
 
 Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
 
-.. code:: sh
+.. code-block:: sh
+
     remote="$1"
     url="$2"
 
