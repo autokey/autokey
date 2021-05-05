@@ -4,8 +4,10 @@ QtClipboard Functions
 
 import threading
 
-from PyQt5.QtGui import QClipboard
+from PyQt5.QtGui import QClipboard, QImage
 from PyQt5.QtWidgets import QApplication
+
+from pathlib import Path
 
 
 class QtClipboard:
@@ -87,6 +89,26 @@ class QtClipboard:
         @param contents: string to be placed in the selection
         """
         self.__execAsync(self.__fillClipboard, contents)
+
+    def set_clipboard_image(self, path):
+        """
+        Set clipboard to image
+
+        Usage: C{clipboard.set_clipboard_image(path)}
+
+        @param path: Path to image file
+        @raise OSError: If path does not exist
+        """
+        self.__execAsync(self.__set_clipboard_image, path)
+
+    def __set_clipboard_image(self, path):
+        image_path = Path(path).expanduser()
+        if image_path.exists():
+            copied_image = QImage()
+            copied_image.load(str(image_path))
+            self.clipBoard.setImage(copied_image)
+        else:
+            raise OSError
 
     def __fillClipboard(self, string):
         self.clipBoard.setText(string, QClipboard.Clipboard)

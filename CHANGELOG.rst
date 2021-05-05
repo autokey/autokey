@@ -2,6 +2,7 @@
 Changelog
 =========
 
+=======
 .. Version Develop
 .. ============================
 .. Important misc changes
@@ -45,6 +46,10 @@ Scripting API
 
 - keyboard.send_keys() got a new optional parameter send_mode, allowing to specify how the given text is sent. It basically offers the same pasting options as are available to AutoKey Phrases.
 - keyboard.send_keys() now raises a TypeError instead of a generic AssertionError, if parameters don’t match the expected types.
+
+**New clipboard API method**
+- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
+- Add `set_clipboard_image` methods for both Gtk and Qt. Takes a file path to an image to load into the clipboard.
 
 **New mouse API object**
 
