@@ -11,6 +11,9 @@ Welcome to AutoKey!
    api
    model
    quickstart
+   CHANGELOG
+   README
+   CONTRIBUTORS
 
 
 
