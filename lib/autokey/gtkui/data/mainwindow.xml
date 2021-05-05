@@ -32,6 +32,7 @@
                     <signal name="button-press-event" handler="on_treeview_buttonpress" swapped="no"/>
                     <signal name="row-activated" handler="on_treeWidget_row_activated" swapped="no"/>
                     <signal name="row-collapsed" handler="on_treeWidget_row_collapsed" swapped="no"/>
+                    <signal name="row-expanded" handler="on_treeWidget_row_expanded" swapped="no"/>
                     <signal name="cursor-changed" handler="on_tree_selection_changed" swapped="no"/>
                     <signal name="button-release-event" handler="on_treeview_buttonrelease" swapped="no"/>
                     <signal name="drag-begin" handler="on_drag_begin" swapped="no"/>
