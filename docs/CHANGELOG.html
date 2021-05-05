@@ -1,0 +1,834 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <title>Changelog &mdash; AutoKey latest documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  
+
+  
+  
+
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="AutoKey" href="README.html" />
+    <link rel="prev" title="Quickstart" href="quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html">
+          
+
+          
+            
+            <img src="_static/autokey.png" class="logo" alt="Logo"/>
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                latest
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-10-2019-02-16">Version 0.95.10 &lt;2019-02-16&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-9-2019-12-07">Version 0.95.9 &lt;2019-12-07&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-8-2019-11-07">Version 0.95.8 &lt;2019-11-07&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-7-2019-04-29">Version 0.95.7 &lt;2019-04-29&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#other-fixes">Other fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-6-2019-02-09">Version 0.95.6 &lt;2019-02-09&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-5-2019-02-07">Version 0.95.5 &lt;2019-02-07&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id5">Bug fixes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#qt-tray-icon-fixes-and-improvements">Qt tray icon fixes and improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Other fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-4-2018-10-14">Version 0.95.4 &lt;2018-10-14&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Bug fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-3-2018-08-21">Version 0.95.3 &lt;2018-08-21&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#features">Features</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id8">Bug fixes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#packaging">Packaging</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-2-2018-07-16">Version 0.95.2 &lt;2018-07-16&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-1-2018-06-30">Version 0.95.1 &lt;2018-06-30&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-95-0-2018-06-28">Version 0.95.0 &lt;2018-06-28&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#rewritten-the-qt-gui-ported-to-pyqt5">Rewritten the Qt GUI, ported to PyQt5</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#added-improvements">Added improvements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#regressions">Regressions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#runtime-dependencies">Runtime dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#build-time-dependencies">Build-time dependencies</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#known-bugs">Known bugs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#changed-features">Changed features</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#fixed-the-broken-clipboard-and-mouse-selection-phrase-paste-modes">Fixed the broken <cite>Clipboard</cite> and <cite>Mouse selection</cite> phrase paste modes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#scripting-api-changes">Scripting API Changes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#additions">Additions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#breaking-changes">Breaking changes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fixes">Fixes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#other-fixes-and-improvements">Other fixes and improvements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-94-0-2018-05-12">Version 0.94.0 &lt;2018-05-12&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-10-2017-02-17">Version 0.93.10 &lt;2017-02-17&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-9-2017-01-11">Version 0.93.9 &lt;2017-01-11&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-8-2017-01-09">Version 0.93.8 &lt;2017-01-09&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-7-2016-12-21">Version 0.93.7 &lt;2016-12-21&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-6-2016-08-13">Version 0.93.6 &lt;2016-08-13&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-4-2015-02-17">Version 0.93.4 &lt;2015-02-17&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-3-2015-02-20">Version 0.93.3 &lt;2015-02-20&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-2-2014-08-09">Version 0.93.2 &lt;2014-08-09&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-1-2014-03-02">Version 0.93.1 &lt;2014-03-02&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-93-0-2014-02-27-thu">Version 0.93.0 &lt;2014-02-27 Thu&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-92-0-2014-02-21-fri">Version 0.92.0 &lt;2014-02-21 Fri&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#version-0-91-0-2014-02-14-fri">Version 0.91.0 &lt;2014-02-14 Fri&gt;</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#first-release-2014-01-31-fri">First release &lt;2014-01-31 Fri&gt;</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#python-3-related-changes">Python 3 related changes</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#id18">Bug fixes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#other-changes">Other changes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoKey</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Changelog</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            
+              <a href="https://github.com/autokey/autokey/blob/docs/CHANGELOG.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="changelog">
+<h1><a class="toc-backref" href="#id20">Changelog</a><a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+<div class="contents topic" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#changelog" id="id20">Changelog</a></p>
+<ul>
+<li><p><a class="reference internal" href="#version-0-95-10-2019-02-16" id="id21">Version 0.95.10 &lt;2019-02-16&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#bug-fixes" id="id22">Bug fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-9-2019-12-07" id="id23">Version 0.95.9 &lt;2019-12-07&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id24">Bug fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-8-2019-11-07" id="id25">Version 0.95.8 &lt;2019-11-07&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id2" id="id26">Bug fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-7-2019-04-29" id="id27">Version 0.95.7 &lt;2019-04-29&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id28">Bug fixes</a></p></li>
+<li><p><a class="reference internal" href="#other-fixes" id="id29">Other fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-6-2019-02-09" id="id30">Version 0.95.6 &lt;2019-02-09&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id4" id="id31">Bug fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-5-2019-02-07" id="id32">Version 0.95.5 &lt;2019-02-07&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id5" id="id33">Bug fixes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#qt-tray-icon-fixes-and-improvements" id="id34">Qt tray icon fixes and improvements</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#id6" id="id35">Other fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-4-2018-10-14" id="id36">Version 0.95.4 &lt;2018-10-14&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id7" id="id37">Bug fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-3-2018-08-21" id="id38">Version 0.95.3 &lt;2018-08-21&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#features" id="id39">Features</a></p></li>
+<li><p><a class="reference internal" href="#id8" id="id40">Bug fixes</a></p></li>
+<li><p><a class="reference internal" href="#packaging" id="id41">Packaging</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-95-2-2018-07-16" id="id42">Version 0.95.2 &lt;2018-07-16&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-95-1-2018-06-30" id="id43">Version 0.95.1 &lt;2018-06-30&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-95-0-2018-06-28" id="id44">Version 0.95.0 &lt;2018-06-28&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#rewritten-the-qt-gui-ported-to-pyqt5" id="id45">Rewritten the Qt GUI, ported to PyQt5</a></p>
+<ul>
+<li><p><a class="reference internal" href="#added-improvements" id="id46">Added improvements</a></p></li>
+<li><p><a class="reference internal" href="#regressions" id="id47">Regressions</a></p></li>
+<li><p><a class="reference internal" href="#runtime-dependencies" id="id48">Runtime dependencies</a></p></li>
+<li><p><a class="reference internal" href="#build-time-dependencies" id="id49">Build-time dependencies</a></p></li>
+<li><p><a class="reference internal" href="#known-bugs" id="id50">Known bugs</a></p></li>
+<li><p><a class="reference internal" href="#changed-features" id="id51">Changed features</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#fixed-the-broken-clipboard-and-mouse-selection-phrase-paste-modes" id="id52">Fixed the broken <cite>Clipboard</cite> and <cite>Mouse selection</cite> phrase paste modes</a></p></li>
+<li><p><a class="reference internal" href="#scripting-api-changes" id="id53">Scripting API Changes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#additions" id="id54">Additions</a></p></li>
+<li><p><a class="reference internal" href="#breaking-changes" id="id55">Breaking changes</a></p></li>
+<li><p><a class="reference internal" href="#fixes" id="id56">Fixes</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#other-fixes-and-improvements" id="id57">Other fixes and improvements</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#version-0-94-0-2018-05-12" id="id58">Version 0.94.0 &lt;2018-05-12&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-10-2017-02-17" id="id59">Version 0.93.10 &lt;2017-02-17&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-9-2017-01-11" id="id60">Version 0.93.9 &lt;2017-01-11&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-8-2017-01-09" id="id61">Version 0.93.8 &lt;2017-01-09&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-7-2016-12-21" id="id62">Version 0.93.7 &lt;2016-12-21&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-6-2016-08-13" id="id63">Version 0.93.6 &lt;2016-08-13&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-4-2015-02-17" id="id64">Version 0.93.4 &lt;2015-02-17&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-3-2015-02-20" id="id65">Version 0.93.3 &lt;2015-02-20&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-2-2014-08-09" id="id66">Version 0.93.2 &lt;2014-08-09&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-1-2014-03-02" id="id67">Version 0.93.1 &lt;2014-03-02&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-93-0-2014-02-27-thu" id="id68">Version 0.93.0 &lt;2014-02-27 Thu&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-92-0-2014-02-21-fri" id="id69">Version 0.92.0 &lt;2014-02-21 Fri&gt;</a></p></li>
+<li><p><a class="reference internal" href="#version-0-91-0-2014-02-14-fri" id="id70">Version 0.91.0 &lt;2014-02-14 Fri&gt;</a></p></li>
+<li><p><a class="reference internal" href="#first-release-2014-01-31-fri" id="id71">First release &lt;2014-01-31 Fri&gt;</a></p>
+<ul>
+<li><p><a class="reference internal" href="#python-3-related-changes" id="id72">Python 3 related changes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id18" id="id73">Bug fixes</a></p></li>
+<li><p><a class="reference internal" href="#other-changes" id="id74">Other changes</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+<ul class="simple">
+<li><p>Change the default phrase send mode to <cite>ctrl+v</cite> (paste using clipboard) rather than sending keys one at a time.</p></li>
+</ul>
+<div class="section" id="version-0-95-10-2019-02-16">
+<h2><a class="toc-backref" href="#id21">Version 0.95.10 &lt;2019-02-16&gt;</a><a class="headerlink" href="#version-0-95-10-2019-02-16" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="bug-fixes">
+<h3><a class="toc-backref" href="#id22">Bug fixes</a><a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Mitigate crashes when entering invalid Python regular expressions in the window filter dialogue. Fixes issue #212</p></li>
+<li><p>Added option to disable the handling of the Capslock modifier key.
+Fixes issues when that key is remapped to something else, for example Ctrl.
+The new option can be found in the settings dialogue. Fixes issues #95, #291</p></li>
+<li><p>API function <cite>system.exec_command()</cite> now only trims the last character in the output,
+if it is actually a newline character. If the executed command does not output a newline at the end,
+the full output is returned. Fixes issue #354</p></li>
+<li><p>Fixed wrong optional argument in man page for <cite>autokey-run</cite>. Fixed by pull request #361</p></li>
+<li><p>Removed unnecessarily set executable bit from several AutoKey SVG icons. Fixed by pull request #363</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-9-2019-12-07">
+<h2><a class="toc-backref" href="#id23">Version 0.95.9 &lt;2019-12-07&gt;</a><a class="headerlink" href="#version-0-95-9-2019-12-07" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3><a class="toc-backref" href="#id24">Bug fixes</a><a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Prevent data losses when deleting or moving directories from within AutoKey. AutoKey will only delete data it knows
+and keep unknown user data. So adding $HOME and then removing it again will not purge everything below it.
+Affected were deleting directories and moving them via drag &amp; drop. Fixes issues #171, #332</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-8-2019-11-07">
+<h2><a class="toc-backref" href="#id25">Version 0.95.8 &lt;2019-11-07&gt;</a><a class="headerlink" href="#version-0-95-8-2019-11-07" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id2">
+<h3><a class="toc-backref" href="#id26">Bug fixes</a><a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Qt GUI: Fix issue with Python 3.7.4 and PyQt 5.11-5.13.0 that prevented AutoKey from starting on certain
+distributions shipping this configuration, notably Kubuntu 19.10. Fixes issues #313, #301</p></li>
+<li><p>Qt GUI: Fix crash when saving the currently edited item, after deselecting it in the tree view. Fixes issue #285</p></li>
+<li><p>Qt GUI: Disable Main window -&gt; Tools -&gt; Insert Macro when not editing a Phrase. Fixes issue #276</p></li>
+<li><p>Qt GUI: Add a warning that explains possible data loss when creating top level directories at used specified
+locations. See issue #171</p></li>
+<li><p>GTK GUI: Fix application hang when setting a custom value for “Trigger on” in the Abbreviation settings dialogue.
+Fixes issue #315</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-7-2019-04-29">
+<h2><a class="toc-backref" href="#id27">Version 0.95.7 &lt;2019-04-29&gt;</a><a class="headerlink" href="#version-0-95-7-2019-04-29" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id3">
+<h3><a class="toc-backref" href="#id28">Bug fixes</a><a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>GTK GUI: Fixed system tray icon context menu entry <code class="code docutils literal notranslate"><span class="pre">View</span> <span class="pre">script</span> <span class="pre">error</span></code>, which was non-functional,
+if the main window is closed. The entry now opens the main window first as a workaround,
+because a proper fix will require a major code overhaul. Fixes #222</p></li>
+<li><p>Qt GUI: Fixed the truncated GPLv3 license text shown in the About AutoKey dialogue.
+The dialogue window now shows the full license text. Fixes #258</p></li>
+<li><p>Hardened the logic to read application window titles. AutoKey now works,
+if applications do not set the <code class="code docutils literal notranslate"><span class="pre">_NET_WM_VISIBLE_NAME</span></code> property of their windows. Fixes #257</p></li>
+<li><p>Fixed Phrase expansion using the Keyboard method, which was broken if AutoKey was started for the first time.
+Fixes #274</p></li>
+</ul>
+</div>
+<div class="section" id="other-fixes">
+<h3><a class="toc-backref" href="#id29">Other fixes</a><a class="headerlink" href="#other-fixes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Improved the debug logging output: Removed unnecessary output, clarified wordings, etc. See #230</p></li>
+<li><p>Qt GUI: Display the current Python version number in the About dialogue.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-6-2019-02-09">
+<h2><a class="toc-backref" href="#id30">Version 0.95.6 &lt;2019-02-09&gt;</a><a class="headerlink" href="#version-0-95-6-2019-02-09" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id4">
+<h3><a class="toc-backref" href="#id31">Bug fixes</a><a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix the combination of phrase settings <code class="code docutils literal notranslate"><span class="pre">Match</span> <span class="pre">phrase</span> <span class="pre">case</span> <span class="pre">to</span> <span class="pre">typed</span> <span class="pre">abbreviation</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">Trigger</span> <span class="pre">immediately</span></code> to cause Scripts and Phrases to trigger on each and every key press.
+Fixes issue #254 introduced in 0.95.5.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-5-2019-02-07">
+<h2><a class="toc-backref" href="#id32">Version 0.95.5 &lt;2019-02-07&gt;</a><a class="headerlink" href="#version-0-95-5-2019-02-07" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id5">
+<h3><a class="toc-backref" href="#id33">Bug fixes</a><a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix window filter detection always returning Title: <code class="code docutils literal notranslate"><span class="pre">FocusProxy</span></code>, Class: <cite>Focus-Proxy-Window.FocusProxy</cite> on
+Java AWT applications. It now detects the proper window title and WM_CLASS attribute for Java AWT applications.
+Fixes issue #113</p></li>
+<li><p>GTK GUI: Fix the window filter detection dialogue. On clicking OK, it hung the whole application.
+Now the dialogue window works as intended. Fixes issue #229</p></li>
+<li><p>Fix abbreviation case folding (ignore case option) with abbreviations defined as UPPER CASE in the abbreviation
+dialogue. Options <code class="code docutils literal notranslate"><span class="pre">Ignore</span> <span class="pre">case</span></code> and <code class="code docutils literal notranslate"><span class="pre">Match</span> <span class="pre">case</span></code> now work with upper case abbreviations. Fixes issue #197</p></li>
+<li><p>Prevent the keyboard from staying grabbed by AutoKey if exceptions are thrown while AutoKey performs a
+clipboard pasting action. Fixes issues #72, #225</p></li>
+<li><p>Prevent writing <code class="code docutils literal notranslate"><span class="pre">None</span></code> to the clipboard. This prevents autokey-gtk from deadlocking,
+caused by an unreleased mutex. Fixes issue #226</p></li>
+<li><p>Restrict Phrase Undo functionality to phrases without special keys, because phrases containing special keys cannot
+be reliably undone. Fixes issue #196</p></li>
+<li><p>Clarified autosave option wording in the settings window. The option now explicitly states what it does.
+Fixes issue #194</p></li>
+<li><p>Force AutoKey to exit, if the X server connection closes, most probably at logout or session end. Fixes issue #198</p></li>
+</ul>
+<div class="section" id="qt-tray-icon-fixes-and-improvements">
+<h4><a class="toc-backref" href="#id34">Qt tray icon fixes and improvements</a><a class="headerlink" href="#qt-tray-icon-fixes-and-improvements" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Added »View script error« entry to the Tray icon context menu, like in the GTK GUI. Part of issue #158</p></li>
+<li><p>Tray icon turns red, when scripts raise an error, like in the GTK GUI. Part of issue #158</p></li>
+<li><p>If changing the tray icon theme in the settings (light or dark), instantly apply the new theme,
+without requiring an application restart. Part of issue #158</p></li>
+<li><p>The tray icon now works, after if it is disabled in the settings and then enabled again. Fixes issue #223</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="id6">
+<h3><a class="toc-backref" href="#id35">Other fixes</a><a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Enable <code class="code docutils literal notranslate"><span class="pre">setup.py</span></code> to be directly called from the system shell. Fixes issue #218</p></li>
+<li><p>Cleaned up some legacy leftovers in the autokey repository</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-4-2018-10-14">
+<h2><a class="toc-backref" href="#id36">Version 0.95.4 &lt;2018-10-14&gt;</a><a class="headerlink" href="#version-0-95-4-2018-10-14" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id7">
+<h3><a class="toc-backref" href="#id37">Bug fixes</a><a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix grabbed hotkeys being incorrectly received by other applications.</p></li>
+<li><p>Fixed crashes when processing <cite>&lt;code&gt;</cite> literals in strings.
+It is now possible to place <cite>&lt;code&gt;</cite> and <cite>&lt;code/&gt;</cite> literals in Phrases.
+Additionally, such literals can be typed in scripts using the keyboard.send_keys function.</p></li>
+<li><p>Increased the reliability of the window filter detection dialog in autokey-qt. The dialog allows sampling windows
+to aid writing window filters. Due to timing issues in certain cases, sometimes the window title of the previously
+active window was returned.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-3-2018-08-21">
+<h2><a class="toc-backref" href="#id38">Version 0.95.3 &lt;2018-08-21&gt;</a><a class="headerlink" href="#version-0-95-3-2018-08-21" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="features">
+<h3><a class="toc-backref" href="#id39">Features</a><a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Phrase expansion can now always be undone using the backspace key, if the feature is enabled in the settings.
+Previously it was only be possible if the phrase was triggered by an abbreviation.
+Now it also works when using hotkeys or selecting phrases from menus.
+This also prevents crashes in <a class="reference external" href="https://github.com/autokey/autokey/issues/164">certain cases</a>.</p></li>
+<li><p>Qt GUI: Add support for automatically starting <cite>autokey-qt</cite> during login. It can be configured in the settings
+dialogue. The configuration option allows to choose which GUI is automatically started, if both <cite>autokey-qt</cite> and
+<cite>autokey-gtk</cite> are installed simultaneously, and whether the main window should be shown automatically on launch.</p></li>
+<li><p>Qt GUI: Added the notification icon theme selection to the settings dialogue. The added section in the general
+settings allow to choose between the light and dark theme, like in the <cite>autokey-gtk</cite> settings dialogue. Changing
+this setting currently requires an application restart to take effect.</p></li>
+</ul>
+</div>
+<div class="section" id="id8">
+<h3><a class="toc-backref" href="#id40">Bug fixes</a><a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Scripting API: The Python <cite>__file__</cite> global variable is now properly set for AutoKey scripts.
+It contains the full path to the Python script file currently running. Previously, it contained the full path to
+the <cite>service.py</cite> file of the currently running AutoKey instance.</p></li>
+<li><p>Crash fix: Skip import of the AT-SPI interface, if importing of <cite>pyatspi</cite> fails with a SyntaxError. This may happen
+with certain versions of <cite>pyatspi</cite> on Python 3.7. For details see <a class="reference external" href="https://github.com/autokey/autokey/issues/173">#173</a></p></li>
+<li><p>Fix serializing the store during saving, if user stores recursive data structures. It now handles/skips lists that
+contain themselves or other circular referenced data structures.</p></li>
+<li><p>GTK GUI: Fix autostart handling: Create the <cite>$XDG_CONFIG_HOME/autostart</cite> (<cite>~/.config/autostart</cite>) directory, if it is
+not already present. Fixes <a class="reference external" href="https://github.com/autokey/autokey/issues/149">#149</a></p></li>
+<li><p>Qt GUI: Create the user data directories before initializing the logger system. This prevents crashes when autokey-qt
+is used for the first time or when the user wiped all previous data. Fixes <a class="reference external" href="https://github.com/autokey/autokey/issues/170">#170</a></p></li>
+<li><p>Qt GUI: Fix saving the “Always prompt before running this script” checkbox content when editing scripts. This option
+now works as intended again.</p></li>
+</ul>
+</div>
+<div class="section" id="packaging">
+<h3><a class="toc-backref" href="#id41">Packaging</a><a class="headerlink" href="#packaging" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Stop shipping the <cite>autokey.png</cite> icon file inside a <cite>scalable</cite> icon theme directory. Moved to the appropriate raster
+image directory.</p></li>
+<li><p>Corrected broken dependency package name in setup.py. The library is called <cite>python-xlib</cite> and not <cite>python3-xlib</cite> on
+PyPI.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-95-2-2018-07-16">
+<h2><a class="toc-backref" href="#id42">Version 0.95.2 &lt;2018-07-16&gt;</a><a class="headerlink" href="#version-0-95-2-2018-07-16" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Fix broken imports in autokey-shell script</p></li>
+<li><p>Skip non-json-serializable data in script storage (both script local and global) during saving. This allows putting
+non-serializable items (like function objects) into the store without crashing autokey during saving.</p></li>
+<li><p>Qt GUI: Fix minor bug when creating new items. Created items are now properly selected for renaming directly after
+creation.</p></li>
+<li><p>Minor code simplifications. Removed unnecessary functions that were obsoleted during prior changes.</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-95-1-2018-06-30">
+<h2><a class="toc-backref" href="#id43">Version 0.95.1 &lt;2018-06-30&gt;</a><a class="headerlink" href="#version-0-95-1-2018-06-30" title="Permalink to this headline">¶</a></h2>
+<p>This is a small bug fixing release.</p>
+<ul class="simple">
+<li><p>Fix a long standing bug that errors occurring during phrase parsing or script execution can lock up the user keyboard.
+Make sure to always release the keyboard after grabbing it. See <a class="reference external" href="https://github.com/autokey/autokey/issues/72">#72</a>, <a class="reference external" href="https://bugs.launchpad.net/ubuntu/+source/autokey/+bug/1551054">launchpad_1551054</a></p></li>
+<li><p>Qt GUI: Fix saving the content of the log view to a file using the context menu entry.</p></li>
+<li><p>Some small, internal code quality improvements.</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-95-0-2018-06-28">
+<h2><a class="toc-backref" href="#id44">Version 0.95.0 &lt;2018-06-28&gt;</a><a class="headerlink" href="#version-0-95-0-2018-06-28" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="rewritten-the-qt-gui-ported-to-pyqt5">
+<h3><a class="toc-backref" href="#id45">Rewritten the Qt GUI, ported to PyQt5</a><a class="headerlink" href="#rewritten-the-qt-gui-ported-to-pyqt5" title="Permalink to this headline">¶</a></h3>
+<p>Resurrected, re-written and cleaned up the <cite>autokey-qt</cite> Qt GUI. <cite>autokey-qt</cite> is now a pure <cite>PyQt5</cite> application, only
+dependent on currently supported libraries.</p>
+<div class="section" id="added-improvements">
+<h4><a class="toc-backref" href="#id46">Added improvements</a><a class="headerlink" href="#added-improvements" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>The main window now keeps its complete state when closed and re-opened (excluding complete application restarts). This includes the currently selected item(s) in the tree view on the left of the main window, selected text and cursor position in the editor on the right if currently editing a script or phrase.</p></li>
+<li><p>The entries in the popup menu, that is shown when a hotkey assigned to a folder is pressed, now show icons based on their type (folder, phrase or script). This also works when items are configured to be shown in the system tray icon context menu.</p></li>
+<li><p>The <em>A</em> autokey application icons are now always displayed correctly, both in the main window and the system tray icon.</p></li>
+<li><p>Various menu actions now have system dependent keyboard shortcuts, that should adjust to the expected default of the user’s current platform/desktop environment.</p></li>
+<li><p>Added icons and descriptive tooltip texts to various buttons.</p></li>
+<li><p>The <cite>enable monitoring</cite> checkboxes (both in the <cite>Settings</cite> menu and the tray icon context menu) now properly react to pressing the global hotkey for this action and thus stay in sync. (Even if the hotkey is used while the menu is shown.)</p></li>
+</ul>
+</div>
+<div class="section" id="regressions">
+<h4><a class="toc-backref" href="#id47">Regressions</a><a class="headerlink" href="#regressions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Customizing the main window toolbar entries and keyboard shortcuts to trigger various UI actions is no longer possible. This feature was provided by the KDE4 libraries and is currently dropped.</p></li>
+<li><p>The previous, KDE4-based About dialogue is replaced with a very minimalistic one.</p></li>
+<li><p>The settings dialogue heavily used the KDE4 functionalities. During the port to Qt5, the dialogue lost some visual style, but all core functionality is kept.</p></li>
+</ul>
+</div>
+<div class="section" id="runtime-dependencies">
+<h4><a class="toc-backref" href="#id48">Runtime dependencies</a><a class="headerlink" href="#runtime-dependencies" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Removed dependencies on deprecated and unmaintained PyQt4 and PyKDE4 libraries.</p></li>
+<li><p>Removed dependency on <cite>dbus.mainloop.qt</cite>, instead use the DBus support built into Qt5.</p></li>
+<li><p>Now depend on PyQt5, the Qt5 SVG module and the Qt5 QScintilla2 module.</p></li>
+</ul>
+</div>
+<div class="section" id="build-time-dependencies">
+<h4><a class="toc-backref" href="#id49">Build-time dependencies</a><a class="headerlink" href="#build-time-dependencies" title="Permalink to this headline">¶</a></h4>
+<p>Optionally depend on <cite>pyrcc5</cite> command line tool to compile Qt resources into a Python module.</p>
+<p>Qt UI files are no longer compiled using <cite>pykdeuic4</cite>, Removed the old compiler wrapper script in commit <a class="reference external" href="https://github.com/autokey/autokey/commit/6eeeb92f14c694979c1367d51350c1e6509329b1">6eeeb92f</a>.</p>
+</div>
+<div class="section" id="known-bugs">
+<h4><a class="toc-backref" href="#id50">Known bugs</a><a class="headerlink" href="#known-bugs" title="Permalink to this headline">¶</a></h4>
+<p>The system tray icon is shown, but non-functional, after enabling it in the settings dialogue. AutoKey Qt has to be restarted for the tray icon to start working. This should have no impact on the normal daily use.</p>
+</div>
+<div class="section" id="changed-features">
+<h4><a class="toc-backref" href="#id51">Changed features</a><a class="headerlink" href="#changed-features" title="Permalink to this headline">¶</a></h4>
+<p>The <cite>hide tray icon</cite> entry in the tray icon context menu now hides the icon for the current session only. The entry does not permanently disable the tray icon any more without any confirmation. Now, the only way to permanently disable the tray icon is through using the appropriate setting in the settings dialogue.</p>
+</div>
+</div>
+<div class="section" id="fixed-the-broken-clipboard-and-mouse-selection-phrase-paste-modes">
+<h3><a class="toc-backref" href="#id52">Fixed the broken <cite>Clipboard</cite> and <cite>Mouse selection</cite> phrase paste modes</a><a class="headerlink" href="#fixed-the-broken-clipboard-and-mouse-selection-phrase-paste-modes" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Pasting using both <cite>Clipboard</cite> and <cite>Mouse selection</cite> works in both the Qt and GTK GUI. See <a class="reference external" href="https://github.com/autokey/autokey/issues/101">#101</a></p></li>
+<li><p>Fixed restoring the clipboard after a paste is performed. Both GUIs now restore the previous clipboard content, after a phrase is pasted.</p></li>
+</ul>
+</div>
+<div class="section" id="scripting-api-changes">
+<h3><a class="toc-backref" href="#id53">Scripting API Changes</a><a class="headerlink" href="#scripting-api-changes" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="additions">
+<h4><a class="toc-backref" href="#id54">Additions</a><a class="headerlink" href="#additions" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Added a colour picker dialogue to the GTK dialog class, because the used <cite>zenity</cite> now supports it.</p></li>
+<li><p>The picked colour is returned as three integers using the ColourData NamedTuple, providing both index based access and attribute  access, using the channel names (<cite>r</cite>, <cite>g</cite>, <cite>b</cite>). Additionally, ColourData provides some conversion methods.</p></li>
+</ul>
+</div>
+<div class="section" id="breaking-changes">
+<h4><a class="toc-backref" href="#id55">Breaking changes</a><a class="headerlink" href="#breaking-changes" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>See Pull request <a class="reference external" href="https://github.com/autokey/autokey/pull/148">#148</a>. The <cite>dialog</cite> classes for user input in scripts now return typed NamedTuple tuples instead of plain tuples. This change is safe as long as users do not perform needlessly restrictive type checks in their scripts (e.g. <cite>if type(returned_data) == type(tuple()): …</cite>). User scripts doing so will break.</p></li>
+<li><p>The KDialog based colour picker now also returns a ColourData instance instead of a HTML style hex string, thus making this portable between both GTK and Qt GUIs. AutoKey users previously using the old KDE GUI and using the colour picker dialogue have to port their scripts. A simple fix is using the <cite>html_code</cite> property of the returned ColourData instance.</p></li>
+</ul>
+</div>
+<div class="section" id="fixes">
+<h4><a class="toc-backref" href="#id56">Fixes</a><a class="headerlink" href="#fixes" title="Permalink to this headline">¶</a></h4>
+<ul class="simple">
+<li><p>Re-introduce the newline trimming for system.exec_command() function. During the porting to Python 3, the newline trimming was removed, causing users various issues with unexpected newline characters at end of output. Now properly remove the _last_ newline at end of command output. (See issues <a class="reference external" href="https://github.com/autokey/autokey/issues/75">#75</a>, <a class="reference external" href="https://github.com/autokey/autokey/issues/92">#92</a>, <a class="reference external" href="https://github.com/autokey/autokey/issues/145">#145</a>)</p></li>
+<li><p>Applied various code style improvements to the scripting module.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="other-fixes-and-improvements">
+<h3><a class="toc-backref" href="#id57">Other fixes and improvements</a><a class="headerlink" href="#other-fixes-and-improvements" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>Fix the KDialog based colour picker provided in the scripting API. Newer versions of KDialog require an additional parameter, which is added now.</p></li>
+<li><p>Fixed crashes related to mouse pasting when using the GTK GUI.</p></li>
+<li><p>Both <cite>autokey-gtk</cite> and <cite>autokey-qt</cite> are now automatically generated setuptools entry-points.</p></li>
+<li><p><cite>autokey-gtk</cite> can now be launched directly from the autokey source tree.</p></li>
+</ul>
+<p>From the shell, <cite>cd</cite> into the <cite>lib</cite> directory, then use</p>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>&lt;path_to_autokey_source_dir&gt;/lib$ python3 -m autokey.gtkui <span class="o">[</span>-l<span class="o">]</span> <span class="o">[</span>-c<span class="o">]</span>
+<span class="c1"># Or alternatively, to launch autokey-qt use:</span>
+&lt;path_to_autokey_source_dir&gt;/lib$ python3 -m autokey.qtui <span class="o">[</span>-l<span class="o">]</span> <span class="o">[</span>-c<span class="o">]</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>Various internal code style improvements at various locations, like added type hints, PEP8 style fixes, etc.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="version-0-94-0-2018-05-12">
+<h2><a class="toc-backref" href="#id58">Version 0.94.0 &lt;2018-05-12&gt;</a><a class="headerlink" href="#version-0-94-0-2018-05-12" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Various README updates</p></li>
+<li><p>Ported autokey-run from the legacy optparse module to the new Python 3 argparse module</p></li>
+<li><p>Use $XDG_RUNTIME_DIR and $XDG_DATA_HOME directories for lock and log file</p></li>
+<li><p>Added support for function keys F13 to F35</p></li>
+<li><p>Refactored the iomediator modules into a package. Applied various code cleanups and fixes.</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-93-10-2017-02-17">
+<h2><a class="toc-backref" href="#id59">Version 0.93.10 &lt;2017-02-17&gt;</a><a class="headerlink" href="#version-0-93-10-2017-02-17" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>The scripting global storage now returns None if the requested key is not present.</p></li>
+<li><p>Improved the error messages in autokey-run. It is now clear that autokey has to run in the background for autokey-run to work.</p></li>
+<li><p>Added a LICENSE file containing the GPL v3 license terms.</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-93-9-2017-01-11">
+<h2><a class="toc-backref" href="#id60">Version 0.93.9 &lt;2017-01-11&gt;</a><a class="headerlink" href="#version-0-93-9-2017-01-11" title="Permalink to this headline">¶</a></h2>
+<p>Fixed a regression with setup.py install_requires keyword argument.
+Updated the GitHub issue template.</p>
+</div>
+<div class="section" id="version-0-93-8-2017-01-09">
+<h2><a class="toc-backref" href="#id61">Version 0.93.8 &lt;2017-01-09&gt;</a><a class="headerlink" href="#version-0-93-8-2017-01-09" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Readme updates</p></li>
+<li><p>Depend on Ubuntu appindicator</p></li>
+<li><p>Leverage libappindicator completely, fix “View script error”</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-93-7-2016-12-21">
+<h2><a class="toc-backref" href="#id62">Version 0.93.7 &lt;2016-12-21&gt;</a><a class="headerlink" href="#version-0-93-7-2016-12-21" title="Permalink to this headline">¶</a></h2>
+<p>This release contains various bug/crash fixes</p>
+<ul class="simple">
+<li><p>Renamed repository from autokey-py3 to autokey</p></li>
+<li><p>Moved the AutoKey source code out of src folder one level up.</p></li>
+<li><p>Removed donate button</p></li>
+<li><p>autokey-gtk script is now a setuptools generated entry point</p></li>
+<li><p>Require GTK 3.0 to fix autokey-gtk startup</p></li>
+<li><p>Updated various web links around the codebase</p></li>
+<li><p>New feature: Return the result of wait events in the iomediator module.</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-93-6-2016-08-13">
+<h2><a class="toc-backref" href="#id63">Version 0.93.6 &lt;2016-08-13&gt;</a><a class="headerlink" href="#version-0-93-6-2016-08-13" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Ensure Compatibility with official python-xlib</p></li>
+<li><p>Fixed several GTK related warnings</p></li>
+<li><p>GTK GUI:  Add feature to trigger popupmenu items with letters, rather than numbers.</p></li>
+<li><p>Add an AUR link</p></li>
+</ul>
+</div>
+<div class="section" id="version-0-93-4-2015-02-17">
+<h2><a class="toc-backref" href="#id64">Version 0.93.4 &lt;2015-02-17&gt;</a><a class="headerlink" href="#version-0-93-4-2015-02-17" title="Permalink to this headline">¶</a></h2>
+<p>Bugfix: Prevent clipboard related crashes with GTK3.</p>
+</div>
+<div class="section" id="version-0-93-3-2015-02-20">
+<h2><a class="toc-backref" href="#id65">Version 0.93.3 &lt;2015-02-20&gt;</a><a class="headerlink" href="#version-0-93-3-2015-02-20" title="Permalink to this headline">¶</a></h2>
+<p>Bugfix for defining abbreviations by <a class="reference external" href="https://github.com/kuhanalog">&#64;kuhanalog</a></p>
+</div>
+<div class="section" id="version-0-93-2-2014-08-09">
+<h2><a class="toc-backref" href="#id66">Version 0.93.2 &lt;2014-08-09&gt;</a><a class="headerlink" href="#version-0-93-2-2014-08-09" title="Permalink to this headline">¶</a></h2>
+<p>Read user scripts with UTF-8 encoding.</p>
+</div>
+<div class="section" id="version-0-93-1-2014-03-02">
+<h2><a class="toc-backref" href="#id67">Version 0.93.1 &lt;2014-03-02&gt;</a><a class="headerlink" href="#version-0-93-1-2014-03-02" title="Permalink to this headline">¶</a></h2>
+<p>Internal changes: Changed the data structure of the input stack.</p>
+</div>
+<div class="section" id="version-0-93-0-2014-02-27-thu">
+<h2><a class="toc-backref" href="#id68">Version 0.93.0 &lt;2014-02-27 Thu&gt;</a><a class="headerlink" href="#version-0-93-0-2014-02-27-thu" title="Permalink to this headline">¶</a></h2>
+<p>Added functions “acknowledge_gnome_notification” and “move_to_pat”, more details <a class="reference external" href="https://github.com/autokey/autokey/blob/master/new_features.rst">here</a>.</p>
+</div>
+<div class="section" id="version-0-92-0-2014-02-21-fri">
+<h2><a class="toc-backref" href="#id69">Version 0.92.0 &lt;2014-02-21 Fri&gt;</a><a class="headerlink" href="#version-0-92-0-2014-02-21-fri" title="Permalink to this headline">¶</a></h2>
+<p>Added an interactive shell launcher, “autokey-shell”. “autokey-shell” allows you to run some AutoKey functions interactively. Read <a class="reference external" href="https://github.com/autokey/autokey/blob/master/new_features.rst">this</a> for more details.</p>
+</div>
+<div class="section" id="version-0-91-0-2014-02-14-fri">
+<h2><a class="toc-backref" href="#id70">Version 0.91.0 &lt;2014-02-14 Fri&gt;</a><a class="headerlink" href="#version-0-91-0-2014-02-14-fri" title="Permalink to this headline">¶</a></h2>
+<p>Added a new function “click_on_pat” for use in user scripts. See <a class="reference external" href="https://github.com/autokey/autokey/blob/master/new_features.rst">this</a> for more details.</p>
+</div>
+<div class="section" id="first-release-2014-01-31-fri">
+<h2><a class="toc-backref" href="#id71">First release &lt;2014-01-31 Fri&gt;</a><a class="headerlink" href="#first-release-2014-01-31-fri" title="Permalink to this headline">¶</a></h2>
+<p>This describes some of the changes to the original AutoKey source code.</p>
+<div class="section" id="python-3-related-changes">
+<h3><a class="toc-backref" href="#id72">Python 3 related changes</a><a class="headerlink" href="#python-3-related-changes" title="Permalink to this headline">¶</a></h3>
+<p>Python 3 is less tolerant of circular imports so some files were split into several files. Those pieces of the original have their file names prefixed with the original’s.</p>
+<div class="section" id="id18">
+<h4><a class="toc-backref" href="#id73">Bug fixes</a><a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h4>
+<p>Eliminate possible deadlock.
+Changed</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="o">...</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+<span class="n">retCode</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">read</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Drop trailing newline</span>
+</pre></div>
+</div>
+<p>to</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">p</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">Popen</span><span class="p">([</span><span class="o">...</span><span class="p">],</span> <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">communicate</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">()[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Drop trailing newline</span>
+<span class="n">retCode</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">returncode</span>
+</pre></div>
+</div>
+<p>The former may cause a deadlock, for more information, see <a class="reference external" href="http://docs.python.org/3/library/subprocess.html#subprocess.Popen.wait">Python docs</a>. This pattern appears several times in the source codes.</p>
+<p>For a “gi.repository.Notify.Notification” object, test if method “attach_to_status_icon” exists before calling. After this fix, errors in user scripts will trigger a notification.</p>
+<p>Respect XDG standard. Details <a class="reference external" href="https://code.google.com/p/autokey/issues/detail?id=266">here</a>.</p>
+<p>Corrected a typo in manpage of autokey-run.</p>
+<p>For the GTK GUI, after script error is viewed, tray icon is reverted back to original.</p>
+</div>
+<div class="section" id="other-changes">
+<h4><a class="toc-backref" href="#id74">Other changes</a><a class="headerlink" href="#other-changes" title="Permalink to this headline">¶</a></h4>
+<p>In setup.py, the “/usr/” prefix to the directory names in the data_files argument were removed to allow for non-root install.</p>
+<p>Removed the “WINDOWID” environment variable so that zenity is not tied to the window from which it was launched.</p>
+<p>Modified the launcher and other files to allow for editable installs (“pip install -e”).</p>
+<p>Added an “about” dialog for the Python 3 port.</p>
+<p>Changed hyperlink for bug reports.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+        <a href="README.html" class="btn btn-neutral float-right" title="AutoKey" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="quickstart.html" class="btn btn-neutral float-left" title="Quickstart" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &#169; Copyright 2021, Various.
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
