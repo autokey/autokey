@@ -5,9 +5,9 @@ name: Python application
 
 on:
   push:
-    branches: [ master, develop ]
+    branches: [ CI, master, develop, beta ]
   pull_request:
-    branches: [ master, develop ]
+    branches: [ master, develop, beta ]
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
       run: |
         sudo apt install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov wheel
+        pip install flake8 pytest pytest-cov tox wheel
         pip install -r pip-requirements.txt
 
     - name: Python Code Quality and Lint
@@ -71,9 +71,9 @@ jobs:
         extra-mypy-options: ""
         extra-isort-options: ""
 
-    - name: Test with pytest
+    - name: Test with tox and pytest
       run: |
-        ./setup.py test
+        tox -e clean,coverage,report
 
     - name: Upload pytest test results
       uses: actions/upload-artifact@v2
@@ -83,3 +83,44 @@ jobs:
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
 
+    - name: Archive test coverage report
+      run: |
+        tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
+
+    - name: Upload test coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_coverage_report-${{ matrix.python-version }}.tar.gz
+        path: test_coverage_report-${{ matrix.python-version }}.tar.gz
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+
+  test-install:
+    # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install OS dependencies only
+      run: |
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install dbus-python gobject pygobject PyQt5 qscintilla
+
+    - name: Test installation
+      run: |
+        pip install "${GITHUB_WORKSPACE}"
+        autokey-gtk --help
+        # qt xcb module requires a display to connect to, so won't work.
+        # export QT_DEBUG_PLUGINS=1
+        # autokey-qt --help

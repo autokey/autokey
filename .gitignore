@@ -3,6 +3,7 @@
 __pycache__
 *.egg-info
 *.pyc
+.tox/
 
 # IDE's
 .idea

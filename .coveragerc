@@ -1,0 +1,36 @@
+[paths]
+source = lib
+
+[run]
+branch = true
+parallel = true
+source =
+   lib
+
+[html]
+directory = test_coverage_report_html
+show_contexts = true
+skip_empty = true
+
+[report]
+show_missing = true
+precision = 1
+; Eventually will want to fail if coverage is below this percentage.
+; fail_under = 40
+
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+    if self\.debug
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if __name__ == .__main__.:
