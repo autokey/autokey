@@ -83,6 +83,18 @@ jobs:
       # Use always() to always run this step to publish test results when there are test failures
       if: ${{ always() }}
 
+    -name: Archive test coverage report
+      run: |
+        tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
+
+    - name: Upload test coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_coverage_report-${{ matrix.python-version }}.tar.gz
+        path: test_coverage_report-${{ matrix.python-version }}.tar.gz
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+
   test-install:
     # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
 
