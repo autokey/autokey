@@ -23,7 +23,7 @@ import autokey.common
 # Ensure that the version number is up to date in common.py
 
 def test_version_number_accurate():
-    git_tag_version = subprocess.check_output(["git", "describe", "--abbrev=0", "--tags"], text=True).rstrip()
+    git_tag_version = subprocess.run(["git", "describe", "--abbrev=0", "--tags"], stdout=subprocess.PIPE).stdout.decode().rstrip()
     assert_that(git_tag_version, is_(equal_to("v"+autokey.common.VERSION)),
     "Ensure the most recent git tag version matches the version number in lib/autokey/common.py")
 
