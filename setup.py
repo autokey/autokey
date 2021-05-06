@@ -20,7 +20,7 @@ import sys
 import re
 from collections import namedtuple
 import subprocess
-from pathlib import Path
+from pathlib import Path, PurePath
 import warnings
 import shutil
 
@@ -112,11 +112,16 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
 
 
 ak_data = extract_autokey_data()
+this_directory = PurePath(__file__).parent
+with open(this_directory / 'README.rst', encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='autokey',
     version=ak_data.version,
-    description='AutoKey (Python 3)',
+    description='Keyboard and GUI automation on Linux (X11)',
+    long_description=long_description,
+    long_description_content_type='text/rest',
     author=ak_data.author,
     author_email=ak_data.author_email,
     maintainer=ak_data.maintainer,
@@ -125,17 +130,12 @@ setup(
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
     python_requires=">=3.5",
-    packages=[
-        'autokey',
-        'autokey.gtkui',
-        'autokey.qtui',
-        'autokey.qtui.dialogs',
-        'autokey.qtui.settings',
-        'autokey.iomediator',
-        'autokey.model',
-        'autokey.configmanager',
-        'autokey.scripting',
-    ],
+    # This requires autokey submodules (subdirectories) to contain their own `__init__.py` file (i.e.
+    # they advertise themselves as modules).
+    # find_namespace_packages might be a better alternative that doesn't
+    # require this.
+    # https://setuptools.readthedocs.io/en/latest/userguide/package_discovery.html#using-find-namespace-or-find-namespace-packages
+    packages=setuptools.find_packages('lib'),
     package_dir={'': 'lib'},
 
     package_data={'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
@@ -171,6 +171,9 @@ setup(
         ]
     },
     scripts=['autokey-run', 'autokey-shell'],
+    # Minimal installation pre-requisite python packages.
+    # Some are not included here because they should be installed
+    # through the system package manager, not pip.
     install_requires=[
         'pyinotify',
         'python-xlib',
@@ -185,4 +188,5 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.5',
     ],
+    keywords='automation hotkey expansion expander phrase',
 )

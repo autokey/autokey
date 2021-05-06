@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a single version of Python
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python application
+name: Python test
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
     branches: [ master, develop, beta ]
 
 jobs:
-  build:
+  Lint:
 
     runs-on: ubuntu-latest
 
@@ -39,7 +39,7 @@ jobs:
       run: |
         sudo apt install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov tox wheel
+        pip install flake8 wheel
         pip install -r pip-requirements.txt
 
     - name: Python Code Quality and Lint
@@ -70,6 +70,40 @@ jobs:
         extra-black-options: ""
         extra-mypy-options: ""
         extra-isort-options: ""
+
+  pytest:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install flake8 tox pytest pytest-cov wheel
+        pip install -r pip-requirements.txt
 
     - name: Test with tox and pytest
       run: |
