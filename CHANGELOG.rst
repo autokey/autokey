@@ -14,6 +14,12 @@ Changelog
 .. Other changes
 .. ---------
 
+Version 0.96.0-beta.3
+============================
+
+- Build debs and update pypi on new releases
+- Add `set_clipboard_image` methods for both Gtk and Qt. Takes a file path to an image to load into the clipboard.
+
 Version 0.96.0-beta.2
 ============================
 
@@ -54,7 +60,6 @@ Scripting API
 
 **New clipboard API method**
 - Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
-- Add `set_clipboard_image` methods for both Gtk and Qt. Takes a file path to an image to load into the clipboard.
 
 **New mouse API object**
 
