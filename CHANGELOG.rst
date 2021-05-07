@@ -14,6 +14,11 @@ Version Develop
 Bug fixes
 ---------
 
+Version 0.96.0-beta.4
+============================
+
+- Fix updating of sidecar files
+
 Version 0.96.0-beta.3
 ============================
 
