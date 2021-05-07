@@ -40,8 +40,10 @@ from pathlib import Path
 import autokey.model.folder
 import autokey.model.phrase
 import autokey.model.script
+import re
 from autokey import common
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -49,6 +51,13 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 def upgrade_configuration(configuration_manager, config_data: dict):
     """Updates the global configuration data to the latest version."""
     version = config_data["version"]
+    logger.info("Checking if upgrade is needed from version %s", version)
+    # Always reset interface type when upgrading
+    configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
+    logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
+
+    if version < "0.70.0":
+        convert_to_v0_70(configuration_manager)
     if version < "0.80.0":
         convert_v0_70_to_v0_80(config_data, version)
         configuration_manager.config_altered(True)
@@ -58,6 +67,22 @@ def upgrade_configuration(configuration_manager, config_data: dict):
         convertDotFiles_v95_11(configuration_manager)
     # Put additional conversion steps here.
 
+    configuration_manager.VERSION = common.VERSION
+    configuration_manager.config_altered(True)
+
+
+def convert_to_v0_70(config_manager):
+    logger.info("Doing upgrade to 0.70.0")
+    for item in config_manager.allItems:
+        if isinstance(item, autokey.model.phrase.Phrase):
+            item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
+
+
+def convert_to_v0_82_3(configuration_manager):
+    logger.info("Doing upgrade to 0.82.3")
+    configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX] += "|krdc.Krdc"
+    configuration_manager.workAroundApps = re.compile(configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX])
+    configuration_manager.SETTINGS[cm_constants.SCRIPT_GLOBALS] = {}
 
 def convert_v0_70_to_v0_80(config_data, old_version: str):
     try:
