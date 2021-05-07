@@ -40,8 +40,10 @@ from pathlib import Path
 import autokey.model.folder
 import autokey.model.phrase
 import autokey.model.script
+import re
 from autokey import common
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.iomediator.constants import X_RECORD_INTERFACE
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -49,22 +51,45 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 def upgrade_configuration(configuration_manager, config_data: dict):
     """Updates the global configuration data to the latest version."""
     version = config_data["version"]
+    logger.info("Checking if upgrade is needed from version %s", version)
+    # Always reset interface type when upgrading
+    configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
+    logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
+
+    if version < "0.70.0":
+        convert_to_v0_70(configuration_manager)
     if version < "0.80.0":
         convert_v0_70_to_v0_80(config_data, version)
         configuration_manager.config_altered(True)
     if version < "0.95.3":
         convert_autostart_entries_for_v0_95_3()
     if version < "0.95.11":
-        convertDotFiles_v95_11(config_data)
+        convertDotFiles_v95_11(configuration_manager)
     # Put additional conversion steps here.
 
+    configuration_manager.VERSION = common.VERSION
+    configuration_manager.config_altered(True)
+
+
+def convert_to_v0_70(config_manager):
+    logger.info("Doing upgrade to 0.70.0")
+    for item in config_manager.allItems:
+        if isinstance(item, autokey.model.phrase.Phrase):
+            item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
+
+
+def convert_to_v0_82_3(configuration_manager):
+    logger.info("Doing upgrade to 0.82.3")
+    configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX] += "|krdc.Krdc"
+    configuration_manager.workAroundApps = re.compile(configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX])
+    configuration_manager.SETTINGS[cm_constants.SCRIPT_GLOBALS] = {}
 
 def convert_v0_70_to_v0_80(config_data, old_version: str):
     try:
         _convert_v0_70_to_v0_80(config_data, old_version)
     except Exception:
         logger.exception(
-            "Problem occurred during conversion. "
+            "Problem occurred during conversion of configuration data format from v0.70 to v0.80"
             "Existing config file has been saved as {}{}".format(cm_constants.CONFIG_FILE, old_version)
         )
         raise
@@ -120,6 +145,7 @@ def convert_autostart_entries_for_v0_95_3():
     determine which GUI starts first. To prevent this, both GUIs will share a single autokey.desktop autostart entry,
     allowing only one GUI to be started during login. This allows for much simpler code.
     """
+    logger.info("Version update: Converting autostart entry for 0.95.3")
     old_autostart_file = Path(common.AUTOSTART_DIR) / "autokey-gtk.desktop"
     if old_autostart_file.exists():
         new_file_name = Path(common.AUTOSTART_DIR) / "autokey.desktop"
@@ -132,11 +158,13 @@ def convertDotFiles_v95_11_folder(p: Path):
     for name in p.glob('.*.json'):
         new_json = p / name.name[1:]
         name.rename(new_json)
+        logger.debug("Converted to {}".format(new_json))
 
     for name in p.iterdir():
         if name.is_dir():
             convertDotFiles_v95_11_folder(name)
 
-def convertDotFiles_v95_11(configData):
-    for name in configData["folders"]:
-        convertDotFiles_v95_11_folder(Path(name))
+def convertDotFiles_v95_11(configmanager):
+    logger.info("Version update: Unhiding sidecar dotfiles for versions > 0.95.10")
+    for folder in configmanager.folders:
+        convertDotFiles_v95_11_folder(Path(folder.path))

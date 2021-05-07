@@ -258,8 +258,6 @@ class ConfigManager:
                 data = json.load(pFile)
                 version = data["version"]
 
-            autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
-
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
@@ -284,7 +282,7 @@ class ConfigManager:
             self.configHotkey.load_from_serialized(data["configHotkey"])
 
             if self.VERSION < self.CLASS_VERSION:
-                self.upgrade()
+                autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
 
             self.config_altered(False)
             logger.info("Successfully loaded configuration")
@@ -493,27 +491,6 @@ class ConfigManager:
 
         self.config_altered(False)
         logger.info("Successfully reloaded global configuration")
-
-    def upgrade(self):
-        logger.info("Checking if upgrade is needed from version %s", self.VERSION)
-
-        # Always reset interface type when upgrading
-        self.SETTINGS[INTERFACE_TYPE] = X_RECORD_INTERFACE
-        logger.info("Resetting interface type, new type: %s", self.SETTINGS[INTERFACE_TYPE])
-
-        if self.VERSION < '0.70.0':
-            logger.info("Doing upgrade to 0.70.0")
-            for item in self.allItems:
-                if isinstance(item, autokey.model.phrase.Phrase):
-                    item.sendMode = autokey.model.phrase.SendMode.KEYBOARD
-
-        if self.VERSION < "0.82.3":
-            self.SETTINGS[WORKAROUND_APP_REGEX] += "|krdc.Krdc"
-            self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
-            self.SETTINGS[SCRIPT_GLOBALS] = {}
-
-        self.VERSION = common.VERSION
-        self.config_altered(True)
 
     def config_altered(self, persistGlobal):
         """
