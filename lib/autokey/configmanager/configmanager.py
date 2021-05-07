@@ -258,8 +258,6 @@ class ConfigManager:
                 data = json.load(pFile)
                 version = data["version"]
 
-            autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
-
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
             apply_settings(data["settings"])
@@ -284,6 +282,7 @@ class ConfigManager:
             self.configHotkey.load_from_serialized(data["configHotkey"])
 
             if self.VERSION < self.CLASS_VERSION:
+                autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
                 self.upgrade()
 
             self.config_altered(False)
@@ -495,6 +494,7 @@ class ConfigManager:
         logger.info("Successfully reloaded global configuration")
 
     def upgrade(self):
+        # TODO migrate this to version_upgrading.py
         logger.info("Checking if upgrade is needed from version %s", self.VERSION)
 
         # Always reset interface type when upgrading
