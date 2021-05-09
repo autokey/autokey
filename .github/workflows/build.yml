@@ -106,7 +106,7 @@ jobs:
         ref: ${{ github.ref }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
-        check-name: 'Python test'
+        check-name: 'pytest (3.9)'
 
     - name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
