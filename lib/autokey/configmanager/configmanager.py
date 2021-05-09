@@ -256,7 +256,6 @@ class ConfigManager:
 
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
-                version = data["version"]
 
             version_upgrade.upgrade_configuration_format(self, data)
 

@@ -38,6 +38,7 @@ import os
 from pathlib import Path
 import glob
 import re
+from packaging.version import parse as vparse
 
 import autokey.model.folder
 import autokey.model.phrase
@@ -54,16 +55,16 @@ def upgrade_configuration_format(configuration_manager, config_data: dict):
     Updates the global configuration data to the latest version.
     Run before configuration loaded.
     """
-    version = config_data["version"]
+    version = vparse(config_data["version"])
     logger.info("Checking if upgrade is needed from version %s", version)
-    if not version < common.VERSION:
+    if not version < vparse(common.VERSION):
         return
 
-    if version < "0.80.0":
-        convert_v0_70_to_v0_80(config_data, version)
-    if version < "0.95.3":
+    if version < vparse("0.80.0"):
+        convert_v0_70_to_v0_80(config_data)
+    if version < vparse("0.95.3"):
         convert_autostart_entries_for_v0_95_3()
-    if version < "0.95.11":
+    if version < vparse("0.95.11"):
         convertDotFiles_v95_11(config_data)
 
 def upgrade_configuration_after_load(configuration_manager, config_data: dict):
@@ -71,18 +72,18 @@ def upgrade_configuration_after_load(configuration_manager, config_data: dict):
     Updates the global configuration data to the latest version.
     Run after configuration loaded.
     """
-    version = config_data["version"]
+    version = vparse(config_data["version"])
     logger.info("Checking if upgrade is needed from version %s", version)
-    if not version < common.VERSION:
+    if not version < vparse(common.VERSION):
         return
 
     # Always reset interface type when upgrading
     configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
     logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
 
-    if version < "0.82.3":
+    if version < vparse("0.82.3"):
         convert_to_v0_82_3(configuration_manager)
-    if version < "0.70.0":
+    if version < vparse("0.70.0"):
         convert_to_v0_70(configuration_manager)
 
     configuration_manager.VERSION = common.VERSION
@@ -103,7 +104,8 @@ def convert_to_v0_82_3(configuration_manager):
     configuration_manager.workAroundApps = re.compile(configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX])
     configuration_manager.SETTINGS[cm_constants.SCRIPT_GLOBALS] = {}
 
-def convert_v0_70_to_v0_80(config_data, old_version: str):
+def convert_v0_70_to_v0_80(config_data):
+    old_version = config_data["version"]
     try:
         _convert_v0_70_to_v0_80(config_data, old_version)
     except Exception:
