@@ -177,6 +177,7 @@ setup(
     install_requires=[
         'pyinotify',
         'python-xlib',
+        'packaging',
     ],
     test_suite="pytest",
     classifiers=[
