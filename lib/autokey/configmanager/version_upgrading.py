@@ -48,27 +48,45 @@ from autokey.iomediator.constants import X_RECORD_INTERFACE
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-def upgrade_configuration(configuration_manager, config_data: dict):
-    """Updates the global configuration data to the latest version."""
+def upgrade_configuration_format(configuration_manager, config_data: dict):
+    """
+    Updates the global configuration data to the latest version.
+    Run before configuration loaded.
+    """
     version = config_data["version"]
     logger.info("Checking if upgrade is needed from version %s", version)
-    # Always reset interface type when upgrading
-    configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
-    logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
+    if not version < common.VERSION:
+        return
 
-    if version < "0.70.0":
-        convert_to_v0_70(configuration_manager)
     if version < "0.80.0":
         convert_v0_70_to_v0_80(config_data, version)
-        configuration_manager.config_altered(True)
     if version < "0.95.3":
         convert_autostart_entries_for_v0_95_3()
     if version < "0.95.11":
         convertDotFiles_v95_11(configuration_manager)
-    # Put additional conversion steps here.
+
+def upgrade_configuration_after_load(configuration_manager, config_data: dict):
+    """
+    Updates the global configuration data to the latest version.
+    Run after configuration loaded.
+    """
+    version = config_data["version"]
+    logger.info("Checking if upgrade is needed from version %s", version)
+    if not version < common.VERSION:
+        return
+
+    # Always reset interface type when upgrading
+    configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
+    logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
+
+    if version < "0.82.3":
+        convert_to_v0_82_3(configuration_manager)
+    if version < "0.70.0":
+        convert_to_v0_70(configuration_manager)
 
     configuration_manager.VERSION = common.VERSION
     configuration_manager.config_altered(True)
+
 
 
 def convert_to_v0_70(config_manager):

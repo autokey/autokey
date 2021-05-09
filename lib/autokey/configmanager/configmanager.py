@@ -38,7 +38,7 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
     SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE, \
     DISABLED_MODIFIERS, GTK_THEME, GTK_TREE_VIEW_EXPANDED_ROWS, PATH_LAST_OPEN
-import autokey.configmanager.version_upgrading
+import autokey.configmanager.version_upgrading as version_upgrade
 import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE
 from autokey.model.key import MODIFIERS
@@ -254,6 +254,8 @@ class ConfigManager:
         if os.path.exists(CONFIG_FILE):
             logger.info("Loading config from existing file: " + CONFIG_FILE)
 
+            version_upgrade.upgrade_configuration_format(self, data)
+
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
@@ -282,7 +284,7 @@ class ConfigManager:
             self.configHotkey.load_from_serialized(data["configHotkey"])
 
             if self.VERSION < self.CLASS_VERSION:
-                autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
+                version_upgrade.upgrade_configuration_after_load(self, data)
 
             self.config_altered(False)
             logger.info("Successfully loaded configuration")
