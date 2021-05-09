@@ -36,11 +36,12 @@ happen with LTS distribution releases that skip several autokey versions during 
 
 import os
 from pathlib import Path
+import glob
+import re
 
 import autokey.model.folder
 import autokey.model.phrase
 import autokey.model.script
-import re
 from autokey import common
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.constants import X_RECORD_INTERFACE
@@ -63,7 +64,7 @@ def upgrade_configuration_format(configuration_manager, config_data: dict):
     if version < "0.95.3":
         convert_autostart_entries_for_v0_95_3()
     if version < "0.95.11":
-        convertDotFiles_v95_11(configuration_manager)
+        convertDotFiles_v95_11(config_data)
 
 def upgrade_configuration_after_load(configuration_manager, config_data: dict):
     """
@@ -182,7 +183,15 @@ def convertDotFiles_v95_11_folder(p: Path):
         if name.is_dir():
             convertDotFiles_v95_11_folder(name)
 
-def convertDotFiles_v95_11(configmanager):
+def all_config_folders(configData):
+    for entryPath in glob.glob(cm_constants.CONFIG_DEFAULT_FOLDER + "/*"):
+        if os.path.isdir(entryPath):
+            yield entryPath
+    for name in configData["folders"]:
+        yield name
+
+
+def convertDotFiles_v95_11(configData):
     logger.info("Version update: Unhiding sidecar dotfiles for versions > 0.95.10")
-    for folder in configmanager.folders:
-        convertDotFiles_v95_11_folder(Path(folder.path))
+    for name in all_config_folders(configData):
+        convertDotFiles_v95_11_folder(Path(name))

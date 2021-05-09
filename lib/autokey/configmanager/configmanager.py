@@ -254,11 +254,12 @@ class ConfigManager:
         if os.path.exists(CONFIG_FILE):
             logger.info("Loading config from existing file: " + CONFIG_FILE)
 
-            version_upgrade.upgrade_configuration_format(self, data)
-
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
                 version = data["version"]
+
+            version_upgrade.upgrade_configuration_format(self, data)
+
 
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
