@@ -55,6 +55,14 @@ Scripting API
 
 - Add mouse drag, click and scroll options to the API.
 
+**New window API method**
+
+- Adds `center_window` to center selected window on selected monitor.
+- Adds `get_window_geom` to fetch the window geometry of a window.
+- Adds `get_window_hex` to get the hex id of the first window that matches the given title.
+- Adds `get_window_list` to get list of windows via `wmctrl`.
+
+
 Command line interface
 ++++++++++++++++++++++
 

@@ -240,6 +240,54 @@ class Window:
         """
         return self.mediator.interface.get_window_class()
 
+    def center_window(self, win_width=None, win_height=None, title=":ACTIVE:", monitor=0):
+        """
+        Centers the active (or window selected by title) window. Requires xrandr for getting monitor sizes and offsets.
+
+        @param win_width: Width of the centered window, defaults to screenx/3. Use -1 to center without size change.
+        @param win_height: Height of the centered window, defaults to screeny/3. Use -1 to center without size change.
+        @param title: Title of the window to center (defaults to using the active window)
+        @param monitor: Monitor number (0 is primary, listed via C{xrandr --listactivemonitors} etc.)
+        @raises ValueError: If title or desktop is not found by wmctrl
+        """
+        #could also use Gdk.Display.get_default().get_montiors etc.
+        #Used xrandr for ease of cross Gtk/Qt use
+        #Example Output:
+        #Monitors: 2
+        # 0: +*HDMI-0 1920/521x1080/293+0+0  HDMI-0
+        # 1: +DVI-D-0 1440/408x900/255+1920+0  DVI-D-0
+        # Regex gets  ____ and ____    ____ _
+        # this translates to monitor x and y size, and x and y offset for each monitor
+        rcode, output = self._run_xrandr(["--listactivemonitors"])
+        regex = r" (\d{3,4}).*?x(\d{3,4})\/.*?\+(\d{1,4})\+(\d{1,4})"
+        matches = re.findall(regex, output, re.MULTILINE)
+        x_offset = int(matches[monitor][2])
+        y_offset = int(matches[monitor][3])
+        width = int(matches[monitor][0])
+        height = int(matches[monitor][1])
+        #work backwards from the size of the window
+        if win_width is None:
+            win_width = round(width/2)
+        if win_height is None:
+            win_height = round(height/2)
+        top_x = round((width-win_width)/2)
+        top_y = round((height-win_height)/2)
+        xrandr_size = ",".join(["0", str(x_offset+top_x), str(top_y), str(win_width), str(win_height)])
+        print(["-r", title, "-e", xrandr_size])
+        #remove maximized attributes from window
+        returncode, output = self._run_wmctrl(["-r", title, "-b", "remove,maximized_vert,maximized_horz"])
+        returncode, output = self._run_wmctrl(["-r", title, "-e", xrandr_size])
+
+    def _run_xrandr(self, args):
+        try:
+            with subprocess.Popen(["xrandr"] + args, stdout=subprocess.PIPE) as p:
+                output = p.communicate()[0].decode()[:-1]
+                returncode = p.returncode
+        except FileNotFoundError:
+            return 1, "ERROR: Please install xrandr"
+
+        return returncode, output
+
     def _run_wmctrl(self, args):
         try:
             with subprocess.Popen(["wmctrl"] + args, stdout=subprocess.PIPE) as p:
