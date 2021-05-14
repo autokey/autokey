@@ -27,7 +27,6 @@ class Window:
     Note: in all cases where a window title is required (with the exception of wait_for_focus()),
     two special values of window title are permitted:
 
-    #TODO should these be broken out into enums like keys/buttons
     :ACTIVE: - select the currently active window
     :SELECT: - select the desired window by clicking on it
     """
@@ -181,9 +180,7 @@ class Window:
 
         Usage: C{window.set_property(title, action, prop, matchClass=False)}
 
-        #TODO should these be broken out into enums like keys/buttons
         Allowable actions: C{add, remove, toggle}
-        #TODO should these be broken out into enums like keys/buttons
         Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
         skip_pager, hidden, fullscreen, above}
 
@@ -265,10 +262,10 @@ class Window:
         returncode, output = self._run_xrandr(["--listactivemonitors"])
         regex = r" (\d{3,4}).*?x(\d{3,4})\/.*?\+(\d{1,4})\+(\d{1,4})"
         matches = re.findall(regex, output, re.MULTILINE)
-
-        width, height = [int(i) for i in matches[monitor][0:2]]
-        x_offset, y_offset = [int(i) for i in matches[monitor][2:4]]
-
+        x_offset = int(matches[monitor][2])
+        y_offset = int(matches[monitor][3])
+        width = int(matches[monitor][0])
+        height = int(matches[monitor][1])
         #work backwards from the size of the window
         if win_width is None:
             win_width = round(width/2)
