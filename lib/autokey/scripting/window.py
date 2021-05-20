@@ -27,6 +27,7 @@ class Window:
     Note: in all cases where a window title is required (with the exception of wait_for_focus()),
     two special values of window title are permitted:
 
+    #TODO should these be broken out into enums like keys/buttons
     :ACTIVE: - select the currently active window
     :SELECT: - select the desired window by clicking on it
     """
@@ -180,7 +181,9 @@ class Window:
 
         Usage: C{window.set_property(title, action, prop, matchClass=False)}
 
+        #TODO should these be broken out into enums like keys/buttons
         Allowable actions: C{add, remove, toggle}
+        #TODO should these be broken out into enums like keys/buttons
         Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
         skip_pager, hidden, fullscreen, above}
 
@@ -240,14 +243,15 @@ class Window:
         """
         return self.mediator.interface.get_window_class()
 
-    def center_window(self, win_width=None, win_height=None, title=":ACTIVE:", monitor=0):
+    def center_window(self, title=":ACTIVE:", win_width=None, win_height=None, monitor=0, matchClass=False):
         """
         Centers the active (or window selected by title) window. Requires xrandr for getting monitor sizes and offsets.
 
+        @param title: Title of the window to center (defaults to using the active window)
         @param win_width: Width of the centered window, defaults to screenx/3. Use -1 to center without size change.
         @param win_height: Height of the centered window, defaults to screeny/3. Use -1 to center without size change.
-        @param title: Title of the window to center (defaults to using the active window)
         @param monitor: Monitor number (0 is primary, listed via C{xrandr --listactivemonitors} etc.)
+        @param matchClass: if True, match on the window class instead of the title
         @raises ValueError: If title or desktop is not found by wmctrl
         """
         #could also use Gdk.Display.get_default().get_montiors etc.
@@ -258,13 +262,13 @@ class Window:
         # 1: +DVI-D-0 1440/408x900/255+1920+0  DVI-D-0
         # Regex gets  ____ and ____    ____ _
         # this translates to monitor x and y size, and x and y offset for each monitor
-        rcode, output = self._run_xrandr(["--listactivemonitors"])
+        returncode, output = self._run_xrandr(["--listactivemonitors"])
         regex = r" (\d{3,4}).*?x(\d{3,4})\/.*?\+(\d{1,4})\+(\d{1,4})"
         matches = re.findall(regex, output, re.MULTILINE)
-        x_offset = int(matches[monitor][2])
-        y_offset = int(matches[monitor][3])
-        width = int(matches[monitor][0])
-        height = int(matches[monitor][1])
+
+        width, height = [int(i) for i in matches[monitor][0:2]]
+        x_offset, y_offset = [int(i) for i in matches[monitor][2:4]]
+
         #work backwards from the size of the window
         if win_width is None:
             win_width = round(width/2)
@@ -272,11 +276,12 @@ class Window:
             win_height = round(height/2)
         top_x = round((width-win_width)/2)
         top_y = round((height-win_height)/2)
-        xrandr_size = ",".join(["0", str(x_offset+top_x), str(top_y), str(win_width), str(win_height)])
-        print(["-r", title, "-e", xrandr_size])
+
         #remove maximized attributes from window
-        returncode, output = self._run_wmctrl(["-r", title, "-b", "remove,maximized_vert,maximized_horz"])
-        returncode, output = self._run_wmctrl(["-r", title, "-e", xrandr_size])
+        self.set_property(title, "remove", "maximized_vert", matchClass=matchClass)
+        self.set_property(title, "remove", "maximized_horz", matchClass=matchClass)
+        #resize and move window
+        self.resize_move(title, x_offset+top_x, y_offset+top_y, win_width, win_height, matchClass=matchClass)
 
     def _run_xrandr(self, args):
         try:
@@ -309,24 +314,28 @@ class Window:
         C{desktop} is the number of which desktop (sometimes called workspaces) the item appears upon.
 
         C{hostname} is the hostname of your computer (I'm not sure why this is included as it seems to be the same for everything I have seen)
-        
+
         C{title} is the title that you would usually see in your window manager of choice.
 
         @param filter_desktop: String, (usually 0-n) to filter the windows by. Any window not on the given desktop will not be returned.
         @return: C{[[hexid1, desktop1, hostname1, title1], [hexid2,desktop2,hostname2,title2], ...etc]}
         Returns C{[]} if no windows are found.
         """
-        windowList = self._run_wmctrl(["-l"])[1].split("\n")
-        output = []
-        for window in windowList:
-            info = window.split("  ")[1] #the remaining information
-            hexid = window.split("  ")[0] #the hexid of the window
-            desktop, hostname, window_title = info.split(" ", 2)
-            if filter_desktop is not None:
+        returncode, output = self._run_wmctrl(["-l"])
+        # regex = r"^(0x[0-9a-fA-F]{8})  (\d*) (.*?) (.*?)$"
+        regex = r"^(0x[0-9a-fA-F]{8})\s*(\d*)\s*(.*?)\s(.*?)$"
+        matches = re.findall(regex, output, re.MULTILINE)
+        print(matches)
+        if filter_desktop is None:
+            return matches
+        else:
+            output = []
+            for match in matches:
+                hexid, desktop, hostname, window_title = match
                 if not filter_desktop==desktop:
                     continue
-            output.append([hexid,desktop,hostname, window_title])
-        return output
+                output.append((hexid,desktop,hostname, window_title))
+            return output
 
     def get_window_hex(self, window_title):
         """
@@ -335,7 +344,7 @@ class Window:
         @param window_title: Window title to match for returning hexid
         @return: Returns hexid of the window to be used for other functions See L{get_window_geom}, L{visgrep_by_window_id}
 
-        Returns none if no matches are found
+        Returns C{None} if no matches are found
         """
         windowList = self.get_window_list()
         for window in windowList:
@@ -355,15 +364,10 @@ class Window:
         @return: C{[offsetx, offsety, sizex, sizey]} Returns none if no matches are found
         """
 
-        windowList = self._run_wmctrl(["-lG"])[1].split("\n")
-        output = []
-        for window in windowList:
-            w_split= window.split("  ")
-            hexid = w_split[0]
-            geom1 = w_split[1].split(" ")[1:]
-            geom2 = w_split[2].split(" ")
-
-
-            if hexid==window_id:
-                return [geom1+geom2]
+        returncode, output = self._run_wmctrl(["-lG"])
+        regex = r"^(0x[0-9a-fA-F]{8})\s*(\d*)\s*(\d*)\s*(\d{1,})\s*(\d{1,})\s*(\d{1,})\s*(.*?)$"
+        matches = re.findall(regex, output, re.MULTILINE)
+        for match in matches:
+            if match[0] == window_id:
+                return [int(i) for i in match[2:-1]] # trim hexid, gravity on the front end and title on the backend
         return None
