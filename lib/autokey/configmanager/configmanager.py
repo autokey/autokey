@@ -730,18 +730,22 @@ class ConfigManager:
                 pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    def delete_hotkeys(self, removed_item):
+        return self.__deleteHotkeys(removed_item)
+
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
+        app = self.app
         if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
-            self.app.hotkey_removed(removed_item)
+            app.hotkey_removed(removed_item)
 
         if isinstance(removed_item, autokey.model.folder.Folder):
             for subFolder in removed_item.folders:
-                self.__deleteHotkeys(subFolder)
+                self.delete_hotkeys(subFolder)
 
             for item in removed_item.items:
                 if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                    self.app.hotkey_removed(item)
+                    app.hotkey_removed(item)
 
 
 class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):
