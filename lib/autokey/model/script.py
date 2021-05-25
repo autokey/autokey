@@ -69,6 +69,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         with open(self.path, "w") as out_file:
             out_file.write(self.code)
 
+    # TODO reduce duplication for much of this file and phrase.py.
     def get_serializable(self):
         d = {
             "type": "script",
