@@ -37,6 +37,13 @@ def get_json_path(itempath):
     directory, base_name = os.path.split(path_without_extension)
     return JSON_FILE_PATTERN.format(directory, base_name)
 
+def build_path(item, extension, base_name=None):
+    if base_name is None:
+        base_name = item.description
+    else:
+        base_name = os.path.splitext(base_name)[0]
+    item.path = get_safe_path(item.parent.path, base_name, extension)
+
 
 def get_safe_path(base_path, name, ext=""):
     name = SPACES_RE.sub('_', name)
