@@ -90,21 +90,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.sendMode = SendMode(data.get("sendMode", SendMode.KEYBOARD))
 
     def rebuild_path(self):
-        if self.path is not None:
-            old_name = self.path
-            old_json = self.get_json_path()
-            self.build_path()
-            os.rename(old_name, self.path)
-            os.rename(old_json, self.get_json_path())
-        else:
-            self.build_path()
+        model_common.rebuild_path(self)
 
     def remove_data(self):
-        if self.path is not None:
-            if os.path.exists(self.path):
-                os.remove(self.path)
-            if os.path.exists(self.get_json_path()):
-                os.remove(self.get_json_path())
+        model_common.rebuild_data(self)
 
     def copy(self, source_phrase):
         self.description = source_phrase.description

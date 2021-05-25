@@ -133,21 +133,10 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.store = Store(data["store"])
 
     def rebuild_path(self):
-        if self.path is not None:
-            oldName = self.path
-            oldJson = self.get_json_path()
-            self.build_path()
-            os.rename(oldName, self.path)
-            os.rename(oldJson, self.get_json_path())
-        else:
-            self.build_path()
+        model_common.rebuild_path(self)
 
     def remove_data(self):
-        if self.path is not None:
-            if os.path.exists(self.path):
-                os.remove(self.path)
-            if os.path.exists(self.get_json_path()):
-                os.remove(self.get_json_path())
+        model_common.rebuild_data(self)
 
     def copy(self, source_script):
         self.description = source_script.description

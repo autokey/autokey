@@ -98,3 +98,20 @@ def load_from_serialized(item):
         logger.exception("Error while loading json data for " + item.description)
         logger.error("JSON data not loaded (or loaded incomplete)")
 
+def rebuild_path(item):
+    if item.path is not None:
+        old_name = item.path
+        old_json = item.get_json_path()
+        item.build_path()
+        os.rename(old_name, item.path)
+        os.rename(old_json, item.get_json_path())
+    else:
+        item.build_path()
+
+def remove_data(item):
+    if item.path is not None:
+        if os.path.exists(item.path):
+            os.remove(item.path)
+        if os.path.exists(item.get_json_path()):
+            os.remove(item.get_json_path())
+
