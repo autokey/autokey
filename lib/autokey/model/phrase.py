@@ -55,7 +55,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if base_name is None:
             base_name = self.description
         else:
-            base_name = base_name[:-4]
+            base_name = os.path.splitext(base_name)[0]
         self.path = get_safe_path(self.parent.path, base_name, ".txt")
 
     def get_json_path(self):

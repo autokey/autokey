@@ -54,7 +54,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         if base_name is None:
             base_name = self.description
         else:
-            base_name = base_name[:-3]
+            base_name = os.path.splitext(base_name)[0]
         self.path = get_safe_path(self.parent.path, base_name, ".py")
 
     def get_json_path(self):
