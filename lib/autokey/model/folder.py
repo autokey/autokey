@@ -20,12 +20,11 @@ import json
 import os
 import typing
 
-import autokey.model.helpers as helpers
+import autokey.model.common as model_common
 from autokey.configmanager import configmanager_constants as cm_constants
 from autokey.model.phrase import Phrase
 from autokey.model.script import Script
 from autokey.model.helpers import get_safe_path
-import autokey.model.common
 from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
@@ -75,7 +74,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), outFile, indent=4)
 
     def get_serializable(self):
-        d = autokey.model.common.get_serializable_base(self)
+        d = model_common.get_serializable_base(self)
         d2 = {
             "type": "folder",
             "title": self.title,
@@ -127,14 +126,7 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
 
     def inject_json_data(self, data):
         self.title = data["title"]
-
-        self.modes = [TriggerMode(item) for item in data["modes"]]
-        self.usageCount = data["usageCount"]
-        self.show_in_tray_menu = data["showInTrayMenu"]
-
-        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
-        AbstractHotkey.load_from_serialized(self, data["hotkey"])
-        AbstractWindowFilter.load_from_serialized(self, data["filter"])
+        model_common.inject_json_data_base(self, data)
 
     def rebuild_path(self):
         if self.path is not None:

@@ -16,12 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from pathlib import Path
 
-from autokey.model.abstract_abbreviation import AbstractAbbreviation
-from autokey.model.abstract_window_filter import AbstractWindowFilter
-from autokey.model.abstract_hotkey import AbstractHotkey
-from autokey.model.constants import JSON_FILE_PATTERN, SPACES_RE
+from autokey.model.constants import SPACES_RE
 
 def make_wordchar_re(word_chars: str):
     return "[^{word_chars}]".format(word_chars=word_chars)

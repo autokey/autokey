@@ -129,16 +129,8 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         model_common.load_from_serialized(self)
 
     def inject_json_data(self, data: dict):
-        self.description = data["description"]
+        model_common.inject_json_data_scriptphrase(self, data)
         self.store = Store(data["store"])
-        self.modes = [TriggerMode(item) for item in data["modes"]]
-        self.usageCount = data["usageCount"]
-        self.prompt = data["prompt"]
-        self.omitTrigger = data["omitTrigger"]
-        self.show_in_tray_menu = data["showInTrayMenu"]
-        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
-        AbstractHotkey.load_from_serialized(self, data["hotkey"])
-        AbstractWindowFilter.load_from_serialized(self, data["filter"])
 
     def rebuild_path(self):
         if self.path is not None:

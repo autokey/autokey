@@ -15,10 +15,12 @@
 import os
 import json
 
-from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
+from autokey.model.constants import JSON_FILE_PATTERN
+from autokey.model.triggermode import TriggerMode
+from autokey.model.helpers import get_safe_path
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -55,6 +57,21 @@ def get_serializable_base(item):
         "filter": AbstractWindowFilter.get_serializable(item),
         }
     return d
+
+def inject_json_data_scriptphrase(item, data: dict):
+    item.description = data["description"]
+    item.prompt = data["prompt"]
+    item.omitTrigger = data["omitTrigger"]
+    inject_json_data_base(item, data)
+
+
+def inject_json_data_base(item, data: dict):
+    item.modes = [TriggerMode(mode) for mode in data["modes"]]
+    item.usageCount = data["usageCount"]
+    item.show_in_tray_menu = data["showInTrayMenu"]
+    AbstractAbbreviation.load_from_serialized(item, data["abbreviation"])
+    AbstractHotkey.load_from_serialized(item, data["hotkey"])
+    AbstractWindowFilter.load_from_serialized(item, data["filter"])
 
 def load(item, parent):
     item.parent = parent
