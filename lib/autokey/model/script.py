@@ -136,19 +136,12 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         model_common.rebuild_path(self)
 
     def remove_data(self):
-        model_common.rebuild_data(self)
+        model_common.remove_data(self)
 
     def copy(self, source_script):
-        self.description = source_script.description
+        model_common.copy_scriptphrase(self, source_script)
         self.code = source_script.code
-
-        self.prompt = source_script.prompt
         self.omitTrigger = source_script.omitTrigger
-        self.parent = source_script.parent
-        self.show_in_tray_menu = source_script.show_in_tray_menu
-        self.copy_abbreviation(source_script)
-        self.copy_hotkey(source_script)
-        self.copy_window_filter(source_script)
 
     def get_tuple(self):
         return "text-x-python", self.description, self.get_abbreviations(), self.get_hotkey_string(), self

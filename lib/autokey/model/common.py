@@ -115,3 +115,11 @@ def remove_data(item):
         if os.path.exists(item.get_json_path()):
             os.remove(item.get_json_path())
 
+def copy_scriptphrase(item, source):
+    item.description = source.description
+    item.copy_abbreviation(source)
+    item.copy_hotkey(source)
+    item.copy_window_filter(source)
+    item.parent = source.parent
+    item.show_in_tray_menu = source.show_in_tray_menu
+    item.prompt = source.prompt

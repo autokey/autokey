@@ -93,24 +93,16 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         model_common.rebuild_path(self)
 
     def remove_data(self):
-        model_common.rebuild_data(self)
+        model_common.remove_data(self)
 
     def copy(self, source_phrase):
-        self.description = source_phrase.description
+        model_common.copy_scriptphrase(self, source_phrase)
         self.phrase = source_phrase.phrase
-
+        self.omitTrigger = source_phrase.omitTrigger
+        self.matchCase = source_phrase.matchCase
         # TODO - re-enable me if restoring predictive functionality
         #if TriggerMode.PREDICTIVE in source_phrase.modes:
         #    self.modes.append(TriggerMode.PREDICTIVE)
-
-        self.prompt = source_phrase.prompt
-        self.omitTrigger = source_phrase.omitTrigger
-        self.matchCase = source_phrase.matchCase
-        self.parent = source_phrase.parent
-        self.show_in_tray_menu = source_phrase.show_in_tray_menu
-        self.copy_abbreviation(source_phrase)
-        self.copy_hotkey(source_phrase)
-        self.copy_window_filter(source_phrase)
 
     def get_tuple(self):
         return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self
