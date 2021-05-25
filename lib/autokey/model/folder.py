@@ -20,10 +20,12 @@ import json
 import os
 import typing
 
+import autokey.model.helpers as helpers
 from autokey.configmanager import configmanager_constants as cm_constants
 from autokey.model.phrase import Phrase
 from autokey.model.script import Script
 from autokey.model.helpers import get_safe_path
+import autokey.model.common
 from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
@@ -73,16 +75,12 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             json.dump(self.get_serializable(), outFile, indent=4)
 
     def get_serializable(self):
-        d = {
+        d = autokey.model.common.get_serializable_base(self)
+        d2 = {
             "type": "folder",
             "title": self.title,
-            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
-            "usageCount": self.usageCount,
-            "showInTrayMenu": self.show_in_tray_menu,
-            "abbreviation": AbstractAbbreviation.get_serializable(self),
-            "hotkey": AbstractHotkey.get_serializable(self),
-            "filter": AbstractWindowFilter.get_serializable(self),
             }
+        d.update(d2)
         return d
 
     def load(self, parent=None):

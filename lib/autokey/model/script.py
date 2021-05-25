@@ -20,7 +20,7 @@ import os
 import typing
 from pathlib import Path
 
-import autokey.model.helpers as helpers
+import autokey.model.common as model_common
 from autokey.model.store import Store
 from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
@@ -51,10 +51,10 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.path = path
 
     def build_path(self, base_name=None):
-        return helpers.build_path(self, ".py", base_name)
+        return model_common.build_path(self, ".py", base_name)
 
     def get_json_path(self):
-        return helpers.get_json_path(self.path)
+        return model_common.get_json_path(self.path)
 
     def persist(self):
         if self.path is None:
@@ -66,7 +66,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             out_file.write(self.code)
 
     def get_serializable(self):
-        d = helpers.get_serializable_base(self)
+        d = model_common.get_serializable_scriptphrase(self)
         d2 = {
             "type": "script",
             "store": self.store,

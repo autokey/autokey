@@ -19,12 +19,13 @@ import json
 import os
 import typing
 
+import autokey.model.helpers as helpers
+import autokey.model.common as model_common
 from autokey.model.key import NAVIGATION_KEYS, Key, KEY_SPLIT_RE
 from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
-import autokey.model.helpers as helpers
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -52,10 +53,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.path = path
 
     def build_path(self, base_name=None):
-        return helpers.build_path(self, ".txt", base_name)
+        return model_common.build_path(self, ".txt", base_name)
 
     def get_json_path(self):
-        return helpers.get_json_path(self.path)
+        return model_common.get_json_path(self.path)
 
     def persist(self):
         if self.path is None:
@@ -68,7 +69,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             out_file.write(self.phrase)
 
     def get_serializable(self):
-        d = helpers.get_serializable_base(self)
+        d = model_common.get_serializable_scriptphrase(self)
         d2 = {
             "type": "phrase",
             "matchCase": self.matchCase,
