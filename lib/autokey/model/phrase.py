@@ -82,13 +82,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         model_common.load(self, parent)
 
     def load_from_serialized(self):
-        try:
-            with open(self.get_json_path(), "r") as json_file:
-                data = json.load(json_file)
-                self.inject_json_data(data)
-        except Exception:
-            logger.exception("Error while loading json data for " + self.description)
-            logger.error("JSON data not loaded (or loaded incomplete)")
+        model_common.load_from_serialized(self)
 
     def inject_json_data(self, data: dict):
         self.description = data["description"]

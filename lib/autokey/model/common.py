@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
+import json
 
 from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 def get_json_path(itempath):
     path_without_extension = os.path.splitext(itempath)[0]
@@ -38,6 +41,7 @@ def get_serializable_scriptphrase(item):
         "prompt": item.prompt,
         "omitTrigger": item.omitTrigger,
         }
+    d.update(d2)
     return d
 
 
@@ -67,4 +71,13 @@ def load(item, parent):
     else:
         base_name = os.path.basename(item.path)
         item.description = os.path.splitext(base_name)[0]
+
+def load_from_serialized(item):
+    try:
+        with open(item.get_json_path(), "r") as json_file:
+            data = json.load(json_file)
+            item.inject_json_data(data)
+    except Exception:
+        logger.exception("Error while loading json data for " + item.description)
+        logger.error("JSON data not loaded (or loaded incomplete)")
 
