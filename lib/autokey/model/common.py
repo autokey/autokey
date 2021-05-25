@@ -51,3 +51,20 @@ def get_serializable_base(item):
         "filter": AbstractWindowFilter.get_serializable(item),
         }
     return d
+
+def load(item, parent):
+    item.parent = parent
+
+    with open(item.path, "r") as in_file:
+        text = in_file.read()
+        # Set both code and phrase to allow this function to service both script and phrase.
+        # More elegant than passing in the type, but probably not the cleanest.
+        item.code = text
+        item.phrase = text
+
+    if os.path.exists(item.get_json_path()):
+        item.load_from_serialized()
+    else:
+        base_name = os.path.basename(item.path)
+        item.description = os.path.splitext(base_name)[0]
+

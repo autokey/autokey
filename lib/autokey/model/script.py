@@ -123,15 +123,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             return True
 
     def load(self, parent):
-        self.parent = parent
-
-        with open(self.path, "r", encoding="UTF-8") as in_file:
-            self.code = in_file.read()
-
-        if os.path.exists(self.get_json_path()):
-            self.load_from_serialized()
-        else:
-            self.description = os.path.basename(self.path)[:-3]
+        model_common.load(self, parent)
 
     def load_from_serialized(self, **kwargs):
         try:

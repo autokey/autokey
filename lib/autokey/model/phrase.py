@@ -79,15 +79,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         return d
 
     def load(self, parent):
-        self.parent = parent
-
-        with open(self.path, "r") as inFile:
-            self.phrase = inFile.read()
-
-        if os.path.exists(self.get_json_path()):
-            self.load_from_serialized()
-        else:
-            self.description = os.path.basename(self.path)[:-4]
+        model_common.load(self, parent)
 
     def load_from_serialized(self):
         try:
