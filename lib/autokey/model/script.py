@@ -20,6 +20,7 @@ import os
 import typing
 from pathlib import Path
 
+import autokey.model.helpers as helpers
 from autokey.model.store import Store
 from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path, TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
@@ -57,8 +58,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.path = get_safe_path(self.parent.path, base_name, ".py")
 
     def get_json_path(self):
-        directory, base_name = os.path.split(self.path[:-3])
-        return JSON_FILE_PATTERN.format(directory, base_name)
+        return helpers.get_json_path(self.path)
 
     def persist(self):
         if self.path is None:

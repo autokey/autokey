@@ -17,6 +17,7 @@
 import enum
 import os
 import re
+from pathlib import Path
 
 DEFAULT_WORDCHAR_REGEX = '[\w]'
 JSON_FILE_PATTERN = "{}/{}.json"
@@ -29,6 +30,12 @@ def make_wordchar_re(word_chars: str):
 
 def extract_wordchars(regex):
     return regex[2:-1]
+
+
+def get_json_path(itempath):
+    path_without_extension = os.path.splitext(itempath)[0]
+    directory, base_name = os.path.split(path_without_extension)
+    return JSON_FILE_PATTERN.format(directory, base_name)
 
 
 def get_safe_path(base_path, name, ext=""):
