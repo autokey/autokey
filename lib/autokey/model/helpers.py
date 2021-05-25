@@ -43,6 +43,20 @@ def build_path(item, extension, base_name=None):
         base_name = os.path.splitext(base_name)[0]
     item.path = get_safe_path(item.parent.path, base_name, extension)
 
+def get_serializable_base(item):
+    d = {
+        "description": item.description,
+        "modes": [mode.value for mode in item.modes],  # Store the enum value for compatibility with old user data.
+        "usageCount": item.usageCount,
+        "prompt": item.prompt,
+        "omitTrigger": item.omitTrigger,
+        "showInTrayMenu": item.show_in_tray_menu,
+        "abbreviation": AbstractAbbreviation.get_serializable(item),
+        "hotkey": AbstractHotkey.get_serializable(item),
+        "filter": AbstractWindowFilter.get_serializable(item),
+        }
+    return d
+
 
 def get_safe_path(base_path, name, ext=""):
     name = SPACES_RE.sub('_', name)

@@ -65,21 +65,13 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         with open(self.path, "w") as out_file:
             out_file.write(self.code)
 
-    # TODO reduce duplication for much of this file and phrase.py.
     def get_serializable(self):
-        d = {
+        d = helpers.get_serializable_base(self)
+        d2 = {
             "type": "script",
-            "description": self.description,
             "store": self.store,
-            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
-            "usageCount": self.usageCount,
-            "prompt": self.prompt,
-            "omitTrigger": self.omitTrigger,
-            "showInTrayMenu": self.show_in_tray_menu,
-            "abbreviation": AbstractAbbreviation.get_serializable(self),
-            "hotkey": AbstractHotkey.get_serializable(self),
-            "filter": AbstractWindowFilter.get_serializable(self)
-            }
+        }
+        d.update(d2)
         return d
 
     def _persist_metadata(self):
