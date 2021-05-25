@@ -74,6 +74,7 @@ def get_errors_in_log(caplog):
 
 
 
+@skip(reason="Not currently parallel enough to run and shut down simultaneously. Creating gtkui.Application is blocking")
 @patch('sys.argv', ['autokey-app-testing'])
 def test_gtk_application_runs_without_errors(caplog):
     app = gtkui.Application()
