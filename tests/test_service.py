@@ -15,7 +15,6 @@
 
 import inspect
 import json
-from shutil import copy
 import typing
 import sys
 import os
@@ -25,6 +24,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 from hamcrest import *
 from tests.engine_helpers import *
+import tests.helpers_for_tests as testhelpers
 
 import autokey.model.folder
 from autokey.configmanager import configmanager
@@ -39,23 +39,9 @@ confman_module_path = "autokey.configmanager.configmanager"
 # If we can do it a better way, we probably should, to reduce dependencies for
 # these tests.
 
-# def get_autokey_dir():
-#     # return os.path.dirname(os.path.realpath(sys.argv[0]))
-#     return os.path.realpath(autokey.__file__)
-
-def get_autokey_dir():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)))
-
-dummy_config_path =  get_autokey_dir() + "/dummy_files/dummy_config.json"
-
-def make_dummy_config(tmp_path):
-    config = tmp_path / "autokey.json"
-    copy(dummy_config_path, config)
-    return config
-
 def mock_configmanager(tmp_path):
     backup = str(tmp_path / "autokey.json~")
-    config = str(make_dummy_config(tmp_path))
+    config = str(testhelpers.make_dummy_config(tmp_path))
     with \
             patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER",
                   str(tmp_path)), \
