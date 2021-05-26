@@ -43,9 +43,10 @@ confman_module_path = "autokey.configmanager.configmanager"
 #     # return os.path.dirname(os.path.realpath(sys.argv[0]))
 #     return os.path.realpath(autokey.__file__)
 
-script_dir = (os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe()))))
+def get_autokey_dir():
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)))
 
-dummy_config_path =  script_dir + "/dummy_files/dummy_config.json"
+dummy_config_path =  get_autokey_dir() + "/dummy_files/dummy_config.json"
 
 def make_dummy_config(tmp_path):
     config = tmp_path / "autokey.json"
