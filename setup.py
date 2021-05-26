@@ -129,6 +129,14 @@ setup(
     url='https://github.com/autokey/autokey',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
+    # setuptools_scm removes need for MANIFEST.in. Allows setuptools to get which files to
+    # include in source distributions from git.
+    setup_requires=['setuptools_scm'],
+    # Use setuptools_scm to get version number from git! (Gives tag, plus dev
+    # commit details since most recent tag if not on tagged commit).
+    # If using this, would have to also set common.VERSION from this so that
+    # the autokey 'about' menu shows the correct version.
+    # use_scm_version=True,
     python_requires=">=3.5",
     # This requires autokey submodules (subdirectories) to contain their own `__init__.py` file (i.e.
     # they advertise themselves as modules).
@@ -137,10 +145,13 @@ setup(
     # https://setuptools.readthedocs.io/en/latest/userguide/package_discovery.html#using-find-namespace-or-find-namespace-packages
     packages=setuptools.find_packages('lib'),
     package_dir={'': 'lib'},
-
+    include_package_data=True,
     package_data={'autokey': ["configmanager/predefined_user_scripts/*"],
-        'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
-                  'autokey.gtkui': ['data/*']},
+        'autokey.qtui': ['data/*',
+            'resources/icons/*',
+            'resources/ui/*.ui'],
+        'autokey.gtkui': ['data/*'],
+        },
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
                   'config/autokey-status.svg',
