@@ -38,13 +38,13 @@ if sys.version_info < (3, 5, 0):
     sys.exit(1)
 
 
-AutoKeyData = namedtuple("AutoKeyData", ["version", "author", "author_email", "maintainer", "maintainer_email"])
+AutoKeyMetadata = namedtuple("AutoKeyMetadata", ["version", "author", "author_email", "maintainer", "maintainer_email"])
 
 
-def extract_autokey_data() -> AutoKeyData:
+def extract_autokey_metadata() -> AutoKeyMetadata:
     source_file_name = "./lib/autokey/common.py"
-    with open(source_file_name, "r") as data_source_file:
-        source = data_source_file.read()
+    with open(source_file_name, "r") as metadata_source_file:
+        source = metadata_source_file.read()
     if not source:
         print("Cannot read AutoKey source file containing required information. Unreadable: {}".format(
             source_file_name))
@@ -57,7 +57,7 @@ def extract_autokey_data() -> AutoKeyData:
             re.M
         ).group(1)[1:-1]  # Cut off outer quotation marks
 
-    return AutoKeyData(
+    return AutoKeyMetadata(
         version=search_for("VERSION"),
         author=search_for("AUTHOR"),
         author_email=search_for("AUTHOR_EMAIL"),
@@ -82,7 +82,7 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             else:
                 # If here, compilation failed for a known reason, so include the resource files directly.
                 # Ok, always include this for now. setup.py seems to not like this
-                # self.package_data["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
+                # self.package_metadata["autokey.qtui"] += ["resources/icons/*", "resources/ui/*.ui"]
                 pass
         super(BuildWithQtResources, self).run()
 
@@ -111,21 +111,21 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             shutil.copy(str(icon), str(target_directory))
 
 
-ak_data = extract_autokey_data()
+ak_metadata = extract_autokey_metadata()
 this_directory = PurePath(__file__).parent
 with open(this_directory / 'README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='autokey',
-    version=ak_data.version,
+    version=ak_metadata.version,
     description='Keyboard and GUI automation on Linux (X11)',
     long_description=long_description,
     long_description_content_type='text/x-rst',
-    author=ak_data.author,
-    author_email=ak_data.author_email,
-    maintainer=ak_data.maintainer,
-    maintainer_email=ak_data.maintainer_email,
+    author=ak_metadata.author,
+    author_email=ak_metadata.author_email,
+    maintainer=ak_metadata.maintainer,
+    maintainer_email=ak_metadata.maintainer_email,
     url='https://github.com/autokey/autokey',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
