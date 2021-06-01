@@ -14,6 +14,7 @@
   * [Example Scripts cont.](https://github.com/autokey/autokey/wiki/Scripts---samples)
 * [Advanced Topics](https://github.com/autokey/autokey/wiki/Advanced-Topics)
   * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
+  * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
   * [Unicode Characters or Emojis](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
 * [Development]()  
   * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
