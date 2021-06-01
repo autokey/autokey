@@ -1,6 +1,10 @@
 # Key Combinations
 Keys and key combinations can be pressed for you automatically by AutoKey in a variety of ways, with the methods below being built in for your convenience.
 
+
+***
+
+
 ## The keyboard.send_key() method:
 
 ### About:
@@ -13,6 +17,10 @@ The `keyboard.send_key()` method accepts only one key.
 ```
 keyboard.send_key("<tab>")
 ```
+
+
+***
+
 
 ## The keyboard.send_keys() method:
 
@@ -46,7 +54,9 @@ keyboard.send_keys("<ctrl>+<alt>pb")
 keyboard.send_keys("<shift>+apple")
 ```
 
+
 ***
+
 
 ## The keyboard.press_key() and keyboard.release_key() methods:
 
