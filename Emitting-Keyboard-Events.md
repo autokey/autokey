@@ -12,4 +12,4 @@ With phrases, always start with the Paste using clipboard (Ctrl+V) option unless
 
 I've never quite figured out what `keyboard.fake_keypress()` is for, but it's worth trying when nothing else works.
 
-For more information on creating special keypress sequences see this [article](https://github.com/autokey/autokey/wiki/Key-Combinations).
+For more information on creating special keypress sequences see this [article](https://github.com/autokey/autokey/wiki/Key-Combinations) as well as [this one](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
