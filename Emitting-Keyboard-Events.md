@@ -8,8 +8,6 @@ You do need to use `keyboard.send_keys()` when the target application needs to r
 
 Whenever possible, put whatever you want to emit into a string, load it into the clipboard `clipboard.fill_clipboard("my string, optionally with multibyte characters in it")`, and then paste it using `keyboard.send_keys("<ctrl>+V")`. This will almost always work and avoids a bunch of other problems.
 
-Note: Need to add some text from #547 here.
-
 With phrases, always start with the Paste using clipboard (Ctrl+V) option unless your phrase needs to include macros such as `<cursor>` or active keys that the application has to respond to directly like arrow keys.
 
 I've never quite figured out what `keyboard.fake_keypress()` is for, but it's worth trying when nothing else works.
