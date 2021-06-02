@@ -50,7 +50,7 @@ Building your own packages is described on [this](https://github.com/autokey/aut
 
 After you obtained the Debian packages, open a terminal at the directory containing the packages and use the following commands to install the packages:
 
-    VERSION="0.95.7-0"    # substitute with the version you downloaded
+    VERSION="0.95.10"    # substitute with the version you downloaded
     sudo dpkg --install autokey-common_${VERSION}_all.deb autokey-gtk_${VERSION}_all.deb
     sudo apt --fix-broken install
 
@@ -151,7 +151,7 @@ Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user onl
     # Install git master. Should be stable and include additional bug fixes. If in doubt, use a specific release instead
     $ pip3 install --user git+https://github.com/autokey/autokey
     # Install a specific release: Replace the version with the latest release.
-    $ pip3 install --user https://github.com/autokey/autokey/archive/v0.95.7.zip
+    $ pip3 install --user https://github.com/autokey/autokey/archive/v0.95.10.zip
     # Or install from a local copy (git checkout or extracted release ZIP archive):
     $ pip3 install --user /replace/with/path/to/extracted/autokey/release
     
