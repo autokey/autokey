@@ -11,7 +11,7 @@ Keys and key combinations can be pressed for you automatically by AutoKey in a v
 	* [The keyboard.send_keys() method](#the-keyboardsend_keys-method)
 	* [The keyboard.press_key() and keyboard.release_key() methods](#the-keyboardpress_key-and-keyboardrelease_key-methods)
 * [Notes](#notes)
-* [See Also](#see-also)
+* [See also](#see-also)
 
 ***
 
