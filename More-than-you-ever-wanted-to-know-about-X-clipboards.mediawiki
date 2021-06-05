@@ -1,4 +1,4 @@
-Autokey is X system based and the following article was copied for reference because the original website no longer exists.
+Autokey is X system based and the following article was pasted for reference because the original website no longer exists.
 
 Original reference: the ICCCM, obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html 
 
