@@ -1,0 +1,64 @@
+Autokey is X system based and the following article was copied for reference because the original website no longer exists.
+
+Original reference: the ICCCM, obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html 
+
+PRIMARY - This is normally used for middle mouse button = copy/paste
+
+SECONDARY - Normally not used by much, but it exists. Usually as an in app specific copy and paste.
+
+CLIPBOARD - Usually Ctrl+c and Ctrl+v style copy and paste.
+
+Clients have not handled cut-and-paste in a consistent way, leading users to believe that X doesn't even have a working clipboard. This isn't really accurate; there is a conventional behavior, somewhat standardized in the ICCCM. But many apps don't follow the conventional behavior.
+
+X has a thing called "selections" which are just clipboards, essentially (implemented with an asynchronous protocol so you don't actually copy data to them). There are three standard selections defined in the ICCCM: PRIMARY, SECONDARY, and CLIPBOARD.
+
+The ICCCM defines these as follows:
+
+"The selection named by the atom PRIMARY is used for all commands that take only a single argument and is the principal means of communication between clients that use the selection mechanism.
+
+The selection named by the atom SECONDARY is used:
+o As the second argument to commands taking two arguments (for example, "exchange primary and secondary selections")
+
+o As a means of obtaining data when there is a primary selection and the user does not want to disturb it
+
+The selection named by the atom CLIPBOARD is used to hold data that is being transferred between clients, that is, data that usually is being cut and then pasted or copied and then pasted."
+
+In addition, the ICCCM has a thing called "cut buffers" which most clients no longer support.
+
+There are two historical interpretations of the ICCCM:
+
+a) use PRIMARY for mouse selection, middle mouse button paste, and explicit cut/copy/paste menu items (Qt 2, GNU Emacs 20) b) use CLIPBOARD for the Windows-style cut/copy/paste menu items; use PRIMARY for the currently-selected text, even if it isn't explicitly copied, and for middle-mouse-click (Netscape, Mozilla, XEmacs, some GTK+ apps)
+
+No one ever does anything interesting with SECONDARY as far as I can tell.
+
+The current consensus is that interpretation b) is correct. Qt 3 and GNU Emacs 21 will use interpretation b), changing the behavior of previous versions.
+
+The correct behavior can be summarized as follows: CLIPBOARD works just like the clipboard on Mac or Windows; it only changes on explicit cut/copy. PRIMARY is an "easter egg" for expert users, regular users can just ignore it; it's normally pastable only via middle-mouse-click.
+
+The rationale for this behavior is mostly that behavior a) has a lot of problems, namely:
+
+-inconsistent with Mac/Windows-confusingly, selecting anything overwrites the clipboard-not efficient with a tool such as xclipboard-you should be able to select text, then paste the clipboard over it, but that doesn't work if the selection and clipboard are the same-the Copy menu item is useless and does nothing, which is confusing-if you think of PRIMARY as the current selection, Cut doesn't make any sense since the selection simultaneously disappears and becomes the current selection
+
+Application authors should follow the following guidelines to get correct behavior:
+
+— selecting but with no explicit copy should only set PRIMARY, never CLIPBOARD
+
+— middle mouse button should paste PRIMARY, never CLIPBOARD
+
+— explicit cut/copy commands (i.e. menu items, toolbar buttons) should always set CLIPBOARD to the currently-selected data (i.e. conceptually copy PRIMARY to CLIPBOARD)
+
+— explicit cut/copy commands should always set both CLIPBOARD and PRIMARY, even when copying doesn't involve a selection (e.g. a "copy url"-option which explicitly copies an url without the url being selected first)
+
+— explicit paste commands should paste CLIPBOARD, not PRIMARY
+
+— a selection becoming unselected should never unset PRIMARY
+
+— possibly contradicting the ICCCM, clients don't need to support SECONDARY, though if anyone can figure out what it's good for they should feel free to use it for that
+
+— cut buffers are evil; they only support ASCII, they don't work with many clients, and they require data to be copied to the X server. Therefore clients should avoid using cut buffers and use only selections.
+
+Apps that follow these guidelines give users a simple mental model to understand what's going on. PRIMARY is the current selection. Middle button pastes the current selection. CLIPBOARD is just like on Mac/Windows. You don't have to know about PRIMARY if you're a newbie.
+
+I don't think there's a sane mental model if we collapse everything into PRIMARY and ignore clipboard, see rationale above.
+
+A remaining somewhat odd thing about X selections is that exiting the app you did a cut/copy from removes the cut/copied data from the clipboard, since the selection protocol is asynchronous and requires the source app to provide the data at paste time. The solution here would be a standardized protocol for a "clipboard daemon" so that apps could hand off their data to a daemon when they exit. Or alternatively, you can run an application such as xclipboard which constantly "harvests" clipboard selections.
