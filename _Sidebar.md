@@ -17,6 +17,7 @@
   * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
   * [Emitting Keyboard Events](https://github.com/autokey/autokey/wiki/Emitting-Keyboard-Events)
   * [Unicode Characters or Emojis](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
-* [Development]()  
+* [Development]()
+  * [Contibuting code](https://github.com/autokey/autokey/wiki/Contributing-code)
   * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
   * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
