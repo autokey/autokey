@@ -14,7 +14,7 @@
 * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * [[Discussions]]
   * [Installing](https://github.com/autokey/autokey/wiki/Installing)
-  * [Known limitations](https://github.com/autokey/autokey/wiki/Known-limitations)
+  * [Known Limitations](https://github.com/autokey/autokey/wiki/Known-limitations)
   * [Linux Distros Shipping AutoKey](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
   * [Script Debugging](https://github.com/autokey/autokey/wiki/Script-Debugging)
   * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
