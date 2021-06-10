@@ -276,20 +276,3 @@ else:
     keyboard.send_keys(thisbethat.format(action,server))
     keyboard.send_key("<enter>")
 ```
-
-````Python
-## Date, Time and Window Title stamp. Functions in any window, including Windows apps running on Wine.
-sample output of this window: 2021-06-10 04:32 - Editing Scripts contributed 1 · autokey/autokey Wiki — Mozilla Firefox
-author: ineuw
-
-import time
-
-paste_ = "<ctrl>+v"
-
-activetitle_ = window.get_active_title()
-ts_ = time.time()
-timestamp_ = datetime.datetime.fromtimestamp(ts_).strftime('%Y-%m-%d %H:%M')
-combined_ = " " + timestamp_ + " - " + activetitle_
-clipboard.fill_clipboard(combined_)
-time.sleep(0.1)
-keyboard.send_keys(paste_)
