@@ -188,13 +188,10 @@ else:
     os.system(command2)
 ```
 
-
-
 ## Ping or TracePath Mojang Minecraft Services Servers
 Author: [Kreezxil](https://kreezcraft.com)
 
-While this could've been done easier in a shell script I thought it would be fun to do it in Autokey.
-The script contains an array of Mojang servers that can cause issues for players if they are down. There is an action array too so you can see how to easily add more actions. 
+While this could've been done easier in a shell script I thought it would be fun to do it in Autokey. The script contains an array of Mojang servers that can cause issues for players if they are down. There is an action array too so you can see how to easily add more actions. 
 
 Each time you trigger it the script will have you choose which server you would like to perform an action on, it defaults to all. Then it will ask you what action you would like to perform on what you just chose in the server section, this will default to `ping -c 1`.
 
@@ -279,3 +276,20 @@ else:
     keyboard.send_keys(thisbethat.format(action,server))
     keyboard.send_key("<enter>")
 ```
+
+````Python
+## Date, Time and Window Title stamp. Functions in any window, including Windows apps running on Wine.
+sample output of this window: 2021-06-10 04:32 - Editing Scripts contributed 1 · autokey/autokey Wiki — Mozilla Firefox
+author: ineuw
+
+import time
+
+paste_ = "<ctrl>+v"
+
+activetitle_ = window.get_active_title()
+ts_ = time.time()
+timestamp_ = datetime.datetime.fromtimestamp(ts_).strftime('%Y-%m-%d %H:%M')
+combined_ = " " + timestamp_ + " - " + activetitle_
+clipboard.fill_clipboard(combined_)
+time.sleep(0.1)
+keyboard.send_keys(paste_)
