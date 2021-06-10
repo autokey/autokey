@@ -17,7 +17,7 @@
 import typing
 
 import autokey.model.phrase
-import autokey.iomediator.waiter
+import autokey.iomediator.waiter as waiter
 from autokey import iomediator, model
 from typing import Callable
 
@@ -126,7 +126,7 @@ class Keyboard:
         """
         if modifiers is None:
             modifiers = []
-        w = self.mediator.waiter(key, modifiers, None, None, None, timeOut)
+        w = waiter.Waiter(key, modifiers, None, None, None, timeOut)
         self.mediator.listeners.append(w)
         rtn = w.wait()
         self.mediator.listeners.remove(w)
@@ -164,7 +164,7 @@ class Keyboard:
         keyboard.wait_for_keyevent(check, "emacs-prefix")
         """
         if name is None or not any(elem.name == name for elem in self.mediator.listeners):
-            w = self.mediator.waiter(None, None, None, check, name, timeOut)
+            w = waiter.Waiter(None, None, None, check, name, timeOut)
             self.mediator.listeners.append(w)
             rtn = w.wait()
             self.mediator.listeners.remove(w)
