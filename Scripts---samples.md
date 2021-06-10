@@ -255,10 +255,11 @@ loop.run_until_complete(check_key())
 loop.close()
 ```
 
-````Python
 ## Date, Time and Window Title stamp. Functions in any window, including Windows apps running on Wine.
 # Sample output of this window: 2021-06-10 04:32 - Editing Scripts contributed 1 · autokey/autokey Wiki — Mozilla Firefox
 author: ineuw
+
+```Python
 
 import time
 
@@ -272,9 +273,12 @@ clipboard.fill_clipboard(combined_)
 time.sleep(0.1)
 keyboard.send_keys(paste_)
 
-````Python3
+```
+
 ## Dialog info useful for displaying debugging info
 # This example creates an info dialog to display the character count of a block of text. Information to be displayed must be in text format.
+
+```Python3
 
 from Xlib import X, display
 
@@ -300,3 +304,5 @@ chars_ = str(chars_)
 time.sleep(0.1)
 
 dialog.info_dialog("length: ", chars_)  
+
+```
