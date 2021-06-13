@@ -108,7 +108,6 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
             button.setChecked(key in modifiers)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
         UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
