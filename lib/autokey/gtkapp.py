@@ -21,7 +21,6 @@ common.USING_QT = False
 
 import sys
 import os.path
-import subprocess
 import time
 import threading
 
@@ -44,8 +43,9 @@ from autokey.gtkui.configwindow import ConfigWindow
 from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+import autokey.UI_common_functions as UI_common
 from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 
 logger = get_logger(__name__)
 
@@ -79,18 +79,10 @@ class Application:
             sys.exit("Missing required programs and/or python modules, exiting")
 
         try:
-            # Create configuration directory
-            if not os.path.exists(common.CONFIG_DIR):
-                os.makedirs(common.CONFIG_DIR)
-            # Create data directory (for log file)
-            if not os.path.exists(common.DATA_DIR):
-                os.makedirs(common.DATA_DIR)
-            # Create run directory (for lock file)
-            if not os.path.exists(common.RUN_DIR):
-                os.makedirs(common.RUN_DIR)
+            create_storage_directories()
 
             if self.__verifyNotRunning():
-                self.__createLockFile()
+                UI_common.create_lock_file()
 
             self.initialise(args.show_config_window)
 
@@ -99,37 +91,10 @@ class Application:
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def __createLockFile(self):
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
-
     def __verifyNotRunning(self):
-        if os.path.exists(common.LOCK_FILE):
-            pid = Application._read_pid_from_lock_file()
-
-            # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0]
-
-            if "autokey" in output.decode():
-                logger.debug("AutoKey is already running as pid %s", pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logger.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
-                    sys.exit(1)
-
+        if UI_common.is_existing_running_autokey():
+            UI_common.test_Dbus_response(self)
         return True
-
-    @staticmethod
-    def _read_pid_from_lock_file() -> str:
-        with open(common.LOCK_FILE, 'r') as lock_file:
-            return lock_file.read()
 
     def initialise(self, configure):
         logger.info("Initialising application")
@@ -170,35 +135,16 @@ class Application:
         self.notifier.rebuild_menu()
 
     def hotkey_created(self, item):
-        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        self.__set_file_watched(path, True)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
-
-    def __set_file_watched(self, path, watch):
-        if not self.monitor.has_watch(path) and os.path.isdir(path): 
-            self.monitor.suspend()
-            if watch:
-                self.monitor.add_watch(path)
-            else:
-                self.monitor.remove_watch(path)
-            self.monitor.unsuspend()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        self.__set_file_watched(path, False)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_removed(self.configManager, self.configWindow, path)
 
     def unpause_service(self):
         """

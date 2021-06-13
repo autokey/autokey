@@ -87,6 +87,14 @@ jobs:
         --wheel
         --outdir dist/
 
+    - name: Upload built dist as artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: dist
+        path: dist/
+
+
+
   release:
     runs-on: ubuntu-latest
     strategy:
@@ -106,7 +114,13 @@ jobs:
         ref: ${{ github.ref }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
-        check-name: 'Python test'
+        check-name: 'pytest (3.9)'
+
+    - name: Download built dist as artifact
+      uses: actions/download-artifact@master
+      with:
+        name: dist
+        path: dist/
 
     - name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1

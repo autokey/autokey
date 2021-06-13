@@ -37,7 +37,7 @@ def get_safe_path(base_path, name, ext=""):
 
     if safe_name == '':
         path = base_path + '/1' + ext
-        jsonPath = base_path + "/.1.json"
+        jsonPath = base_path + "/1.json"
         n = 2
     else:
         path = base_path + '/' + safe_name + ext

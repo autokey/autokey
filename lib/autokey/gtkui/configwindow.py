@@ -59,7 +59,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
-from .configwindow0 import get_ui
+from .shared import get_ui
 
 
 def set_linkbutton(button, path, filename_only=False):
@@ -183,6 +183,8 @@ class SettingsWidget:
             self.abbrDialog.save(self.currentItem)
         if self.hotkeyEnabled:
             self.hotkeyDialog.save(self.currentItem)
+        else:
+            self.currentItem.unset_hotkey()
         if self.filterEnabled:
             self.filterDialog.save(self.currentItem)
         else:
@@ -196,6 +198,25 @@ class SettingsWidget:
 
     def validate(self):
         # Start by getting all applicable information
+        abbreviations, modifiers, key, filterExpression = self.get_item_details()
+        # Validate
+        ret = []
+
+        configManager = self.parentWindow.app.configManager
+
+        for abbr in abbreviations:
+            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            if not unique:
+                ret.append(self.build_msg_for_item_in_use(conflicting,
+                                                     "abbreviation"))
+
+        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        if not unique:
+            ret.append(self.build_msg_for_item_in_use(conflicting, "hotkey"))
+
+        return ret
+
+    def get_item_details(self):
         if self.abbrEnabled:
             abbreviations = self.abbrDialog.get_abbrs()
         else:
@@ -215,30 +236,15 @@ class SettingsWidget:
             r = self.currentItem.parent.get_applicable_regex(True)
             if r is not None:
                 filterExpression = r.pattern
+        return abbreviations, modifiers, key, filterExpression
 
-        # Validate
-        ret = []
+    def build_msg_for_item_in_use(self, conflicting, itemtype):
+        msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))
+        f = conflicting.get_applicable_regex()
+        if f is not None:
+            msg += _(" for windows matching '%s'.") % f.pattern
+        return msg
 
-        configManager = self.parentWindow.app.configManager
-
-        for abbr in abbreviations:
-            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
-            if not unique:
-                msg = _("The abbreviation '%s' is already in use by the %s") % (abbr, str(conflicting))
-                f = conflicting.get_applicable_regex()
-                if f is not None:
-                    msg += _(" for windows matching '%s'.") % f.pattern
-                ret.append(msg)
-
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
-        if not unique:
-            msg = _("The hotkey '%s' is already in use by the %s") % (conflicting.get_hotkey_string(), str(conflicting))
-            f = conflicting.get_applicable_regex()
-            if f is not None:
-                msg += _(" for windows matching '%s'.") % f.pattern
-            ret.append(msg)
-
-        return ret
 
     # ---- Signal handlers
 
@@ -1256,16 +1262,7 @@ class ConfigWindow:
         self.on_tree_selection_changed(self.treeView)
 
     def __deleteHotkeys(self, theItem):
-        if autokey.model.helpers.TriggerMode.HOTKEY in theItem.modes:
-            self.app.hotkey_removed(theItem)
-
-        if isinstance(theItem, autokey.model.folder.Folder):
-            for subFolder in theItem.folders:
-                self.__deleteHotkeys(subFolder)
-
-            for item in theItem.items:
-                if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                    self.app.hotkey_removed(item)
+        self.app.configManager.delete_hotkeys(theItem)
 
     def on_undo(self, widget, data=None):
         self.__getCurrentPage().undo()

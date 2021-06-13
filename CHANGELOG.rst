@@ -3,16 +3,14 @@ Changelog
 =========
 
 =======
-.. Version Develop
-.. ============================
-.. Important misc changes
-.. ----------------------
-.. Features
-.. ---------
-.. Bug fixes
-.. ---------
-.. Other changes
-.. ---------
+
+Version 0.96.0-beta.5
+============================
+
+Bug fixes
+---------
+
+- Fix clear button not unsetting hotkeys
 
 Version 0.96.0-beta.4
 ============================

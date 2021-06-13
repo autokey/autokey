@@ -121,7 +121,7 @@ setup(
     version=ak_data.version,
     description='Keyboard and GUI automation on Linux (X11)',
     long_description=long_description,
-    long_description_content_type='text/rest',
+    long_description_content_type='text/x-rst',
     author=ak_data.author,
     author_email=ak_data.author_email,
     maintainer=ak_data.maintainer,
@@ -177,6 +177,7 @@ setup(
     install_requires=[
         'pyinotify',
         'python-xlib',
+        'packaging',
     ],
     test_suite="pytest",
     classifiers=[

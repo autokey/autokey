@@ -19,7 +19,6 @@
 
 import sys
 import os.path
-import subprocess
 import queue
 import time
 import dbus
@@ -45,7 +44,8 @@ from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
 del get_logger
@@ -99,7 +99,7 @@ class Application(QApplication):
         self.handler = CallbackEventHandler()
         self.args = autokey.argument_parser.parse_args()
         try:
-            self._create_storage_directories()
+            create_storage_directories()
             configure_root_logger(self.args)
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
@@ -116,7 +116,7 @@ class Application(QApplication):
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
             if self._verify_not_running():
-                self._create_lock_file()
+                UI_common.create_lock_file()
 
             self.monitor = monitor.FileMonitor(self)
             self.configManager = cm.create_config_manager_instance(self)
@@ -163,52 +163,13 @@ class Application(QApplication):
                                    "Check your system/configuration.", str(e))
 
     @staticmethod
-    def _create_storage_directories():
-        """Create various storage directories, if those do not exist."""
-        # Create configuration directory
-        if not os.path.exists(common.CONFIG_DIR):
-            os.makedirs(common.CONFIG_DIR)
-        # Create data directory (for log file)
-        if not os.path.exists(common.DATA_DIR):
-            os.makedirs(common.DATA_DIR)
-        # Create run directory (for lock file)
-        if not os.path.exists(common.RUN_DIR):
-            os.makedirs(common.RUN_DIR)
-
-    @staticmethod
     def _create_lock_file():
         with open(common.LOCK_FILE, "w") as lock_file:
             lock_file.write(str(os.getpid()))
 
     def _verify_not_running(self):
-        if os.path.exists(common.LOCK_FILE):
-            with open(common.LOCK_FILE, "r") as lock_file:
-                pid = lock_file.read()
-            try:
-                # Check if the pid file contains garbage
-                int(pid)
-            except ValueError:
-                logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
-                sys.exit(1)
-
-            # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()
-            if "autokey" in output:
-                logger.debug("AutoKey is already running as pid " + pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbus_service = bus.get_object("org.autokey.Service", "/AppService")
-                    dbus_service.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logger.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(
-                        message="AutoKey is already running as pid {} but is not responding".format(pid),
-                        details=str(e))
-                    sys.exit(1)
-
+        if UI_common.is_existing_running_autokey():
+            UI_common.test_Dbus_response(self)
         return True
 
     def init_global_hotkeys(self, configManager):
@@ -221,25 +182,16 @@ class Application(QApplication):
         self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
-        logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
-
+        UI_common.path_removed(self.configManager, self.configWindow, path)
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).

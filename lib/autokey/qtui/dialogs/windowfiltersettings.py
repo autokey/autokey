@@ -21,7 +21,8 @@ from PyQt5.QtWidgets import QDialog
 import autokey.iomediator.windowgrabber
 import autokey.model.folder
 import autokey.model.modelTypes
-from autokey.qtui import common as ui_common
+from autokey.qtui import common as qtui_common
+from autokey import UI_common_functions as UI_common
 from .detectdialog import DetectDialog
 
 from autokey import iomediator
@@ -29,7 +30,7 @@ from autokey import iomediator
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
+class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
 
     def __init__(self, parent):
         super(WindowFilterSettingsDialog, self).__init__(parent)
@@ -52,14 +53,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
             self.apply_recursive_check_box.setChecked(item.isRecursive)
 
     def save(self, item):
-        regex = self.get_filter_text()
-        try:
-            item.set_window_titles(regex)
-        except re.error:
-            logger.error(
-                "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
-            )
-        item.set_filter_recursive(self.get_is_recursive())
+        UI_common.save_item_filter(self, item)
 
     def get_is_recursive(self):
         return self.apply_recursive_check_box.isChecked()

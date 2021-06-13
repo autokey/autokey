@@ -35,8 +35,9 @@ locale.setlocale(locale.LC_ALL, '')
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
 from autokey import model
+from autokey import UI_common_functions as UI_common
 from autokey.model.key import Key
-from .configwindow0 import get_ui
+from .shared import get_ui
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -438,55 +439,41 @@ class HotkeySettingsDialog(DialogBase):
         self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
+        self.MODIFIER_BUTTONS = {
+            self.controlButton: Key.CONTROL,
+            self.altButton: Key.ALT,
+            self.altgrButton: Key.ALT_GR,
+            self.shiftButton: Key.SHIFT,
+            self.superButton: Key.SUPER,
+            self.hyperButton: Key.HYPER,
+            self.metaButton: Key.META,
+        }
 
         DialogBase.__init__(self)
 
     def load(self, item):
-        self.targetItem = item
         self.setButton.set_sensitive(True)
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
+        UI_common.load_hotkey_settings_dialog(self,
+                                              item)
 
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
+    def populate_hotkey_details(self, item):
+        self.activate_modifier_buttons(item.modifiers)
+        key = item.hotKey
+        keyText = UI_common.get_hotkey_text(self, key)
+        self._setKeyLabel(keyText)
+        self.key = keyText
+        logger.debug("Loaded item {}, key: {}, modifiers: {}".format(item, keyText, item.modifiers))
 
-        else:
-            self.reset()
+    def activate_modifier_buttons(self, modifiers):
+        for button, key in self.MODIFIER_BUTTONS.items():
+            button.set_active(key in modifiers)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.HOTKEY)
-
-        # Build modifier list
-        modifiers = self.build_modifiers()
-
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
-        self.controlButton.set_active(False)
-        self.altButton.set_active(False)
-        self.altgrButton.set_active(False)
-        self.shiftButton.set_active(False)
-        self.superButton.set_active(False)
-        self.hyperButton.set_active(False)
-        self.metaButton.set_active(False)
+        for button in self.MODIFIER_BUTTONS:
+            button.set_active(False)
 
         self._setKeyLabel(_("(None)"))
         self.key = None
@@ -500,13 +487,7 @@ class HotkeySettingsDialog(DialogBase):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.controlButton.set_active(Key.CONTROL in modifiers)
-        self.altButton.set_active(Key.ALT in modifiers)
-        self.altgrButton.set_active(Key.ALT_GR in modifiers)
-        self.shiftButton.set_active(Key.SHIFT in modifiers)
-        self.superButton.set_active(Key.SUPER in modifiers)
-        self.hyperButton.set_active(Key.HYPER in modifiers)
-        self.metaButton.set_active(Key.META in modifiers)
+        self.activate_modifier_buttons(modifiers)
 
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -519,21 +500,9 @@ class HotkeySettingsDialog(DialogBase):
 
     def build_modifiers(self):
         modifiers = []
-        if self.controlButton.get_active():
-            modifiers.append(Key.CONTROL)
-        if self.altButton.get_active():
-            modifiers.append(Key.ALT)
-        if self.altgrButton.get_active():
-            modifiers.append(Key.ALT_GR)
-        if self.shiftButton.get_active():
-            modifiers.append(Key.SHIFT)
-        if self.superButton.get_active():
-            modifiers.append(Key.SUPER)
-        if self.hyperButton.get_active():
-            modifiers.append(Key.HYPER)
-        if self.metaButton.get_active():
-            modifiers.append(Key.META)
-
+        for button, key in self.MODIFIER_BUTTONS.items():
+            if button.get_active():
+                modifiers.append(key)
         modifiers.sort()
         return modifiers
 
@@ -541,10 +510,17 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
 
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hotkey."), None, self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
+
+    def check_nonempty_key(self):
+        return validate(
+            self.key is not None,
+            _("You must specify a key for the hotkey."),
+            None,
+            self.ui)
 
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
@@ -557,38 +533,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item):
         self.targetItem = item
-        if item.enabled:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.altgrButton.set_active(Key.ALT_GR in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
+        UI_common.load_global_hotkey_dialog(self,
+                                            item)
 
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
-
-        else:
-            self.reset()
 
     def save(self, item):
-        # Build modifier list
-        modifiers = self.build_modifiers()
-
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey_settings_dialog(self, item)
 
     def valid(self):
         configManager = self.configManager
@@ -605,11 +555,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
                         self.ui):
             return False
 
-        if not validate(
-                self.key is not None,
-                _("You must specify a key for the hotkey."),
-                None,
-                self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
@@ -644,16 +590,8 @@ class WindowFilterSettingsDialog(DialogBase):
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
 
-    # It seriously bugs me how much duplication there is between the two GUIs.
     def save(self, item):
-        regex = self.get_filter_text()
-        try:
-            item.set_window_titles(regex)
-        except re.error:
-            logger.error(
-                "Invalid window filter regex: '{}'. Discarding without saving.".format(regex)
-            )
-        item.set_filter_recursive(self.get_is_recursive())
+        UI_common.save_item_filter(self, item)
 
     def reset(self):
         self.triggerRegexEntry.set_text("")

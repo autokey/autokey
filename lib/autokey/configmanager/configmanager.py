@@ -38,7 +38,7 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
     SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE, \
     DISABLED_MODIFIERS, GTK_THEME, GTK_TREE_VIEW_EXPANDED_ROWS, PATH_LAST_OPEN
-import autokey.configmanager.version_upgrading
+import autokey.configmanager.version_upgrading as version_upgrade
 import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE
 from autokey.model.key import MODIFIERS
@@ -256,7 +256,9 @@ class ConfigManager:
 
             with open(CONFIG_FILE, 'r') as pFile:
                 data = json.load(pFile)
-                version = data["version"]
+
+            version_upgrade.upgrade_configuration_format(self, data)
+
 
             self.VERSION = data["version"]
             self.userCodeDir = data["userCodeDir"]
@@ -282,7 +284,7 @@ class ConfigManager:
             self.configHotkey.load_from_serialized(data["configHotkey"])
 
             if self.VERSION < self.CLASS_VERSION:
-                autokey.configmanager.version_upgrading.upgrade_configuration(self, data)
+                version_upgrade.upgrade_configuration_after_load(self, data)
 
             self.config_altered(False)
             logger.info("Successfully loaded configuration")
@@ -728,18 +730,22 @@ class ConfigManager:
                 pass
             self.remove_all_temporary(subfolder, in_temp_parent)
 
+    def delete_hotkeys(self, removed_item):
+        return self.__deleteHotkeys(removed_item)
+
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
+        app = self.app
         if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
-            self.app.hotkey_removed(removed_item)
+            app.hotkey_removed(removed_item)
 
         if isinstance(removed_item, autokey.model.folder.Folder):
             for subFolder in removed_item.folders:
-                self.__deleteHotkeys(subFolder)
+                self.delete_hotkeys(subFolder)
 
             for item in removed_item.items:
                 if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
-                    self.app.hotkey_removed(item)
+                    app.hotkey_removed(item)
 
 
 class GlobalHotkey(autokey.model.abstract_hotkey.AbstractHotkey):

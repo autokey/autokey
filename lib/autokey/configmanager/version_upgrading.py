@@ -36,11 +36,13 @@ happen with LTS distribution releases that skip several autokey versions during 
 
 import os
 from pathlib import Path
+import glob
+import re
+from packaging.version import parse as vparse
 
 import autokey.model.folder
 import autokey.model.phrase
 import autokey.model.script
-import re
 from autokey import common
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.iomediator.constants import X_RECORD_INTERFACE
@@ -48,27 +50,45 @@ from autokey.iomediator.constants import X_RECORD_INTERFACE
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-def upgrade_configuration(configuration_manager, config_data: dict):
-    """Updates the global configuration data to the latest version."""
-    version = config_data["version"]
+def upgrade_configuration_format(configuration_manager, config_data: dict):
+    """
+    Updates the global configuration data to the latest version.
+    Run before configuration loaded.
+    """
+    version = vparse(config_data["version"])
     logger.info("Checking if upgrade is needed from version %s", version)
+    if not version < vparse(common.VERSION):
+        return
+
+    if version < vparse("0.80.0"):
+        convert_v0_70_to_v0_80(config_data)
+    if version < vparse("0.95.3"):
+        convert_autostart_entries_for_v0_95_3()
+    if version < vparse("0.95.11"):
+        convertDotFiles_v95_11(config_data)
+
+def upgrade_configuration_after_load(configuration_manager, config_data: dict):
+    """
+    Updates the global configuration data to the latest version.
+    Run after configuration loaded.
+    """
+    version = vparse(config_data["version"])
+    logger.info("Checking if upgrade is needed from version %s", version)
+    if not version < vparse(common.VERSION):
+        return
+
     # Always reset interface type when upgrading
     configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE] = X_RECORD_INTERFACE
     logger.info("Resetting interface type, new type: %s", configuration_manager.SETTINGS[cm_constants.INTERFACE_TYPE])
 
-    if version < "0.70.0":
+    if version < vparse("0.82.3"):
+        convert_to_v0_82_3(configuration_manager)
+    if version < vparse("0.70.0"):
         convert_to_v0_70(configuration_manager)
-    if version < "0.80.0":
-        convert_v0_70_to_v0_80(config_data, version)
-        configuration_manager.config_altered(True)
-    if version < "0.95.3":
-        convert_autostart_entries_for_v0_95_3()
-    if version < "0.95.11":
-        convertDotFiles_v95_11(configuration_manager)
-    # Put additional conversion steps here.
 
     configuration_manager.VERSION = common.VERSION
     configuration_manager.config_altered(True)
+
 
 
 def convert_to_v0_70(config_manager):
@@ -84,7 +104,8 @@ def convert_to_v0_82_3(configuration_manager):
     configuration_manager.workAroundApps = re.compile(configuration_manager.SETTINGS[cm_constants.WORKAROUND_APP_REGEX])
     configuration_manager.SETTINGS[cm_constants.SCRIPT_GLOBALS] = {}
 
-def convert_v0_70_to_v0_80(config_data, old_version: str):
+def convert_v0_70_to_v0_80(config_data):
+    old_version = config_data["version"]
     try:
         _convert_v0_70_to_v0_80(config_data, old_version)
     except Exception:
@@ -164,7 +185,15 @@ def convertDotFiles_v95_11_folder(p: Path):
         if name.is_dir():
             convertDotFiles_v95_11_folder(name)
 
-def convertDotFiles_v95_11(configmanager):
+def all_config_folders(configData):
+    for entryPath in glob.glob(cm_constants.CONFIG_DEFAULT_FOLDER + "/*"):
+        if os.path.isdir(entryPath):
+            yield entryPath
+    for name in configData["folders"]:
+        yield name
+
+
+def convertDotFiles_v95_11(configData):
     logger.info("Version update: Unhiding sidecar dotfiles for versions > 0.95.10")
-    for folder in configmanager.folders:
-        convertDotFiles_v95_11_folder(Path(folder.path))
+    for name in all_config_folders(configData):
+        convertDotFiles_v95_11_folder(Path(name))
