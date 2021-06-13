@@ -183,6 +183,8 @@ class SettingsWidget:
             self.abbrDialog.save(self.currentItem)
         if self.hotkeyEnabled:
             self.hotkeyDialog.save(self.currentItem)
+        else:
+            self.currentItem.unset_hotkey()
         if self.filterEnabled:
             self.filterDialog.save(self.currentItem)
         else:

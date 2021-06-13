@@ -87,6 +87,8 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             self.abbr_settings_dialog.save(self.current_item)
         if self.hotkey_enabled:
             self.hotkey_settings_dialog.save(self.current_item)
+        else:
+            self.currentItem.unset_hotkey()
         if self.window_filter_enabled:
             self.window_filter_dialog.save(self.current_item)
         else:
