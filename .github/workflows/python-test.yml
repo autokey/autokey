@@ -5,6 +5,9 @@ name: Python test
 
 on:
   push:
+    # Test on tags to ensure that the version metadata has been updated in tag as well.
+    tags:
+      - '*'
     branches: [ CI, master, develop, beta ]
   pull_request:
     branches: [ master, develop, beta ]
