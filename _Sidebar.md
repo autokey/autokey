@@ -8,6 +8,7 @@
     * [Script Debugging](https://github.com/autokey/autokey/wiki/Script-Debugging)
     * [Troubleshooting](https://github.com/autokey/autokey/wiki/Troubleshooting)
     * [Upgrading](https://github.com/autokey/autokey/wiki/Upgrading-AutoKey)
+  * [Community](https://github.com/autokey/autokey/wiki/Community)
   * [Development]()
     * [Availability In Linux](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
     * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
@@ -25,5 +26,3 @@
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters or Emojis](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
     * [X Clipboards](https://github.com/autokey/autokey/wiki/More-than-you-ever-wanted-to-know-about-X-clipboards)
-  * [Social]()
-    * [[Discussions]]
