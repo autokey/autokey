@@ -1,3 +1,11 @@
+This page contains example scripts to demonstrate the **basic** capabilities of AutoKey's scripting service.
+
+Feel free to use the scripts presented for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
+
+All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
+
+For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
+
 ## Display Active Window Information
 
 Displays the information of the active window after 2 seconds
