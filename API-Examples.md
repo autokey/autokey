@@ -3,7 +3,7 @@
 
 The API examples shown here are for AutoKey-GTK. 
 
-The examples show how to use the various [API calls[(https://autokey.github.io/) that AutoKey provides. 
+The examples show how to use the various [API calls](https://autokey.github.io/) that AutoKey provides. 
 
 The example types are as follows:
 - [Clipboard](#clipboard)
