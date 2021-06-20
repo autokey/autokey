@@ -1,20 +1,20 @@
 * [Home](https://github.com/autokey/autokey/wiki)
-  * [About]()
+  * About
     * [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide)
     * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
-  * [Administration]()
+  * Administration
     * [Installing](https://github.com/autokey/autokey/wiki/Installing)
     * [Known Limitations](https://github.com/autokey/autokey/wiki/Known-limitations)
     * [Script Debugging](https://github.com/autokey/autokey/wiki/Script-Debugging)
     * [Troubleshooting](https://github.com/autokey/autokey/wiki/Troubleshooting)
     * [Upgrading](https://github.com/autokey/autokey/wiki/Upgrading-AutoKey)
   * [Community](https://github.com/autokey/autokey/wiki/Community)
-  * [Development]()
+  * Development
     * [Availability In Linux](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
     * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
     * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
     * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
-  * [Features]()
+  * Features
     * [Advanced Topics](https://github.com/autokey/autokey/wiki/Advanced-Topics)
     * [API](https://github.com/autokey/autokey/wiki/API-Examples)
     * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
