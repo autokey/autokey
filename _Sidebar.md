@@ -17,7 +17,7 @@
   * [Features]()
     * [Advanced Topics](https://github.com/autokey/autokey/wiki/Advanced-Topics)
     * [API](https://github.com/autokey/autokey/wiki/API-Examples)
-    * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-)
+    * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
     * [Emitting Keyboard Events](https://github.com/autokey/autokey/wiki/EmittingUsing-Macros-as-placeholders-in-Phrases)
     * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations-Keyboard-Events)
     * [Scripting](https://github.com/autokey/autokey/wiki/Scripting)
