@@ -19,7 +19,7 @@
     * [API](https://github.com/autokey/autokey/wiki/API-Examples)
     * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
     * [Emitting Keyboard Events](https://github.com/autokey/autokey/wiki/Emitting-Keyboard-Events)
-    * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations-Keyboard-Events)
+    * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
     * [Scripting](https://github.com/autokey/autokey/wiki/Scripting)
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters or Emojis](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
