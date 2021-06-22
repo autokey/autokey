@@ -1,6 +1,6 @@
 This page contains example scripts to demonstrate the **basic** capabilities of AutoKey's scripting service.
 
-Feel free to use the scripts presented for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
+Feel free to use these scripts for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
 
 All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
 
@@ -8,7 +8,7 @@ For specific details on the custom functions available to AutoKey scripts, see t
 
 ## Display Active Window Information
 
-Displays the information of the active window after 2 seconds
+Display the information of the active window after 2 seconds:
 ```python
     import time
     time.sleep(2)
@@ -20,22 +20,22 @@ Displays the information of the active window after 2 seconds
 
 Users frequently need to use the date or time in a script.
 
-The easiest way to get and process a date is by using the Python time or datetime modules.
+The easiest way to get and process a date is by using the Python **time** or **datetime** modules:
 ```python
     import time
     output = time.strftime("date %Y:%m:%d")
     keyboard.send_keys(output)
 ```
-If you need a specific time other than "now", Python will be happy to oblige, but setting that up is a separate (purely Python) topic with many options. (See links at end.)
+If you need a specific time other than "now", Python will be happy to oblige, but setting that up is a separate (purely Python) topic with many options (see links at the end).
 
 You can also do things like run the system date command.
 
-This script uses the simplified system.exec_command() function to execute the Unix date program, get the output, and send it via keyboard output
+This script uses the simplified ```system.exec_command()``` function to execute the Unix **date** program, get the output, and send it via keyboard output:
 ```python
     output = system.exec_command("date")
     keyboard.send_keys(output)
 ```
-or, with more options
+or, with more options:
 ```python
     commandstr="date "+%Y-%m-%d" --date="next sun""
     output = system.exec_command(commandstr)
@@ -45,20 +45,18 @@ but this creates another process and makes your script dependent on the behavior
 
 ### Background
 
-Time itself is stored in binary format (from man clock_gettime(3)):
+Time itself is stored in binary format (from ```man clock_gettime(3)```):
 
            All  implementations  support  the system-wide real-time clock, which is identified by CLOCK_REALTIME.  Its time represents
            seconds and nanoseconds since the Epoch.
 
-Since this is essentially a really big integer, it is a handy form to use for calculations involving time. The Linux *date* command (and the Python *strftime()* function) understands this format and will happily convert from and to various other formats - probably using the same or a very similar *strftime* utility.
+Since this is essentially a really big integer, it is a handy form to use for calculations involving time. The Linux **date** command (and the Python ```strftime()``` function) understands this format and will happily convert from and to various other formats - probably using the same or a very similar **strftime** utility.
 
-See: [datetime](https://docs.python.org/3/library/datetime.html), [time](https://docs.python.org/3/library/time.html#module-time)
-
-for all the gory details.
+See [datetime](https://docs.python.org/3/library/datetime.html) and [time](https://docs.python.org/3/library/time.html#module-time) for all the gory details.
 
 ## List Menu
 
-This script shows a simple list menu, grabs the chosen option and sends it via keyboard output.
+This script shows a simple list menu, grabs the chosen option, and sends it via keyboard output:
 ```python
     choices = ["something", "something else", "a third thing"]
     retCode, choice = dialog.list_menu(choices)
@@ -67,7 +65,7 @@ This script shows a simple list menu, grabs the chosen option and sends it via k
 ```
 ## X Selection
 
-This script grabs the current mouse selection, then erases it, and inserts it again as part of a phrase.
+This script grabs the current mouse selection, erases it, and then inserts it again as part of a phrase:
 ```python
     text = clipboard.get_selection()
     keyboard.send_key("<delete>")
@@ -75,7 +73,7 @@ This script grabs the current mouse selection, then erases it, and inserts it ag
 ```
 ## Persistent Value
 
-This script demonstrates 'remembering' a value in the store between separate invocations of the script.
+This script demonstrates 'remembering' a value in the store between separate invocations of the script:
 ```python
     if not store.has_key("runs"):
         # Create the value on the first run of the script
@@ -89,7 +87,7 @@ This script demonstrates 'remembering' a value in the store between separate inv
 ```
 ## Create new abbreviation
 
-This script creates a new phrase with an associated abbreviation from the current contents of the X mouse selection (although you could easily change it to use the clipboard instead by using clipboard.get_clipboard()).
+This script creates a new phrase with an associated abbreviation from the current contents of the X mouse selection (although you could easily change it to use the clipboard instead by using ```clipboard.get_clipboard()```):
 ```python
     # The sleep seems to be necessary to avoid lockups
     import time time.sleep(0.25)
@@ -106,7 +104,7 @@ This script creates a new phrase with an associated abbreviation from the curren
 ```
 ## Create new phrase
 
-This is similar to the above script, but just creates the phrase without an abbreviation.
+This is similar to the above script, but creates the phrase without an abbreviation:
 ```python
     # The sleep seems to be necessary to avoid lockups
     import time time.sleep(0.25)
@@ -121,13 +119,14 @@ This is similar to the above script, but just creates the phrase without an abbr
 ```
 ## Start external scripts
 
-In case you've some bash-scripts or just want to start a program with shortcuts
-To start a script
+In case you've got some Bash scripts or want to start a program with a shortcut:
+
+To start a script:
 ```python
     import subprocess
     subprocess.Popen(["/bin/bash", "/home/foobar/bin/startfooscript.sh"])
 ```
-To start a program with wine.
+To start a program with Wine:
 ```python
     import subprocess
     subprocess.Popen(["wine", "/home/foobar/wine/program/some.exe"])
