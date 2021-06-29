@@ -3,7 +3,7 @@
   * [Can I use Caps Lock in Autokey?](#can-i-use-caps-lock-in-autokey)
   * [Does AutoKey work with scripts that were written with the popular Windows AutoHotKey application?](#does-autokey-work-with-scripts-that-were-written-with-the-popular-windows-autohotkey-application)
   * [How can I show the main AutoKey window?](#how-can-i-show-the-main-autokey-window)
-    * [How can I show the main AutoKey window programmatically?](#can-i-show-the-main-autokey-window-programmatically)
+    * [How can I show the main AutoKey window programmatically?](#how-can-i-show-the-main-autokey-window-programmatically)
   * [Is AutoKey available on Microsoft Windows?](#is-autokey-available-on-microsoft-windows)
   * [What are the dependency packages for AutoKey?](#what-are-the-dependency-packages-for-autokey)
   * [What are the trigger characters?](#what-are-the-trigger-characters)
