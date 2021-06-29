@@ -43,7 +43,7 @@ You can click on the tray icon to show the main window. If you disabled the tray
 You can use the global hotkey, as defined in the settings, to show the window (it defaults to `<super>+k`).
 If you also disabled the global hotkey, see the next question.
 
-#### Can I show the main AutoKey window programmatically?
+#### How can I show the main AutoKey window programmatically?
 If it has to be a command/executable you want to call to show the main window, you can just try to start another instance (with either `autokey-qt` or `autokey-gtk`).
 The new instance checks if another instance is already running. If so, it pings the running instance to show its main window (using a dbus call) and then exits.
 That is the canonical way.
