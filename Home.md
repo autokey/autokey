@@ -10,7 +10,7 @@ Below is a screenshot of the main window (in version 0.95.10) currently editing 
 [[/images/AutoKey_Scripting.png|Opened main window showing a Script that is used to close The Gimp, automatically discarding the "You have unsaved changes" dialogue window.]]
 
 ## Get AutoKey
-To see if your Distribution packages AutoKey, please visit [this page](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey).
+To see if your distribution packages AutoKey, please visit [this page](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey).
 
 Refer to [Installing AutoKey](https://github.com/autokey/autokey/wiki/Installing) for instructions on how to install AutoKey. If you want to build your own packages for installation using your package manager, see the [Packaging](https://github.com/autokey/autokey/wiki/Packaging) page.
 
