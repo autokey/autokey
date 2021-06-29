@@ -2,7 +2,7 @@ Autokey is X system based and the following article was pasted for reference bec
 
 Original reference: the ICCCM, obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html 
 
-PRIMARY - This is normally used for middle mouse button = copy/paste
+PRIMARY - This is normally used by the middle mouse button copy/paste. A click on a selected text copies and pastes it and retains the info for additional pasting.
 
 SECONDARY - Normally not used by much, but it exists. Usually as an in app specific copy and paste.
 
