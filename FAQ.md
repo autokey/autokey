@@ -8,7 +8,7 @@
   * [What are the dependency packages for AutoKey?](#what-are-the-dependency-packages-for-autokey)
   * [What are the trigger characters?](#what-are-the-trigger-characters)
   * [What is the license of AutoKey?](#what-is-the-license-of-autokey)
-  * [Where is my configuration information stored and can I copy it to other machines?](#where-is-my-configuration-information-stored-can-i-move-it-to-other-machines)
+  * [Where is my configuration information stored and can I copy it to other machines?](#where-is-my-configuration-information-stored-and-can-i-copy-it-to-other-machines)
   * [Why does nothing happen when I start AutoKey?](#why-does-nothing-happen-when-i-start-autokey)
     * [Why am I getting X protocol errors on launch?](#why-am-i-getting-x-protocol-errors-on-launch)
 
