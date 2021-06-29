@@ -1,4 +1,4 @@
-## FAQ Table of Contents
+## Table of Contents
   * [Can I temporarily suspend/resume AutoKey?](#can-i-temporarily-suspendresume-autokey)
   * [Can I use Caps Lock in Autokey?](#can-i-use-caps-lock-in-autokey)
   * [Does AutoKey work with scripts that were written with the popular Windows AutoHotKey application?](#does-autokey-work-with-scripts-that-were-written-with-the-popular-windows-autohotkey-application)
