@@ -1,12 +1,12 @@
 Autokey is X system based and the following article was pasted for reference because the original website no longer exists.
 
-Original reference: the ICCCM, obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html 
+Original reference: the ICCCM, (Inter-Client Communication Conventions Manual) obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html
 
-PRIMARY - This is normally used by the middle mouse button copy/paste. A click on a selected text copies and pastes instantaneously, and the data is retained in the PRIMARY for additional pasting.
+PRIMARY or X-PRIMARY - This is normally used by the middle mouse scroller/button to paste selected text. The act of selection, by either mouse or keyboard, copies the selected text to the PRIMARY clipboard. Clicking the middle mouse scroller/button pastes this and the data is retained in the PRIMARY for additional pasting.
 
-SECONDARY - Normally not used by much, but it exists. Usually as an in app specific copy and paste.
+SECONDARY or X-SECONDARY - Normally not used by much, but it exists. Usually as an in app specific copy and paste.
 
-CLIPBOARD - Usually Ctrl+c and Ctrl+v style copy and paste.
+CLIPBOARD or X-CLIPBOARD - Usually Ctrl+c and Ctrl+v style copy and paste.
 
 Clients have not handled cut-and-paste in a consistent way, leading users to believe that X doesn't even have a working clipboard. This isn't really accurate; there is a conventional behavior, somewhat standardized in the ICCCM. But many apps don't follow the conventional behavior.
 
@@ -27,7 +27,9 @@ In addition, the ICCCM has a thing called "cut buffers" which most clients no lo
 
 There are two historical interpretations of the ICCCM:
 
-a) use PRIMARY for mouse selection, middle mouse button paste, and explicit cut/copy/paste menu items (Qt 2, GNU Emacs 20) b) use CLIPBOARD for the Windows-style cut/copy/paste menu items; use PRIMARY for the currently-selected text, even if it isn't explicitly copied, and for middle-mouse-click (Netscape, Mozilla, XEmacs, some GTK+ apps)
+a) use PRIMARY for mouse selection, middle mouse button paste, and explicit cut/copy/paste menu items (Qt 2, GNU Emacs 20) 
+
+b) use CLIPBOARD for the Windows-style cut/copy/paste menu items; use PRIMARY for the currently-selected text, even if it isn't explicitly copied, and for middle-mouse-click (Netscape, Mozilla, XEmacs, some GTK+ apps)
 
 No one ever does anything interesting with SECONDARY as far as I can tell.
 
@@ -62,3 +64,4 @@ Apps that follow these guidelines give users a simple mental model to understand
 I don't think there's a sane mental model if we collapse everything into PRIMARY and ignore clipboard, see rationale above.
 
 A remaining somewhat odd thing about X selections is that exiting the app you did a cut/copy from removes the cut/copied data from the clipboard, since the selection protocol is asynchronous and requires the source app to provide the data at paste time. The solution here would be a standardized protocol for a "clipboard daemon" so that apps could hand off their data to a daemon when they exit. Or alternatively, you can run an application such as xclipboard which constantly "harvests" clipboard selections.
+
