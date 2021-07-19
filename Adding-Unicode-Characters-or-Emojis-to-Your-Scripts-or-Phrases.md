@@ -63,6 +63,19 @@ Result:
 
 fooĈfooĈfoo
 
+### To print a character that won't print:
+When you come across a character that won't print by using the above techniques, try putting it onto the clipboard and pasting it. Build your string in a variable or in the clipboard API call, then add a delay, and then paste it. For example:
+```python
+clipboard.fill_clipboard("ã")
+time.sleep(0.1)
+keyboard.send_keys("<ctrl>+v")
+```
+Result:
+
+ã
+
+_Note that when you operate on the clipboard, a delay is usually required after the API call to give it time to complete, because the call immediately returns successfully even though the action is being asynchronously processed in another thread. That's an artifact of the way the upstream clipboard libraries we use work and applies to both front ends._
+
 ## IN PHRASES:
 You can use the key-combination that creates a Unicode character inside of a phrase and it will be converted to a Unicode character. No quotes are needed around it and spaces or plus signs should be used after the key-combinations.
 
