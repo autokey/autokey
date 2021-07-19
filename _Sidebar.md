@@ -22,5 +22,5 @@
     * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
     * [Scripting](https://github.com/autokey/autokey/wiki/Scripting)
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
-    * [Unicode Characters or Emojis](https://github.com/autokey/autokey/wiki/Adding-Unicode-Characters-or-Emojis-to-Your-Scripts-or-Phrases)
+    * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
     * [X Clipboards](https://github.com/autokey/autokey/wiki/More-than-you-ever-wanted-to-know-about-X-clipboards)
