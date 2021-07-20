@@ -8,6 +8,8 @@ You do need to use `keyboard.send_keys()` when the target application needs to r
 
 Whenever possible, put whatever you want to emit into a string, load it into the clipboard `clipboard.fill_clipboard("my string, optionally with multibyte characters in it")`, and then paste it using `keyboard.send_keys("<ctrl>+V")`. This will almost always work and avoids a bunch of other problems.
 
+Note that when you operate on the clipboard, a delay is usually required after the API call to give it time to complete, because the call immediately returns successfully even though the action is being asynchronously processed in another thread. That's an artifact of the way the upstream clipboard libraries we use work and applies to both front ends.
+
 With phrases, always start with the Paste using clipboard (Ctrl+V) option unless your phrase needs to include macros such as `<cursor>` or active keys that the application has to respond to directly like arrow keys.
 
 I've never quite figured out what `keyboard.fake_keypress()` is for, but it's worth trying when nothing else works.
