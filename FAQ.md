@@ -7,6 +7,7 @@
   * [Is AutoKey available on Microsoft Windows?](#is-autokey-available-on-microsoft-windows)
   * [What are the dependency packages for AutoKey?](#what-are-the-dependency-packages-for-autokey)
   * [What are the trigger characters?](#what-are-the-trigger-characters)
+  * [What if I would like to suggest a new feature for AutoKey?](#what-if-i-would-like-to-suggest-a-new-feature-for-autokey)
   * [What is the license of AutoKey?](#what-is-the-license-of-autokey)
   * [Where is my configuration information stored and can I copy it to other machines?](#where-is-my-configuration-information-stored-and-can-i-copy-it-to-other-machines)
   * [Why does nothing happen when I start AutoKey?](#why-does-nothing-happen-when-i-start-autokey)
@@ -63,6 +64,11 @@ An overview of the dependencies can be found in the [Dependencies](https://githu
 
 ### What are the trigger characters?
 The default trigger characters are dependent on your locale. They are any characters that are not normally considered part of a word. For English locales, these are characters like Enter (Return), Tab, Space, and punctuation keys, among others.
+
+
+### What if I would like to suggest a new feature for AutoKey?
+If a feature you'd like isn't available by default in AutoKey, you can file an enhancement request for it in the bug tracker. Some have already been submitted by others. To do so, you can visit the [Issues](https://github.com/autokey/autokey/issues) page, use the search box to search for the issue by keyword, and contribute your comments to an existing enhancement request if you found one or add one if
+you didn't, making sure to use the "Enhancement" label so the developers will know that that's what it is.
 
 ### What is the license of AutoKey?
 AutoKey is published under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
