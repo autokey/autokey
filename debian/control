@@ -40,7 +40,7 @@ Package: autokey-gtk
 Architecture: all
 Section: gnome
 Depends: autokey-common (= ${binary:Version}),
-         gir1.2-appindicator3-0.1,
+         gir1.2-ayatanaappindicator3-0.1,
          gir1.2-glib-2.0,
          gir1.2-gtk-3.0,
          gir1.2-gtksource-3.0,
