@@ -23,9 +23,18 @@ import gi
 
 gi.require_version('Gtk', '3.0')
 gi.require_version('Notify', '0.7')
-gi.require_version('AppIndicator3', '0.1')
+# AppIndicator is apparently deprecated, and on Debian the namespace is now
+# `AyatanaAppIndicator3`, which is a maintained verison.
+try:
+    gi.require_version('AyatanaAppIndicator3', '0.1')
+except ValueError:
+    gi.require_version('AppIndicator3', '0.1')
 
-from gi.repository import Gtk, Gdk, Notify, AppIndicator3
+from gi.repository import Gtk, Gdk, Notify
+try:
+    from gi.repository import AyatanaAppIndicator3 as AppIndicator
+except ImportError:
+    from gi.repository import AppIndicator3 as AppIndicator
 import gettext
 
 from . import popupmenu
@@ -57,10 +66,10 @@ class IndicatorNotifier:
         self.app = autokeyApp
         self.configManager = autokeyApp.service.configManager
 
-        self.indicator = AppIndicator3.Indicator.new(
+        self.indicator = AppIndicator.Indicator.new(
             "AutoKey",
             cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON],
-            AppIndicator3.IndicatorCategory.APPLICATION_STATUS)
+            AppIndicator.IndicatorCategory.APPLICATION_STATUS)
                                                 
         self.indicator.set_attention_icon(common.ICON_FILE_NOTIFICATION_ERROR)
         self.update_visible_status()           
@@ -68,12 +77,12 @@ class IndicatorNotifier:
         
     def update_visible_status(self):
         if cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]:
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+            self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
         else:
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)   
+            self.indicator.set_status(AppIndicator.IndicatorStatus.PASSIVE)   
             
     def hide_icon(self):     
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
+        self.indicator.set_status(AppIndicator.IndicatorStatus.PASSIVE)
         
     def set_icon(self,name):
         self.indicator.set_icon(name)
@@ -134,7 +143,7 @@ class IndicatorNotifier:
             self.show_notify(message, Gtk.STOCK_DIALOG_ERROR)
             self.last_notification_timestamp = now
         self.errorItem.show()
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.ATTENTION)
+        self.indicator.set_status(AppIndicator.IndicatorStatus.ATTENTION)
         
     def show_notify(self, message, iconName):
         Gdk.threads_enter()
@@ -166,7 +175,7 @@ class IndicatorNotifier:
         self.app.show_configure()
 
     def on_remove_icon(self, widget, data=None):
-        self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
+        self.indicator.set_status(AppIndicator.IndicatorStatus.PASSIVE)
         cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = False
                 
     def on_destroy_and_exit(self, widget, data=None):
