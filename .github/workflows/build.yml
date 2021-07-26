@@ -130,7 +130,7 @@ jobs:
 
     - name: Create a release and attach files
       run: |
-        git fetch --tags
+        git fetch --tags --force
         origin="$(git config --get remote.origin.url)"
         # Will get tag name only if a tag triggered this workflow.
         # tagname="${GITHUB_REF#refs/tags/}"
