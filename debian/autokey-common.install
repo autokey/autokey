@@ -1,8 +1,14 @@
 usr/bin/autokey-run
 usr/bin/autokey-shell
-usr/lib/python*/*-packages/autokey/*.py
-usr/lib/python*/*-packages/autokey/[!q][!t]*.py
-usr/lib/python*/*-packages/autokey/[!g][!t][!k]*.py
+usr/lib/python*/*-packages/autokey/UI_common_functions.py
+usr/lib/python*/*-packages/autokey/argument_parser.py
+usr/lib/python*/*-packages/autokey/common.py
+usr/lib/python*/*-packages/autokey/dbus_service.py
+usr/lib/python*/*-packages/autokey/interface.py
+usr/lib/python*/*-packages/autokey/logger.py
+usr/lib/python*/*-packages/autokey/macro.py
+usr/lib/python*/*-packages/autokey/monitor.py
+usr/lib/python*/*-packages/autokey/service.py
 usr/lib/python*/*-packages/autokey/configmanager/
 usr/lib/python*/*-packages/autokey/iomediator/*.py
 usr/lib/python*/*-packages/autokey/model/*.py
