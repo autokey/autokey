@@ -48,6 +48,16 @@ jobs:
       # The debian/ folder contains dependencies etc, so all this action needs to do is activate the process.
       run: |
         debian/build.sh
+        mkdir ../debs
+        mv ../autokey-gtk_0.96.0-beta.7_all.deb ../debs/
+        mv ../*.debs ../debs
+
+    - name: Upload built debs as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: debs
+        path: ../debs
+
 
 
   build_pypi_wheel:
@@ -121,6 +131,12 @@ jobs:
       with:
         name: dist
         path: dist/
+    - name: Download built debs as artifacts
+      uses: actions/download-artifact@master
+      with:
+        name: debs
+        path: ../debs
+
 
     # - name: Publish a Python distribution to PyPI
     #   uses: pypa/gh-action-pypi-publish@release/v1
@@ -143,7 +159,7 @@ jobs:
           prerelease=""
         fi
         # Include other files by adding them as additional arguments
-        gh release create "$prerelease" "$tagname" --title "$tagname" ../*.deb --notes "$notes"
+        gh release create "$prerelease" "$tagname" --title "$tagname" ../debs/*.deb --notes "$notes"
     # ../autokey-common_${{ github.ref }}_all.deb
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
