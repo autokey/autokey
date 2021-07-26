@@ -22,10 +22,12 @@ import autokey.common
 
 # Ensure that the version number is up to date in common.py
 # Skip this test if the tag contains "CI_test"
-@pytest.mark.skipif("CI_test" in subprocess.run(["git", "describe", "--abbrev=0" "--tags"])
+@pytest.mark.skipif("CI_test" in subprocess.run(["git", "describe",
+    "--abbrev=0", "--tags"], stdout=subprocess.PIPE).stdout.decode().rstrip(),
+    reason="Don't test version for CI_test tags")
 def test_version_number_accurate():
     git_tag_version = subprocess.run(["git", "describe", "--abbrev=0",
-        "--tags", '--match "v*.*.*"'],
+        "--tags", '--match="v*.*.*"'],
         stdout=subprocess.PIPE).stdout.decode().rstrip()
     assert_that(git_tag_version, is_(equal_to("v"+autokey.common.VERSION)),
     "Ensure the most recent git tag version matches the version number in lib/autokey/common.py")

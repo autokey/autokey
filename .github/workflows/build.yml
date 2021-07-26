@@ -107,14 +107,14 @@ jobs:
         # Fetch all history so that we get tags.
         fetch-depth: 0
 
-      # Waits for checks to complete before releasing.
-    - name: Wait on tests
-      uses: lewagon/wait-on-check-action@master
-      with:
-        ref: ${{ github.ref }}
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        wait-interval: 10
-        check-name: 'pytest (3.9)'
+    #   # Waits for checks to complete before releasing.
+    # - name: Wait on tests
+    #   uses: lewagon/wait-on-check-action@master
+    #   with:
+    #     ref: ${{ github.ref }}
+    #     repo-token: ${{ secrets.GITHUB_TOKEN }}
+    #     wait-interval: 10
+    #     check-name: 'pytest (3.9)'
 
     - name: Download built dist as artifact
       uses: actions/download-artifact@master
@@ -122,11 +122,11 @@ jobs:
         name: dist
         path: dist/
 
-    - name: Publish a Python distribution to PyPI
-      uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_API_TOKEN }}
+    # - name: Publish a Python distribution to PyPI
+    #   uses: pypa/gh-action-pypi-publish@release/v1
+    #   with:
+    #     user: __token__
+    #     password: ${{ secrets.PYPI_API_TOKEN }}
 
     - name: Create a release and attach files
       run: |
