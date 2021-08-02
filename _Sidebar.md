@@ -20,6 +20,7 @@
     * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
     * [Emitting Keyboard Events](https://github.com/autokey/autokey/wiki/Emitting-Keyboard-Events)
     * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
+    * [Mouse Control](https://github.com/autokey/autokey/wiki/Mouse-Control)
     * [Scripting](https://github.com/autokey/autokey/wiki/Scripting)
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
