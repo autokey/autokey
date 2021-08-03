@@ -2,6 +2,8 @@
 The computer's mouse can be used in scripts in a variety of ways. You can perform clicks by sending them relative to the screen, relative to the active window, or relative to the mouse's current position.
 
 ## Table of Contents
+  * [Before you begin](#before-you-begin)
+    * [Get the current mouse coordinates](#get-the-current-mouse-coordinates)
   * [Sending mouse clicks](#sending-mouse-clicks)
     * [Send a mouse click relative to the active window](#send-a-mouse-click-relative-to-the-active-window)
     * [Send a mouse-click relative to the mouse's current position](#send-a-mouse-click-relative-to-the-mouses-current-position)
@@ -11,6 +13,14 @@ The computer's mouse can be used in scripts in a variety of ways. You can perfor
   * [See also](#see-also)
 
 ************************************************************************
+## Before you begin
+
+### Get the current mouse coordinates
+If you don't know the x and y coordinates of the active window, this script returns a tuple containing the x-origin, y-origin, width, and height of the active window in pixels and displays the result in a dialog:*
+```python
+winGeom = window.get_active_geometry()
+dialog.info_dialog("Window geometry", "Active window geometry:\n\n'%s'" % winGeom)
+```
 
 ## Sending mouse clicks
 
@@ -22,11 +32,6 @@ mouse.click_relative(x, y, button)
 * The y is the y-coordinate in pixels from the top on the vertical axis relative to the upper left corner of the active window.
 * The button is the kind of mouse button to emulate (1, 2, or 3 to represent left, middle, or right, accepting up to 9 buttons for fancy mice).
 
-*Note: If you don't know the x and y coordinates of the active window, this script returns a tuple containing the x-origin, y-origin, width, and height of the active window in pixels and displays the result in a dialog:*
-```python
-winGeom = window.get_active_geometry()
-dialog.info_dialog("Window geometry", "Active window geometry:\n\n'%s'" % winGeom)
-```
 Example: Send a left-click to the active window:
 ```python
 mouse.click_relative(10, 20, 1)
