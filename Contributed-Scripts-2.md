@@ -306,3 +306,14 @@ time.sleep(0.1)
 dialog.info_dialog("length: ", chars_)  
 
 ```
+
+## Get the current mouse coordinates
+- **Author**: Sam Sebastian
+- **Purpose**: Display the current X and Y mouse coordinates in a pop-up dialog.
+```python
+from Xlib import X, display # import the necessary classes from the specified module
+d = display.Display().screen().root.query_pointer() # get pointer location
+x = str(d.root_x) # get x coord and convert to string
+y = str(d.root_y) # get y coord and convert to string
+dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the coordinates
+```
