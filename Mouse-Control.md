@@ -16,7 +16,7 @@ The computer's mouse can be used in scripts in a variety of ways. You can perfor
 ## Before you begin
 
 ### Get the current mouse coordinates
-If you don't know the x and y coordinates of the active window, this script returns a tuple containing the x-origin, y-origin, width, and height of the active window in pixels and displays the result in a dialog:*
+If you don't know the x and y coordinates of the active window, this script returns a tuple containing the x-origin, y-origin, width, and height of the active window in pixels and displays the result in a dialog:
 ```python
 winGeom = window.get_active_geometry()
 dialog.info_dialog("Window geometry", "Active window geometry:\n\n'%s'" % winGeom)
