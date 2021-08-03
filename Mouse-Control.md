@@ -16,10 +16,13 @@ The computer's mouse can be used in scripts in a variety of ways. You can perfor
 ## Before you begin
 
 ### Get the current mouse coordinates
-If you don't know the x and y coordinates of the active window, this script returns a tuple containing the x-origin, y-origin, width, and height of the active window in pixels and displays the result in a dialog:
+This script, from Sam Sebastian, displays the current mouse coordinates in a pop-up dialog:
 ```python
-winGeom = window.get_active_geometry()
-dialog.info_dialog("Window geometry", "Active window geometry:\n\n'%s'" % winGeom)
+from Xlib import X, display # import the necessary classes from the specified module
+d = display.Display().screen().root.query_pointer() # get pointer location
+x = str(d.root_x) # get x coord and convert to string
+y = str(d.root_y) # get y coord and convert to string
+dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the coordinates
 ```
 
 ## Sending mouse clicks
