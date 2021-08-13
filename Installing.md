@@ -125,7 +125,7 @@ The Qt5-based GUI additionally depends on:
 |---|---|---|---|
 | PyQt5 | https://www.riverbankcomputing.com/software/pyqt/intro | https://pypi.org/project/PyQt5/ | Prefer installing from your distribution. Check, if your installation source provides the _full_ PyQt5 package. Some sources, notably the Ubuntu repository have split PyQt5 up into multiple modules. If so, you need the following additional modules.|
 | PyQt5 SVG module, if not bundled with the base installation |  | included in PyQt5 from PyPi | If you installed from the Ubuntu repositories, you additionally need `python3-pyqt5.qtsvg` |
-| PyQt5-QScintilla2 module, if not bundled with the base installation |  | included in PyQt5 from PyPi | If you installed from the Ubuntu repositories, you additionally need `python3-pyqt5.qsci` |
+| PyQt5-QScintilla2 module, if not bundled with the base installation |  | included in PyQt5 from PyPi | If you installed from the Ubuntu repositories, you additionally need `python3-pyqt5.qsci`. Arch-based distros may need `qscintilla-qt5` and `python-qscintilla-qt5` instead. |
 | `kdialog` CLI tool | https://github.com/KDE/kdialog | Not available | this is used for the dialogue windows available in the Scripting API |
 | `pyrcc5` CLI tool | | not available | Installation-time/build-time only optional, but recommended dependency. |
 
