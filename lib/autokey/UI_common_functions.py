@@ -21,7 +21,7 @@ gtk_modules = ['gi', 'gi.repository.Gtk', 'gi.repository.Gdk', 'gi.repository.Pa
 qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
             'PyQt5.Qsci']
 
-common_programs = ['wmctrl', 'ps']
+common_programs = ['wmctrl', 'ps', 'xrandr']
 # Checking some of these appears to be redundant as some are provided by the same packages on my system but 
 # better safe than sorry.
 optional_programs = ['visgrep', 'import', 'png2pat', 'xte', 'xmousepos']
