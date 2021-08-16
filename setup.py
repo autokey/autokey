@@ -138,7 +138,8 @@ setup(
     packages=setuptools.find_packages('lib'),
     package_dir={'': 'lib'},
 
-    package_data={'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
+    package_data={'autokey': ["configmanager/predefined_user_scripts/*"],
+        'autokey.qtui': ['data/*', 'resources/icons/*', 'resources/ui/*.ui'],
                   'autokey.gtkui': ['data/*']},
     data_files=[('share/icons/hicolor/scalable/apps',
                  ['config/autokey.svg',
