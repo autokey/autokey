@@ -179,7 +179,7 @@ def _create_phrase(data: ItemData, parent: Folder) -> Phrase:
 
 def _create_folder(name: str, parent: Folder=None) -> Folder:
     """Creates a folder with the given name. If parent is given, create it inside parent."""
-    logger.info("About to create folder '{}'".format(name))
+    logger.debug("About to create folder '{}'".format(name))
     folder = Folder(name)
     if parent is not None:
         parent.add_folder(folder)

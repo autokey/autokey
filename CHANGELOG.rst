@@ -4,6 +4,14 @@ Changelog
 
 =======
 
+Version 0.96.0-beta.8
+============================
+
+Bug fixes
+---------
+
+- Fix installation not copying predefined user files (fix #578)
+
 Version 0.96.0-beta.5
 ============================
 
