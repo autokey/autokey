@@ -46,6 +46,19 @@ class GtkDialog:
 
         return DialogData(return_code, output)
 
+    def send_notification(self, title, message, icon="autokey", **kwargs):
+        """
+        Sends a notification using C{zenity}
+
+        @param title: Title to be used in the notification
+        @param message: Message displayed in the notification
+        @param icon: Icon for zenity to use. Defaults to Autokey icon
+        @return: A tuple containing the exit code and user input
+        @rtype: C{tuple(int, str)}
+
+        """
+        return self._run_zenity("Autokey Notification", ["--notification", "--text", title+"\n"+message, "--window-icon", icon], kwargs)
+
     def info_dialog(self, title="Information", message="", **kwargs):
         """
         Show an information dialog

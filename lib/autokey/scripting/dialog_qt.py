@@ -46,6 +46,19 @@ class QtDialog:
 
         return DialogData(return_code, output)
 
+    def send_notification(self, title, message, icon="autokey", timeout="10", **kwargs):
+        """
+        Sends a passive popup (notification) using C{kdialog}
+
+        @param title: Title to be used in the notification
+        @param message: Message to be displayed in the notification
+        @param icon: Icon to be used in the notification (Defaults to "autokey")
+        @param timeout: How long the notification will be on screen (Defaults to 10)
+        @return: A tuple containing the exit code and user input
+        @rtype: C{DialogData(int, str)}
+        """
+        return self._run_kdialog(title, ["--title", title, "--passivepopup", message, "--icon", icon, str(timeout)], kwargs)
+
     def info_dialog(self, title="Information", message="", **kwargs):
         """
         Show an information dialog
