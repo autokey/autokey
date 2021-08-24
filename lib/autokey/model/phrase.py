@@ -49,6 +49,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.show_in_tray_menu = False
         self.sendMode = SendMode.CB_CTRL_V
         self.path = path
+        self.type_delay = 0
 
     def build_path(self, base_name=None):
         if base_name is None:
@@ -84,7 +85,8 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self),
-            "sendMode": self.sendMode.value
+            "sendMode": self.sendMode.value,
+            "type_delay": self.type_delay
             }
         return d
 
@@ -117,6 +119,11 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.matchCase = data["matchCase"]
         self.show_in_tray_menu = data["showInTrayMenu"]
         self.sendMode = SendMode(data.get("sendMode", SendMode.KEYBOARD))
+        try:
+            self.type_delay = data["type_delay"]
+        except:
+            logger.error("Type delay not found")
+
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
