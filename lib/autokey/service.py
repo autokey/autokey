@@ -411,7 +411,7 @@ class PhraseRunner:
                     self.macroManager.process_expansion_macros(expansion.string)
 
             self.contains_special_keys = self.phrase_contains_special_keys(expansion)
-            mediator.send_backspace(expansion.backspaces)
+            mediator.send_backspace(expansion.backspaces, phrase.type_delay)
             if phrase.sendMode == autokey.model.phrase.SendMode.KEYBOARD:
                 mediator.send_string(expansion.string, phrase.type_delay)
             else:

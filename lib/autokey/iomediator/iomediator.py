@@ -15,6 +15,7 @@
 
 import threading
 import queue
+import time
 
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
@@ -236,13 +237,15 @@ class IoMediator(threading.Thread):
         for i in range(count):
             self.interface.send_key(Key.UP)
 
-    def send_backspace(self, count):
+    def send_backspace(self, count, type_delay=0):
         """
         Sends the given number of backspace key presses.
         """
         for i in range(count):
             self.interface.send_key(Key.BACKSPACE)
-            self.flush()
+            if type_delay >= 0:
+                time.sleep(type_delay)
+                self.flush()
 
     def flush(self):
         self.interface.flush()
