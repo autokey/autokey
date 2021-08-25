@@ -25,6 +25,7 @@ from tests.engine_helpers import *
 
 import autokey.model.folder
 from autokey.configmanager.configmanager import ConfigManager
+from autokey.configmanager.configmanager_constants import CONFIG_DEFAULT_FOLDER
 import autokey.configmanager.predefined_user_files
 from autokey.service import PhraseRunner
 import autokey.service
@@ -61,5 +62,6 @@ def test_item_has_same_hotkey(create_engine):
 def test_create_predefined_user_files_my_phrases_folder(create_engine):
     engine, folder = create_engine
     # --- Setup ---
+    os.makedirs(CONFIG_DEFAULT_FOLDER, exist_ok=True)
     phrases_folder = autokey.configmanager.predefined_user_files.create_my_phrases_folder()
     scripts_folder = autokey.configmanager.predefined_user_files.create_sample_scripts_folder()

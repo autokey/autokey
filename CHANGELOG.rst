@@ -8,11 +8,14 @@ Changelog
    Bug fixes
    ---------
 
-   - Fix installation not copying predefined user files (fix #578)
+Version Develop
+============================
 
 .. Important misc changes
 .. ----------------------
 .. Features
+.. ---------
+.. Bug fixes
 .. ---------
 
 Version 0.96.0-beta.8
@@ -26,12 +29,9 @@ Bug fixes
 Version 0.96.0-beta.5
 ============================
 
-.. Important misc changes
-.. ----------------------
-.. Features
-.. ---------
 Bug fixes
 ---------
+- Fix clear button not unsetting hotkeys
 
 Version 0.96.0-beta.4
 ============================
