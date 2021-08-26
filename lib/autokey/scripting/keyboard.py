@@ -32,6 +32,21 @@ class Keyboard:
         self.mediator = mediator  # type: iomediator.IoMediator
         """See C{IoMediator} documentation"""
 
+    def slow_type(self, key_string, type_delay):
+        """
+        Sends a sequence of keys via keyboard events with a delay between each key.
+
+        @param key_string: string of keys to send.
+        @param type_delay: Delay between each key event being sent (uses python's time.sleep)
+        """
+        if not isinstance(key_string, str):
+            raise TypeError("Only strings can be sent using this function")
+        self.mediator.interface.begin_send()
+        try:
+            self.mediator.send_string(key_string, type_delay)
+        finally:
+            self.mediator.interface.finish_send()
+
     def send_keys(self, key_string, send_mode: typing.Union[
         autokey.model.phrase.SendMode, int] = autokey.model.phrase.SendMode.KEYBOARD):
         """
@@ -45,7 +60,7 @@ class Keyboard:
 
         Usage: C{keyboard.send_keys(keyString)}
 
-        @param key_string: string of keys to send. Special keys are only possible in keyboard mode.
+        @param key_string: 
         @param send_mode: Determines how the string is sent.
         """
 
