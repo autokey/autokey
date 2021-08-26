@@ -86,7 +86,7 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "hotkey": AbstractHotkey.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self),
             "sendMode": self.sendMode.value,
-            "type_delay": self.type_delay
+            "type_delay": self.type_delay,
             }
         return d
 
