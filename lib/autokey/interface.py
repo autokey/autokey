@@ -192,7 +192,30 @@ elif common.USED_UI_TYPE == "GTK":
                 Gdk.threads_leave()
 elif common.USED_UI_TYPE == "headless":
     # TODO headless app clipboard?
-    pass
+    class Clipboard(AbstractClipboard):
+        def __init__(self):
+            pass
+
+        @property
+        def text(self):
+            # return self._clipboard.text(QClipboard.Clipboard)
+            return ""
+
+        @text.setter
+        def text(self, new_content: str):
+            # self._clipboard.setText(new_content, QClipboard.Clipboard)
+            pass
+
+
+        @property
+        def selection(self):
+            return ""
+            # return self._clipboard.text(QClipboard.Selection)
+
+        @selection.setter
+        def selection(self, new_content: str):
+            # self._clipboard.setText(new_content, QClipboard.Selection)
+            pass
 
 
 class XInterfaceBase(threading.Thread):
