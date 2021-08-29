@@ -45,9 +45,9 @@ class Application(AutokeyApplication, AutokeyUIInterface):
     """
 
     def __init__(self):
+        autokey.common.USED_UI_TYPE = "headless"
         args = autokey.argument_parser.parse_args()
-        super().__init__(args)
-        self.UI = self
+        super().__init__(args, UI=self)
 
         try:
             self.initialise(args)
