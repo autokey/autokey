@@ -32,7 +32,7 @@ from autokey.model.store import Store
 from .system import System
 from .window import Window
 
-# Platform abstraction
+# Platform abstraction; Allows code like `import scripting.Dialog`
 if autokey.common.USED_UI_TYPE == "QT":
     from .clipboard_qt import QtClipboard as Clipboard
     from .dialog_qt import QtDialog as Dialog
@@ -40,5 +40,6 @@ elif autokey.common.USED_UI_TYPE == "GTK":
     from .clipboard_gtk import GtkClipboard as Clipboard
     from .dialog_gtk import GtkDialog as Dialog
 elif autokey.common.USED_UI_TYPE == "headless":
-    # TODO headless clipboard
-    pass
+    from .clipboard_tkinter import TkClipboard as Clipboard
+    # Doesn't actually use anything gtk-specific.
+    from .dialog_gtk import GtkDialog as Dialog
