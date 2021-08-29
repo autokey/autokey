@@ -77,6 +77,9 @@ def create_phrase(
 def generate_test_cases_for_ignore_case():
     """Yields PhraseData, typed_input, PhraseResult"""
 
+    # Test format is effectively:
+    # yield phrase_data("abbreviation that triggers phrase", is_case_insensitive_trigger, match_phrase_case_to_typed_phrase_case), "typed text containing abbreviation", phrase_result("Phrase Content", should_phrase_have_triggered)
+
     def phrase_data(abbreviation: str, phrase_content: str, ignore_case: bool) -> PhraseData:
         """Local helper function to save typing constant data"""
         return PhraseData(
@@ -263,6 +266,9 @@ def generate_test_cases_for_trigger_immediately():
     yield phrase_data("UeUe", True, False), "UEUE", phrase_result("Phrase Content.", True)
     yield phrase_data("UeUe", True, True), "UEUE", phrase_result("PHRASE CONTENT.", True)
 
+    # Issue from gitter
+    yield phrase_data("---", False, False), "---", phrase_result("Phrase Content.", True)
+
 
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_trigger_immediately())
 def test_trigger_immediately(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
@@ -272,7 +278,10 @@ def test_trigger_immediately(phrase_data: PhraseData, trigger_str: str, phrase_r
     assert_that(
         phrase.check_input(trigger_str, window_info),
         is_(equal_to(phrase_result.triggered_on_input)),
-        "Unexpected Phrase trigger"
+        """
+        Unexpected Phrase trigger.
+        Does trigger '{}' triggered on input '{}':
+        """.format(phrase_data.abbreviation, trigger_str)
     )
 
     # Generally don’t trigger if the trigger immediately option is on and there is a space after the typed abbreviation.
@@ -451,7 +460,6 @@ def generate_test_cases_for_trigger_phrase_inside_word():
     yield phrase_data(True), "tri", phrase_result("ab br", 3)
     yield phrase_data(True), "abctri", phrase_result("ab br", 3)
     yield phrase_data(True), "ZQtri", phrase_result("ab br", 3)
-
 
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result",
                          generate_test_cases_for_trigger_phrase_inside_word())
