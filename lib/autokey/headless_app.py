@@ -81,6 +81,14 @@ class Application(AutokeyApplication, AutokeyUIInterface):
     #     if self.configWindow is not None:
     #         self.configWindow.set_has_errors(True)
 
+    def show_configure(self):
+        """
+        Here to prevent blocking if another autokey instance tries to open.
+        """
+        logger.warning("Dbus asked autokey to show configure window, but we are running in headless mode so have no configure window.")
+        return
+
+
     def show_error_dialog(self, message, details=None):
         """
         Abstract method to be implemented. Normally convenience method for

@@ -14,7 +14,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import autokey.dbus_service
 import autokey.model.script
 from . import common
 # Need to set before importing some other packages
@@ -26,9 +25,6 @@ import time
 import threading
 
 import gettext
-import dbus
-import dbus.service
-import dbus.mainloop.glib
 
 import gi
 gi.require_version('Gtk', '3.0')

@@ -1,4 +1,3 @@
-import dbus
 import importlib
 import os.path
 from shutil import which
