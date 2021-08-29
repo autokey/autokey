@@ -27,8 +27,8 @@ import pytest
 skip = pytest.mark.skip
 import hamcrest as hm
 
+import autokey
 import autokey.autokey_app as ak
-import autokey.headless_app as app
 
 def ret_arg(arg):
     return arg
@@ -43,9 +43,10 @@ def get_errors_in_log(caplog):
     errors = [record for record in caplog.get_records('call') if record.levelno >= logging.ERROR]
     return errors
 
-
+@skip
 @patch('sys.argv', ['autokey-app-testing'])
 def test_application_runs_without_errors(caplog):
+    autokey.common.USED_UI_TYPE = "headless"
     app = ak.AutokeyApplication()
     app.autokey_shutdown()
     hm.assert_that(get_errors_in_log(caplog), hm.empty())

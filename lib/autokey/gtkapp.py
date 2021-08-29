@@ -62,8 +62,8 @@ class Application(AutokeyApplication, AutokeyUIInterface):
 
     def __init__(self):
         args = autokey.argument_parser.parse_args()
-        super().__init__(args)
-        self.UI = self
+        super().__init__(args, UI=self)
+        logger.info("Initialising GTK application")
         try:
             self.initialise()
         except Exception as e:

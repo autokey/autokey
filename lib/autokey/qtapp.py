@@ -94,8 +94,7 @@ class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
     show_configure_signal = pyqtSignal()
 
     def __init__(self, argv: list=sys.argv):
-        super().__init__(argv)
-        self.UI = self
+        super().__init__(argv, UI=self)
         logger.info("Initialising QT application")
 
         try:
