@@ -47,10 +47,10 @@ from Xlib.error import ConnectionClosedError
 from . import common
 from autokey.model.button import Button
 
-if common.USING_QT:
+if common.USED_UI_TYPE == "QT":
     from PyQt5.QtGui import QClipboard
     from PyQt5.QtWidgets import QApplication
-else:
+elif common.USED_UI_TYPE == "GTK":
     import gi
     gi.require_version('Gtk', '3.0')
     from gi.repository import Gtk, Gdk
@@ -65,6 +65,8 @@ else:
         HAS_ATSPI = False
     except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
         HAS_ATSPI = False
+elif common.USED_UI_TYPE == "headless":
+    pass
 
 from Xlib import X, XK, display, error
 try:
@@ -128,7 +130,7 @@ class AbstractClipboard:
         return
 
 
-if common.USING_QT:
+if common.USED_UI_TYPE == "QT":
     class Clipboard(AbstractClipboard):
         def __init__(self):
             self._clipboard = QApplication.clipboard()
@@ -149,7 +151,7 @@ if common.USING_QT:
         def selection(self, new_content: str):
             self._clipboard.setText(new_content, QClipboard.Selection)
 
-else:
+elif common.USED_UI_TYPE == "GTK":
     class Clipboard(AbstractClipboard):
         def __init__(self):
             self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -188,6 +190,9 @@ else:
                 self._selection.set_text(new_content, -1)
             finally:
                 Gdk.threads_leave()
+elif common.USED_UI_TYPE == "headless":
+    # TODO headless app clipboard?
+    pass
 
 
 class XInterfaceBase(threading.Thread):
@@ -604,16 +609,20 @@ class XInterfaceBase(threading.Thread):
          causing a paste operation to happen.
         """
         logger.debug("Sending string via clipboard: " + string)
-        if common.USING_QT:
+        if common.USED_UI_TYPE == "QT":
             if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
             else:
                 self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
-        else:
+        elif common.USED_UI_TYPE == "GTK":
             if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self._send_string_selection, string)
             else:
                 self.__enqueue(self._send_string_clipboard, string, paste_command)
+        elif common.USED_UI_TYPE == "headless":
+            # TODO headless clipboard
+            # TODO abstract clipboard interface more
+            pass
         logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):

@@ -28,7 +28,8 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 
 import autokey.model.script
 from autokey import common
-common.USING_QT = True
+# Need to set before importing some other packages
+common.USED_UI_TYPE = "QT"
 
 from autokey.autokey_app import AutokeyApplication
 from autokey.abstract_ui import AutokeyUIInterface
@@ -46,6 +47,8 @@ import autokey.UI_common_functions as UI_common
 logger = get_logger(__name__)
 del get_logger
 
+
+# TODO move this metadata to common
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
     ("program_name", str),

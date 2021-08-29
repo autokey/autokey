@@ -56,7 +56,11 @@ def checkProgramImports(programs, optional=False):
     return missing_programs
 
 def checkOptionalPrograms():
-    if common.USING_QT:
+    if common.USED_UI_TYPE == "QT":
+        checkProgramImports(optional_programs, optional=True)
+    elif common.USED_UI_TYPE == "GTK":
+        checkProgramImports(optional_programs, optional=True)
+    elif common.USED_UI_TYPE == "headless":
         checkProgramImports(optional_programs, optional=True)
     else:
         checkProgramImports(optional_programs, optional=True)
@@ -69,12 +73,15 @@ def getErrorMessage(item_type, missing_items):
 
 def checkRequirements():
     errorMessage = ""
-    if common.USING_QT:
+    if common.USED_UI_TYPE == "QT":
         missing_programs = checkProgramImports(common_programs+qt_programs)
         missing_modules = checkModuleImports(common_modules+qt_modules)
-    else:
+    elif common.USED_UI_TYPE == "GTK":
         missing_programs = checkProgramImports(common_programs+gtk_programs)
         missing_modules = checkModuleImports(common_modules+gtk_modules)
+    elif common.USED_UI_TYPE == "headless":
+        missing_programs = checkProgramImports(common_programs)
+        missing_modules = checkModuleImports(common_modules)
     errorMessage += getErrorMessage("Python Modules",missing_modules)
     errorMessage += getErrorMessage("Programs",missing_programs)
     return errorMessage

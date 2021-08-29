@@ -33,9 +33,12 @@ from .system import System
 from .window import Window
 
 # Platform abstraction
-if autokey.common.USING_QT:
+if autokey.common.USED_UI_TYPE == "QT":
     from .clipboard_qt import QtClipboard as Clipboard
     from .dialog_qt import QtDialog as Dialog
-else:
+elif autokey.common.USED_UI_TYPE == "GTK":
     from .clipboard_gtk import GtkClipboard as Clipboard
     from .dialog_gtk import GtkDialog as Dialog
+elif autokey.common.USED_UI_TYPE == "headless":
+    # TODO headless clipboard
+    pass

@@ -20,4 +20,4 @@ import pathlib
 sys.path.insert(0, str(pathlib.Path(__file__).parent / "lib"))
 
 import autokey.common
-autokey.common.USING_QT = True
+autokey.common.USED_UI_TYPE = "QT"

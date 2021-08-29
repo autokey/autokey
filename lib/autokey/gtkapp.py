@@ -17,7 +17,8 @@
 import autokey.dbus_service
 import autokey.model.script
 from . import common
-common.USING_QT = False
+# Need to set before importing some other packages
+common.USED_UI_TYPE = "GTK"
 
 import sys
 import os.path
