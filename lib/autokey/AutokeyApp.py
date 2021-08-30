@@ -23,6 +23,7 @@ import queue
 import time
 import dbus
 import dbus.mainloop.glib
+import subprocess
 from typing import NamedTuple, Iterable
 
 import autokey.model.script
@@ -170,9 +171,29 @@ class AutokeyApplication:
             self.UI.show_error_dialog("Error starting file monitor. Error: " + str(e))
 
     def __verify_not_running(self):
-        if UI_common.is_existing_running_autokey():
+        if self.__is_existing_running_autokey():
             UI_common.test_Dbus_response(self)
         return True
+
+    def __try_to_show_existing_autokey_UI_and_exit(self):
+        try:
+            self.__show_running_autokey_window()
+            sys.exit(0)
+        except dbus.DBusException as e:
+            pid = AutokeyApplication.read_pid_from_lock_file()
+            message="AutoKey is already running as pid {} but is not responding".format(pid)
+            logger.exception(
+                "Error communicating with Dbus service. {}".format(message))
+            self.UI.show_error_dialog(
+                message=message,
+                details=str(e))
+            sys.exit(1)
+
+    def __show_running_autokey_window(self):
+        bus = dbus.SessionBus()
+        dbus_service = bus.get_object("org.autokey.Service", "/AppService")
+        dbus_service.show_configure(dbus_interface="org.autokey.Service")
+        # return dbus_service
 
     @staticmethod
     def create_storage_directories():
@@ -189,6 +210,33 @@ class AutokeyApplication:
         with open(common.LOCK_FILE, "w") as lock_file:
             lock_file.write(str(os.getpid()))
 
+    def __is_existing_running_autokey(self):
+        if os.path.exists(common.LOCK_FILE):
+            pid = self.__read_pid_from_lock_file()
+            pid_is_a_running_autokey = "autokey" in self.__get_process_details(pid)
+            if pid_is_a_running_autokey:
+                logger.debug("AutoKey is already running as pid %s", pid)
+                return True
+        return False
+
+    def __read_pid_from_lock_file(self) -> str:
+        with open(common.LOCK_FILE, "r") as lock_file:
+            pid = lock_file.read()
+        self.__exit_if_lock_file_corrupt(pid)
+        return pid
+
+    def __exit_if_lock_file_corrupt(self, pid):
+        try:
+            # Check if the pid file contains garbage
+            int(pid)
+        except ValueError:
+            logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
+            sys.exit(1)
+
+    def __get_process_details(self, pid):
+        with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
+            output = p.communicate()[0].decode()
+        return output
 
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")
