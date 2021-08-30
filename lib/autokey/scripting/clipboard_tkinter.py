@@ -21,6 +21,7 @@ except ImportError:
 
 from pathlib import Path
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 # TODO check interface.py and unify the clipboard setup there. The scripting api setup seems to duplicate a lot of that, for each UI.
 
@@ -29,13 +30,14 @@ class TkClipboard:
     Read/write access to the X selection and clipboard
     """
 
-    def __init__(self, app):
+    def __init__(self, app=None):
         """
         Initialize the tkinter version of the Clipboard
 
         Usage: Called when TkClipboard is imported
         """
-        tkroot = Tk()
+        self.tkroot = Tk()
+        self.tkroot.withdraw()
 
     def fill_selection(self, contents):
         """
@@ -45,6 +47,7 @@ class TkClipboard:
 
         @param contents: string to be placed in the selection
         """
+        logger.error("Headless app clipboard does not support setting selection clipboard")
         pass
 
 
@@ -75,7 +78,9 @@ class TkClipboard:
         @param contents: string to be placed in the selection
         """
         self.tkroot.clipboard_clear()
-        self.tkroot.clipboard_append(new_content)
+        self.tkroot.clipboard_append(contents)
+        self.tkroot.update()
+
         # If code is run from within e.g. an ipython qt console, invoking Tk root's mainloop() may hang the console.
         # r.mainloop() # the Tk root's mainloop() must be invoked.
         # r.destroy()
@@ -106,6 +111,7 @@ class TkClipboard:
         @raise OSError: If path does not exist
 
         """
+        logger.error("Headless app clipboard does not support setting clipboard to image.")
         pass
         # image_path = Path(path).expanduser()
         # if image_path.exists():
