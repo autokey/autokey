@@ -220,7 +220,6 @@ def save_hotkey_settings_dialog(app, item):
     item.set_hotkey(modifiers, key)
 
 def load_hotkey_settings_dialog(app, item):
-    app.targetItem = item
     if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
         app.populate_hotkey_details(item)
     else:

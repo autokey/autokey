@@ -92,8 +92,8 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         self.grabber.start()
 
     def load(self, item: Item):
-        UI_common.load_hotkey_settings_dialog(self,
-                                              item)
+        self.target_item = item
+        UI_common.load_hotkey_settings_dialog(self, item)
 
     def populate_hotkey_details(self, item):
         self.activate_modifier_buttons(item.modifiers)

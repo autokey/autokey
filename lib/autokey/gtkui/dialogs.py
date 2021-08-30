@@ -453,8 +453,8 @@ class HotkeySettingsDialog(DialogBase):
 
     def load(self, item):
         self.setButton.set_sensitive(True)
-        UI_common.load_hotkey_settings_dialog(self,
-                                              item)
+        self.targetItem = item
+        UI_common.load_hotkey_settings_dialog(self, item)
 
     def populate_hotkey_details(self, item):
         self.activate_modifier_buttons(item.modifiers)
