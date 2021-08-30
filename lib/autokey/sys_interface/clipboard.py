@@ -17,6 +17,15 @@ from abc import abstractmethod
 
 from autokey import common
 
+
+# Platform abstraction; Allows code like `import scripting.Dialog`
+if common.USED_UI_TYPE == "QT":
+    from autokey.scripting.clipboard_qt import QtClipboard as APIClipboard
+elif common.USED_UI_TYPE == "GTK":
+    from autokey.scripting.clipboard_gtk import GtkClipboard as APIClipboard
+elif common.USED_UI_TYPE == "headless":
+    from autokey.scripting.clipboard_tkinter import TkClipboard as APIClipboard
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 if common.USED_UI_TYPE == "QT":
@@ -91,7 +100,11 @@ elif common.USED_UI_TYPE == "GTK":
             Gdk.threads_enter()
             text = self._clipboard.wait_for_text()
             Gdk.threads_leave()
-            return text
+            if text is not None:
+                return text
+            else:
+                logger.warning("No text found on clipboard")
+                return ""
 
         @text.setter
         def text(self, new_content: str):
@@ -99,16 +112,23 @@ elif common.USED_UI_TYPE == "GTK":
             try:
                 # This call might fail and raise an Exception.
                 # If it does, make sure to release the mutex and not deadlock AutoKey.
-                self._clipboard.set_text(new_content, -1)
+                if Gtk.get_major_version() >= 3:
+                    self._clipboard.set_text(new_content, -1)
+                else:
+                    self._clipboard.set_text(new_content)
             finally:
                 Gdk.threads_leave()
 
         @property
         def selection(self):
             Gdk.threads_enter()
-            text = self._selection.wait_for_text()
+            text = self.selection.wait_for_text()
             Gdk.threads_leave()
-            return text
+            if text is not None:
+                return text
+            else:
+                logger.warning("No text found in X selection")
+                return ""
 
         @selection.setter
         def selection(self, new_content: str):
@@ -119,6 +139,7 @@ elif common.USED_UI_TYPE == "GTK":
                 self._selection.set_text(new_content, -1)
             finally:
                 Gdk.threads_leave()
+
 elif common.USED_UI_TYPE == "headless":
     # TODO headless app clipboard?
     class Clipboard(AbstractClipboard):

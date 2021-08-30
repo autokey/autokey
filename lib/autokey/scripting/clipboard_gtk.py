@@ -20,13 +20,14 @@ from gi.repository import Gtk, Gdk
 
 from pathlib import Path
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class GtkClipboard:
     """
     Read/write access to the X selection and clipboard - GTK version
     """
 
-    def __init__(self, app):
+    def __init__(self, app=None):
         """
         Initialize the Gtk version of the Clipboard
 
@@ -35,11 +36,11 @@ class GtkClipboard:
         @param app: refers to the application instance
         """
 
-        self.clipBoard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
+        self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
         """
         Refers to the data contained in the Gtk Clipboard (conventional clipboard)
         """
-        self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
+        self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
         """
         Refers to the "selection" of the clipboard or the highlighted text
         """
@@ -50,27 +51,19 @@ class GtkClipboard:
 
     def fill_selection(self, contents):
         """
-        Copy text into the X selection
+        Copy C{contents} into the X selection
 
         Usage: C{clipboard.fill_selection(contents)}
 
         @param contents: string to be placed in the selection
         """
-        #self.__execAsync(self.__fillSelection, contents)
-        self.__fillSelection(contents)
-
-    def __fillSelection(self, string):
-        """
-        Backend for the C{fill_selection} method
-        
-        Sets the selection text to the C{string} value
-
-        @param string: Value to change the selection to
-        """
         Gdk.threads_enter()
-        self.selection.set_text(string, -1)
-        Gdk.threads_leave()
-        #self.sem.release()
+        try:
+            # This call might fail and raise an Exception.
+            # If it does, make sure to release the mutex and not deadlock AutoKey.
+            self._selection.set_text(contents, -1)
+        finally:
+            Gdk.threads_leave()
 
     def get_selection(self):
         """
@@ -85,12 +78,13 @@ class GtkClipboard:
         @raise Exception: if no text was found in the selection
         """
         Gdk.threads_enter()
-        text = self.selection.wait_for_text()
+        text = self._selection.wait_for_text()
         Gdk.threads_leave()
         if text is not None:
             return text
         else:
-            raise Exception("No text found in X selection")
+            logger.warning("No text found in X selection")
+            return ""
 
     def fill_clipboard(self, contents):
         """
@@ -102,9 +96,9 @@ class GtkClipboard:
         """
         Gdk.threads_enter()
         if Gtk.get_major_version() >= 3:
-            self.clipBoard.set_text(contents, -1)
+            self._clipboard.set_text(contents, -1)
         else:
-            self.clipBoard.set_text(contents)
+            self._clipboard.set_text(contents)
         Gdk.threads_leave()
 
     def get_clipboard(self):
@@ -118,12 +112,14 @@ class GtkClipboard:
         @raise Exception: if no text was found on the clipboard
         """
         Gdk.threads_enter()
-        text = self.clipBoard.wait_for_text()
+        text = self._clipboard.wait_for_text()
         Gdk.threads_leave()
         if text is not None:
             return text
         else:
-            raise Exception("No text found on clipboard")
+            logger.warning("No text found on clipboard")
+            return ""
+
 
     def set_clipboard_image(self, path):
         """
