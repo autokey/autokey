@@ -4,6 +4,14 @@ Changelog
 
 =======
 
+Version 0.96.0-beta.9
+============================
+
+Bug fixes
+---------
+
+- Fix qt crashing when changing a hotkey
+
 Version 0.96.0-beta.8
 ============================
 
