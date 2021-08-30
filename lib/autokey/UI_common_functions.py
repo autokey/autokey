@@ -80,22 +80,9 @@ def checkRequirements():
     return errorMessage
 
 
-def create_storage_directories():
-    """Create various storage directories, if those do not exist."""
-    # Create configuration directory
-    makedir_if_not_exists(common.CONFIG_DIR)
-    # Create data directory (for log file)
-    makedir_if_not_exists(common.DATA_DIR)
-    # Create run directory (for lock file)
-    makedir_if_not_exists(common.RUN_DIR)
-
 def makedir_if_not_exists(d):
     if not os.path.exists(d):
         os.makedirs(d)
-
-def create_lock_file():
-    with open(common.LOCK_FILE, "w") as lock_file:
-        lock_file.write(str(os.getpid()))
 
 def read_pid_from_lock_file() -> str:
     with open(common.LOCK_FILE, "r") as lock_file:

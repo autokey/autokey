@@ -45,8 +45,7 @@ from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.UI_common_functions as UI_common
-from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+from autokey.logger import get_logger
 
 logger = get_logger(__name__)
 

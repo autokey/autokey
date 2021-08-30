@@ -81,7 +81,9 @@ class AutokeyApplication:
     Main application interface; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
     Handles starting service and responding to dbus requests. Should have an
-    associated UI.
+    associated UI that does nothing except interface with the user. All
+    interaction with the system or X for hotkeys etc should go via this
+    class. Exceptions might be made for async?
     """
 
     def __init__(self, argv: list=sys.argv, UI=None):
@@ -98,41 +100,41 @@ class AutokeyApplication:
             sys.exit(1)
 
     def __initialise(self):
-        self.__warn_about_missing_requirements()
-        UI_common.create_storage_directories()
         configure_root_logger(self.args)
-        if self._verify_not_running():
-            UI_common.create_lock_file()
+        self.__warn_about_missing_requirements()
+        AutokeyApplication.create_storage_directories()
+        if self.__verify_not_running():
+            AutokeyApplication.create_lock_file()
 
-        self.initialise_services()
+        self.__initialise_services()
         # self.notifier = Notifier(self)
         # self.configWindow = ConfigWindow(self)
 
-        self.monitor.start()
-        self.initialise_user_code_dir()
+        self.__initialise_user_code_dir()
 
-        self.create_DBus_service()
+        self.__create_DBus_service()
         # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
 
         # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
-    def create_DBus_service(self):
+    def __create_DBus_service(self):
         logger.info("Creating DBus service")
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
         self.dbusService = autokey.dbus_service.AppService(self)
         logger.debug("DBus service created")
 
-    def initialise_user_code_dir(self):
+    def __initialise_user_code_dir(self):
         if self.configManager.userCodeDir is not None:
             sys.path.append(self.configManager.userCodeDir)
 
-    def initialise_services(self):
+    def __initialise_services(self):
         logger.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
         self.configManager = cm.create_config_manager_instance(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
-        self._try_start_service()
+        self.__try_start_service()
+        self.__try_start_monitor()
 
     def __warn_about_missing_requirements(self):
         UI_common.checkOptionalPrograms()
@@ -141,7 +143,7 @@ class AutokeyApplication:
             self.UI.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
             sys.exit("Missing required programs and/or python modules, exiting")
 
-    def _try_start_service(self):
+    def __try_start_service(self):
         try:
             self.service.start()
         except Exception as e:
@@ -149,13 +151,6 @@ class AutokeyApplication:
             self.serviceDisabled = True
             self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
-
-    def __try_start_monitor(self):
-        try:
-            self.monitor.start()
-        except Exception as e:
-            logger.exception("Error starting file monitor. Error: " + str(e))
-            self.UI.show_error_dialog("Error starting file monitor. Error: " + str(e))
 
     def ctrlc_interrupt_handler(self, signal, frame):
         logger.info("Recieved keyboard interrupt. Shutting down")
@@ -167,15 +162,33 @@ class AutokeyApplication:
         """
         signal.signal(signal.SIGINT, self.ctrlc_interrupt_handler)
 
-    @staticmethod
-    def _create_lock_file():
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
+    def __try_start_monitor(self):
+        try:
+            self.monitor.start()
+        except Exception as e:
+            logger.exception("Error starting file monitor. Error: " + str(e))
+            self.UI.show_error_dialog("Error starting file monitor. Error: " + str(e))
 
-    def _verify_not_running(self):
+    def __verify_not_running(self):
         if UI_common.is_existing_running_autokey():
             UI_common.test_Dbus_response(self)
         return True
+
+    @staticmethod
+    def create_storage_directories():
+        """Create various storage directories, if those do not exist."""
+        # Create configuration directory
+        os.makedirs(common.CONFIG_DIR, exist_ok=True)
+        # Create data directory (for log file)
+        os.makedirs(common.DATA_DIR, exist_ok=True)
+        # Create run directory (for lock file)
+        os.makedirs(common.RUN_DIR, exist_ok=True)
+
+    @staticmethod
+    def create_lock_file():
+        with open(common.LOCK_FILE, "w") as lock_file:
+            lock_file.write(str(os.getpid()))
+
 
     def init_global_hotkeys(self, configManager):
         logger.info("Initialise global hotkeys")
