@@ -67,7 +67,8 @@ class TkClipboard:
         if text is not None:
             return text
         else:
-            raise Exception("No text found in X selection")
+            logger.warning("No text found in X selection")
+            return ""
 
     def fill_clipboard(self, contents):
         """
@@ -99,7 +100,8 @@ class TkClipboard:
         if text is not None:
             return text
         else:
-            raise Exception("No text found on clipboard")
+            logger.warning("No text found on clipboard")
+            return ""
 
     def set_clipboard_image(self, path):
         """
