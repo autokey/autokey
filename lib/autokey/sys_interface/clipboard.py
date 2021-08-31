@@ -20,11 +20,11 @@ from autokey import common
 
 # Platform abstraction; Allows code like `import scripting.Dialog`
 if common.USED_UI_TYPE == "QT":
-    from autokey.scripting.clipboard_qt import QtClipboard as APIClipboard
+    from autokey.scripting.clipboard_qt import QtClipboard
 elif common.USED_UI_TYPE == "GTK":
-    from autokey.scripting.clipboard_gtk import GtkClipboard as APIClipboard
+    from autokey.scripting.clipboard_gtk import GtkClipboard
 elif common.USED_UI_TYPE == "headless":
-    from autokey.scripting.clipboard_tkinter import TkClipboard as APIClipboard
+    from autokey.scripting.clipboard_tkinter import TkClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -53,7 +53,13 @@ class AbstractClipboard:
     """
     Abstract interface for clipboard interactions.
     This is an abstraction layer for platform dependent clipboard handling.
-    It unifies clipboard handling for Qt and GTK.
+    It unifies clipboard handling for Qt, GTK and headless autokey UIs.
+    Usage:
+    c = Clipboard()
+    # set clipboard
+    c.text = "string"
+    # get clipboard
+    print(c.text)
     """
     @property
     @abstractmethod
@@ -68,8 +74,8 @@ class AbstractClipboard:
         return
 
 
-if common.USED_UI_TYPE == "QT":
-    class Clipboard(AbstractClipboard):
+class Clipboard(AbstractClipboard):
+    if common.USED_UI_TYPE == "QT":
         def __init__(self):
             self._clipboard = QApplication.clipboard()
 
@@ -89,17 +95,20 @@ if common.USED_UI_TYPE == "QT":
         def selection(self, new_content: str):
             self._clipboard.setText(new_content, QClipboard.Selection)
 
-elif common.USED_UI_TYPE == "GTK":
-    class Clipboard(AbstractClipboard):
+    elif common.USED_UI_TYPE == "GTK" or common.USED_UI_TYPE == "headless":
         def __init__(self):
-            self.cb = APIClipboard()
+            if common.USED_UI_TYPE == "GTK":
+                self.cb = GtkClipboard()
+            elif common.USED_UI_TYPE == "headless":
+                self.cb = TkClipboard()
+
 
         @property
         def text(self):
             return self.cb.get_clipboard()
         @text.setter
         def text(self, new_content: str):
-            self.cb.set_clipboard(new_content)
+            self.cb.fill_clipboard(new_content)
 
         @property
         def selection(self):
@@ -107,30 +116,3 @@ elif common.USED_UI_TYPE == "GTK":
         @selection.setter
         def selection(self, new_content: str):
             self.cb.fill_selection(new_content)
-
-elif common.USED_UI_TYPE == "headless":
-    # TODO headless app clipboard?
-    class Clipboard(AbstractClipboard):
-        def __init__(self):
-            pass
-
-        @property
-        def text(self):
-            # return self._clipboard.text(QClipboard.Clipboard)
-            return ""
-
-        @text.setter
-        def text(self, new_content: str):
-            # self._clipboard.setText(new_content, QClipboard.Clipboard)
-            pass
-
-
-        @property
-        def selection(self):
-            return ""
-            # return self._clipboard.text(QClipboard.Selection)
-
-        @selection.setter
-        def selection(self, new_content: str):
-            # self._clipboard.setText(new_content, QClipboard.Selection)
-            pass
