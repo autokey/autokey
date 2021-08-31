@@ -20,9 +20,11 @@ from gi.repository import Gtk, Gdk
 
 from pathlib import Path
 
+from autokey.scripting.abstract_clipboard import AbstractClipboard
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class GtkClipboard:
+class GtkClipboard(AbstractClipboard):
     """
     Read/write access to the X selection and clipboard - GTK version
     """
@@ -75,7 +77,6 @@ class GtkClipboard:
 
         @return: text contents of the mouse selection
         @rtype: C{str}
-        @raise Exception: if no text was found in the selection
         """
         Gdk.threads_enter()
         text = self._selection.wait_for_text()
@@ -109,7 +110,6 @@ class GtkClipboard:
 
         @return: text contents of the clipboard
         @rtype: C{str}
-        @raise Exception: if no text was found on the clipboard
         """
         Gdk.threads_enter()
         text = self._clipboard.wait_for_text()

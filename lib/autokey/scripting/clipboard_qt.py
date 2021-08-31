@@ -6,12 +6,13 @@ import threading
 
 from PyQt5.QtGui import QClipboard, QImage
 from PyQt5.QtWidgets import QApplication
+from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 from pathlib import Path
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class QtClipboard:
+class QtClipboard(AbstractClipboard):
     """
     Read/write access to the X selection and clipboard - QT version
     """

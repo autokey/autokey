@@ -18,14 +18,13 @@ try:
     from Tkinter import Tk
 except ImportError:
     from tkinter import Tk
-
 from pathlib import Path
+
+from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-# TODO check interface.py and unify the clipboard setup there. The scripting api setup seems to duplicate a lot of that, for each UI.
-
-class TkClipboard:
+class TkClipboard(AbstractClipboard):
     """
     Read/write access to the X selection and clipboard
     """
@@ -61,7 +60,6 @@ class TkClipboard:
 
         @return: text contents of the mouse selection
         @rtype: C{str}
-        @raise Exception: if no text was found in the selection
         """
         text = self.tkroot.selection_get(selection="PRIMARY")
         if text is not None:
@@ -94,7 +92,6 @@ class TkClipboard:
 
         @return: text contents of the clipboard
         @rtype: C{str}
-        @raise Exception: if no text was found on the clipboard
         """
         text = self.tkroot.selection_get(selection="CLIPBOARD")
         if text is not None:
@@ -110,16 +107,6 @@ class TkClipboard:
         Usage: C{clipboard.set_clipboard_image(path)}
 
         @param path: Path to image file
-        @raise OSError: If path does not exist
-
         """
         logger.error("Headless app clipboard does not support setting clipboard to image.")
         pass
-        # image_path = Path(path).expanduser()
-        # if image_path.exists():
-        #     Gdk.threads_enter()
-        #     copied_image = Gtk.Image.new_from_file(str(image_path))
-        #     self.clipBoard.set_image(copied_image.get_pixbuf())
-        #     Gdk.threads_leave()
-        # else:
-        #     raise OSError("Image file not found")
