@@ -28,6 +28,9 @@ Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
 Running individual test files or folders, or using pytest arguments, can be
 done with `tox -- tests/[test file] [--opt]`.
 
+Lint the project (using flake8) with `tox -e lint`
+
+
 Test coverage reports can be generated with
 `tox -e clean,coverage,report`
 
