@@ -13,43 +13,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from abc import abstractmethod
+from abc import ABCMeta, abstractmethod
 
 from autokey import common
-
-
-# Platform abstraction; Allows code like `import scripting.Dialog`
-if common.USED_UI_TYPE == "QT":
-    from autokey.scripting.clipboard_qt import QtClipboard
-elif common.USED_UI_TYPE == "GTK":
-    from autokey.scripting.clipboard_gtk import GtkClipboard
-elif common.USED_UI_TYPE == "headless":
-    from autokey.scripting.clipboard_tkinter import TkClipboard
+from autokey.scripting import Clipboard as APIClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-if common.USED_UI_TYPE == "QT":
-    from PyQt5.QtGui import QClipboard
-    from PyQt5.QtWidgets import QApplication
-elif common.USED_UI_TYPE == "GTK":
-    import gi
-    gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, Gdk
-
-    try:
-        gi.require_version('Atspi', '2.0')
-        import pyatspi
-        HAS_ATSPI = True
-    except ImportError:
-        HAS_ATSPI = False
-    except ValueError:
-        HAS_ATSPI = False
-    except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
-        HAS_ATSPI = False
-elif common.USED_UI_TYPE == "headless":
-    pass
-
 class AbstractClipboard:
+    __metaclass__ = ABCMeta
     """
     Abstract interface for clipboard interactions.
     This is an abstraction layer for platform dependent clipboard handling.
@@ -77,13 +49,7 @@ class AbstractClipboard:
 class Clipboard(AbstractClipboard):
 
     def __init__(self):
-        if common.USED_UI_TYPE == "QT":
-            self.cb = QtClipboard()
-        elif common.USED_UI_TYPE == "GTK":
-            self.cb = GtkClipboard()
-        elif common.USED_UI_TYPE == "headless":
-            self.cb = TkClipboard()
-
+        self.cb = APIClipboard()
 
     @property
     def text(self):
