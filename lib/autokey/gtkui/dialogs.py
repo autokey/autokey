@@ -482,6 +482,7 @@ class HotkeySettingsDialog(DialogBase):
     def set_key(self, key, modifiers: list=None):
         if modifiers is None:
             modifiers = []
+        Gdk.threads_enter()
         if key in self.KEY_MAP:
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
@@ -489,10 +490,13 @@ class HotkeySettingsDialog(DialogBase):
         self.activate_modifier_buttons(modifiers)
 
         self.setButton.set_sensitive(True)
+        Gdk.threads_leave()
 
     def cancel_grab(self):
+        Gdk.threads_enter()
         self.setButton.set_sensitive(True)
         self._setKeyLabel(self.key)
+        Gdk.threads_leave()
 
     def get_active_modifiers(self):
         modifiers = []
@@ -609,6 +613,7 @@ class WindowFilterSettingsDialog(DialogBase):
         self.closure(responseId)
 
     def receive_window_info(self, info):
+        Gdk.threads_enter()
         dlg = DetectDialog(self.ui)
         dlg.populate(info)
         response = dlg.run()
@@ -617,6 +622,7 @@ class WindowFilterSettingsDialog(DialogBase):
             self.triggerRegexEntry.set_text(dlg.get_choice())
 
         self.detectButton.set_sensitive(True)
+        Gdk.threads_leave()
 
     def on_detectButton_pressed(self, widget, data=None):
         #self.__dlg =

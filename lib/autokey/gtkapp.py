@@ -61,6 +61,8 @@ class Application(AutokeyApplication, AutokeyUIInterface):
     """
 
     def __init__(self):
+        GLib.threads_init()
+        Gdk.threads_init()
         args = autokey.argument_parser.parse_args()
         super().__init__(args, UI=self)
         logger.info("Initialising GTK application")
@@ -130,7 +132,9 @@ class Application(AutokeyApplication, AutokeyUIInterface):
 
     def __completeShutdown(self):
         super().autokey_shutdown()
+        Gdk.threads_enter()
         Gtk.main_quit()
+        Gdk.threads_leave()
         logger.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
@@ -159,11 +163,15 @@ class Application(AutokeyApplication, AutokeyUIInterface):
             self.configWindow.deiconify()
 
     def show_configure_async(self):
+        Gdk.threads_enter()
         self.show_configure()
+        Gdk.threads_leave()
 
     def main(self):
         logger.info("Entering main()")
+        Gdk.threads_enter()
         Gtk.main()
+        Gdk.threads_leave()
 
     def show_error_dialog(self, message, details=None, dialog_type=Gtk.MessageType.ERROR):
         """
