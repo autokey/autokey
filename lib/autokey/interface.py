@@ -252,7 +252,7 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("No mapping for [%s]", char)
                 
     def __needsMutterWorkaround(self, item):
-        if Key.SUPER not in item.modifiers:
+        if not item.modifiers or Key.SUPER not in item.modifiers:
             return False
     
         try:
