@@ -35,6 +35,7 @@ def get_errors_in_log(caplog):
     return errors
 
 
+@patch('autokey.dbus_service.AppService' , unittest.mock.MagicMock())
 @patch('sys.argv', ['autokey-app-testing'])
 def test_application_runs_without_errors(caplog):
     subprocess.call(["xhost", "+SI:localuser:{}".format(os.environ.get('USER'))])
