@@ -201,7 +201,7 @@ class SettingsDialog:
         if res == Gtk.ResponseType.OK:
             self.useConfigHotkey = True
             key = self.showConfigDlg.key
-            modifiers = self.showConfigDlg.build_modifiers()
+            modifiers = self.showConfigDlg.get_active_modifiers()
             self.configKeyLabel.set_text(self.build_hotkey_string(key, modifiers))
             self.clearConfigButton.set_sensitive(True)
             
@@ -218,7 +218,7 @@ class SettingsDialog:
         if res == Gtk.ResponseType.OK:
             self.useServiceHotkey = True
             key = self.toggleMonitorDlg.key
-            modifiers = self.toggleMonitorDlg.build_modifiers()
+            modifiers = self.toggleMonitorDlg.get_active_modifiers()
             self.monitorKeyLabel.set_text(self.build_hotkey_string(key, modifiers))
             self.clearMonitorButton.set_sensitive(True)
             

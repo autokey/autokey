@@ -20,8 +20,6 @@
 import sys
 import os.path
 import queue
-import time
-import dbus
 from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
@@ -30,26 +28,27 @@ from PyQt5.QtWidgets import QMessageBox, QApplication
 
 import autokey.model.script
 from autokey import common
-common.USING_QT = True
+# Need to set before importing some other packages
+common.USED_UI_TYPE = "QT"
 
-from autokey import service, monitor
+from autokey.autokey_app import AutokeyApplication
+from autokey.abstract_ui import AutokeyUIInterface
 
 import autokey.argument_parser
-import autokey.configmanager.configmanager as cm
-import autokey.configmanager.configmanager_constants as cm_constants
 
-from autokey.qtui import common as ui_common
+from autokey.qtui import common as qtui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
-from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+from autokey.logger import get_logger
 import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
 del get_logger
 
+
+# TODO move this metadata to common
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
     ("program_name", str),
@@ -85,7 +84,7 @@ about_data = AboutData(
 )
 
 
-class Application(QApplication):
+class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
@@ -95,63 +94,32 @@ class Application(QApplication):
     show_configure_signal = pyqtSignal()
 
     def __init__(self, argv: list=sys.argv):
-        super().__init__(argv)
-        self.handler = CallbackEventHandler()
-        self.args = autokey.argument_parser.parse_args()
+        super().__init__(argv, UI=self)
+        logger.info("Initialising QT application")
+
         try:
-            create_storage_directories()
-            configure_root_logger(self.args)
-        except Exception as e:
-            logger.exception("Fatal error starting AutoKey: " + str(e))
-            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
-            sys.exit(1)
-
-        checkOptionalPrograms()
-        missing_reqs = checkRequirements()
-        if len(missing_reqs)>0:
-            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
-            sys.exit("Missing required programs and/or python modules, exiting")
-
-        logger.info("Initialising application")
-        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
-        try:
-            if self._verify_not_running():
-                UI_common.create_lock_file()
-
-            self.monitor = monitor.FileMonitor(self)
-            self.configManager = cm.create_config_manager_instance(self)
-            self.service = service.Service(self)
-            self.serviceDisabled = False
-            self._try_start_service()
-            self.notifier = Notifier(self)
-            self.configWindow = ConfigWindow(self)
-            # Connect the mutual connections between the tray icon and the main window
-            self.configWindow.action_show_last_script_errors.triggered.connect(self.notifier.reset_tray_icon)
-            self.notifier.action_view_script_error.triggered.connect(
-                self.configWindow.show_script_errors_dialog.update_and_show)
-
-            self.monitor.start()
-            # Initialise user code dir
-            if self.configManager.userCodeDir is not None:
-                sys.path.append(self.configManager.userCodeDir)
-            logger.debug("Creating DBus service")
-            self.dbus_service = AppService(self)
-            logger.debug("Service created")
-            self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-            if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
-                cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
-                self.args.show_config_window = True
-            if self.args.show_config_window:
-                self.show_configure()
-
-            self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
-
+            self.initialise()
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
         else:
             sys.exit(self.exec_())
+
+    def initialise(self):
+        self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, qtui_common.load_icon(qtui_common.AutoKeyIcon.AUTOKEY)))
+        self.handler = CallbackEventHandler()
+        self.notifier = Notifier(self)
+        self.configWindow = ConfigWindow(self)
+        # Connect the mutual connections between the tray icon and the main window
+        self.configWindow.action_show_last_script_errors.triggered.connect(self.notifier.reset_tray_icon)
+        self.notifier.action_view_script_error.triggered.connect(
+            self.configWindow.show_script_errors_dialog.update_and_show)
+
+        self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
+
+        self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
+        UI_common.show_config_window(self)
 
     def _try_start_service(self):
         try:
@@ -162,70 +130,37 @@ class Application(QApplication):
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
 
-    @staticmethod
-    def _create_lock_file():
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
-
-    def _verify_not_running(self):
-        if UI_common.is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
-        return True
-
     def init_global_hotkeys(self, configManager):
-        logger.info("Initialise global hotkeys")
-        configManager.toggleServiceHotkey.set_closure(self.toggle_service)
+        super().init_global_hotkeys(configManager)
         configManager.configHotkey.set_closure(self.show_configure_signal.emit)
 
     def config_altered(self, persistGlobal):
-        self.configManager.config_altered(persistGlobal)
+        super().config_altered(persistGlobal)
         self.notifier.create_assign_context_menu()
-
-    def hotkey_created(self, item):
-        UI_common.hotkey_created(self.service, item)
-
-    def hotkey_removed(self, item):
-        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
         UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
         UI_common.path_removed(self.configManager, self.configWindow, path)
-    def unpause_service(self):
-        """
-        Unpause the expansion service (start responding to keyboard and mouse events).
-        """
-        self.service.unpause()
-
-    def pause_service(self):
-        """
-        Pause the expansion service (stop responding to keyboard and mouse events).
-        """
-        self.service.pause()
 
     def toggle_service(self):
         """
         Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
         self.monitoring_disabled.emit(not self.service.is_running())
-        if self.service.is_running():
-            self.pause_service()
-        else:
-            self.unpause_service()
+        super().toggle_service()
 
     def shutdown(self):
         """
-        Shut down the entire application.
+        Shut down qt application.
         """
         logger.info("Shutting down")
+        super().autokey_shutdown()
         self.closeAllWindows()
         self.notifier.hide()
-        self.service.shutdown()
-        self.monitor.stop()
-        self.quit()
-        os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logger.debug("All shutdown tasks complete... quitting")
+        self.quit()
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """

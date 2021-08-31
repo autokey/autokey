@@ -1,4 +1,4 @@
-# Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2021 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,59 +13,42 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-GtkClipboard Functions
 """
-
-from gi.repository import Gtk, Gdk
-
+try:
+    from Tkinter import Tk
+except ImportError:
+    from tkinter import Tk
 from pathlib import Path
 
 from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class GtkClipboard(AbstractClipboard):
+class TkClipboard(AbstractClipboard):
     """
-    Read/write access to the X selection and clipboard - GTK version
+    Read/write access to the X selection and clipboard
     """
 
     def __init__(self, app=None):
         """
-        Initialize the Gtk version of the Clipboard
+        Initialize the tkinter version of the Clipboard
 
-        Usage: Called when GtkClipboard is imported
-
-        @param app: refers to the application instance
+        Usage: Called when TkClipboard is imported
         """
-
-        self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-        """
-        Refers to the data contained in the Gtk Clipboard (conventional clipboard)
-        """
-        self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
-        """
-        Refers to the "selection" of the clipboard or the highlighted text
-        """
-        self.app = app
-        """
-        Refers to the application instance
-        """
+        self.tkroot = Tk()
+        self.tkroot.withdraw()
 
     def fill_selection(self, contents):
         """
-        Copy C{contents} into the X selection
+        Copy text into the X selection
 
         Usage: C{clipboard.fill_selection(contents)}
 
         @param contents: string to be placed in the selection
         """
-        Gdk.threads_enter()
-        try:
-            # This call might fail and raise an Exception.
-            # If it does, make sure to release the mutex and not deadlock AutoKey.
-            self._selection.set_text(contents, -1)
-        finally:
-            Gdk.threads_leave()
+        logger.error("Headless app clipboard does not support setting selection clipboard")
+        pass
+
 
     def get_selection(self):
         """
@@ -78,9 +61,7 @@ class GtkClipboard(AbstractClipboard):
         @return: text contents of the mouse selection
         @rtype: C{str}
         """
-        Gdk.threads_enter()
-        text = self._selection.wait_for_text()
-        Gdk.threads_leave()
+        text = self.tkroot.selection_get(selection="PRIMARY")
         if text is not None:
             return text
         else:
@@ -95,12 +76,13 @@ class GtkClipboard(AbstractClipboard):
 
         @param contents: string to be placed in the selection
         """
-        Gdk.threads_enter()
-        if Gtk.get_major_version() >= 3:
-            self._clipboard.set_text(contents, -1)
-        else:
-            self._clipboard.set_text(contents)
-        Gdk.threads_leave()
+        self.tkroot.clipboard_clear()
+        self.tkroot.clipboard_append(contents)
+        self.tkroot.update()
+
+        # If code is run from within e.g. an ipython qt console, invoking Tk root's mainloop() may hang the console.
+        # r.mainloop() # the Tk root's mainloop() must be invoked.
+        # r.destroy()
 
     def get_clipboard(self):
         """
@@ -111,15 +93,12 @@ class GtkClipboard(AbstractClipboard):
         @return: text contents of the clipboard
         @rtype: C{str}
         """
-        Gdk.threads_enter()
-        text = self._clipboard.wait_for_text()
-        Gdk.threads_leave()
+        text = self.tkroot.selection_get(selection="CLIPBOARD")
         if text is not None:
             return text
         else:
             logger.warning("No text found on clipboard")
             return ""
-
 
     def set_clipboard_image(self, path):
         """
@@ -128,16 +107,6 @@ class GtkClipboard(AbstractClipboard):
         Usage: C{clipboard.set_clipboard_image(path)}
 
         @param path: Path to image file
-        @raise OSError: If path does not exist
-
         """
-        image_path = Path(path).expanduser()
-        if image_path.exists():
-            Gdk.threads_enter()
-            copied_image = Gtk.Image.new_from_file(str(image_path))
-            self.clipBoard.set_image(copied_image.get_pixbuf())
-            Gdk.threads_leave()
-        else:
-            raise OSError("Image file not found")
-
-
+        logger.error("Headless app clipboard does not support setting clipboard to image.")
+        pass

@@ -6,16 +6,18 @@ import threading
 
 from PyQt5.QtGui import QClipboard, QImage
 from PyQt5.QtWidgets import QApplication
+from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 from pathlib import Path
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class QtClipboard:
+class QtClipboard(AbstractClipboard):
     """
     Read/write access to the X selection and clipboard - QT version
     """
 
-    def __init__(self, app):
+    def __init__(self, app=None):
         """
         Initialize the Qt version of the Clipboard
 
@@ -62,7 +64,8 @@ class QtClipboard:
         @param string: Value to change the selection to
         """
         self.clipBoard.setText(string, QClipboard.Selection)
-        self.sem.release()
+        if self.app:
+            self.sem.release()
 
     def get_selection(self):
         """
@@ -78,7 +81,8 @@ class QtClipboard:
 
     def __getSelection(self):
         self.text = self.clipBoard.text(QClipboard.Selection)
-        self.sem.release()
+        if self.app:
+            self.sem.release()
 
     def fill_clipboard(self, contents):
         """
@@ -112,7 +116,8 @@ class QtClipboard:
 
     def __fillClipboard(self, string):
         self.clipBoard.setText(string, QClipboard.Clipboard)
-        self.sem.release()
+        if self.app:
+            self.sem.release()
 
     def get_clipboard(self):
         """
@@ -133,12 +138,18 @@ class QtClipboard:
         Stores the value of the clipboard into the C{self.text} variable
         """
         self.text = self.clipBoard.text(QClipboard.Clipboard)
-        self.sem.release()
+        if self.app:
+            self.sem.release()
 
     def __execAsync(self, callback, *args):
         """
-        Backend to execute methods asynchronously in Qt
+        Backend to execute methods asynchronously in Qt.
+        If clipboard instance was created without being passed a QtApp instance,
+        executes synchronously instead.
         """
-        self.sem = threading.Semaphore(0)
-        self.app.exec_in_main(callback, *args)
-        self.sem.acquire()
+        if self.app:
+            self.sem = threading.Semaphore(0)
+            self.app.exec_in_main(callback, *args)
+            self.sem.acquire()
+        else:
+            return callback(*args)

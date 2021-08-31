@@ -142,6 +142,9 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         modifiers.sort()
         return modifiers
 
+    def get_active_modifiers(self):
+        return self.build_modifiers()
+
     def reject(self):
         self.load(self.target_item)
         super().reject()

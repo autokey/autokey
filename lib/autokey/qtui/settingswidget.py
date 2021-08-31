@@ -108,7 +108,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             abbreviations = []
 
         if self.hotkey_enabled:
-            modifiers = self.hotkey_settings_dialog.build_modifiers()
+            modifiers = self.hotkey_settings_dialog.get_active_modifiers()
             key = self.hotkey_settings_dialog.key
         else:
             modifiers = []
@@ -191,7 +191,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             self.set_dirty()
             self.hotkey_enabled = True
             key = self.hotkey_settings_dialog.key
-            modifiers = self.hotkey_settings_dialog.build_modifiers()
+            modifiers = self.hotkey_settings_dialog.get_active_modifiers()
             self.hotkey_label.setText(self.current_item.get_hotkey_string(key, modifiers))
             self.clear_hotkey_button.setEnabled(True)
 

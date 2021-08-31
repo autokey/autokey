@@ -6,7 +6,7 @@ from autokey.model.key import Key, KEY_SPLIT_RE
 from autokey import common
 
 
-if common.USING_QT:
+if common.USED_UI_TYPE == "QT":
     from PyQt5.QtWidgets import QAction
 
     def _(text: str, args: tuple=None):
@@ -27,7 +27,7 @@ if common.USING_QT:
         def on_triggered(self):
             self.callback(self.macro)
 
-else:
+elif common.USED_UI_TYPE == "GTK":
     from gi.repository import Gtk
 
 
@@ -85,11 +85,11 @@ class MacroManager:
         self.macros.append(SystemMacro(engine))
 
     def get_menu(self, callback, menu=None):
-        if common.USING_QT:
+        if common.USED_UI_TYPE == "QT":
             for macro in self.macros:
                 menu.addAction(MacroAction(menu, macro, callback))
 
-        else:
+        elif common.USED_UI_TYPE == "GTK":
             menu = Gtk.Menu()
 
             for macro in self.macros:

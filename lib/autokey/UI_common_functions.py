@@ -1,4 +1,3 @@
-import dbus
 import importlib
 import os.path
 from shutil import which
@@ -9,6 +8,8 @@ import time
 
 from . import common
 import autokey.model.helpers
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -54,7 +55,11 @@ def checkProgramImports(programs, optional=False):
     return missing_programs
 
 def checkOptionalPrograms():
-    if common.USING_QT:
+    if common.USED_UI_TYPE == "QT":
+        checkProgramImports(optional_programs, optional=True)
+    elif common.USED_UI_TYPE == "GTK":
+        checkProgramImports(optional_programs, optional=True)
+    elif common.USED_UI_TYPE == "headless":
         checkProgramImports(optional_programs, optional=True)
     else:
         checkProgramImports(optional_programs, optional=True)
@@ -67,79 +72,18 @@ def getErrorMessage(item_type, missing_items):
 
 def checkRequirements():
     errorMessage = ""
-    if common.USING_QT:
+    if common.USED_UI_TYPE == "QT":
         missing_programs = checkProgramImports(common_programs+qt_programs)
         missing_modules = checkModuleImports(common_modules+qt_modules)
-    else:
+    elif common.USED_UI_TYPE == "GTK":
         missing_programs = checkProgramImports(common_programs+gtk_programs)
         missing_modules = checkModuleImports(common_modules+gtk_modules)
+    elif common.USED_UI_TYPE == "headless":
+        missing_programs = checkProgramImports(common_programs)
+        missing_modules = checkModuleImports(common_modules)
     errorMessage += getErrorMessage("Python Modules",missing_modules)
     errorMessage += getErrorMessage("Programs",missing_programs)
     return errorMessage
-
-
-def create_storage_directories():
-    """Create various storage directories, if those do not exist."""
-    # Create configuration directory
-    makedir_if_not_exists(common.CONFIG_DIR)
-    # Create data directory (for log file)
-    makedir_if_not_exists(common.DATA_DIR)
-    # Create run directory (for lock file)
-    makedir_if_not_exists(common.RUN_DIR)
-
-def makedir_if_not_exists(d):
-    if not os.path.exists(d):
-        os.makedirs(d)
-
-def create_lock_file():
-    with open(common.LOCK_FILE, "w") as lock_file:
-        lock_file.write(str(os.getpid()))
-
-def read_pid_from_lock_file() -> str:
-    with open(common.LOCK_FILE, "r") as lock_file:
-        pid = lock_file.read()
-    try:
-        # Check if the pid file contains garbage
-        int(pid)
-    except ValueError:
-        logger.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
-        sys.exit(1)
-    return pid
-
-
-def get_process_details(pid):
-    with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-        output = p.communicate()[0].decode()
-    return output
-
-def check_pid_is_a_running_autokey(pid):
-    output = get_process_details(pid)
-
-def is_existing_running_autokey():
-    if os.path.exists(common.LOCK_FILE):
-        pid = read_pid_from_lock_file()
-        # Check that the found PID is running and is autokey
-        output = get_process_details(pid)
-        if "autokey" in output:
-            logger.debug("AutoKey is already running as pid %s", pid)
-            return True
-    return False
-
-def test_Dbus_response(app):
-    bus = dbus.SessionBus()
-    try:
-        dbus_service = bus.get_object("org.autokey.Service", "/AppService")
-        dbus_service.show_configure(dbus_interface="org.autokey.Service")
-        sys.exit(0)
-    except dbus.DBusException as e:
-        pid = read_pid_from_lock_file()
-        message="AutoKey is already running as pid {} but is not responding".format(pid)
-        logger.exception(
-            "Error communicating with Dbus service. {}".format(message))
-        app.show_error_dialog(
-            message=message,
-            details=str(e))
-        sys.exit(1)
 
 
 # def init_global_hotkeys(app, configManager):
@@ -150,14 +94,6 @@ def test_Dbus_response(app):
 #     what the difference is before continuing.
 #     configManager.configHotkey.set_closure(app.show_configure_async)
 
-
-def hotkey_created(app_service, item):
-    logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-    app_service.mediator.interface.grab_hotkey(item)
-
-def hotkey_removed(app_service, item):
-    logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-    app_service.mediator.interface.ungrab_hotkey(item)
 
 def path_created_or_modified(configManager, configWindow, path):
     time.sleep(0.5)
@@ -203,11 +139,7 @@ def get_hotkey_text(app, key):
 
 
 def save_hotkey_settings_dialog(app, item):
-    mode = autokey.model.helpers.TriggerMode.HOTKEY
-    if mode not in item.modes:
-        item.modes.append(mode)
-
-    modifiers = app.build_modifiers()
+    modifiers = app.get_active_modifiers()
 
     if app.key in app.REVERSE_KEY_MAP:
         key = app.REVERSE_KEY_MAP[app.key]
@@ -230,3 +162,11 @@ def load_global_hotkey_dialog(app, item):
         app.populate_hotkey_details(item)
     else:
         app.reset()
+
+def show_config_window(app):
+    if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
+        cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
+        app.args.show_config_window = True
+    if app.args.show_config_window:
+        app.show_configure()
+

@@ -48,6 +48,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 def create_config_manager_instance(auto_key_app, had_error=False):
     if not os.path.exists(CONFIG_DEFAULT_FOLDER):
+        logger.info("Default config dir not found. Default config will be rebuilt.")
         os.mkdir(CONFIG_DEFAULT_FOLDER)
     try:
         config_manager = ConfigManager(auto_key_app)

@@ -13,8 +13,10 @@ Version Develop
 
 .. Important misc changes
 .. ----------------------
-.. Features
-.. ---------
+Features
+---------
+Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
+
 .. Bug fixes
 .. ---------
 

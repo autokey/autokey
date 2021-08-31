@@ -14,10 +14,10 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import autokey.dbus_service
 import autokey.model.script
 from . import common
-common.USING_QT = False
+# Need to set before importing some other packages
+common.USED_UI_TYPE = "GTK"
 
 import sys
 import os.path
@@ -25,9 +25,6 @@ import time
 import threading
 
 import gettext
-import dbus
-import dbus.service
-import dbus.mainloop.glib
 
 import gi
 gi.require_version('Gtk', '3.0')
@@ -35,8 +32,9 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
+from autokey.autokey_app import AutokeyApplication
+from autokey.abstract_ui import AutokeyUIInterface
 import autokey.argument_parser
-from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
@@ -44,8 +42,7 @@ from autokey.gtkui.dialogs import ShowScriptErrorsDialog
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.UI_common_functions as UI_common
-from autokey.logger import get_logger, configure_root_logger
-from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+from autokey.logger import get_logger
 
 logger = get_logger(__name__)
 
@@ -57,7 +54,7 @@ DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
 
-class Application:
+class Application(AutokeyApplication, AutokeyUIInterface):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
@@ -66,79 +63,30 @@ class Application:
     def __init__(self):
         GLib.threads_init()
         Gdk.threads_init()
-
         args = autokey.argument_parser.parse_args()
-        configure_root_logger(args)
-
-        checkOptionalPrograms()
-        missing_reqs = checkRequirements()
-        if len(missing_reqs)>0:
-            Gdk.threads_enter()
-            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
-            Gdk.threads_leave()
-            sys.exit("Missing required programs and/or python modules, exiting")
-
+        super().__init__(args, UI=self)
+        logger.info("Initialising GTK application")
         try:
-            create_storage_directories()
-
-            if self.__verifyNotRunning():
-                UI_common.create_lock_file()
-
-            self.initialise(args.show_config_window)
-
+            self.initialise()
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
             logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def __verifyNotRunning(self):
-        if UI_common.is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
-        return True
-
-    def initialise(self, configure):
-        logger.info("Initialising application")
-        self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.create_config_manager_instance(self)
-        self.service = service.Service(self)
-        self.serviceDisabled = False
-
-        # Initialise user code dir
-        if self.configManager.userCodeDir is not None:
-            sys.path.append(self.configManager.userCodeDir)
-
-        try:
-            self.service.start()
-        except Exception as e:
-            logger.exception("Error starting interface: " + str(e))
-            self.serviceDisabled = True
-            self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                     "Check your system/configuration."), str(e))
+    def initialise(self):
 
         self.notifier = get_notifier(self)
         self.configWindow = None
-        self.monitor.start()
 
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.dbusService = autokey.dbus_service.AppService(self)
-
-        if configure:
-            self.show_configure()
+        UI_common.show_config_window(self)
 
     def init_global_hotkeys(self, configManager):
-        logger.info("Initialise global hotkeys")
-        configManager.toggleServiceHotkey.set_closure(self.toggle_service)
+        super().init_global_hotkeys(configManager)
         configManager.configHotkey.set_closure(self.show_configure_async)
 
     def config_altered(self, persistGlobal):
-        self.configManager.config_altered(persistGlobal)
+        super().config_altered(persistGlobal)
         self.notifier.rebuild_menu()
-
-    def hotkey_created(self, item):
-        UI_common.hotkey_created(self.service, item)
-
-    def hotkey_removed(self, item):
-        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
         UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
@@ -150,33 +98,31 @@ class Application:
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
-        self.service.unpause()
+        super().pause_service()
         self.notifier.update_tool_tip()
 
     def pause_service(self):
         """
         Pause the expansion service (stop responding to keyboard and mouse events).
         """
-        self.service.pause()
+        super().pause_service()
         self.notifier.update_tool_tip()
 
     def toggle_service(self):
         """
-        Convenience method for toggling the expansion service on or off.
+        Convenience method for toggling the expansion service on or off. This is called by the global hotkey.
         """
-        if self.service.is_running():
-            self.pause_service()
-        else:
-            self.unpause_service()
+        super().toggle_service()
+        self.notifier.update_tool_tip()
 
     def shutdown(self):
         """
-        Shut down the entire application.
+        Shut down gtk application.
         """
+        logger.info("Shutting down")
         if self.configWindow is not None:
             if self.configWindow.promptToSave():
                 return
-
             self.configWindow.hide()
 
         self.notifier.hide_icon()
@@ -185,13 +131,10 @@ class Application:
         t.start()
 
     def __completeShutdown(self):
-        logger.info("Shutting down")
-        self.service.shutdown()
-        self.monitor.stop()
+        super().autokey_shutdown()
         Gdk.threads_enter()
         Gtk.main_quit()
         Gdk.threads_leave()
-        os.remove(common.LOCK_FILE)
         logger.debug("All shutdown tasks complete... quitting")
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
@@ -237,6 +180,10 @@ class Application:
         @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
             defaults to Gtk.MessageType.ERROR
         """
+        # TODO check if gtk threads entered.
+            # Gdk.threads_enter()
+            # display error
+            # Gdk.threads_leave()
         logger.debug("Displaying "+dialog_type.value_name+" Dialog")
         dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)

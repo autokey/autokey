@@ -17,7 +17,6 @@
 
 __all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
 
-from abc import abstractmethod
 import logging
 import typing
 import threading
@@ -31,6 +30,7 @@ import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.sys_interface.clipboard import Clipboard
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -47,14 +47,9 @@ from Xlib.error import ConnectionClosedError
 from . import common
 from autokey.model.button import Button
 
-if common.USING_QT:
-    from PyQt5.QtGui import QClipboard
-    from PyQt5.QtWidgets import QApplication
-else:
+if common.USED_UI_TYPE == "GTK":
     import gi
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, Gdk
-
     try:
         gi.require_version('Atspi', '2.0')
         import pyatspi
@@ -107,87 +102,6 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
 
 # This tuple is used to return requested window properties.
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
-
-
-class AbstractClipboard:
-    """
-    Abstract interface for clipboard interactions.
-    This is an abstraction layer for platform dependent clipboard handling.
-    It unifies clipboard handling for Qt and GTK.
-    """
-    @property
-    @abstractmethod
-    def text(self):
-        """Get and set the keyboard clipboard content."""
-        return
-
-    @property
-    @abstractmethod
-    def selection(self):
-        """Get and set the mouse selection clipboard content."""
-        return
-
-
-if common.USING_QT:
-    class Clipboard(AbstractClipboard):
-        def __init__(self):
-            self._clipboard = QApplication.clipboard()
-
-        @property
-        def text(self):
-            return self._clipboard.text(QClipboard.Clipboard)
-
-        @text.setter
-        def text(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Clipboard)
-
-        @property
-        def selection(self):
-            return self._clipboard.text(QClipboard.Selection)
-
-        @selection.setter
-        def selection(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Selection)
-
-else:
-    class Clipboard(AbstractClipboard):
-        def __init__(self):
-            self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
-            self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
-
-        @property
-        def text(self):
-            Gdk.threads_enter()
-            text = self._clipboard.wait_for_text()
-            Gdk.threads_leave()
-            return text
-
-        @text.setter
-        def text(self, new_content: str):
-            Gdk.threads_enter()
-            try:
-                # This call might fail and raise an Exception.
-                # If it does, make sure to release the mutex and not deadlock AutoKey.
-                self._clipboard.set_text(new_content, -1)
-            finally:
-                Gdk.threads_leave()
-
-        @property
-        def selection(self):
-            Gdk.threads_enter()
-            text = self._selection.wait_for_text()
-            Gdk.threads_leave()
-            return text
-
-        @selection.setter
-        def selection(self, new_content: str):
-            Gdk.threads_enter()
-            try:
-                # This call might fail and raise an Exception.
-                # If it does, make sure to release the mutex and not deadlock AutoKey.
-                self._selection.set_text(new_content, -1)
-            finally:
-                Gdk.threads_leave()
 
 
 class XInterfaceBase(threading.Thread):
@@ -338,7 +252,7 @@ class XInterfaceBase(threading.Thread):
                 logger.debug("No mapping for [%s]", char)
                 
     def __needsMutterWorkaround(self, item):
-        if Key.SUPER not in item.modifiers:
+        if not item.modifiers or Key.SUPER not in item.modifiers:
             return False
     
         try:
@@ -604,16 +518,20 @@ class XInterfaceBase(threading.Thread):
          causing a paste operation to happen.
         """
         logger.debug("Sending string via clipboard: " + string)
-        if common.USING_QT:
+        if common.USED_UI_TYPE == "QT":
             if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
             else:
                 self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
-        else:
+        elif common.USED_UI_TYPE == "GTK":
             if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self._send_string_selection, string)
             else:
                 self.__enqueue(self._send_string_clipboard, string, paste_command)
+        elif common.USED_UI_TYPE == "headless":
+            # TODO headless clipboard
+            # TODO abstract clipboard interface more
+            pass
         logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):

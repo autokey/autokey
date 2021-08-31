@@ -51,4 +51,5 @@ ICON_FILE_NOTIFICATION = "autokey-status"
 ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
-USING_QT = False
+# Set at the top of each entrypoint app
+USED_UI_TYPE = "headless"
