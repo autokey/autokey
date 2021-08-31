@@ -75,44 +75,26 @@ class AbstractClipboard:
 
 
 class Clipboard(AbstractClipboard):
-    if common.USED_UI_TYPE == "QT":
-        def __init__(self):
-            self._clipboard = QApplication.clipboard()
 
-        @property
-        def text(self):
-            return self._clipboard.text(QClipboard.Clipboard)
-
-        @text.setter
-        def text(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Clipboard)
-
-        @property
-        def selection(self):
-            return self._clipboard.text(QClipboard.Selection)
-
-        @selection.setter
-        def selection(self, new_content: str):
-            self._clipboard.setText(new_content, QClipboard.Selection)
-
-    elif common.USED_UI_TYPE == "GTK" or common.USED_UI_TYPE == "headless":
-        def __init__(self):
-            if common.USED_UI_TYPE == "GTK":
-                self.cb = GtkClipboard()
-            elif common.USED_UI_TYPE == "headless":
-                self.cb = TkClipboard()
+    def __init__(self):
+        if common.USED_UI_TYPE == "QT":
+            self.cb = QtClipboard()
+        elif common.USED_UI_TYPE == "GTK":
+            self.cb = GtkClipboard()
+        elif common.USED_UI_TYPE == "headless":
+            self.cb = TkClipboard()
 
 
-        @property
-        def text(self):
-            return self.cb.get_clipboard()
-        @text.setter
-        def text(self, new_content: str):
-            self.cb.fill_clipboard(new_content)
+    @property
+    def text(self):
+        return self.cb.get_clipboard()
+    @text.setter
+    def text(self, new_content: str):
+        self.cb.fill_clipboard(new_content)
 
-        @property
-        def selection(self):
-            return self.cb.get_selection()
-        @selection.setter
-        def selection(self, new_content: str):
-            self.cb.fill_selection(new_content)
+    @property
+    def selection(self):
+        return self.cb.get_selection()
+    @selection.setter
+    def selection(self, new_content: str):
+        self.cb.fill_selection(new_content)
