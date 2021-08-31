@@ -23,7 +23,13 @@ skip = pytest.mark.skip
 import hamcrest as hm
 
 import autokey
-import autokey.scripting.clipboard_tkinter as cb
+# Needs to be set before importing scripting
+autokey.common.USED_UI_TYPE = "headless"
+import autokey.scripting as api
+import autokey.scripting.clipboard_gtk
+import autokey.scripting.clipboard_qt
+import autokey.scripting.clipboard_tkinter
+import autokey.sys_interface.clipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -40,7 +46,7 @@ def  test_tkinter_selection_clipboard():
     # Add current time to ensure fresh test string
     now = datetime.now()
     test_string = "this is the new clipboard contents {}".format(now)
-    b = cb.TkClipboard()
+    b = api.clipboard_tkinter.TkClipboard()
     b.fill_selection(test_string)
     hm.assert_that(
         b.get_selection(),
@@ -55,10 +61,61 @@ def  test_tkinter_clipboard():
     # Add current time to ensure fresh test string
     now = datetime.now()
     test_string = "this is the new clipboard contents {}".format(now)
-    b = cb.TkClipboard()
+    b = api.clipboard_tkinter.TkClipboard()
     b.fill_clipboard(test_string)
     hm.assert_that(
         b.get_clipboard(),
         hm.equal_to(test_string),
         "Clipboard is not the same as what it was filled with!"
     )
+
+
+def  test_tkinter_clipboard_from_interface():
+    # Note: this test does not test that the *system* clipboard is actually
+    # filled, it just tests that the tk object clipboard is.
+
+    # Add current time to ensure fresh test string
+    now = datetime.now()
+    test_string = "this is the new clipboard contents {}".format(now)
+    b = autokey.sys_interface.clipboard.Clipboard()
+    # Need to overwrite to ensure it hasn't picked up a qtclipboard somewhere.
+    b.cb = autokey.scripting.clipboard_tkinter.TkClipboard()
+    # uses a setter that sets the clipboard rather than an internal variable
+    b.text = test_string
+    hm.assert_that(
+        b.text,
+        hm.equal_to(test_string),
+        "Clipboard is not the same as what it was filled with!"
+    )
+
+
+def  test_gtk_clipboard():
+    # Without a gtkapp, this clipboard does not work.
+    # This test is purely to test the code path has no syntax errors.
+    now = datetime.now()
+    test_string = "this is the new clipboard contents {}".format(now)
+    b = api.clipboard_gtk.GtkClipboard()
+    # uses a setter that sets the clipboard rather than an internal variable
+    b.text = test_string
+    print(b.text)
+    # hm.assert_that(
+    #     b.text,
+    #     hm.equal_to(test_string),
+    #     "Clipboard is not the same as what it was filled with!"
+    # )
+
+
+def  test_qt_clipboard():
+    # Without a gtkapp, this clipboard does not work.
+    # This test is purely to test the code path has no syntax errors.
+    now = datetime.now()
+    test_string = "this is the new clipboard contents {}".format(now)
+    b = api.clipboard_qt.QtClipboard()
+    # uses a setter that sets the clipboard rather than an internal variable
+    b.text = test_string
+    print(b.text)
+    # hm.assert_that(
+    #     b.text,
+    #     hm.equal_to(test_string),
+    #     "Clipboard is not the same as what it was filled with!"
+    # )
