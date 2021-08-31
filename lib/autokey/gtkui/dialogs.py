@@ -430,23 +430,50 @@ class HotkeySettingsDialog(DialogBase):
         self.closure = closure
         self.key = None
 
-        self.controlButton = builder.get_object("controlButton")
-        self.altButton = builder.get_object("altButton")
+        self.rcontrolButton = builder.get_object("rcontrolButton")
+        self.raltButton = builder.get_object("raltButton")
+        self.rshiftButton = builder.get_object("rshiftButton")
+        self.rsuperButton = builder.get_object("rsuperButton")
+        self.rhyperButton = builder.get_object("rhyperButton")
+        self.rmetaButton = builder.get_object("rmetaButton")
+
+        self.lcontrolButton = builder.get_object("lcontrolButton")
+        self.laltButton = builder.get_object("laltButton")
+        self.lshiftButton = builder.get_object("lshiftButton")
+        self.lsuperButton = builder.get_object("lsuperButton")
+        self.lhyperButton = builder.get_object("lhyperButton")
+        self.lmetaButton = builder.get_object("lmetaButton")
+
         self.altgrButton = builder.get_object("altgrButton")
-        self.shiftButton = builder.get_object("shiftButton")
-        self.superButton = builder.get_object("superButton")
-        self.hyperButton = builder.get_object("hyperButton")
-        self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
         self.MODIFIER_BUTTONS = {
-            self.controlButton: Key.CONTROL,
-            self.altButton: Key.ALT,
+            # self.controlButton: Key.CONTROL,
+            self.lcontrolButton: Key.CONTROL_L,
+            self.rcontrolButton: Key.CONTROL_R,
+
+            # self.altButton: Key.ALT,
+            self.laltButton: Key.ALT_L,
+            self.raltButton: Key.ALT_R,
+
             self.altgrButton: Key.ALT_GR,
-            self.shiftButton: Key.SHIFT,
-            self.superButton: Key.SUPER,
-            self.hyperButton: Key.HYPER,
-            self.metaButton: Key.META,
+
+            # self.shiftButton: Key.SHIFT,
+            self.lshiftButton: Key.SHIFT_L,
+            self.rshiftButton: Key.SHIFT_R,
+
+            # self.superButton: Key.SUPER,
+            self.lsuperButton: Key.SUPER_L,
+            self.rsuperButton: Key.SUPER_R,
+
+            # self.hyperButton: Key.HYPER,
+            self.lhyperButton: Key.HYPER_L,
+            self.rhyperButton: Key.HYPER_R,
+
+            # self.metaButton: Key.META,
+            self.lmetaButton: Key.META_L,
+            self.rmetaButton: Key.META_R,
+
         }
 
         DialogBase.__init__(self)

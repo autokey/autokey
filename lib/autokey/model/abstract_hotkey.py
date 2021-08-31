@@ -42,8 +42,9 @@ class AbstractHotkey(AbstractWindowFilter):
         self.hotKey = theHotkey.hotKey
 
     def set_hotkey(self, modifiers, key):
-        modifiers.sort()
-        self.modifiers = modifiers
+        if modifiers:
+            modifiers.sort()
+            self.modifiers = modifiers
         self.hotKey = key
         if key is not None and TriggerMode.HOTKEY not in self.modes:
             self.modes.append(TriggerMode.HOTKEY)

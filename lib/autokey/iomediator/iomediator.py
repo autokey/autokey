@@ -53,12 +53,24 @@ class IoMediator(threading.Thread):
         # Modifier tracking
         self.modifiers = {
             Key.CONTROL: False,
+            Key.CONTROL_L: False,
+            Key.CONTROL_R: False,
             Key.ALT: False,
+            Key.ALT_L: False,
+            Key.ALT_R: False,
             Key.ALT_GR: False,
             Key.SHIFT: False,
+            Key.SHIFT_L: False,
+            Key.SHIFT_R: False,
             Key.SUPER: False,
+            Key.SUPER_L: False,
+            Key.SUPER_R: False,
             Key.HYPER: False,
+            Key.HYPER_L: False,
+            Key.HYPER_R: False,
             Key.META: False,
+            Key.META_L: False,
+            Key.META_R: False,
             Key.CAPSLOCK: False,
             Key.NUMLOCK: False
         }

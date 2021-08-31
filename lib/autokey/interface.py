@@ -284,18 +284,19 @@ class XInterfaceBase(threading.Thread):
         mapping = self.localDisplay.get_modifier_mapping()
 
         for keySym, ak in XK_TO_AK_MAP.items():
-            if ak in MODIFIERS:
-                keyCodeList = self.localDisplay.keysym_to_keycodes(keySym)
-                found = False
+            for k in ak:
+                if k in MODIFIERS:
+                    keyCodeList = self.localDisplay.keysym_to_keycodes(keySym)
+                    found = False
 
-                for keyCode, lvl in keyCodeList:
-                    for index, mask in MASK_INDEXES:
-                        if keyCode in mapping[index]:
-                            self.modMasks[ak] = mask
-                            found = True
-                            break
+                    for keyCode, lvl in keyCodeList:
+                        for index, mask in MASK_INDEXES:
+                            if keyCode in mapping[index]:
+                                self.modMasks[k] = mask
+                                found = True
+                                break
 
-                    if found: break
+                        if found: break
 
         logger.debug("Modifier masks: %r", self.modMasks)
 
@@ -464,7 +465,9 @@ class XInterfaceBase(threading.Thread):
         logger.debug("Grabbing hotkey: %r %r", modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
+
             mask = 0
+
             for mod in modifiers:
                 mask |= self.modMasks[mod]
 
@@ -585,7 +588,11 @@ class XInterfaceBase(threading.Thread):
             return XK_TO_AK_NUMLOCKED[keySym]
 
         elif keySym in XK_TO_AK_MAP:
-            return XK_TO_AK_MAP[keySym]
+            print(keySym, keyCode, mod_map[keyCode])
+            # if keySym in MODIFIERS:
+            #     return mod_map[keySym]
+            print(XK_TO_AK_MAP[keySym][-1])
+            return XK_TO_AK_MAP[keySym][-1]
         else:
             index = 0
             if shifted: index += 1
@@ -1124,7 +1131,7 @@ class XInterfaceBase(threading.Thread):
 
     def __lookupKeyCode(self, char: str) -> int:
         if char in AK_TO_XK_MAP:
-            return self.localDisplay.keysym_to_keycode(AK_TO_XK_MAP[char])
+            return self.localDisplay.keysym_to_keycode(AK_TO_XK_MAP[char][0])
         elif char.startswith("<code"):
             return int(char[5:-1])
         else:
@@ -1336,96 +1343,214 @@ import autokey.configmanager.configmanager as cm
 
 XK.load_keysym_group('xkb')
 
-XK_TO_AK_MAP = {
-           XK.XK_Shift_L: Key.SHIFT,
-           XK.XK_Shift_R: Key.SHIFT,
-           XK.XK_Caps_Lock: Key.CAPSLOCK,
-           XK.XK_Control_L: Key.CONTROL,
-           XK.XK_Control_R: Key.CONTROL,
-           XK.XK_Alt_L: Key.ALT,
-           XK.XK_Alt_R: Key.ALT,
-           XK.XK_ISO_Level3_Shift: Key.ALT_GR,
-           XK.XK_Super_L: Key.SUPER,
-           XK.XK_Super_R: Key.SUPER,
-           XK.XK_Hyper_L: Key.HYPER,
-           XK.XK_Hyper_R: Key.HYPER,
-           XK.XK_Meta_L: Key.META,
-           XK.XK_Meta_R: Key.META,
-           XK.XK_Num_Lock: Key.NUMLOCK,
-           #SPACE: Key.SPACE,
-           XK.XK_Tab: Key.TAB,
-           XK.XK_Left: Key.LEFT,
-           XK.XK_Right: Key.RIGHT,
-           XK.XK_Up: Key.UP,
-           XK.XK_Down: Key.DOWN,
-           XK.XK_Return: Key.ENTER,
-           XK.XK_BackSpace: Key.BACKSPACE,
-           XK.XK_Scroll_Lock: Key.SCROLL_LOCK,
-           XK.XK_Print: Key.PRINT_SCREEN,
-           XK.XK_Pause: Key.PAUSE,
-           XK.XK_Menu: Key.MENU,
-           XK.XK_F1: Key.F1,
-           XK.XK_F2: Key.F2,
-           XK.XK_F3: Key.F3,
-           XK.XK_F4: Key.F4,
-           XK.XK_F5: Key.F5,
-           XK.XK_F6: Key.F6,
-           XK.XK_F7: Key.F7,
-           XK.XK_F8: Key.F8,
-           XK.XK_F9: Key.F9,
-           XK.XK_F10: Key.F10,
-           XK.XK_F11: Key.F11,
-           XK.XK_F12: Key.F12,
-           XK.XK_F13: Key.F13,
-           XK.XK_F14: Key.F14,
-           XK.XK_F15: Key.F15,
-           XK.XK_F16: Key.F16,
-           XK.XK_F17: Key.F17,
-           XK.XK_F18: Key.F18,
-           XK.XK_F19: Key.F19,
-           XK.XK_F20: Key.F20,
-           XK.XK_F21: Key.F21,
-           XK.XK_F22: Key.F22,
-           XK.XK_F23: Key.F23,
-           XK.XK_F24: Key.F24,
-           XK.XK_F25: Key.F25,
-           XK.XK_F26: Key.F26,
-           XK.XK_F27: Key.F27,
-           XK.XK_F28: Key.F28,
-           XK.XK_F29: Key.F29,
-           XK.XK_F30: Key.F30,
-           XK.XK_F31: Key.F31,
-           XK.XK_F32: Key.F32,
-           XK.XK_F33: Key.F33,
-           XK.XK_F34: Key.F34,
-           XK.XK_F35: Key.F35,
-           XK.XK_Escape: Key.ESCAPE,
-           XK.XK_Insert: Key.INSERT,
-           XK.XK_Delete: Key.DELETE,
-           XK.XK_Home: Key.HOME,
-           XK.XK_End: Key.END,
-           XK.XK_Page_Up: Key.PAGE_UP,
-           XK.XK_Page_Down: Key.PAGE_DOWN,
-           XK.XK_KP_Insert: Key.NP_INSERT,
-           XK.XK_KP_Delete: Key.NP_DELETE,
-           XK.XK_KP_End: Key.NP_END,
-           XK.XK_KP_Down: Key.NP_DOWN,
-           XK.XK_KP_Page_Down: Key.NP_PAGE_DOWN,
-           XK.XK_KP_Left: Key.NP_LEFT,
-           XK.XK_KP_Begin: Key.NP_5,
-           XK.XK_KP_Right: Key.NP_RIGHT,
-           XK.XK_KP_Home: Key.NP_HOME,
-           XK.XK_KP_Up: Key.NP_UP,
-           XK.XK_KP_Page_Up: Key.NP_PAGE_UP,
-           XK.XK_KP_Divide: Key.NP_DIVIDE,
-           XK.XK_KP_Multiply: Key.NP_MULTIPLY,
-           XK.XK_KP_Add: Key.NP_ADD,
-           XK.XK_KP_Subtract: Key.NP_SUBTRACT,
-           XK.XK_KP_Enter: Key.ENTER,
-           XK.XK_space: ' '
-           }
+class XK_dict(dict):
+    def __setitem__(self, key, value):
+        try:
+            self[key]
+        except KeyError:
+            super(XK_dict, self).__setitem__(key, [])
+        self[key].append(value)
 
-AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.items())
+XK_TO_AK_MAP = XK_dict()
+# XK_TO_AK_MAP[XK.XK_Shift_L] = Key.SHIFT
+
+# {
+XK_TO_AK_MAP[XK.XK_Shift_L] = Key.SHIFT
+XK_TO_AK_MAP[XK.XK_Shift_R] = Key.SHIFT
+XK_TO_AK_MAP[XK.XK_Shift_L] = Key.SHIFT_L
+XK_TO_AK_MAP[XK.XK_Shift_R] = Key.SHIFT_R
+XK_TO_AK_MAP[XK.XK_Caps_Lock] = Key.CAPSLOCK
+XK_TO_AK_MAP[XK.XK_Control_L] = Key.CONTROL
+XK_TO_AK_MAP[XK.XK_Control_R] = Key.CONTROL
+XK_TO_AK_MAP[XK.XK_Control_L] = Key.CONTROL_L
+XK_TO_AK_MAP[XK.XK_Control_R] = Key.CONTROL_R
+XK_TO_AK_MAP[XK.XK_Alt_L] = Key.ALT
+XK_TO_AK_MAP[XK.XK_Alt_R] = Key.ALT
+XK_TO_AK_MAP[XK.XK_Alt_L] = Key.ALT_L
+XK_TO_AK_MAP[XK.XK_Alt_R] = Key.ALT_R
+XK_TO_AK_MAP[XK.XK_ISO_Level3_Shift] = Key.ALT_GR
+XK_TO_AK_MAP[XK.XK_Super_L] = Key.SUPER
+XK_TO_AK_MAP[XK.XK_Super_R] = Key.SUPER
+XK_TO_AK_MAP[XK.XK_Super_L] = Key.SUPER_L
+XK_TO_AK_MAP[XK.XK_Super_R] = Key.SUPER_R
+XK_TO_AK_MAP[XK.XK_Hyper_L] = Key.HYPER
+XK_TO_AK_MAP[XK.XK_Hyper_R] = Key.HYPER
+XK_TO_AK_MAP[XK.XK_Hyper_L] = Key.HYPER_L
+XK_TO_AK_MAP[XK.XK_Hyper_R] = Key.HYPER_R
+XK_TO_AK_MAP[XK.XK_Meta_L] = Key.META
+XK_TO_AK_MAP[XK.XK_Meta_R] = Key.META
+XK_TO_AK_MAP[XK.XK_Meta_L] = Key.META_L
+XK_TO_AK_MAP[XK.XK_Meta_R] = Key.META_R
+XK_TO_AK_MAP[XK.XK_Num_Lock] = Key.NUMLOCK
+# XK_TO_AK_MAP[#SPACE:] =Key.
+XK_TO_AK_MAP[XK.XK_Tab] = Key.TAB
+XK_TO_AK_MAP[XK.XK_Left] = Key.LEFT
+XK_TO_AK_MAP[XK.XK_Right] = Key.RIGHT
+XK_TO_AK_MAP[XK.XK_Up] = Key.UP
+XK_TO_AK_MAP[XK.XK_Down] = Key.DOWN
+XK_TO_AK_MAP[XK.XK_Return] = Key.ENTER
+XK_TO_AK_MAP[XK.XK_BackSpace] = Key.BACKSPACE
+XK_TO_AK_MAP[XK.XK_Scroll_Lock] = Key.SCROLL_LOCK
+XK_TO_AK_MAP[XK.XK_Print] = Key.PRINT_SCREEN
+XK_TO_AK_MAP[XK.XK_Pause] = Key.PAUSE
+XK_TO_AK_MAP[XK.XK_Menu] = Key.MENU
+XK_TO_AK_MAP[XK.XK_F1] = Key.F1
+XK_TO_AK_MAP[XK.XK_F2] = Key.F2
+XK_TO_AK_MAP[XK.XK_F3] = Key.F3
+XK_TO_AK_MAP[XK.XK_F4] = Key.F4
+XK_TO_AK_MAP[XK.XK_F5] = Key.F5
+XK_TO_AK_MAP[XK.XK_F6] = Key.F6
+XK_TO_AK_MAP[XK.XK_F7] = Key.F7
+XK_TO_AK_MAP[XK.XK_F8] = Key.F8
+XK_TO_AK_MAP[XK.XK_F9] = Key.F9
+XK_TO_AK_MAP[XK.XK_F10] = Key.F10
+XK_TO_AK_MAP[XK.XK_F11] = Key.F11
+XK_TO_AK_MAP[XK.XK_F12] = Key.F12
+XK_TO_AK_MAP[XK.XK_F13] = Key.F13
+XK_TO_AK_MAP[XK.XK_F14] = Key.F14
+XK_TO_AK_MAP[XK.XK_F15] = Key.F15
+XK_TO_AK_MAP[XK.XK_F16] = Key.F16
+XK_TO_AK_MAP[XK.XK_F17] = Key.F17
+XK_TO_AK_MAP[XK.XK_F18] = Key.F18
+XK_TO_AK_MAP[XK.XK_F19] = Key.F19
+XK_TO_AK_MAP[XK.XK_F20] = Key.F20
+XK_TO_AK_MAP[XK.XK_F21] = Key.F21
+XK_TO_AK_MAP[XK.XK_F22] = Key.F22
+XK_TO_AK_MAP[XK.XK_F23] = Key.F23
+XK_TO_AK_MAP[XK.XK_F24] = Key.F24
+XK_TO_AK_MAP[XK.XK_F25] = Key.F25
+XK_TO_AK_MAP[XK.XK_F26] = Key.F26
+XK_TO_AK_MAP[XK.XK_F27] = Key.F27
+XK_TO_AK_MAP[XK.XK_F28] = Key.F28
+XK_TO_AK_MAP[XK.XK_F29] = Key.F29
+XK_TO_AK_MAP[XK.XK_F30] = Key.F30
+XK_TO_AK_MAP[XK.XK_F31] = Key.F31
+XK_TO_AK_MAP[XK.XK_F32] = Key.F32
+XK_TO_AK_MAP[XK.XK_F33] = Key.F33
+XK_TO_AK_MAP[XK.XK_F34] = Key.F34
+XK_TO_AK_MAP[XK.XK_F35] = Key.F35
+XK_TO_AK_MAP[XK.XK_Escape] = Key.ESCAPE
+XK_TO_AK_MAP[XK.XK_Insert] = Key.INSERT
+XK_TO_AK_MAP[XK.XK_Delete] = Key.DELETE
+XK_TO_AK_MAP[XK.XK_Home] = Key.HOME
+XK_TO_AK_MAP[XK.XK_End] = Key.END
+XK_TO_AK_MAP[XK.XK_Page_Up] = Key.PAGE_UP
+XK_TO_AK_MAP[XK.XK_Page_Down] = Key.PAGE_DOWN
+XK_TO_AK_MAP[XK.XK_KP_Insert] = Key.NP_INSERT
+XK_TO_AK_MAP[XK.XK_KP_Delete] = Key.NP_DELETE
+XK_TO_AK_MAP[XK.XK_KP_End] = Key.NP_END
+XK_TO_AK_MAP[XK.XK_KP_Down] = Key.NP_DOWN
+XK_TO_AK_MAP[XK.XK_KP_Page_Down] = Key.NP_PAGE_DOWN
+XK_TO_AK_MAP[XK.XK_KP_Left] = Key.NP_LEFT
+XK_TO_AK_MAP[XK.XK_KP_Begin] = Key.NP_5
+XK_TO_AK_MAP[XK.XK_KP_Right] = Key.NP_RIGHT
+XK_TO_AK_MAP[XK.XK_KP_Home] = Key.NP_HOME
+XK_TO_AK_MAP[XK.XK_KP_Up] = Key.NP_UP
+XK_TO_AK_MAP[XK.XK_KP_Page_Up] = Key.NP_PAGE_UP
+XK_TO_AK_MAP[XK.XK_KP_Divide] = Key.NP_DIVIDE
+XK_TO_AK_MAP[XK.XK_KP_Multiply] = Key.NP_MULTIPLY
+XK_TO_AK_MAP[XK.XK_KP_Add] = Key.NP_ADD
+XK_TO_AK_MAP[XK.XK_KP_Subtract] = Key.NP_SUBTRACT
+XK_TO_AK_MAP[XK.XK_KP_Enter] = Key.ENTER
+XK_TO_AK_MAP[XK.XK_space] = ' '
+
+# XK_TO_AK_MAP = {
+#            XK.XK_Shift_L: Key.SHIFT,
+#            XK.XK_Shift_R: Key.SHIFT,
+#            XK.XK_Caps_Lock: Key.CAPSLOCK,
+#            XK.XK_Control_L: Key.CONTROL,
+#            XK.XK_Control_R: Key.CONTROL,
+#            XK.XK_Alt_L: Key.ALT,
+#            XK.XK_Alt_R: Key.ALT,
+#            XK.XK_ISO_Level3_Shift: Key.ALT_GR,
+#            XK.XK_Super_L: Key.SUPER,
+#            XK.XK_Super_R: Key.SUPER,
+#            XK.XK_Hyper_L: Key.HYPER,
+#            XK.XK_Hyper_R: Key.HYPER,
+#            XK.XK_Meta_L: Key.META,
+#            XK.XK_Meta_R: Key.META,
+#            XK.XK_Num_Lock: Key.NUMLOCK,
+#            #SPACE: Key.SPACE,
+#            XK.XK_Tab: Key.TAB,
+#            XK.XK_Left: Key.LEFT,
+#            XK.XK_Right: Key.RIGHT,
+#            XK.XK_Up: Key.UP,
+#            XK.XK_Down: Key.DOWN,
+#            XK.XK_Return: Key.ENTER,
+#            XK.XK_BackSpace: Key.BACKSPACE,
+#            XK.XK_Scroll_Lock: Key.SCROLL_LOCK,
+#            XK.XK_Print: Key.PRINT_SCREEN,
+#            XK.XK_Pause: Key.PAUSE,
+#            XK.XK_Menu: Key.MENU,
+#            XK.XK_F1: Key.F1,
+#            XK.XK_F2: Key.F2,
+#            XK.XK_F3: Key.F3,
+#            XK.XK_F4: Key.F4,
+#            XK.XK_F5: Key.F5,
+#            XK.XK_F6: Key.F6,
+#            XK.XK_F7: Key.F7,
+#            XK.XK_F8: Key.F8,
+#            XK.XK_F9: Key.F9,
+#            XK.XK_F10: Key.F10,
+#            XK.XK_F11: Key.F11,
+#            XK.XK_F12: Key.F12,
+#            XK.XK_F13: Key.F13,
+#            XK.XK_F14: Key.F14,
+#            XK.XK_F15: Key.F15,
+#            XK.XK_F16: Key.F16,
+#            XK.XK_F17: Key.F17,
+#            XK.XK_F18: Key.F18,
+#            XK.XK_F19: Key.F19,
+#            XK.XK_F20: Key.F20,
+#            XK.XK_F21: Key.F21,
+#            XK.XK_F22: Key.F22,
+#            XK.XK_F23: Key.F23,
+#            XK.XK_F24: Key.F24,
+#            XK.XK_F25: Key.F25,
+#            XK.XK_F26: Key.F26,
+#            XK.XK_F27: Key.F27,
+#            XK.XK_F28: Key.F28,
+#            XK.XK_F29: Key.F29,
+#            XK.XK_F30: Key.F30,
+#            XK.XK_F31: Key.F31,
+#            XK.XK_F32: Key.F32,
+#            XK.XK_F33: Key.F33,
+#            XK.XK_F34: Key.F34,
+#            XK.XK_F35: Key.F35,
+#            XK.XK_Escape: Key.ESCAPE,
+#            XK.XK_Insert: Key.INSERT,
+#            XK.XK_Delete: Key.DELETE,
+#            XK.XK_Home: Key.HOME,
+#            XK.XK_End: Key.END,
+#            XK.XK_Page_Up: Key.PAGE_UP,
+#            XK.XK_Page_Down: Key.PAGE_DOWN,
+#            XK.XK_KP_Insert: Key.NP_INSERT,
+#            XK.XK_KP_Delete: Key.NP_DELETE,
+#            XK.XK_KP_End: Key.NP_END,
+#            XK.XK_KP_Down: Key.NP_DOWN,
+#            XK.XK_KP_Page_Down: Key.NP_PAGE_DOWN,
+#            XK.XK_KP_Left: Key.NP_LEFT,
+#            XK.XK_KP_Begin: Key.NP_5,
+#            XK.XK_KP_Right: Key.NP_RIGHT,
+#            XK.XK_KP_Home: Key.NP_HOME,
+#            XK.XK_KP_Up: Key.NP_UP,
+#            XK.XK_KP_Page_Up: Key.NP_PAGE_UP,
+#            XK.XK_KP_Divide: Key.NP_DIVIDE,
+#            XK.XK_KP_Multiply: Key.NP_MULTIPLY,
+#            XK.XK_KP_Add: Key.NP_ADD,
+#            XK.XK_KP_Subtract: Key.NP_SUBTRACT,
+#            XK.XK_KP_Enter: Key.ENTER,
+#            XK.XK_space: ' '
+# }
+
+print(XK_TO_AK_MAP)
+map_generator = ((v,k) for k, v in XK_TO_AK_MAP.items())
+print(map_generator)
+AK_TO_XK_MAP = XK_dict()
+for item in map_generator:
+    for key in item[0]:
+       AK_TO_XK_MAP[key] = item[1]
+print(AK_TO_XK_MAP)
 
 XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Insert: "0",
@@ -1445,3 +1570,16 @@ XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Subtract: "-",
            XK.XK_KP_Enter: Key.ENTER
            }
+
+
+mod_map = {
+    37: XK.XK_Control_L,
+    105: XK.XK_Control_R,
+    133: XK.XK_Super_L,
+    144: XK.XK_Super_R,
+    64: XK.XK_Alt_L,
+    108: XK.XK_Alt_R,
+    50: XK.XK_Shift_L,
+    62: XK.XK_Shift_R
+
+}

@@ -23,14 +23,26 @@ class Key(str, enum.Enum):
     
     # Modifier keys
     CONTROL = "<ctrl>"
+    CONTROL_L = "<lctrl>"
+    CONTROL_R = "<rctrl>"
     ALT = "<alt>"
+    ALT_L = "<lalt>"
+    ALT_R = "<ralt>"
     ALT_GR = "<alt_gr>"
     SHIFT = "<shift>"
+    SHIFT_L = "<lshift>"
+    SHIFT_R = "<rshift>"
     SUPER = "<super>"
+    SUPER_L = "<lsuper>"
+    SUPER_R = "<rsuper>"
     HYPER = "<hyper>"
+    HYPER_L = "<lhyper>"
+    HYPER_R = "<rhyper>"
     CAPSLOCK = "<capslock>"
     NUMLOCK = "<numlock>"
     META = "<meta>"
+    META_L = "<lmeta>"
+    META_R = "<rmeta>"
     
     F1 = "<f1>"
     F2 = "<f2>"
@@ -114,12 +126,59 @@ NAVIGATION_KEYS = [Key.LEFT, Key.RIGHT, Key.UP, Key.DOWN, Key.BACKSPACE, Key.HOM
 # All known modifier keys. This is used to determine if a key is a modifier. Used by the Configuration manager
 # to verify that only modifier keys are placed in the disabled modifiers list.
 _ALL_MODIFIERS_ = (
-    Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.CAPSLOCK, Key.NUMLOCK, Key.META
+    Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.CAPSLOCK, Key.NUMLOCK, Key.META,
+    Key.CONTROL_L, Key.CONTROL_R,
+    Key.ALT_L, Key.ALT_R,
+    Key.SHIFT_L, Key.SHIFT_R,
+    Key.SUPER_L, Key.SUPER_R,
+    Key.HYPER_L, Key.HYPER_R,
+    Key.META_L, Key.META_R
 )
 
 # Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
-MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
-HELD_MODIFIERS = [Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META
+MODIFIERS = [
+    Key.CONTROL,
+    Key.CONTROL_L,
+    Key.CONTROL_R,
+    Key.ALT,
+    Key.ALT_L,
+    Key.ALT_R,
+    Key.ALT_GR,
+    Key.SHIFT,
+    Key.SHIFT_L,
+    Key.SHIFT_R,
+    Key.SUPER,
+    Key.SUPER_L,
+    Key.SUPER_R,
+    Key.HYPER,
+    Key.HYPER_L,
+    Key.HYPER_R,
+    Key.META,
+    Key.META_L,
+    Key.META_R,
+    Key.CAPSLOCK,
+    Key.NUMLOCK,
+]
+HELD_MODIFIERS = [
+    Key.CONTROL,
+    Key.CONTROL_L,
+    Key.CONTROL_R,
+    Key.ALT,
+    Key.ALT_L,
+    Key.ALT_R,
+    Key.ALT_GR,
+    Key.SUPER,
+    Key.SUPER_L,
+    Key.SUPER_R,
+    Key.SHIFT,
+    Key.SHIFT_L,
+    Key.SHIFT_R,
+    Key.HYPER,
+    Key.HYPER_L,
+    Key.HYPER_R,
+    Key.META,
+    Key.META_L,
+    Key.META_R,
 ]
