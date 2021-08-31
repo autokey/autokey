@@ -47,13 +47,9 @@ from Xlib.error import ConnectionClosedError
 from . import common
 from autokey.model.button import Button
 
-if common.USED_UI_TYPE == "QT":
-    from PyQt5.QtWidgets import QApplication
-elif common.USED_UI_TYPE == "GTK":
+if common.USED_UI_TYPE == "GTK":
     import gi
     gi.require_version('Gtk', '3.0')
-    from gi.repository import Gtk, Gdk
-
     try:
         gi.require_version('Atspi', '2.0')
         import pyatspi
@@ -64,8 +60,6 @@ elif common.USED_UI_TYPE == "GTK":
         HAS_ATSPI = False
     except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
         HAS_ATSPI = False
-elif common.USED_UI_TYPE == "headless":
-    pass
 
 from Xlib import X, XK, display, error
 try:
