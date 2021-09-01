@@ -506,20 +506,15 @@ class XInterfaceBase(threading.Thread):
          causing a paste operation to happen.
         """
         logger.debug("Sending string via clipboard: " + string)
+        callback_args = []
+        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
+            callback_args = [self._send_string_selection, string]
+        else:
+            callback_args = [self._send_string_clipboard, string, paste_command]
         if common.USED_UI_TYPE == "QT":
-            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
-                self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
-            else:
-                self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
-        elif common.USED_UI_TYPE == "GTK":
-            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
-                self.__enqueue(self._send_string_selection, string)
-            else:
-                self.__enqueue(self._send_string_clipboard, string, paste_command)
-        elif common.USED_UI_TYPE == "headless":
-            # TODO headless clipboard
-            # TODO abstract clipboard interface more
-            pass
+            self.__enqueue(self.app.exec_in_main, *callback_args)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self.__enqueue(*callback_args)
         logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
