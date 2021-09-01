@@ -104,12 +104,9 @@ __ https://github.com/autokey/autokey/blob/master/CONTRIBUTORS.rst
 Running the unit tests
 ======================
 
-The unit test suite has two additional requirements:
+See `CONTRIBUTORS.rst`_ for instructions.
 
-* Pytest (https://github.com/pytest-dev/pytest, https://pypi.org/project/pytest/)
-* PyHamcrest (https://github.com/hamcrest/PyHamcrest/, https://pypi.org/project/PyHamcrest/)
-
-Running the test suite is integrated into :code:`setup.py`. The tests can be run by executing :code:`python3 setup.py test` from the repository root directory.
+_ https://github.com/autokey/autokey/blob/master/CONTRIBUTORS.rst
 
 Changelog
 =========
