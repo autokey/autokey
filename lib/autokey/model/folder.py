@@ -23,7 +23,8 @@ import typing
 from autokey.configmanager import configmanager_constants as cm_constants
 from autokey.model.phrase import Phrase
 from autokey.model.script import Script
-from autokey.model.helpers import get_safe_path, TriggerMode
+from autokey.model.helpers import get_safe_path
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey

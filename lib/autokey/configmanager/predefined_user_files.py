@@ -26,7 +26,7 @@ import pathlib
 from autokey.model.folder import Folder
 from autokey.model.script import Script
 from autokey.model.phrase import Phrase
-from autokey.model.helpers import TriggerMode
+from autokey.model.triggermode import TriggerMode
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 # A Hotkey is defined by a list of modifier keys and a printable key.

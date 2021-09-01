@@ -27,6 +27,7 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
+from autokey.model.triggermode import TriggerMode
 
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
@@ -141,7 +142,7 @@ class SettingsWidget:
         self.currentItem = item
 
         self.abbrDialog.load(self.currentItem)
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if TriggerMode.ABBREVIATION in item.modes:
             self.abbrLabel.set_text(item.get_abbreviations())
             self.clearAbbrButton.set_sensitive(True)
             self.abbrEnabled = True
@@ -151,7 +152,7 @@ class SettingsWidget:
             self.abbrEnabled = False
 
         self.hotkeyDialog.load(self.currentItem)
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+        if TriggerMode.HOTKEY in item.modes:
             self.hotkeyLabel.set_text(item.get_hotkey_string())
             self.clearHotkeyButton.set_sensitive(True)
             self.hotkeyEnabled = True
@@ -175,7 +176,7 @@ class SettingsWidget:
 
     def save(self):
         # Perform hotkey ungrab
-        if autokey.model.helpers.TriggerMode.HOTKEY in self.currentItem.modes:
+        if TriggerMode.HOTKEY in self.currentItem.modes:
             self.parentWindow.app.hotkey_removed(self.currentItem)
 
         self.currentItem.set_modes([])

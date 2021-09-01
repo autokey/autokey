@@ -16,7 +16,7 @@
 
 import typing
 
-from autokey.model.helpers import TriggerMode
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.key import Key
 

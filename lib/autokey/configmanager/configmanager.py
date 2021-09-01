@@ -28,7 +28,7 @@ import itertools
 
 import autokey.model.abstract_hotkey
 import autokey.model.folder
-import autokey.model.helpers
+from autokey.model.triggermode import TriggerMode
 import autokey.model.phrase
 import autokey.model.script
 from autokey.model import key
@@ -644,7 +644,7 @@ class ConfigManager:
             self.__sort_item(item)
 
     def __sort_and_watch_folder(self, folder):
-        if autokey.model.helpers.TriggerMode.HOTKEY in folder.modes:
+        if TriggerMode.HOTKEY in folder.modes:
             self.hotKeyFolders.append(folder)
 
         self.allFolders.append(folder)
@@ -653,9 +653,9 @@ class ConfigManager:
             self.app.monitor.add_watch(folder.path)
 
     def __sort_item(self, item):
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+        if TriggerMode.HOTKEY in item.modes:
             self.hotKeys.append(item)
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if TriggerMode.ABBREVIATION in item.modes:
             self.abbreviations.append(item)
         self.allItems.append(item)
 
@@ -664,7 +664,7 @@ class ConfigManager:
         if RECENT_ENTRIES_FOLDER not in self.folders:
             folder = autokey.model.folder.Folder(RECENT_ENTRIES_FOLDER)
             folder.set_hotkey(["<super>"], "<f7>")
-            folder.set_modes([autokey.model.helpers.TriggerMode.HOTKEY])
+            folder.set_modes([TriggerMode.HOTKEY])
             self.folders[RECENT_ENTRIES_FOLDER] = folder
             self.recentEntries = []
 
@@ -685,7 +685,7 @@ class ConfigManager:
 
                 p = autokey.model.phrase.Phrase(description, theEntry)
                 if self.SETTINGS[RECENT_ENTRY_SUGGEST]: # noqa: F821
-                    p.set_modes([autokey.model.helpers.TriggerMode.PREDICTIVE])
+                    p.set_modes([TriggerMode.PREDICTIVE])
 
                 folder.add_item(p)
 
@@ -708,17 +708,17 @@ class ConfigManager:
 
     @staticmethod
     def item_has_abbreviation(item, abbreviation):
-        return autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes and \
+        return TriggerMode.ABBREVIATION in item.modes and \
                abbreviation in item.abbreviations
 
     """def check_abbreviation_substring(self, abbreviation, targetItem):
         for item in self.allFolders:
-            if model.TriggerMode.ABBREVIATION in item.modes:
+            if TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
                     return item is targetItem, item.title
 
         for item in self.allItems:
-            if model.TriggerMode.ABBREVIATION in item.modes:
+            if TriggerMode.ABBREVIATION in item.modes:
                 if abbreviation in item.abbreviation or item.abbreviation in abbreviation:
                     return item is targetItem, item.description
 
@@ -776,7 +776,7 @@ class ConfigManager:
                 return item
 
         for item in itertools.chain(self.allFolders, self.allItems):
-            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes and \
+            if TriggerMode.HOTKEY in item.modes and \
                     ConfigManager.item_has_same_hotkey(item,
                                               modifiers,
                                               hotKey,
@@ -837,7 +837,7 @@ class ConfigManager:
 
     def __deleteHotkeys(self, removed_item):
         removed_item.unset_hotkey()
-        if autokey.model.helpers.TriggerMode.HOTKEY in removed_item.modes:
+        if TriggerMode.HOTKEY in removed_item.modes:
             self.app.hotkey_removed(removed_item)
         if isinstance(removed_item, autokey.model.folder.Folder):
             self.__delete_hotkeys_from_folder_and_items(removed_item)
@@ -846,7 +846,7 @@ class ConfigManager:
         for subFolder in folder.folders:
             self.delete_hotkeys(subFolder)
         for item in folder.items:
-            if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+            if TriggerMode.HOTKEY in item.modes:
                 self.app.hotkey_removed(item)
 
 

@@ -1,5 +1,6 @@
 # Copyright (C) 2011 Chris Dekter
 # Copyright (C) 2019-2020 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2021 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,15 +15,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import enum
 import os
-import re
 from pathlib import Path
 
-DEFAULT_WORDCHAR_REGEX = '[\w]'
-JSON_FILE_PATTERN = "{}/{}.json"
-SPACES_RE = re.compile(r"^ | $")
-
+from autokey.model.abstract_abbreviation import AbstractAbbreviation
+from autokey.model.abstract_window_filter import AbstractWindowFilter
+from autokey.model.abstract_hotkey import AbstractHotkey
+from autokey.model.constants import JSON_FILE_PATTERN, SPACES_RE
 
 def make_wordchar_re(word_chars: str):
     return "[^{word_chars}]".format(word_chars=word_chars)
@@ -65,17 +64,3 @@ def get_safe_path(base_path, name, ext=""):
 
     return path
 
-
-@enum.unique
-class TriggerMode(enum.Enum):
-    """
-    Enumeration class for phrase match modes.
-
-    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
-    ABBREVIATION: Trigger this phrase using an abbreviation.
-    PREDICTIVE: Trigger this phrase using predictive mode.
-    """
-    NONE = 0
-    ABBREVIATION = 1
-    PREDICTIVE = 2
-    HOTKEY = 3

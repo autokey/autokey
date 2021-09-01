@@ -19,12 +19,12 @@ import json
 import os
 import typing
 
-import autokey.model.helpers as helpers
 from autokey.model.key import NAVIGATION_KEYS, Key, KEY_SPLIT_RE
-from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path, TriggerMode
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
+import autokey.model.helpers as helpers
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 

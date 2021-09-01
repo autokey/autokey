@@ -24,13 +24,15 @@ from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 
 import autokey.model.folder
 import autokey.model.helpers
+import autokey.model.constants
+import autokey.model.triggermode
 import autokey.model.phrase
 from autokey.qtui import common as ui_common
 
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 WORD_CHAR_OPTIONS = {
-                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -123,7 +125,7 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
         self.targetItem = item
         self.abbrListWidget.clear()
 
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.triggermode.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrListWidget.addItem(AbbrListItem(abbr))
             self.removeButton.setEnabled(True)
@@ -167,7 +169,7 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(bool(self.get_abbrs()))
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
+        item.modes.append(autokey.model.triggermode.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 

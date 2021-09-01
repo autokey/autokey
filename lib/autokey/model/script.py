@@ -22,7 +22,7 @@ from pathlib import Path
 
 import autokey.model.helpers as helpers
 from autokey.model.store import Store
-from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path, TriggerMode
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey

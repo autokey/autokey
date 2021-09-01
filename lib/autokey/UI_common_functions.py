@@ -10,6 +10,7 @@ from . import common
 import autokey.model.helpers
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.model.triggermode import TriggerMode
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -152,7 +153,7 @@ def save_hotkey_settings_dialog(app, item):
     item.set_hotkey(modifiers, key)
 
 def load_hotkey_settings_dialog(app, item):
-    if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+    if TriggerMode.HOTKEY in item.modes:
         app.populate_hotkey_details(item)
     else:
         app.reset()

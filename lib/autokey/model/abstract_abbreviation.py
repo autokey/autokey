@@ -17,8 +17,8 @@
 import re
 import typing
 
-from autokey.model.helpers import DEFAULT_WORDCHAR_REGEX, TriggerMode
-
+from autokey.model.triggermode import TriggerMode
+from autokey.model.constants import DEFAULT_WORDCHAR_REGEX
 
 class AbstractAbbreviation:
     """
