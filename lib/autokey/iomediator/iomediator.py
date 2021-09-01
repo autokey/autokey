@@ -221,25 +221,25 @@ class IoMediator(threading.Thread):
         Sends the given number of left key presses.
         """
         for i in range(count):
-            self.interface.send_key(Key.LEFT)
+            self.send_key(Key.LEFT)
 
     def send_right(self, count):
         for i in range(count):
-            self.interface.send_key(Key.RIGHT)
+            self.send_key(Key.RIGHT)
     
     def send_up(self, count):
         """
         Sends the given number of up key presses.
         """        
         for i in range(count):
-            self.interface.send_key(Key.UP)
+            self.send_key(Key.UP)
 
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
         for i in range(count):
-            self.interface.send_key(Key.BACKSPACE)
+            self.send_key(Key.BACKSPACE)
 
     def flush(self):
         self.interface.flush()
@@ -252,11 +252,11 @@ class IoMediator(threading.Thread):
         for modifier in list(self.modifiers.keys()):
             if self.modifiers[modifier] and modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
                 self.releasedModifiers.append(modifier)
-                self.interface.release_key(modifier)
+                self.release_key(modifier)
 
     def _reapply_modifiers(self):
         for modifier in self.releasedModifiers:
-            self.interface.press_key(modifier)
+            self.press_key(modifier)
 
     def _get_modifiers_on(self):
         modifiers = []
