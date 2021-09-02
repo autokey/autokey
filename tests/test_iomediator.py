@@ -16,9 +16,11 @@
 import typing
 
 import pytest
+import unittest
 from hamcrest import *
 
 import autokey.iomediator.constants as iomediator_constants
+from autokey.iomediator.iomediator import IoMediator
 import autokey.model.key
 
 
@@ -38,4 +40,51 @@ def test_key_split_re(input_string: str, expected_split: typing.List[str]):
     assert_that(
         autokey.model.key.KEY_SPLIT_RE.split(input_string),
         has_items(*expected_split)
+    )
+
+
+class MockInterface():
+    def __init__(self):
+        self.received = []
+
+    def get_result(self):
+        return "".join(self.received)
+
+    def send_modified_key(self, string, mods):
+        self.received.append(mods)
+        self.received.append(string)
+
+    def send_key(self, key):
+        self.received.append(key)
+
+    def send_string(self, s):
+        self.received.append(s)
+
+
+
+
+
+@pytest.mark.parametrize("inpt, failmsg", [
+    ["hello this string is a test", "iomediator doesn't send a normal string properly"],
+])
+def test_send_string(inpt: str, failmsg):
+    interface = unittest.mock.Mock(wraps=MockInterface())
+    IoMediator._send_string(inpt, interface)
+    assert_that(
+        interface.get_result(),
+        is_(equal_to(inpt)),
+        failmsg
+    )
+
+
+@pytest.mark.parametrize("inpt, result, failmsg", [
+    ["hello this string is a test", "hello this string is a test", "iomediator doesn't send a normal string properly"],
+])
+def test_send_string(inpt: str, result: typing.List[str], failmsg):
+    interface = unittest.mock.Mock(wraps=MockInterface())
+    IoMediator._send_string(inpt, interface)
+    assert_that(
+        interface.get_result(),
+        is_(equal_to(result)),
+        failmsg
     )
