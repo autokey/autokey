@@ -1063,16 +1063,20 @@ class ConfigWindow:
 
     def __createFolder(self, title, parentIter, path=None):
         self.app.monitor.suspend()
-        theModel = self.treeView.get_model()
         newFolder = autokey.model.folder.Folder(title, path=path)
-
+        theModel = self.treeView.get_model()
         newIter = theModel.append_item(newFolder, parentIter)
         newFolder.persist()
-        self.app.monitor.unsuspend()
+        self.__expand_and_select_new_item(newIter, theModel)
 
-        self.treeView.expand_to_path(theModel.get_path(newIter))
+    def __expand_and_select_new_item(self, item, theModel):
+        self.app.monitor.unsuspend()
+        self.treeView.expand_to_path(theModel.get_path(item))
+        self.__change_selected_item(item)
+
+    def __change_selected_item(self, item):
         self.treeView.get_selection().unselect_all()
-        self.treeView.get_selection().select_iter(newIter)
+        self.treeView.get_selection().select_iter(item)
         self.on_tree_selection_changed(self.treeView)
 
     def __getNewItemName(self, itemType):
@@ -1095,53 +1099,44 @@ class ConfigWindow:
     def on_new_phrase(self, widget, data=None):
         name = self.__getNewItemName("Phrase")
         if name is not None:
-            self.app.monitor.suspend()
-            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newPhrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
-            newIter = theModel.append_item(newPhrase, parentIter)
-            newPhrase.persist()
-            self.app.monitor.unsuspend()
-            self.treeView.expand_to_path(theModel.get_path(newIter))
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(newIter)
-            self.on_tree_selection_changed(self.treeView)
-            #self.on_rename(self.treeView)
+            newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=False)
+            self.__expand_and_select_new_iter(newIter)
 
     def on_new_script(self, widget, data=None):
         name = self.__getNewItemName("Script")
         if name is not None:
-            self.app.monitor.suspend()
-            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newScript = autokey.model.script.Script(name, "# Enter script code")
-            newIter = theModel.append_item(newScript, parentIter)
-            newScript.persist()
-            self.app.monitor.unsuspend()
-            self.treeView.expand_to_path(theModel.get_path(newIter))
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(newIter)
-            self.on_tree_selection_changed(self.treeView)
-           # self.on_rename(self.treeView)
+            newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=True)
+            self.__expand_and_select_new_iter(newIter)
+
+    def __add_new_scriptphrase(self, name, isScriptNotPhrase=True):
+        self.app.monitor.suspend()
+        if isScriptNotPhrase:
+            scriptphrase = autokey.model.script.Script(name, "# Enter script code")
+        else:
+            scriptphrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
+        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+        parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
+        newIter = theModel.append_item(scriptphrase, parentIter)
+        scriptphrase.persist()
+        return newIter
+
 
     # Edit Menu
 
     def on_cut_item(self, widget, data=None):
         self.cutCopiedItems = self.__getTreeSelection()
         selection = self.treeView.get_selection()
-        model, selectedPaths = selection.get_selected_rows()
+        theModel, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(Gtk.TreeRowReference(model, path))
+            refs.append(Gtk.TreeRowReference(theModel, path))
 
         for ref in refs:
             if ref.valid():
-                self.__removeItem(model, model[ref.get_path()].iter)
+                self.__removeItem(theModel, theModel[ref.get_path()].iter)
 
         if len(selectedPaths) > 1:
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(model.get_iter_first())
-            self.on_tree_selection_changed(self.treeView)
+            self.__change_selected_item(theModel.get_iter_first())
 
         self.app.config_altered(True)
 
@@ -1234,9 +1229,7 @@ class ConfigWindow:
 
         if modified:
             if len(selectedPaths) > 1:
-                self.treeView.get_selection().unselect_all()
-                self.treeView.get_selection().select_iter(theModel.get_iter_first())
-                self.on_tree_selection_changed(self.treeView)
+                self.__change_selected_item(theModel.get_iter_first())
 
             self.app.config_altered(True)
 
