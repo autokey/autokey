@@ -152,33 +152,37 @@ class IoMediator(threading.Thread):
         
         logger.debug("Send via event interface")
         self._clear_modifiers()
+        IoMediator._send_string(string, self.interface)
+        self._reapply_modifiers()
+
+    # Mainly static for the purpose of testing
+    @staticmethod
+    def _send_string(string, interface):
         modifiers = []
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
                 if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
                     # Section is a modifier application (modifier followed by '+')
                     modifiers.append(section[:-1])
-                    
+
                 else:
                     if len(modifiers) > 0:
                         # Modifiers ready for application - send modified key
                         if Key.is_key(section):
-                            self.interface.send_modified_key(section, modifiers)
+                            interface.send_modified_key(section, modifiers)
                             modifiers = []
                         else:
-                            self.interface.send_modified_key(section[0], modifiers)
+                            interface.send_modified_key(section[0], modifiers)
                             if len(section) > 1:
-                                self.interface.send_string(section[1:])
+                                interface.send_string(section[1:])
                             modifiers = []
                     else:
                         # Normal string/key operation
                         if Key.is_key(section):
-                            self.interface.send_key(section)
+                            interface.send_key(section)
                         else:
-                            self.interface.send_string(section)
-                            
-        self._reapply_modifiers()
-        
+                            interface.send_string(section)
+
     def paste_string(self, string, paste_command: SendMode):
         if len(string) > 0:
             logger.debug("Send via clipboard")
