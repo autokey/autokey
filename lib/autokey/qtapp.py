@@ -83,8 +83,13 @@ about_data = AboutData(
    author_list=author_data
 )
 
+metadic={}
 
-class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
+# Need to solve metaclass conflict with QApplication and AutokeyUIInterface
+class QtAppMetaClass(type(AutokeyUIInterface), type(QApplication)):
+    pass
+
+class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclass=QtAppMetaClass):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
