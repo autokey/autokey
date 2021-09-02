@@ -46,12 +46,16 @@ def test_key_split_re(input_string: str, expected_split: typing.List[str]):
 class MockInterface():
     def __init__(self):
         self.received = []
+        self.modifiers = []
 
     def get_result(self):
-        return "".join(self.received)
+        return "|".join(self.received)
+    def get_modifiers(self):
+        return self.modifiers
 
     def send_modified_key(self, string, mods):
-        self.received.append(mods)
+        self.received.append("+".join(mods))
+        self.modifiers.append(mods)
         self.received.append(string)
 
     def send_key(self, key):
@@ -66,6 +70,9 @@ class MockInterface():
 
 @pytest.mark.parametrize("inpt, failmsg", [
     ["hello this string is a test", "iomediator doesn't send a normal string properly"],
+    ["", "iomediator doesn't send a blank string properly"],
+    ["---", "iomediator doesn't send all dashes properly"],
+    ["- -", "iomediator doesn't send this properly"],
 ])
 def test_send_string(inpt: str, failmsg):
     interface = unittest.mock.Mock(wraps=MockInterface())
@@ -77,14 +84,20 @@ def test_send_string(inpt: str, failmsg):
     )
 
 
-@pytest.mark.parametrize("inpt, result, failmsg", [
-    ["hello this string is a test", "hello this string is a test", "iomediator doesn't send a normal string properly"],
+@pytest.mark.parametrize("inpt, result, mods, failmsg", [
+    ["i want <ctrl>+a", "i want |<ctrl>|a", [["<ctrl>"]], "iomediator doesn't send a modified string properly"],
+    ["i want <ctrl>+a and <alt>+<super>+t", "i want |<ctrl>|a| and |<alt>+<super>|t", [["<ctrl>"], ["<alt>", "<super>"]], "iomediator doesn't send a modified string properly"],
 ])
-def test_send_string(inpt: str, result: typing.List[str], failmsg):
+def test_send_string_modified(inpt: str, result: typing.List[str], mods: typing.List[str], failmsg):
     interface = unittest.mock.Mock(wraps=MockInterface())
     IoMediator._send_string(inpt, interface)
     assert_that(
         interface.get_result(),
         is_(equal_to(result)),
+        failmsg
+    )
+    assert_that(
+        interface.get_modifiers(),
+        is_(equal_to(mods)),
         failmsg
     )
