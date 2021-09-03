@@ -20,7 +20,6 @@
 import sys
 import os.path
 import queue
-from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
@@ -46,44 +45,6 @@ import autokey.UI_common_functions as UI_common
 
 logger = get_logger(__name__)
 del get_logger
-
-
-# TODO move this metadata to common
-AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
-AboutData = NamedTuple("AboutData", (
-    ("program_name", str),
-    ("version", str),
-    ("program_description", str),
-    ("license_text", str),
-    ("copyright_notice", str),
-    ("homepage_url", str),
-    ("bug_report_email", str),
-    ("author_list", Iterable[AuthorData])
-))
-
-COPYRIGHT = """(c) 2009-2012 Chris Dekter
-(c) 2014 GuoCi
-(c) 2017, 2018 Thomas Hess
-"""
-
-author_data = (
-    AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
-    AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
-    AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
-    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com")
-)
-about_data = AboutData(
-   program_name="AutoKey",
-   version=common.VERSION,
-   program_description="Desktop automation utility",
-   license_text="GPL v3",  # TODO: load actual license text from disk somewhere
-   copyright_notice=COPYRIGHT,
-   homepage_url=common.HOMEPAGE,
-   bug_report_email=common.BUG_EMAIL,
-   author_list=author_data
-)
-
-metadic={}
 
 # Need to solve metaclass conflict with QApplication and AutokeyUIInterface
 class QtAppMetaClass(type(AutokeyUIInterface), type(QApplication)):
