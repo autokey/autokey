@@ -176,8 +176,9 @@ class AutokeyApplication:
 
     def __verify_not_running(self):
         if self.__is_existing_running_autokey():
-            UI_common.test_Dbus_response(self)
+            self.__try_to_show_existing_autokey_UI_and_exit()
         return True
+
 
     def __try_to_show_existing_autokey_UI_and_exit(self):
         try:
