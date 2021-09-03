@@ -789,7 +789,7 @@ class XInterfaceBase(threading.Thread):
                     logger.warning("Unable to send character %r", char)
                 logger.info("Type delay of "+str(type_delay))
                 if type_delay >= 0:
-                    self.localDisplay.flush()
+                    self.flush()
                     time.sleep(type_delay)
             except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
