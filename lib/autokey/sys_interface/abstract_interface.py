@@ -24,8 +24,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 # This tuple is used to return requested window properties.
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
 
-class AbstractSysInterface(ABC):
-    __metaclass__ = ABCMeta
+class AbstractSysInterface(ABC, metaclass=ABCMeta):
     """
     This class aims to define all the methods needed to interact with the underlying
     key system. (eg X11, via some underlying library like XRecord)
@@ -95,6 +94,12 @@ class AbstractSysInterface(ABC):
     def fake_keypress(self, key_name):
         return
 
+class AbstractMouseInterface(ABC, metaclass=ABCMeta):
+    """
+    This class aims to define all the methods needed to interact with the underlying
+    mouse system. (eg X11)
+    """
+
     @abstractmethod
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         return
@@ -125,6 +130,12 @@ class AbstractSysInterface(ABC):
     @abstractmethod
     def handle_mouseclick(self, button, x, y):
         return
+
+class AbstractWindowInterface(ABC, metaclass=ABCMeta):
+    """
+    This class aims to define all the methods needed to interact with the underlying
+    window system. (eg X11)
+    """
 
     @abstractmethod
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:

@@ -35,7 +35,7 @@ if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.sys_interface.clipboard import Clipboard
-from autokey.sys_interface.abstract_interface import AbstractSysInterface
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -109,7 +109,7 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
 
 
-class XInterfaceBase(threading.Thread):
+class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInterface):
     """
     Encapsulates the common functionality for the two X interface classes.
     """
