@@ -649,7 +649,7 @@ class PhrasePage(ScriptPage):
         #self.__m = GtkSource.LanguageManager()
         self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(None)
-        self.buffer.set_style_scheme(self.__sm.get_scheme("kate"))
+        self.buffer.set_style_scheme(self.__sm.get_scheme(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         self.buffer.set_highlight_matching_brackets(False)
         self.editor.set_auto_indent(False)
         self.editor.set_smart_home_end(False)
