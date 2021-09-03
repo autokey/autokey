@@ -153,12 +153,6 @@ class XInterfaceBase(threading.Thread):
     def flush(self):
         self.__enqueue(self.__flush)
 
-    def begin_send(self):
-        self.__enqueue(self.__grab_keyboard)
-
-    def finish_send(self):
-        self.__enqueue(self.__ungrabKeyboard)
-
     def on_keys_changed(self, data=None):
         """
         Update interface when keyboard layout changes.

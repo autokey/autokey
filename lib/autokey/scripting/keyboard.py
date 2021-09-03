@@ -52,14 +52,14 @@ class Keyboard:
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
         send_mode = _validate_send_mode(send_mode)
-        self.mediator.interface.begin_send()
+        self.mediator.begin_send()
         try:
             if send_mode is autokey.model.phrase.SendMode.KEYBOARD:
                 self.mediator.send_string(key_string)
             else:
                 self.mediator.paste_string(key_string, send_mode)
         finally:
-            self.mediator.interface.finish_send()
+            self.mediator.finish_send()
 
     def send_key(self, key, repeat=1):
         """

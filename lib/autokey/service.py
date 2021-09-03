@@ -422,7 +422,7 @@ class PhraseRunner:
     #@synchronized(iomediator.SEND_LOCK)
     def execute(self, phrase: autokey.model.phrase.Phrase, buffer=''):
         mediator = self.service.mediator  # type: IoMediator
-        mediator.interface.begin_send()
+        mediator.begin_send()
         try:
             expansion = phrase.build_phrase(buffer)
             expansion.string = \
@@ -439,7 +439,7 @@ class PhraseRunner:
             self.lastPhrase = phrase
             self.lastBuffer = buffer
         finally:
-            mediator.interface.finish_send()
+            mediator.finish_send()
 
     def can_undo(self):
         can_undo = self.lastExpansion is not None and not self.phrase_contains_special_keys(self.lastExpansion)
@@ -473,13 +473,13 @@ class PhraseRunner:
         mediator = self.service.mediator  # type: IoMediator
 
         #mediator.send_right(self.lastExpansion.lefts)
-        mediator.interface.begin_send()
+        mediator.begin_send()
         try:
             mediator.remove_string(self.lastExpansion.string)
             mediator.send_string(replay)
             self.clear_last()
         finally:
-            mediator.interface.finish_send()
+            mediator.finish_send()
 
 
 class ScriptRunner:

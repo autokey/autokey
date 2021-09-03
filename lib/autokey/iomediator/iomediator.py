@@ -78,6 +78,12 @@ class IoMediator(threading.Thread):
         self.join()
         logger.debug("IoMediator shutdown completed")
 
+    def begin_send(self):
+        self.interface.grab_keyboard()
+
+    def finish_send(self):
+        self.interface.ungrab_keyboard()
+
     # Callback methods for Interfaces ----
 
     def set_modifier_state(self, modifier, state):
