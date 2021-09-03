@@ -3,6 +3,7 @@
 Name=AutoKey
 GenericName=Keyboard Automation
 Comment=Program keyboard shortcuts
+Keywords=macros keyboard auto key autokey ak automation shortcut bind
 Exec=autokey-gtk -c
 Terminal=false
 Type=Application
