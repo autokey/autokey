@@ -150,6 +150,181 @@ class XInterfaceBase(threading.Thread):
         self.eventThread.start()
         self.listenerThread.start()
 
+    def flush(self):
+        self.__enqueue(self.__flush)
+
+    def begin_send(self):
+        self.__enqueue(self.__grab_keyboard)
+
+    def finish_send(self):
+        self.__enqueue(self.__ungrabKeyboard)
+
+    def on_keys_changed(self, data=None):
+        """
+        Update interface when keyboard layout changes.
+        """
+        if not self.__ignoreRemap:
+            logger.debug("Recorded keymap change event")
+            self.__ignoreRemap = True
+            time.sleep(0.2)
+            self.__enqueue(self.__ungrab_all_hotkeys)
+            self.__enqueue(self.__delayedInitMappings)
+        else:
+            logger.debug("Ignored keymap change event")
+
+    def press_key(self, keyName):
+        self.__enqueue(self.__pressKey, keyName)
+
+    def handle_keypress(self, keyCode):
+        self.__enqueue(self.__handleKeyPress, keyCode)
+
+    def handle_keyrelease(self, keyCode):
+        self.__enqueue(self.__handleKeyrelease, keyCode)
+
+    def grab_keyboard(self):
+        self.__enqueue(self.__grab_keyboard)
+
+    def ungrab_keyboard(self):
+        self.__enqueue(self.__ungrabKeyboard)
+
+    def grab_hotkey(self, item):
+        self.__enqueue_hotkey_grab_ungrab(item, grab=True)
+
+    def ungrab_hotkey(self, item):
+        import copy
+        newItem = copy.copy(item)
+        self.__enqueue_hotkey_grab_ungrab(newItem, grab=False)
+
+    def lookup_string(self, keyCode, shifted, numlock, altGrid):
+        if keyCode == 0:
+            return "<unknown>"
+
+        keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
+
+        if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
+            return XK_TO_AK_NUMLOCKED[keySym]
+
+        elif keySym in XK_TO_AK_MAP:
+            return XK_TO_AK_MAP[keySym]
+        else:
+            index = 0
+            if shifted: index += 1
+            if altGrid: index += 4
+            try:
+                return chr(self.localDisplay.keycode_to_keysym(keyCode, index))
+            except ValueError:
+                return "<code%d>" % keyCode
+
+    def send_string(self, string):
+        # Asynchronous send string.
+        self.__enqueue(self.__sendString, string)
+
+    def send_key(self, keyName):
+        """
+        Send a specific non-printing key, eg Up, Left, etc
+        """
+        self.__enqueue(self.__sendKey, keyName)
+
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
+        """
+        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        logger.debug("Sending string via clipboard: " + string)
+        callback_args = []
+        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
+            callback_args = [self._send_string_selection, string]
+        else:
+            callback_args = [self._send_string_clipboard, string, paste_command]
+        if common.USED_UI_TYPE == "QT":
+            self.__enqueue(self.app.exec_in_main, *callback_args)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self.__enqueue(*callback_args)
+        logger.debug("Sending via clipboard enqueued.")
+
+
+    def fake_keypress(self, keyName):
+         self.__enqueue(self.__fakeKeypress, keyName)
+
+
+    def fake_keydown(self, keyName):
+        self.__enqueue(self.__fakeKeydown, keyName)
+
+    def fake_keyup(self, keyName):
+        self.__enqueue(self.__fakeKeyup, keyName)
+
+    def send_modified_key(self, keyName, modifiers):
+        """
+        Send a modified key (e.g. when emulating a hotkey)
+        """
+        self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
+
+    def send_mouse_click(self, xCoord, yCoord, button, relative):
+        self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)
+
+    def mouse_press(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
+
+    def mouse_release(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
+
+    def mouse_location(self):
+        pos = self.rootWindow.query_pointer()
+        return (pos.root_x, pos.root_y)
+
+    def relative_mouse_location(self, window=None):
+        #return relative mouse location within given window
+        if window==None:
+            window = self.localDisplay.get_input_focus().focus
+        pos = window.query_pointer()
+        return (pos.win_x, pos.win_y)
+
+    def scroll_down(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
+
+    def scroll_up(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_UP)
+
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
+
+    def send_mouse_click_relative(self, xoff, yoff, button):
+        self.__enqueue(self.__sendMouseClickRelative, xoff, yoff, button)
+
+    def handle_mouseclick(self, button, x, y):
+        self.__enqueue(self.__handleMouseclick, button, x, y)
+
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
+        try:
+            if window is None:
+                window = self.localDisplay.get_input_focus().focus
+            return self._get_window_info(window, traverse)
+        except error.BadWindow:
+            logger.warning("Got BadWindow error while requesting window information.")
+            return self._create_window_info(window, "", "")
+
+    def get_window_title(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_title
+
+    def get_window_class(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_class
+
+    def cancel(self):
+        logger.debug("XInterfaceBase: Try to exit event thread.")
+        self.queue.put_nowait((None, None))
+        logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
+        self.shutdown = True
+        logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
+        self.listenerThread.join()
+        self.eventThread.join()
+        self.localDisplay.flush()
+        self.localDisplay.close()
+        self.join()
     def __set_lock_keys_state(self):
         ledMask = self.localDisplay.get_keyboard_control().led_mask
         self.mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
@@ -172,16 +347,6 @@ class XInterfaceBase(threading.Thread):
 
     def __enqueue(self, method: typing.Callable, *args):
         self.queue.put_nowait((method, args))
-
-    def on_keys_changed(self, data=None):
-        if not self.__ignoreRemap:
-            logger.debug("Recorded keymap change event")
-            self.__ignoreRemap = True
-            time.sleep(0.2)
-            self.__enqueue(self.__ungrab_all_hotkeys)
-            self.__enqueue(self.__delayedInitMappings)
-        else:
-            logger.debug("Ignored keymap change event")
 
     def __delayedInitMappings(self):
         self.__initMappings()
@@ -211,7 +376,7 @@ class XInterfaceBase(threading.Thread):
         self.remappedChars = {}
 
         if logger.getEffectiveLevel() == logging.DEBUG:
-            self.keymap_test()
+            self.__keymap_test()
 
     def __build_modifier_mask_mapping(self):
         self.modMasks = {}
@@ -248,7 +413,7 @@ class XInterfaceBase(threading.Thread):
             keyCode += 1
         return avail
 
-    def keymap_test(self):
+    def __keymap_test(self):
         code = self.localDisplay.keycode_to_keysym(108, 0)
         for attr in XK.__dict__.items():
             if attr[0].startswith("XK"):
@@ -435,9 +600,6 @@ class XInterfaceBase(threading.Thread):
             self.__enqueue(grab_recurse_func, item, self.rootWindow)
         return
 
-    def grab_hotkey(self, item):
-        self.__enqueue_hotkey_grab_ungrab(item, grab=True)
-
     def __grab_ungrab_recurse(self, item, parent, checkWinInfo=True, grab=True):
         try:
             children = parent.query_tree().children
@@ -463,11 +625,6 @@ class XInterfaceBase(threading.Thread):
     def __grabRecurse(self, item, parent, checkWinInfo=True):
         self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=True)
 
-    def ungrab_hotkey(self, item):
-        import copy
-        newItem = copy.copy(item)
-        self.__enqueue_hotkey_grab_ungrab(newItem, grab=False)
-
     def __ungrabRecurse(self, item, parent, checkWinInfo=True):
         self.__grab_ungrab_recurse(item, parent, checkWinInfo, grab=False)
 
@@ -476,46 +633,6 @@ class XInterfaceBase(threading.Thread):
         Ungrab a specific hotkey in the given window
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
-
-    def lookup_string(self, keyCode, shifted, numlock, altGrid):
-        if keyCode == 0:
-            return "<unknown>"
-
-        keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
-
-        if keySym in XK_TO_AK_NUMLOCKED and numlock and not (numlock and shifted):
-            return XK_TO_AK_NUMLOCKED[keySym]
-
-        elif keySym in XK_TO_AK_MAP:
-            return XK_TO_AK_MAP[keySym]
-        else:
-            index = 0
-            if shifted: index += 1
-            if altGrid: index += 4
-            try:
-                return chr(self.localDisplay.keycode_to_keysym(keyCode, index))
-            except ValueError:
-                return "<code%d>" % keyCode
-
-    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
-        """
-        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
-        :param string: The to-be pasted string
-        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
-         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
-         causing a paste operation to happen.
-        """
-        logger.debug("Sending string via clipboard: " + string)
-        callback_args = []
-        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
-            callback_args = [self._send_string_selection, string]
-        else:
-            callback_args = [self._send_string_clipboard, string, paste_command]
-        if common.USED_UI_TYPE == "QT":
-            self.__enqueue(self.app.exec_in_main, *callback_args)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
-            self.__enqueue(*callback_args)
-        logger.debug("Sending via clipboard enqueued.")
 
     def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
         """
@@ -565,22 +682,10 @@ class XInterfaceBase(threading.Thread):
         xtest.fake_input(focus, X.ButtonRelease, X.Button2)
         logger.debug("Mouse Button2 event sent.")
 
-    def begin_send(self):
-        self.__enqueue(self.__grab_keyboard)
-
-    def finish_send(self):
-        self.__enqueue(self.__ungrabKeyboard)
-
-    def grab_keyboard(self):
-        self.__enqueue(self.__grab_keyboard)
-
     def __grab_keyboard(self):
         focus = self.localDisplay.get_input_focus().focus
         focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
-
-    def ungrab_keyboard(self):
-        self.__enqueue(self.__ungrabKeyboard)
 
     def __ungrabKeyboard(self):
         self.localDisplay.ungrab_keyboard(X.CurrentTime)
@@ -592,10 +697,6 @@ class XInterfaceBase(threading.Thread):
                 return code, offset
 
         return None, None
-
-    def send_string(self, string):
-        # Asynchronous send string.
-        self.__enqueue(self.__sendString, string)
 
     def __chars_need_remapping(self, string):
         remapNeeded = False
@@ -732,43 +833,22 @@ class XInterfaceBase(threading.Thread):
         for modkey in modifier_keys: self.__releaseKey(modkey)
 
 
-    def send_key(self, keyName):
-        """
-        Send a specific non-printing key, eg Up, Left, etc
-        """
-        self.__enqueue(self.__sendKey, keyName)
-
     def __sendKey(self, keyName):
         logger.debug("Send special key: [%r]", keyName)
         self.__sendKeyCode(self.__lookupKeyCode(keyName))
-
-    def fake_keypress(self, keyName):
-         self.__enqueue(self.__fakeKeypress, keyName)
 
     def __fakeKeypress(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
 
-    def fake_keydown(self, keyName):
-        self.__enqueue(self.__fakeKeydown, keyName)
-
     def __fakeKeydown(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
 
-    def fake_keyup(self, keyName):
-        self.__enqueue(self.__fakeKeyup, keyName)
-
     def __fakeKeyup(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-
-    def send_modified_key(self, keyName, modifiers):
-        """
-        Send a modified key (e.g. when emulating a hotkey)
-        """
-        self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
 
     def __sendModifiedKey(self, keyName, modifiers):
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
@@ -778,9 +858,6 @@ class XInterfaceBase(threading.Thread):
                                                        modifiers)
         except Exception as e:
             logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
-
-    def send_mouse_click(self, xCoord, yCoord, button, relative):
-        self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)
 
     def __sendMouseClick(self, xCoord, yCoord, button, relative):
         # Get current pointer position so we can return it there
@@ -800,40 +877,15 @@ class XInterfaceBase(threading.Thread):
 
         self.__flush()
 
-    def mouse_press(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
-
     def __mousePress(self, xCoord, yCoord, button):
         focus = self.localDisplay.get_input_focus().focus
         xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
         self.__flush()
 
-    def mouse_release(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
-
     def __mouseRelease(self, xCoord, yCoord, button):
         focus = self.localDisplay.get_input_focus().focus
         xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
         self.__flush()
-
-    def mouse_location(self):
-        pos = self.rootWindow.query_pointer()
-        return (pos.root_x, pos.root_y)
-
-    def relative_mouse_location(self, window=None):
-        #return relative mouse location within given window
-        if window==None:
-            window = self.localDisplay.get_input_focus().focus
-        pos = window.query_pointer()
-        return (pos.win_x, pos.win_y)
-
-    def scroll_down(self, number):
-        for i in range(0, number):
-            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
-
-    def scroll_up(self, number):
-        for i in range(0, number):
-            self.__enqueue(self.__scroll, Button.SCROLL_UP)
 
     def __scroll(self, button):
         focus = self.localDisplay.get_input_focus().focus
@@ -841,9 +893,6 @@ class XInterfaceBase(threading.Thread):
         xtest.fake_input(self=focus, event_type=X.ButtonPress, detail=button, x=x, y=y)
         xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
         self.__flush()
-
-    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
-        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
 
     def __moveCursor(self, xCoord, yCoord, relative=False, relative_self=False):
         if relative:
@@ -860,9 +909,6 @@ class XInterfaceBase(threading.Thread):
         self.rootWindow.warp_pointer(xCoord,yCoord)
         self.__flush()
 
-    def send_mouse_click_relative(self, xoff, yoff, button):
-        self.__enqueue(self.__sendMouseClickRelative, xoff, yoff, button)
-
     def __sendMouseClickRelative(self, xoff, yoff, button):
         # Get current pointer position
         pos = self.rootWindow.query_pointer()
@@ -878,15 +924,9 @@ class XInterfaceBase(threading.Thread):
 
         self.__flush()
 
-    def flush(self):
-        self.__enqueue(self.__flush)
-
     def __flush(self):
         self.localDisplay.flush()
         self.lastChars = []
-
-    def press_key(self, keyName):
-        self.__enqueue(self.__pressKey, keyName)
 
     def __pressKey(self, keyName):
         self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
@@ -941,9 +981,6 @@ class XInterfaceBase(threading.Thread):
                 if window not in destroyedWindows:
                     self.__enqueue(self.__grabHotkeysForWindow, window)
 
-    def handle_keypress(self, keyCode):
-        self.__enqueue(self.__handleKeyPress, keyCode)
-
     def __handleKeyPress(self, keyCode):
         focus = self.localDisplay.get_input_focus().focus
 
@@ -954,16 +991,10 @@ class XInterfaceBase(threading.Thread):
             window_info = self.get_window_info(focus)
             self.mediator.handle_keypress(keyCode, window_info)
 
-    def handle_keyrelease(self, keyCode):
-        self.__enqueue(self.__handleKeyrelease, keyCode)
-
     def __handleKeyrelease(self, keyCode):
         modifier = self.__decodeModifier(keyCode)
         if modifier is not None:
             self.mediator.handle_modifier_up(modifier)
-
-    def handle_mouseclick(self, button, x, y):
-        self.__enqueue(self.__handleMouseclick, button, x, y)
 
     def __handleMouseclick(self, button, x, y):
         # Sleep a bit to timing issues. A mouse click might change the active application.
@@ -1020,7 +1051,7 @@ class XInterfaceBase(threading.Thread):
         if len(self.lastChars) > 10:
             self.lastChars.pop(0)
 
-    def send_key_press_release_event(self, keyCode, modifiers, theWindow=None,
+    def __send_key_press_release_event(self, keyCode, modifiers, theWindow=None,
                        press=True):
         """
         Generate an Event object for the keypress/keyrelease and send it to X11.
@@ -1051,10 +1082,10 @@ class XInterfaceBase(threading.Thread):
         focus.send_event(keyEvent)
 
     def __sendKeyPressEvent(self, keyCode, modifiers, theWindow=None):
-        self.send_key_press_release_event(keyCode, modifiers, theWindow)
+        self.__send_key_press_release_event(keyCode, modifiers, theWindow)
 
     def __sendKeyReleaseEvent(self, keyCode, modifiers, theWindow=None):
-        self.send_key_press_release_event(keyCode, modifiers, theWindow, press=False)
+        self.__send_key_press_release_event(keyCode, modifiers, theWindow, press=False)
 
     def __lookupKeyCode(self, char: str) -> int:
         if char in AK_TO_XK_MAP:
@@ -1067,15 +1098,6 @@ class XInterfaceBase(threading.Thread):
             except Exception as e:
                 logger.error("Unknown key name: %s", char)
                 raise
-
-    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        try:
-            if window is None:
-                window = self.localDisplay.get_input_focus().focus
-            return self._get_window_info(window, traverse)
-        except error.BadWindow:
-            logger.warning("Got BadWindow error while requesting window information.")
-            return self._create_window_info(window, "", "")
 
     def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
         new_wm_title = self._try_get_window_title(window)
@@ -1155,26 +1177,9 @@ class XInterfaceBase(threading.Thread):
         else:
             return None
 
-    def get_window_title(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_title
-
-    def get_window_class(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_class
-
-    def cancel(self):
-        logger.debug("XInterfaceBase: Try to exit event thread.")
-        self.queue.put_nowait((None, None))
-        logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
-        self.shutdown = True
-        logger.debug("XInterfaceBase: self.shutdown set to True. This should stop the listener thread.")
-        self.listenerThread.join()
-        self.eventThread.join()
-        self.localDisplay.flush()
-        self.localDisplay.close()
-        self.join()
 
 
-class XRecordInterface(XInterfaceBase):
+class XRecordInterface(XInterfaceBase, AbstractSysInterface):
 
     def initialise(self):
         self.recordDisplay = display.Display()
