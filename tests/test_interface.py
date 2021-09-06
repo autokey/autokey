@@ -86,7 +86,17 @@ class TestXrecord():
          [43, 43, 26, 26, 46, 46, 46, 46, 32, 32],
          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
          "Xinterface doesn't send a normal string properly",
-         ]
+         ],
+        ["",
+         [],
+         [],
+         "Xinterface doesn't send an empty string properly",
+         ],
+        [" ",
+         [65, 65],
+         [0, 0],
+         "Xinterface doesn't send a space-only string properly",
+         ],
     ])
     def test_send_string(self, inpt, expected_keys, expected_mods, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
