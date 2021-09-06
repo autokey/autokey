@@ -51,6 +51,17 @@ class TestXrecord(unittest.TestCase):
 
     def setUp(self):
         self.ec = EventCapturer()
+        self.ifc = autokey.interface.XRecordInterface(MagicMock(), MagicMock())
+        self.ifc._XInterfaceBase__usableOffsets = mock_usable_offsets
+        self.ifc.modMasks = mock_modMask
+        self.event_capture_patch = \
+            patch(
+            "autokey.interface.XInterfaceBase._XInterfaceBase__send_key_press_release_event",
+                self.ec.capture_event)
+        self.check_workaround_patch = \
+            patch(
+                "autokey.interface.XInterfaceBase._XInterfaceBase__checkWorkaroundNeeded",
+                return_value=False)
 
     def test_send_string(self, *args):
         test_string = "hello"
@@ -60,13 +71,10 @@ class TestXrecord(unittest.TestCase):
         # against any _major_ screw-ups.
         expected = [43, 43, 26, 26, 46, 46, 46, 46, 32, 32]
         expected_mods = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ifc = autokey.interface.XRecordInterface(MagicMock(), MagicMock())
-        ifc._XInterfaceBase__usableOffsets = mock_usable_offsets
-        ifc.modMasks = mock_modMask
-        with patch("autokey.interface.XInterfaceBase._XInterfaceBase__send_key_press_release_event", self.ec.capture_event):
-            ifc.send_string(test_string)
+        with self.event_capture_patch, self.check_workaround_patch:
+            self.ifc.send_string(test_string)
             try:
-                autokey.interface.XInterfaceBase.cancel(ifc)
+                autokey.interface.XInterfaceBase.cancel(self.ifc)
             except RuntimeError:
                 # Complaints about joining self thread before it starts.
                 pass
