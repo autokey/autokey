@@ -143,7 +143,8 @@ Folders created within temporary folders must themselves be set temporary")
                       hotkey: Tuple[List[Union[Key, str]], Union[Key, str]]=None,
                       send_mode: autokey.model.phrase.SendMode = autokey.model.phrase.SendMode.CB_CTRL_V, window_filter: str=None,
                       show_in_system_tray: bool=False, always_prompt: bool=False,
-                      temporary=False, replace_existing_hotkey=False):
+                      temporary=False, replace_existing_hotkey=False,
+                      type_delay=0):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
         you wish to create the Phrase in. If the folder is a temporary
@@ -217,6 +218,7 @@ Folders created within temporary folders must themselves be set temporary")
         @param replace_existing_hotkey: If true, instead of warning if the hotkey
             is already in use by another phrase or folder, it removes the hotkey
             from those clashes and keeps this phrase's hotkey.
+        @param type_delay: 
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
         @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
           internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
@@ -262,6 +264,8 @@ Folders created within temporary folders must themselves be set temporary")
             # reloads.
             if not temporary:
                 p.persist()
+
+            p.type_delay = type_delay
             return p
         finally:
             self.monitor.unsuspend()

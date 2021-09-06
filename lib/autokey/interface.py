@@ -610,10 +610,10 @@ class XInterfaceBase(threading.Thread):
 
         return None, None
 
-    def send_string(self, string):
-        self.__enqueue(self.__sendString, string)
+    def send_string(self, string, type_delay=0):
+        self.__enqueue(self.__sendString, string, type_delay)
         
-    def __sendString(self, string):
+    def __sendString(self, string, type_delay=0):
         """
         Send a string of printable characters.
         """
@@ -720,6 +720,10 @@ class XInterfaceBase(threading.Thread):
                         self.__releaseKey(Key.SHIFT)
                 else:
                     logger.warning("Unable to send character %r", char)
+                logger.info("Type delay of "+str(type_delay))
+                if type_delay >= 0:
+                    self.flush()
+                    time.sleep(type_delay)
             except Exception as e:
                 logger.exception("Error sending char %r: %s", char, str(e))
 

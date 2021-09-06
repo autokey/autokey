@@ -15,6 +15,7 @@
 
 import threading
 import queue
+import time
 
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
@@ -142,7 +143,7 @@ class IoMediator(threading.Thread):
         
     # Methods for expansion service ----
 
-    def send_string(self, string: str):
+    def send_string(self, string: str, type_delay=0):
         """
         Sends the given string for output.
         """
@@ -170,14 +171,14 @@ class IoMediator(threading.Thread):
                         else:
                             self.interface.send_modified_key(section[0], modifiers)
                             if len(section) > 1:
-                                self.interface.send_string(section[1:])
+                                self.interface.send_string(section[1:], type_delay)
                             modifiers = []
                     else:
                         # Normal string/key operation
                         if Key.is_key(section):
                             self.interface.send_key(section)
                         else:
-                            self.interface.send_string(section)
+                            self.interface.send_string(section, type_delay)
                             
         self._reapply_modifiers()
         
@@ -236,12 +237,15 @@ class IoMediator(threading.Thread):
         for i in range(count):
             self.interface.send_key(Key.UP)
 
-    def send_backspace(self, count):
+    def send_backspace(self, count, type_delay=0):
         """
         Sends the given number of backspace key presses.
         """
         for i in range(count):
             self.interface.send_key(Key.BACKSPACE)
+            if type_delay >= 0:
+                time.sleep(type_delay)
+                self.flush()
 
     def flush(self):
         self.interface.flush()
