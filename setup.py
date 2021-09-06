@@ -190,6 +190,7 @@ setup(
     install_requires=[
         'pyinotify',
         'python-xlib',
+        'python-libxdo',
         'packaging',
     ],
     extras_require={

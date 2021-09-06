@@ -29,12 +29,14 @@ import select
 import queue
 import subprocess
 import time
+import xdo
 
 import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, AbstractSysKeyOutputInterface
+from autokey.sys_interface.clipboard import Clipboard
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -122,6 +124,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
         self.shutdown = False
+        self.doer = xdo.Xdo()
 
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
@@ -321,6 +324,18 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 logger.exception("Error in X event loop thread: {}".format(e))
 
             self.queue.task_done()
+
+    def xdowrite_delayed(self, text: str, delay: int=12*1000, start_delay:float=1):
+        """
+        Types text, using inter-key delay delay in μs,
+        Wait start_delay seconds before typing to allow switching
+        between windows after hitting enter in the interactive prompt.
+        """
+        time.sleep(start_delay)
+        print(f"Send {text}")
+        current_window = self.doer.get_focused_window_sane()
+        print(f"Current window={current_window}")
+        self.doer.enter_text_window(current_window, text.encode("utf-8"), delay=delay)
 
     def __enqueue(self, method: typing.Callable, *args):
         self.queue.put_nowait((method, args))
@@ -1109,7 +1124,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
 
 
-class XRecordInterface(XInterfaceBase, AbstractSysInterface):
+class XRecordInterface(XInterfaceBase, AbstractSysInterface, AbstractSysKeyOutputInterface):
 
     def initialise(self):
         self.recordDisplay = display.Display()
