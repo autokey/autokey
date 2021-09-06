@@ -52,7 +52,7 @@ class AbstractHotkey(AbstractWindowFilter):
 
     def unset_hotkey(self):
         self.modifiers = None
-        self.hotkey = None
+        self.hotKey = None
         if TriggerMode.HOTKEY in self.modes:
             self.modes.remove(TriggerMode.HOTKEY)
 
