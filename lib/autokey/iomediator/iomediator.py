@@ -241,25 +241,25 @@ class IoMediator(threading.Thread):
         """
         Sends the given number of left key presses.
         """
-        for i in range(count):
+        for _ in range(count):
             self.send_key(Key.LEFT)
 
     def send_right(self, count):
-        for i in range(count):
+        for _ in range(count):
             self.send_key(Key.RIGHT)
     
     def send_up(self, count):
         """
         Sends the given number of up key presses.
         """        
-        for i in range(count):
+        for _ in range(count):
             self.send_key(Key.UP)
 
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
-        for i in range(count):
+        for _ in range(count):
             self.send_key(Key.BACKSPACE)
 
     def flush(self):
