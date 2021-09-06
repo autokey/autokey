@@ -69,7 +69,13 @@ class IoMediator(threading.Thread):
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
         logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
-        
+
+    def start(self):
+        self.interface.initialise()
+        self.interface.start()
+        super().start()
+
+
     def shutdown(self):
         logger.debug("IoMediator shutting down")
         self.interface.cancel()

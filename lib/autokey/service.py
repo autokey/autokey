@@ -97,8 +97,6 @@ class Service:
 
     def __start_new_IoMediator(self):
         mediator = IoMediator(self)
-        mediator.interface.initialise()
-        mediator.interface.start()
         mediator.start()
         return mediator
 
