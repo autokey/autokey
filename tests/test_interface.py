@@ -49,20 +49,26 @@ mock_modMask = {Key.SHIFT: 1, Key.CONTROL: 4, Key.ALT: 8, Key.ALT_GR: 128, Key.S
 @patch("autokey.interface.XInterfaceBase._XInterfaceBase__checkWorkaroundNeeded", return_value=False)
 class TestXrecord(unittest.TestCase):
 
+    def setUp(self):
+        self.ec = EventCapturer()
+
     def test_send_string(self, *args):
         test_string = "hello"
+        # These are just the values recorded on my machine. I don't know enough
+        # to be sure they will be correct on every machine.
+        # So long as they work on the CI though, I'm happy this test protects
+        # against any _major_ screw-ups.
         expected = [43, 43, 26, 26, 46, 46, 46, 46, 32, 32]
         expected_mods = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-        ec = EventCapturer()
         ifc = autokey.interface.XRecordInterface(MagicMock(), MagicMock())
         ifc._XInterfaceBase__usableOffsets = mock_usable_offsets
         ifc.modMasks = mock_modMask
-        with patch("autokey.interface.XInterfaceBase._XInterfaceBase__send_key_press_release_event", ec.capture_event):
+        with patch("autokey.interface.XInterfaceBase._XInterfaceBase__send_key_press_release_event", self.ec.capture_event):
             ifc.send_string(test_string)
             try:
                 autokey.interface.XInterfaceBase.cancel(ifc)
             except RuntimeError:
                 # Complaints about joining self thread before it starts.
                 pass
-        assert_that(ec.get_result(), is_(equal_to(expected)))
-        assert_that(ec.get_mods(), is_(equal_to(expected_mods)))
+        assert_that(self.ec.get_result(), is_(equal_to(expected)))
+        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)))
