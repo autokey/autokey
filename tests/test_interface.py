@@ -12,6 +12,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+import Xlib
 
 import pytest
 from hamcrest import *
@@ -46,10 +47,9 @@ class EventCapturer():
 mock_usable_offsets = (0, 1, 4, 5)
 mock_modMask = {Key.SHIFT: 1, Key.CONTROL: 4, Key.ALT: 8, Key.ALT_GR: 128, Key.SUPER: 64, Key.HYPER: 64, Key.META: 8, Key.NUMLOCK: 16}
 
-@patch("autokey.interface.XInterfaceBase._XInterfaceBase__checkWorkaroundNeeded", return_value=False)
-class TestXrecord(unittest.TestCase):
+class TestXrecord():
 
-    def setUp(self):
+    def setup_method(self):
         self.ec = EventCapturer()
         self.ifc = autokey.interface.XRecordInterface(MagicMock(), MagicMock())
         self.ifc._XInterfaceBase__usableOffsets = mock_usable_offsets
@@ -63,20 +63,35 @@ class TestXrecord(unittest.TestCase):
                 "autokey.interface.XInterfaceBase._XInterfaceBase__checkWorkaroundNeeded",
                 return_value=False)
 
-    def test_send_string(self, *args):
-        test_string = "hello"
-        # These are just the values recorded on my machine. I don't know enough
-        # to be sure they will be correct on every machine.
-        # So long as they work on the CI though, I'm happy this test protects
-        # against any _major_ screw-ups.
-        expected = [43, 43, 26, 26, 46, 46, 46, 46, 32, 32]
-        expected_mods = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    def teardown_method(self):
+        self.cancel()
+
+    def cancel(self):
+        try:
+            autokey.interface.XInterfaceBase.cancel(self.ifc)
+        except RuntimeError:
+            # Complaints about joining self thread before it starts.
+            pass
+        except Xlib.error.ConnectionClosedError:
+            # Complaints about closing after closing already.
+            pass
+
+    # These are just the values recorded on my machine. I don't know enough
+    # to be sure they will be correct on every machine.
+    # So long as they work on the CI though, I'm happy this test protects
+    # against any _major_ screw-ups.
+    @pytest.mark.parametrize(
+    "inpt, expected_keys, expected_mods, failmsg", [
+        ["hello",
+         [43, 43, 26, 26, 46, 46, 46, 46, 32, 32],
+         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+         "Xinterface doesn't send a normal string properly",
+         ]
+    ])
+    def test_send_string(self, inpt, expected_keys, expected_mods, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
-            self.ifc.send_string(test_string)
-            try:
-                autokey.interface.XInterfaceBase.cancel(self.ifc)
-            except RuntimeError:
-                # Complaints about joining self thread before it starts.
-                pass
-        assert_that(self.ec.get_result(), is_(equal_to(expected)))
-        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)))
+            self.ifc.send_string(inpt)
+            # Need to cancel early. But cancel in tearDown as well in case this test fails.
+            self.cancel()
+        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
+        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
