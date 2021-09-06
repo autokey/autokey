@@ -19,28 +19,23 @@ from hamcrest import *
 import unittest
 from unittest.mock import Mock, MagicMock, patch
 
-from tests.engine_helpers import *
-import tests.helpers_for_tests as testhelpers
-
 from autokey.model.key import Key
 import autokey.interface
 
 class EventCapturer():
     def __init__(self):
         self.received = []
-        self.mods = []
 
     def get_result(self):
         # return "|".join(self.received)
         return self.received
 
-    def get_mods(self):
-        return self.mods
-
-
     def capture_event(self, keycode, modifiers, theWindow=None, press=True):
-        self.received.append(keycode)
-        self.mods.append(modifiers)
+        if press:
+            pressed = "p"
+        else:
+            pressed = "r"
+        self.received.append((keycode, modifiers, pressed))
 
 # I just printed these to the console running regular autokey on my machine.
 # I don't know how likely they are to change. -- BlueDrink9, 6/9/21
@@ -81,61 +76,55 @@ class TestXrecord():
     # So long as they work on the CI though, I'm happy this test protects
     # against any _major_ screw-ups.
     @pytest.mark.parametrize(
-    "inpt, expected_keys, expected_mods, failmsg", [
-        ["hello",
-         [43, 43, 26, 26, 46, 46, 46, 46, 32, 32],
-         [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    "inpt, expected, failmsg", [
+        ["hi.",
+         [(43, 0, 'p'), (43, 0, 'r'), (31, 0, 'p'), (31, 0, 'r'), (60, 0, 'p'), (60, 0, 'r')],
          "Xinterface doesn't send a normal string properly",
          ],
         ["",
          [],
-         [],
          "Xinterface doesn't send an empty string properly",
          ],
         [" ",
-         [65, 65],
-         [0, 0],
+         [(65, 0, 'p'), (65, 0, 'r')],
          "Xinterface doesn't send a space-only string properly",
          ],
     ])
-    def test_send_string(self, inpt, expected_keys, expected_mods, failmsg):
+    def test_send_string(self, inpt, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_string(inpt)
             # Need to cancel early. But cancel in tearDown as well in case this test fails.
             self.cancel()
-        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
-        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
+        assert_that(self.ec.get_result(), is_(equal_to(expected)), failmsg)
 
 
     @pytest.mark.parametrize(
-    "inpt, expected_keys, expected_mods, failmsg", [
-        ["a", [], [], "Xinterface doesn't send a normal key properly",],
+    "inpt, expected, failmsg", [
+        ["a",
+         [(38, 0, 'p'), (38, 0, 'r')],
+         "Xinterface doesn't send a normal key properly",],
     ])
-    def test_send_key(self, inpt, expected_keys, expected_mods, failmsg):
+    def test_send_key(self, inpt, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_key(inpt)
             # Need to cancel early. But cancel in tearDown as well in case this test fails.
             self.cancel()
-        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
-        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
+        assert_that(self.ec.get_result(), is_(equal_to(expected)), failmsg)
 
     @pytest.mark.parametrize(
-    "inpt, mods, expected_keys, expected_mods, failmsg", [
+    "inpt, mods, expected, failmsg", [
         ["a", ["<ctrl>"],
-         [105, 38, 38, 105, 38, 38],
-         [0, 4, 4, 0, 0, 0],
+         [(105, 0, 'p'), (38, 4, 'p'), (38, 4, 'r'), (105, 0, 'r')],
          "Xinterface doesn't send a modified key properly",
          ],
         ["a", ["<ctrl>", "<shift>"],
-         [105, 62, 38, 38, 105, 62, 38, 38],
-         [0, 0, 5, 5, 0, 0, 0, 0],
+         [(105, 0, 'p'), (62, 0, 'p'), (38, 5, 'p'), (38, 5, 'r'), (105, 0, 'r'), (62, 0, 'r')],
          "Xinterface doesn't send a multiply-modified key properly",
          ],
     ])
-    def test_send_modified_key(self, inpt, mods, expected_keys, expected_mods, failmsg):
+    def test_send_modified_key(self, inpt, mods, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_modified_key(inpt, mods)
             # Need to cancel early. But cancel in tearDown as well in case this test fails.
             self.cancel()
-        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
-        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
+        assert_that(self.ec.get_result(), is_(equal_to(expected)), failmsg)
