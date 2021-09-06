@@ -35,6 +35,7 @@ if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.sys_interface.clipboard import Clipboard
+from autokey.sys_interface.abstract_interface import AbstractSysInterface
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -1232,7 +1233,7 @@ class XRecordInterface(XInterfaceBase, AbstractSysInterface):
                 self.handle_mouseclick(event.detail, event.root_x, event.root_y)
 
 
-class AtSpiInterface(XInterfaceBase):
+class AtSpiInterface(XInterfaceBase, AbstractSysInterface):
 
     def initialise(self):
         self.registry = pyatspi.Registry
