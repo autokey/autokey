@@ -320,6 +320,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.localDisplay.flush()
         self.localDisplay.close()
         self.join()
+
     def __set_lock_keys_state(self):
         ledMask = self.localDisplay.get_keyboard_control().led_mask
         self.mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
@@ -352,17 +353,8 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.rootWindow = self.localDisplay.screen().root
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
 
-        altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
-        self.__usableOffsets = (0, 1)
-        for code, offset in altList:
-            if code == 108 and offset == 0:
-                self.__usableOffsets += (4, 5)
-                logger.debug("Enabling sending using Alt-Grid")
-                break
-
+        self.__build_usable_offsets()
         self.__build_modifier_mask_mapping()
-
-        logger.debug("Modifier masks: %r", self.modMasks)
 
         self.__grab_all_hotkeys()
         self.localDisplay.flush()
@@ -372,6 +364,15 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         if logger.getEffectiveLevel() == logging.DEBUG:
             self.__keymap_test()
+
+    def __build_usable_offsets(self):
+        altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
+        self.__usableOffsets = (0, 1)
+        for code, offset in altList:
+            if code == 108 and offset == 0:
+                self.__usableOffsets += (4, 5)
+                logger.debug("Enabling sending using Alt-Grid")
+                break
 
     def __build_modifier_mask_mapping(self):
         self.modMasks = {}
@@ -390,6 +391,8 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                             break
 
                     if found: break
+        logger.debug("Modifier masks: %r", self.modMasks)
+
 
     def __get_unused_keycodes(self):
         # --- get list of keycodes that are unused in the current keyboard mapping
