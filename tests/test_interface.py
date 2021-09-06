@@ -105,3 +105,37 @@ class TestXrecord():
             self.cancel()
         assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
         assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
+
+
+    @pytest.mark.parametrize(
+    "inpt, expected_keys, expected_mods, failmsg", [
+        ["a", [], [], "Xinterface doesn't send a normal key properly",],
+    ])
+    def test_send_key(self, inpt, expected_keys, expected_mods, failmsg):
+        with self.event_capture_patch, self.check_workaround_patch:
+            self.ifc.send_key(inpt)
+            # Need to cancel early. But cancel in tearDown as well in case this test fails.
+            self.cancel()
+        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
+        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
+
+    @pytest.mark.parametrize(
+    "inpt, mods, expected_keys, expected_mods, failmsg", [
+        ["a", ["<ctrl>"],
+         [105, 38, 38, 105, 38, 38],
+         [0, 4, 4, 0, 0, 0],
+         "Xinterface doesn't send a modified key properly",
+         ],
+        ["a", ["<ctrl>", "<shift>"],
+         [105, 62, 38, 38, 105, 62, 38, 38],
+         [0, 0, 5, 5, 0, 0, 0, 0],
+         "Xinterface doesn't send a multiply-modified key properly",
+         ],
+    ])
+    def test_send_modified_key(self, inpt, mods, expected_keys, expected_mods, failmsg):
+        with self.event_capture_patch, self.check_workaround_patch:
+            self.ifc.send_modified_key(inpt, mods)
+            # Need to cancel early. But cancel in tearDown as well in case this test fails.
+            self.cancel()
+        assert_that(self.ec.get_result(), is_(equal_to(expected_keys)), failmsg)
+        assert_that(self.ec.get_mods(), is_(equal_to(expected_mods)), failmsg)
