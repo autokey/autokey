@@ -45,9 +45,6 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
         Update interface when keyboard layout changes.
         """
         return
-    @abstractmethod
-    def lookup_string(self, keyCode, shifted, numlock, altGrid):
-        return
 
     @abstractmethod
     def press_key(self, keyName):
@@ -73,13 +70,13 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
 
 
     @abstractmethod
-    def send_string(self, key_name):
+    def send_string(self, string):
         return
     @abstractmethod
     def send_key(self, key_name):
         return
     @abstractmethod
-    def send_modified_key(self, key_name):
+    def send_modified_key(self, key_name, modifiers):
         return
     @abstractmethod
     def send_string_clipboard(self, key_name):
