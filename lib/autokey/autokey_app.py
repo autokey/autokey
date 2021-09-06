@@ -255,11 +255,11 @@ class AutokeyApplication:
 
     def hotkey_created(self, item):
         logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        self.service.mediator.grab_hotkey(item)
 
     def hotkey_removed(self, item):
         logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        self.service.mediator.ungrab_hotkey(item)
 
     def unpause_service(self):
         """

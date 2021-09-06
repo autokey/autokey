@@ -84,6 +84,11 @@ class IoMediator(threading.Thread):
     def finish_send(self):
         self.interface.ungrab_keyboard()
 
+    def grab_hotkey(self, item):
+        self.interface.grab_hotkey(item)
+    def ungrab_hotkey(self, item):
+        self.interface.ungrab_hotkey(item)
+
     # Callback methods for Interfaces ----
 
     def set_modifier_state(self, modifier, state):
