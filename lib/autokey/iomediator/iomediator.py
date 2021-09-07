@@ -51,6 +51,7 @@ class IoMediator(threading.Thread):
         self.queue = queue.Queue()
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
+        self.app = service.app
         
         # Modifier tracking
         self.modifiers = {
@@ -66,9 +67,9 @@ class IoMediator(threading.Thread):
         }
         
         if self.interfaceType == X_RECORD_INTERFACE:
-            self.interface = XRecordInterface(self, service.app)
+            self.interface = XRecordInterface(self, self.app)
         else:
-            self.interface = AtSpiInterface(self, service.app)
+            self.interface = AtSpiInterface(self, self.app)
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface

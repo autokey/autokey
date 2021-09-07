@@ -87,15 +87,6 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
         UI_common.show_config_window(self)
 
-    def _try_start_service(self):
-        try:
-            self.service.start()
-        except Exception as e:
-            logger.exception("Error starting interface: " + str(e))
-            self.serviceDisabled = True
-            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
-
     def init_global_hotkeys(self, configManager):
         super().init_global_hotkeys(configManager)
         configManager.configHotkey.set_closure(self.show_configure_signal.emit)
