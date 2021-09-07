@@ -34,7 +34,6 @@ import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.sys_interface.clipboard import Clipboard
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
 
 
@@ -130,7 +129,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         # Event listener
         self.listenerThread = threading.Thread(target=self.__flush_events_loop)
-        self.clipboard = Clipboard()
 
         self.__initMappings()
 
@@ -220,25 +218,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         self.__enqueue(self.__sendKey, keyName)
 
-    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
-        """
-        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
-        :param string: The to-be pasted string
-        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
-         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
-         causing a paste operation to happen.
-        """
-        logger.debug("Sending string via clipboard: " + string)
-        callback_args = []
-        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
-            callback_args = [self._send_string_selection, string]
-        else:
-            callback_args = [self._send_string_clipboard, string, paste_command]
-        if common.USED_UI_TYPE == "QT":
-            self.__enqueue(self.app.exec_in_main, *callback_args)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
-            self.__enqueue(*callback_args)
-        logger.debug("Sending via clipboard enqueued.")
 
 
     def fake_keypress(self, keyName):
@@ -632,53 +611,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
 
-    def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
-        """
-        Use the clipboard to send a string.
-        """
-        backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
-        if backup is None:
-            logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
-        self.clipboard.text = string
-        try:
-            self.mediator.send_string(paste_command.value)
-        finally:
-            self.ungrab_keyboard()
-        # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
-        self.__enqueue(self._restore_clipboard_text, backup)
-
-    def _restore_clipboard_text(self, backup: str):
-        """Restore the clipboard content."""
-        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
-        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-        time.sleep(0.2)
-        self.clipboard.text = backup if backup is not None else ""
-
-    def _send_string_selection(self, string: str):
-        """Use the mouse selection clipboard to send a string."""
-        backup = self.clipboard.selection  # Keep a backup of current content, to restore the original afterwards.
-        if backup is None:
-            logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
-        self.clipboard.selection = string
-        self.__enqueue(self._paste_using_mouse_button_2)
-        self.__enqueue(self._restore_clipboard_selection, backup)
-
-    def _restore_clipboard_selection(self, backup: str):
-        """Restore the selection clipboard content."""
-        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
-        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-
-        # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
-        # It might be a good idea to make this delay configurable. There might be systems that need even longer.
-        time.sleep(1)
-        self.clipboard.selection = backup if backup is not None else ""
-
-    def _paste_using_mouse_button_2(self):
-        """Paste using the mouse: Press the second mouse button, then release it again."""
-        focus = self.localDisplay.get_input_focus().focus
-        xtest.fake_input(focus, X.ButtonPress, X.Button2)
-        xtest.fake_input(focus, X.ButtonRelease, X.Button2)
-        logger.debug("Mouse Button2 event sent.")
 
     def __grab_keyboard(self):
         focus = self.localDisplay.get_input_focus().focus
