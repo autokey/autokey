@@ -182,6 +182,8 @@ class Service:
         logger.debug("Window visible title: %r, Window class: %r" % window_info)
         self.configManager.lock.acquire()
 
+        # Check global hotkeys regardless of whether autokey is paused, because
+        # might be hotkey to unpause.
         self.__check_global_hotkeys(modifiers, rawKey, window_info)
 
         if self.__shouldProcess(window_info):
