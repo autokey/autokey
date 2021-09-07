@@ -69,6 +69,9 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
     @abstractmethod
     def handle_keyrelease(self, keyCode):
         return
+    @abstractmethod
+    def send_string_clipboard(self, key_name):
+        return
 
 class AbstractSysKeyOutputInterface(ABC, metaclass=ABCMeta):
     @abstractmethod
@@ -84,6 +87,9 @@ class AbstractSysKeyOutputInterface(ABC, metaclass=ABCMeta):
     def press_key(self, key_name):
         return
     @abstractmethod
+    def press_key(self, key_name):
+        return
+    @abstractmethod
     def release_key(self, key_name):
         return
     @abstractmethod
@@ -94,9 +100,6 @@ class AbstractSysKeyOutputInterface(ABC, metaclass=ABCMeta):
         return
     @abstractmethod
     def fake_keyup(self, key_name):
-        return
-    @abstractmethod
-    def send_string_clipboard(self, key_name):
         return
 
 
