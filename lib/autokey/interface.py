@@ -168,6 +168,9 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
     def press_key(self, keyName):
         self.__enqueue(self.__pressKey, keyName)
 
+    def release_key(self, keyName):
+        self.__enqueue(self.__releaseKey, keyName)
+
     def handle_keypress(self, keyCode):
         self.__enqueue(self.__handleKeyPress, keyCode)
 
@@ -219,6 +222,11 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.__enqueue(self.__sendKey, keyName)
 
 
+    def send_modified_key(self, keyName, modifiers):
+        """
+        Send a modified key (e.g. when emulating a hotkey)
+        """
+        self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
 
     def fake_keypress(self, keyName):
          self.__enqueue(self.__fakeKeypress, keyName)
@@ -229,12 +237,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def fake_keyup(self, keyName):
         self.__enqueue(self.__fakeKeyup, keyName)
-
-    def send_modified_key(self, keyName, modifiers):
-        """
-        Send a modified key (e.g. when emulating a hotkey)
-        """
-        self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
 
     def send_mouse_click(self, xCoord, yCoord, button, relative):
         self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)
@@ -752,6 +754,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             self.__sendKeyCode(hexKeyCode)
 
     def __send_keycode_with_modifiers_pressed(self, keyCode, modifier_keys, focus=None):
+        logger.debug("Send modified key: modifiers: %s key: %s", modifier_keys, keyCode)
         mask = 0
         for modkey in modifier_keys: mask |= self.modMasks[modkey]
 
@@ -860,9 +863,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def __pressKey(self, keyName):
         self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
-
-    def release_key(self, keyName):
-        self.__enqueue(self.__releaseKey, keyName)
 
     def __releaseKey(self, keyName):
         self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
