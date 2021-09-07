@@ -47,9 +47,6 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
         return
 
     @abstractmethod
-    def press_key(self, keyName):
-        return
-    @abstractmethod
     def handle_keypress(self, keyCode):
         return
     @abstractmethod
@@ -68,7 +65,6 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
     def ungrab_hotkey(self, item):
         return
 
-
     @abstractmethod
     def send_string(self, string):
         return
@@ -77,6 +73,11 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
         return
     @abstractmethod
     def send_modified_key(self, key_name, modifiers):
+        return
+    @abstractmethod
+    def press_key(self, key_name):
+        return
+    def release_key(self, key_name):
         return
     @abstractmethod
     def send_string_clipboard(self, key_name):
@@ -89,6 +90,9 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
         return
     @abstractmethod
     def fake_keypress(self, key_name):
+        return
+    @abstractmethod
+    def send_string_clipboard(self, key_name):
         return
 
 class AbstractMouseInterface(ABC, metaclass=ABCMeta):
