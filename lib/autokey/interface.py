@@ -224,16 +224,34 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         self.__enqueue(self.__sendKey, keyName)
 
-
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
         """
         self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
 
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
+        """
+        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        logger.debug("Sending string via clipboard: " + string)
+        callback_args = []
+        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
+            callback_args = [self._send_string_selection, string]
+        else:
+            callback_args = [self._send_string_clipboard, string, paste_command]
+        if common.USED_UI_TYPE == "QT":
+            self.__enqueue(self.app.exec_in_main, *callback_args)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self.__enqueue(*callback_args)
+        logger.debug("Sending via clipboard enqueued.")
+
     def fake_keypress(self, keyName):
          self.__enqueue(self.__fakeKeypress, keyName)
-
 
     def fake_keydown(self, keyName):
         self.__enqueue(self.__fakeKeydown, keyName)
