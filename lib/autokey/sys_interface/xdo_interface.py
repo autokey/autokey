@@ -42,7 +42,7 @@ WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", st
 class XdoSendInterface(AbstractSysKeyOutputInterface):
 # class XdoSendInterface(threading.Thread, AbstractSysKeyOutputInterface):
 
-    def __init__(self, mediator, app):
+    def __init__(self, app, mediator):
         # threading.Thread.__init__(self)
         # self.setDaemon(True)
         # self.setName("XdoSendInterface-thread")
@@ -58,9 +58,11 @@ class XdoSendInterface(AbstractSysKeyOutputInterface):
         Wait start_delay seconds before typing to allow switching
         between windows after hitting enter in the interactive prompt.
         """
+        logger.debug("Sending string '{}' with xdo".format(string))
         current_window = self.doer.get_focused_window_sane()
         self.__pause_autokey()
         self.doer.enter_text_window(current_window, string.encode("utf-8"), delay=delay)
+        self.__unpause_autokey()
 
     def send_key(self, key_name, delay: int=2*1000):
         """
@@ -73,11 +75,16 @@ class XdoSendInterface(AbstractSysKeyOutputInterface):
         """
         current_window = self.doer.get_focused_window_sane()
         self.__pause_autokey()
-        key = self.__convert_key_name_autokey_to_xdo(key_name)
-        self.doer.send_keysequence_window(current_window, key, delay=delay)
+        logger.debug("Sending key '{}' with xdo".format(key_name))
+        self.doer.send_keysequence_window(current_window, key_name.encode("utf-8"), delay=delay)
+        self.__unpause_autokey()
 
-    def send_modified_key(self, key_name, delay: int=2*1000):
-        self.send_key(key_name, delay)
+    def send_modified_key(self, key_name, modifiers, delay: int=2*1000):
+        mods =self.__convert_modifiers_autokey_to_xdo(modifiers)
+        key = self.__convert_key_name_autokey_to_xdo(key_name)
+        combined = mods + [key]
+        to_send = "+".join(combined)
+        self.send_key(to_send, delay)
 
     def press_key(self, key_name, delay: int=5*1000):
         self.__press_or_release_key(key_name, delay, press=True)
@@ -93,12 +100,19 @@ class XdoSendInterface(AbstractSysKeyOutputInterface):
 
     def __press_or_release_key(self, key_name, delay: int=5*1000, press=True):
         current_window = self.doer.get_focused_window_sane()
-        self.__pause_autokey()
         key = self.__convert_key_name_autokey_to_xdo(key_name)
+        self.__pause_autokey()
         if press:
             self.doer.send_keysequence_window_down(current_window, key, delay=delay)
         else:
             self.doer.send_keysequence_window_up(current_window, key, delay=delay)
+        self.__unpause_autokey()
+
+    def __convert_modifiers_autokey_to_xdo(self, modifiers):
+        converted = []
+        for mod in modifiers:
+            converted.append(self.__convert_key_name_autokey_to_xdo(mod))
+        return converted
 
     def __convert_key_name_autokey_to_xdo(self, key_name):
         """
@@ -118,7 +132,8 @@ class XdoSendInterface(AbstractSysKeyOutputInterface):
         """
         self.app.pause_service()
         self.mediator.finish_send()
-        yield
+        time.sleep(0.2)
+    def __unpause_autokey(self):
         self.mediator.begin_send()
         self.app.unpause_service()
-
+        time.sleep(0.2)

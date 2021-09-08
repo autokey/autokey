@@ -48,6 +48,11 @@ The old tests are scheduled to be replaced by a new suite in the `develop` branc
 
 The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
 
+Debugging
+=========
+
+Debugging the various UIs can be done like `python -m pdb -m autokey.qtui`
+
 Program Structure
 =================
 
