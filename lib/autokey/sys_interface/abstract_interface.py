@@ -80,9 +80,6 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
     def release_key(self, key_name):
         return
     @abstractmethod
-    def send_string_clipboard(self, key_name):
-        return
-    @abstractmethod
     def fake_keydown(self, key_name):
         return
     @abstractmethod
@@ -90,9 +87,6 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
         return
     @abstractmethod
     def fake_keypress(self, key_name):
-        return
-    @abstractmethod
-    def send_string_clipboard(self, key_name):
         return
 
 class AbstractMouseInterface(ABC, metaclass=ABCMeta):
