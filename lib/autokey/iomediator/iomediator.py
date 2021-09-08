@@ -23,6 +23,7 @@ from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
 from autokey.sys_interface.clipboard import Clipboard
+from autokey.sys_interface.xdo_interface import XdoSendInterface
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
@@ -52,6 +53,7 @@ class IoMediator(threading.Thread):
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
         self.app = service.app
+        self.xdo = XdoSendInterface(self.app, self)
         
         # Modifier tracking
         self.modifiers = {
@@ -92,6 +94,7 @@ class IoMediator(threading.Thread):
         logger.debug("IoMediator shutdown completed")
 
     def begin_send(self):
+        # Grab keyboard to prevent user keystrokes interfering with autokey inputs.
         self.interface.grab_keyboard()
 
     def finish_send(self):
@@ -174,9 +177,9 @@ class IoMediator(threading.Thread):
         string = string.replace('\n', "<enter>")
         string = string.replace('\t', "<tab>")
         
-        logger.debug("Send via event interface")
+        logger.debug("Sending string '{}' via event interface".format(string))
         self._clear_modifiers()
-        IoMediator._send_string(string, self.interface)
+        IoMediator._send_string(string, self.xdo)
         self._reapply_modifiers()
 
     # Mainly static for the purpose of testing
