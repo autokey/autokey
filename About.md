@@ -1,3 +1,3 @@
 AutoKey is a Python 3 automation utility with GTK and Qt versions. It can do text expansion, run [macros](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases), and run [scripts](https://github.com/autokey/autokey/wiki/Scripting), any of which can be triggered with hotkeys, key-combinations, or typed abbreviations. It's fully customizable and you can use it to automate pretty much any computer behaviors you can think of.
 
-If you're new to AutoKey, the [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide) will get you started.
+If you're new to AutoKey, the [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide) will get you started and the [FAQ](https://github.com/autokey/autokey/wiki/FAQ) page has answers to common questions.
