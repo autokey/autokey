@@ -1,5 +1,5 @@
 * [Home](https://github.com/autokey/autokey/wiki)
-  * About
+  * [About](https://github.com/autokey/autokey/wiki/About)
     * [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide)
     * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * Administration
