@@ -317,3 +317,52 @@ x = str(d.root_x) # get x coord and convert to string
 y = str(d.root_y) # get y coord and convert to string
 dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the coordinates
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Toggle a looped script
+- **Author**: Elliria
+- **Purpose**: Use a global value and two different key-presses to toggle the start and stop of a looped script.
+- **Notes**: This can be done by writing two scripts, each with a different trigger (hotkey or abbreviation). One script sets a global value and starts a loop that checks for that value in each iteration to determine whether it should continue with the loop or not and, if it's satisfied with the global value, runs the remaining code in the loop and starts over. The other script changes the global value, which ends the loop.
+
+  In this example, SCRIPT1 sets a **True** value for the global **x** value, then starts a loop that checks for the value of **x** and presses the right arrow twice and pauses for two seconds, repeating that over and over while that global **x** value remains **True**. SCRIPT2 changes the value of the global **x** variable to **False**, which immediately breaks you out of SCRIPT1's loop.
+
+  If, for example, you use the **right arrow** key as the hotkey for SCRIPT1 and use the ***Esc*** key as the hotkey for SCRIPT2, you can trigger the loop at any time by pressing the **right arrow** key and end it at any time by pressing the **Esc** key.
+
+_SCRIPT1:_
+```python
+# set the True value for the global x variable:
+store.set_global_value("x",True)
+
+# if the x global x variable exists:
+try:
+    # loop endlessly while the global x variable's value is True:
+    while store.get_global_value("x") == True:
+        # press the right key twice:
+        keyboard.send_keys("<right><right>")
+        # delay for 2 seconds:
+        time.sleep(2)
+# if the global x variable doesn't exist:
+except:
+    # do nothing rather than throwing an error:
+    pass
+```
+
+_SCRIPT2:_
+```python
+# set the False value for the global x variable:
+store.set_global_value("x",False)
+# get rid of the global x variable entirely (optional):
+store.remove_global_value("x")
+```
