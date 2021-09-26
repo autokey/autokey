@@ -765,6 +765,8 @@ if retCode == 0:
 
 **Description**: Similar to the password manager. As long as you have sshpass installed and you are in the terminal this script will save your fingers some major typing time.
 
+**Edit**: September 26, 2021 - After using my own script for a long long time, I made some small improvements to it, that allow you to tap the primary key character for a username and jump to it. The ip is now hidden on the dropdown, and the menu shows the username in the first collumn. We're also now using a try except block to capture errors and allow the dialog to exit gracefully. Further, we can now use blank entries in our drop down.
+
 ```python
 from autokey.common import USING_QT
 
@@ -776,6 +778,9 @@ from autokey.common import USING_QT
 # these are all local ips obviously and the passwords are stupid (3rd element)
 # on purpose
 systems = []
+systems.append( [ "","","" ])
+systems.append( [ "","","GENERAL" ])
+systems.append( [ "","","" ])
 systems.append( [ "127.0.0.1",  "root",  "reallyhardpasswordnot",  "default"])
 systems.append( [ "10.0.0.1",  "mom",  "makescookies"])
 systems.append( [ "192.168.1.1",  "john",  "mybrother"])
@@ -783,24 +788,41 @@ systems.append( [ "192.168.1.1",  "john",  "mybrother"])
 menuBuilder = []
 defEntry = ""
 menuEntry = "{} {} {}"
+hdrEntry = "====== {} ======"
 for x in systems:
-  entry=menuEntry.format(x[0],x[1],x[2])
-  if x.count("default") == 1:
-      defEntry=entry
-  menuBuilder.append(entry)
+    if x[1] == "" and x[2] != "":
+        entry = hdrEntry.format(x[2])
+    elif x[1] == "" and x[2] == "":
+        entry = ""
+    else:
+        entry = menuEntry.format(x[1], x[2], x[0])
+        if x.count("default") == 1:
+            defEntry = entry
+    menuBuilder.append(entry)
 
-if USING_QT:
-    retCode, choice = dialog.list_menu(menuBuilder, default=defEntry)
-else:
-    retCode, choice = dialog.list_menu(menuBuilder, height='800',width='350',default=defEntry)
+# We use the boolean check to see which toolkit we're using
+# the different toolkits receive extra parameters differently
+try:
+    if USING_QT:
+        retCode, choice = dialog.list_menu(menuBuilder, default=defEntry)
+    else:
+        retCode, choice = dialog.list_menu(
+            menuBuilder, height="800", width="350", default=defEntry
+        )
 
-if retCode == 0:
-    command="sshpass -p {} ssh -o StrictHostKeyChecking=no {}@{}"
-    keyboard.send_keys(command.format(
-        systems[menuBuilder.index(choice)][2],
-        systems[menuBuilder.index(choice)][1],
-        systems[menuBuilder.index(choice)][0]
-    ))
+    if retCode == 0:
+        command = 'sshpass -p "{}" ssh -o StrictHostKeyChecking=no {}@{}'
+        keyboard.send_keys(
+            command.format(
+                systems[menuBuilder.index(choice)][2]
+                .replace("$", "\$")
+                .replace("!", "\!"),
+                systems[menuBuilder.index(choice)][1],
+                systems[menuBuilder.index(choice)][0],
+            )
+        )
+except:
+    exit()
 ```
 
 ## Url Wrangler ##
