@@ -5,3 +5,9 @@ The current list of platforms can always be found here:
 * Gitter: https://gitter.im/autokey/autokey
 * Google Groups: https://groups.google.com/g/autokey-users?pli=1
 * Reddit: https://www.reddit.com/r/autokey/
+
+Contributed Scripts:
+* [[Advanced Scripts]]
+* [[Basic Scripts]]
+* [[Contributed Scripts 1]]
+* [[Contributed Scripts 2]]
