@@ -25,3 +25,5 @@
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
     * [X Clipboards](https://github.com/autokey/autokey/wiki/More-than-you-ever-wanted-to-know-about-X-clipboards)
+    * [Misc Info](https://github.com/autokey/autokey/wiki/Helpful-programs-and-tips)
+
