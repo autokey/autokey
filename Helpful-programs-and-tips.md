@@ -1,1 +1,0 @@
-New page for misc info that might be helpful when developing scripts or using AutoKey.
