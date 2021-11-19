@@ -211,5 +211,5 @@ setup(
         'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.5',
     ],
-    keywords='automation hotkey expansion expander phrase',
+    keywords='automation hotkey expansion expander phrase macros keyboard auto key autokey ak shortcuts bind autohotkey mouse customization',
 )
