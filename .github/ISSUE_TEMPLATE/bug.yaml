@@ -5,7 +5,9 @@ description: File a bug/issue
 title: "[BUG] <title>"
 labels: [Bug, Needs Triage]
 body:
-# Existing issue:
+ options:
+   required: false
+  # Existing issue:
   - type: checkboxes
     id: exists
     attributes:
@@ -16,7 +18,7 @@ body:
     options:
       - label: I have searched through the existing issues.
         required: true
-# Classification:
+  # Classification:
   - type: dropdown
     id: classification
     attributes:
@@ -32,7 +34,7 @@ body:
         - UI/Usability
     validations:
       required: false
-## Reproducibility:
+  ## Reproducibility:
   - type: dropdown
     id: reproducibility
     attributes:
@@ -47,7 +49,7 @@ body:
         - Unable
     validations:
       required: false
-# Linux distribution:
+  # Linux distribution:
   - type: textarea
     id: lunux_distribution
     attributes:
@@ -57,7 +59,7 @@ body:
         release or version number.
     validations:
       required: false
-## AutoKey version:
+  ## AutoKey version:
   - type: textarea
     id: autokey_version
     attributes:
@@ -67,7 +69,7 @@ body:
         to be present in more than one version, please list them all.
     validations:
       required: false
-# GUI:
+  # GUI:
   - type: dropdown
     id: gui
     attributes:
@@ -79,7 +81,7 @@ body:
         - Both
     validations:
       required: false
-# Installed via:
+  # Installed via:
   - type: dropdown
     id: installation_method
     attributes:
@@ -92,7 +94,7 @@ body:
         - PPA
     validations:
       required: false
-# Summary:
+  # Summary:
   - type: textarea
     id: summary
     attributes:
@@ -100,7 +102,7 @@ body:
       description: Provide a brief summary of the problem.
     validations:
       required: false
-# Reproducibility:
+  # Reproducibility:
   - type: textarea
     id: reproducibility
     attributes:
@@ -114,7 +116,7 @@ body:
         3. Then do this other thing.
       validations:
         required: false
-# Expected result:
+  # Expected result:
   - type: textarea
     id: expected_result
     attributes:
@@ -122,7 +124,7 @@ body:
       description: Provide a description of what you expected to happen.
     validations:
       required: false
-# Actual result:
+  # Actual result:
   - type: textarea
     id: actual_result
     attributes:
@@ -130,7 +132,7 @@ body:
       description: Provide a description of what actually happened.
     validations:
       required: false
-# Screenshot:
+  # Screenshot:
   - type: textarea
     Id: screenshot
     attributes:
@@ -140,7 +142,7 @@ body:
         by dragging the image file(s) here to help with debugging.
     validations:
       required: false
-# Verbose output:
+  # Verbose output:
   - type: textarea
     id: verbose_output
     attributes:
@@ -160,7 +162,7 @@ body:
         ```
       validations:
         required: false
-# Notes:
+  # Notes:
   - type: textarea
     id: notes
     attributes:
