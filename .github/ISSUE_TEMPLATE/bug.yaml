@@ -14,7 +14,7 @@ body:
   - type: checkboxes
     id: exists
     attributes:
-      label: Is there already an issue for this?
+      label: Has this issue already been reported?
       description: >
         "Please [search](https://github.com/autokey/autokey/issues)
         to see if an issue already exists for your issue."
