@@ -1,0 +1,175 @@
+---
+# Validate this code: http://www.yamllint.com/
+name: Bug
+description: File a bug/issue
+title: "[BUG] <title>"
+labels: [Bug, Needs Triage]
+body:
+# Existing issue:
+  - type: checkboxes
+    id: exists
+    attributes:
+      label: Is there already an issue for this?
+      description: >
+        "Please [search](https://github.com/autokey/autokey/issues)
+        to see if an issue already exists for your issue."
+    options:
+      - label: I have searched through the existing issues.
+    validations:
+        required: true
+# Classification:
+  - type: dropdown
+    id: classification
+    attributes:
+      label: What type of issue is this?
+      description: null
+      multiple: false
+      options:
+        - Bug
+        - Crash/Hang/Data loss
+        - Enhancement
+        - Feature (new)
+        - Performance
+        - UI/Usability
+    validations:
+      required: false
+## Reproducibility:
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Can this be reproduced?
+      description: null
+      multiple: true
+      options:
+        - Always
+        - I didn't try
+        - Rarely
+        - Sometimes
+        - Unable
+    validations:
+      required: false
+# Linux distribution:
+  - type: textarea
+    id: lunux_distribution
+    attributes:
+      label: Which Linux distribution did you use?
+      description: >
+        Provide information about your Linux distribution and its
+        release or version number.
+    validations:
+      required: false
+## AutoKey version:
+  - type: textarea
+    id: autokey_version
+    attributes:
+      label: Which AutoKey version did you use?
+      description: >
+        Paste in your AutoKey version and, if the problem is known
+        to be present in more than one version, please list them all.
+    validations:
+      required: false
+# GUI:
+  - type: dropdown
+    id: gui
+    attributes:
+      label: Which GUI did you use?
+      multiple: true
+      options:
+        - GTK
+        - Qt
+        - Both
+    validations:
+      required: false
+# Installed via:
+  - type: dropdown
+    id: installation_method
+    attributes:
+      label: How did you install AutoKey?
+      multiple: true
+      options:
+        - Git
+        - package manager
+        - pip3
+        - PPA
+    validations:
+      required: false
+# Summary:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Can you describe the issue?
+      description: Provide a brief summary of the problem.
+    validations:
+      required: false
+# Reproducibility:
+  - type: textarea
+    id: reproducibility
+    attributes:
+      label: What are the steps to reproduce the issue?
+      description: >
+        "Provide the steps that need to be taken to reproduce the
+        behavior. For example:"
+      placeholder: |
+        1. Do this.
+        2. Then do that.
+        3. Then do this other thing.
+      validations:
+        required: false
+# Expected result:
+  - type: textarea
+    id: expected_result
+    attributes:
+      label: "Expected result:"
+      description: Provide a description of what you expected to happen.
+    validations:
+      required: false
+# Actual result:
+  - type: textarea
+    id: actual_result
+    attributes:
+      label: Current Behavior
+      description: Provide a description of what actually happened.
+    validations:
+      required: false
+# Screenshot:
+  - type: textarea
+    Id: screenshot
+    attributes:
+      label: Screenshot
+      description: >
+        Include one or more screenshots of the issue, if applicable,
+        by dragging the image file(s) here to help with debugging.
+    validations:
+      required: false
+# Verbose output:
+  - type: textarea
+    id: verbose_output
+    attributes:
+      label: Can you provide the output of the AutoKey command?
+      description: >
+        "Start AutoKey in verbose mode from a terminal window with
+        either the `autokey-gtk --verbose` or `autokey-qt --verbose`
+        command. Then do the minimum required to recreate your issue
+        and close AutoKey. This will produce a log in the terminal
+        window of what AutoKey did and may show you wnat is wrong.
+        Copy the log from the terminal and paste it into a code block
+        below, enclosing it in triple brackets above and below it.
+        For example:"
+      placeholder: |
+        ```
+        Example output with triple backticks above and below it.
+        ```
+      validations:
+        required: false
+# Notes:
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: >
+        Describe any debugging steps you've taken, a workaround you've
+        figured out, or any other information you think we might need,
+        including links or references.
+    validations:
+      required: false
+...
