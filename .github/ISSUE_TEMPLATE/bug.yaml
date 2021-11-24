@@ -12,7 +12,7 @@ body:
         Thank you for taking the time to fill out this bug report!
   # EXISTING ISSUE
   - type: checkboxes
-    id: exists
+    id: existing-issue
     attributes:
       label: Has this issue already been reported?
       description: >
