@@ -5,7 +5,7 @@ description: File a bug/issue
 title: "[BUG] <title>"
 labels: [Bug, Needs Triage]
 body:
-  # Introduction:
+  # INTRODUCTION
   - type: markdown
     attributes:
       value: |
@@ -36,7 +36,7 @@ body:
         - UI/Usability
     validations:
       required: false
-  # Reproducibility:
+  # REPRODUCIBILITY
   - type: dropdown
     id: reproducibility
     attributes:
@@ -51,9 +51,9 @@ body:
         - Unable
     validations:
       required: false
-  # Linux distribution:
+  # LINUX DISTRIBUTION
   - type: textarea
-    id: lunux_distribution
+    id: linux-distribution
     attributes:
       label: Which Linux distribution did you use?
       description: >
@@ -61,9 +61,9 @@ body:
         release or version number.
     validations:
       required: false
-  ## AutoKey version:
+  # AUTOKEY VERSION
   - type: textarea
-    id: autokey_version
+    id: autokey-version
     attributes:
       label: Which AutoKey version did you use?
       description: >
@@ -71,7 +71,7 @@ body:
         to be present in more than one version, please list them all.
     validations:
       required: false
-  # GUI:
+  # GUI
   - type: dropdown
     id: gui
     attributes:
@@ -83,9 +83,9 @@ body:
         - Both
     validations:
       required: false
-  # Installed via:
+  # INSTALLED VIA
   - type: dropdown
-    id: installation_method
+    id: installation-method
     attributes:
       label: How did you install AutoKey?
       multiple: true
@@ -96,7 +96,7 @@ body:
         - PPA
     validations:
       required: false
-  # Summary:
+  # SUMMARY
   - type: textarea
     id: summary
     attributes:
@@ -104,7 +104,7 @@ body:
       description: Provide a brief summary of the problem.
     validations:
       required: false
-  # Reproducibility:
+  # REPRODUCIBILITY
   - type: textarea
     id: reproducibility
     attributes:
@@ -118,23 +118,23 @@ body:
         3. Then do this other thing.
     validations:
       required: false
-  # Expected result:
+  # EXPECTED RESULT
   - type: textarea
-    id: expected_result
+    id: expected-result
     attributes:
       label: "Expected result:"
       description: Provide a description of what you expected to happen.
     validations:
       required: false
-  # Actual result:
+  # ACTUAL RESULT
   - type: textarea
-    id: actual_result
+    id: actual-result
     attributes:
       label: Current Behavior
       description: Provide a description of what actually happened.
     validations:
       required: false
-  # Screenshot:
+  # SCREENSHOT
   - type: textarea
     Id: screenshot
     attributes:
@@ -144,9 +144,9 @@ body:
         by dragging the image file(s) here to help with debugging.
     validations:
       required: false
-  # Verbose output:
+  # VERBOSE OUTPUT
   - type: textarea
-    id: verbose_output
+    id: verbose-output
     attributes:
       label: Can you provide the output of the AutoKey command?
       description: >
@@ -164,7 +164,7 @@ body:
         ```
     validations:
       required: false
-  # Notes:
+  # NOTES
   - type: textarea
     id: notes
     attributes:
