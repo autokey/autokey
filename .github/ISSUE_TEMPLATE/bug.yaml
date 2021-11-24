@@ -15,8 +15,7 @@ body:
         to see if an issue already exists for your issue."
     options:
       - label: I have searched through the existing issues.
-    validations:
-        required: true
+      required: true
 # Classification:
   - type: dropdown
     id: classification
