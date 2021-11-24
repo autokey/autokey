@@ -59,8 +59,8 @@ body:
       description: >
         Provide information about your Linux distribution and its
         release or version number.
-    validations:
-      required: false
+      validations:
+        required: false
   ## AutoKey version:
   - type: textarea
     id: autokey_version
@@ -116,8 +116,8 @@ body:
         1. Do this.
         2. Then do that.
         3. Then do this other thing.
-      validations:
-        required: false
+    validations:
+      required: false
   # Expected result:
   - type: textarea
     id: expected_result
@@ -162,8 +162,8 @@ body:
         ```
         Example output with triple backticks above and below it.
         ```
-      validations:
-        required: false
+    validations:
+      required: false
   # Notes:
   - type: textarea
     id: notes
