@@ -5,8 +5,11 @@ description: File a bug/issue
 title: "[BUG] <title>"
 labels: [Bug, Needs Triage]
 body:
-  options:
-    required: false
+  # Introduction:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for taking the time to fill out this bug report!
   # Existing issue:
   - type: checkboxes
     id: exists
