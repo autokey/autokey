@@ -16,10 +16,9 @@ body:
     attributes:
       label: Has this issue already been reported?
       description: >
-        "Please [search](https://github.com/autokey/autokey/issues)
-        to see if an issue already exists for your issue."
+        "Please [search](https://github.com/autokey/autokey/issues) to see if an issue already exists for your issue."
       options:
-        - label: I have searched through the existing issues.
+        - label: "I have searched through the existing issues."
           required: true
   # CLASSIFICATION
   - type: dropdown
