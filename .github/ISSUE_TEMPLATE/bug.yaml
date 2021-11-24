@@ -5,8 +5,8 @@ description: File a bug/issue
 title: "[BUG] <title>"
 labels: [Bug, Needs Triage]
 body:
- options:
-   required: false
+  options:
+    required: false
   # Existing issue:
   - type: checkboxes
     id: exists
