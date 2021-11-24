@@ -19,8 +19,8 @@ body:
         "Please [search](https://github.com/autokey/autokey/issues)
         to see if an issue already exists for your issue."
       options:
-        -label: I have searched through the existing issues.
-         required: true
+        - label: I have searched through the existing issues.
+          required: true
   # CLASSIFICATION
   - type: dropdown
     id: classification
