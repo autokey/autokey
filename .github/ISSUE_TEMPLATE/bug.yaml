@@ -26,7 +26,6 @@ body:
     id: classification
     attributes:
       label: What type of issue is this?
-      description: null
       multiple: false
       options:
         - Bug
