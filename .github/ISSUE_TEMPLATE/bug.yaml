@@ -9,7 +9,9 @@ body:
     attributes:
       label: Has this issue already been reported?
       description: >
-        "Please [search](https://github.com/autokey/autokey/issues) to see if an issue already exists for your issue."
+        "Please [search](https://github.com/autokey/autokey/issues)
+        to see if a bug report already exists for your issue and if
+        so, consider contributing to that issue instead."
       options:
         - label: "I have searched through the existing issues."
           required: true
@@ -21,11 +23,11 @@ body:
       multiple: false
       options:
         - Bug
-        - "Crash/Hang/Data loss"
+        - Crash/Hang/Data loss
         - Enhancement
-        - "Feature (new)"
+        - Feature (new)
         - Performance
-        - "UI/Usability"
+        - UI/Usability
     validations:
       required: false
   # REPRODUCIBILITY
@@ -34,7 +36,7 @@ body:
     attributes:
       label: Can this be reproduced?
       description: null
-      multiple: true
+      multiple: false
       options:
         - Always
         - I didn't try
@@ -68,7 +70,7 @@ body:
     id: gui
     attributes:
       label: Which GUI did you use?
-      multiple: true
+      multiple: false
       options:
         - GTK
         - Qt
@@ -80,7 +82,7 @@ body:
     id: installation-method
     attributes:
       label: How did you install AutoKey?
-      multiple: true
+      multiple: false
       options:
         - Git
         - package manager
