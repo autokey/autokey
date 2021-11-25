@@ -21,11 +21,11 @@ body:
       multiple: false
       options:
         - Bug
-        Crash/Hang/Data loss
-        Enhancement
-        Feature (new)
-        Performance
-        UI/Usability
+        - "Crash/Hang/Data loss"
+        - Enhancement
+        - "Feature (new)"
+        - Performance
+        - "UI/Usability"
     validations:
       required: false
   # REPRODUCIBILITY
