@@ -103,9 +103,9 @@ body:
       description: Provide a brief summary of the problem.
     validations:
       required: false
-  # REPRODUCIBILITY
+  # STEPS TO RREPRODUCE
   - type: textarea
-    id: reproducibility
+    id: steps-to-reproduce
     attributes:
       label: What are the steps to reproduce the issue?
       description: >
