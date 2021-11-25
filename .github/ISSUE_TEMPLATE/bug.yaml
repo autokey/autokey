@@ -10,8 +10,9 @@ body:
       label: Has this issue already been reported?
       description: >
         "Please [search](https://github.com/autokey/autokey/issues)
-        to see if a bug report already exists for your issue and if
-        so, consider contributing to that issue instead."
+        to see if a bug report already exists for your issue. If
+        there is one, consider contributing to it instead. If there
+        isn't one, check this box and continue filling out this form."
       options:
         - label: "I have searched through the existing issues."
           required: true
