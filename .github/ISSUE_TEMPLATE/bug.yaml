@@ -1,14 +1,8 @@
 ---
-# Validate this code: http://www.yamllint.com/
 name: Bug
-description: File a bug/issue
+description: File a bug/issue report.
 labels: [Bug, Needs Triage]
 body:
-  # INTRODUCTION
-  - type: markdown
-    attributes:
-      value: |
-        Thank you for taking the time to fill out this bug report!
   # EXISTING ISSUE
   - type: checkboxes
     id: existing-issue
@@ -154,11 +148,10 @@ body:
         and close AutoKey. This will produce a log in the terminal
         window of what AutoKey did and may show you wnat is wrong.
         Copy the log from the terminal and paste it into a code block
-        below, enclosing it in triple brackets above and below it.
-        For example:"
+        below, enclosing it in triple brackets above and below it."
       placeholder: |
         ```
-        Example output with triple backticks above and below it.
+        Example output.
         ```
     validations:
       required: false
