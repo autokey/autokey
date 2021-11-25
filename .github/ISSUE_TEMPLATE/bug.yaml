@@ -135,7 +135,7 @@ body:
       required: false
   # SCREENSHOT
   - type: textarea
-    Id: screenshot
+    id: screenshot
     attributes:
       label: Screenshot
       description: >
