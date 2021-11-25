@@ -20,7 +20,7 @@ body:
       label: What type of issue is this?
       multiple: false
       options:
-        - Bug
+        - Bug (default)
         - Crash/Hang/Data loss
         - Enhancement
         - Feature (new)
