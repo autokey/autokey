@@ -1,6 +1,6 @@
 ---
 name: Bug
-description: Click the **Get started** button to the right to file a bug/issue report.
+description: Thank you for taking the time to help out the AutoKey project! Click the "Get started" button to the right to file your bug/issue report.
 labels: [Bug, Needs Triage]
 body:
   # EXISTING ISSUE
