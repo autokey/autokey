@@ -2,7 +2,6 @@
 # Validate this code: http://www.yamllint.com/
 name: Bug
 description: File a bug/issue
-title:
 labels: [Bug, Needs Triage]
 body:
   # INTRODUCTION
