@@ -3,7 +3,7 @@ name: Bug
 description: >
   Thank you for taking the time to help out the AutoKey project!
   Click the "Get started" button to the right to file your bug/issue report.
-labels: [Bug, Needs Triage]
+labels: [bug, needs triage]
 body:
   # EXISTING ISSUE
   - type: checkboxes
