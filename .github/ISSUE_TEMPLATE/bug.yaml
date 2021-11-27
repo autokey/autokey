@@ -154,7 +154,7 @@ body:
         command. Then do the minimum required to recreate your issue.
         Then close AutoKey. This will produce a log of what AutoKey did
         and may show you wnat went wrong. Copy the log from the terminal
-        and paste it here:
+        window and paste it here:
       render: bash
     validations:
       required: false
