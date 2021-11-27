@@ -1,9 +1,9 @@
 ---
 name: Bug Report
 description: >
-  Found a bug in AutoKey? We'll ask you a few questions to gather the
-  information that will help us to solve the issue as quickly as
-  possible. Click the "Get started" button to file your bug report.
+  Found a bug in AutoKey? Your answers to the questions in our bug
+  report form will help us to solve the issue as quickly as possible.
+  Click the "Get started" button when you're ready to begin.
 labels: [bug, help wanted]
 assignees: Elliria
 body:
