@@ -1,8 +1,11 @@
 ---
 name: Bug Report
 description: >
-  Thank you for taking the time to help out the AutoKey project!
-  Click the "Get started" button to file your bug/issue report.
+  Thank you for taking the time to help out the AutoKey project! We've
+  put together a few questions to help you gather the information we'll
+  need to solve the issue as quickly as possible. Click the "Get
+  started" button and spend a few minutes answering the questions in
+  the form to file your bug report.
 labels: [bug, help wanted]
 assignees: Elliria
 body:
