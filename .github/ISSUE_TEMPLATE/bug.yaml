@@ -113,7 +113,7 @@ body:
       placeholder: |
         1. Do this.
         2. Then do that.
-        3. Then do this other thing.
+        3. Etc
     validations:
       required: false
   # EXPECTED RESULT
