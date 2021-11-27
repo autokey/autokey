@@ -34,21 +34,6 @@ body:
         - UI/Usability
     validations:
       required: false
-  # REPRODUCIBILITY
-  - type: dropdown
-    id: reproducibility
-    attributes:
-      label: Can this be reproduced?
-      description: null
-      multiple: false
-      options:
-        - Always
-        - I didn't try
-        - Rarely
-        - Sometimes
-        - Unable
-    validations:
-      required: false
   # LINUX DISTRIBUTION
   - type: textarea
     id: linux-distribution
@@ -59,6 +44,18 @@ body:
         release or version number.
     validations:
       required: false
+  # AUTOKEY GUI
+  - type: dropdown
+    id: gui
+    attributes:
+      label: Which AutoKey GUI did you use?
+      multiple: false
+      options:
+        - GTK
+        - Qt
+        - Both
+    validations:
+      required: false
   # AUTOKEY VERSION
   - type: textarea
     id: autokey-version
@@ -67,18 +64,6 @@ body:
       description: >
         Paste in your AutoKey version and, if the problem is known
         to be present in more than one version, please list them all.
-    validations:
-      required: false
-  # GUI
-  - type: dropdown
-    id: gui
-    attributes:
-      label: Which GUI did you use?
-      multiple: false
-      options:
-        - GTK
-        - Qt
-        - Both
     validations:
       required: false
   # INSTALLED VIA
@@ -98,8 +83,23 @@ body:
   - type: textarea
     id: summary
     attributes:
-      label: Can you describe the issue?
-      description: Provide a brief summary of the problem.
+      label: Can you briefly describe the issue?
+      description: Provide a short summary of the problem.
+    validations:
+      required: false
+  # REPRODUCIBILITY
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Can the issue be reproduced?
+      description: null
+      multiple: false
+      options:
+        - Always
+        - I didn't try
+        - Rarely
+        - Sometimes
+        - Unable
     validations:
       required: false
   # STEPS TO RREPRODUCE
@@ -120,7 +120,7 @@ body:
   - type: textarea
     id: expected-result
     attributes:
-      label: "Expected result:"
+      label: "What should have happened?"
       description: Provide a description of what you expected to happen.
     validations:
       required: false
@@ -128,7 +128,7 @@ body:
   - type: textarea
     id: actual-result
     attributes:
-      label: Current Behavior
+      label: What actually happened?
       description: Provide a description of what actually happened.
     validations:
       required: false
@@ -136,10 +136,10 @@ body:
   - type: textarea
     id: screenshot
     attributes:
-      label: Screenshot
+      label: Do you have a screenshot?
       description: >
-        Include one or more screenshots of the issue, if applicable,
-        by dragging the image file(s) here to help with debugging.
+        If you have one or more screenshots of the issue, include
+        them by dragging the image file(s) here:
     validations:
       required: false
   # VERBOSE OUTPUT
@@ -153,12 +153,8 @@ body:
         command. Then do the minimum required to recreate your issue
         and close AutoKey. This will produce a log in the terminal
         window of what AutoKey did and may show you wnat is wrong.
-        Copy the log from the terminal and paste it into a code block
-        below, enclosing it in triple brackets above and below it."
-      placeholder: |
-        ```
-        Example output.
-        ```
+        Copy the log from the terminal and paste it here:"
+      render: bash
     validations:
       required: false
   # NOTES
