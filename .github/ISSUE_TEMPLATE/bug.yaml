@@ -12,7 +12,7 @@ body:
     attributes:
       label: Has this issue already been reported?
       description: >
-        [If someone else has already filled out a bug report for the
+        If someone else has [already filled out a bug report for the
         issue you're having](https://github.com/autokey/autokey/issues),
         consider contributing to that report instead of creating a new
         one. If your issue hasn't been reported yet, check this box and
