@@ -85,7 +85,7 @@ body:
   - type: textarea
     id: summary
     attributes:
-      label: Can you describe the issue?
+      label: Can you briefly describe the issue?
       description: Provide a short summary of the problem.
     validations:
       required: false
@@ -168,6 +168,18 @@ body:
         Describe any debugging steps you've taken, a workaround you've
         figured out, or any other information you think we might need,
         including links or references.
+    validations:
+      required: false
+  # FAREWELL
+  - type: markdown
+    id: farewell
+    attributes:
+      label: Can't submit this form?
+      value: |
+        If the "Submit new issue" button is grayed-out and you can't
+        submit this form, make sure you gave the bug report a title and
+        answered any required questions that are marked with a red
+        asterisk.
     validations:
       required: false
 ...
