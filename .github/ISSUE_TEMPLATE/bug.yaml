@@ -151,10 +151,10 @@ body:
       description: >
         Start AutoKey in verbose mode from a terminal window with
         either the `autokey-gtk --verbose` or `autokey-qt --verbose`
-        command. Then do the minimum required to recreate your issue
-        and close AutoKey. This will produce a log in the terminal
-        window of what AutoKey did and may show you wnat is wrong.
-        Copy the log from the terminal and paste it here:
+        command. Then do the minimum required to recreate your issue.
+        Then close AutoKey. This will produce a log of what AutoKey did
+        and may show you wnat went wrong. Copy the log from the terminal
+        and paste it here:
       render: bash
     validations:
       required: false
