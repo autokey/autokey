@@ -120,7 +120,7 @@ body:
   - type: textarea
     id: expected-result
     attributes:
-      label: "What should have happened?"
+      label: What should have happened?
       description: Provide a description of what you expected to happen.
     validations:
       required: false
@@ -148,12 +148,12 @@ body:
     attributes:
       label: Can you provide the output of the AutoKey command?
       description: >
-        "Start AutoKey in verbose mode from a terminal window with
+        Start AutoKey in verbose mode from a terminal window with
         either the `autokey-gtk --verbose` or `autokey-qt --verbose`
         command. Then do the minimum required to recreate your issue
         and close AutoKey. This will produce a log in the terminal
         window of what AutoKey did and may show you wnat is wrong.
-        Copy the log from the terminal and paste it here:"
+        Copy the log from the terminal and paste it here:
       render: bash
     validations:
       required: false
