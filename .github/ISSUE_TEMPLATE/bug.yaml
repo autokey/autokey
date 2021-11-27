@@ -108,8 +108,8 @@ body:
     attributes:
       label: What are the steps to reproduce the issue?
       description: >
-        "Provide the steps that need to be taken to reproduce the
-        behavior. For example:"
+        Provide the steps that need to be taken to reproduce the
+        behavior. For example:
       placeholder: |
         1. Do this.
         2. Then do that.
