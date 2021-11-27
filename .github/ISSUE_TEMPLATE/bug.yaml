@@ -173,13 +173,12 @@ body:
   # FAREWELL
   - type: markdown
     id: farewell
-    attributes:
-      label: Can't submit this form?
-      value: |
-        If the "Submit new issue" button is grayed-out and you can't
-        submit this form, make sure you gave the bug report a title and
-        answered any required questions that are marked with a red
-        asterisk.
+    value: |
+      ## Can't submit this form?
+      If the "Submit new issue" button is grayed-out and you can't
+      submit this form, make sure you gave the bug report a title and
+      answered any required questions that are marked with a red
+      asterisk.
     validations:
       required: false
 ...
