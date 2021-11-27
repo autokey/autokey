@@ -12,10 +12,11 @@ body:
     attributes:
       label: Has this issue already been reported?
       description: >
-        Please [check](https://github.com/autokey/autokey/issues)
-        if a bug report already exists for your issue. If there is
-        one, consider contributing to it instead. If there isn't
-        one, check this box and continue filling out this form.
+        [If someone else has already filled out a bug report for the
+        issue you're having](https://github.com/autokey/autokey/issues),
+        consider contributing to that report instead of creating a new
+        one. If your issue hasn't been reported yet, check this box and
+        continue filling out this form.
       options:
         - label: I have searched through the existing issues.
           required: true
