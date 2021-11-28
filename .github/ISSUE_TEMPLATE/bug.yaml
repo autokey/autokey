@@ -170,23 +170,4 @@ body:
         including links or references.
     validations:
       required: false
-  # FAREWELL HEADING
-  - type: markdown
-    id: farewell-heading
-    attributes:
-      value: |
-        ## Can't submit this form?
-    validations:
-      required: false
-  # FAREWELL TEXT
-  - type: markdown
-    id: farewell-text
-    attributes:
-      value: >
-        If the "Submit new issue" button is grayed-out and you can't
-        submit this form, make sure you gave the bug report a title and
-        answered any required questions that are marked with a red
-        asterisk.
-    validations:
-      required: false
 ...
