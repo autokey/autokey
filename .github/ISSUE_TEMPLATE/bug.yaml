@@ -1,9 +1,9 @@
 ---
 name: Bug Report
 description: >
-  Found a bug in AutoKey? Your answers to the questions in our bug
-  report form will help us to solve the issue as quickly as possible.
-  Click the "Get started" button when you're ready to begin.
+  Found a bug in AutoKey? Answer a few questions in our bug report form
+  to help us solve the issue as quickly as possible. Click the "Get
+  started" button when you're ready to begin.
 labels: [bug, help wanted]
 assignees: Elliria
 body:
@@ -138,7 +138,7 @@ body:
   - type: textarea
     id: screenshot
     attributes:
-      label: Do you have a screenshot?
+      label: Do you have screenshots?
       description: >
         If you have one or more screenshots of the issue, include
         them by dragging the image file(s) here:
@@ -170,10 +170,23 @@ body:
         including links or references.
     validations:
       required: false
-  # FAREWELL
-  label: Can't submit this form?
-  description: >
-    If the "Submit new issue" button is grayed-out and you can't submit
-    this form, make sure you gave the bug report a title and answered
-    any required questions that are marked with a red asterisk.
+  # FAREWELL HEADING
+  - type: markdown
+    id: farewell-heading
+    attributes:
+      value: |
+        ## Can't submit this form?
+    validations:
+      required: false
+  # FAREWELL TEXT
+  - type: markdown
+    id: farewell-text
+    attributes:
+      value: >
+        If the "Submit new issue" button is grayed-out and you can't
+        submit this form, make sure you gave the bug report a title and
+        answered any required questions that are marked with a red
+        asterisk.
+    validations:
+      required: false
 ...
