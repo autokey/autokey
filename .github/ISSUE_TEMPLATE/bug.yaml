@@ -4,7 +4,7 @@ description: >
   Found a bug in AutoKey? Answer a few questions in our bug report form
   to help us solve the issue as quickly as possible. Click the "Get
   started" button when you're ready to begin.
-labels: [bug, help wanted]
+labels: new issue
 assignees: Elliria
 body:
 
