@@ -7,7 +7,8 @@ description: >
 labels: [bug, help wanted]
 assignees: Elliria
 body:
-  # EXISTING ISSUE
+
+  # HAS THIS ISSUE ALREADY BEEN REPORTED?
   - type: checkboxes
     id: existing-issue
     attributes:
@@ -21,7 +22,8 @@ body:
       options:
         - label: I have searched through the existing issues.
           required: true
-  # CLASSIFICATION
+
+  # WHAT TYPE OF ISSUE IS THIS?
   - type: dropdown
     id: classification
     attributes:
@@ -36,7 +38,8 @@ body:
         - UI/Usability
     validations:
       required: false
-  # LINUX DISTRIBUTION
+  
+  # WHICH LINUX DISTRIBUTION DID YOU USE?
   - type: textarea
     id: linux-distribution
     attributes:
@@ -46,7 +49,8 @@ body:
         release or version number.
     validations:
       required: false
-  # AUTOKEY GUI
+  
+  # WHICH AUTOKEY GUI DID YOU USE?
   - type: dropdown
     id: gui
     attributes:
@@ -58,7 +62,8 @@ body:
         - Both
     validations:
       required: false
-  # AUTOKEY VERSION
+  
+  # WHICH AUTOKEY VERSION DID YOU USE?
   - type: textarea
     id: autokey-version
     attributes:
@@ -68,7 +73,8 @@ body:
         to be present in more than one version, please list them all.
     validations:
       required: false
-  # INSTALLED VIA
+  
+  # HOW DID YOU INSTALL AUTOKEY?
   - type: dropdown
     id: installation-method
     attributes:
@@ -81,7 +87,8 @@ body:
         - PPA
     validations:
       required: false
-  # SUMMARY
+  
+  # CAN YOU DESCRIBE THE ISSUE?
   - type: textarea
     id: summary
     attributes:
@@ -89,7 +96,8 @@ body:
       description: Provide a short summary of the problem.
     validations:
       required: false
-  # REPRODUCIBILITY
+  
+  # CAN THE ISSUE BE REPRODUCED?
   - type: dropdown
     id: reproducibility
     attributes:
@@ -104,7 +112,8 @@ body:
         - Unable
     validations:
       required: false
-  # STEPS TO RREPRODUCE
+  
+  # WHAT ARE THE STEPS TO RREPRODUCE THE ISSUE?
   - type: textarea
     id: steps-to-reproduce
     attributes:
@@ -118,7 +127,8 @@ body:
         3. Etc.
     validations:
       required: false
-  # EXPECTED RESULT
+  
+  # WHAT SHOULD HAVE HAPPENED?
   - type: textarea
     id: expected-result
     attributes:
@@ -126,7 +136,8 @@ body:
       description: Provide a description of what you expected to happen.
     validations:
       required: false
-  # ACTUAL RESULT
+  
+  # WHAT ACTUALLY HAPPENED?
   - type: textarea
     id: actual-result
     attributes:
@@ -134,7 +145,8 @@ body:
       description: Provide a description of what actually happened.
     validations:
       required: false
-  # SCREENSHOT
+  
+  # DO YOU HAVE SCREENSHOTS?
   - type: textarea
     id: screenshot
     attributes:
@@ -144,7 +156,8 @@ body:
         them by dragging the image file(s) here:
     validations:
       required: false
-  # VERBOSE OUTPUT
+  
+  # CAN YOU PROVIDE THE OUTPUT OF THE AUTOKEY COMMAND?
   - type: textarea
     id: verbose-output
     attributes:
@@ -159,7 +172,8 @@ body:
       render: bash
     validations:
       required: false
-  # NOTES
+  
+  # ANYTHING ELSE?
   - type: textarea
     id: notes
     attributes:
