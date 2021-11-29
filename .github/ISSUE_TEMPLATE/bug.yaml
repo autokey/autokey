@@ -30,6 +30,7 @@ body:
       options:
         - Bug
         - Crash/Hang/Data loss
+        - Documentation
         - Enhancement
         - Feature (new)
         - Performance
