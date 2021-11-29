@@ -167,9 +167,10 @@ body:
         This is only needed for some bugs. Sometimes, the output from
         starting AutoKey from a terminal window with either the
         ```autokey-gtk``` or ```autokey-qt``` command provides helpful
-        messages. If those aren't sufficient or if your issue involves
-        a crash, throws an exception, or produces other unexpected
-        results, [running an AutoKey trace](https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide)
+        messages that can be pasted below. If those aren't sufficient or
+        if your issue involves a crash, throws an exception, or produces
+        other unexpected results,
+        [running an AutoKey trace](https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide)
         may be helpful. You can do this by running AutoKey from a
         terminal window with the ```autokey-gtk --verbose``` or
         ```autokey-qt --verbose``` command, then recreating your issue,
