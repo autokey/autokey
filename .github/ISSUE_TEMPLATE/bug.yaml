@@ -164,12 +164,17 @@ body:
     attributes:
       label: Can you provide the output of the AutoKey command?
       description: >
-        Start AutoKey in verbose mode from a terminal window with
-        either the `autokey-gtk --verbose` or `autokey-qt --verbose`
-        command. Then do the minimum required to recreate your issue.
-        Then close AutoKey. This will produce a log of what AutoKey did
-        and may show you wnat went wrong. Copy the log from the terminal
-        window and paste it here:
+        This is only needed for some bugs. Sometimes, the output from
+        starting AutoKey from a terminal window with either the
+        ```autokey-gtk``` or ```autokey-qt``` command provides helpful
+        messages. If those aren't sufficient or if your issue involves
+        a crash, throws an exception, or produces other unexpected
+        results, [running an AutoKey trace](https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide)
+        may be helpful. You can do this by running AutoKey from a
+        terminal window with the ```autokey-gtk --verbose``` or
+        ```autokey-qt --verbose``` command, then recreating your issue,
+        then closing AutoKey, and then pasting any messages it produces
+        below:
       render: bash
     validations:
       required: false
