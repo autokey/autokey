@@ -32,7 +32,6 @@ body:
         - Crash/Hang/Data loss
         - Documentation
         - Enhancement
-        - Feature (new)
         - Performance
         - UI/Usability
     validations:
