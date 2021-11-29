@@ -108,6 +108,7 @@ body:
       options:
         - Always
         - I didn't try
+        - N/A
         - Rarely
         - Sometimes
         - Unable
