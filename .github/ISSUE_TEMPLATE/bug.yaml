@@ -154,7 +154,7 @@ body:
       label: Do you have screenshots?
       description: >
         If you have one or more screenshots of the issue, include
-        them by dragging the image file(s) here:
+        them by dragging the image file(s) below:
     validations:
       required: false
   
