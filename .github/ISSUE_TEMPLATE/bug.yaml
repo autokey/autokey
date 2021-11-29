@@ -82,6 +82,7 @@ body:
       multiple: false
       options:
         - Git
+        - N/A
         - package manager
         - pip3
         - PPA
