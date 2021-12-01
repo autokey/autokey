@@ -31,7 +31,7 @@ body:
       options:
         - Bug
         - Crash/Hang/Data loss
-        - Documentation
+        - Documentation issue
         - Enhancement
         - Performance
         - UI/Usability
