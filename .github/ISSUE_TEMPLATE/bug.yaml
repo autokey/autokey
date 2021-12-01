@@ -29,6 +29,7 @@ body:
       label: What type of issue is this?
       multiple: false
       options:
+        default: Bug
         - Bug
         - Crash/Hang/Data loss
         - Documentation issue
