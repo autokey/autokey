@@ -81,10 +81,14 @@ class Mouse:
 
         @param button: they mouse button click to wait for as a button number, 1-9
         @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        @return: Returns true if mouse is clicked, false if timeout is reached.
         """
         button = int(button)
         w = autokey.iomediator.waiter.Waiter(None, None, button, None, None, timeOut)
-        w.wait()
+        self.mediator.listeners.append(w)
+        rtn = w.wait()
+        self.mediator.listeners.remove(w)
+        return rtn
 
     def move_cursor(self, x,y):
         """
