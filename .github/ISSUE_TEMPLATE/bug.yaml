@@ -74,17 +74,14 @@ body:
       required: false
   
   # HOW DID YOU INSTALL AUTOKEY?
-  - type: dropdown
+  - type: textarea
     id: installation-method
     attributes:
       label: How did you install AutoKey?
-      multiple: false
-      options:
-        - Git
-        - N/A
-        - package manager
-        - pip3
-        - PPA
+      description: >
+        Provide the steps that need to be taken to reproduce the
+        behavior. For example:
+      placeholder: From Git, pip3, a PPA, my distribution's repository, etc.
     validations:
       required: false
   
