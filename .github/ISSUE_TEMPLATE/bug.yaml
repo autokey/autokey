@@ -79,8 +79,7 @@ body:
     attributes:
       label: How did you install AutoKey?
       description: >
-        Provide the steps that need to be taken to reproduce the
-        behavior. For example:
+        Describe where your copy of AutoKey came from.
       placeholder: From Git, pip3, a PPA, my distribution's repository, etc.
     validations:
       required: false
