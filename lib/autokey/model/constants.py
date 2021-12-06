@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+# Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2019-2020 Thomas Hess <thomas.hess@udo.edu>
 # Copyright (C) 2021 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,16 +14,8 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABC, ABCMeta, abstractmethod
+import re
 
-class AutokeyUIInterface(ABC):
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def show_error_dialog(self, message: str, details: str=None):
-        pass
-
-
-    @abstractmethod
-    def shutdown(self):
-        pass
+DEFAULT_WORDCHAR_REGEX = '[\w]'
+JSON_FILE_PATTERN = "{}/{}.json"
+SPACES_RE = re.compile(r"^ | $")

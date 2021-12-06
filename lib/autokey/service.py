@@ -88,15 +88,17 @@ class Service:
         self.name = None
 
     def start(self):
-        self.mediator = IoMediator(self)
-        self.mediator.interface.initialise()
-        self.mediator.interface.start()
-        self.mediator.start()
-        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
+        self.mediator = self.__start_new_IoMediator()
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         autokey.model.store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
+
+    def __start_new_IoMediator(self):
+        mediator = IoMediator(self)
+        mediator.start()
+        return mediator
 
     def unpause(self):
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
@@ -128,58 +130,69 @@ class Service:
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last()
 
+    def __check_global_hotkeys(self, modifiers, rawKey, window_info):
+        for hotkey in self.configManager.globalHotkeys:
+            hotkey.check_hotkey_has_properties(modifiers, rawKey, window_info)
+
+    def get_hotkey_with_properties(self, modifiers, rawKey, window_info):
+        for item in self.configManager.hotKeys:
+            if item.check_hotkey_has_properties(modifiers, rawKey, window_info):
+                return item
+        return None
+
+    def get_folder_with_properties(self, modifiers, rawKey, window_info):
+        for folder in self.configManager.hotKeyFolders:
+            if folder.check_hotkey_has_properties(modifiers, rawKey, window_info):
+                return folder
+        return None
+
+    def __process_hotkey(self, modifiers, rawKey, window_info):
+        menu = None
+        itemMatch = self.get_hotkey_with_properties(
+            modifiers, rawKey, window_info)
+
+        if itemMatch is not None:
+            logger.info(
+                'Matched {} "{}" with hotkey and prompt={}'.format(
+                itemMatch.__class__.__name__,
+                itemMatch.description,
+                itemMatch.prompt
+            ))
+            if itemMatch.prompt:
+                menu = ([], [itemMatch])
+        else:
+            folderMatch = self.get_folder_with_properties(
+                modifiers, rawKey, window_info)
+            if folderMatch is not None: menu = ([folderMatch], [])
+
+        if menu is not None:
+            logger.debug("Matched Folder with hotkey - showing menu")
+            if self.lastMenu is not None:
+                self.app.hide_menu()
+            self.lastStackState = ''
+            self.lastMenu = menu
+            self.app.show_popup_menu(*menu)
+
+        if itemMatch is not None:
+            self.__tryReleaseLock()
+            self.__processItem(itemMatch)
+
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
         logger.debug("Window visible title: %r, Window class: %r" % window_info)
         self.configManager.lock.acquire()
 
-        # Always check global hotkeys
-        for hotkey in self.configManager.globalHotkeys:
-            hotkey.check_hotkey(modifiers, rawKey, window_info)
+        # Check global hotkeys regardless of whether autokey is paused, because
+        # might be hotkey to unpause.
+        self.__check_global_hotkeys(modifiers, rawKey, window_info)
 
         if self.__shouldProcess(window_info):
-            itemMatch = None
-            menu = None
-
-            for item in self.configManager.hotKeys:
-                if item.check_hotkey(modifiers, rawKey, window_info):
-                    itemMatch = item
-                    break
-
-            if itemMatch is not None:
-                logger.info('Matched {} "{}" with hotkey and prompt={}'.format(
-                    itemMatch.__class__.__name__, itemMatch.description, itemMatch.prompt
-                ))
-                if itemMatch.prompt:
-                    menu = ([], [itemMatch])
-
-            else:
-                for folder in self.configManager.hotKeyFolders:
-                    if folder.check_hotkey(modifiers, rawKey, window_info):
-                        #menu = PopupMenu(self, [folder], [])
-                        menu = ([folder], [])
-
-
-            if menu is not None:
-                logger.debug("Matched Folder with hotkey - showing menu")
-                if self.lastMenu is not None:
-                    #self.lastMenu.remove_from_desktop()
-                    self.app.hide_menu()
-                self.lastStackState = ''
-                self.lastMenu = menu
-                #self.lastMenu.show_on_desktop()
-                self.app.show_popup_menu(*menu)
-
-            if itemMatch is not None:
-                self.__tryReleaseLock()
-                self.__processItem(itemMatch)
-
-
-            ### --- end of hotkey processing --- ###
+            self.__process_hotkey(modifiers, rawKey, window_info)
 
             modifierCount = len(modifiers)
-
-            if modifierCount > 1 or (modifierCount == 1 and Key.SHIFT not in modifiers):
+            hotkey_uses_nonprinting_modifiers = modifierCount > 1 or \
+                (modifierCount == 1 and Key.SHIFT not in modifiers)
+            if hotkey_uses_nonprinting_modifiers:
                 self.inputStack.clear()
                 self.__tryReleaseLock()
                 return
@@ -198,8 +211,11 @@ class Service:
 
                 if item:
                     self.__tryReleaseLock()
-                    logger.info('Matched {} "{}" having abbreviations "{}" against current input'.format(
-                        item.__class__.__name__, item.description, item.abbreviations))
+                    logger.info(
+                        'Matched {} "{}" having abbreviations "{}" against current input'.format(
+                        item.__class__.__name__,
+                            item.description,
+                            item.abbreviations))
                     self.__processItem(item, currentInput)
                 elif menu:
                     if self.lastMenu is not None:
@@ -277,30 +293,16 @@ class Service:
 
         @return: True if further action is needed
         """
-        #if self.lastMenu is not None:
-        #    if not ConfigManager.SETTINGS[MENU_TAKES_FOCUS]:
-        #        self.app.hide_menu()
-        #
-        #    self.lastMenu = None
 
-        if key == Key.ENTER:
-            # Special case - map Enter to \n
-            key = '\n'
-        if key == Key.TAB:
-            # Special case - map Tab to \t
-            key = '\t'
+        key = self.__map_special_key_to_escape_code(key)
 
         if key == Key.BACKSPACE:
-            if ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
+            should_undo = ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo()
+            if should_undo:
                 self.phraseRunner.undo_expansion()
             else:
                 # handle backspace by dropping the last saved character
-                try:
-                    self.inputStack.pop()
-                except IndexError:
-                    # in case self.inputStack is empty
-                    pass
-
+                self.__drop_last_saved_char()
             return False
 
         elif len(key) > 1:
@@ -314,6 +316,22 @@ class Service:
             # if len(self.inputStack) == MAX_STACK_LENGTH, front items will removed for appending new items.
             self.inputStack.append(key)
             return True
+
+    def __map_special_key_to_escape_code(self, key):
+        if key == Key.ENTER:
+            # Special case - map Enter to \n
+            return '\n'
+        if key == Key.TAB:
+            # Special case - map Tab to \t
+            return '\t'
+        return key
+
+    def __drop_last_saved_char(self):
+        try:
+            self.inputStack.pop()
+        except IndexError:
+            # in case self.inputStack is empty
+            pass
 
     def __checkTextMatches(self, folders, items, buffer, windowInfo, immediate=False):
         """
@@ -404,7 +422,7 @@ class PhraseRunner:
     #@synchronized(iomediator.SEND_LOCK)
     def execute(self, phrase: autokey.model.phrase.Phrase, buffer=''):
         mediator = self.service.mediator  # type: IoMediator
-        mediator.interface.begin_send()
+        mediator.begin_send()
         try:
             expansion = phrase.build_phrase(buffer)
             expansion.string = \
@@ -421,7 +439,7 @@ class PhraseRunner:
             self.lastPhrase = phrase
             self.lastBuffer = buffer
         finally:
-            mediator.interface.finish_send()
+            mediator.finish_send()
 
     def can_undo(self):
         can_undo = self.lastExpansion is not None and not self.phrase_contains_special_keys(self.lastExpansion)
@@ -455,13 +473,13 @@ class PhraseRunner:
         mediator = self.service.mediator  # type: IoMediator
 
         #mediator.send_right(self.lastExpansion.lefts)
-        mediator.interface.begin_send()
+        mediator.begin_send()
         try:
             mediator.remove_string(self.lastExpansion.string)
             mediator.send_string(replay)
             self.clear_last()
         finally:
-            mediator.interface.finish_send()
+            mediator.finish_send()
 
 
 class ScriptRunner:

@@ -18,12 +18,12 @@ This is an abstraction layer for platform dependent clipboard handling.
 It unifies clipboard handling for Qt, GTK and headless autokey UIs.
 """
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 from pathlib import Path
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class AbstractClipboard:
+class AbstractClipboard(ABC):
     __metaclass__ = ABCMeta
     """
     Abstract interface for clipboard interactions.

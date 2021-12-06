@@ -18,6 +18,7 @@
 from PyQt5.QtWidgets import QDialog
 
 import autokey.model.helpers
+from autokey.model.triggermode import TriggerMode
 import autokey.model.modelTypes
 from autokey.qtui.common import inherits_from_ui_file_with_name
 from autokey.qtui.dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
@@ -53,14 +54,14 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
 
     def _load_abbreviation_data(self, item: autokey.model.modelTypes.Item):
         self.abbr_settings_dialog.load(item)
-        item_has_abbreviation = autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes
+        item_has_abbreviation = TriggerMode.ABBREVIATION in item.modes
         self.abbreviation_label.setText(item.get_abbreviations() if item_has_abbreviation else "(None configured)")
         self.clear_abbreviation_button.setEnabled(item_has_abbreviation)
         self.abbreviation_enabled = item_has_abbreviation
 
     def _load_hotkey_data(self, item: autokey.model.modelTypes.Item):
         self.hotkey_settings_dialog.load(item)
-        item_has_hotkey = autokey.model.helpers.TriggerMode.HOTKEY in item.modes
+        item_has_hotkey = TriggerMode.HOTKEY in item.modes
         self.hotkey_label.setText(item.get_hotkey_string() if item_has_hotkey else "(None configured)")
         self.clear_hotkey_button.setEnabled(item_has_hotkey)
         self.hotkey_enabled = item_has_hotkey
@@ -79,7 +80,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
 
     def save(self):
         # Perform hotkey ungrab
-        if autokey.model.helpers.TriggerMode.HOTKEY in self.current_item.modes:
+        if TriggerMode.HOTKEY in self.current_item.modes:
             self.window().app.hotkey_removed(self.current_item)
 
         self.current_item.set_modes([])

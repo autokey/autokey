@@ -17,7 +17,7 @@
 import typing
 
 import autokey.model.phrase
-import autokey.iomediator.waiter
+import autokey.iomediator.waiter as waiter
 from autokey import iomediator, model
 from typing import Callable
 
@@ -52,14 +52,14 @@ class Keyboard:
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
         send_mode = _validate_send_mode(send_mode)
-        self.mediator.interface.begin_send()
+        self.mediator.begin_send()
         try:
             if send_mode is autokey.model.phrase.SendMode.KEYBOARD:
                 self.mediator.send_string(key_string)
             else:
                 self.mediator.paste_string(key_string, send_mode)
         finally:
-            self.mediator.interface.finish_send()
+            self.mediator.finish_send()
 
     def send_key(self, key, repeat=1):
         """
@@ -128,7 +128,7 @@ class Keyboard:
         """
         if modifiers is None:
             modifiers = []
-        w = self.mediator.waiter(key, modifiers, None, None, None, timeOut)
+        w = waiter.Waiter(key, modifiers, None, None, None, timeOut)
         self.mediator.listeners.append(w)
         rtn = w.wait()
         self.mediator.listeners.remove(w)
@@ -172,7 +172,7 @@ class Keyboard:
                 keyboard.wait_for_keyevent(check, "emacs-prefix")
         """
         if name is None or not any(elem.name == name for elem in self.mediator.listeners):
-            w = self.mediator.waiter(None, None, None, check, name, timeOut)
+            w = waiter.Waiter(None, None, None, check, name, timeOut)
             self.mediator.listeners.append(w)
             rtn = w.wait()
             self.mediator.listeners.remove(w)

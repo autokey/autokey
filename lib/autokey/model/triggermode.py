@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
-
+# Copyright (C) 2011 Chris Dekter
+# Copyright (C) 2019-2020 Thomas Hess <thomas.hess@udo.edu>
 # Copyright (C) 2021 BlueDrink9
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,16 +14,19 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from abc import ABC, ABCMeta, abstractmethod
 
-class AutokeyUIInterface(ABC):
-    __metaclass__ = ABCMeta
+import enum
 
-    @abstractmethod
-    def show_error_dialog(self, message: str, details: str=None):
-        pass
+@enum.unique
+class TriggerMode(enum.Enum):
+    """
+    Enumeration class for phrase match modes.
 
-
-    @abstractmethod
-    def shutdown(self):
-        pass
+    NONE: Don't trigger this phrase (phrase will only be shown in its folder).
+    ABBREVIATION: Trigger this phrase using an abbreviation.
+    PREDICTIVE: Trigger this phrase using predictive mode.
+    """
+    NONE = 0
+    ABBREVIATION = 1
+    PREDICTIVE = 2
+    HOTKEY = 3

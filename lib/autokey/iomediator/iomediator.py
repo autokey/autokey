@@ -14,16 +14,19 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import threading
+import time
 import queue
 
+import autokey
+from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
+from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 from .constants import X_RECORD_INTERFACE
-from .waiter import Waiter
 
 CURRENT_INTERFACE = None
 
@@ -48,7 +51,7 @@ class IoMediator(threading.Thread):
         self.queue = queue.Queue()
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
-        self.waiter = Waiter
+        self.app = service.app
         
         # Modifier tracking
         self.modifiers = {
@@ -64,14 +67,22 @@ class IoMediator(threading.Thread):
         }
         
         if self.interfaceType == X_RECORD_INTERFACE:
-            self.interface = XRecordInterface(self, service.app)
+            self.interface = XRecordInterface(self, self.app)
         else:
-            self.interface = AtSpiInterface(self, service.app)
+            self.interface = AtSpiInterface(self, self.app)
+
+        self.clipboard = Clipboard()
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
         logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
-        
+
+    def start(self):
+        self.interface.initialise()
+        self.interface.start()
+        super().start()
+
+
     def shutdown(self):
         logger.debug("IoMediator shutting down")
         self.interface.cancel()
@@ -79,6 +90,17 @@ class IoMediator(threading.Thread):
         logger.debug("Waiting for IoMediator thread to end")
         self.join()
         logger.debug("IoMediator shutdown completed")
+
+    def begin_send(self):
+        self.interface.grab_keyboard()
+
+    def finish_send(self):
+        self.interface.ungrab_keyboard()
+
+    def grab_hotkey(self, item):
+        self.interface.grab_hotkey(item)
+    def ungrab_hotkey(self, item):
+        self.interface.ungrab_hotkey(item)
 
     # Callback methods for Interfaces ----
 
@@ -154,37 +176,52 @@ class IoMediator(threading.Thread):
         
         logger.debug("Send via event interface")
         self._clear_modifiers()
+        IoMediator._send_string(string, self.interface)
+        self._reapply_modifiers()
+
+    # Mainly static for the purpose of testing
+    @staticmethod
+    def _send_string(string, interface):
         modifiers = []
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
                 if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
                     # Section is a modifier application (modifier followed by '+')
                     modifiers.append(section[:-1])
-                    
+
                 else:
                     if len(modifiers) > 0:
                         # Modifiers ready for application - send modified key
                         if Key.is_key(section):
-                            self.interface.send_modified_key(section, modifiers)
+                            interface.send_modified_key(section, modifiers)
                             modifiers = []
                         else:
-                            self.interface.send_modified_key(section[0], modifiers)
+                            interface.send_modified_key(section[0], modifiers)
                             if len(section) > 1:
-                                self.interface.send_string(section[1:])
+                                interface.send_string(section[1:])
                             modifiers = []
                     else:
                         # Normal string/key operation
                         if Key.is_key(section):
-                            self.interface.send_key(section)
+                            interface.send_key(section)
                         else:
-                            self.interface.send_string(section)
-                            
-        self._reapply_modifiers()
-        
+                            interface.send_string(section)
+
     def paste_string(self, string, paste_command: SendMode):
-        if len(string) > 0:
-            logger.debug("Send via clipboard")
-            self.interface.send_string_clipboard(string, paste_command)
+        """
+        This method is called for Phrase expansion using one of the clipboard methods.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        if len(string) <= 0:
+            return
+        logger.debug("Sending string via clipboard: " + string)
+        if paste_command in (None, SendMode.SELECTION):
+            self.send_string_selection(string)
+        else:
+            self.send_string_clipboard(string, paste_command)
 
     def remove_string(self, string):
         backspaces = -1  # Start from -1 to discount the backspace already pressed by the user
@@ -222,26 +259,26 @@ class IoMediator(threading.Thread):
         """
         Sends the given number of left key presses.
         """
-        for i in range(count):
-            self.interface.send_key(Key.LEFT)
+        for _ in range(count):
+            self.send_key(Key.LEFT)
 
     def send_right(self, count):
-        for i in range(count):
-            self.interface.send_key(Key.RIGHT)
+        for _ in range(count):
+            self.send_key(Key.RIGHT)
     
     def send_up(self, count):
         """
         Sends the given number of up key presses.
         """        
-        for i in range(count):
-            self.interface.send_key(Key.UP)
+        for _ in range(count):
+            self.send_key(Key.UP)
 
     def send_backspace(self, count):
         """
         Sends the given number of backspace key presses.
         """
-        for i in range(count):
-            self.interface.send_key(Key.BACKSPACE)
+        for _ in range(count):
+            self.send_key(Key.BACKSPACE)
 
     def flush(self):
         self.interface.flush()
@@ -254,11 +291,11 @@ class IoMediator(threading.Thread):
         for modifier in list(self.modifiers.keys()):
             if self.modifiers[modifier] and modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
                 self.releasedModifiers.append(modifier)
-                self.interface.release_key(modifier)
+                self.release_key(modifier)
 
     def _reapply_modifiers(self):
         for modifier in self.releasedModifiers:
-            self.interface.press_key(modifier)
+            self.press_key(modifier)
 
     def _get_modifiers_on(self):
         modifiers = []
@@ -268,3 +305,65 @@ class IoMediator(threading.Thread):
         
         modifiers.sort()
         return modifiers
+
+    # Clipboard methods ----
+
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
+        """
+        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        if common.USED_UI_TYPE == "QT":
+            self.app.exec_in_main(self.__send_string_clipboard, string, paste_command)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self.__send_string_clipboard(string, paste_command)
+
+    def send_string_selection(self, string: str):
+        if common.USED_UI_TYPE == "QT":
+            self.app.exec_in_main(self._send_string_selection, string)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self._send_string_selection(string)
+
+    def __send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
+        """
+        Use the clipboard to send a string.
+        """
+        backup = self.clipboard.text  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
+        self.clipboard.text = string
+        try:
+            self.interface.send_string(paste_command.value)
+        finally:
+            self.interface.ungrab_keyboard()
+        # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
+        self.__enqueue(self.__restore_clipboard_text, backup)
+
+    def __restore_clipboard_text(self, backup: str):
+        """Restore the clipboard content."""
+        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
+        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
+        time.sleep(0.2)
+        self.clipboard.text = backup if backup is not None else ""
+
+    def _send_string_selection(self, string: str):
+        """Use the mouse selection clipboard to send a string."""
+        backup = self.clipboard.selection  # Keep a backup of current content, to restore the original afterwards.
+        if backup is None:
+            logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
+        self.clipboard.selection = string
+        self.__enqueue(self.interface.click_middle_mouse_button)
+        self.__enqueue(self.__restore_clipboard_selection, backup)
+
+    def __restore_clipboard_selection(self, backup: str):
+        """Restore the selection clipboard content."""
+        # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
+        # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
+
+        # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
+        # It might be a good idea to make this delay configurable. There might be systems that need even longer.
+        time.sleep(1)
+        self.clipboard.selection = backup if backup is not None else ""

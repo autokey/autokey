@@ -16,7 +16,7 @@
 
 import typing
 
-from autokey.model.helpers import TriggerMode
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.key import Key
 
@@ -52,11 +52,11 @@ class AbstractHotkey(AbstractWindowFilter):
 
     def unset_hotkey(self):
         self.modifiers = None
-        self.hotkey = None
+        self.hotKey = None
         if TriggerMode.HOTKEY in self.modes:
             self.modes.remove(TriggerMode.HOTKEY)
 
-    def check_hotkey(self, modifiers, key, windowTitle):
+    def check_hotkey_has_properties(self, modifiers, key, windowTitle):
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
             return (self.modifiers == modifiers) and (self.hotKey == key)
         else:
@@ -70,15 +70,17 @@ class AbstractHotkey(AbstractWindowFilter):
             key = self.hotKey
             modifiers = self.modifiers
 
-        ret = ""
+        return AbstractHotkey.build_hotkey_string(modifiers, key)
 
+    @staticmethod
+    def build_hotkey_string(modifiers, key):
+        ret = ""
         for modifier in modifiers:
             ret += modifier
             ret += "+"
-
         if key == ' ':
             ret += "<space>"
         else:
             ret += key
-
         return ret
+

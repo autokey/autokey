@@ -109,18 +109,10 @@ class AutokeyApplication:
             atexit.register(os.remove, common.LOCK_FILE)
 
         self.__initialise_services()
-        # self.notifier = Notifier(self)
-        # self.configWindow = ConfigWindow(self)
-
         self.__add_user_code_dir_to_path()
-
         self.__create_DBus_service()
-        # self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-
         self.__register_ctrlc_handler()
-
-        logger.info("Autokey services ready")
-        # self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
+        logger.info("Autokey application services ready")
 
     def __create_DBus_service(self):
         logger.info("Creating DBus service")
@@ -255,11 +247,11 @@ class AutokeyApplication:
 
     def hotkey_created(self, item):
         logger.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        self.service.mediator.grab_hotkey(item)
 
     def hotkey_removed(self, item):
         logger.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        self.service.mediator.ungrab_hotkey(item)
 
     def unpause_service(self):
         """

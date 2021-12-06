@@ -3,7 +3,8 @@
 Name=AutoKey (Qt)
 GenericName=Keyboard Automation
 Comment=Program keyboard shortcuts
-Exec=autokey-qt
+Keywords=macros keyboard auto key autokey ak automation shortcuts bind hotkey autohotkey mouse customization
+Exec=autokey-qt -c
 Terminal=false
 Type=Application
 Icon=autokey

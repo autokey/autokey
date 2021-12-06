@@ -13,14 +13,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from abc import ABCMeta, abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 
 from autokey import common
 from autokey.scripting import Clipboard as APIClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-class AbstractClipboard:
+class AbstractClipboard(ABC):
     __metaclass__ = ABCMeta
     """
     Abstract interface for clipboard interactions.

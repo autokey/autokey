@@ -23,7 +23,10 @@ from gi.repository import Gtk, Gdk, Pango, Gio
 
 import autokey.model.folder
 import autokey.model.helpers
+import autokey.model.triggermode
+import autokey.model.constants
 import autokey.model.phrase
+from autokey.model.triggermode import TriggerMode
 import autokey.iomediator.keygrabber
 import autokey.iomediator.windowgrabber
 
@@ -42,7 +45,7 @@ from .shared import get_ui
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -244,7 +247,7 @@ class AbbrSettingsDialog(DialogBase):
         self.targetItem = item
         self.abbrList.get_model().clear()
 
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
             self.removeButton.set_sensitive(True)
@@ -286,7 +289,7 @@ class AbbrSettingsDialog(DialogBase):
         self.immediateCheckbox.set_active(item.immediate)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
+        item.modes.append(TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 
