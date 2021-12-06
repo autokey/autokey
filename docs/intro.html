@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to Autokey &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Autokey API" href="api.html" />
+    <link rel="prev" title="Welcome to AutoKey!" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html">
+            <img src="_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Introduction to Autokey</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/autokey/autokey/blob/docs/intro.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="introduction-to-autokey">
+<h1>Introduction to Autokey<a class="headerlink" href="#introduction-to-autokey" title="Permalink to this headline"></a></h1>
+<p>In a nutshell, Autokey is a little GUI to run Python-3 scripts and text
+expansion, especially focusing on MACRO and keypress functionality.</p>
+<p>AutoKey is not meant to be used as a general Python IDE, so it lacks
+debugger support and a lot more. If you wish, you can use your favourite
+Python IDE to edit your AutoKey scripts.</p>
+<p>To see, if your Distribution packages AutoKey, please see <a class="reference external" href="https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey">this
+page</a>.</p>
+<p>Refer to <a class="reference external" href="https://github.com/autokey/autokey/wiki/Installing">Installing
+AutoKey</a> for
+instructions to install AutoKey. If you want to build your own Packages
+for installation using your package manager, see the
+<a class="reference external" href="https://github.com/autokey/autokey/wiki/Packaging">Packaging</a> page.</p>
+<p>AutoKey can be used for simple text expansion, i.e. replacing an
+abbreviation text with a static replacement. Within AutoKey, these
+replacement texts are called “Phrases”. It can also react to keyboard
+shortcuts e.g. <code class="docutils literal notranslate"><span class="pre">[Ctrl]+[Alt]+F8</span></code>, for Phrase expansion. For increased
+flexibility, you can use
+<a class="reference external" href="https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases">Macros</a>
+within your Phrases to dynamically alter the typed content. See the
+<a class="reference external" href="https://github.com/autokey/autokey/wiki/Beginners-Guide">Beginner’s
+Guide</a> for a
+more in-depth glossary and overview of the basics.</p>
+<p>If the simple Phrase expansion does not fit your needs, you can unleash
+the full power of the Python programming language and write Scripts in
+Python 3 to automate your tasks. AutoKey Scripts can be bound to
+abbreviations and hotkeys, just like Phrases and execute your commands.
+AutoKey provides an API to interact with the system, like clicking with
+the mouse or typing text using the keyboard. You can see the (currently
+slightly outdated, but still functional) API reference
+<a class="reference external" href="https://autokey.github.io/">here</a>. If you’d like to see the API in
+action by seeing some examples, see
+<a class="reference external" href="https://github.com/autokey/autokey/wiki/API-Examples">API-Examples</a>.</p>
+<p>Shown below is a screenshot of the main window (version 0.95.10),
+currently editing a Script:</p>
+<img alt="_images/AutoKey_Scripting.png" src="_images/AutoKey_Scripting.png" />
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Welcome to AutoKey!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="api.html" class="btn btn-neutral float-right" title="Autokey API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

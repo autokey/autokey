@@ -60,7 +60,9 @@ class Engine:
 
         Usage: C{engine.get_folder(title)}
 
-        Note that if more than one folder has the same title, only the first match will be
+        @param title: Title of the folder to be returned
+
+        Note that if more than one folder has the same title, only the first match will be \
         returned.
         """
         validateType(title, "title", str)
@@ -77,13 +79,14 @@ class Engine:
 
         Descriptions for the optional arguments:
 
-        @param parentFolder: Folder to make this folder a subfolder of. If
-        passed as a folder, it will be that folder within auotkey.
-        If passed as pathlib.Path, it will be created or added at that path.
+        @param parentFolder: Folder to make this folder a subfolder of. If \
+        passed as a folder, it will be that folder within Autokey. \
+        If passed as pathlib.Path, it will be created or added at that path. \
         Paths expand ~ to $HOME.
-        @param temporary: Folders created with temporary=True are
-                                    not persisted.
-                                    Used for single-source rc-style scripts.
+
+        @param temporary: Folders created with temporary=True are \
+                                    not persisted. \
+                                    Used for single-source rc-style scripts. \
                                     Cannot be used if parent_folder is a Path.
 
         If a folder of that name already exists, this will return it unchanged.
@@ -146,82 +149,82 @@ Folders created within temporary folders must themselves be set temporary")
                       temporary=False, replace_existing_hotkey=False):
         """
         Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
-        you wish to create the Phrase in. If the folder is a temporary
-        one, the phrase will be created as temporary.
+        you wish to create the Phrase in. If the folder is a temporary one, the phrase will be created as temporary.
 
-        The first three arguments (folder, name and contents) are required. All further arguments are optional and
-        considered to be keyword-argument only. Do not rely on the order of the optional arguments.
+        The first three arguments (folder, name and contents) are required. All further arguments are optional and \
+        considered to be keyword-argument only. Do not rely on the order of the optional arguments. \
         The optional parameters can be used to configure the newly created Phrase.
 
-        Usage (minimal example): C{engine.create_phrase(folder, name, contents)}
+        Usage (minimal example):
+            C{engine.create_phrase(folder, name, contents)}
 
         Further concrete examples:
-        C{
-        engine.create_phrase(folder, "My new Phrase", "This is the Phrase content", abbreviations=["abc", "def"],
-        hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V,
-        window_filter="konsole\\.Konsole", show_in_system_tray=True)
-        }
+            C{engine.create_phrase(folder, "My new Phrase", "This is the Phrase content", abbreviations=["abc", "def"], hotkey=([engine.Key.SHIFT], engine.Key.NP_DIVIDE), send_mode=engine.SendMode.CB_CTRL_SHIFT_V, window_filter="konsole\\.Konsole", show_in_system_tray=True)}
 
         Descriptions for the optional arguments:
 
-        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation
+        abbreviations may be a single string or a list of strings. Each given string is assigned as an abbreviation \
         to the newly created phrase.
 
-        hotkey parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first
+        ``hotkey`` parameter: The hotkey parameter accepts a 2-tuple, consisting of a list of modifier keys in the first \
         element and an unshifted (lowercase) key as the second element.
-        Modifier keys must be given as a list of strings (or Key enum instances), with the following
+        Modifier keys must be given as a list of strings (or Key enum instances), with the following \
         values permitted:
-            <ctrl>
-            <alt>
-            <super>
-            <hyper>
-            <meta>
-            <shift>
+
+            - ``<ctrl>``
+            - ``<alt>``
+            - ``<super>``
+            - ``<hyper>``
+            - ``<meta>``
+            - ``<shift>``
+
         The key must be an unshifted character (i.e. lowercase) or a Key enum instance. Modifier keys from the list
         above are NOT allowed here. Example: (["<ctrl>", "<alt>"], "9") to assign "<Ctrl>+<Alt>+9" as a hotkey.
         The Key enum contains objects representing various special keys and is available as an attribute of the "engine"
         object, named "Key". So to access a function key, you can use the string "<f12>" or engine.Key.F12
         See the AutoKey Wiki for an overview of all available keys in the enumeration.
 
-        send_mode: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting
+        ``send_mode``: This parameter configures how AutoKey sends the phrase content, for example by typing or by pasting
         using the clipboard. It accepts items from the SendMode enumeration, which is also available from the engine
         object as engine.SendMode. The parameter defaults to
         engine.SendMode.KEYBOARD. Available send modes are:
-            KEYBOARD
-            CB_CTRL_V
-            CB_CTRL_SHIFT_V
-            CB_SHIFT_INSERT
-            SELECTION
-        To paste the Phrase using "<shift>+<insert>, set send_mode=engine.SendMode.CB_SHIFT_INSERT
 
-        window_filter: Accepts a string which will be used as a regular expression to match window titles or
+            - ``KEYBOARD``
+            - ``CB_CTRL_V``
+            - ``CB_CTRL_SHIFT_V``
+            - ``CB_SHIFT_INSERT``
+            - ``SELECTION``
+
+        To paste the Phrase using ``<shift>+<insert>``, set ``send_mode=engine.SendMode.CB_SHIFT_INSERT``
+
+        ``window_filter``: Accepts a string which will be used as a regular expression to match window titles or \
         applications using the WM_CLASS attribute.
 
         @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
         @param name: Name/description for the phrase.
         @param contents: the expansion text
         @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase
-        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.
-                       First element is a list of modifiers, second element is the key.
-        @param send_mode: The pasting mode that will be used to expand the Phrase.
-                          Used to configure, how the Phrase is expanded. Defaults to typing using the "CTRL+V" method.
+        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey. \
+            First element is a list of modifiers, second element is the key.
+        @param send_mode: The pasting mode that will be used to expand the Phrase. \
+            Used to configure, how the Phrase is expanded. Defaults to typing using the "CTRL+V" method.
         @param window_filter: A string containing a regular expression that will be used as the window filter.
-        @param show_in_system_tray: A boolean defaulting to False.
-                                    If set to True, the new Phrase will be shown in the tray icon context menu.
-        @param always_prompt: A boolean defaulting to False. If set to True,
-                              the Phrase expansion has to be manually confirmed, each time it is triggered.
-        @param temporary: Hotkeys created with temporary=True are
-                                    not persisted as .jsons, and are replaced if the description is not
-                                    unique within the folder.
-                                     Used for single-source rc-style scripts.
-        @param replace_existing_hotkey: If true, instead of warning if the hotkey
-            is already in use by another phrase or folder, it removes the hotkey
+        @param show_in_system_tray: A boolean defaulting to False. If set to True, the new Phrase will be \
+            shown in the tray icon context menu.
+        @param always_prompt: A boolean defaulting to False. If set to True, \
+            the Phrase expansion has to be manually confirmed, each time it is triggered.
+        @param temporary: Hotkeys created with temporary=True are \
+            not persisted as .jsons, and are replaced if the description is not \
+            unique within the folder. Used for single-source rc-style scripts.
+        @param replace_existing_hotkey: If true, instead of warning if the hotkey \
+            is already in use by another phrase or folder, it removes the hotkey \
             from those clashes and keeps this phrase's hotkey.
         @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
-        @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
-          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
-          It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
+        @returns: The created Phrase object. This object is NOT considered part of the public API and exposes the raw \
+          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it. \
+          It can be used for *really* advanced use cases, where further customizations are desired. Use at your own \
           risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
+
         """
 
         validateArguments(folder, name, contents,
@@ -276,7 +279,9 @@ Folders created within temporary folders must themselves be set temporary")
 
     def create_abbreviation(self, folder, description, abbr, contents):
         """
-        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
+        **DEPRECATED!**
+        ---
+        Use C{engine.create_phrase()} with appropriate keyword arguments instead.
         Create a new text phrase inside the given folder and assign the abbreviation given.
 
         Usage: C{engine.create_abbreviation(folder, description, abbr, contents)}
@@ -304,7 +309,9 @@ Folders created within temporary folders must themselves be set temporary")
 
     def create_hotkey(self, folder, description, modifiers, key, contents):
         """
-        DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
+        **DEPRECATED!**
+        ---
+        Use C{engine.create_phrase()} with appropriate keyword arguments instead.
 
         Create a text hotkey
 
@@ -349,7 +356,7 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
-        @param description: description of the script to run. If parsable as
+        @param description: description of the script to run. If parsable as \
         an absolute path to an existing file, that will be run instead.
         @raise Exception: if the specified script does not exist
         """

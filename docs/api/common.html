@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Common API &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Autokey Model" href="../model.html" />
+    <link rel="prev" title="HighLevel API" href="highlevel.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Autokey API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="keyboard.html">Keyboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mouse.html">Mouse API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="store.html">Store API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtdialog.html">QtDialog API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtclipboard.html">QtClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gtkdialog.html">GtkDialog API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gtkclipboard.html">GtkClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">System API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="window.html">Window API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine.html">Engine API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlevel.html">HighLevel API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Common API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">Autokey API</a> &raquo;</li>
+      <li>Common API</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/autokey/autokey/blob/docs/api/common.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="common-api">
+<h1>Common API<a class="headerlink" href="#common-api" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autokey.scripting.</span></span><span class="sig-name descname"><span class="pre">ColourData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">r</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/common.html#ColourData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.ColourData" title="Permalink to this definition"></a></dt>
+<dd><p>Colour data type for colour chooser dialogs.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData.from_html">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">html_style_colour_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/common.html#ColourData.from_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.ColourData.from_html" title="Permalink to this definition"></a></dt>
+<dd><p>Parser for KDialog output, which outputs a HTML style hex code like #55aa00</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>html_style_colour_str</strong> – HTML style hex string encoded colour. (#rrggbb)</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ColourData instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autokey.scripting.ColourData" title="autokey.scripting.ColourData">ColourData</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData.from_zenity_tuple_str">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_zenity_tuple_str</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zenity_tuple_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/common.html#ColourData.from_zenity_tuple_str"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.ColourData.from_zenity_tuple_str" title="Permalink to this definition"></a></dt>
+<dd><p>Parser for Zenity output, which outputs a named tuple-like string: “rgb(R, G, B)”, where R, G, B are base10
+integers.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>zenity_tuple_str</strong> – tuple-like string: “rgb(r, g, b), where r, g, b are base10 integers.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>ColourData instance</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#autokey.scripting.ColourData" title="autokey.scripting.ColourData">ColourData</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData.hex_code">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">hex_code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#autokey.scripting.ColourData.hex_code" title="Permalink to this definition"></a></dt>
+<dd><p>Returns rgb in hex format</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData.html_code">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">html_code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#autokey.scripting.ColourData.html_code" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the ColourData into a HTML-style colour, equivalent to the KDialog output.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="autokey.scripting.ColourData.zenity_tuple_str">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">zenity_tuple_str</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#autokey.scripting.ColourData.zenity_tuple_str" title="Permalink to this definition"></a></dt>
+<dd><p>Converts the ColourData into a tuple-like string, equivalent to the Zenity output. (“rgb(R, G, B)”)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="autokey.scripting.DialogData">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autokey.scripting.</span></span><span class="sig-name descname"><span class="pre">DialogData</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">return_code</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/common.html#DialogData"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.DialogData" title="Permalink to this definition"></a></dt>
+<dd><p>Dialog data type for return values from input dialogs</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="autokey.scripting.DialogData.successful">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">successful</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#autokey.scripting.DialogData.successful" title="Permalink to this definition"></a></dt>
+<dd><p>Returns True, if the dialog execution was successful, i.e. KDialog or Zenity exited with a zero return value.
+This includes:
+- Command line parameters are correct
+- Execution is otherwise successful (Can open X Display, load shared libraries, etc.)
+- The user clicked on OK or otherwise ‘accepted’ the dialog.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="highlevel.html" class="btn btn-neutral float-left" title="HighLevel API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../model.html" class="btn btn-neutral float-right" title="Autokey Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

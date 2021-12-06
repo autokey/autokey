@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Autokey Key &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Autokey Button" href="button.html" />
+    <link rel="prev" title="Autokey Folder" href="folder.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">Autokey API</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../model.html">Autokey Model</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="phrase.html">Autokey Phrase</a></li>
+<li class="toctree-l2"><a class="reference internal" href="script.html">Autokey Script</a></li>
+<li class="toctree-l2"><a class="reference internal" href="folder.html">Autokey Folder</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Autokey Key</a></li>
+<li class="toctree-l2"><a class="reference internal" href="button.html">Autokey Button</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../model.html">Autokey Model</a> &raquo;</li>
+      <li>Autokey Key</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/autokey/autokey/blob/docs/model/key.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="autokey-key">
+<h1>Autokey Key<a class="headerlink" href="#autokey-key" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="autokey.model.key.Key">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autokey.model.key.</span></span><span class="sig-name descname"><span class="pre">Key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/model/key.html#Key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.model.key.Key" title="Permalink to this definition"></a></dt>
+<dd><p>An enumeration of the “special” keys Autokey is able to listen for/send</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.ALT">
+<span class="sig-name descname"><span class="pre">ALT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;alt&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.ALT" title="Permalink to this definition"></a></dt>
+<dd><p>ALT key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.ALT_GR">
+<span class="sig-name descname"><span class="pre">ALT_GR</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;alt_gr&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.ALT_GR" title="Permalink to this definition"></a></dt>
+<dd><p>ALT_GR key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.BACKSPACE">
+<span class="sig-name descname"><span class="pre">BACKSPACE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;backspace&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.BACKSPACE" title="Permalink to this definition"></a></dt>
+<dd><p>Backspace key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.CAPSLOCK">
+<span class="sig-name descname"><span class="pre">CAPSLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;capslock&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.CAPSLOCK" title="Permalink to this definition"></a></dt>
+<dd><p>CAPSLOCK key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.CONTROL">
+<span class="sig-name descname"><span class="pre">CONTROL</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;ctrl&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.CONTROL" title="Permalink to this definition"></a></dt>
+<dd><p>CONTROL key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.DELETE">
+<span class="sig-name descname"><span class="pre">DELETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;delete&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.DELETE" title="Permalink to this definition"></a></dt>
+<dd><p>DELETE key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.DOWN">
+<span class="sig-name descname"><span class="pre">DOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;down&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.DOWN" title="Permalink to this definition"></a></dt>
+<dd><p>DOWN arrow key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.END">
+<span class="sig-name descname"><span class="pre">END</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;end&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.END" title="Permalink to this definition"></a></dt>
+<dd><p>END key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.ENTER">
+<span class="sig-name descname"><span class="pre">ENTER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;enter&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.ENTER" title="Permalink to this definition"></a></dt>
+<dd><p>Enter key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.ESCAPE">
+<span class="sig-name descname"><span class="pre">ESCAPE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;escape&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.ESCAPE" title="Permalink to this definition"></a></dt>
+<dd><p>ESCAPE key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F1">
+<span class="sig-name descname"><span class="pre">F1</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f1&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F1" title="Permalink to this definition"></a></dt>
+<dd><p>F1 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F10">
+<span class="sig-name descname"><span class="pre">F10</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f10&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F10" title="Permalink to this definition"></a></dt>
+<dd><p>F10 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F11">
+<span class="sig-name descname"><span class="pre">F11</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f11&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F11" title="Permalink to this definition"></a></dt>
+<dd><p>F11 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F12">
+<span class="sig-name descname"><span class="pre">F12</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f12&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F12" title="Permalink to this definition"></a></dt>
+<dd><p>F12 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F13">
+<span class="sig-name descname"><span class="pre">F13</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f13&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F13" title="Permalink to this definition"></a></dt>
+<dd><p>F13 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F14">
+<span class="sig-name descname"><span class="pre">F14</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f14&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F14" title="Permalink to this definition"></a></dt>
+<dd><p>F14 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F15">
+<span class="sig-name descname"><span class="pre">F15</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f15&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F15" title="Permalink to this definition"></a></dt>
+<dd><p>F15 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F16">
+<span class="sig-name descname"><span class="pre">F16</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f16&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F16" title="Permalink to this definition"></a></dt>
+<dd><p>F16 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F17">
+<span class="sig-name descname"><span class="pre">F17</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f17&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F17" title="Permalink to this definition"></a></dt>
+<dd><p>F17 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F18">
+<span class="sig-name descname"><span class="pre">F18</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f18&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F18" title="Permalink to this definition"></a></dt>
+<dd><p>F18 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F19">
+<span class="sig-name descname"><span class="pre">F19</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f19&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F19" title="Permalink to this definition"></a></dt>
+<dd><p>F19 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F2">
+<span class="sig-name descname"><span class="pre">F2</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f2&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F2" title="Permalink to this definition"></a></dt>
+<dd><p>F2 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F20">
+<span class="sig-name descname"><span class="pre">F20</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f20&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F20" title="Permalink to this definition"></a></dt>
+<dd><p>F20 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F21">
+<span class="sig-name descname"><span class="pre">F21</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f21&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F21" title="Permalink to this definition"></a></dt>
+<dd><p>F21 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F22">
+<span class="sig-name descname"><span class="pre">F22</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f22&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F22" title="Permalink to this definition"></a></dt>
+<dd><p>F22 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F23">
+<span class="sig-name descname"><span class="pre">F23</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f23&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F23" title="Permalink to this definition"></a></dt>
+<dd><p>F23 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F24">
+<span class="sig-name descname"><span class="pre">F24</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f24&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F24" title="Permalink to this definition"></a></dt>
+<dd><p>F24 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F25">
+<span class="sig-name descname"><span class="pre">F25</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f25&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F25" title="Permalink to this definition"></a></dt>
+<dd><p>F25 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F26">
+<span class="sig-name descname"><span class="pre">F26</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f26&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F26" title="Permalink to this definition"></a></dt>
+<dd><p>F26 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F27">
+<span class="sig-name descname"><span class="pre">F27</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f27&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F27" title="Permalink to this definition"></a></dt>
+<dd><p>F27 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F28">
+<span class="sig-name descname"><span class="pre">F28</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f28&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F28" title="Permalink to this definition"></a></dt>
+<dd><p>F28 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F29">
+<span class="sig-name descname"><span class="pre">F29</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f29&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F29" title="Permalink to this definition"></a></dt>
+<dd><p>F29 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F3">
+<span class="sig-name descname"><span class="pre">F3</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f3&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F3" title="Permalink to this definition"></a></dt>
+<dd><p>F3 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F30">
+<span class="sig-name descname"><span class="pre">F30</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f30&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F30" title="Permalink to this definition"></a></dt>
+<dd><p>F30 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F31">
+<span class="sig-name descname"><span class="pre">F31</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f31&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F31" title="Permalink to this definition"></a></dt>
+<dd><p>F31 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F32">
+<span class="sig-name descname"><span class="pre">F32</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f32&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F32" title="Permalink to this definition"></a></dt>
+<dd><p>F32 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F33">
+<span class="sig-name descname"><span class="pre">F33</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f33&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F33" title="Permalink to this definition"></a></dt>
+<dd><p>F33 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F34">
+<span class="sig-name descname"><span class="pre">F34</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f34&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F34" title="Permalink to this definition"></a></dt>
+<dd><p>F34 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F35">
+<span class="sig-name descname"><span class="pre">F35</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f35&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F35" title="Permalink to this definition"></a></dt>
+<dd><p>F35 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F4">
+<span class="sig-name descname"><span class="pre">F4</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f4&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F4" title="Permalink to this definition"></a></dt>
+<dd><p>F4 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F5">
+<span class="sig-name descname"><span class="pre">F5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f5&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F5" title="Permalink to this definition"></a></dt>
+<dd><p>F5 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F6">
+<span class="sig-name descname"><span class="pre">F6</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f6&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F6" title="Permalink to this definition"></a></dt>
+<dd><p>F6 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F7">
+<span class="sig-name descname"><span class="pre">F7</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f7&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F7" title="Permalink to this definition"></a></dt>
+<dd><p>F7 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F8">
+<span class="sig-name descname"><span class="pre">F8</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f8&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F8" title="Permalink to this definition"></a></dt>
+<dd><p>F8 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.F9">
+<span class="sig-name descname"><span class="pre">F9</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;f9&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.F9" title="Permalink to this definition"></a></dt>
+<dd><p>F9 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.HOME">
+<span class="sig-name descname"><span class="pre">HOME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;home&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.HOME" title="Permalink to this definition"></a></dt>
+<dd><p>HOME key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.HYPER">
+<span class="sig-name descname"><span class="pre">HYPER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;hyper&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.HYPER" title="Permalink to this definition"></a></dt>
+<dd><p>HYPER key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.INSERT">
+<span class="sig-name descname"><span class="pre">INSERT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;insert&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.INSERT" title="Permalink to this definition"></a></dt>
+<dd><p>INSERT key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.LEFT">
+<span class="sig-name descname"><span class="pre">LEFT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;left&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.LEFT" title="Permalink to this definition"></a></dt>
+<dd><p>LEFT arrow key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.MENU">
+<span class="sig-name descname"><span class="pre">MENU</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;menu&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.MENU" title="Permalink to this definition"></a></dt>
+<dd><p>Menu key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.META">
+<span class="sig-name descname"><span class="pre">META</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;meta&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.META" title="Permalink to this definition"></a></dt>
+<dd><p>META key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_5">
+<span class="sig-name descname"><span class="pre">NP_5</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_5&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_5" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad 5 key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_ADD">
+<span class="sig-name descname"><span class="pre">NP_ADD</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_add&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_ADD" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad add key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_DELETE">
+<span class="sig-name descname"><span class="pre">NP_DELETE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_delete&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_DELETE" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad delete key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_DIVIDE">
+<span class="sig-name descname"><span class="pre">NP_DIVIDE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_divide&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_DIVIDE" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad divide key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_DOWN">
+<span class="sig-name descname"><span class="pre">NP_DOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_down&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_DOWN" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad down key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_END">
+<span class="sig-name descname"><span class="pre">NP_END</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_end&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_END" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad end key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_HOME">
+<span class="sig-name descname"><span class="pre">NP_HOME</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_home&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_HOME" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad home key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_INSERT">
+<span class="sig-name descname"><span class="pre">NP_INSERT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_insert&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_INSERT" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad insert key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_LEFT">
+<span class="sig-name descname"><span class="pre">NP_LEFT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_left&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_LEFT" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad left key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_MULTIPLY">
+<span class="sig-name descname"><span class="pre">NP_MULTIPLY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_multiply&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_MULTIPLY" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad multiply key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_PAGE_DOWN">
+<span class="sig-name descname"><span class="pre">NP_PAGE_DOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_page_down&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_PAGE_DOWN" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad page down key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_PAGE_UP">
+<span class="sig-name descname"><span class="pre">NP_PAGE_UP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_page_up&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_PAGE_UP" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad page up key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_RIGHT">
+<span class="sig-name descname"><span class="pre">NP_RIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_right&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_RIGHT" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad right key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_SUBTRACT">
+<span class="sig-name descname"><span class="pre">NP_SUBTRACT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_subtract&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_SUBTRACT" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad subtract key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NP_UP">
+<span class="sig-name descname"><span class="pre">NP_UP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;np_up&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NP_UP" title="Permalink to this definition"></a></dt>
+<dd><p>Number pad up key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.NUMLOCK">
+<span class="sig-name descname"><span class="pre">NUMLOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;numlock&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.NUMLOCK" title="Permalink to this definition"></a></dt>
+<dd><p>NUMLOCK key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.PAGE_DOWN">
+<span class="sig-name descname"><span class="pre">PAGE_DOWN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;page_down&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.PAGE_DOWN" title="Permalink to this definition"></a></dt>
+<dd><p>PAGE_DOWN key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.PAGE_UP">
+<span class="sig-name descname"><span class="pre">PAGE_UP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;page_up&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.PAGE_UP" title="Permalink to this definition"></a></dt>
+<dd><p>PAGE_UP key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.PAUSE">
+<span class="sig-name descname"><span class="pre">PAUSE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;pause&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.PAUSE" title="Permalink to this definition"></a></dt>
+<dd><p>Pause key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.PRINT_SCREEN">
+<span class="sig-name descname"><span class="pre">PRINT_SCREEN</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;print_screen&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.PRINT_SCREEN" title="Permalink to this definition"></a></dt>
+<dd><p>Print screen key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.RIGHT">
+<span class="sig-name descname"><span class="pre">RIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;right&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.RIGHT" title="Permalink to this definition"></a></dt>
+<dd><p>RIGHT arrow key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.SCROLL_LOCK">
+<span class="sig-name descname"><span class="pre">SCROLL_LOCK</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;scroll_lock&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.SCROLL_LOCK" title="Permalink to this definition"></a></dt>
+<dd><p>Scroll lock key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.SHIFT">
+<span class="sig-name descname"><span class="pre">SHIFT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;shift&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.SHIFT" title="Permalink to this definition"></a></dt>
+<dd><p>SHIFT key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.SUPER">
+<span class="sig-name descname"><span class="pre">SUPER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;super&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.SUPER" title="Permalink to this definition"></a></dt>
+<dd><p>SUPER key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.TAB">
+<span class="sig-name descname"><span class="pre">TAB</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;tab&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.TAB" title="Permalink to this definition"></a></dt>
+<dd><p>Tab key</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.model.key.Key.UP">
+<span class="sig-name descname"><span class="pre">UP</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'&lt;up&gt;'</span></em><a class="headerlink" href="#autokey.model.key.Key.UP" title="Permalink to this definition"></a></dt>
+<dd><p>UP arrow key</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.model.key.Key.is_key">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">is_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/autokey/model/key.html#Key.is_key"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.model.key.Key.is_key" title="Permalink to this definition"></a></dt>
+<dd><p>Returns if a string represents a key.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="folder.html" class="btn btn-neutral float-left" title="Autokey Folder" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="button.html" class="btn btn-neutral float-right" title="Autokey Button" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

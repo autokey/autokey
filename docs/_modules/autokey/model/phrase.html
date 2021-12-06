@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autokey.model.phrase &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>autokey.model.phrase</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autokey.model.phrase</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2011 Chris Dekter</span>
+<span class="c1"># Copyright (C) 2019-2020 Thomas Hess &lt;thomas.hess@udo.edu&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+
+<span class="kn">import</span> <span class="nn">enum</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">autokey.model.helpers</span> <span class="k">as</span> <span class="nn">helpers</span>
+<span class="kn">import</span> <span class="nn">autokey.model.common</span> <span class="k">as</span> <span class="nn">model_common</span>
+<span class="kn">from</span> <span class="nn">autokey.model.key</span> <span class="kn">import</span> <span class="n">NAVIGATION_KEYS</span><span class="p">,</span> <span class="n">Key</span><span class="p">,</span> <span class="n">KEY_SPLIT_RE</span>
+<span class="kn">from</span> <span class="nn">autokey.model.triggermode</span> <span class="kn">import</span> <span class="n">TriggerMode</span>
+<span class="kn">from</span> <span class="nn">autokey.model.abstract_abbreviation</span> <span class="kn">import</span> <span class="n">AbstractAbbreviation</span>
+<span class="kn">from</span> <span class="nn">autokey.model.abstract_window_filter</span> <span class="kn">import</span> <span class="n">AbstractWindowFilter</span>
+<span class="kn">from</span> <span class="nn">autokey.model.abstract_hotkey</span> <span class="kn">import</span> <span class="n">AbstractHotkey</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;autokey.logger&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Phrase"><a class="viewcode-back" href="../../../model/phrase.html#autokey.model.phrase.Phrase">[docs]</a><span class="k">class</span> <span class="nc">Phrase</span><span class="p">(</span><span class="n">AbstractAbbreviation</span><span class="p">,</span> <span class="n">AbstractHotkey</span><span class="p">,</span> <span class="n">AbstractWindowFilter</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Encapsulates all data and behaviour for a phrase.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">description</span><span class="p">,</span> <span class="n">phrase</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">AbstractAbbreviation</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">AbstractHotkey</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">AbstractWindowFilter</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase</span> <span class="o">=</span> <span class="n">phrase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># type: typing.List[TriggerMode]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usageCount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">temporary</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matchCase</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">show_in_tray_menu</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sendMode</span> <span class="o">=</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">CB_CTRL_V</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="k">def</span> <span class="nf">build_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model_common</span><span class="o">.</span><span class="n">build_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_json_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">model_common</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">persist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">build_path</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">(),</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">json_file</span><span class="p">:</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_serializable</span><span class="p">(),</span> <span class="n">json_file</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">out_file</span><span class="p">:</span>
+            <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phrase</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">model_common</span><span class="o">.</span><span class="n">get_serializable_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;phrase&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;matchCase&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">matchCase</span><span class="p">,</span>
+            <span class="s2">&quot;sendMode&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sendMode</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">}</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">d</span>
+
+    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">inject_json_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">inject_json_data_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matchCase</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;matchCase&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sendMode</span> <span class="o">=</span> <span class="n">SendMode</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sendMode&quot;</span><span class="p">,</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">KEYBOARD</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">rebuild_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">rebuild_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_phrase</span><span class="p">):</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">copy_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_phrase</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">phrase</span> <span class="o">=</span> <span class="n">source_phrase</span><span class="o">.</span><span class="n">phrase</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span> <span class="o">=</span> <span class="n">source_phrase</span><span class="o">.</span><span class="n">omitTrigger</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">matchCase</span> <span class="o">=</span> <span class="n">source_phrase</span><span class="o">.</span><span class="n">matchCase</span>
+        <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+        <span class="c1">#if TriggerMode.PREDICTIVE in source_phrase.modes:</span>
+        <span class="c1">#    self.modes.append(TriggerMode.PREDICTIVE)</span>
+
+    <span class="k">def</span> <span class="nf">get_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;text-plain&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_abbreviations</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hotkey_string</span><span class="p">(),</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">set_modes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">modes</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">List</span><span class="p">[</span><span class="n">TriggerMode</span><span class="p">]):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span>
+
+    <span class="k">def</span> <span class="nf">check_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">,</span> <span class="n">window_info</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">TriggerMode</span><span class="o">.</span><span class="n">ABBREVIATION</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_trigger_window_title</span><span class="p">(</span><span class="n">window_info</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">build_phrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">usageCount</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">increment_usage_count</span><span class="p">()</span>
+        <span class="n">expansion</span> <span class="o">=</span> <span class="n">Expansion</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">phrase</span><span class="p">)</span>
+        <span class="n">trigger_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">TriggerMode</span><span class="o">.</span><span class="n">ABBREVIATION</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+                <span class="n">abbr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+                <span class="n">stringBefore</span><span class="p">,</span> <span class="n">typedAbbr</span><span class="p">,</span> <span class="n">stringAfter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_input</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+                <span class="n">trigger_found</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">backspace</span><span class="p">:</span>
+                    <span class="c1"># determine how many backspaces to send</span>
+                    <span class="n">expansion</span><span class="o">.</span><span class="n">backspaces</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">abbr</span><span class="p">)</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">stringAfter</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">expansion</span><span class="o">.</span><span class="n">backspaces</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">stringAfter</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span><span class="p">:</span>
+                    <span class="n">expansion</span><span class="o">.</span><span class="n">string</span> <span class="o">+=</span> <span class="n">stringAfter</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">matchCase</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">typedAbbr</span><span class="o">.</span><span class="n">istitle</span><span class="p">():</span>
+                        <span class="n">expansion</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">typedAbbr</span><span class="o">.</span><span class="n">isupper</span><span class="p">():</span>
+                        <span class="n">expansion</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">typedAbbr</span><span class="o">.</span><span class="n">islower</span><span class="p">():</span>
+                        <span class="n">expansion</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+        <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+        <span class="c1">#if TriggerMode.PREDICTIVE in self.modes:</span>
+        <span class="c1">#    if self._should_trigger_predictive(buffer):</span>
+        <span class="c1">#        expansion.string = expansion.string[ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]</span>
+        <span class="c1">#        trigger_found = True</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">trigger_found</span><span class="p">:</span>
+            <span class="c1"># Phrase could have been triggered from menu - check parents for backspace count</span>
+            <span class="n">expansion</span><span class="o">.</span><span class="n">backspaces</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">get_backspace_count</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+
+        <span class="c1">#self.__parsePositionTokens(expansion)</span>
+        <span class="k">return</span> <span class="n">expansion</span>
+
+<div class="viewcode-block" id="Phrase.calculate_input"><a class="viewcode-back" href="../../../model/phrase.html#autokey.model.phrase.Phrase.calculate_input">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate how many keystrokes were used in triggering this phrase.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: This function is unused?</span>
+        <span class="k">if</span> <span class="n">TriggerMode</span><span class="o">.</span><span class="n">ABBREVIATION</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_should_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">):</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">immediate</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+        <span class="c1">#if TriggerMode.PREDICTIVE in self.modes:</span>
+        <span class="c1">#    if self._should_trigger_predictive(buffer):</span>
+        <span class="c1">#        return ConfigManager.SETTINGS[PREDICTIVE_LENGTH]</span>
+
+        <span class="k">if</span> <span class="n">TriggerMode</span><span class="o">.</span><span class="n">HOTKEY</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">buffer</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">modifiers</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">calculate_input</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">get_trigger_chars</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">):</span>
+        <span class="n">abbr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_trigger_abbreviation</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+        <span class="n">stringBefore</span><span class="p">,</span> <span class="n">typedAbbr</span><span class="p">,</span> <span class="n">stringAfter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_partition_input</span><span class="p">(</span><span class="n">buffer</span><span class="p">,</span> <span class="n">abbr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">typedAbbr</span> <span class="o">+</span> <span class="n">stringAfter</span>
+
+<div class="viewcode-block" id="Phrase.should_prompt"><a class="viewcode-back" href="../../../model/phrase.html#autokey.model.phrase.Phrase.should_prompt">[docs]</a>    <span class="k">def</span> <span class="nf">should_prompt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a value indicating whether the user should be prompted to select the phrase.</span>
+<span class="sd">        Always returns true if the phrase has been triggered using predictive mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+        <span class="c1">#if TriggerMode.PREDICTIVE in self.modes:</span>
+        <span class="c1">#    if self._should_trigger_predictive(buffer):</span>
+        <span class="c1">#        return True</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span></div>
+
+    <span class="k">def</span> <span class="nf">get_description</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">buffer</span><span class="p">):</span>
+        <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+        <span class="c1">#if self._should_trigger_predictive(buffer):</span>
+        <span class="c1">#    length = ConfigManager.SETTINGS[PREDICTIVE_LENGTH]</span>
+        <span class="c1">#    endPoint = length + 30</span>
+        <span class="c1">#    if len(self.phrase) &gt; endPoint:</span>
+        <span class="c1">#        description = &quot;... &quot; + self.phrase[length:endPoint] + &quot;...&quot;</span>
+        <span class="c1">#    else:</span>
+        <span class="c1">#        description = &quot;... &quot; + self.phrase[length:]</span>
+        <span class="c1">#    description = description.replace(&#39;\n&#39;, &#39; &#39;)</span>
+        <span class="c1">#    return description</span>
+        <span class="c1">#else:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
+
+    <span class="c1"># TODO - re-enable me if restoring predictive functionality</span>
+    <span class="sd">&quot;&quot;&quot;def _should_trigger_predictive(self, buffer):</span>
+<span class="sd">        if len(buffer) &gt;= ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:</span>
+<span class="sd">            typed = buffer[-ConfigManager.SETTINGS[PREDICTIVE_LENGTH]:]</span>
+<span class="sd">            return self.phrase.startswith(typed)</span>
+<span class="sd">        else:</span>
+<span class="sd">            return False&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">parsePositionTokens</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">expansion</span><span class="p">):</span>
+        <span class="c1"># Check the string for cursor positioning token and apply lefts and ups as appropriate</span>
+        <span class="c1"># TODO make this a constant elsewhere, and check what it should</span>
+        <span class="c1"># actually be defined as. This is a guess, since this func is</span>
+        <span class="c1"># currently unused.</span>
+        <span class="n">CURSOR_POSITION_TOKEN</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span>
+        <span class="k">if</span> <span class="n">CURSOR_POSITION_TOKEN</span> <span class="ow">in</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="p">:</span>
+            <span class="n">firstpart</span><span class="p">,</span> <span class="n">secondpart</span> <span class="o">=</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">CURSOR_POSITION_TOKEN</span><span class="p">)</span>
+            <span class="n">foundNavigationKey</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">NAVIGATION_KEYS</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">expansion</span><span class="o">.</span><span class="n">string</span><span class="p">:</span>
+                    <span class="n">expansion</span><span class="o">.</span><span class="n">lefts</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">foundNavigationKey</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">foundNavigationKey</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">KEY_SPLIT_RE</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">secondpart</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">Key</span><span class="o">.</span><span class="n">is_key</span><span class="p">(</span><span class="n">section</span><span class="p">)</span> <span class="ow">or</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]:</span>
+                        <span class="n">expansion</span><span class="o">.</span><span class="n">lefts</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+
+            <span class="n">expansion</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">firstpart</span> <span class="o">+</span> <span class="n">secondpart</span>
+
+    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;phrase &#39;</span><span class="si">{}</span><span class="s2">&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Phrase(&#39;&quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">+</span> <span class="s2">&quot;&#39;)&quot;</span></div>
+
+
+<span class="k">class</span> <span class="nc">Expansion</span><span class="p">:</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">string</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">string</span> <span class="o">=</span> <span class="n">string</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lefts</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backspaces</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<div class="viewcode-block" id="SendMode"><a class="viewcode-back" href="../../../model/phrase.html#autokey.model.phrase.SendMode">[docs]</a><span class="k">class</span> <span class="nc">SendMode</span><span class="p">(</span><span class="n">enum</span><span class="o">.</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration class for phrase send modes</span>
+
+<span class="sd">    - ``KEYBOARD``: Send using key events</span>
+<span class="sd">    - ``CB_CTRL_V``: Send via clipboard and paste with ``Ctrl+v``</span>
+<span class="sd">    - ``CB_CTRL_SHIFT_V``: Send via clipboard and paste with ``Ctrl+Shift+v``</span>
+<span class="sd">    - ``SELECTION``: Send via X selection and paste with middle mouse button</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">KEYBOARD</span> <span class="o">=</span> <span class="s2">&quot;kb&quot;</span>
+    <span class="n">CB_CTRL_V</span> <span class="o">=</span> <span class="n">Key</span><span class="o">.</span><span class="n">CONTROL</span> <span class="o">+</span> <span class="s2">&quot;+v&quot;</span>
+    <span class="n">CB_CTRL_SHIFT_V</span> <span class="o">=</span> <span class="n">Key</span><span class="o">.</span><span class="n">CONTROL</span> <span class="o">+</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> <span class="n">Key</span><span class="o">.</span><span class="n">SHIFT</span> <span class="o">+</span> <span class="s2">&quot;+v&quot;</span>
+    <span class="n">CB_SHIFT_INSERT</span> <span class="o">=</span> <span class="n">Key</span><span class="o">.</span><span class="n">SHIFT</span> <span class="o">+</span> <span class="s2">&quot;+&quot;</span> <span class="o">+</span> <span class="n">Key</span><span class="o">.</span><span class="n">INSERT</span>
+    <span class="n">SELECTION</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+
+<span class="n">SEND_MODES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Keyboard&quot;</span><span class="p">:</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">KEYBOARD</span><span class="p">,</span>
+    <span class="s2">&quot;Clipboard (Ctrl+V)&quot;</span><span class="p">:</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">CB_CTRL_V</span><span class="p">,</span>
+    <span class="s2">&quot;Clipboard (Ctrl+Shift+V)&quot;</span><span class="p">:</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">CB_CTRL_SHIFT_V</span><span class="p">,</span>
+    <span class="s2">&quot;Clipboard (Shift+Insert)&quot;</span><span class="p">:</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">CB_SHIFT_INSERT</span><span class="p">,</span>
+    <span class="s2">&quot;Mouse Selection&quot;</span><span class="p">:</span> <span class="n">SendMode</span><span class="o">.</span><span class="n">SELECTION</span>
+<span class="p">}</span>  <span class="c1"># type: typing.Dict[str, SendMode]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

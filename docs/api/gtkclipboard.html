@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GtkClipboard API &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="System API" href="system.html" />
+    <link rel="prev" title="GtkDialog API" href="gtkdialog.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html">
+            <img src="../_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">Autokey API</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="keyboard.html">Keyboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mouse.html">Mouse API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="store.html">Store API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtdialog.html">QtDialog API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="qtclipboard.html">QtClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="gtkdialog.html">GtkDialog API</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">GtkClipboard API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="system.html">System API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="window.html">Window API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="engine.html">Engine API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="highlevel.html">HighLevel API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="common.html">Common API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../api.html">Autokey API</a> &raquo;</li>
+      <li>GtkClipboard API</li>
+      <li class="wy-breadcrumbs-aside">
+              <a href="https://github.com/autokey/autokey/blob/docs/api/gtkclipboard.rst" class="fa fa-github"> Edit on GitHub</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="gtkclipboard-api">
+<h1>GtkClipboard API<a class="headerlink" href="#gtkclipboard-api" title="Permalink to this headline"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">autokey.scripting.clipboard_gtk.</span></span><span class="sig-name descname"><span class="pre">GtkClipboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">app</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard" title="Permalink to this definition"></a></dt>
+<dd><p>Read/write access to the X selection and clipboard - GTK version</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.app">
+<span class="sig-name descname"><span class="pre">app</span></span><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.app" title="Permalink to this definition"></a></dt>
+<dd><p>Refers to the application instance</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.fill_clipboard">
+<span class="sig-name descname"><span class="pre">fill_clipboard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard.fill_clipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.fill_clipboard" title="Permalink to this definition"></a></dt>
+<dd><p>Copy text into the clipboard</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.fill_clipboard(contents)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – string to be placed in the selection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.fill_selection">
+<span class="sig-name descname"><span class="pre">fill_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contents</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard.fill_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.fill_selection" title="Permalink to this definition"></a></dt>
+<dd><p>Copy <code class="xref py py-obj docutils literal notranslate"><span class="pre">contents</span></code> into the X selection</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.fill_selection(contents)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>contents</strong> – string to be placed in the selection</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.get_clipboard">
+<span class="sig-name descname"><span class="pre">get_clipboard</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard.get_clipboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.get_clipboard" title="Permalink to this definition"></a></dt>
+<dd><p>Read text from the clipboard</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.get_clipboard()</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>text contents of the clipboard</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.get_selection">
+<span class="sig-name descname"><span class="pre">get_selection</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard.get_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.get_selection" title="Permalink to this definition"></a></dt>
+<dd><p>Read text from the X selection</p>
+<p>The X selection refers to the currently highlighted text.</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.get_selection()</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>text contents of the mouse selection</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="autokey.scripting.clipboard_gtk.GtkClipboard.set_clipboard_image">
+<span class="sig-name descname"><span class="pre">set_clipboard_image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/autokey/scripting/clipboard_gtk.html#GtkClipboard.set_clipboard_image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#autokey.scripting.clipboard_gtk.GtkClipboard.set_clipboard_image" title="Permalink to this definition"></a></dt>
+<dd><p>Set clipboard to image</p>
+<p>Usage: <code class="xref py py-obj docutils literal notranslate"><span class="pre">clipboard.set_clipboard_image(path)</span></code></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> – Path to image file</p>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>OSError</strong> – If path does not exist</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="gtkdialog.html" class="btn btn-neutral float-left" title="GtkDialog API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="system.html" class="btn btn-neutral float-right" title="System API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

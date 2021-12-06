@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>autokey.scripting.keyboard &mdash; AutoKey latest documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+    <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html">
+            <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
+          </a>
+              <div class="version">
+                latest
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html#testing">Testing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">AutoKey</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>autokey.scripting.keyboard</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for autokey.scripting.keyboard</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Copyright (C) 2011 Chris Dekter</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software: you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation, either version 3 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License</span>
+<span class="c1"># along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.</span>
+<span class="sd">&quot;&quot;&quot;Keyboard Functions&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">typing</span>
+
+<span class="kn">import</span> <span class="nn">autokey.model.phrase</span>
+<span class="kn">import</span> <span class="nn">autokey.iomediator.waiter</span> <span class="k">as</span> <span class="nn">waiter</span>
+<span class="kn">from</span> <span class="nn">autokey</span> <span class="kn">import</span> <span class="n">iomediator</span><span class="p">,</span> <span class="n">model</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Callable</span>
+
+<div class="viewcode-block" id="Keyboard"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard">[docs]</a><span class="k">class</span> <span class="nc">Keyboard</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Provides access to the keyboard for event generation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">SendMode</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mediator</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the Keyboard&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span> <span class="o">=</span> <span class="n">mediator</span>  <span class="c1">#: type: iomediator.IoMediator</span>
+        <span class="sd">&quot;&quot;&quot;See C{IoMediator} documentation&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Keyboard.send_keys"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.send_keys">[docs]</a>    <span class="k">def</span> <span class="nf">send_keys</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key_string</span><span class="p">,</span> <span class="n">send_mode</span><span class="p">:</span> <span class="n">typing</span><span class="o">.</span><span class="n">Union</span><span class="p">[</span>
+        <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="o">.</span><span class="n">KEYBOARD</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a sequence of keys via keyboard events as the default or via clipboard pasting.</span>
+<span class="sd">        Because the clipboard can only contain</span>
+<span class="sd">        printable characters, special keys and embedded key combinations can only be sent in keyboard mode.</span>
+
+<span class="sd">        Trying to send special keys using a clipboard pasting method will paste the literal representation</span>
+<span class="sd">        (e.g. ``&lt;ctrl&gt;+&lt;f11&gt;``) instead of the actual special key or key combination.</span>
+
+
+<span class="sd">        Usage: C{keyboard.send_keys(keyString)}</span>
+
+<span class="sd">        @param key_string: string of keys to send. Special keys are only possible in keyboard mode.</span>
+<span class="sd">        @param send_mode: Determines how the string is sent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">key_string</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Only strings can be sent using this function&quot;</span><span class="p">)</span>
+        <span class="n">send_mode</span> <span class="o">=</span> <span class="n">_validate_send_mode</span><span class="p">(</span><span class="n">send_mode</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">begin_send</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">send_mode</span> <span class="ow">is</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="o">.</span><span class="n">KEYBOARD</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">send_string</span><span class="p">(</span><span class="n">key_string</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">paste_string</span><span class="p">(</span><span class="n">key_string</span><span class="p">,</span> <span class="n">send_mode</span><span class="p">)</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">finish_send</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Keyboard.send_key"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.send_key">[docs]</a>    <span class="k">def</span> <span class="nf">send_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a keyboard event</span>
+
+<span class="sd">        Usage: C{keyboard.send_key(key, repeat=1)}</span>
+
+<span class="sd">        @param key: they key to be sent (e.g. ``s`` or ``&lt;enter&gt;``)</span>
+<span class="sd">        @param repeat: number of times to repeat the key event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeat</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">send_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Keyboard.press_key"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.press_key">[docs]</a>    <span class="k">def</span> <span class="nf">press_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a key down event</span>
+
+<span class="sd">        Usage: C{keyboard.press_key(key)}</span>
+
+<span class="sd">        The key will be treated as down until a matching ``release_key()`` is sent.</span>
+<span class="sd">        @param key: they key to be pressed (e.g. ``s`` or ``&lt;enter&gt;``)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">press_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Keyboard.release_key"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.release_key">[docs]</a>    <span class="k">def</span> <span class="nf">release_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Send a key up event</span>
+
+<span class="sd">        Usage: C{keyboard.release_key(key)}</span>
+
+<span class="sd">        If the specified key was not made down using ``press_key()``, the event will be</span>
+<span class="sd">        ignored.</span>
+<span class="sd">        @param key: they key to be released (e.g. ``s`` or ``&lt;enter&gt;``)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">release_key</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Keyboard.fake_keypress"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.fake_keypress">[docs]</a>    <span class="k">def</span> <span class="nf">fake_keypress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">repeat</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fake a keypress</span>
+
+<span class="sd">        Usage: C{keyboard.fake_keypress(key, repeat=1)}</span>
+
+<span class="sd">        Uses `XTest`_ to &#39;fake&#39; a keypress. This is useful to send keypresses to some</span>
+<span class="sd">        applications which won&#39;t respond to ``keyboard.send_key()``</span>
+
+<span class="sd">        @param key: they key to be sent (e.g. ``s`` or ``&lt;enter&gt;``)</span>
+<span class="sd">        @param repeat: number of times to repeat the key event</span>
+
+<span class="sd">        .. _XTest: https://github.com/python-xlib/python-xlib/blob/master/Xlib/ext/xtest.py</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">repeat</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">fake_keypress</span><span class="p">(</span><span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Keyboard.wait_for_keypress"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.wait_for_keypress">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_keypress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">:</span> <span class="nb">list</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">timeOut</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for a keypress or key combination</span>
+
+<span class="sd">        Usage: C{keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0)}</span>
+
+<span class="sd">        Note: this function cannot be used to wait for modifier keys on their own</span>
+
+<span class="sd">        @param key: they key to wait for</span>
+<span class="sd">        @param modifiers: list of modifiers that should be pressed with the key</span>
+<span class="sd">        @param timeOut: maximum time, in seconds, to wait for the keypress to occur</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">modifiers</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">modifiers</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">w</span> <span class="o">=</span> <span class="n">waiter</span><span class="o">.</span><span class="n">Waiter</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">modifiers</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeOut</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="n">rtn</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">rtn</span></div>
+
+<div class="viewcode-block" id="Keyboard.wait_for_keyevent"><a class="viewcode-back" href="../../../api/keyboard.html#autokey.scripting.Keyboard.wait_for_keyevent">[docs]</a>    <span class="k">def</span> <span class="nf">wait_for_keyevent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">check</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">any</span><span class="p">,</span><span class="nb">str</span><span class="p">,</span><span class="nb">list</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">timeOut</span><span class="o">=</span><span class="mf">10.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Wait for a key event, potentially accumulating the intervening characters</span>
+
+<span class="sd">        Usage: C{keyboard.wait_for_keypress(self, check, name=None, timeOut=10.0)}</span>
+
+<span class="sd">        @param check: a function that returns True or False to signify we&#39;ve finished waiting</span>
+<span class="sd">        @param name: only one waiter can have this name. Used to prevent more threads waiting on this.</span>
+<span class="sd">        @param timeOut: maximum time, in seconds, to wait for the keypress to occur</span>
+
+<span class="sd">        Example:</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # Accumulate the traditional emacs C-u prefix arguments</span>
+<span class="sd">            # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html</span>
+<span class="sd">            def check(waiter,rawKey,modifiers,key,*args):</span>
+<span class="sd">                isCtrlU = (key == &#39;u&#39; and len(modifiers) == 1 and modifiers[0] == &#39;&lt;ctrl&gt;&#39;)</span>
+<span class="sd">                if isCtrlU: # If we get here, they&#39;ve already pressed C-u at least 2x</span>
+<span class="sd">                    try:</span>
+<span class="sd">                        val = int(waiter.result) * 4</span>
+<span class="sd">                        waiter.result = str(val)</span>
+<span class="sd">                    except ValueError:</span>
+<span class="sd">                        waiter.result = &quot;16&quot;</span>
+<span class="sd">                    return False</span>
+<span class="sd">                elif any(m == &quot;&lt;ctrl&gt;&quot; or m == &quot;&lt;alt&gt;&quot; or m == &quot;&lt;meta&gt;&quot; or m == &quot;&lt;super&gt;&quot; or m == &quot;&lt;hyper&gt;&quot; for m in modifiers):</span>
+<span class="sd">                    # Some other control character is an indication we&#39;re done.</span>
+<span class="sd">                    if waiter.result is None or waiter.result == &quot;&quot;:</span>
+<span class="sd">                        waiter.result = &quot;4&quot;</span>
+<span class="sd">                    store.set_global_value(&quot;emacs-prefix-arg&quot;, waiter.result)</span>
+<span class="sd">                    return True</span>
+<span class="sd">                else: # accumulate as a string</span>
+<span class="sd">                    waiter.result = waiter.result + key</span>
+<span class="sd">                    return False</span>
+
+<span class="sd">                keyboard.wait_for_keyevent(check, &quot;emacs-prefix&quot;)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">elem</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="p">):</span>
+            <span class="n">w</span> <span class="o">=</span> <span class="n">waiter</span><span class="o">.</span><span class="n">Waiter</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">timeOut</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="n">rtn</span> <span class="o">=</span> <span class="n">w</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">mediator</span><span class="o">.</span><span class="n">listeners</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">rtn</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+<span class="k">def</span> <span class="nf">_validate_send_mode</span><span class="p">(</span><span class="n">send_mode</span><span class="p">):</span>
+    <span class="n">permissible_values</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;keyboard.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">mode</span><span class="p">)</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">send_mode</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">send_mode</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">)):</span>
+            <span class="n">send_mode</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">)[</span><span class="n">send_mode</span><span class="p">]</span>  <span class="c1"># type: model.SendMode</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">permissible_values</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">: keyboard.</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">number</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">constant</span><span class="p">))</span> <span class="k">for</span> <span class="n">number</span><span class="p">,</span> <span class="n">constant</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;send_mode out of range for index-based access. &quot;</span>
+                <span class="s2">&quot;Permissible values are:</span><span class="se">\n</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">permissible_values</span><span class="p">))</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">send_mode</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">send_mode</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">(</span><span class="n">send_mode</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">v</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Permissible values are: &quot;</span> <span class="o">+</span> <span class="n">permissible_values</span><span class="p">)</span> <span class="kn">from</span> <span class="nn">v</span>
+    <span class="k">elif</span> <span class="n">send_mode</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Selection has value None</span>
+        <span class="n">send_mode</span> <span class="o">=</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="o">.</span><span class="n">SELECTION</span>
+    <span class="k">elif</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">send_mode</span><span class="p">,</span> <span class="n">autokey</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">phrase</span><span class="o">.</span><span class="n">SendMode</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;Unsupported type for send_mode parameter: </span><span class="si">{}</span><span class="s2"> Use one of: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">send_mode</span><span class="p">,</span> <span class="n">permissible_values</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">send_mode</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2021, Various.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
