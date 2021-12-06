@@ -64,8 +64,9 @@ from .shared import get_ui
 
 
 def set_linkbutton(button, path, filename_only=False):
-    button.set_sensitive(True)
-
+    label = button.get_child()
+    label.set_sensitive(True)
+    
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
         text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
     else:
@@ -73,12 +74,11 @@ def set_linkbutton(button, path, filename_only=False):
 
     if filename_only:
         filename = os.path.basename(path)
-        button.set_label(filename)
+        label.set_label(filename)
     else:
-        button.set_label(text)
+        label.set_label(text)
 
     button.set_uri("file://" + path)
-    label = button.get_child()
     label.set_ellipsize(Pango.EllipsizeMode.START)
 
 
