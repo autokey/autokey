@@ -4,6 +4,14 @@ Changelog
 
 =======
 
+Version 0.96.0-beta.10
+============================
+
+Bug fixes
+---------
+
+- Beta: Fix Segfault from modifying files when open in off-screen AK window
+
 Version 0.96.0-beta.9
 ============================
 
