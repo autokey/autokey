@@ -42,6 +42,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 from . import dialogs
+from . import gtkcompletion
 from .settingsdialog import SettingsDialog
 
 import autokey.configmanager.configmanager as cm
@@ -475,6 +476,9 @@ class ScriptPage:
         self.editor.set_smart_home_end(True)
         self.editor.set_insert_spaces_instead_of_tabs(True)
         self.editor.set_tab_width(4)
+
+        self.editor_completion = self.editor.get_completion()
+        self.editor_completion.add_provider(gtkcompletion.CompletionProvider())
 
         self.ui.show_all()
 
