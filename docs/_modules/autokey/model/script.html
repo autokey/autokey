@@ -1,77 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>autokey.model.script &mdash; AutoKey latest documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html">
-          
-
-          
-            
             <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 latest
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -79,88 +38,42 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html#testing">Testing</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">AutoKey</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>autokey.model.script</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for autokey.model.script</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Copyright (C) 2011 Chris Dekter</span>
 <span class="c1"># Copyright (C) 2019-2020 Thomas Hess &lt;thomas.hess@udo.edu&gt;</span>
@@ -184,8 +97,9 @@
 <span class="kn">import</span> <span class="nn">typing</span>
 <span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span> <span class="nn">autokey.model.common</span> <span class="k">as</span> <span class="nn">model_common</span>
 <span class="kn">from</span> <span class="nn">autokey.model.store</span> <span class="kn">import</span> <span class="n">Store</span>
-<span class="kn">from</span> <span class="nn">autokey.model.helpers</span> <span class="kn">import</span> <span class="n">JSON_FILE_PATTERN</span><span class="p">,</span> <span class="n">get_safe_path</span><span class="p">,</span> <span class="n">TriggerMode</span>
+<span class="kn">from</span> <span class="nn">autokey.model.triggermode</span> <span class="kn">import</span> <span class="n">TriggerMode</span>
 <span class="kn">from</span> <span class="nn">autokey.model.abstract_abbreviation</span> <span class="kn">import</span> <span class="n">AbstractAbbreviation</span>
 <span class="kn">from</span> <span class="nn">autokey.model.abstract_window_filter</span> <span class="kn">import</span> <span class="n">AbstractWindowFilter</span>
 <span class="kn">from</span> <span class="nn">autokey.model.abstract_hotkey</span> <span class="kn">import</span> <span class="n">AbstractHotkey</span>
@@ -214,15 +128,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
 
     <span class="k">def</span> <span class="nf">build_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">base_name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="n">base_name</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">get_safe_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="s2">&quot;.py&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_common</span><span class="o">.</span><span class="n">build_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;.py&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_json_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">directory</span><span class="p">,</span> <span class="n">base_name</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">[:</span><span class="o">-</span><span class="mi">3</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">JSON_FILE_PATTERN</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">model_common</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">persist</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -234,19 +143,12 @@
             <span class="n">out_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">code</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">model_common</span><span class="o">.</span><span class="n">get_serializable_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">d2</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;script&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
             <span class="s2">&quot;store&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">store</span><span class="p">,</span>
-            <span class="s2">&quot;modes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">mode</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">],</span>  <span class="c1"># Store the enum value for compatibility with old user data.</span>
-            <span class="s2">&quot;usageCount&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">usageCount</span><span class="p">,</span>
-            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span><span class="p">,</span>
-            <span class="s2">&quot;omitTrigger&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span><span class="p">,</span>
-            <span class="s2">&quot;showInTrayMenu&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">show_in_tray_menu</span><span class="p">,</span>
-            <span class="s2">&quot;abbreviation&quot;</span><span class="p">:</span> <span class="n">AbstractAbbreviation</span><span class="o">.</span><span class="n">get_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-            <span class="s2">&quot;hotkey&quot;</span><span class="p">:</span> <span class="n">AbstractHotkey</span><span class="o">.</span><span class="n">get_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span>
-            <span class="s2">&quot;filter&quot;</span><span class="p">:</span> <span class="n">AbstractWindowFilter</span><span class="o">.</span><span class="n">get_serializable</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">d</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">d2</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">d</span>
 
     <span class="k">def</span> <span class="nf">_persist_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -298,65 +200,25 @@
             <span class="k">return</span> <span class="kc">True</span>
 
     <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
-
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">in_file</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">in_file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">()):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)[:</span><span class="o">-</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">(),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">jsonFile</span><span class="p">:</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">jsonFile</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">inject_json_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Error while loading json data for &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;JSON data not loaded (or loaded incomplete)&quot;</span><span class="p">)</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">inject_json_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">inject_json_data_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">store</span> <span class="o">=</span> <span class="n">Store</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;store&quot;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">TriggerMode</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;modes&quot;</span><span class="p">]]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">usageCount</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;usageCount&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;prompt&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;omitTrigger&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_in_tray_menu</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;showInTrayMenu&quot;</span><span class="p">]</span>
-        <span class="n">AbstractAbbreviation</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;abbreviation&quot;</span><span class="p">])</span>
-        <span class="n">AbstractHotkey</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;hotkey&quot;</span><span class="p">])</span>
-        <span class="n">AbstractWindowFilter</span><span class="o">.</span><span class="n">load_from_serialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;filter&quot;</span><span class="p">])</span>
 
     <span class="k">def</span> <span class="nf">rebuild_path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">oldName</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
-            <span class="n">oldJson</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">build_path</span><span class="p">()</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">oldName</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-            <span class="n">os</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">oldJson</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">())</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">build_path</span><span class="p">()</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">rebuild_path</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">()):</span>
-                <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_json_path</span><span class="p">())</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">remove_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_script</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">description</span>
+        <span class="n">model_common</span><span class="o">.</span><span class="n">copy_scriptphrase</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source_script</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">code</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">code</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">prompt</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">prompt</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">omitTrigger</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">omitTrigger</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">parent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">show_in_tray_menu</span> <span class="o">=</span> <span class="n">source_script</span><span class="o">.</span><span class="n">show_in_tray_menu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">copy_abbreviation</span><span class="p">(</span><span class="n">source_script</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">copy_hotkey</span><span class="p">(</span><span class="n">source_script</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">copy_window_filter</span><span class="p">(</span><span class="n">source_script</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">get_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;text-x-python&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_abbreviations</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_hotkey_string</span><span class="p">(),</span> <span class="bp">self</span>
@@ -423,46 +285,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Various.
-
-    </p>
+    <p>&#169; Copyright 2021, Various.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>

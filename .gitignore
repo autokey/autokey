@@ -11,3 +11,4 @@ __pycache__
 
 test_coverage_annotated_source/
 test_coverage_report_html/
+/.eggs/*

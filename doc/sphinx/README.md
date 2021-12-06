@@ -19,12 +19,17 @@ You'll need the following python packages (and dependencies). From my command hi
 - `pip install recommonmark`
 - `pip install sphinx-rtd-theme`
 - `pip install sphinx-epytext`
+- `sudo apt install python3-tk`
 - `sphinx-build -a -E -b html . ./_build`
 
 `-a` for write all files, `-E` for always read all files, `-b html` for output to be in html format.
 
 You can also generate the documentation using the `tox` test system;
 `tox -e docs`
+
+If you find that some of the API pages are generating without any content, it is probably because some part of the process failed, for me it failed because the `tkinter` module was not installed. 
+
+I was able to Resolve this by installing the package for it; `sudo apt install python3-tkinter`
 
 
 ## TODO

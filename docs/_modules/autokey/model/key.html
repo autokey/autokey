@@ -1,77 +1,36 @@
-
-
 <!DOCTYPE html>
 <html class="writer-html5" lang="en" >
 <head>
   <meta charset="utf-8" />
-  
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  
   <title>autokey.model.key &mdash; AutoKey latest documentation</title>
-  
-
-  
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-
-  
-  
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
     <link rel="shortcut icon" href="../../../_static/favicon.ico"/>
-  
-
-  
-  
-
-  
-
-  
   <!--[if lt IE 9]>
     <script src="../../../_static/js/html5shiv.min.js"></script>
   <![endif]-->
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
         <script src="../../../_static/jquery.js"></script>
         <script src="../../../_static/underscore.js"></script>
         <script src="../../../_static/doctools.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
+    <script src="../../../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" /> 
 </head>
 
-<body class="wy-body-for-nav">
-
-   
+<body class="wy-body-for-nav"> 
   <div class="wy-grid-for-nav">
-    
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
         <div class="wy-side-nav-search" >
-          
-
-          
             <a href="../../../index.html">
-          
-
-          
-            
             <img src="../../../_static/autokey.png" class="logo" alt="Logo"/>
-          
           </a>
-
-          
-            
-            
               <div class="version">
                 latest
               </div>
-            
-          
-
-          
 <div role="search">
   <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" />
@@ -79,88 +38,42 @@
     <input type="hidden" name="area" value="default" />
   </form>
 </div>
-
-          
-        </div>
-
-        
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../intro.html">Introduction to Autokey</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">Autokey API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../model.html">Autokey Model</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../quickstart.html">Quickstart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CHANGELOG.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../README.html">AutoKey</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../CONTRIBUTORS.html#testing">Testing</a></li>
 </ul>
 
-            
-          
         </div>
-        
       </div>
     </nav>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
-      
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
           <a href="../../../index.html">AutoKey</a>
-        
       </nav>
 
-
       <div class="wy-nav-content">
-        
         <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
+          <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
-    
       <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
-        
           <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
       <li>autokey.model.key</li>
-    
-    
       <li class="wy-breadcrumbs-aside">
-        
       </li>
-    
   </ul>
-
-  
   <hr/>
 </div>
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
-            
+             
   <h1>Source code for autokey.model.key</h1><div class="highlight"><pre>
 <span></span><span class="c1"># Key codes enumeration</span>
 <span class="kn">import</span> <span class="nn">enum</span>
@@ -175,93 +88,170 @@
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    An enumeration of the &quot;special&quot; keys Autokey is able to listen for/send</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1">#TODO tedieous but I think it would be valuable to have these listed in a </span>
-    <span class="c1"># user facing manner</span>
     <span class="n">LEFT</span> <span class="o">=</span> <span class="s2">&quot;&lt;left&gt;&quot;</span>
     <span class="sd">&quot;&quot;&quot;LEFT arrow key&quot;&quot;&quot;</span>
     <span class="n">RIGHT</span> <span class="o">=</span> <span class="s2">&quot;&lt;right&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;RIGHT arrow key&quot;&quot;&quot;</span>
     <span class="n">UP</span> <span class="o">=</span> <span class="s2">&quot;&lt;up&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;UP arrow key &quot;&quot;&quot;</span>
     <span class="n">DOWN</span> <span class="o">=</span> <span class="s2">&quot;&lt;down&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;DOWN arrow key &quot;&quot;&quot;</span>
     <span class="n">BACKSPACE</span> <span class="o">=</span> <span class="s2">&quot;&lt;backspace&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Backspace key&quot;&quot;&quot;</span>
     <span class="n">TAB</span> <span class="o">=</span> <span class="s2">&quot;&lt;tab&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Tab key&quot;&quot;&quot;</span>
     <span class="n">ENTER</span> <span class="o">=</span> <span class="s2">&quot;&lt;enter&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Enter key&quot;&quot;&quot;</span>
     <span class="n">SCROLL_LOCK</span> <span class="o">=</span> <span class="s2">&quot;&lt;scroll_lock&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Scroll lock key&quot;&quot;&quot;</span>
     <span class="n">PRINT_SCREEN</span> <span class="o">=</span> <span class="s2">&quot;&lt;print_screen&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Print screen key&quot;&quot;&quot;</span>
     <span class="n">PAUSE</span> <span class="o">=</span> <span class="s2">&quot;&lt;pause&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Pause key&quot;&quot;&quot;</span>
     <span class="n">MENU</span> <span class="o">=</span> <span class="s2">&quot;&lt;menu&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Menu key&quot;&quot;&quot;</span>
     
     <span class="c1"># Modifier keys</span>
     <span class="n">CONTROL</span> <span class="o">=</span> <span class="s2">&quot;&lt;ctrl&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;CONTROL key&quot;&quot;&quot;</span>
     <span class="n">ALT</span> <span class="o">=</span> <span class="s2">&quot;&lt;alt&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ALT key&quot;&quot;&quot;</span>
     <span class="n">ALT_GR</span> <span class="o">=</span> <span class="s2">&quot;&lt;alt_gr&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ALT_GR key&quot;&quot;&quot;</span>
     <span class="n">SHIFT</span> <span class="o">=</span> <span class="s2">&quot;&lt;shift&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;SHIFT key&quot;&quot;&quot;</span>
     <span class="n">SUPER</span> <span class="o">=</span> <span class="s2">&quot;&lt;super&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;SUPER key&quot;&quot;&quot;</span>
     <span class="n">HYPER</span> <span class="o">=</span> <span class="s2">&quot;&lt;hyper&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;HYPER key&quot;&quot;&quot;</span>
     <span class="n">CAPSLOCK</span> <span class="o">=</span> <span class="s2">&quot;&lt;capslock&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;CAPSLOCK key&quot;&quot;&quot;</span>
     <span class="n">NUMLOCK</span> <span class="o">=</span> <span class="s2">&quot;&lt;numlock&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;NUMLOCK key&quot;&quot;&quot;</span>
     <span class="n">META</span> <span class="o">=</span> <span class="s2">&quot;&lt;meta&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;META key&quot;&quot;&quot;</span>
     
     <span class="n">F1</span> <span class="o">=</span> <span class="s2">&quot;&lt;f1&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F1 key&quot;&quot;&quot;</span>
     <span class="n">F2</span> <span class="o">=</span> <span class="s2">&quot;&lt;f2&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F2 key&quot;&quot;&quot;</span>
     <span class="n">F3</span> <span class="o">=</span> <span class="s2">&quot;&lt;f3&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F3 key&quot;&quot;&quot;</span>
     <span class="n">F4</span> <span class="o">=</span> <span class="s2">&quot;&lt;f4&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F4 key&quot;&quot;&quot;</span>
     <span class="n">F5</span> <span class="o">=</span> <span class="s2">&quot;&lt;f5&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F5 key&quot;&quot;&quot;</span>
     <span class="n">F6</span> <span class="o">=</span> <span class="s2">&quot;&lt;f6&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F6 key&quot;&quot;&quot;</span>
     <span class="n">F7</span> <span class="o">=</span> <span class="s2">&quot;&lt;f7&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F7 key&quot;&quot;&quot;</span>
     <span class="n">F8</span> <span class="o">=</span> <span class="s2">&quot;&lt;f8&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F8 key&quot;&quot;&quot;</span>
     <span class="n">F9</span> <span class="o">=</span> <span class="s2">&quot;&lt;f9&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F9 key&quot;&quot;&quot;</span>
     <span class="n">F10</span> <span class="o">=</span> <span class="s2">&quot;&lt;f10&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F10 key&quot;&quot;&quot;</span>
     <span class="n">F11</span> <span class="o">=</span> <span class="s2">&quot;&lt;f11&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F11 key&quot;&quot;&quot;</span>
     <span class="n">F12</span> <span class="o">=</span> <span class="s2">&quot;&lt;f12&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F12 key&quot;&quot;&quot;</span>
     <span class="n">F13</span> <span class="o">=</span> <span class="s2">&quot;&lt;f13&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F13 key&quot;&quot;&quot;</span>
     <span class="n">F14</span> <span class="o">=</span> <span class="s2">&quot;&lt;f14&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F14 key&quot;&quot;&quot;</span>
     <span class="n">F15</span> <span class="o">=</span> <span class="s2">&quot;&lt;f15&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F15 key&quot;&quot;&quot;</span>
     <span class="n">F16</span> <span class="o">=</span> <span class="s2">&quot;&lt;f16&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F16 key&quot;&quot;&quot;</span>
     <span class="n">F17</span> <span class="o">=</span> <span class="s2">&quot;&lt;f17&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F17 key&quot;&quot;&quot;</span>
     <span class="n">F18</span> <span class="o">=</span> <span class="s2">&quot;&lt;f18&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F18 key&quot;&quot;&quot;</span>
     <span class="n">F19</span> <span class="o">=</span> <span class="s2">&quot;&lt;f19&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F19 key&quot;&quot;&quot;</span>
     <span class="n">F20</span> <span class="o">=</span> <span class="s2">&quot;&lt;f20&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F20 key&quot;&quot;&quot;</span>
     <span class="n">F21</span> <span class="o">=</span> <span class="s2">&quot;&lt;f21&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F21 key&quot;&quot;&quot;</span>
     <span class="n">F22</span> <span class="o">=</span> <span class="s2">&quot;&lt;f22&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F22 key&quot;&quot;&quot;</span>
     <span class="n">F23</span> <span class="o">=</span> <span class="s2">&quot;&lt;f23&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F23 key&quot;&quot;&quot;</span>
     <span class="n">F24</span> <span class="o">=</span> <span class="s2">&quot;&lt;f24&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F24 key&quot;&quot;&quot;</span>
     <span class="n">F25</span> <span class="o">=</span> <span class="s2">&quot;&lt;f25&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F25 key&quot;&quot;&quot;</span>
     <span class="n">F26</span> <span class="o">=</span> <span class="s2">&quot;&lt;f26&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F26 key&quot;&quot;&quot;</span>
     <span class="n">F27</span> <span class="o">=</span> <span class="s2">&quot;&lt;f27&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F27 key&quot;&quot;&quot;</span>
     <span class="n">F28</span> <span class="o">=</span> <span class="s2">&quot;&lt;f28&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F28 key&quot;&quot;&quot;</span>
     <span class="n">F29</span> <span class="o">=</span> <span class="s2">&quot;&lt;f29&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F29 key&quot;&quot;&quot;</span>
     <span class="n">F30</span> <span class="o">=</span> <span class="s2">&quot;&lt;f30&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F30 key&quot;&quot;&quot;</span>
     <span class="n">F31</span> <span class="o">=</span> <span class="s2">&quot;&lt;f31&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F31 key&quot;&quot;&quot;</span>
     <span class="n">F32</span> <span class="o">=</span> <span class="s2">&quot;&lt;f32&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F32 key&quot;&quot;&quot;</span>
     <span class="n">F33</span> <span class="o">=</span> <span class="s2">&quot;&lt;f33&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F33 key&quot;&quot;&quot;</span>
     <span class="n">F34</span> <span class="o">=</span> <span class="s2">&quot;&lt;f34&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F34 key&quot;&quot;&quot;</span>
     <span class="n">F35</span> <span class="o">=</span> <span class="s2">&quot;&lt;f35&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;F35 key&quot;&quot;&quot;</span>
     
+
     <span class="c1"># Other</span>
     <span class="n">ESCAPE</span> <span class="o">=</span> <span class="s2">&quot;&lt;escape&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;ESCAPE key&quot;&quot;&quot;</span>
     <span class="n">INSERT</span> <span class="o">=</span> <span class="s2">&quot;&lt;insert&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;INSERT key&quot;&quot;&quot;</span>
     <span class="n">DELETE</span> <span class="o">=</span> <span class="s2">&quot;&lt;delete&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;DELETE key&quot;&quot;&quot;</span>
     <span class="n">HOME</span> <span class="o">=</span> <span class="s2">&quot;&lt;home&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;HOME key&quot;&quot;&quot;</span>
     <span class="n">END</span> <span class="o">=</span> <span class="s2">&quot;&lt;end&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;END key&quot;&quot;&quot;</span>
     <span class="n">PAGE_UP</span> <span class="o">=</span> <span class="s2">&quot;&lt;page_up&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;PAGE_UP key&quot;&quot;&quot;</span>
     <span class="n">PAGE_DOWN</span> <span class="o">=</span> <span class="s2">&quot;&lt;page_down&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;PAGE_DOWN key&quot;&quot;&quot;</span>
+
 
     <span class="c1"># Numpad</span>
     <span class="n">NP_INSERT</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_insert&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad insert key&quot;&quot;&quot;</span>
     <span class="n">NP_DELETE</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_delete&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad delete key&quot;&quot;&quot;</span>
     <span class="n">NP_HOME</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_home&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad home key&quot;&quot;&quot;</span>
     <span class="n">NP_END</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_end&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad end key&quot;&quot;&quot;</span>
     <span class="n">NP_PAGE_UP</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_page_up&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad page up key&quot;&quot;&quot;</span>
     <span class="n">NP_PAGE_DOWN</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_page_down&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad page down key&quot;&quot;&quot;</span>
     <span class="n">NP_LEFT</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_left&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad left key&quot;&quot;&quot;</span>
     <span class="n">NP_RIGHT</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_right&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad right key&quot;&quot;&quot;</span>
     <span class="n">NP_UP</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_up&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad up key&quot;&quot;&quot;</span>
     <span class="n">NP_DOWN</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_down&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad down key&quot;&quot;&quot;</span>
     <span class="n">NP_DIVIDE</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_divide&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad divide key&quot;&quot;&quot;</span>
     <span class="n">NP_MULTIPLY</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_multiply&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad multiply key&quot;&quot;&quot;</span>
     <span class="n">NP_ADD</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_add&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad add key&quot;&quot;&quot;</span>
     <span class="n">NP_SUBTRACT</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_subtract&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad subtract key&quot;&quot;&quot;</span>
     <span class="n">NP_5</span> <span class="o">=</span> <span class="s2">&quot;&lt;np_5&gt;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Number pad 5 key&quot;&quot;&quot;</span>
+
 
 <div class="viewcode-block" id="Key.is_key"><a class="viewcode-back" href="../../../model/key.html#autokey.model.key.Key.is_key">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">is_key</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">key_string</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -295,46 +285,30 @@
 </pre></div>
 
            </div>
-           
           </div>
           <footer>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>
-        &#169; Copyright 2021, Various.
-
-    </p>
+    <p>&#169; Copyright 2021, Various.</p>
   </div>
-    
-    
-    
-    Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
-    
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
     <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
-    
-    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
 
 </footer>
         </div>
       </div>
-
     </section>
-
   </div>
-  
-
-  <script type="text/javascript">
+  <script>
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script>
-
-  
-  
-    
-   
+  </script> 
 
 </body>
 </html>
