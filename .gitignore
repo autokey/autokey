@@ -1,3 +1,4 @@
+*.html
 *.bak
 *.swp
 __pycache__
@@ -11,4 +12,3 @@ __pycache__
 
 test_coverage_annotated_source/
 test_coverage_report_html/
-/.eggs/*
