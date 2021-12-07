@@ -76,7 +76,7 @@ Result:
 
 _Note that when you operate on the clipboard, a delay is usually required after the API call to give it time to complete, because the call immediately returns successfully even though the action is being asynchronously processed in another thread. That's an artifact of the way the upstream clipboard libraries we use work and applies to both front ends._
 
-### To wrap text around a selection that contains a graphical emoji:
+### To wrap text around a selection that contains one or more graphical Unicode characters:
 When you have some text selected in a window, if it contains Unicode characters that AutoKey won't work with, you can get around that by letting the operating system intercept your key-combinations and handle the copying and pasting for you, bypassing AutoKey entirely for that part of the task. The way it works is that the operating system copies your selected text, then AutoKey deletes your selection and inserts the first part of your wrapper, then the operating system pastes your Unicode in, and then AutoKey inserts the last part of your wrapper. In this example, the first part of the wrapper is an opening ```<p>``` tag and the last part of the wrapper is a closing ```</p>``` tag.
 ```
 keyboard.send_keys("<ctrl>+c")
