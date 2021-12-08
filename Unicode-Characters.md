@@ -1,4 +1,3 @@
-# Unicode Characters
 There's a bit of a trick to using Unicode characters in AutoKey scripts and phrases without first putting them onto the clipboard. The syntax varies slightly depending on whether you're printing one or more Unicode characters or interspersing the Unicode characters with single characters. Below are some examples.
 
 ## IN SCRIPTS:
