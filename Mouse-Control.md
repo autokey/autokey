@@ -1,4 +1,3 @@
-# Control the Mouse with AutoKey
 The computer's mouse can be used in scripts in a variety of ways. You can perform clicks by sending them relative to the screen, relative to the active window, or relative to the mouse's current position.
 
 ## Table of Contents
