@@ -1,4 +1,3 @@
-# Key Combinations
 Keys and key combinations can be pressed for you automatically by AutoKey in a variety of ways, with the methods below being built in for your convenience.
 
 ***
