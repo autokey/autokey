@@ -32,6 +32,7 @@ body:
 
 
         Both of these venues have a number of active users, so you are likely to get more, better, and faster answers on them than in here on GitHub, where only our very busy developers and a few users see the posts. We also prefer to have the developers developing rather than taking time to answer questions and manage issues that the user-community could handle for them.
+
       options:
         - label: This is not a question.
           required: true
