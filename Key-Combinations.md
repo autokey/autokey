@@ -57,7 +57,7 @@ keyboard.send_key("<tab>")
 ### The keyboard.fake_keypress() method:
 
 #### About:
-This method uses XTest to "fake" a key-press and can be useful for sending key-presses if an application doesn't respond to the `keyboard.send_key()` method.
+The `keyboard.fake_keypress()` method accepts only one key. This method uses XTest to "fake" a key-press and can be useful for sending a key-press if an application doesn't respond to the `keyboard.send_key()` method.
 
 #### Example:
 
@@ -69,7 +69,7 @@ keyboard.fake_keypress("<up>", repeat=3)
 ### The keyboard.send_keys() method:
 
 #### About:
-The `keyboard.send_keys()` method accepts any number of keys. A plus sign between keys causes the keys on either side of it to be pressed at the same time. Leaving off the plus sign between keys causes them to be pressed and released one after another. With a combination of both approaches in the same statement, you can achieve a variety of key-press combinations.
+The `keyboard.send_keys()` method accepts any number of keys. When sending multiple keys, a plus sign between keys causes the keys on either side of it to be pressed at the same time. Leaving off the plus sign between keys causes them to be pressed and released one after another. With a combination of both approaches in the same statement, you can achieve a variety of key-press combinations.
 
 #### Examples:
 
