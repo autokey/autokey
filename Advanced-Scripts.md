@@ -6,6 +6,21 @@ All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/l
 
 For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
+## Case Changer ##
+**Author**: [Kreezxil](https://kreezcraft.com)
+
+**Description**: Grabs the selected text and changes it to upper case if lower or mixed case, and lower case if upper cased.
+
+**Recommended Key**: <super>+c
+
+```python
+sample = clipboard.get_selection()
+if sample.islower():
+    keyboard.send_keys(sample.upper())
+else:
+    keyboard.send_keys(sample.lower())
+```
+
 ## Choose Browser On Link Selection ##
 
 **Discovered at**: [Linux Journal](http://www.linuxjournal.com/content/autokey-desktop-automation-utility-linux)
