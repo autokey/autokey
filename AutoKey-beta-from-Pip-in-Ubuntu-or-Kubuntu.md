@@ -12,7 +12,7 @@
   * [Add AutoKey beta to your path temporarily so you can run it from anywhere without specifying a path](#add-autokey-beta-to-your-path-temporarily-so-you-can-run-it-from-anywhere-without-specifying-a-path)
 * [Upgrade AutoKey beta to the latest version](#upgrade-autokey-beta-to-the-latest-version)
 * [Uninstall AutoKey beta](#uninstall-autokey-beta)
-* [Having trouble installing the beta?](#having-trouble-installing-autokey-beta)
+* [Having trouble?](#having-trouble)
 
 ### Remove the current version of AutoKey
 1. Quit AutoKey.
@@ -85,6 +85,7 @@ If you'd like to be notified of beta releases automatically, choose **Notificati
 2. You may need to clean up any residual files that are left behind in the autokey directory: ```rm ~/.local/bin/autokey*```
 3. If you've created any shortcuts in your menu, on your desktop, tasbar, panel, etc., you'll want to remove those as well.
 
-### Having trouble installing AutoKey beta?
+### Having trouble?
 * Get information on Pip dependencies, etc., here: [https://github.com/autokey/autokey/wiki/Installing#pip-installation](https://github.com/autokey/autokey/wiki/Installing#pip-installation)
 * See the Pip man page here: [http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html](http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html)
+* If you can't run the Qt version of AutoKey, please use the GTK version and consider contributing your information to AutoKey issue [#414](https://github.com/autokey/autokey/issues/414).
