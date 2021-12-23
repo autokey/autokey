@@ -20,6 +20,8 @@ If you don't already have AutoKey installed:
 2. Install the Qt version by typing this command in a terminal window in any directory:\
 ```sudo apt install autokey-qt```
 
+    🟥 **Important:** _If you'd rather not install AutoKey and would like to just install the AutoKey beta, you'll want to check that you have all of the [dependencies](https://github.com/autokey/autokey/wiki/Installing#dependencies) needed by the beta before moving forward._
+
 ### Install Pip
 1. Install Pip by typing this command in a terminal window in any directory:\
 ```sudo apt install python3-pip```
