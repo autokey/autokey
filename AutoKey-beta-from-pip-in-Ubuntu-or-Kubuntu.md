@@ -1,11 +1,11 @@
-## Use the AutoKey beta with Pip in Ubuntu or Kubuntu
+## Use the AutoKey beta with pip in Ubuntu or Kubuntu
 
 ### Table of Contents
 * [Install AutoKey](#install-autokey)
-* [Install Pip](#install-pip)
+* [Install pip](#install-pip)
 * [Install AutoKey beta](#install-autokey-beta)
 * [Run AutoKey beta](#run-autokey-beta)
-* [Optional: Add AutoKey beta to your path permanently so you can run it from anywhere without specirying a path](#optional-add-autokey-beta-to-your-path-permanently-so-you-can-run-it-from-anywhere-without-specifying-a-path)
+* [Optional: Add AutoKey beta to your path permanently so you can run it from anywhere without specifying a path](#optional-add-autokey-beta-to-your-path-permanently-so-you-can-run-it-from-anywhere-without-specifying-a-path)
 * [Optional: Add AutoKey beta to your path temporarily so you can run it from anywhere without specifying a path](#optional-add-autokey-beta-to-your-path-temporarily-so-you-can-run-it-from-anywhere-without-specifying-a-path)
 * [Upgrade AutoKey beta to the latest version](#upgrade-autokey-beta-to-the-latest-version)
 * [Uninstall AutoKey beta](#uninstall-autokey-beta)
@@ -22,8 +22,8 @@ If you don't already have AutoKey installed:
 
     🟥 **Important:** _If you'd rather not install AutoKey and would like to just install the AutoKey beta, you'll want to check that you have all of the [dependencies](https://github.com/autokey/autokey/wiki/Installing#dependencies) needed by the beta before moving forward._
 
-### Install Pip
-1. Install Pip by typing this command in a terminal window in any directory:\
+### Install pip
+1. Install pip by typing this command in a terminal window in any directory:\
 ```sudo apt install python3-pip```
 
 ### Install AutoKey beta
@@ -107,5 +107,5 @@ If you'd like to be notified of beta releases automatically, choose **Notificati
 3. If you've created any shortcuts in your menu, on your desktop, tasbar, panel, etc., you'll want to remove those as well.
 
 ### Having trouble installing AutoKey beta?
-* Get information on Pip dependencies, etc., here: [https://github.com/autokey/autokey/wiki/Installing#pip-installation](https://github.com/autokey/autokey/wiki/Installing#pip-installation)
-* See the Pip man page here: [http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html](http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html)
+* Get information on pip dependencies, etc., here: [https://github.com/autokey/autokey/wiki/Installing#pip-installation](https://github.com/autokey/autokey/wiki/Installing#pip-installation)
+* See the pip man page here: [http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html](http://manpages.ubuntu.com/manpages/bionic/man1/pip.1.html)
