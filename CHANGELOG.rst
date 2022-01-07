@@ -20,6 +20,8 @@ Create a GUI-free headless entrypoint to autokey, which can be run without GUI l
 .. Bug fixes
 .. ---------
 
+- Fix crash in qt macro recording window.
+
 Version 0.96.0-beta.9
 ============================
 
