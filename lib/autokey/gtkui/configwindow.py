@@ -555,7 +555,7 @@ class ScriptPage:
     def record_keystrokes(self, isActive):
         if isActive:
             self.recorder = autokey.iomediator.keygrabber.Recorder(self)
-            dlg = dialogs.RecordDialog(self.ui, self.on_rec_response)
+            dlg = dialogs.RecordDialog(self.parentWindow.ui, self.on_rec_response)
             dlg.run()
         else:
             self.recorder.stop()
