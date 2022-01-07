@@ -4,6 +4,14 @@ Changelog
 
 =======
 
+Version 0.96.0-beta.11
+============================
+
+Bug fixes
+---------
+
+- Fix crash in qt macro recording window.
+
 Version 0.96.0-beta.10
 ============================
 
