@@ -7,6 +7,7 @@ Thes pages contain some example scripts and user-contributed scripts to demonstr
   * [Basic Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts)
   * [Contributed Scripts 1](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1)
   * [Contributed Scripts 2](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2)
+  * [Contributed Scripts 3](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3)
   * [Mouse Control](https://github.com/autokey/autokey/wiki/Mouse-Control)
 
 ## Contributing scripts ##
