@@ -45,7 +45,7 @@
 # THE SCRIPT
 ###############################################################
 # Message to display to prompt the user for input:
-prompt="Please type one of these commands:\nchro\nfire\ngoo\napple\nbanana\ncoconut"
+prompt="Please type one of these commands:\n\t* chro\n\t* fire\n\t* goo\n\t* viv\n\t* apple\n\t* banana\n\t* coconut"
 
 # Ask for input, offer a default example, and check the exit code of the command:
 retCode, userInput = dialog.input_dialog(title="Input required", message=prompt, default="example")
