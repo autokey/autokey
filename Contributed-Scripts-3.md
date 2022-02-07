@@ -35,12 +35,12 @@
 # The subprocess.run function waits for the process to complete and provides a return code with its exit status before allowing you to execute other code.
 # The subprocess.Popen function allows you to execute other code and/or interact with the process with the subprocess.communicate function while the process is running.
 
-# Examples of some browsers you can use above:
-			# subprocess.Popen(["C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"])
-			# subprocess.Popen(["chrome.exe"])
-			# subprocess.Popen(["chromium-browser"])
-			# subprocess.Popen(["google-chrome"])
-			# subprocess.Popen(["google-chrome-stable"])
+# Examples of some browsers that could have been used in the script:
+	# subprocess.Popen(["C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"])
+	# subprocess.Popen(["chrome.exe"])
+	# subprocess.Popen(["chromium-browser"])
+	# subprocess.Popen(["google-chrome"])
+	# subprocess.Popen(["google-chrome-stable"])
 ###############################################################
 # THE SCRIPT
 ###############################################################
@@ -75,15 +75,15 @@ if retCode == 0:
 
 	# If apple was typed:
 	elif userInput == "apple":
-		dialog.info_dialog(title='Cancelled', message="You chose apple.")
+		dialog.info_dialog(title='Info', message="You chose apple.")
 
 	# If banana was typed:
 	elif userInput == "banana":
-		dialog.info_dialog(title='Cancelled', message="You chose banana.")
+		dialog.info_dialog(title='Info', message="You chose banana.")
 
 	# If apple was typed:
 	elif userInput == "coconut":
-		dialog.info_dialog(title='Cancelled', message="You chose coconut.")
+		dialog.info_dialog(title='Info', message="You chose coconut.")
 
 	# If anything else was typed or the default example string was accepted:
 	else:
@@ -99,17 +99,4 @@ elif retCode == 1:
 else:
 	error = "Something went wrong."
 	dialog.info_dialog(title="Error", message=error, width="200") 
-
-# When using subprocess, remember to use a comma wherever there is a space in a command.
-# The subprocess.call function is part of the older high-level API and has been replaced with the subprocess.run function.
-# The subprocess.call function waits for the process to complete and provides a return code with its exit status before allowing you to execute other code.
-# The subprocess.run function waits for the process to complete and provides a return code with its exit status before allowing you to execute other code.
-# The subprocess.Popen function allows you to execute other code and/or interact with the process with the subprocess.communicate function while the process is running.
-
-# Examples of some browsers you can use above:
-			# subprocess.Popen(["C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"])
-			# subprocess.Popen(["chrome.exe"])
-			# subprocess.Popen(["chromium-browser"])
-			# subprocess.Popen(["google-chrome"])
-			# subprocess.Popen(["google-chrome-stable"])
 ```
