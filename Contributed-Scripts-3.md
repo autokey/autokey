@@ -55,48 +55,51 @@ if retCode == 0:
 
 	# If chro was typed, open Chromium:
 	if userInput == "chro":
-		browser="chromium-browser"
-		subprocess.Popen([browser])
+		program="chromium-browser"
+		subprocess.Popen([program])
 
 	# If fire was typed, open Firefox:
 	elif userInput == "fire":
-		browser="firefox"
-		subprocess.Popen([browser])
+		program="firefox"
+		subprocess.Popen([program])
 
 	# If goo was typed, open Google Chrome:
 	elif userInput == "goo":
-		browser="google-chrome"
-		subprocess.Popen([browser])
+		program="google-chrome"
+		subprocess.Popen([program])
 
 	# If viv was typed, open Vivaldi:
 	elif userInput == "viv":
-		browser="vivaldi"
-		subprocess.Popen([browser])
+		program="vivaldi"
+		subprocess.Popen([program])
 
 	# If apple was typed, display a dialog:
 	elif userInput == "apple":
-		dialog.info_dialog(title='Info', message="You chose apple.")
+		text="You chose apple."
+		dialog.info_dialog(title='Info', message=text)
 
 	# If banana was typed, display a dialog:
 	elif userInput == "banana":
-		dialog.info_dialog(title='Info', message="You chose banana.")
+		text="You chose banana."
+		dialog.info_dialog(title='Info', message=text)
 
 	# If apple was typed, display a dialog:
 	elif userInput == "coconut":
-		dialog.info_dialog(title='Info', message="You chose coconut.")
+		text="You chose coconut."
+		dialog.info_dialog(title='Info', message=text)
 
 	# If anything else was typed or the default example string was accepted, display an invalid dialog:
 	else:
-		invalid = "You typed: " + userInput + "\n\nPlease enter a valid command."
-		dialog.info_dialog(title="Invalid", message=invalid, width="200")
+		text = "You typed: " + userInput + "\n\nPlease enter a valid command."
+		dialog.info_dialog(title="Invalid", message=text, width="200")
 
 # If the exit code was 1, display a cancel dialog:
 elif retCode == 1:
-	cancelled = "You pressed the Esc key or the Cancel button."
-	dialog.info_dialog(title="Cancelled", message=cancelled, width="200") 
+	text = "You pressed the Esc key or the Cancel button."
+	dialog.info_dialog(title="Cancelled", message=text, width="200") 
 
 # If the exit code was anything other than 0 or 1, display an error dialog:
 else:
-	error = "Something went wrong."
-	dialog.info_dialog(title="Error", message=error, width="200") 
+	text = "Something went wrong."
+	dialog.info_dialog(title="Error", message=text, width="200") 
 ```
