@@ -73,29 +73,29 @@ if retCode == 0:
 		browser="vivaldi"
 		subprocess.Popen([browser])
 
-	# If apple was typed:
+	# If apple was typed, display a dialog:
 	elif userInput == "apple":
 		dialog.info_dialog(title='Info', message="You chose apple.")
 
-	# If banana was typed:
+	# If banana was typed, display a dialog:
 	elif userInput == "banana":
 		dialog.info_dialog(title='Info', message="You chose banana.")
 
-	# If apple was typed:
+	# If apple was typed, display a dialog:
 	elif userInput == "coconut":
 		dialog.info_dialog(title='Info', message="You chose coconut.")
 
-	# If anything else was typed or the default example string was accepted:
+	# If anything else was typed or the default example string was accepted, display an invalid dialog:
 	else:
-		invalid = "You typed " + userInput + ".\n\nPlease enter a valid command."
+		invalid = "You typed: " + userInput + "\n\nPlease enter a valid command."
 		dialog.info_dialog(title="Invalid", message=invalid, width="200")
 
-# If the exit code was 1, notify the user that the dialog was cancelled:
+# If the exit code was 1, display a cancel dialog:
 elif retCode == 1:
 	cancelled = "You pressed the Esc key or the Cancel button."
 	dialog.info_dialog(title="Cancelled", message=cancelled, width="200") 
 
-# If the exit code was anything other than 0 or 1, warn the user of an error:
+# If the exit code was anything other than 0 or 1, display an error dialog:
 else:
 	error = "Something went wrong."
 	dialog.info_dialog(title="Error", message=error, width="200") 
