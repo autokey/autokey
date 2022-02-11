@@ -15,17 +15,17 @@
 # Set a Hotkey for this script (example: Ctrl+K).
 # The script will activate when you press Ctrl and K.
 # When it prompts you for input, you can choose ONE of these:
-	# Press the Esc key to cancel the dialog.
-	# ... or ...
-	# Click the Cancel button to cancel the dialog.
-	# ... or ...
-	# Press the Enter key to accept the default example text.
-	# ... or ...
-	# Click the OK button to accept the default example text.
-	# ... or ...
-	# Type in some text and press the Enter key.
-	# ... or ...
-	# Type in some text and click the OK button.
+    # Press the Esc key to cancel the dialog.
+    # ... or ...
+    # Click the Cancel button to cancel the dialog.
+    # ... or ...
+    # Press the Enter key to accept the default example text.
+    # ... or ...
+    # Click the OK button to accept the default example text.
+    # ... or ...
+    # Type in some text and press the Enter key.
+    # ... or ...
+    # Type in some text and click the OK button.
 ###############################################################
 # NOTES
 ###############################################################
@@ -36,11 +36,11 @@
 # The subprocess.Popen function allows you to execute other code and/or interact with the process with the subprocess.communicate function while the process is running.
 
 # Examples of some browsers that could have been used in the script:
-	# subprocess.Popen(["C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"])
-	# subprocess.Popen(["chrome.exe"])
-	# subprocess.Popen(["chromium-browser"])
-	# subprocess.Popen(["google-chrome"])
-	# subprocess.Popen(["google-chrome-stable"])
+    # subprocess.Popen(["C:/Program Files (x86)/Google/Chrome/Application/chrome.exe"])
+    # subprocess.Popen(["chrome.exe"])
+    # subprocess.Popen(["chromium-browser"])
+    # subprocess.Popen(["google-chrome"])
+    # subprocess.Popen(["google-chrome-stable"])
 ###############################################################
 # THE SCRIPT
 ###############################################################
@@ -53,59 +53,59 @@ retCode, userInput = dialog.input_dialog(title="Input required", message=prompt,
 # If the command was successful (the exit code was zero), take the user's desired action:
 if retCode == 0:
 
-	# If chro was typed, open Chromium:
-	if userInput == "chro":
-		program="chromium-browser"
-		subprocess.Popen([program])
+    # If chro was typed, open Chromium:
+    if userInput == "chro":
+        program="chromium-browser"
+        subprocess.Popen([program])
 
-	# If fire was typed, open Firefox:
-	elif userInput == "fire":
-		program="firefox"
-		subprocess.Popen([program])
+    # If fire was typed, open Firefox:
+    elif userInput == "fire":
+        program="firefox"
+        subprocess.Popen([program])
 
-	# If goo was typed, open Google Chrome:
-	elif userInput == "goo":
-		program="google-chrome"
-		subprocess.Popen([program])
+    # If goo was typed, open Google Chrome:
+    elif userInput == "goo":
+        program="google-chrome"
+        subprocess.Popen([program])
 
-	# If viv was typed, open Vivaldi:
-	elif userInput == "viv":
-		program="vivaldi"
-		subprocess.Popen([program])
+    # If viv was typed, open Vivaldi:
+    elif userInput == "viv":
+        program="vivaldi"
+        subprocess.Popen([program])
 
-	# If apple was typed, display a dialog:
-	elif userInput == "apple":
-		text="You chose apple."
-		dialog.info_dialog(title='Info', message=text)
+    # If apple was typed, display a dialog:
+    elif userInput == "apple":
+        text="You chose apple."
+        dialog.info_dialog(title='Info', message=text)
 
-	# If banana was typed, display a dialog:
-	elif userInput == "banana":
-		text="You chose banana."
-		dialog.info_dialog(title='Info', message=text)
+    # If banana was typed, display a dialog:
+    elif userInput == "banana":
+        text="You chose banana."
+        dialog.info_dialog(title='Info', message=text)
 
-	# If apple was typed, display a dialog:
-	elif userInput == "coconut":
-		text="You chose coconut."
-		dialog.info_dialog(title='Info', message=text)
+    # If apple was typed, display a dialog:
+    elif userInput == "coconut":
+        text="You chose coconut."
+        dialog.info_dialog(title='Info', message=text)
 
-	# If anything else was typed or the default example string was accepted, display an invalid dialog:
-	else:
-		text = "You typed: " + userInput + "\n\nPlease enter a valid command."
-		dialog.info_dialog(title="Invalid", message=text, width="200")
+    # If anything else was typed or the default example string was accepted, display an invalid dialog:
+    else:
+        text = "You typed: " + userInput + "\n\nPlease enter a valid command."
+        dialog.info_dialog(title="Invalid", message=text, width="200")
 
 # If the exit code was 1, display a cancel dialog:
 elif retCode == 1:
-	text = "You pressed the Esc key or the Cancel button."
-	dialog.info_dialog(title="Cancelled", message=text, width="200") 
+    text = "You pressed the Esc key or the Cancel button."
+    dialog.info_dialog(title="Cancelled", message=text, width="200") 
 
 # If the exit code was anything other than 0 or 1, display an error dialog:
 else:
-	text = "Something went wrong."
-	dialog.info_dialog(title="Error", message=text, width="200") 
+    text = "Something went wrong."
+    dialog.info_dialog(title="Error", message=text, width="200") 
 ```
 
 
-## Date Dialog
+## GUI Date Dialog
 - **Author**: Elliria
 - **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
 - **Notes**: The default format of the date is **YYYY-MM-DD**.
@@ -119,15 +119,15 @@ retCode, date = dialog.calendar(title="Choose a date")
 # If no date is chosen and the Cancel button is clicked, the Esc key is pressed, or the dialog window is closed:
 if retCode:
     # Create a message and display it in a dialog:
-	myMessage = "No date was chosen."
-	dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
+    myMessage = "No date was chosen."
+    dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
 else:
     # Display the value of the date variable in a dialog:
-	dialog.info_dialog(title="The date you chose is:", message=date, width="200")
+    dialog.info_dialog(title="The date you chose is:", message=date, width="200")
 ```
 
 
-## Date Dialog With Format Control
+## GUI Date Dialog With Format Control
 - **Author**: Elliria
 - **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
 - **Notes**: The default format of the date is **YYYY-MM-DD**, but you can use any of these [percent codes](https://help.gnome.org/users/gthumb/stable/gthumb-date-formats.html.en) to control the format. The example below uses ```format="%d-%m-%y"``` to show the date in the **dd-mm-yy** format.
@@ -139,10 +139,23 @@ retCode, date = dialog.calendar(title="Choose a date", format="%d-%m-%y")
 # If no date is chosen and the Cancel button is clicked, the Esc key is pressed, or the dialog window is closed:
 if retCode:
     # Create a message and display it in a dialog:
-	myMessage = "No date was chosen."
-	dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
+    myMessage = "No date was chosen."
+    dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
 else:
     # Display the value of the date variable in a dialog:
-	dialog.info_dialog(title="The date you chose is:", message=date, width="200")
+    dialog.info_dialog(title="The date you chose is:", message=date, width="200")
 ```
+Here's a similar script that gives you format control and pastes the chosen date into the currently-active window:
+```python
+# Create a variable for the return code and the date and put the chosen date's value into the date variable:
+retCode, date = dialog.calendar(title="Choose a date", format="%d-%m-%Y")
 
+# If no date is chosen and the Cancel button is clicked, the Esc key is pressed, or the dialog window is closed:
+if retCode:
+    # Create a message and display it in a dialog:
+    myMessage = "No date was chosen."
+    dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
+else:
+    # Paste the date into the currently-active window:
+    keyboard.send_keys(date)
+```
