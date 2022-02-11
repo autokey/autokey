@@ -103,3 +103,46 @@ else:
 	text = "Something went wrong."
 	dialog.info_dialog(title="Error", message=text, width="200") 
 ```
+
+
+## Date Dialog
+- **Author**: Elliria
+- **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
+- **Notes**: The default format of the date is **YYYY-MM-DD**.
+
+```python
+# Create a variable for the return code and the date and put the chosen date's value into the date variable:
+retCode, date = dialog.calendar(title="Choose a date")
+# Use the following line instead if you'd like to control the format of the date:
+# retCode, date = dialog.calendar(title="Choose a date", format="%d-%m-%y")
+
+# If no date is chosen and the Cancel button is clicked, the Esc key is pressed, or the dialog window is closed:
+if retCode:
+    # Create a message and display it in a dialog:
+	myMessage = "No date was chosen."
+	dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
+else:
+    # Display the value of the date variable in a dialog:
+	dialog.info_dialog(title="The date you chose is:", message=date, width="200")
+```
+
+
+## Date Dialog With Format Control
+- **Author**: Elliria
+- **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
+- **Notes**: The default format of the date is **YYYY-MM-DD**, but you can use any of these [percent codes](https://help.gnome.org/users/gthumb/stable/gthumb-date-formats.html.en) to control the format. The example below uses ```format="%d-%m-%y"``` to show the date in the **dd-mm-yy** format.
+
+```python
+# Create a variable for the return code and the date and put the chosen date's value into the date variable:
+retCode, date = dialog.calendar(title="Choose a date", format="%d-%m-%y")
+
+# If no date is chosen and the Cancel button is clicked, the Esc key is pressed, or the dialog window is closed:
+if retCode:
+    # Create a message and display it in a dialog:
+	myMessage = "No date was chosen."
+	dialog.info_dialog(title="Cancelled", message=myMessage, width="200")
+else:
+    # Display the value of the date variable in a dialog:
+	dialog.info_dialog(title="The date you chose is:", message=date, width="200")
+```
+
