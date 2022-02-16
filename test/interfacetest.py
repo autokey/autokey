@@ -1,5 +1,4 @@
 import unittest
-import time
 
 from lib import interface, iomediator
 
