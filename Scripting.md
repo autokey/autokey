@@ -2,7 +2,7 @@
 AutoKey scripts accept most Python code. AutoKey also offers some custom API functions that can be used in scripts. For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
 ## Example scripts ##
-Thes pages contain some example scripts and user-contributed scripts to demonstrate some of the basic and advanced capabilities of AutoKey's scripting service:
+These pages contain some example scripts and user-contributed scripts to demonstrate some of the basic and advanced capabilities of AutoKey's scripting service:
   * [Contents list of all these contributed files](https://github.com/autokey/autokey/wiki/Contents-of-contributed-script-files)
   * [Advanced Scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts)
   * [Basic Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts)
@@ -10,9 +10,6 @@ Thes pages contain some example scripts and user-contributed scripts to demonstr
   * [Contributed Scripts 2](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2)
   * [Contributed Scripts 3](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3)
   * [Mouse Control](https://github.com/autokey/autokey/wiki/Mouse-Control)
-
-[Get a Gmail URL from the 'Open In New Window' button](Contributed-Scripts-1#getGmailUrl)
-
 
 ## Contributing scripts ##
 Feel free to use the scripts for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
