@@ -159,7 +159,7 @@ for file_p in file_paths:
 	os.system(command)
 ```
 
-## Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard <a id="takeScreenhot" />
+## <a id="takeScreenhot" /> Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard 
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```py
