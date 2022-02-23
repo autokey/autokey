@@ -5,7 +5,8 @@
 
 ```python
 # you can click in a chatEntity like discord and this will make a newline without forcing the message, which is intended behavior
-# but you can click in the url bar of a browser and use it and it will make a new page/tab without forcing a new browser shift+enter
+# but you can click in the url bar of a browser and use it and it will make a new page/tab without forcing a 
+# new browser shift+enter
 
 def printUrl(part):
     clipboard.fill_clipboard("{}".format(part))
