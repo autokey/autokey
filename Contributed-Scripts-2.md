@@ -321,7 +321,7 @@ dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the co
 ```
 
 
-## Toggle a looped script
+## <a id="toggleLoopedScript" />Toggle a looped script
 - **Author**: Elliria
 - **Purpose**: Use a global value and two different key-presses to toggle the start and stop of a looped script.
 - **Notes**: This can be done by writing two scripts, each with a different trigger (hotkey or abbreviation). One script sets a global value and starts a loop that checks for that value in each iteration to determine whether it should continue with the loop or not and, if it's satisfied with the global value, runs the remaining code in the loop and starts over. The other script changes the global value, which ends the loop.
