@@ -1,7 +1,7 @@
 ## Contents
 
 
-* [Url Displayer](https://github.com/autokey/autokey/wiki/#urlDisplay)
+* [Url Displayer](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#urlDisplay)
 * [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#emojiSpeak)
 * [Coordinate Calculator](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#coordinateCalc)
 * [Autoclicker with toggle using Globals ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#autoclicker)
