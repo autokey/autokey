@@ -14,3 +14,6 @@
 * [Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#takeScreenhot)
 * [Ping or TracePath Mojang Minecraft Services Servers](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#pingMojanServers)
 
+## Contents of Contributed-Scripts-2
+
+ 
