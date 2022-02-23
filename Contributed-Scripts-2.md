@@ -4,7 +4,8 @@
 - **Notes**: now discerns if a browser is being used, if you give it the browsers you use.
 
 ```python
-# you can click in a chatEntity like discord and this will make a newline without forcing the message, which is intended behavior
+# you can click in a chatEntity like discord and this will make a newline without forcing the message, 
+# which is intended behavior
 # but you can click in the url bar of a browser and use it and it will make a new page/tab without forcing a 
 # new browser shift+enter
 
