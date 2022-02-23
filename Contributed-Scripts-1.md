@@ -1,4 +1,4 @@
-## Get a Gmail URL from the 'Open In New Window' button <a id="getGmailUrl" />
+## <a id="getGmailUrl" />Get a Gmail URL from the 'Open In New Window' button 
 
 If you use the 'preview pane' view in Gmail, you will note that you cannot then see the URLs of individual messages in the address bar. Yet each message does indeed have an unique URL. To get the URL of a message without having to switch to the standard view:
 
@@ -54,7 +54,7 @@ output += "Date Tested :" + system.exec_command("date")
 keyboard.send_keys(output)
 ```
 
-## Insert current DateTime in the format YYYY.MM.DD HH:MM:SS <a id="insertDateTime" />
+## <a id="insertDateTime" />Insert current DateTime in the format YYYY.MM.DD HH:MM:SS 
 example:
 > 2018.04.23 23:47:00 
 
@@ -64,7 +64,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
 ```
 
-## Insert current Time in the format HH:MM:SS <a id="insertTime" />
+## <a id="insertTime" />Insert current Time in the format HH:MM:SS 
 example:
 > 23:47:00 
 
@@ -74,7 +74,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%H:%M:%S'))
 ```
 
-## Insert current Date only in the format YYYY.MM.DD <a id="insertDate" />
+## <a id="insertDate" />Insert current Date only in the format YYYY.MM.DD 
 example:
 > 2018.04.23
 
@@ -84,7 +84,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%Y.%m.%d'))
 ```
 
-## Search for text from your clipboard in your Browser <a id="googleSearchClipboardText" />
+## <a id="googleSearchClipboardText" />Search for text from your clipboard in your Browser 
 
 script:
 ```python
@@ -109,7 +109,7 @@ webbrowser.get('google-chrome').open_new_tab(site)
 # webbrowser.get('firefox').open_new_tab(site)
 ```
 
-## Unpack all zipped files from the Download folder and delete the zip file afterwards <a id="unzipFiles" />
+## <a id="unzipFiles" />Unpack all zipped files from the Download folder and delete the zip file afterwards 
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```py
@@ -136,7 +136,7 @@ for item in os.listdir(dir_name):  # loop through items in dir
         subprocess.Popen(['xdg-open', dir_name + item_name + '/'])
 ```
 
-## Reduce image qualities in a certain folder <a id="reduceImage" />
+## <a id="reduceImage" />Reduce image qualities in a certain folder 
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```python
@@ -188,7 +188,7 @@ else:
     os.system(command2)
 ```
 
-## Ping or TracePath Mojang Minecraft Services Servers <a id="pingMojanServers" />
+## <a id="pingMojanServers" />Ping or TracePath Mojang Minecraft Services Servers 
 Author: [Kreezxil](https://kreezcraft.com)
 
 While this could've been done easier in a shell script I thought it would be fun to do it in Autokey. The script contains an array of Mojang servers that can cause issues for players if they are down. There is an action array too so you can see how to easily add more actions. 
