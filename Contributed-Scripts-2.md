@@ -2,14 +2,14 @@
 
 
 * [Url Displayer](#urlDisplay)
-* [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#emojiSpeak)
-* [Coordinate Calculator](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#coordinateCalc)
-* [Autoclicker with toggle using Globals ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#autoclicker)
-* [Check held keys (https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#workaround!) ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#checkHeldKeys)
-* [Date, Time and Window Title stamp](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dateTimeTitleStamp)
-* [Dialog info useful for displaying debugging info](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dialogDebugInfo)
-* [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#getMouseCoordinates)
-* [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#toggleLoopedScript)
+* [Emoji Speak for chat services such as Discord](#emojiSpeak)
+* [Coordinate Calculator](#coordinateCalc)
+* [Autoclicker with toggle using Globals ](#autoclicker)
+* [Check held keys (https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#workaround!) ](#checkHeldKeys)
+* [Date, Time and Window Title stamp](#dateTimeTitleStamp)
+* [Dialog info useful for displaying debugging info](#dialogDebugInfo)
+* [Get the current mouse coordinates](#getMouseCoordinates)
+* [Toggle a looped script](#toggleLoopedScript)
 
 
 ## <a id="urlDisplay" />Url Displayer
