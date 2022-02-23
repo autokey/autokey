@@ -1,4 +1,4 @@
-## Url Displayer
+## <a id="urlDisplay" />Url Displayer
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use a dictionary (associative array) to manage a list of urls using short names
 - **Notes**: now discerns if a browser is being used, if you give it the browsers you use.
@@ -65,7 +65,7 @@ else:
 
 
 ```
-## Emoji Speak for chat services such as Discord
+## <a id="emojiSpeak" />Emoji Speak for chat services such as Discord
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use emoji to write a sentence, for instance on Discord.
 - **Notes**: removed the comment and the if statements, decided to go 100% dictionary lookup method. It is certainly cleaner to look up. It feels a bit faster too.
@@ -137,7 +137,7 @@ time.sleep(0.2)
 keyboard.send_keys("<ctrl>+v")
 
 ``` 
-## Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
+## <a id="coordinateCalc" />Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
 - **Porting Author**: [Kreezxil](https://kreezcraft.com)
 - **Original Author**: [sebkuip](https://github.com/sebkuip)
 - **Original Location**: https://github.com/sebkuip/minecraft-region-calculator
@@ -204,7 +204,7 @@ elif utype == "r":
 
 dialog.info_dialog(title=title,message=msg)
 ```
-## Autoclicker with toggle using Globals
+## <a id="autoclicker" />Autoclicker with toggle using Globals
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: clicks where the mouse is at, when the script is run again, it turns off.
 ```python
@@ -227,7 +227,7 @@ while True:
         break
 ```
 
-## Check held keys (workaround!)
+## <a id="checkHeldKeys" />Check held keys (workaround!)
 Hacky way to check what keys are held down on a device. Uses the `evdev` library which requires additional setup. Check out their readme for more details on installation and what it is capable of. 
 
 https://python-evdev.readthedocs.io/en/latest/
@@ -253,7 +253,7 @@ loop.run_until_complete(check_key())
 loop.close()
 ```
 
-## Date, Time and Window Title stamp. 
+## <a id="dateTimeTitleStamp" />Date, Time and Window Title stamp. 
 Functions in any window, including Windows apps running on Wine.
 Sample output of this window: 2021-06-10 04:32 - Editing Scripts contributed 1 · autokey/autokey Wiki — Mozilla Firefox
 author: ineuw
@@ -274,7 +274,7 @@ keyboard.send_keys(paste_)
 
 ```
 
-## Dialog info useful for displaying debugging info
+## <a id="dialogDebugInfo" />Dialog info useful for displaying debugging info
 
 This example creates an info dialog to display the character count of a block of text. Information to be displayed must be in text format.
 
@@ -307,7 +307,7 @@ dialog.info_dialog("length: ", chars_)
 
 ```
 
-## Get the current mouse coordinates
+## <a id="getMouseCoordinates" />Get the current mouse coordinates
 - **Author**: Sam Sebastian
 - **Purpose**: Display the current X and Y mouse coordinates in a pop-up dialog.
 ```python
@@ -317,18 +317,6 @@ x = str(d.root_x) # get x coord and convert to string
 y = str(d.root_y) # get y coord and convert to string
 dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the coordinates
 ```
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 ## Toggle a looped script
@@ -366,3 +354,6 @@ store.set_global_value("x",False)
 # get rid of the global x variable entirely (optional):
 store.remove_global_value("x")
 ```
+
+
+
