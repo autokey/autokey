@@ -1,3 +1,19 @@
+## Contents
+
+* [Get a Gmail URL from the 'Open In New Window' button](#getGmailUrl)
+* [Convert text case to lowercase and replace spaces with hyphens](#convertTextCase)
+* [Automatically collect and paste information about the current platform](#getPlatformInfo)
+* [Insert current DateTime in the format YYYY.MM.DD HH:MM:SS](#insertDateTime)
+* [Insert current Time in the format HH:MM:SS](#insertTime)
+* [Insert current Date only in the format YYYY.MM.DD](#insertDate)
+* [Search for text from your clipboard in your Browser](#googleSearchClipboardText)
+* [Open a certain website](#openWebsite)
+* [Unpack all zipped files from the Download folder and delete the zip file afterwards](#unzipFiles)
+* [Reduce image qualities in a certain folder](#reduceImage)
+* [Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard](#takeScreenhot)
+* [Ping or TracePath Mojang Minecraft Services Servers](#pingMojanServers)
+
+
 ## <a id="getGmailUrl" />Get a Gmail URL from the 'Open In New Window' button 
 
 If you use the 'preview pane' view in Gmail, you will note that you cannot then see the URLs of individual messages in the address bar. Yet each message does indeed have an unique URL. To get the URL of a message without having to switch to the standard view:
