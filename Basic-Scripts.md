@@ -1,7 +1,7 @@
 
 ## Contents
 
-* [Introductions](#intro)
+* [Introduction](#intro)
 * [Display Active Window Information](#displayWindowInfo)
 * [Using Dates in Scripts](#usingDates)
 * [List Menu](#listMenu)
