@@ -1,3 +1,18 @@
+
+## Contents
+
+(#intro)[Introduction]
+(#displayWindowInfo)[Display Active Window Information]
+(#usingDates)[Using Dates in Scripts]
+(#listMenu)[List Menu]
+(#xSelection)[X Selection]
+(#persistentValue)[Persistent Value]
+(#createAbbreviation)[Create new abbreviation]
+(#createPhrase)[Create new phrase]
+(#startExternalScripts)[Start external scripts]
+
+
+## <a id="intro" />Introduction 
 This page contains example scripts to demonstrate the **basic** capabilities of AutoKey's scripting service.
 
 Feel free to use these scripts for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
