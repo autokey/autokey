@@ -1,4 +1,4 @@
-Introduction
+# API-supported special keys
 
 The below table lists all the names used for special keys.
 
@@ -49,4 +49,8 @@ The below table lists all the names used for special keys.
 
 _*: \<F13>-\<F35> were present on some keyboards in the 80s. Although those are no longer present on modern keyboards, X11 still supports these keys. You can assign those keys as hotkeys in applications and use them from within AutoKey to trigger the assigned actions. Application support for the upper Function keys varies, as some GUI toolkits may not support them._
 
-To combine two keys use a + sign - e.g. to press Control+Esc use `<ctrl>+<escape>`.
+# Using special keys
+
+There are several ways to add special keys to your phrases or scripts. See the [Keyboard](https://github.com/autokey/autokey/wiki/API-Examples#keyboard) section of the API wiki page for instructions and examples.
+
+To combine two keys, use a + sign - e.g. to press the Control+Esc keys, use `<ctrl>+<escape>`. For more information on key combinations, see the [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations) page.
