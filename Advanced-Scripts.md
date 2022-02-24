@@ -721,7 +721,7 @@ command = "nautilus " + working_directory
 os.system(command)
 ```
 
-## <a id="simpleIPManager" />simpleIpManagerSimple IP Manager ##
+## <a id="simpleIPManager" />Simple IP Manager ##
 **Author**: [Kreezxil](https://kreezcraft.com)
 
 **Description**: I created this to manage going to ip addresses that for whatever reason aren't named.
