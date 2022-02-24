@@ -19,7 +19,7 @@
 * [Function to list passwords on Firefox](https://github.com/autokey/autokey/wiki/Advanced-Scripts#listPasswords)
 * [Cycle case of selected text](https://github.com/autokey/autokey/wiki/Advanced-Scripts#cycleCase)
 * [Open a working directory](https://github.com/autokey/autokey/wiki/Advanced-Scripts#openWorkingDirectory)
-* [simpleIpManagerSimple IP Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#simpleIPManager)
+* [Simple IP Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#simpleIPManager)
 * [Password Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#passwordManager)
 * [SSH Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#sshManager)
 * [Url Wrangler](https://github.com/autokey/autokey/wiki/Advanced-Scripts#urlWrangler)
