@@ -28,6 +28,9 @@
 * [Dynamically assign hotkey actions](https://github.com/autokey/autokey/wiki/Advanced-Scripts#dynamicallyAssign)
 
 
+## Contents of Basic Scripts
+
+
 
 ## Contents of Contributed Scripts 1 
 
