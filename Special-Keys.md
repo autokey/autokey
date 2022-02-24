@@ -1,3 +1,5 @@
+AutoKey offers several API-supported special keys for use in your phrases or scripts and you can also customize some of your own.
+
 ***
 ## Table of Contents
 * [API-supported special keys](https://github.com/autokey/autokey/wiki/Special-Keys#api-supported-special-keys)
