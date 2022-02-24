@@ -30,6 +30,14 @@
 
 ## Contents of Basic Scripts
 
+* [Display Active Window Information](https://github.com/autokey/autokey/wiki/Basic-Scripts#displayWindowInfo)
+* [Using Dates in Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts#usingDates)
+* [List Menu](https://github.com/autokey/autokey/wiki/Basic-Scripts#listMenu)
+* [X Selection](https://github.com/autokey/autokey/wiki/Basic-Scripts#xSelection)
+* [Persistent Value](https://github.com/autokey/autokey/wiki/Basic-Scripts#persistentValue)
+* [Create new abbreviation](https://github.com/autokey/autokey/wiki/Basic-Scripts#createAbbreviation)
+* [Create new phrase](https://github.com/autokey/autokey/wiki/Basic-Scripts#createPhrase)
+* [Start external scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts#startExternalScripts)
 
 
 ## Contents of Contributed Scripts 1 
