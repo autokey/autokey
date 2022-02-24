@@ -1,4 +1,4 @@
-## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
+## <a id="dialogTypedInput" />GUI Dialog That Uses Typed Or Typed-And-Clicked Input
 - **Author**: Elliria
 - **Purpose**: A GUI dialog that uses typed or a combination of typed and clicked input to launch programs or display dialogs.
 - **Notes**: You can customize the script to do pretty much anything you like.
@@ -105,7 +105,7 @@ else:
 ```
 
 
-## GUI Date Dialog
+## <a id="dialogDate" />GUI Date Dialog
 - **Author**: Elliria
 - **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
 - **Notes**: The default format of the date is **YYYY-MM-DD**.
@@ -127,7 +127,7 @@ else:
 ```
 
 
-## GUI Date Dialog With Format Control
+## <a id="dialogFormat" />GUI Date Dialog With Format Control
 - **Author**: Elliria
 - **Purpose**: A GUI date-choosing dialog that waits for the user to choose a date and then uses the return code from the dialog to display one of two different dialogs depending on whether the user cancels/closes the window or chooses a date.
 - **Notes**: The default format of the date is **YYYY-MM-DD**, but you can use any of these [percent codes](https://help.gnome.org/users/gthumb/stable/gthumb-date-formats.html.en) to control the format. The example below uses ```format="%d-%m-%y"``` to show the date in the **dd-mm-yy** format.
