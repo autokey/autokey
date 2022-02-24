@@ -27,3 +27,6 @@
 
 ## Contents of Contributed-Scripts-3
  
+* [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogTypedInput)
+* [GUI Date Dialog](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogDate)
+* [GUI Date Dialog With Format Control](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogFormat)
