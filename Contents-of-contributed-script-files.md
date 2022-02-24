@@ -72,3 +72,15 @@
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogTypedInput)
 * [GUI Date Dialog](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogDate)
 * [GUI Date Dialog With Format Control](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogFormat)
+
+## Mouse Control
+  * [Before you begin](https://github.com/autokey/autokey/wiki/Mouse-Control#before-you-begin)
+    * [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Mouse-Control#get-the-current-mouse-coordinates)
+  * [Sending mouse clicks](https://github.com/autokey/autokey/wiki/Mouse-Control#sending-mouse-clicks)
+    * [Send a mouse click relative to the active window](https://github.com/autokey/autokey/wiki/Mouse-Control#send-a-mouse-click-relative-to-the-active-window)
+    * [Send a mouse-click relative to the mouse's current position](https://github.com/autokey/autokey/wiki/Mouse-Control#send-a-mouse-click-relative-to-the-mouses-current-position)
+    * [Send a mouse click relative to the screen](https://github.com/autokey/autokey/wiki/Mouse-Control#send-a-mouse-click-relative-to-the-screen)
+  * [Wait for a mouse click](https://github.com/autokey/autokey/wiki/Mouse-Control#wait-for-a-mouse-click)
+  * [Press and hold a mouse button](https://github.com/autokey/autokey/wiki/Mouse-Control#press-and-hold-a-mouse-button)
+  * [See also](https://github.com/autokey/autokey/wiki/Mouse-Control#see-also)
+
