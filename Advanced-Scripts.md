@@ -18,7 +18,7 @@
 * [Function to list passwords on Firefox](#listPasswords)
 * [Cycle case of selected text](#cycleCase)
 * [Open a working directory](#openWorkingDirectory)
-* [simpleIpManagerSimple IP Manager](#simpleIPManager)
+* [Simple IP Manager](#simpleIPManager)
 * [Password Manager](#passwordManager)
 * [SSH Manager](#sshManager)
 * [Url Wrangler](#urlWrangler)
