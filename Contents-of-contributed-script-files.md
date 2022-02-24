@@ -24,3 +24,6 @@
 * [Dialog info useful for displaying debugging info](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dialogDebugInfo)
 * [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#getMouseCoordinates)
 * [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#toggleLoopedScript)
+
+## Contents of Contributed-Scripts-3
+ 
