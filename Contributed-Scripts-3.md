@@ -2,7 +2,7 @@
 
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](#dialogTypedInput)
 * [GUI Date Dialog](#dialogDate)
-* [GUI Date Dialog With Format Control](dialogFormat)
+* [GUI Date Dialog With Format Control](#dialogFormat)
 
 
 ## <a id="dialogTypedInput" />GUI Dialog That Uses Typed Or Typed-And-Clicked Input
