@@ -1,3 +1,10 @@
+## Contents
+
+* [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](#dialogTypedInput)
+* [GUI Date Dialog](#dialogDate)
+* [GUI Date Dialog With Format Control](dialogFormat)
+
+
 ## <a id="dialogTypedInput" />GUI Dialog That Uses Typed Or Typed-And-Clicked Input
 - **Author**: Elliria
 - **Purpose**: A GUI dialog that uses typed or a combination of typed and clicked input to launch programs or display dialogs.
