@@ -5,6 +5,7 @@ AutoKey offers several API-supported special keys for use in your phrases or scr
 * [API-supported special keys](https://github.com/autokey/autokey/wiki/Special-Keys#api-supported-special-keys)
 * [Customized special keys](https://github.com/autokey/autokey/wiki/Special-Keys#customized-special-keys)
 * [Using special keys](https://github.com/autokey/autokey/wiki/Special-Keys#customized-special-keys)
+* [See also](https://github.com/autokey/autokey/wiki/Special-Keys/#see-also)
 ***
 
 # API-supported special keys
@@ -83,13 +84,30 @@ xev -event keyboard | grep -Po '(?<=keycode\s)[^\s]*'
 A key's keycode can be used in a custom code string. For example, the left Shift key's keycode is 50, so it uses the `<code50>` string, whereas the right Shift key's keycode is 62, so it uses the `<code62>` string.
 
 # Using special keys
-There are several ways to add API-supported special keys or custom special keys to your phrases or scripts.
+There are several ways to add special keys to your phrases or scripts:
 
-To use special keys in a phrase, insert their strings anywhere.
+* To use special keys in a phrase, insert their strings anywhere.
 
-To use a special keys in a script, use their strings with AutoKey's [Keyboard](https://github.com/autokey/autokey/wiki/API-Examples#keyboard) API calls. For example, to press and release the right Shift key, you would use these two calls:
-```python
-keyboard.press_key("<code62>")
-keyboard.release_key("<code62>")
-```
-To combine two keys, use a + sign - e.g. to press the Control+Esc keys, use `<ctrl>+<escape>`. For more information on key combinations, see the [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations) page.
+* To use a special keys in a script, use their strings with any of AutoKey's several [Keyboard API calls](https://github.com/autokey/autokey/wiki/API-Examples#keyboard). Some examples:
+  * The **press_key** and **release_key** API calls can be used to press and release one key (the right Shift key in this example):
+    ```python
+    keyboard.press_key("<code62>")
+    keyboard.release_key("<code62>")
+    ```
+  * The **send_key** call can be used to press and release one key (the right Shift key in this example):
+    ```python
+    keyboard.send_key("<code62>")
+      ```
+  * The **send_keys** call can be used to press and release more than one key:
+    * To press and release two keys at the same time (the Ctrl and Escape keys in this example), insert a plus sign between their strings:
+      ```python
+      keyboard.send_keys("<ctrl>+<esc>")
+      ```
+    * To press and release two (or more) keys, one after another (the Ctrl and Escape keys in this example), include their strings without anything between them:
+      ```python
+      keyboard.send_keys("<ctrl><esc>")
+      ```
+  
+# See also
+* For more information on key combinations, see the [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations) page.
+* For more information on the keyboard API calls, see the [Keyboard](https://github.com/autokey/autokey/wiki/API-Examples#keyboard) section of the API wiki page.
