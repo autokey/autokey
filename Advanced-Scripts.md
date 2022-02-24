@@ -1,3 +1,32 @@
+## Contents
+
+* [Introduction](#introduction)
+* [Case Changer](#caseChanger)
+* [Choose Browser On Link Selection](#chooseBrowser)
+* [Health Potion Drinker](#healthPotion)
+* [Ask For Assistance](#askForAssistance)
+* [Ask For A Cleric](#askForCleric)
+* [Gnome Screenshot](#gnomeScreenshot)
+* [Switch Or Start Firefox](#switchStartFirefox)
+* [Toggle an Application](#toggleApplication)
+* [RSS Zoomer](#rssZoomer)
+* [Move Active Window](#moveActiveWindow)
+* [Offline Print Queue](#offlinePrintQueue)
+* [Key Wrapper](#keyWrapper)
+* [WordPress Hebrew Concordance Linker](#wordpressHebrew)
+* [Function to Type Text Slowly](#typeSlowly)
+* [Function to list passwords on Firefox](#listPasswords)
+* [Cycle case of selected text](#cycleCase)
+* [Open a working directory](#openWorkingDirectory)
+* [simpleIpManagerSimple IP Manager](#simpleIPManager)
+* [Password Manager](#passwordManager)
+* [SSH Manager](#sshManager)
+* [Url Wrangler](#urlWrangler)
+* [Googling query from anywhere](#googlinqQuery)
+* [Search your phrases and scripts](#searchPhrasesScripts)
+* [Dynamically assign hotkey actions](#dynamicallyAssign)
+
+## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
 
 Feel free to use the scripts presented for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
