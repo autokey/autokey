@@ -29,7 +29,7 @@
 
 
 
-## Contents of Contributed-Scripts-1 
+## Contents of Contributed Scripts 1 
 
 * [Get a Gmail URL from the 'Open In New Window' button](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#getGmailUrl)
 * [Convert text case to lowercase and replace spaces with hyphens](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#convertTextCase)
@@ -44,7 +44,7 @@
 * [Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#takeScreenhot)
 * [Ping or TracePath Mojang Minecraft Services Servers](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#pingMojanServers)
 
-## Contents of Contributed-Scripts-2
+## Contents of Contributed Scripts 2
 
 * [Url Displayer](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#urlDisplay)
 * [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#emojiSpeak)
@@ -56,7 +56,7 @@
 * [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#getMouseCoordinates)
 * [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#toggleLoopedScript)
 
-## Contents of Contributed-Scripts-3
+## Contents of Contributed Scripts 3
  
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogTypedInput)
 * [GUI Date Dialog](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#dialogDate)
