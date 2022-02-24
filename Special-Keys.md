@@ -1,3 +1,10 @@
+***
+## Table of Contents
+* [API-supported special keys](https://github.com/autokey/autokey/wiki/Special-Keys#api-supported-special-keys)
+* [Customized special keys](https://github.com/autokey/autokey/wiki/Special-Keys#customized-special-keys)
+* [Using special keys](https://github.com/autokey/autokey/wiki/Special-Keys#customized-special-keys)
+***
+
 # API-supported special keys
 
 The below table lists all the names used for special keys.
