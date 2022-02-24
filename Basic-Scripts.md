@@ -1,15 +1,16 @@
 
 ## Contents
 
-(#intro)[Introduction]
-(#displayWindowInfo)[Display Active Window Information]
-(#usingDates)[Using Dates in Scripts]
-(#listMenu)[List Menu]
-(#xSelection)[X Selection]
-(#persistentValue)[Persistent Value]
-(#createAbbreviation)[Create new abbreviation]
-(#createPhrase)[Create new phrase]
-(#startExternalScripts)[Start external scripts]
+
+* [Display Active Window Information](#displayWindowInfo)
+* [Using Dates in Scripts](#usingDates)
+* [List Menu](#listMenu)
+* [X Selection](#xSelection)
+* [Persistent Value](#persistentValue)
+* [Create new abbreviation](#createAbbreviation)
+* [Create new phrase](#createPhrase)
+* [Start external scripts](#startExternalScripts)
+
 
 
 ## <a id="intro" />Introduction 
