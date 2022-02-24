@@ -1,7 +1,6 @@
 ## Contents of Contributed-Scripts-1 
 
 * [Get a Gmail URL from the 'Open In New Window' button](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#getGmailUrl)
-
 * [Convert text case to lowercase and replace spaces with hyphens](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#convertTextCase)
 * [Automatically collect and paste information about the current platform](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#getPlatformInfo)
 * [Insert current DateTime in the format YYYY.MM.DD HH:MM:SS](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#insertDateTime)
@@ -16,4 +15,12 @@
 
 ## Contents of Contributed-Scripts-2
 
- 
+* [Url Displayer](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#urlDisplay)
+* [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#emojiSpeak)
+* [Coordinate Calculator](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#coordinateCalc)
+* [Autoclicker with toggle using Globals](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#autoclicker)
+* [Check held keys](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#checkHeldKeys)
+* [Date, Time and Window Title stamp ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dateTimeTitleStamp)
+* [Dialog info useful for displaying debugging info](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dialogDebugInfo)
+* [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#getMouseCoordinates)
+* [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#toggleLoopedScript)
