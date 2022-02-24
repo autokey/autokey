@@ -6,7 +6,7 @@ All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/l
 
 For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
-## Case Changer ##
+## <a id="caseChanger" />Case Changer ##
 **Author**: [Kreezxil](https://kreezcraft.com)
 
 **Description**: Grabs the selected text and changes it to upper case if lower or mixed case, and lower case if upper cased.
@@ -21,7 +21,7 @@ else:
     keyboard.send_keys(sample.lower())
 ```
 
-## Choose Browser On Link Selection ##
+## <a id="chooseBrowser" />Choose Browser On Link Selection ##
 
 **Discovered at**: [Linux Journal](http://www.linuxjournal.com/content/autokey-desktop-automation-utility-linux)
 
@@ -36,7 +36,7 @@ if retCode == 0:
   system.exec_command(choice + " " + clipboard.get_selection())
 ```
 
-## Health Potion Drinker ##
+## <a id="healthPotion" />Health Potion Drinker ##
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -63,7 +63,7 @@ pot = pot + 1
 store.set_value("heal",pot)
 ```
 
-## Ask For Assistance ##
+## <a id="askForAssistance" />Ask For Assistance ##
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -103,7 +103,7 @@ mana = mana + 1
 store.set_value("mana",mana)
 ```
 
-## Ask For A Cleric ##
+## <a id="askForCleric" />Ask For A Cleric ##
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -144,7 +144,7 @@ pot = pot + 1
 store.set_value("pot",pot)
 ```
 
-## Gnome Screenshot ##
+## <a id="gnomeScreenshot" />Gnome Screenshot ##
 
 **Author**: [Dave](http://groups.google.com/groups/profile?enc_user=gy_J_BYAAABLTVwIPyUi9oJFSRwGwC70o4cocwWvDVg2RHsu8f1bCg)
 
@@ -162,7 +162,7 @@ window.activate("Save Screenshot", switchDesktop=False)
 keyboard.send_keys("today")
 ```
 
-## Switch Or Start Firefox ##
+## <a id="switchStartFirefox" />Switch Or Start Firefox ##
 
 **Author**: Jack
 
@@ -183,7 +183,7 @@ else:
 #
 ```
 
-## Toggle an Application ##
+## <a id="toggleApplication" />Toggle an Application ##
 
 **Author**: mindfulsource
 
@@ -207,7 +207,7 @@ else:
 ```
 
 
-## RSS Zoomer ##
+## <a id="rssZoomer" />RSS Zoomer ##
 
 **Author**: Jack
 
@@ -237,7 +237,7 @@ else:
 #
 ```
 
-## Move Active Window ##
+## <a id="moveActiveWindow" />Move Active Window ##
 
 **Author**: Jack
 
@@ -280,7 +280,7 @@ newY=windetails[1] + 20
 window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False)
 ```
 
-## Offline Print Queue ##
+## <a id="offlinePrintQueue" />Offline Print Queue ##
 
 **Author**: [Joe](http://groups.google.com/groups/profile?enc_user=wEhtURIAAAD4aTgqVkoh5XFntZCWEVBLD1eZzMt9YX5JjiuRxhHx-A)
 
@@ -459,7 +459,7 @@ keyboard.send_keys("<tab>")
 
 ```
 
-## Key Wrapper ##
+## <a id="keyWrapper" />Key Wrapper ##
 
 **Author**: [tpower21](http://groups.google.com/groups/profile?enc_user=x6tfARIAAAAifj82FffFIj7Xx_wp_F3B8rhlH0Pnl47z4AZhN98BFg)
 
@@ -517,7 +517,7 @@ clipboard.fill_clipboard(clip_board)
 del clip_board, selection, wrap, wrap_close
 ```
 
-## WordPress Hebrew Concordance Linker ##
+## <a id="wordpressHebrew" />WordPress Hebrew Concordance Linker ##
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -539,7 +539,7 @@ keyboard.send_keys("Strong's Concordance HEBREW %s" % selection)
 keyboard.send_keys("<enter>")
 ```
 
-## Function to Type Text Slowly ##
+## <a id="typeSlowly" />Function to Type Text Slowly ##
 
 **Author**: Joseph Pollock - JPmicrosystems
 
@@ -568,7 +568,7 @@ def type_slow(string, delay=0.1):
 ```
 
 
-## Function to list passwords on Firefox ##
+## <a id="listPasswords" />Function to list passwords on Firefox ##
 
 **Author**: Chris Dardis
 
@@ -617,7 +617,7 @@ keyboard.send_keys("<tab>")
 
 
 
-## Cycle case of selected text ##
+## <a id="cycleCase" />Cycle case of selected text ##
 
 **Author**: Jack
 
@@ -678,7 +678,7 @@ keyboard.send_keys("<shift>+<left>"*lLength)
 
 ```
 
-## Open a working directory ##
+## <a id="openWorkingDirectory" />Open a working directory ##
 **Author**: Kolibril13
 
 **Description**: This script opens the working directory, which you define in "/home/username/Desktop/working_directory.txt" (Ubuntu 18.04)
@@ -692,7 +692,7 @@ command = "nautilus " + working_directory
 os.system(command)
 ```
 
-## Simple IP Manager ##
+## <a id="" />simpleIpManagerSimple IP Manager ##
 **Author**: [Kreezxil](https://kreezcraft.com)
 
 **Description**: I created this to manage going to ip addresses that for whatever reason aren't named.
@@ -731,7 +731,7 @@ if retCode == 0:
     ))
 ```
 
-## Password Manager ##
+## <a id="passwordManager" />Password Manager ##
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -774,7 +774,7 @@ if retCode == 0:
     ))
 ```
 
-## SSH Manager ##
+## <a id="sshManager" />SSH Manager ##
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -840,7 +840,7 @@ except:
     exit()
 ```
 
-## Url Wrangler ##
+## <a id="urlWrangler" />Url Wrangler ##
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -861,7 +861,7 @@ else:
     changeLog = "{}/files/{}".format(theLink,parts[5])
     keyboard.send_keys("{}\n".format(changeLog))
 ```
-## Googling query from anywhere ##
+## <a id="googlinqQuery" />Googling query from anywhere ##
 
 **Author**: [Slothworks](https://askubuntu.com/a/685551/1058011)
 
@@ -888,7 +888,7 @@ if (not singleWord):
 webbrowser.open_new_tab(search_url)
 ```
 
-## Search your phrases and scripts ##
+## <a id="searchPhrasesScripts" />Search your phrases and scripts ##
 
 **Author**: [Caspx](https://github.com/caspx)
 
@@ -957,7 +957,7 @@ while True:
         continue
 ```
 
-## Dynamically assign hotkey actions ##
+## <a id="dynamicallyAssign" />Dynamically assign hotkey actions ##
 
 **Author**: [tomrule007](https://github.com/tomrule007)
 
@@ -990,3 +990,6 @@ if enabled:
 else:
     # Do this if disabled.
 ```
+
+
+
