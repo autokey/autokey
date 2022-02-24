@@ -1,3 +1,34 @@
+## Contents of Advanced Scripts
+
+ 
+* [Introduction](https://github.com/autokey/autokey/wiki/Advanced-Scripts#introduction)
+* [Case Changer](https://github.com/autokey/autokey/wiki/Advanced-Scripts#caseChanger)
+* [Choose Browser On Link Selection](https://github.com/autokey/autokey/wiki/Advanced-Scripts#chooseBrowser)
+* [Health Potion Drinker](https://github.com/autokey/autokey/wiki/Advanced-Scripts#healthPotion)
+* [Ask For Assistance](https://github.com/autokey/autokey/wiki/Advanced-Scripts#askForAssistance)
+* [Ask For A Cleric](https://github.com/autokey/autokey/wiki/Advanced-Scripts#askForCleric)
+* [Gnome Screenshot](https://github.com/autokey/autokey/wiki/Advanced-Scripts#gnomeScreenshot)
+* [Switch Or Start Firefox](https://github.com/autokey/autokey/wiki/Advanced-Scripts#switchStartFirefox)
+* [Toggle an Application](https://github.com/autokey/autokey/wiki/Advanced-Scripts#toggleApplication)
+* [RSS Zoomer](https://github.com/autokey/autokey/wiki/Advanced-Scripts#rssZoomer)
+* [Move Active Window](https://github.com/autokey/autokey/wiki/Advanced-Scripts#moveActiveWindow)
+* [Offline Print Queue](https://github.com/autokey/autokey/wiki/Advanced-Scripts#offlinePrintQueue)
+* [Key Wrapper](https://github.com/autokey/autokey/wiki/Advanced-Scripts#keyWrapper)
+* [WordPress Hebrew Concordance Linker](https://github.com/autokey/autokey/wiki/Advanced-Scripts#wordpressHebrew)
+* [Function to Type Text Slowly](https://github.com/autokey/autokey/wiki/Advanced-Scripts#typeSlowly)
+* [Function to list passwords on Firefox](https://github.com/autokey/autokey/wiki/Advanced-Scripts#listPasswords)
+* [Cycle case of selected text](https://github.com/autokey/autokey/wiki/Advanced-Scripts#cycleCase)
+* [Open a working directory](https://github.com/autokey/autokey/wiki/Advanced-Scripts#openWorkingDirectory)
+* [simpleIpManagerSimple IP Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#simpleIPManager)
+* [Password Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#passwordManager)
+* [SSH Manager](https://github.com/autokey/autokey/wiki/Advanced-Scripts#sshManager)
+* [Url Wrangler](https://github.com/autokey/autokey/wiki/Advanced-Scripts#urlWrangler)
+* [Googling query from anywhere](https://github.com/autokey/autokey/wiki/Advanced-Scripts#googlinqQuery)
+* [Search your phrases and scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts#searchPhrasesScripts)
+* [Dynamically assign hotkey actions](https://github.com/autokey/autokey/wiki/Advanced-Scripts#dynamicallyAssign)
+
+
+
 ## Contents of Contributed-Scripts-1 
 
 * [Get a Gmail URL from the 'Open In New Window' button](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1#getGmailUrl)
