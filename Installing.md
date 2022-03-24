@@ -70,7 +70,7 @@ Since AutoKey is a Python3 application, it is largely independent of particular 
 
 ## Arch Linux
 
-Up to date packages for both the [GTK](aur-gtk) and [Qt](aur-qt) versions are available in the Arch User Repository.
+Up to date packages for both the [GTK](https://aur.archlinux.org/packages/autokey-gtk) and [Qt](https://aur.archlinux.org/packages/autokey-qt) versions are available in the Arch User Repository.
 
 If you wish to manually install AutoKey, use the dependencies specified in the AUR as a reference, for what has to be installed.
 
