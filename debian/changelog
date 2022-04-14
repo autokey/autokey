@@ -533,7 +533,7 @@ autokey (0.71.0-0) unreleased; urgency=low
 
 autokey (0.70.5-1) unreleased; urgency=low
 
-  * Packaging fix only - prevent errors with akicon-status.png by specifiying
+  * Packaging fix only - prevent errors with akicon-status.png by specifying
     replaces and breaks in autokey-common
 
  -- Chris Dekter <cdekter@gmail.com>  Mon, 19 Jul 2010 10:57:23 +1000

@@ -886,7 +886,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 os._exit(1)
             except Exception as e:
                 logger.exception(
-                    "Some exception occured in the flush events loop: {}".format(e))
+                    "Some exception occurred in the flush events loop: {}".format(e))
                 pass
         logger.debug("Left event loop.")
 

@@ -98,7 +98,7 @@ def get_source_desktop_file(desktop_file_name: str) -> Path:
     :raises FileNotFoundError: If no desktop file was found in the searched directories.
     """
     possible_paths = (
-        # Copy from local installation. Also used if the user explicitely customized the launcher .desktop file.
+        # Copy from local installation. Also used if the user explicitly customized the launcher .desktop file.
         Path(common.XDG_DATA_HOME) / "applications",
         # Copy from system-wide installation
         Path("/", "usr", "share", "applications"),
