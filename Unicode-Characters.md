@@ -11,6 +11,7 @@ There's a bit of a trick to using Unicode characters in AutoKey scripts and phra
 - If a Unicode character will be the **last or only character** you print, **an additional key-press is required to get rid of the tooltip**. In the examples, I inserted a space or a plus sign at the end of each string. Note that neither the space nor the plus sign will be printed, but are simply a way to communicate with AutoKey that you're done creating the character. If a space or plus sign is desired after the Unicode character, an additional space or plus sign must be inserted.
 - You can insert as many Unicode characters as you like into a string that contains just Unicode characters. In that case, you have two choices: You can put a space or plus sign after each of the characters or just put one space or plus sign at the end of all of the characters.
 - If you create a string that's a mixture of single characters and Unicode characters, each Unicode character must end with a space or plus sign.
+- In any of the example scripts below, wherever you see **u** being used to reference a Unicode character, you can use **uU** instead. It does the same thing, but is alternate syntax that may be preferable.
 
 ### To print a single Unicode character:
 
