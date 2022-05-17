@@ -21,6 +21,7 @@
     * [Emitting Keyboard Events](https://github.com/autokey/autokey/wiki/Emitting-Keyboard-Events)
     * [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations)
     * [Mouse Control](https://github.com/autokey/autokey/wiki/Mouse-Control)
+    * [Persistent Values](https://github.com/autokey/autokey/wiki/Persistent-Values)
     * [Scripting](https://github.com/autokey/autokey/wiki/Scripting)
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
