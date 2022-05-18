@@ -64,7 +64,7 @@ del x
 - Local values are user-specified JSON key/value pair objects.
 - They accept any hashable object as a key and any serializable Python object as a value.
 - In Python, anything is an object (classes, functions, data types, etc.), but classes and functions are not serializable.
-- They can be created from within any AutoKey scripts.
+- Local values can be created from within any AutoKey scripts.
 - Each one can be accessed or managed from within the AutoKey script that created it.
 - Local values can be changed in the same way that they're created - with a statement that sets a key/value pair.
 - Local values are kept in the AutoKey store.
