@@ -9,8 +9,8 @@ AutoKey offers two different kinds of persistent values for use in AutoKey scrip
 
 ## <a id="global-values">Global values
 - Global values are user-specified JSON key/value pair objects.
-- They accept any hashable object as a key and any Python object as a value.
-- In Python, anything is an object (classes, functions, data types, etc.).
+- They accept any hashable object as a key and any serializable Python object as a value.
+- In Python, anything is an object (classes, functions, data types, etc.), but classes and functions are not serializable.
 - Global values can be created, accessed, and managed from within any AutoKey scripts.
 - They're available for use by all AutoKey scripts.
 - They can be changed in the same way that they're created - with a statement that sets a key/value pair.
@@ -20,6 +20,7 @@ AutoKey offers two different kinds of persistent values for use in AutoKey scrip
 - Deleting the set statement (that created a global value) from a script will not remove the global value from the store.
 - Deleting the script that created a global value will not delete the global value from the store.
 - Global values exist until a script tells AutoKey to remove them.
+- Global values may be lost if AutoKey dies by being killed from an external command or a power failure, etc.
 
 ### <a id="example-script">Example script
 This example script demonstrates some of the more common things you can do with global values: creating, changing, testing for, getting, displaying, printing, and removing a global value.
@@ -61,8 +62,8 @@ del x
 
 ## <a id="local-values">Local values
 - Local values are user-specified JSON key/value pair objects.
-- They accept any hashable object as a key and any Python object as a value.
-- In Python, anything is an object (classes, functions, data types, etc.).
+- They accept any hashable object as a key and any serializable Python object as a value.
+- In Python, anything is an object (classes, functions, data types, etc.), but classes and functions are not serializable.
 - They can be created from within any AutoKey scripts.
 - Each one can be accessed or managed from within the AutoKey script that created it.
 - Local values can be changed in the same way that they're created - with a statement that sets a key/value pair.
@@ -72,10 +73,11 @@ del x
 - They're written to that file the next time their AutoKey script is saved.
 - Changes to local values, including removal of local values, are also written to that file the next time their AutoKey script is saved.
 - Deleting a set statement from a script will not remove a local value from the store.
-- Key/value pairs exist until their script tells AutoKey to remove them or until their script is deleted.
+- Local values exist until their script tells AutoKey to remove them or until their script is deleted.
+- Local values may be lost if AutoKey dies by being killed from an external command or a power failure, etc.
 
 ### <a id="example-script-1">Example script
-This example script demonstrates some of the more common things you can do with local values: creating, changing, testing for, getting, displaying, printing, and removing a local value.
+This example script demonstrates some of the more common things you can do with local values: creating, changing, testing for, getting, displaying, printing, and removing a local value, and also displaying the store's local values.
 
 ```python
 # Create a local value:
