@@ -75,7 +75,7 @@ del x
 - Key/value pairs exist until their script tells AutoKey to remove them or until their script is deleted.
 
 ### <a id="example-script-1">Example script
-This example script demonstrates some of the more common things you can do with local values: creating, changing, testing for, getting, displaying, printing, and removing a global value.
+This example script demonstrates some of the more common things you can do with local values: creating, changing, testing for, getting, displaying, printing, and removing a local value.
 
 ```python
 # Create a local value:
