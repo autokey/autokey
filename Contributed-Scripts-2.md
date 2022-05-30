@@ -10,6 +10,7 @@
 * [Dialog info useful for displaying debugging info](#dialogDebugInfo)
 * [Get the current mouse coordinates](#getMouseCoordinates)
 * [Toggle a looped script](#toggleLoopedScript)
+* [Keyboard Masher](#keyboardMasher)
 
 
 ## <a id="urlDisplay" />Url Displayer
@@ -371,5 +372,49 @@ store.set_global_value("x",False)
 store.remove_global_value("x")
 ```
 
+## <a id="keyboardMasher" /> Keyboard Masher
+- **Author**: Kreezxil
+- **Purpose**: To mash all the keys in <a href="https://teagher.itch.io/keymasher-ultimate">Keymasher Ultimate</a>. It might work in other games that require random key mashing. Also checks to make sure a game with the title substring "MASHER" exists as the active window.
+```python
+import random
+def get_active_title():
+    return system.exec_command('xdotool getactivewindow getwindowname', getOutput=True)
+targetScan = get_active_title()
+if targetScan.find("MASHER")>-1:
 
+    segments = ["qwertyuiop","asdfghjkl;","zxcvbnm,./"]
 
+    x = store.get_global_value("typer_status")
+
+    if x == "on":
+        # turn it off if it is on
+        store.set_global_value("typer_status", "off")
+
+    else:
+        # any other value is considered off, should cover nulls
+        store.set_global_value("typer_status", "on")
+
+    while True:
+
+        timer = store.get_global_value("timer_value")
+        if timer is None:
+            timer = 0.1
+            store.set_global_value("timer_value",timer)
+
+        #keyboard.send_keys("{} <enter>".format(timer))
+        time.sleep(timer)
+
+        # time.sleep(random.uniform(0, 0.325))
+
+        for i in range(3):
+            #keyboard.send_keys("{}:{}<enter>".format(i,segments[i]))
+            worker = segments[i]
+            hours = len(worker)
+            wage = worker[random.randrange(0,hours)]
+            keyboard.send_keys(wage)
+
+        x = store.get_global_value("typer_status")
+        if x == "off":
+            # leave the execution if we've been toggled off
+            break
+```
