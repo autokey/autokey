@@ -773,15 +773,19 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
     def __fakeKeypress(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        self.localDisplay.sync()
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        self.localDisplay.sync()
 
     def __fakeKeydown(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        self.localDisplay.sync()
 
     def __fakeKeyup(self, keyName):
         keyCode = self.__lookupKeyCode(keyName)
         xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        self.localDisplay.sync()
 
     def __sendModifiedKey(self, keyName, modifiers):
         logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
