@@ -70,7 +70,7 @@ def monospace_font() -> QFont:
 
 def set_url_label(label: QLabel, path: str):
 
-    # In both cases, only replace the first occurence.
+    # In both cases, only replace the first occurrence.
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
         text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
     else:
