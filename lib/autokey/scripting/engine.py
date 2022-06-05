@@ -604,6 +604,8 @@ def validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary,
                           replace_existing_hotkey):
+    if folder is None:
+        raise ValueError("Parameter 'folder' is None. Check the folder is a valid autokey folder")
     validateType(folder, "folder", autokey.model.folder.Folder)
     # For when we allow pathlib.Path
     # validateType(folder, "folder",
