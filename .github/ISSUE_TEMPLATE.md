@@ -1,50 +1,42 @@
 ## Classification:
-
-(Pick one of: Bug, Crash/Hang/Data Loss, Performance, UI/Usability, Feature (New), Enhancement)
+(Pick one: Bug, Crash/Hang/Data loss, Enhancement, Feature (new), Performance, UI/Usability)
 
 ## Reproducibility:
+(Pick one: Always, Sometimes, Rarely, Unable, I didn't try)
 
-(Pick one of: Always, Sometimes, Rarely, Unable, I Didn't Try)
+## AutoKey version:
+(Paste in your AutoKey version and, if the problem is known to be present in more than one version, please list them all.)
 
-## Version
+## Used GUI:
+(Pick one: Gtk, Qt, Both):
 
-AutoKey version: 
+## Installed via:
+(Pick one: PPA, pip3, Git, package manager, etc.)
 
-Used GUI (Gtk, Qt, or both): 
+## Linux distribution:
+(Provide information about your Linux distribution and its release or version number.)
 
-If the problem is known to be present in more than one version, please list all of those.
+## Summary:
+(Provide a brief summary of the problem.)
 
-Installed via: (PPA, pip3, …).
+## Steps to reproduce:
+- I do this.
+- Then I do that.
 
-Linux Distribution:
+## Expected result:
+(Explain what should happen.)
 
-## Summary
+## Actual result:
+(Explain what actually happens.)
 
-Summary of the problem.
+## Screenshot (if applicable):
+(Include one or more screenshots of the issue by dragging the image file(s) here to help with debugging.)
 
-## Steps to Reproduce (if applicable)
-
-- I do this
-- I do that
-
-## Expected Results
-
-- This should happen.
-
-## Actual Results
-
-- Instead, this happens. :(
-
-If helpful, submit screenshots of the issue to help debug.\
-Debugging output, obtained by launching autokey via `autokey-gtk --verbose` (or `autokey-qt --verbose`, if you use the Qt interface) is also useful.\
-Please upload the log somewhere accessible or put the output into a code block (enclose in triple backticks).
+## Verbose output (if applicable):
+(Include the output from launching AutoKey via the `autokey-gtk --verbose` or `autokey-qt --verbose` command to help with debugging. Please upload the output somewhere accessible or paste it into a code block here, enclosing it in triple backticks.)
 ```
-Example code block. Replace this whith your log content.
+Example code block. Replace this with your output content.
 ```
 
-## Notes
-
-Describe any debugging steps you've taken yourself.
-
-If you've found a workaround, please provide it here.
-
+## Notes:
+(Describe debugging steps you've taken, a workaround you've figured out, or any other information you think we might need.)
