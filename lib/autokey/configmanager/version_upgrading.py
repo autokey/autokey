@@ -66,6 +66,7 @@ def upgrade_configuration_format(configuration_manager, config_data: dict):
         convert_autostart_entries_for_v0_95_3()
     if version < vparse("0.95.11"):  # actually 0.96.0
         convertDotFiles_v95_11(configuration_manager, config_data)
+        convert_folder_attributes_0_95_11(configuration_manager, config_data)
 
 def upgrade_configuration_after_load(configuration_manager, config_data: dict):
     """
@@ -189,3 +190,11 @@ def convertDotFiles_v95_11(cm, configData):
     logger.info("Version update: Unhiding sidecar dotfiles for versions > 0.95.10")
     for name in cm.get_all_config_folder_paths(configData):
         convertDotFiles_v95_11_folder(Path(name))
+
+def convert_folder_attributes_0_95_11(cm, config_data):
+    for folder in cm.get_all_folders():
+        logger.debug(folder)
+        try:
+            _ = folder.temporary
+        except AttributeError:
+            folder.temporary = False
