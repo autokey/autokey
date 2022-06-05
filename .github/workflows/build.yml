@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.10.1]
     steps:
     - uses: actions/checkout@v2
       with:
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.10.1]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: [3.10.1]
     needs: [build_pypi_wheel, build_deb]
     steps:
     - uses: actions/checkout@v2
@@ -125,7 +125,7 @@ jobs:
         ref: ${{ github.ref }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
-        check-name: 'pytest (3.9)'
+        check-name: 'pytest (3.10.1)'
 
     - name: Download built dist as artifact
       uses: actions/download-artifact@master
@@ -160,7 +160,7 @@ jobs:
           prerelease=""
         fi
         # Include other files by adding them as additional arguments
-        gh release create "$prerelease" "$tagname" --title "$tagname" ../debs/*.deb --notes "$notes"
+        gh release create "$tagname" ../debs/*.deb --title "$tagname" --notes "$notes" $prerelease
     # ../autokey-common_${{ github.ref }}_all.deb
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
