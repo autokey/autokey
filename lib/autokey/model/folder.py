@@ -145,6 +145,13 @@ class Folder(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         for childItem in self.items:
             childItem.build_path(os.path.basename(childItem.path))
 
+    def get_child_folders(self):
+        out = []
+        for folder in self.folders:
+            out.append(folder)
+            out.extend(folder.get_child_folders())
+        return out
+
     def remove_data(self):
         if self.path is not None:
             for child in self.items:

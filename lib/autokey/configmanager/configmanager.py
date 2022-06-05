@@ -281,6 +281,13 @@ class ConfigManager:
             }
         return d
 
+    def __get_nondefault_config_folders(self):
+        extraFolders = []
+        for folder in self.folders:
+            if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
+                extraFolders.append(folder.path)
+        return extraFolders
+
     def load_global_config(self):
         if not os.path.exists(CONFIG_FILE):
             return
@@ -299,9 +306,7 @@ class ConfigManager:
 
         self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
 
-        # These populate self.folders
-        self.__collect_default_config_subfolders()
-        self.__collect_additional_user_config_folders(data)
+        self.__load_folders(data)
 
         self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
         self.configHotkey.load_from_serialized(data["configHotkey"])
@@ -311,30 +316,6 @@ class ConfigManager:
 
         self.config_altered(False)
         logger.info("Successfully loaded configuration")
-
-    def __get_nondefault_config_folders(self):
-        extraFolders = []
-        for folder in self.folders:
-            if not folder.path.startswith(CONFIG_DEFAULT_FOLDER):
-                extraFolders.append(folder.path)
-        return extraFolders
-
-    def __collect_default_config_subfolders(self):
-        for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
-            if os.path.isdir(entryPath):
-                logger.debug("Loading folder at '%s'", entryPath)
-                f = autokey.model.folder.Folder("", path=entryPath)
-                f.load(None)
-                self.folders.append(f)
-
-    def __collect_additional_user_config_folders(self, data):
-        for folderPath in data["folders"]:
-            self.__load_folder_from_path(folderPath)
-
-    def __load_folder_from_path(self, folderPath):
-        f = autokey.model.folder.Folder("", path=folderPath)
-        f.load()
-        self.folders.append(f)
 
     def path_created_or_modified(self, path):
         directory, baseName = os.path.split(path)
@@ -358,6 +339,28 @@ class ConfigManager:
             else:
                 self.config_altered(False)
             return loaded
+
+    def __load_folders(self, data):
+        for path in self.get_all_config_folder_paths(data):
+            f = autokey.model.folder.Folder("", path=path)
+            f.load()
+            logger.debug("Loading folder at '%s'", path)
+            self.folders.append(f)
+
+
+    def get_all_config_folder_paths(self, data):
+        for path in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+            if os.path.isdir(path):
+                yield path
+        for path in data["folders"]:
+            yield path
+
+    def get_all_folders(self):
+        out = []
+        for folder in self.folders:
+            out.append(folder)
+            out.extend(folder.get_child_folders())
+        return out
 
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found

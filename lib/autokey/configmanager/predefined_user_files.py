@@ -210,7 +210,7 @@ def create_my_phrases_folder() -> Folder:
 def create_sample_scripts_folder():
     """
     Creates the "Sample Scripts" folder. It contains a bunch of pre-defined example scripts.
-    The exact script content is read from the predifined_user_scripts directory inside this Python package.
+    The exact script content is read from the predefined_user_scripts directory inside this Python package.
     """
     sample_scripts = _create_folder("Sample Scripts")
     sample_scripts.persist()
