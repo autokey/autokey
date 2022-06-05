@@ -13,7 +13,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-import logging
 from typing import TYPE_CHECKING
 
 from PyQt5.QtCore import pyqtSlot
@@ -25,7 +24,7 @@ if TYPE_CHECKING:
     from autokey.qtapp import Application
 
 
-logger = common.logger.getChild("Settings Dialog")  # type: logging.Logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class SettingsDialog(*common.inherits_from_ui_file_with_name("settingsdialog")):

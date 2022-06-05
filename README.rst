@@ -80,7 +80,7 @@ We'd appreciate it if you take a look at `Problem reporting guide`_ before posti
 .. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: irc://irc.freenode.net/#autokey
 .. _Gitter: https://gitter.im/autokey/autokey
-.. _Problem reporting guide: https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide
+.. _Problem reporting guide: https://github.com/autokey/autokey/wiki/Problem-Reporting-Guide
 
 Bug reports and Pull Requests
 =============================
@@ -92,9 +92,19 @@ Bug reports and PRs are welcome. Please use the `GitHub Issue Tracker`_ for bug 
 
 .. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
 
+Running the unit tests
+======================
+
+The unit test suite has two additional requirements:
+
+* Pytest (https://github.com/pytest-dev/pytest, https://pypi.org/project/pytest/)
+* PyHamcrest (https://github.com/hamcrest/PyHamcrest/, https://pypi.org/project/PyHamcrest/)
+
+Running the test suite is integrated into :code:`setup.py`. The tests can be run by executing :code:`python3 setup.py test` from the repository root directory.
+
 Changelog
 =========
-Here__.
+The changelog is located Here__.
 
 __ https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 

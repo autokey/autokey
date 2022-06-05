@@ -14,7 +14,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 from typing import Optional, Callable, TYPE_CHECKING
 
 from PyQt5.QtGui import QIcon
@@ -22,15 +21,15 @@ from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
 
 from autokey.qtui import popupmenu
 import autokey.qtui.common as ui_common
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 if TYPE_CHECKING:
     from autokey.qtapp import Application
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 TOOLTIP_RUNNING = "AutoKey - running"
 TOOLTIP_PAUSED = "AutoKey - paused"
-
-logger = ui_common.logger.getChild("System-tray-notifier")  # type: logging.Logger
 
 
 class Notifier(QSystemTrayIcon):
@@ -52,9 +51,9 @@ class Notifier(QSystemTrayIcon):
 
         self._create_static_actions()
         self.create_assign_context_menu()
-        self.update_tool_tip(cm.ConfigManager.SETTINGS[cm.SERVICE_RUNNING])
+        self.update_tool_tip(cm.ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING])
         self.app.monitoring_disabled.connect(self.update_tool_tip)
-        if cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]:
             logger.debug("About to show the tray icon.")
             self.show()
         logger.info("System tray icon notifier created.")
@@ -115,7 +114,6 @@ class Notifier(QSystemTrayIcon):
             None, "&View script error", self.reset_tray_icon,
             "View the last script error."
         )
-        self.action_view_script_error.triggered.connect(self.app.show_script_error)
         # The action should disable itself
         self.action_view_script_error.setDisabled(True)
         self.action_view_script_error.triggered.connect(self.action_view_script_error.setEnabled)
@@ -166,7 +164,9 @@ class Notifier(QSystemTrayIcon):
 
     def _build_menu(self, context_menu: QMenu):
         """Build the context menu."""
-        logger.debug("Show tray icon enabled in settings: {}".format(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]))
+        logger.debug("Show tray icon enabled in settings: {}".format(
+            cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
+        )
         # Items selected for display are shown on top
         self._fill_context_menu_with_model_item_actions(context_menu)
         # The static actions are added at the bottom
@@ -177,7 +177,7 @@ class Notifier(QSystemTrayIcon):
         context_menu.addAction(self.action_quit)
 
     def update_visible_status(self):
-        visible = cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON]
+        visible = cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON]
         if visible:
             self.create_assign_context_menu()
         self.setVisible(visible)

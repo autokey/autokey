@@ -15,20 +15,23 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ["XRecordInterface", "AtSpiInterface"]
+__all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
 
 from abc import abstractmethod
+import logging
 import typing
 import threading
 import select
-import logging
 import queue
 import subprocess
 import time
 
+import autokey.model.phrase
+
 if typing.TYPE_CHECKING:
-    from autokey.iomediator import IoMediator
-from autokey import model
+    from autokey.iomediator.iomediator import IoMediator
+import autokey.configmanager.configmanager_constants as cm_constants
+
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
 import Xlib.threaded as xlib_threaded
@@ -42,6 +45,7 @@ from Xlib.error import ConnectionClosedError
 
 
 from . import common
+from autokey.model.button import Button
 
 if common.USING_QT:
     from PyQt5.QtGui import QClipboard
@@ -72,8 +76,7 @@ except ImportError:
 from Xlib.protocol import rq, event
 
 
-logger = logging.getLogger("interface")
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 MASK_INDEXES = [
                (X.ShiftMapIndex, X.ShiftMask),
                (X.ControlMapIndex, X.ControlMask),
@@ -221,9 +224,10 @@ class XInterfaceBase(threading.Thread):
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
         
-        if not common.USING_QT:
-            self.keyMap = Gdk.Keymap.get_default()
-            self.keyMap.connect("keys-changed", self.on_keys_changed)
+        #move detection of key map changes to X event thread in order to have QT and GTK detection
+        # if not common.USING_QT:
+            # self.keyMap = Gdk.Keymap.get_default()
+            # self.keyMap.connect("keys-changed", self.on_keys_changed)
         
         self.__ignoreRemap = False
         
@@ -317,7 +321,7 @@ class XInterfaceBase(threading.Thread):
         self.__availableKeycodes = avail
         self.remappedChars = {}
 
-        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        if logger.getEffectiveLevel() == logging.DEBUG:
             self.keymap_test()
 
     def keymap_test(self):
@@ -591,7 +595,7 @@ class XInterfaceBase(threading.Thread):
             except ValueError:
                 return "<code%d>" % keyCode
 
-    def send_string_clipboard(self, string: str, paste_command: model.SendMode):
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
         """
         This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
         :param string: The to-be pasted string
@@ -601,18 +605,18 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string via clipboard: " + string)
         if common.USING_QT:
-            if paste_command is None:
+            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self.app.exec_in_main, self._send_string_selection, string)
             else:
                 self.__enqueue(self.app.exec_in_main, self._send_string_clipboard, string, paste_command)
         else:
-            if paste_command is None:
+            if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
                 self.__enqueue(self._send_string_selection, string)
             else:
                 self.__enqueue(self._send_string_clipboard, string, paste_command)
         logger.debug("Sending via clipboard enqueued.")
 
-    def _send_string_clipboard(self, string: str, paste_command: model.SendMode):
+    def _send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
         """
         Use the clipboard to send a string.
         """
@@ -697,7 +701,7 @@ class XInterfaceBase(threading.Thread):
         """
         logger.debug("Sending string: %r", string)
         # Determine if workaround is needed
-        if not cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND]:
+        if not cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND]:
             self.__checkWorkaroundNeeded()
 
         # First find out if any chars need remapping
@@ -876,6 +880,66 @@ class XInterfaceBase(threading.Thread):
 
         self.__flush()
 
+    def mouse_press(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
+
+    def __mousePress(self, xCoord, yCoord, button):
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
+        self.__flush()
+
+    def mouse_release(self, xCoord, yCoord, button):
+        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
+
+    def __mouseRelease(self, xCoord, yCoord, button):
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
+        self.__flush()
+
+    def mouse_location(self):
+        pos = self.rootWindow.query_pointer()
+        return (pos.root_x, pos.root_y)
+
+    def relative_mouse_location(self, window=None):
+        #return relative mouse location within given window
+        if window==None:
+            window = self.localDisplay.get_input_focus().focus
+        pos = window.query_pointer()
+        return (pos.win_x, pos.win_y)
+
+    def scroll_down(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
+
+    def scroll_up(self, number):
+        for i in range(0, number):
+            self.__enqueue(self.__scroll, Button.SCROLL_UP)
+
+    def __scroll(self, button):
+        focus = self.localDisplay.get_input_focus().focus
+        x,y = self.mouse_location()
+        xtest.fake_input(self=focus, event_type=X.ButtonPress, detail=button, x=x, y=y)
+        xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
+        self.__flush()
+
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
+
+    def __moveCursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        if relative:
+            focus = self.localDisplay.get_input_focus().focus
+            focus.warp_pointer(xCoord, yCoord)
+            self.__flush()
+            return
+
+        if relative_self:
+            pos = self.rootWindow.query_pointer()
+            xCoord += pos.root_x
+            yCoord += pos.root_y
+        
+        self.rootWindow.warp_pointer(xCoord,yCoord)
+        self.__flush()
+
     def send_mouse_click_relative(self, xoff, yoff, button):
         self.__enqueue(self.__sendMouseClickRelative, xoff, yoff, button)
         
@@ -929,6 +993,9 @@ class XInterfaceBase(threading.Thread):
                             createdWindows.append(event.window)
                         if event.type == X.DestroyNotify:
                             destroyedWindows.append(event.window)
+                        if event.type == X.MappingNotify:
+                            logger.debug("X Mapping Event Detected")
+                            self.on_keys_changed()
                             
                     for window in createdWindows:
                         if window not in destroyedWindows:
@@ -1005,7 +1072,7 @@ class XInterfaceBase(threading.Thread):
         return None
 
     def __sendKeyCode(self, keyCode, modifiers=0, theWindow=None):
-        if cm.ConfigManager.SETTINGS[cm.ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
+        if cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND] or self.__enableQT4Workaround:
             self.__doQT4Workaround(keyCode)
         self.__sendKeyPressEvent(keyCode, modifiers, theWindow)
         self.__sendKeyReleaseEvent(keyCode, modifiers, theWindow)
@@ -1088,7 +1155,7 @@ class XInterfaceBase(threading.Thread):
                 window = self.localDisplay.get_input_focus().focus
             return self._get_window_info(window, traverse)
         except error.BadWindow:
-            logger.exception("Got BadWindow error while requesting window information.")
+            logger.warning("Got BadWindow error while requesting window information.")
             return self._create_window_info(window, "", "")
 
     def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
@@ -1279,9 +1346,8 @@ class AtSpiInterface(XInterfaceBase):
         return True
 
 
-from autokey.iomediator.constants import MODIFIERS
-from autokey.iomediator.key import Key
-from autokey import configmanager as cm
+from autokey.model.key import Key, MODIFIERS
+import autokey.configmanager.configmanager as cm
 
 XK.load_keysym_group('xkb')
 

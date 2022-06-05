@@ -8,12 +8,12 @@ import sys
 
 start_script = '''
 import autokey.iomediator
-import autokey.configmanager
-import autokey.scripting
-import autokey.scripting_highlevel as hl
-system = autokey.scripting.System()
+import autokey.configmanager.configmanager
+import autokey.scripting as scripting
+import autokey.scripting.highlevel as hl
+system = scripting.System()
 print("""
-AutoKey functions from “autokey.scripting_highlevel” (under name “hl”)
+AutoKey functions from “autokey.scripting.highlevel” (under name “hl”)
 and “autokey.scripting.System()” (under name “system”) are imported.
 You can try the functions on the interpreter. For example:
 help(hl.click_on_pat)

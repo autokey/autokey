@@ -14,18 +14,22 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QComboBox
 
-from autokey import configmanager as cm
-from autokey.iomediator.key import Key
+
+import autokey.configmanager.autostart
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
+from autokey.model.key import Key
+
 
 import autokey.qtui.common as ui_common
 import autokey.common as common
 
-logger = ui_common.logger.getChild("General settings widget")  # type: logging.Logger
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsettings")):
@@ -44,17 +48,19 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         super(GeneralSettings, self).__init__(parent)
         self.setupUi(self)
 
-        self.autosave_checkbox.setChecked(not cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE])
-        self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON])
+        self.autosave_checkbox.setChecked(not cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE])
+        self.show_tray_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON])
         # self.allow_kb_nav_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS])
         self.allow_kb_nav_checkbox.setVisible(False)
-        self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT])
-        self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE])
+
+        self.sort_by_usage_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT])
+        self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE])
         self.disable_capslock_checkbox.setChecked(cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK))
+
         self._fill_notification_icon_combobox_user_data()
         self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
-        self.autostart_settings = cm.get_autostart()
+        self.autostart_settings = autokey.configmanager.autostart.get_autostart()
         self._load_autostart_settings()
         logger.debug("Created widget and loaded current settings: " + self._settings_str())
 
@@ -62,14 +68,18 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         """Called by the parent settings dialog when the user clicks on the Save button.
         Stores the current settings in the ConfigManager."""
         logger.debug("User requested to save settings. New settings: " + self._settings_str())
-        cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE] = not self.autosave_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
-        # cm.ConfigManager.SETTINGS[cm.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
-        cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON] = self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
+
+        cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE] = not self.autosave_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TRAY_ICON] = self.show_tray_checkbox.isChecked()
+        # cm.ConfigManager.SETTINGS[cm_constants.MENU_TAKES_FOCUS] = self.allow_kb_nav_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT] = self.sort_by_usage_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enable_undo_checkbox.isChecked()
+        cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = \
+            self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
         self._save_disable_capslock_setting()
+
         self._save_autostart_settings()
+        # TODO: After saving the notification icon, apply it to the currently running instance.
 
     def _save_disable_capslock_setting(self):
         # Only update the modifier key handling if the value changed.
@@ -101,7 +111,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         combobox = self.autostart_interface_choice_combobox  # type: QComboBox
         for desktop_file, name in GeneralSettings.GUI_TABLE:
             try:
-                cm.get_source_desktop_file(desktop_file)
+                autokey.configmanager.autostart.get_source_desktop_file(desktop_file)
             except FileNotFoundError:
                 # Skip unavailable GUIs
                 pass
@@ -115,7 +125,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
 
     def _load_system_tray_icon_theme(self):
         combo_box = self.system_tray_icon_theme_combobox  # type: QComboBox
-        data = cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON]
+        data = cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON]
         combo_box_index = combo_box.findData(data, Qt.UserRole)
         if combo_box_index == -1:
             # Invalid data in user configuration. TODO: should this be a warning or error?
@@ -134,7 +144,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         combobox = self.autostart_interface_choice_combobox  # type: QComboBox
         desktop_entry = None if not self.autostart_groupbox.isChecked() else combobox.currentData(Qt.UserRole)
         show_main_window = self.autostart_show_main_window_checkbox.isChecked()
-        new_settings = cm.AutostartSettings(desktop_entry, show_main_window)
+        new_settings = autokey.configmanager.autostart.AutostartSettings(desktop_entry, show_main_window)
         if new_settings != self.autostart_settings:
             # Only write if settings changed to preserve eventual user-made modifications.
-            cm.set_autostart_entry(new_settings)
+            autokey.configmanager.autostart.set_autostart_entry(new_settings)

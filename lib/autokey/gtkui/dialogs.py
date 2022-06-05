@@ -15,29 +15,34 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import re
-from gi.repository import Gtk, Gdk
-
-#import gettext
 import locale
+import re
+import typing
+
+from gi.repository import Gtk, Gdk, Pango, Gio
+
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.iomediator.keygrabber
+import autokey.iomediator.windowgrabber
 
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-#for module in Gtk.glade, gettext:
-#    module.bindtextdomain(GETTEXT_DOMAIN)
-#    module.textdomain(GETTEXT_DOMAIN)
 
 
 __all__ = ["validate", "EMPTY_FIELD_REGEX", "AbbrSettingsDialog", "HotkeySettingsDialog", "WindowFilterSettingsDialog", "RecordDialog"]
 
-from .. import model, iomediator
-from ..iomediator.key import Key
-# from . import configwindow
-from .configwindow0 import get_ui
+from autokey import model
+from autokey import UI_common_functions as UI_common
+from autokey.model.key import Key
+from .shared import get_ui
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word": model.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -93,6 +98,107 @@ class DialogBase:
             self.emit_stop_by_name('response')
 
 
+class ShowScriptErrorsDialog(DialogBase):
+
+    def __init__(self, app):
+        builder = get_ui("show_script_errors_dialog.xml")
+
+        self.ui = builder.get_object("show_script_errors_dialog")
+        self.show_first_error_button = builder.get_object("first_error_button")
+        self.show_previous_error_button = builder.get_object("previous_error_button")
+        self.show_next_error_button = builder.get_object("next_error_button")
+        self.show_last_error_button = builder.get_object("last_error_button")
+        self.current_error_label = builder.get_object("current_error_label")
+        self.total_error_count_label = builder.get_object("total_error_count_label")
+        self.script_name_field = builder.get_object("script_name_field")
+        self.script_start_time_field = builder.get_object("script_start_time_field")
+        self.script_crash_time_field = builder.get_object("script_crash_time_field")
+        self.script_triggered_by_field = builder.get_object("script_triggered_by_field")
+        self.crash_stack_trace_field = builder.get_object("crash_stack_trace_field")
+        # TODO: When setting the compatibility to GTK >= 3.16, remove the next three code lines and replace them with:
+        # self.crash_stack_trace_field.set_monospace(True)
+        settings = Gio.Settings.new("org.gnome.desktop.interface")
+        monospace_font_description = Pango.font_description_from_string(settings.get_string("monospace-font-name"))
+        self.crash_stack_trace_field.modify_font(monospace_font_description)
+
+        builder.connect_signals(self)
+
+        self.set_default_size(800, 600)
+        self.script_runner = app.service.scriptRunner
+        self.error_list = self.script_runner.error_records  # type: typing.List[model.ScriptErrorRecord]
+        self.currently_shown_error_index = 0
+        self.parent = app.configWindow
+        if self.parent is not None:
+            self.ui.set_transient_for(self.parent.ui)
+        self.show_error_at_current_index()
+        super(ShowScriptErrorsDialog, self).__init__()
+
+    def show_first_error(self, button):
+        self.currently_shown_error_index = 0
+        self.show_error_at_current_index()
+
+    def show_previous_error(self, button):
+        self.currently_shown_error_index -= 1
+        self.show_error_at_current_index()
+
+    def show_next_error(self, button):
+        self.currently_shown_error_index += 1
+        self.show_error_at_current_index()
+
+    def show_last_error(self, button):
+        self.currently_shown_error_index = self.get_error_count() - 1
+        self.show_error_at_current_index()
+
+    def clear_all_errors(self, button):
+        self.error_list.clear()
+        self.parent.set_has_errors(False)
+        self.on_close(button)
+
+    def delete_currently_shown_error(self, button):
+        if self.get_error_count() == 1:
+            self.clear_all_errors(button)
+        else:
+            del self.error_list[self.currently_shown_error_index]
+            if self.currently_shown_error_index == self.get_error_count():
+                # Go to previous error if at the end of the error list. Else shows the next error in the list.
+                self.currently_shown_error_index -= 1
+            self.show_error_at_current_index()
+
+    def get_error_count(self) -> int:
+        return len(self.error_list)
+
+    def _update_navigation_gui_states(self):
+        self._update_total_error_count()
+        self._update_navigation_button_states()
+
+    def _update_total_error_count(self):
+        current_error_str = str(self.currently_shown_error_index + 1)
+        error_count_str = str(self.get_error_count())
+        self.current_error_label.set_text(current_error_str)
+        self.total_error_count_label.set_text(error_count_str)
+
+    def _update_navigation_button_states(self):
+        self.show_first_error_button.set_sensitive(True)
+        self.show_previous_error_button.set_sensitive(True)
+        self.show_next_error_button.set_sensitive(True)
+        self.show_last_error_button.set_sensitive(True)
+        if self.currently_shown_error_index == 0:
+            self.show_first_error_button.set_sensitive(False)
+            self.show_previous_error_button.set_sensitive(False)
+        if self.currently_shown_error_index == self.get_error_count() - 1:
+            self.show_next_error_button.set_sensitive(False)
+            self.show_last_error_button.set_sensitive(False)
+
+    def show_error_at_current_index(self):
+        self._update_navigation_gui_states()
+        print(f"About to show error at index {self.currently_shown_error_index}")
+        error = self.error_list[self.currently_shown_error_index]
+        self.script_name_field.get_buffer().set_text(error.script_name)
+        self.script_start_time_field.get_buffer().set_text(str(error.start_time))
+        self.script_crash_time_field.get_buffer().set_text(str(error.error_time))
+        self.crash_stack_trace_field.get_buffer().set_text(error.error_traceback)
+
+
 class AbbrSettingsDialog(DialogBase):
 
     def __init__(self, parent, configManager, closure):
@@ -138,7 +244,7 @@ class AbbrSettingsDialog(DialogBase):
         self.targetItem = item
         self.abbrList.get_model().clear()
 
-        if model.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
             self.removeButton.set_sensitive(True)
@@ -160,16 +266,16 @@ class AbbrSettingsDialog(DialogBase):
                     break
         else:
             # Custom wordchar regex used
-            self.wordCharCombo.append_text(model.extract_wordchars(wordCharRegex))
+            self.wordCharCombo.append_text(autokey.model.helpers.extract_wordchars(wordCharRegex))
             self.wordCharCombo.set_active(len(WORD_CHAR_OPTIONS))
 
-        if isinstance(item, model.Folder):
+        if isinstance(item, autokey.model.folder.Folder):
             self.omitTriggerCheckbox.hide()
         else:
             self.omitTriggerCheckbox.show()
             self.omitTriggerCheckbox.set_active(item.omitTrigger)
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             self.matchCaseCheckbox.show()
             self.matchCaseCheckbox.set_active(item.matchCase)
         else:
@@ -180,7 +286,7 @@ class AbbrSettingsDialog(DialogBase):
         self.immediateCheckbox.set_active(item.immediate)
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.ABBREVIATION)
+        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 
@@ -190,12 +296,12 @@ class AbbrSettingsDialog(DialogBase):
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
-            item.set_word_chars(model.make_wordchar_re(option))
+            item.set_word_chars(autokey.model.helpers.make_wordchar_re(option))
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.get_active()
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             item.matchCase = self.matchCaseCheckbox.get_active()
 
         item.ignoreCase = self.ignoreCaseCheckbox.get_active()
@@ -326,59 +432,48 @@ class HotkeySettingsDialog(DialogBase):
 
         self.controlButton = builder.get_object("controlButton")
         self.altButton = builder.get_object("altButton")
+        self.altgrButton = builder.get_object("altgrButton")
         self.shiftButton = builder.get_object("shiftButton")
         self.superButton = builder.get_object("superButton")
         self.hyperButton = builder.get_object("hyperButton")
         self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
+        self.MODIFIER_BUTTONS = {
+            self.controlButton: Key.CONTROL,
+            self.altButton: Key.ALT,
+            self.altgrButton: Key.ALT_GR,
+            self.shiftButton: Key.SHIFT,
+            self.superButton: Key.SUPER,
+            self.hyperButton: Key.HYPER,
+            self.metaButton: Key.META,
+        }
 
         DialogBase.__init__(self)
 
     def load(self, item):
-        self.targetItem = item
         self.setButton.set_sensitive(True)
-        if model.TriggerMode.HOTKEY in item.modes:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
+        self.targetItem = item
+        UI_common.load_hotkey_settings_dialog(self, item)
 
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
+    def populate_hotkey_details(self, item):
+        self.activate_modifier_buttons(item.modifiers)
+        key = item.hotKey
+        keyText = UI_common.get_hotkey_text(self, key)
+        self._setKeyLabel(keyText)
+        self.key = keyText
+        logger.debug("Loaded item {}, key: {}, modifiers: {}".format(item, keyText, item.modifiers))
 
-        else:
-            self.reset()
+    def activate_modifier_buttons(self, modifiers):
+        for button, key in self.MODIFIER_BUTTONS.items():
+            button.set_active(key in modifiers)
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.HOTKEY)
-
-        # Build modifier list
-        modifiers = self.build_modifiers()
-
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
-        self.controlButton.set_active(False)
-        self.altButton.set_active(False)
-        self.shiftButton.set_active(False)
-        self.superButton.set_active(False)
-        self.hyperButton.set_active(False)
-        self.metaButton.set_active(False)
+        for button in self.MODIFIER_BUTTONS:
+            button.set_active(False)
 
         self._setKeyLabel(_("(None)"))
         self.key = None
@@ -392,12 +487,7 @@ class HotkeySettingsDialog(DialogBase):
             key = self.KEY_MAP[key]
         self._setKeyLabel(key)
         self.key = key
-        self.controlButton.set_active(Key.CONTROL in modifiers)
-        self.altButton.set_active(Key.ALT in modifiers)
-        self.shiftButton.set_active(Key.SHIFT in modifiers)
-        self.superButton.set_active(Key.SUPER in modifiers)
-        self.hyperButton.set_active(Key.HYPER in modifiers)
-        self.metaButton.set_active(Key.META in modifiers)
+        self.activate_modifier_buttons(modifiers)
 
         self.setButton.set_sensitive(True)
         Gdk.threads_leave()
@@ -410,19 +500,9 @@ class HotkeySettingsDialog(DialogBase):
 
     def build_modifiers(self):
         modifiers = []
-        if self.controlButton.get_active():
-            modifiers.append(Key.CONTROL)
-        if self.altButton.get_active():
-            modifiers.append(Key.ALT)
-        if self.shiftButton.get_active():
-            modifiers.append(Key.SHIFT)
-        if self.superButton.get_active():
-            modifiers.append(Key.SUPER)
-        if self.hyperButton.get_active():
-            modifiers.append(Key.HYPER)
-        if self.metaButton.get_active():
-            modifiers.append(Key.META)
-
+        for button, key in self.MODIFIER_BUTTONS.items():
+            if button.get_active():
+                modifiers.append(key)
         modifiers.sort()
         return modifiers
 
@@ -430,15 +510,22 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Key: ") + key)
 
     def valid(self):
-        if not validate(self.key is not None, _("You must specify a key for the hotkey."), None, self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
 
+    def check_nonempty_key(self):
+        return validate(
+            self.key is not None,
+            _("You must specify a key for the hotkey."),
+            None,
+            self.ui)
+
     def on_setButton_pressed(self, widget, data=None):
         self.setButton.set_sensitive(False)
         self.keyLabel.set_text(_("Press a key..."))
-        self.grabber = iomediator.KeyGrabber(self)
+        self.grabber = autokey.iomediator.keygrabber.KeyGrabber(self)
         self.grabber.start()
 
 
@@ -446,37 +533,12 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
 
     def load(self, item):
         self.targetItem = item
-        if item.enabled:
-            self.controlButton.set_active(Key.CONTROL in item.modifiers)
-            self.altButton.set_active(Key.ALT in item.modifiers)
-            self.shiftButton.set_active(Key.SHIFT in item.modifiers)
-            self.superButton.set_active(Key.SUPER in item.modifiers)
-            self.hyperButton.set_active(Key.HYPER in item.modifiers)
-            self.metaButton.set_active(Key.META in item.modifiers)
+        UI_common.load_global_hotkey_dialog(self,
+                                            item)
 
-            key = item.hotKey
-            if key in self.KEY_MAP:
-                keyText = self.KEY_MAP[key]
-            else:
-                keyText = key
-            self._setKeyLabel(keyText)
-            self.key = keyText
-
-        else:
-            self.reset()
 
     def save(self, item):
-        # Build modifier list
-        modifiers = self.build_modifiers()
-
-        keyText = self.key
-        if keyText in self.REVERSE_KEY_MAP:
-            key = self.REVERSE_KEY_MAP[keyText]
-        else:
-            key = keyText
-
-        assert key is not None, "Attempt to set hotkey with no key"
-        item.set_hotkey(modifiers, key)
+        UI_common.save_hotkey_settings_dialog(self, item)
 
     def valid(self):
         configManager = self.configManager
@@ -493,11 +555,7 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
                         self.ui):
             return False
 
-        if not validate(
-                self.key is not None,
-                _("You must specify a key for the hotkey."),
-                None,
-                self.ui):
+        if not self.check_nonempty_key():
             return False
 
         return True
@@ -521,7 +579,7 @@ class WindowFilterSettingsDialog(DialogBase):
     def load(self, item):
         self.targetItem = item
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             self.recursiveButton.hide()
         else:
             self.recursiveButton.show()
@@ -533,13 +591,7 @@ class WindowFilterSettingsDialog(DialogBase):
             self.recursiveButton.set_active(item.isRecursive)
 
     def save(self, item):
-        try:
-            item.set_window_titles(self.get_filter_text())
-        except re.error as e:
-            # TODO warn the user somehow. Currently just ignores the regex
-            # instead of saving it.
-            pass
-        item.set_filter_recursive(self.get_is_recursive())
+        UI_common.save_item_filter(self, item)
 
     def reset(self):
         self.triggerRegexEntry.set_text("")
@@ -575,7 +627,7 @@ class WindowFilterSettingsDialog(DialogBase):
     def on_detectButton_pressed(self, widget, data=None):
         #self.__dlg =
         widget.set_sensitive(False)
-        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber = autokey.iomediator.windowgrabber.WindowGrabber(self)
         self.grabber.start()
 
 

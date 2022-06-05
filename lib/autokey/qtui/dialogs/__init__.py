@@ -27,7 +27,8 @@ __all__ = [
     "HotkeySettingsDialog",
     "GlobalHotkeyDialog",
     "WindowFilterSettingsDialog",
-    "RecordDialog"
+    "RecordDialog",
+    "ShowRecentScriptErrorsDialog"
 ]
 
 from autokey.qtui.common import EMPTY_FIELD_REGEX, validate
@@ -38,3 +39,4 @@ from .hotkeysettings import HotkeySettingsDialog, GlobalHotkeyDialog
 from .windowfiltersettings import WindowFilterSettingsDialog
 from .recorddialog import RecordDialog
 from .about_autokey_dialog import AboutAutokeyDialog
+from .show_recent_script_errors import ShowRecentScriptErrorsDialog

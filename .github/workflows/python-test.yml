@@ -1,0 +1,166 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python test
+
+on:
+  push:
+    # Test on tags to ensure that the version metadata has been updated in tag as well.
+    tags:
+      - '*'
+    branches: [ CI, master, develop, beta ]
+  pull_request:
+    branches: [ master, develop, beta ]
+
+jobs:
+  Lint:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install flake8 wheel
+        pip install -r pip-requirements.txt
+
+    - name: Python Code Quality and Lint
+      uses: ricardochaves/python-lint@v1.3.0
+      with:
+        python-root-list: "lib/autokey tests"
+        use-pylint: false
+        use-pycodestyle: false
+        use-flake8: true
+        use-black: false
+        use-mypy: false
+        use-isort: false
+        extra-pylint-options: ""
+        extra-pycodestyle-options: ""
+        # select = stop the build if there are Python syntax errors or undefined names
+        # exit-zero treats all errors as warnings.
+        # "_" is part of gettext, not actually a built-in, but used almost
+        # everywhere without explicit definition.
+        # The GitHub editor is 127 chars wide.
+        extra-flake8-options: >
+          --count
+          --select=E9,F63,F7,F82
+          --show-source
+          --statistics
+          --builtins=_
+          --max-complexity=10
+          --max-line-length=127
+        extra-black-options: ""
+        extra-mypy-options: ""
+        extra-isort-options: ""
+
+  pytest:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install flake8 tox pytest pytest-cov wheel
+        pip install -r pip-requirements.txt
+
+    - name: Test with tox and pytest
+      run: |
+        tox -e clean,coverage,report
+
+    - name: Upload pytest test results
+      uses: actions/upload-artifact@v2
+      with:
+        name: pytest-results-${{ matrix.python-version }}
+        path: junit/test-results-${{ matrix.python-version }}.xml
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+
+    - name: Archive test coverage report
+      run: |
+        tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
+
+    - name: Upload test coverage report
+      uses: actions/upload-artifact@v2
+      with:
+        name: test_coverage_report-${{ matrix.python-version }}.tar.gz
+        path: test_coverage_report-${{ matrix.python-version }}.tar.gz
+      # Use always() to always run this step to publish test results when there are test failures
+      if: ${{ always() }}
+
+  test-install:
+    # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install OS dependencies only
+      run: |
+        sudo apt update
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install dbus-python gobject pygobject PyQt5 qscintilla
+
+    - name: Test installation
+      run: |
+        pip install "${GITHUB_WORKSPACE}"
+        autokey-gtk --help
+        # qt xcb module requires a display to connect to, so won't work.
+        # export QT_DEBUG_PLUGINS=1
+        # autokey-qt --help

@@ -1,0 +1,167 @@
+# This workflow will install Python dependencies, build debs, and upload to pypi.
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: Python build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    # Always manually run on CI
+    branches: [ CI ]
+
+jobs:
+
+  build_deb:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install flake8 pytest pytest-cov wheel
+        pip install -r pip-requirements.txt
+
+    - name: Build .deb
+      # Developed from instructions on the wiki
+      # The debian/ folder contains dependencies etc, so all this action needs to do is activate the process.
+      run: |
+        debian/build.sh
+        mkdir debs
+        mv ../*.deb debs
+
+    - name: Upload built debs as artifacts
+      uses: actions/upload-artifact@master
+      with:
+        name: debs
+        path: debs
+
+
+
+  build_pypi_wheel:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip
+      uses: actions/cache@v2
+      with:
+        # This path is specific to Ubuntu
+        path: ~/.cache/pip
+        # Look to see if there is a cache hit for the corresponding requirements file
+        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          ${{ runner.os }}-
+
+    - name: Install dependencies
+      run: |
+        sudo apt update
+        sudo apt install $(cat apt-requirements.txt)
+        python -m pip install --upgrade pip
+        pip install build
+
+    - name: Build a binary wheel and a source tarball
+      run: >-
+        python -m
+        build
+        --sdist
+        --wheel
+        --outdir dist/
+
+    - name: Upload built dist as artifact
+      uses: actions/upload-artifact@master
+      with:
+        name: dist
+        path: dist/
+
+
+
+  release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.9]
+    needs: [build_pypi_wheel, build_deb]
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # Fetch all history so that we get tags.
+        fetch-depth: 0
+
+      # Waits for checks to complete before releasing.
+    - name: Wait on tests
+      uses: lewagon/wait-on-check-action@master
+      with:
+        ref: ${{ github.ref }}
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        wait-interval: 10
+        check-name: 'pytest (3.9)'
+
+    - name: Download built dist as artifact
+      uses: actions/download-artifact@master
+      with:
+        name: dist
+        path: dist/
+    - name: Download built debs as artifacts
+      uses: actions/download-artifact@master
+      with:
+        name: debs
+        path: ../debs
+
+
+    - name: Publish a Python distribution to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_API_TOKEN }}
+
+    - name: Create a release and attach files
+      run: |
+        git fetch --tags --force
+        origin="$(git config --get remote.origin.url)"
+        # Will get tag name only if a tag triggered this workflow.
+        # tagname="${GITHUB_REF#refs/tags/}"
+        # Use this to get the most recent tag on this branch rather than the tag triggering the current build.
+        tagname="$(git describe --tags --abbrev=0 --match "v*.*.*")"
+        prerelease="--prerelease"
+        notes="[See here for changelog for this release]($origin/blob/$tagname/CHANGELOG.rst)"
+        # If we are a tag and on master, should be a full release not a prerelease
+        if git branch --all --contains tags/$tagname | grep --silent "master"; then
+          prerelease=""
+        fi
+        # Include other files by adding them as additional arguments
+        gh release create "$prerelease" "$tagname" --title "$tagname" ../debs/*.deb --notes "$notes"
+    # ../autokey-common_${{ github.ref }}_all.deb
+      env:
+        GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+

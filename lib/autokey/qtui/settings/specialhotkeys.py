@@ -20,13 +20,11 @@ from PyQt5.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
 
 from autokey.qtui.dialogs import GlobalHotkeyDialog
 import autokey.qtui.common as ui_common
-
 if typing.TYPE_CHECKING:
-    import logging
-
     from autokey.qtapp import Application
 
-logger = ui_common.logger.getChild("Special Hotkey Settings widget")  # type: logging.Logger
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialhotkeysettings")):
@@ -55,7 +53,6 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
                                                    self.show_config_dlg, self.clear_config_button)
         self.use_service_hotkey = self._load_hotkey(self.config_manager.toggleServiceHotkey, self.monitor_key_label,
                                                     self.toggle_monitor_dlg, self.clear_monitor_button)
-
 
     @staticmethod
     def _load_hotkey(item, label: QLabel, dialog: GlobalHotkeyDialog, clear_button: QPushButton):

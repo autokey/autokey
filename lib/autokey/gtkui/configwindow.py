@@ -15,58 +15,69 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging, os, webbrowser, time
+import locale
+import os
 import threading
+import time
+import webbrowser
 
 from gi import require_version
+
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
+
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
 
 from gi.repository import Gtk, Pango, GtkSource, Gdk, Gio
 
-import locale
+
 
 GETTEXT_DOMAIN = 'autokey'
 
 locale.setlocale(locale.LC_ALL, '')
-#for module in Gtk.glade, gettext:
-#    module.bindtextdomain(GETTEXT_DOMAIN)
-#    module.textdomain(GETTEXT_DOMAIN)
 
 
 from . import dialogs
 from .settingsdialog import SettingsDialog
-from .. import configmanager as cm
-from ..iomediator import Recorder
-from .. import model, common
+
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
+import autokey.iomediator.keygrabber
+from autokey import common
 
 CONFIG_WINDOW_TITLE = "AutoKey"
 
 UI_DESCRIPTION_FILE = os.path.join(os.path.dirname(__file__), "data/menus.xml")
 
-_logger = logging.getLogger("configwindow")
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 PROBLEM_MSG_PRIMARY = _("Some problems were found")
 PROBLEM_MSG_SECONDARY = _("%s\n\nYour changes have not been saved.")
 
-from .configwindow0 import get_ui
-# def get_ui(fileName):
-#     builder = Gtk.Builder()
-#     uiFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/" + fileName)
-#     builder.add_from_file(uiFile)
-#     return builder
+from .shared import get_ui
 
-def set_linkbutton(button, path):
-    button.set_sensitive(True)
 
-    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
+def set_linkbutton(button, path, filename_only=False):
+    label = button.get_child()
+    label.set_sensitive(True)
+    
+    if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
     else:
         text = path.replace(os.path.expanduser("~"), "~")
 
-    button.set_label(text)
+    if filename_only:
+        filename = os.path.basename(path)
+        label.set_label(filename)
+    else:
+        label.set_label(text)
+
     button.set_uri("file://" + path)
-    label = button.get_child()
     label.set_ellipsize(Pango.EllipsizeMode.START)
 
 
@@ -130,7 +141,7 @@ class SettingsWidget:
         self.currentItem = item
 
         self.abbrDialog.load(self.currentItem)
-        if model.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
             self.abbrLabel.set_text(item.get_abbreviations())
             self.clearAbbrButton.set_sensitive(True)
             self.abbrEnabled = True
@@ -140,7 +151,7 @@ class SettingsWidget:
             self.abbrEnabled = False
 
         self.hotkeyDialog.load(self.currentItem)
-        if model.TriggerMode.HOTKEY in item.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
             self.hotkeyLabel.set_text(item.get_hotkey_string())
             self.clearHotkeyButton.set_sensitive(True)
             self.hotkeyEnabled = True
@@ -164,7 +175,7 @@ class SettingsWidget:
 
     def save(self):
         # Perform hotkey ungrab
-        if model.TriggerMode.HOTKEY in self.currentItem.modes:
+        if autokey.model.helpers.TriggerMode.HOTKEY in self.currentItem.modes:
             self.parentWindow.app.hotkey_removed(self.currentItem)
 
         self.currentItem.set_modes([])
@@ -172,6 +183,8 @@ class SettingsWidget:
             self.abbrDialog.save(self.currentItem)
         if self.hotkeyEnabled:
             self.hotkeyDialog.save(self.currentItem)
+        else:
+            self.currentItem.unset_hotkey()
         if self.filterEnabled:
             self.filterDialog.save(self.currentItem)
         else:
@@ -185,6 +198,25 @@ class SettingsWidget:
 
     def validate(self):
         # Start by getting all applicable information
+        abbreviations, modifiers, key, filterExpression = self.get_item_details()
+        # Validate
+        ret = []
+
+        configManager = self.parentWindow.app.configManager
+
+        for abbr in abbreviations:
+            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            if not unique:
+                ret.append(self.build_msg_for_item_in_use(conflicting,
+                                                     "abbreviation"))
+
+        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        if not unique:
+            ret.append(self.build_msg_for_item_in_use(conflicting, "hotkey"))
+
+        return ret
+
+    def get_item_details(self):
         if self.abbrEnabled:
             abbreviations = self.abbrDialog.get_abbrs()
         else:
@@ -204,30 +236,15 @@ class SettingsWidget:
             r = self.currentItem.parent.get_applicable_regex(True)
             if r is not None:
                 filterExpression = r.pattern
+        return abbreviations, modifiers, key, filterExpression
 
-        # Validate
-        ret = []
+    def build_msg_for_item_in_use(self, conflicting, itemtype):
+        msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))
+        f = conflicting.get_applicable_regex()
+        if f is not None:
+            msg += _(" for windows matching '%s'.") % f.pattern
+        return msg
 
-        configManager = self.parentWindow.app.configManager
-
-        for abbr in abbreviations:
-            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
-            if not unique:
-                msg = _("The abbreviation '%s' is already in use by the %s") % (abbr, str(conflicting))
-                f = conflicting.get_applicable_regex()
-                if f is not None:
-                    msg += _(" for windows matching '%s'.") % f.pattern
-                ret.append(msg)
-
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
-        if not unique:
-            msg = _("The hotkey '%s' is already in use by the %s") % (conflicting.get_hotkey_string(), str(conflicting))
-            f = conflicting.get_applicable_regex()
-            if f is not None:
-                msg += _(" for windows matching '%s'.") % f.pattern
-            ret.append(msg)
-
-        return ret
 
     # ---- Signal handlers
 
@@ -304,6 +321,7 @@ class SettingsWidget:
         # Magic fudge to allow us to pretend to be the ui class we encapsulate
         return getattr(self.ui, attr)
 
+
 class BlankPage:
 
     def __init__(self, parentWindow):
@@ -332,6 +350,7 @@ class BlankPage:
     def set_dirty(self):
         self.parentWindow.set_dirty(True)
 
+
 class FolderPage:
 
     def __init__(self, parentWindow):
@@ -342,8 +361,12 @@ class FolderPage:
 
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+
+        label1 = self.jsonLinkButton.get_child()
+        label1.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -357,8 +380,11 @@ class FolderPage:
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentFolder.path)
+            set_linkbutton(self.jsonLinkButton, self.currentFolder.get_json_path(), True)
 
     def save(self):
         self.currentFolder.show_in_tray_menu = self.showInTrayCheckbox.get_active()
@@ -366,7 +392,7 @@ class FolderPage:
         self.currentFolder.persist()
         set_linkbutton(self.linkButton, self.currentFolder.path)
 
-        return not self.currentFolder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
+        return not self.currentFolder.path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER)
 
     def set_item_title(self, newTitle):
         self.currentFolder.title = newTitle
@@ -428,8 +454,12 @@ class ScriptPage:
         self.promptCheckbox = builder.get_object("promptCheckbox")
         self.showInTrayCheckbox = builder.get_object("showInTrayCheckbox")
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
         label = self.linkButton.get_child()
         label.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
+
+        label1 = self.jsonLinkButton.get_child()
+        label1.set_ellipsize(Pango.EllipsizeMode.MIDDLE)
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
@@ -439,7 +469,7 @@ class ScriptPage:
         self.__m = GtkSource.LanguageManager()
         self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(self.__m.get_language("python"))
-        self.buffer.set_style_scheme(self.__sm.get_scheme("classic"))
+        self.buffer.set_style_scheme(self.__sm.get_scheme(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         self.editor.set_auto_indent(True)
         self.editor.set_smart_home_end(True)
         self.editor.set_insert_spaces_instead_of_tabs(True)
@@ -463,8 +493,11 @@ class ScriptPage:
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
+            set_linkbutton(self.jsonLinkButton, self.currentItem.get_json_path(), True)
 
     def save(self):
         self.currentItem.code = self.buffer.get_text(self.buffer.get_start_iter(), self.buffer.get_end_iter(), False)
@@ -520,8 +553,8 @@ class ScriptPage:
 
     def record_keystrokes(self, isActive):
         if isActive:
-            self.recorder = Recorder(self)
-            dlg = dialogs.RecordDialog(self.ui, self.on_rec_response)
+            self.recorder = autokey.iomediator.keygrabber.Recorder(self)
+            dlg = dialogs.RecordDialog(self.parentWindow.ui, self.on_rec_response)
             dlg.run()
         else:
             self.recorder.stop()
@@ -600,13 +633,14 @@ class PhrasePage(ScriptPage):
         sendModeHbox.pack_start(self.sendModeCombo, False, False, 0)
 
         self.linkButton = builder.get_object("linkButton")
+        self.jsonLinkButton = builder.get_object("jsonLinkButton")
 
         vbox = builder.get_object("settingsVbox")
         self.settingsWidget = SettingsWidget(parentWindow)
         vbox.pack_start(self.settingsWidget.ui, False, False, 0)
 
         # Populate combo
-        l = list(model.SEND_MODES.keys())
+        l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()
         for val in l:
             self.sendModeCombo.append_text(val)
@@ -644,12 +678,15 @@ class PhrasePage(ScriptPage):
         if self.is_new_item():
             self.linkButton.set_sensitive(False)
             self.linkButton.set_label(_("(Unsaved)"))
+            self.jsonLinkButton.set_sensitive(False)
+            self.jsonLinkButton.set_label(_("(Unsaved)"))
         else:
             set_linkbutton(self.linkButton, self.currentItem.path)
+            set_linkbutton(self.jsonLinkButton, self.currentItem.get_json_path(), True)
 
-        l = list(model.SEND_MODES.keys())
+        l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()
-        for k, v in model.SEND_MODES.items():
+        for k, v in autokey.model.phrase.SEND_MODES.items():
             if v == thePhrase.sendMode:
                 self.sendModeCombo.set_active(l.index(k))
                 break
@@ -661,7 +698,7 @@ class PhrasePage(ScriptPage):
 
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.show_in_tray_menu = self.showInTrayCheckbox.get_active()
-        self.currentItem.sendMode = model.SEND_MODES[self.sendModeCombo.get_active_text()]
+        self.currentItem.sendMode = autokey.model.phrase.SEND_MODES[self.sendModeCombo.get_active_text()]
 
         self.settingsWidget.save()
         self.currentItem.persist()
@@ -697,7 +734,7 @@ class PhrasePage(ScriptPage):
             dlg.run()
             dlg.destroy()
             self.editor.set_sensitive(False)
-            self.recorder = Recorder(self)
+            self.recorder = autokey.iomediator.keygrabber.Recorder(self)
             self.recorder.set_record_keyboard(True)
             self.recorder.set_record_mouse(True)
             self.recorder.start_withgrab()
@@ -734,7 +771,6 @@ class PhrasePage(ScriptPage):
         self.editor.set_sensitive(True)
 
 
-
 class ConfigWindow:
 
     def __init__(self, app):
@@ -753,45 +789,43 @@ class ConfigWindow:
         # Menu Bar
         actionGroup = Gtk.ActionGroup("menu")
         actions = [
-                ("File", None, _("_File")),
-                ("create", None, _("New")),
-                ("new-top-folder", "folder-new", _("_Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
-                ("new-folder", "folder-new", _("Subf_older"), "", _("Create a new folder in the current folder"), self.on_new_folder),
-                ("new-phrase", "text-x-generic", _("_Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
-                ("new-script", "text-x-python", _("Scrip_t"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
-                ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
-                ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
-                ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
-                ("quit", Gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
-                ("Edit", None, _("_Edit")),
-                ("cut-item", Gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
-                ("copy-item", Gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
-                ("paste-item", Gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
-                ("clone-item", Gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
-                ("delete-item", Gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
-                ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
-                ("undo", Gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
-                ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
-                ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
-                ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
-                ("Tools", None, _("_Tools")),
-                ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
-                ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
-                #("Settings", None, _("_Settings"), None, None, None),
-                #("advanced", Gtk.STOCK_PREFERENCES, _("_Advanced Settings"), "", _("Advanced configuration options"), self.on_advanced_settings),
-                ("Help", None, _("_Help")),
-                ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
-                ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
-                ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
-                ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
-                ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
-                ]
+            ("File", None, _("_File")),
+            ("create", None, _("New")),
+            ("new-top-folder", "folder-new", _("_Folder"), "", _("Create a new top-level folder"), self.on_new_topfolder),
+            ("new-folder", "folder-new", _("Subf_older"), "", _("Create a new folder in the current folder"), self.on_new_folder),
+            ("new-phrase", "text-x-generic", _("_Phrase"), "<control>n", _("Create a new phrase in the current folder"), self.on_new_phrase),
+            ("new-script", "text-x-python", _("Scrip_t"), "<control><shift>n", _("Create a new script in the current folder"), self.on_new_script),
+            ("save", Gtk.STOCK_SAVE, _("_Save"), None, _("Save changes to current item"), self.on_save),
+            ("revert", Gtk.STOCK_REVERT_TO_SAVED, _("_Revert"), None, _("Drop all unsaved changes to current item"), self.on_revert),
+            ("close-window", Gtk.STOCK_CLOSE, _("_Close window"), None, _("Close the configuration window"), self.on_close),
+            ("quit", Gtk.STOCK_QUIT, _("_Quit"), None, _("Completely exit AutoKey"), self.on_quit),
+            ("Edit", None, _("_Edit")),
+            ("cut-item", Gtk.STOCK_CUT, _("Cu_t Item"), "", _("Cut the selected item"), self.on_cut_item),
+            ("copy-item", Gtk.STOCK_COPY, _("_Copy Item"), "", _("Copy the selected item"), self.on_copy_item),
+            ("paste-item", Gtk.STOCK_PASTE, _("_Paste Item"), "", _("Paste the last cut/copied item"), self.on_paste_item),
+            ("clone-item", Gtk.STOCK_COPY, _("C_lone Item"), "<control><shift>c", _("Clone the selected item"), self.on_clone_item),
+            ("delete-item", Gtk.STOCK_DELETE, _("_Delete Item"), "<control>d", _("Delete the selected item"), self.on_delete_item),
+            ("rename", None, _("_Rename"), "F2", _("Rename the selected item"), self.on_rename),
+            ("undo", Gtk.STOCK_UNDO, _("_Undo"), "<control>z", _("Undo the last edit"), self.on_undo),
+            ("redo", Gtk.STOCK_REDO, _("_Redo"), "<control><shift>z", _("Redo the last undone edit"), self.on_redo),
+            ("insert-macro", None, _("_Insert Macro"), None, _("Insert a phrase macro"), None),
+            ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
+            ("Tools", None, _("_Tools")),
+            ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
+            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
+            ("Help", None, _("_Help")),
+            ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
+            ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
+            ("api", None, _("_Scripting Help"), None, _("Display Scripting API"), self.on_show_api),
+            ("report-bug", None, _("Report a Bug"), "", _("Report a Bug"), self.on_report_bug),
+            ("about", Gtk.STOCK_ABOUT, _("About AutoKey"), None, _("Show program information"), self.on_show_about),
+        ]
         actionGroup.add_actions(actions)
 
         toggleActions = [
-                         ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
-                         ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord keyboard/mouse"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
-                         ]
+            ("toolbar", None, _("_Show Toolbar"), None, _("Show/hide the toolbar"), self.on_toggle_toolbar),
+            ("record", Gtk.STOCK_MEDIA_RECORD, _("R_ecord keyboard/mouse"), None, _("Record keyboard/mouse actions"), self.on_record_keystrokes),
+        ]
         actionGroup.add_toggle_actions(toggleActions)
 
         self.uiManager.insert_action_group(actionGroup, 0)
@@ -812,8 +846,11 @@ class ConfigWindow:
         create.set_menu(menu)
         toolbar = self.uiManager.get_widget('/Toolbar')
         toolbar.insert(create, 0)
-        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR])
+        self.uiManager.get_action("/MenuBar/Tools/toolbar").set_active(cm.ConfigManager.SETTINGS[cm_constants.SHOW_TOOLBAR])
         toolbar.get_style_context().add_class(Gtk.STYLE_CLASS_PRIMARY_TOOLBAR)
+
+        self.expanded_rows = cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS]
+        self.last_open = cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN]
 
         self.treeView = builder.get_object("treeWidget")
         self.__initTreeWidget()
@@ -830,15 +867,15 @@ class ConfigWindow:
 
         rootIter = self.treeView.get_model().get_iter_first()
         if rootIter is not None:
-            self.treeView.get_selection().select_iter(rootIter)
+            self.treeView.get_selection().select_path(self.last_open)
 
         self.on_tree_selection_changed(self.treeView)
 
         self.treeView.columns_autosize()
 
-        width, height = cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE]
+        width, height = cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE]
         self.set_default_size(width, height)
-        self.hpaned.set_position(cm.ConfigManager.SETTINGS[cm.HPANE_POSITION])
+        self.hpaned.set_position(cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION])
 
     def __addToolbar(self):
         toolbar = self.uiManager.get_widget('/Toolbar')
@@ -863,18 +900,18 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
 
     def config_modified(self):
-        if not self.__warnedOfChanges:
-            Gdk.threads_enter()
-            msg = _("Changes made in other programs will not be displayed until you\
-close and reopen the AutoKey window.\nThis message is only shown once per session.")
-            dlg = Gtk.MessageDialog(self.ui, type=Gtk.MessageType.QUESTION, buttons=Gtk.ButtonsType.OK,
-                                   message_format= _("Configuration has been changed on disk."))
-            dlg.format_secondary_text(msg)
-
-            dlg.run()
-            dlg.destroy()
-            Gdk.threads_leave()
-            self.__warnedOfChanges = True
+        logger.info("Modifications detected to open files. Reloading...")
+        #save tree view selection
+        selection = self.treeView.get_selection()
+        selection.get_selected_rows()
+        self.rebuild_tree()
+        #get selection for new treeview
+        selection = self.treeView.get_selection()
+        path = Gtk.TreePath()
+        for row in self.expanded_rows:
+            self.treeView.expand_to_path(path.new_from_string(row))
+        selection.select_path(path.new_from_string(self.last_open))
+        self.on_tree_selection_changed(self.treeView)
 
     def update_actions(self, items, changed):
         if len(items) == 0:
@@ -884,15 +921,18 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             canMacro = False
             canPlay = False
             enableAny = False
+            hasError = False
         else:
-            canCreate = isinstance(items[0], model.Folder) and len(items) == 1
+            canCreate = isinstance(items[0], autokey.model.folder.Folder) and len(items) == 1
             canCopy = True
-            canRecord = (not isinstance(items[0], model.Folder)) and len(items) == 1
-            canMacro = isinstance(items[0], model.Phrase) and len(items) == 1
-            canPlay = isinstance(items[0], model.Script) and len(items) == 1
+            canRecord = (not isinstance(items[0], autokey.model.folder.Folder)) and len(items) == 1
+            canMacro = isinstance(items[0], autokey.model.phrase.Phrase) and len(items) == 1
+            canPlay = isinstance(items[0], autokey.model.script.Script) and len(items) == 1
             enableAny = True
+            hasError = self.app.service.scriptRunner.error_records
+                
             for item in items:
-                if isinstance(item, model.Folder):
+                if isinstance(item, autokey.model.folder.Folder):
                     canCopy = False
                     break
 
@@ -905,17 +945,25 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.uiManager.get_action("/MenuBar/Edit/insert-macro").set_sensitive(canMacro)
         self.uiManager.get_action("/MenuBar/Tools/record").set_sensitive(canRecord)
         self.uiManager.get_action("/MenuBar/Tools/run").set_sensitive(canPlay)
+        self.uiManager.get_action("/MenuBar/Tools/script-error").set_sensitive(hasError)
 
         if changed:
             self.uiManager.get_action("/MenuBar/File/save").set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/undo").set_sensitive(False)
             self.uiManager.get_action("/MenuBar/Edit/redo").set_sensitive(False)
 
+    def set_has_errors(self, state):
+        self.uiManager.get_action("/MenuBar/Tools/script-error").set_sensitive(state)
+
     def set_undo_available(self, state):
         self.uiManager.get_action("/MenuBar/Edit/undo").set_sensitive(state)
 
     def set_redo_available(self, state):
         self.uiManager.get_action("/MenuBar/Edit/redo").set_sensitive(state)
+
+    def rebuild_tree(self):
+        self.treeView.set_model(AkTreeModel(self.app.configManager.folders))
+
 
     def refresh_tree(self):
         model, selectedPaths = self.treeView.get_selection().get_selected_rows()
@@ -952,8 +1000,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         return False
 
     def on_close(self, widget, data=None):
-        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
-        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS] = self.expanded_rows
+        cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN] = self.last_open
         self.cancel_record()
         if self.queryClose():
             return True
@@ -965,8 +1015,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_quit(self, widget, data=None):
         #if not self.queryClose():
-        cm.ConfigManager.SETTINGS[cm.WINDOW_DEFAULT_SIZE] = self.get_size()
-        cm.ConfigManager.SETTINGS[cm.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE] = self.get_size()
+        cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION] = self.hpaned.get_position()
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS] = self.expanded_rows
+        cm.ConfigManager.SETTINGS[cm_constants.PATH_LAST_OPEN] = self.last_open
         self.app.shutdown()
 
     # File Menu
@@ -995,7 +1047,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __getRealParent(self, parentIter):
         theModel = self.treeView.get_model()
         parentModelItem = theModel.get_value(parentIter, AkTreeModel.OBJECT_COLUMN)
-        if not isinstance(parentModelItem, model.Folder):
+        if not isinstance(parentModelItem, autokey.model.folder.Folder):
             return theModel.iter_parent(parentIter)
 
         return parentIter
@@ -1011,7 +1063,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __createFolder(self, title, parentIter, path=None):
         self.app.monitor.suspend()
         theModel = self.treeView.get_model()
-        newFolder = model.Folder(title, path=path)
+        newFolder = autokey.model.folder.Folder(title, path=path)
 
         newIter = theModel.append_item(newFolder, parentIter)
         newFolder.persist()
@@ -1045,7 +1097,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newPhrase = model.Phrase(name, "Enter phrase contents")
+            newPhrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
             newIter = theModel.append_item(newPhrase, parentIter)
             newPhrase.persist()
             self.app.monitor.unsuspend()
@@ -1061,7 +1113,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             self.app.monitor.suspend()
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newScript = model.Script(name, "# Enter script code")
+            newScript = autokey.model.script.Script(name, "# Enter script code")
             newIter = theModel.append_item(newScript, parentIter)
             newScript.persist()
             self.app.monitor.unsuspend()
@@ -1096,10 +1148,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         sourceObjects = self.__getTreeSelection()
 
         for source in sourceObjects:
-            if isinstance(source, model.Phrase):
-                newObj = model.Phrase('', '')
+            if isinstance(source, autokey.model.phrase.Phrase):
+                newObj = autokey.model.phrase.Phrase('', '')
             else:
-                newObj = model.Script('', '')
+                newObj = autokey.model.script.Script('', '')
             newObj.copy(source)
             self.cutCopiedItems.append(newObj)
 
@@ -1111,7 +1163,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         newIters = []
         for item in self.cutCopiedItems:
             newIter = theModel.append_item(item, parentIter)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 theModel.populate_store(newIter, item)
             newIters.append(newIter)
             item.path = None
@@ -1135,10 +1187,10 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         parentIter = theModel.iter_parent(sourceIter)
         self.app.monitor.suspend()
 
-        if isinstance(source, model.Phrase):
-            newObj = model.Phrase('', '')
+        if isinstance(source, autokey.model.phrase.Phrase):
+            newObj = autokey.model.phrase.Phrase('', '')
         else:
-            newObj = model.Script('', '')
+            newObj = autokey.model.script.Script('', '')
         newObj.copy(source)
         newObj.persist()
 
@@ -1158,7 +1210,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         if len(refs) == 1:
             item = theModel[refs[0].get_path()].iter
             modelItem = theModel.get_value(item, AkTreeModel.OBJECT_COLUMN)
-            if isinstance(modelItem, model.Folder):
+            if isinstance(modelItem, autokey.model.folder.Folder):
                 msg = _("Are you sure you want to delete the %s and all the items in it?") % str(modelItem)
             else:
                 msg = _("Are you sure you want to delete the %s?") % str(modelItem)
@@ -1210,16 +1262,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         self.on_tree_selection_changed(self.treeView)
 
     def __deleteHotkeys(self, theItem):
-        if model.TriggerMode.HOTKEY in theItem.modes:
-            self.app.hotkey_removed(theItem)
-
-        if isinstance(theItem, model.Folder):
-            for subFolder in theItem.folders:
-                self.__deleteHotkeys(subFolder)
-
-            for item in theItem.items:
-                if model.TriggerMode.HOTKEY in item.modes:
-                    self.app.hotkey_removed(item)
+        self.app.configManager.delete_hotkeys(theItem)
 
     def on_undo(self, widget, data=None):
         self.__getCurrentPage().undo()
@@ -1246,7 +1289,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         else:
             self.vbox.remove(self.uiManager.get_widget('/Toolbar'))
 
-        cm.ConfigManager.SETTINGS[cm.SHOW_TOOLBAR] = widget.get_active()
+        cm.ConfigManager.SETTINGS[cm_constants.SHOW_TOOLBAR] = widget.get_active()
 
     def on_show_error(self, widget, data=None):
         self.app.show_script_error(self.ui)
@@ -1258,7 +1301,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __runScript(self):
         script = self.__getTreeSelection()[0]
         time.sleep(2)
-        self.app.service.scriptRunner.execute(script)
+        self.app.service.scriptRunner.execute_script(script)
 
     # Help Menu
 
@@ -1297,7 +1340,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         selection.unselect_all()
         self.treeView.set_cursor(selectedPaths[0], self.treeView.get_column(0), False)
         selectedObject = self.__getTreeSelection()[0]
-        if isinstance(selectedObject, model.Folder):
+        if isinstance(selectedObject, autokey.model.folder.Folder):
             oldName = selectedObject.title
         else:
 
@@ -1325,6 +1368,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         dlg.destroy()
 
     def on_treeWidget_row_activated(self, widget, path, viewColumn, data=None):
+        """This function is called when a row is double clicked"""
         if widget.row_expanded(path):
             widget.collapse_row(path)
         else:
@@ -1332,6 +1376,28 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
     def on_treeWidget_row_collapsed(self, widget, tIter, path, data=None):
         widget.columns_autosize()
+        p = path.to_string()
+        if len(p) == 1: #closing one of the base dirs
+            self.__hide_row_with_path_up_to(p, 1)
+            return
+        self.__hide_row_with_path_up_to(p, len(p))
+
+    def __hide_row_with_path_up_to(self, pathStr, up_to):
+        to_remove = []
+        for row in self.expanded_rows:
+            if row[:up_to] == pathStr:
+                # print("Removing ", row)
+                to_remove.append(row)
+        # print(self.expanded_rows)
+        for row in to_remove:
+            self.expanded_rows.remove(row)
+
+    def on_treeWidget_row_expanded(self, widget, tIter, path, data=None):
+        pathS = path.to_string()
+        for row in self.expanded_rows:
+            if row == pathS: #don't add already existing
+                return
+        self.expanded_rows.append(pathS)
 
     def on_treeview_buttonpress(self, widget, event, data=None):
         return self.dirty
@@ -1371,11 +1437,12 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
 
         elif len(selectedObjects) == 1:
             selectedObject = selectedObjects[0]
+            self.last_open = self.treeView.get_selection().get_selected_rows()[1][0].to_string()
 
-            if isinstance(selectedObject, model.Folder):
+            if isinstance(selectedObject, autokey.model.folder.Folder):
                 self.stack.set_current_page(1)
                 self.folderPage.load(selectedObject)
-            elif isinstance(selectedObject, model.Phrase):
+            elif isinstance(selectedObject, autokey.model.phrase.Phrase):
                 self.stack.set_current_page(2)
                 self.phrasePage.load(selectedObject)
             else:
@@ -1409,7 +1476,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         newIters = []
         for item in self.__sourceObjects:
             newIter = theModel.append_item(item, targetIter)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 theModel.populate_store(newIter, item)
                 self.__dropRecurseUpdate(item)
             else:
@@ -1449,13 +1516,13 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
             targetIter = theModel.get_iter(path)
             targetModelItem = theModel.get_value(targetIter, AkTreeModel.OBJECT_COLUMN)
 
-            if isinstance(targetModelItem, model.Folder):
+            if isinstance(targetModelItem, autokey.model.folder.Folder):
                 # prevent dropping a folder onto itself
                 return path in self.__sourceRows
             elif targetModelItem is None:
                 # Target is top level
                 for item in self.__sourceObjects:
-                    if not isinstance(item, model.Folder):
+                    if not isinstance(item, autokey.model.folder.Folder):
                         # drop not permitted for top level because not folder
                         return True
 
@@ -1465,7 +1532,7 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         else:
             # target is top level with no drop info
             for item in self.__sourceObjects:
-                if not isinstance(item, model.Folder):
+                if not isinstance(item, autokey.model.folder.Folder):
                     # drop not permitted for no drop info because not folder
                     return True
 
@@ -1520,6 +1587,12 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         column3.set_min_width(100)
         self.treeView.append_column(column3)
 
+        path = Gtk.TreePath()
+        for row in self.expanded_rows:
+            p = path.new_from_string(row)
+            if not p is None:
+                self.treeView.expand_to_path(p)
+
     def __popupMenu(self, event):
         menu = self.uiManager.get_widget("/Context")
         menu.popup(None, None, None, None, event.button, event.time)
@@ -1560,9 +1633,11 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
         result = False
 
         if self.dirty:
-            if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
-                dlg = Gtk.MessageDialog(self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
-                                        _("There are unsaved changes. Would you like to save them?"))
+            if cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE]:
+                dlg = Gtk.MessageDialog(
+                    self.ui, Gtk.DialogFlags.MODAL, Gtk.MessageType.QUESTION, Gtk.ButtonsType.YES_NO,
+                    _("There are unsaved changes. Would you like to save them?")
+                )
                 dlg.add_button(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL)
                 response = dlg.run()
 
@@ -1581,11 +1656,11 @@ close and reopen the AutoKey window.\nThis message is only shown once per sessio
     def __getCurrentPage(self):
         #selectedObject = self.__getTreeSelection()
 
-        if isinstance(self.selectedObject, model.Folder):
+        if isinstance(self.selectedObject, autokey.model.folder.Folder):
             return self.folderPage
-        elif isinstance(self.selectedObject, model.Phrase):
+        elif isinstance(self.selectedObject, autokey.model.phrase.Phrase):
             return self.phrasePage
-        elif isinstance(self.selectedObject, model.Script):
+        elif isinstance(self.selectedObject, autokey.model.script.Script):
             return self.scriptPage
         else:
             return None
@@ -1621,7 +1696,7 @@ class AkTreeModel(Gtk.TreeStore):
             return self.append(None, item.get_tuple())
         else:
             parentFolder = self.get_value(parentIter, self.OBJECT_COLUMN)
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 parentFolder.add_folder(item)
             else:
                 parentFolder.add_item(item)
@@ -1634,7 +1709,7 @@ class AkTreeModel(Gtk.TreeStore):
         if item.parent is None:
             self.folders.remove(item)
         else:
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 item.parent.remove_folder(item)
             else:
                 item.parent.remove_item(item)
@@ -1654,12 +1729,13 @@ class AkTreeModel(Gtk.TreeStore):
         item1 = theModel.get_value(iter1, AkTreeModel.OBJECT_COLUMN)
         item2 = theModel.get_value(iter2, AkTreeModel.OBJECT_COLUMN)
 
-        if isinstance(item1, model.Folder) and (isinstance(item2, model.Phrase) or isinstance(item2, model.Script)):
+        if isinstance(item1, autokey.model.folder.Folder) and (isinstance(item2, autokey.model.phrase.Phrase) or isinstance(item2,
+                                                                                                                            autokey.model.script.Script)):
             return -1
-        elif isinstance(item2, model.Folder) and (isinstance(item1, model.Phrase) or isinstance(item1, model.Script)):
+        elif isinstance(item2, autokey.model.folder.Folder) and (isinstance(item1, autokey.model.phrase.Phrase) or isinstance(item1,
+                                                                                                                              autokey.model.script.Script)):
             return 1
         else:
             # return cmp(str(item1), str(item2))
             a, b = str(item1), str(item2)
             return (a > b) - (a < b)
-

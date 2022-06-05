@@ -16,36 +16,45 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import traceback
+
 import collections
-import time
-import logging
-
-from autokey import common
-from autokey.iomediator.key import Key, KEY_FIND_RE
-from autokey.iomediator import IoMediator
-
-from .macro import MacroManager
-
-from . import scripting, model, scripting_Store, scripting_highlevel
-from .configmanager import ConfigManager, SERVICE_RUNNING, SCRIPT_GLOBALS, save_config, UNDO_USING_BACKSPACE
+import datetime
+import pathlib
 import threading
-logger = logging.getLogger("service")
+import time
+import traceback
+import typing
 
+import autokey.model
+import autokey.model.phrase
+import autokey.model.script
+import autokey.model.store
+from autokey.model.key import Key, KEY_FIND_RE
+from autokey.iomediator.iomediator import IoMediator
+
+from autokey.macro import MacroManager
+
+import autokey.scripting
+from autokey.configmanager.configmanager import ConfigManager, save_config
+import autokey.configmanager.configmanager_constants as cm_constants
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 MAX_STACK_LENGTH = 150
 
 
 def threaded(f):
 
-    def wrapper(*args):
-        t = threading.Thread(target=f, args=args, name="Phrase-thread")
+    def wrapper(*args, **kwargs):
+        t = threading.Thread(target=f, args=args, kwargs=kwargs, name="Phrase-thread")
         t.setDaemon(False)
         t.start()
 
     wrapper.__name__ = f.__name__
     wrapper.__dict__ = f.__dict__
     wrapper.__doc__ = f.__doc__
+    wrapper._original = f  # Store the original function for unit testing purposes.
     return wrapper
+
 
 def synchronized(lock):
     """ Synchronization decorator. """
@@ -70,34 +79,35 @@ class Service:
     def __init__(self, app):
         logger.info("Starting service")
         self.configManager = app.configManager
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = False
         self.mediator = None
         self.app = app
         self.inputStack = collections.deque(maxlen=MAX_STACK_LENGTH)
         self.lastStackState = ''
         self.lastMenu = None
+        self.name = None
 
     def start(self):
         self.mediator = IoMediator(self)
         self.mediator.interface.initialise()
         self.mediator.interface.start()
         self.mediator.start()
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
-        scripting_Store.Store.GLOBALS = ConfigManager.SETTINGS[SCRIPT_GLOBALS]
+        autokey.model.store.Store.GLOBALS.update(ConfigManager.SETTINGS[cm_constants.SCRIPT_GLOBALS])
         logger.info("Service now marked as running")
 
     def unpause(self):
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = True
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         logger.info("Unpausing - service now marked as running")
 
     def pause(self):
-        ConfigManager.SETTINGS[SERVICE_RUNNING] = False
+        ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = False
         logger.info("Pausing - service now marked as stopped")
 
     def is_running(self):
-        return ConfigManager.SETTINGS[SERVICE_RUNNING]
+        return ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING]
 
     def shutdown(self, save=True):
         logger.info("Service shutting down")
@@ -110,6 +120,7 @@ class Service:
         # logger.debug("Received mouse click - resetting buffer")
         self.inputStack.clear()
 
+        logger.log(level=9, msg="Mouse click at root:("+str(rootX)+", "+str(rootY)+") Relative:("+str(relX)+","+str(relY)+") Button: "+str(button)+" In window: "+str(windowTitle))
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
         self.lastMenu = None
@@ -183,7 +194,7 @@ class Service:
                     item, menu = self.__checkTextMatches(
                         self.configManager.allFolders,
                         self.configManager.allItems,
-                        currentInput, window_info)  # type: model.Phrase, list
+                        currentInput, window_info)  # type: autokey.model.phrase.Phrase, list
 
                 if item:
                     self.__tryReleaseLock()
@@ -204,7 +215,8 @@ class Service:
 
     def __tryReleaseLock(self):
         try:
-            self.configManager.lock.release()
+            if self.configManager.lock.locked():
+                self.configManager.lock.release()
         except:
             logger.exception("Ignored locking error in handle_keypress")
 
@@ -219,14 +231,19 @@ class Service:
 
         self.app.show_popup_menu([folder])
 
-
     def run_phrase(self, name):
-        phrase = self.__findItem(name, model.Phrase, "phrase")
+        phrase = self.__findItem(name, autokey.model.phrase.Phrase, "phrase")
         self.phraseRunner.execute(phrase)
 
     def run_script(self, name):
-        script = self.__findItem(name, model.Script, "script")
-        self.scriptRunner.execute(script)
+        path = pathlib.Path(name)
+        path = path.expanduser()
+        # Check if absolute path.
+        if pathlib.PurePath(path).is_absolute() and path.exists():
+            self.scriptRunner.execute_path(path)
+        else:
+            script = self.__findItem(name, autokey.model.script.Script, "script")
+            self.scriptRunner.execute_script(script)
 
     def __findItem(self, name, objType, typeDescription):
         for item in self.configManager.allItems:
@@ -237,7 +254,7 @@ class Service:
 
     @threaded
     def item_selected(self, item):
-        time.sleep(0.25) # wait for window to be active
+        time.sleep(0.25)  # wait for window to be active
         self.lastMenu = None # if an item has been selected, the menu has been hidden
         self.__processItem(item, self.lastStackState)
 
@@ -274,7 +291,7 @@ class Service:
             key = '\t'
 
         if key == Key.BACKSPACE:
-            if ConfigManager.SETTINGS[UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
+            if ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] and self.phraseRunner.can_undo():
                 self.phraseRunner.undo_expansion()
             else:
                 # handle backspace by dropping the last saved character
@@ -341,10 +358,10 @@ class Service:
         self.inputStack.clear()
         self.lastStackState = ''
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             self.phraseRunner.execute(item, buffer)
         else:
-            self.scriptRunner.execute(item, buffer)
+            self.scriptRunner.execute_script(item, buffer)
 
 
 
@@ -385,16 +402,17 @@ class PhraseRunner:
 
     @threaded
     #@synchronized(iomediator.SEND_LOCK)
-    def execute(self, phrase: model.Phrase, buffer=''):
+    def execute(self, phrase: autokey.model.phrase.Phrase, buffer=''):
         mediator = self.service.mediator  # type: IoMediator
         mediator.interface.begin_send()
         try:
             expansion = phrase.build_phrase(buffer)
-            self.macroManager.process_expansion(expansion)
+            expansion.string = \
+                    self.macroManager.process_expansion_macros(expansion.string)
 
             self.contains_special_keys = self.phrase_contains_special_keys(expansion)
             mediator.send_backspace(expansion.backspaces)
-            if phrase.sendMode == model.SendMode.KEYBOARD:
+            if phrase.sendMode == autokey.model.phrase.SendMode.KEYBOARD:
                 mediator.send_string(expansion.string)
             else:
                 mediator.paste_string(expansion.string, phrase.sendMode)
@@ -411,7 +429,7 @@ class PhraseRunner:
         return can_undo
 
     @staticmethod
-    def phrase_contains_special_keys(expansion: model.Expansion) -> bool:
+    def phrase_contains_special_keys(expansion: autokey.model.phrase.Expansion) -> bool:
         """
         Determine if the expansion contains any special keys, including those resulting from any processed macros
         (<script>, <file>, etc). If any are found, the phrase cannot be undone.
@@ -451,46 +469,112 @@ class ScriptRunner:
     def __init__(self, mediator: IoMediator, app):
         self.mediator = mediator
         self.app = app
-        self.error = ''
+        self.error_records = []  # type: typing.List[autokey.model.ScriptErrorRecord]
         self.scope = globals()
-        self.scope["highlevel"] = scripting_highlevel
-        self.scope["keyboard"] = scripting.Keyboard(mediator)
-        self.scope["mouse"] = scripting.Mouse(mediator)
-        self.scope["system"] = scripting.System()
-        self.scope["window"] = scripting.Window(mediator)
-        self.scope["engine"] = scripting.Engine(app.configManager, self)
+        self.scope["highlevel"] = autokey.scripting.highlevel
+        self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
+        self.scope["mouse"] = autokey.scripting.Mouse(mediator)
+        self.scope["system"] = autokey.scripting.System()
+        self.scope["window"] = autokey.scripting.Window(mediator)
+        self.scope["engine"] = autokey.scripting.Engine(app.configManager, self)
 
-        if common.USING_QT:
-            self.scope["dialog"] = scripting.QtDialog()
-            self.scope["clipboard"] = scripting.QtClipboard(app)
-        else:
-            self.scope["dialog"] = scripting.GtkDialog()
-            self.scope["clipboard"] = scripting.GtkClipboard(app)
+        self.scope["dialog"] = autokey.scripting.Dialog()
+        self.scope["clipboard"] = autokey.scripting.Clipboard(app)
 
         self.engine = self.scope["engine"]
 
+    def clear_error_records(self):
+        self.error_records.clear()
+
     @threaded
-    def execute(self, script: model.Script, buffer=''):
+    def execute_script(self, script: autokey.model.script.Script, buffer=''):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
         scope["store"] = script.store
 
-        backspaces, stringAfter = script.process_buffer(buffer)
+        backspaces, trigger_character = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
+
+        self._set_triggered_abbreviation(scope, buffer, trigger_character)
         if script.path is not None:
             # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
             scope["__file__"] = script.path
-        try:
-            exec(script.code, scope)
-        except Exception as e:
-            logger.exception("Script error")
-            self.error = "Script name: '{}'\n{}".format(script.description, traceback.format_exc())
-            self.app.notify_error("The script '{}' encountered an error".format(script.description))
+        self._execute(scope, script)
 
-        self.mediator.send_string(stringAfter)
+        self.mediator.send_string(trigger_character)
 
-    def run_subscript(self, script):
+    @threaded
+    def execute_path(self, path: pathlib.Path):
+        logger.debug("Script runner executing: {}".format(path))
         scope = self.scope.copy()
-        scope["store"] = script.store
-        exec(script.code, scope)
+        # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
+        scope["__file__"] = str(path.resolve())
+        self._execute(scope, path)
+
+    def _record_error(self, script: typing.Union[autokey.model.script.Script, pathlib.Path], start_time: time.time):
+        error_time = datetime.datetime.now().time()
+        logger.exception("Script error")
+        traceback_str = traceback.format_exc()
+        error_record = autokey.model.script.ScriptErrorRecord(
+                script=script, error_traceback=traceback_str, start_time=start_time, error_time=error_time
+        )
+        self.error_records.append(error_record)
+        self.app.notify_error(error_record)
+
+    def _execute(self, scope, script: typing.Union[autokey.model.script.Script, pathlib.Path]):
+        start_time = datetime.datetime.now().time()
+        # noinspection PyBroadException
+        try:
+            compiled_code = self._compile_script(script)
+            exec(compiled_code, scope)
+        except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
+            traceback.print_exc()
+            self._record_error(script, start_time)
+
+    @staticmethod
+    def _compile_script(script: typing.Union[autokey.model.script.Script, pathlib.Path]):
+        script_code, script_name = ScriptRunner._get_script_source_code_and_name(script)
+        compiled_code = compile(script_code, script_name, 'exec')
+        return compiled_code
+
+    @staticmethod
+    def _get_script_source_code_and_name(script: typing.Union[autokey.model.script.Script, pathlib.Path]) -> typing.Tuple[str, str]:
+        if isinstance(script, pathlib.Path):
+            script_code = script.read_text()
+            script_name = str(script)
+        elif isinstance(script, autokey.model.script.Script):
+            script_code = script.code
+            if script.path is None:
+                script_name = "<string>"
+            else:
+                script_name = str(script.path)
+        else:
+            raise TypeError(
+                "Unknown script type passed in, expected one of [autokey.model.Script, pathlib.Path], got {}".format(
+                    type(script)))
+        return script_code, script_name
+
+    @staticmethod
+    def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
+        """Provide the triggered abbreviation to the executed script, if any"""
+        engine = scope["engine"]  # type: autokey.scripting.Engine
+        if buffer:
+            triggered_abbreviation = buffer[:-len(trigger_character)]
+
+            logger.debug(
+                "Triggered a Script by an abbreviation. Setting it for engine.get_triggered_abbreviation(). "
+                "abbreviation='{}', trigger='{}'".format(triggered_abbreviation, trigger_character)
+            )
+            engine._set_triggered_abbreviation(triggered_abbreviation, trigger_character)
+
+    def run_subscript(self, script: typing.Union[autokey.model.script.Script, pathlib.Path]):
+        scope = self.scope.copy()
+        if isinstance(script, autokey.model.script.Script):
+            scope["store"] = script.store
+            scope["__file__"] = str(script.path)
+        else:
+            scope["__file__"] = str(script.resolve())
+
+        compiled_code = self._compile_script(script)
+        exec(compiled_code, scope)

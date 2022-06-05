@@ -16,31 +16,39 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from . import common
-common.USING_QT = True
 
 import sys
 import os.path
-import logging
-import logging.handlers
-import subprocess
 import queue
 import time
 import dbus
-import argparse
 from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
 from PyQt5.QtWidgets import QMessageBox, QApplication
 
+import autokey.model.script
+from autokey import common
+common.USING_QT = True
+
 from autokey import service, monitor
+
+import autokey.argument_parser
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+
 from autokey.qtui import common as ui_common
 from autokey.qtui.notifier import Notifier
 from autokey.qtui.popupmenu import PopupMenu
 from autokey.qtui.configwindow import ConfigWindow
-from autokey import configmanager as cm
 from autokey.qtui.dbus_service import AppService
+from autokey.logger import get_logger, configure_root_logger
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
+import autokey.UI_common_functions as UI_common
+
+logger = get_logger(__name__)
+del get_logger
 
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
@@ -77,22 +85,6 @@ about_data = AboutData(
 )
 
 
-def generate_argument_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Desktop automation ")
-    parser.add_argument(
-        "-l", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
-    parser.add_argument(
-        "-c", "--configure",
-        action="store_true",
-        dest="show_config_window",
-        help="Show the configuration window on startup"
-    )
-    return parser
-
-
 class Application(QApplication):
     """
     Main application class; starting and stopping of the application is controlled
@@ -105,41 +97,49 @@ class Application(QApplication):
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
         self.handler = CallbackEventHandler()
-        parser = generate_argument_parser()
-        self.args = parser.parse_args()
+        self.args = autokey.argument_parser.parse_args()
         try:
-            self._create_storage_directories()
-            self._configure_root_logger()
+            create_storage_directories()
+            configure_root_logger(self.args)
         except Exception as e:
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
-        logging.info("Initialising application")
+
+        checkOptionalPrograms()
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
+            sys.exit("Missing required programs and/or python modules, exiting")
+
+        logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
-
-            # Initialise logger
-
             if self._verify_not_running():
-                self._create_lock_file()
+                UI_common.create_lock_file()
 
             self.monitor = monitor.FileMonitor(self)
-            self.configManager = cm.get_config_manager(self)
+            self.configManager = cm.create_config_manager_instance(self)
             self.service = service.Service(self)
             self.serviceDisabled = False
             self._try_start_service()
             self.notifier = Notifier(self)
             self.configWindow = ConfigWindow(self)
+            # Connect the mutual connections between the tray icon and the main window
+            self.configWindow.action_show_last_script_errors.triggered.connect(self.notifier.reset_tray_icon)
+            self.notifier.action_view_script_error.triggered.connect(
+                self.configWindow.show_script_errors_dialog.update_and_show)
+
             self.monitor.start()
             # Initialise user code dir
             if self.configManager.userCodeDir is not None:
                 sys.path.append(self.configManager.userCodeDir)
-            logging.debug("Creating DBus service")
+            logger.debug("Creating DBus service")
             self.dbus_service = AppService(self)
-            logging.debug("Service created")
+            logger.debug("Service created")
             self.show_configure_signal.connect(self.show_configure, Qt.QueuedConnection)
-            if cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN]:
-                cm.ConfigManager.SETTINGS[cm.IS_FIRST_RUN] = False
+            if cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN]:
+                cm.ConfigManager.SETTINGS[cm_constants.IS_FIRST_RUN] = False
                 self.args.show_config_window = True
             if self.args.show_config_window:
                 self.show_configure()
@@ -147,7 +147,7 @@ class Application(QApplication):
             self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
 
         except Exception as e:
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
         else:
@@ -157,39 +157,10 @@ class Application(QApplication):
         try:
             self.service.start()
         except Exception as e:
-            logging.exception("Error starting interface: " + str(e))
+            logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
                                    "Check your system/configuration.", str(e))
-
-    def _configure_root_logger(self):
-        """Initialise logging system"""
-        root_logger = logging.getLogger()
-        root_logger.setLevel(logging.DEBUG)
-        if self.args.verbose:
-            handler = logging.StreamHandler(sys.stdout)
-        else:
-            handler = logging.handlers.RotatingFileHandler(
-                common.LOG_FILE,
-                maxBytes=common.MAX_LOG_SIZE,
-                backupCount=common.MAX_LOG_COUNT
-            )
-            handler.setLevel(logging.INFO)
-        handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-        root_logger.addHandler(handler)
-
-    @staticmethod
-    def _create_storage_directories():
-        """Create various storage directories, if those do not exist."""
-        # Create configuration directory
-        if not os.path.exists(common.CONFIG_DIR):
-            os.makedirs(common.CONFIG_DIR)
-        # Create data directory (for log file)
-        if not os.path.exists(common.DATA_DIR):
-            os.makedirs(common.DATA_DIR)
-        # Create run directory (for lock file)
-        if not os.path.exists(common.RUN_DIR):
-            os.makedirs(common.RUN_DIR)
 
     @staticmethod
     def _create_lock_file():
@@ -197,38 +168,12 @@ class Application(QApplication):
             lock_file.write(str(os.getpid()))
 
     def _verify_not_running(self):
-        if os.path.exists(common.LOCK_FILE):
-            with open(common.LOCK_FILE, "r") as lock_file:
-                pid = lock_file.read()
-            try:
-                # Check if the pid file contains garbage
-                int(pid)
-            except ValueError:
-                logging.exception("AutoKey pid file contains garbage instead of a usable process id: " + pid)
-                sys.exit(1)
-
-            # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0].decode()
-            if "autokey" in output:
-                logging.debug("AutoKey is already running as pid " + pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbus_service = bus.get_object("org.autokey.Service", "/AppService")
-                    dbus_service.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logging.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(
-                        message="AutoKey is already running as pid {} but is not responding".format(pid),
-                        details=str(e))
-                    sys.exit(1)
-
+        if UI_common.is_existing_running_autokey():
+            UI_common.test_Dbus_response(self)
         return True
 
     def init_global_hotkeys(self, configManager):
-        logging.info("Initialise global hotkeys")
+        logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_signal.emit)
 
@@ -237,25 +182,16 @@ class Application(QApplication):
         self.notifier.create_assign_context_menu()
 
     def hotkey_created(self, item):
-        logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
-
+        UI_common.path_removed(self.configManager, self.configWindow, path)
     def unpause_service(self):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
@@ -282,22 +218,24 @@ class Application(QApplication):
         """
         Shut down the entire application.
         """
-        logging.info("Shutting down")
+        logger.info("Shutting down")
         self.closeAllWindows()
         self.notifier.hide()
         self.service.shutdown()
         self.monitor.stop()
         self.quit()
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
-        logging.debug("All shutdown tasks complete... quitting")
+        logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.exec_in_main(self.notifier.notify_error, message)
+        self.configWindow.script_errors_available.emit(True)
 
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()
@@ -306,7 +244,7 @@ class Application(QApplication):
         """
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
-        logging.info("Displaying configuration window")
+        logger.info("Displaying configuration window")
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()
@@ -317,6 +255,7 @@ class Application(QApplication):
         Convenience method for showing an error dialog.
         """
         # TODO: i18n
+        logger.debug("Displaying Error Dialog")
         message_box = QMessageBox(
             QMessageBox.Critical,
             "Error",
@@ -327,18 +266,6 @@ class Application(QApplication):
         if details:
             message_box.setDetailedText(details)
         message_box.exec_()
-
-    def show_script_error(self):
-        """
-        Show the last script error (if any)
-        """
-        # TODO: i18n
-        if self.service.scriptRunner.error:
-            details = self.service.scriptRunner.error
-            self.service.scriptRunner.error = ''
-        else:
-            details = "No error information available"
-        QMessageBox.information(None, "View Script Error Details", details)
 
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:
@@ -374,7 +301,7 @@ class CallbackEventHandler(QObject):
             try:
                 callback(*args)
             except Exception:
-                logging.exception("callback event failed: %r %r", callback, args, exc_info=True)
+                logger.exception("callback event failed: %r %r", callback, args, exc_info=True)
 
     def postEventWithCallback(self, callback, *args):
         self.queue.put((callback, args))

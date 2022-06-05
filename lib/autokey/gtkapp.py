@@ -14,18 +14,13 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import autokey.dbus_service
+import autokey.model.script
 from . import common
 common.USING_QT = False
 
 import sys
-import traceback
 import os.path
-import signal
-import logging
-import logging.handlers
-import subprocess
-import optparse
 import time
 import threading
 
@@ -40,14 +35,24 @@ from gi.repository import Gtk, Gdk, GObject, GLib
 
 gettext.install("autokey")
 
-
+import autokey.argument_parser
 from autokey import service, monitor
 from autokey.gtkui.notifier import get_notifier
 from autokey.gtkui.popupmenu import PopupMenu
 from autokey.gtkui.configwindow import ConfigWindow
-from autokey import configmanager as cm
+from autokey.gtkui.dialogs import ShowScriptErrorsDialog
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+import autokey.UI_common_functions as UI_common
+from autokey.logger import get_logger, configure_root_logger
+from autokey.UI_common_functions import checkRequirements, checkOptionalPrograms, create_storage_directories
 
-PROGRAM_NAME = _("AutoKey")  # TODO: where does this _ named function come from? It must be one of those from x import *
+logger = get_logger(__name__)
+
+# TODO: this _ named function is initialised by gettext.install(), which is for
+# localisation. It marks the string as a candidate for translation, but I don't
+# know what else.
+PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
@@ -62,82 +67,39 @@ class Application:
         GLib.threads_init()
         Gdk.threads_init()
 
-        p = optparse.OptionParser()
-        p.add_option("-l", "--verbose", help="Enable verbose logging", action="store_true", default=False)
-        p.add_option("-c", "--configure", help="Show the configuration window on startup", action="store_true", default=False)
-        options, args = p.parse_args()
+        args = autokey.argument_parser.parse_args()
+        configure_root_logger(args)
+
+        checkOptionalPrograms()
+        missing_reqs = checkRequirements()
+        if len(missing_reqs)>0:
+            Gdk.threads_enter()
+            self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly", missing_reqs)
+            Gdk.threads_leave()
+            sys.exit("Missing required programs and/or python modules, exiting")
 
         try:
-            # Create configuration directory
-            if not os.path.exists(common.CONFIG_DIR):
-                os.makedirs(common.CONFIG_DIR)
-            # Create data directory (for log file)
-            if not os.path.exists(common.DATA_DIR):
-                os.makedirs(common.DATA_DIR)
-            # Create run directory (for lock file)
-            if not os.path.exists(common.RUN_DIR):
-                os.makedirs(common.RUN_DIR)
-
-            # Initialise logger
-            rootLogger = logging.getLogger()
-
-            if options.verbose:
-                rootLogger.setLevel(logging.DEBUG)
-                handler = logging.StreamHandler(sys.stdout)
-            else:
-                rootLogger.setLevel(logging.INFO)
-                handler = logging.handlers.RotatingFileHandler(common.LOG_FILE,
-                                        maxBytes=common.MAX_LOG_SIZE, backupCount=common.MAX_LOG_COUNT)
-
-            handler.setFormatter(logging.Formatter(common.LOG_FORMAT))
-            rootLogger.addHandler(handler)
+            create_storage_directories()
 
             if self.__verifyNotRunning():
-                self.__createLockFile()
+                UI_common.create_lock_file()
 
-            self.initialise(options.configure)
+            self.initialise(args.show_config_window)
 
         except Exception as e:
             self.show_error_dialog(_("Fatal error starting AutoKey.\n") + str(e))
-            logging.exception("Fatal error starting AutoKey: " + str(e))
+            logger.exception("Fatal error starting AutoKey: " + str(e))
             sys.exit(1)
 
-    def __createLockFile(self):
-        with open(common.LOCK_FILE, "w") as lock_file:
-            lock_file.write(str(os.getpid()))
-
     def __verifyNotRunning(self):
-        if os.path.exists(common.LOCK_FILE):
-            pid = Application._read_pid_from_lock_file()
-
-            # Check that the found PID is running and is autokey
-            with subprocess.Popen(["ps", "-p", pid, "-o", "command"], stdout=subprocess.PIPE) as p:
-                output = p.communicate()[0]
-
-            if "autokey" in output.decode():
-                logging.debug("AutoKey is already running as pid %s", pid)
-                bus = dbus.SessionBus()
-
-                try:
-                    dbusService = bus.get_object("org.autokey.Service", "/AppService")
-                    dbusService.show_configure(dbus_interface="org.autokey.Service")
-                    sys.exit(0)
-                except dbus.DBusException as e:
-                    logging.exception("Error communicating with Dbus service")
-                    self.show_error_dialog(_("AutoKey is already running as pid %s but is not responding") % pid, str(e))
-                    sys.exit(1)
-
+        if UI_common.is_existing_running_autokey():
+            UI_common.test_Dbus_response(self)
         return True
 
-    @staticmethod
-    def _read_pid_from_lock_file() -> str:
-        with open(common.LOCK_FILE, 'r') as lock_file:
-            return lock_file.read()
-
     def initialise(self, configure):
-        logging.info("Initialising application")
+        logger.info("Initialising application")
         self.monitor = monitor.FileMonitor(self)
-        self.configManager = cm.get_config_manager(self)
+        self.configManager = cm.create_config_manager_instance(self)
         self.service = service.Service(self)
         self.serviceDisabled = False
 
@@ -148,23 +110,23 @@ class Application:
         try:
             self.service.start()
         except Exception as e:
-            logging.exception("Error starting interface: " + str(e))
+            logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.show_error_dialog(_("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                    "Check your system/configuration."), str(e))
+                                     "Check your system/configuration."), str(e))
 
         self.notifier = get_notifier(self)
         self.configWindow = None
         self.monitor.start()
 
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
-        self.dbusService = common.AppService(self)
+        self.dbusService = autokey.dbus_service.AppService(self)
 
         if configure:
             self.show_configure()
 
     def init_global_hotkeys(self, configManager):
-        logging.info("Initialise global hotkeys")
+        logger.info("Initialise global hotkeys")
         configManager.toggleServiceHotkey.set_closure(self.toggle_service)
         configManager.configHotkey.set_closure(self.show_configure_async)
 
@@ -173,24 +135,16 @@ class Application:
         self.notifier.rebuild_menu()
 
     def hotkey_created(self, item):
-        logging.debug("Created hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.grab_hotkey(item)
+        UI_common.hotkey_created(self.service, item)
 
     def hotkey_removed(self, item):
-        logging.debug("Removed hotkey: %r %s", item.modifiers, item.hotKey)
-        self.service.mediator.interface.ungrab_hotkey(item)
+        UI_common.hotkey_removed(self.service, item)
 
     def path_created_or_modified(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_created_or_modified(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
 
     def path_removed(self, path):
-        time.sleep(0.5)
-        changed = self.configManager.path_removed(path)
-        if changed and self.configWindow is not None:
-            self.configWindow.config_modified()
+        UI_common.path_removed(self.configManager, self.configWindow, path)
 
     def unpause_service(self):
         """
@@ -231,22 +185,25 @@ class Application:
         t.start()
 
     def __completeShutdown(self):
-        logging.info("Shutting down")
+        logger.info("Shutting down")
         self.service.shutdown()
         self.monitor.stop()
         Gdk.threads_enter()
         Gtk.main_quit()
         Gdk.threads_leave()
         os.remove(common.LOCK_FILE)
-        logging.debug("All shutdown tasks complete... quitting")
+        logger.debug("All shutdown tasks complete... quitting")
 
-    def notify_error(self, message):
+    def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
         Show an error notification popup.
 
-        @param message: Message to show in the popup
+        @param error: The error that occurred in a Script
         """
+        message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
+        if self.configWindow is not None:
+            self.configWindow.set_has_errors(True)
 
     def update_notifier_visibility(self):
         self.notifier.update_visible_status()
@@ -255,7 +212,7 @@ class Application:
         """
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
-        logging.info("Displaying configuration window")
+        logger.info("Displaying configuration window")
         if self.configWindow is None:
             self.configWindow = ConfigWindow(self)
             self.configWindow.show()
@@ -268,16 +225,20 @@ class Application:
         Gdk.threads_leave()
 
     def main(self):
-        logging.info("Entering main()")
+        logger.info("Entering main()")
         Gdk.threads_enter()
         Gtk.main()
         Gdk.threads_leave()
 
-    def show_error_dialog(self, message, details=None):
+    def show_error_dialog(self, message, details=None, dialog_type=Gtk.MessageType.ERROR):
         """
         Convenience method for showing an error dialog.
+
+        @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
+            defaults to Gtk.MessageType.ERROR
         """
-        dlg = Gtk.MessageDialog(type=Gtk.MessageType.ERROR, buttons=Gtk.ButtonsType.OK,
+        logger.debug("Displaying "+dialog_type.value_name+" Dialog")
+        dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
         if details is not None:
             dlg.format_secondary_text(details)
@@ -288,21 +249,18 @@ class Application:
         """
         Show the last script error (if any)
         """
-        if self.service.scriptRunner.error != '':
-            dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
-                                     message_format=self.service.scriptRunner.error)
-            self.service.scriptRunner.error = ''
+        if self.service.scriptRunner.error_records:
+            dlg = ShowScriptErrorsDialog(self)
             # revert the tray icon
-            self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm.NOTIFICATION_ICON])
+            self.notifier.set_icon(cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON])
             self.notifier.errorItem.hide()
             self.notifier.update_visible_status()
-
         else:
             dlg = Gtk.MessageDialog(type=Gtk.MessageType.INFO, buttons=Gtk.ButtonsType.OK,
                                      message_format=_("No error information available"))
 
-        dlg.set_title(_("View script error"))
-        dlg.set_transient_for(parent)
+            dlg.set_title(_("View script error"))
+            dlg.set_transient_for(parent)
         dlg.run()
         dlg.destroy()
 

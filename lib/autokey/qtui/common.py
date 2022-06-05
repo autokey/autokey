@@ -14,7 +14,6 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import logging
 import os.path
 import pathlib
 import enum
@@ -26,7 +25,8 @@ from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.logger import get_logger
 
 try:
     import autokey.qtui.compiled_resources
@@ -52,10 +52,9 @@ else:
     ICON_PATH_PREFIX = ":/icons"
     atexit.register(autokey.qtui.compiled_resources.qCleanupResources)
 
-
+logger = get_logger(__name__)
+del get_logger
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
-
-logger = logging.getLogger("root").getChild("Qt-GUI")  # type: logging.Logger
 
 
 def monospace_font() -> QFont:
@@ -72,8 +71,8 @@ def monospace_font() -> QFont:
 def set_url_label(label: QLabel, path: str):
 
     # In both cases, only replace the first occurence.
-    if path.startswith(cm.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
+    if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
+        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
     else:
         # if bob has added a path '/home/bob/some/folder/home/bobbie/foo/' to autokey, the desired replacement text
         # is '~/some/folder/home/bobbie/foo/' and NOT '~/some/folder~bie/foo/'

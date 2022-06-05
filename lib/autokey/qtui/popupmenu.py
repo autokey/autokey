@@ -16,19 +16,23 @@
 
 from typing import List, Union
 
-import logging
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMenu, QAction, QWidget
 
 
-from autokey import configmanager as cm
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.model
+import autokey.model.abstract_hotkey
+import autokey.model.folder
+import autokey.model.phrase
+import autokey.model.script
 import autokey.service
 
-FolderList = List[autokey.model.Folder]
-Item = Union[autokey.model.Script, autokey.model.Phrase]
-_logger = logging.getLogger("phrase-menu")
+logger = __import__("autokey.logger").logger.get_logger(__name__)
+FolderList = List[autokey.model.folder.Folder]
+Item = Union[autokey.model.script.Script, autokey.model.phrase.Phrase]
 
 
 class PopupMenu(QMenu):
@@ -54,12 +58,12 @@ class PopupMenu(QMenu):
         if title is not None:
             self.setTitle(title)
         
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
-            _logger.debug("Sorting phrase menu by usage count")
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
+            logger.debug("Sorting phrase menu by usage count")
             folders.sort(key=lambda obj: obj.usageCount, reverse=True)
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
-            _logger.debug("Sorting phrase menu by item name/title")
+            logger.debug("Sorting phrase menu by item name/title")
             folders.sort(key=lambda obj: str(obj))
             items.sort(key=lambda obj: str(obj))      
         
@@ -106,7 +110,7 @@ class PopupMenu(QMenu):
         
     def _add_items_to_self(self, items, on_desktop):
         # Create item (script/phrase) section
-        if cm.ConfigManager.SETTINGS[cm.SORT_BY_USAGE_COUNT]:
+        if cm.ConfigManager.SETTINGS[cm_constants.SORT_BY_USAGE_COUNT]:
             items.sort(key=lambda obj: obj.usageCount, reverse=True)
         else:
             items.sort(key=lambda obj: str(obj))
@@ -152,7 +156,7 @@ class SubMenu(QAction):
 
 class ItemAction(QAction):
 
-    action_sig = pyqtSignal([autokey.model.AbstractHotkey], name="action_sig")
+    action_sig = pyqtSignal([autokey.model.abstract_hotkey.AbstractHotkey], name="action_sig")
 
     def __init__(self, parent: QWidget, description: str, item: Item, target):
         icon = ItemAction._icon_for_item(item)
@@ -164,12 +168,12 @@ class ItemAction(QAction):
 
     @staticmethod
     def _icon_for_item(item: Item) -> QIcon:
-        if isinstance(item, autokey.model.Script):
+        if isinstance(item, autokey.model.script.Script):
             return QIcon.fromTheme("text-x-python")
-        elif isinstance(item, autokey.model.Phrase):
+        elif isinstance(item, autokey.model.phrase.Phrase):
             return QIcon.fromTheme("text-x-generic")
         else:
-            error_msg = "ItemAction got unknown item. Expected Union[autokey.model.Script, autokey.model.Phrase], " \
+            error_msg = "ItemAction got unknown item. Expected Union[autokey.model.script.Script, autokey.model.phrase.Phrase], " \
                         "got '{}'".format(str(type(item)))
-            _logger.error(error_msg)
+            logger.error(error_msg)
             raise ValueError(error_msg)

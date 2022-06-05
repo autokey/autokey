@@ -1,5 +1,5 @@
 # Copyright (C) 2011 Chris Dekter
-# Copyright (C) 2018 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2018, 2020 Thomas Hess <thomas.hess@udo.edu>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -13,7 +13,7 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
-import os.path
+
 import logging
 import pathlib
 import typing
@@ -23,15 +23,20 @@ from PyQt5.QtGui import QIcon, QCursor, QBrush
 from PyQt5.QtWidgets import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QMenu
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem
 
-from autokey import iomediator
-from autokey import model
-from autokey import configmanager as cm
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
+import autokey.model.script
+import autokey.iomediator.keygrabber
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
-from . import common as ui_common
-from . import autokey_treewidget as ak_tree
+from autokey.qtui import common as ui_common
+from autokey.qtui import autokey_treewidget as ak_tree
+from autokey.logger import get_logger, root_logger
 
-
-logger = ui_common.logger.getChild("CentralWidget")  # type: logging.Logger
+logger = get_logger(__name__)
+del get_logger
 
 
 class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget")):
@@ -42,11 +47,13 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.setupUi(self)
         self.dirty = False
         self.configManager = None
-        self.recorder = iomediator.Recorder(self.scriptPage)
+        self.recorder = autokey.iomediator.keygrabber.Recorder(self.scriptPage)
 
         self.cutCopiedItems = []
         for column_index in range(3):
-            self.treeWidget.setColumnWidth(column_index, cm.ConfigManager.SETTINGS[cm.COLUMN_WIDTHS][column_index])
+            self.treeWidget.setColumnWidth(
+                column_index, cm.ConfigManager.SETTINGS[cm_constants.COLUMN_WIDTHS][column_index]
+            )
 
         h_view = self.treeWidget.header()
         h_view.setSectionResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
@@ -101,14 +108,14 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.on_treeWidget_itemSelectionChanged()
 
     def set_splitter(self, window_size):
-        pos = cm.ConfigManager.SETTINGS[cm.HPANE_POSITION]
+        pos = cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION]
         self.splitter.setSizes([pos, window_size.width() - pos])
 
     def set_dirty(self, dirty: bool):
         self.dirty = dirty
 
     def promptToSave(self):
-        if cm.ConfigManager.SETTINGS[cm.PROMPT_TO_SAVE]:
+        if cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE]:
             # TODO: i18n
             result = QMessageBox.question(
                 self.window(),
@@ -154,15 +161,15 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         if len(model_items) == 1:
             model_item = model_items[0]
-            if isinstance(model_item, model.Folder):
+            if isinstance(model_item, autokey.model.folder.Folder):
                 self.stack.setCurrentIndex(0)
                 self.folderPage.load(model_item)
 
-            elif isinstance(model_item, model.Phrase):
+            elif isinstance(model_item, autokey.model.phrase.Phrase):
                 self.stack.setCurrentIndex(1)
                 self.phrasePage.load(model_item)
 
-            elif isinstance(model_item, model.Script):
+            elif isinstance(model_item, autokey.model.script.Script):
                 self.stack.setCurrentIndex(2)
                 self.scriptPage.load(model_item)
 
@@ -218,7 +225,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                 else:
                     result = True
                 if result:
-                    folder = model.Folder(path.name, path=str(path))
+                    folder = autokey.model.folder.Folder(path.name, path=str(path))
                     new_item = ak_tree.FolderWidgetItem(None, folder)
                     self.treeWidget.addTopLevelItem(new_item)
                     self.configManager.folders.append(folder)
@@ -234,7 +241,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.__createFolder(parent_item)
 
     def __createFolder(self, parent_item):
-        folder = model.Folder("New Folder")
+        folder = autokey.model.folder.Folder("New Folder")
         new_item = ak_tree.FolderWidgetItem(parent_item, folder)
         self.window().app.monitor.suspend()
 
@@ -259,7 +266,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
-        phrase = model.Phrase("New Phrase", "Enter phrase contents")
+        phrase = autokey.model.phrase.Phrase("New Phrase", "Enter phrase contents")
         new_item = ak_tree.PhraseWidgetItem(parent_item, phrase)
         parent.add_item(phrase)
         phrase.persist()
@@ -278,7 +285,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
-        script = model.Script("New Script", "#Enter script code")
+        script = autokey.model.script.Script("New Script", "#Enter script code")
         new_item = ak_tree.ScriptWidgetItem(parent_item, script)
         parent.add_item(script)
         script.persist()
@@ -300,10 +307,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         source_objects = self.__getSelection()
 
         for source in source_objects:
-            if isinstance(source, model.Phrase):
-                new_obj = model.Phrase('', '')
+            if isinstance(source, autokey.model.phrase.Phrase):
+                new_obj = autokey.model.phrase.Phrase('', '')
             else:
-                new_obj = model.Script('', '')
+                new_obj = autokey.model.script.Script('', '')
             new_obj.copy(source)
             self.cutCopiedItems.append(new_obj)
 
@@ -313,12 +320,12 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent_item = tree_widget.selectedItems()[0].parent()  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
-        if isinstance(source_object, model.Phrase):
-            new_obj = model.Phrase('', '')
+        if isinstance(source_object, autokey.model.phrase.Phrase):
+            new_obj = autokey.model.phrase.Phrase('', '')
             new_obj.copy(source_object)
             new_item = ak_tree.PhraseWidgetItem(parent_item, new_obj)
         else:
-            new_obj = model.Script('', '')
+            new_obj = autokey.model.script.Script('', '')
             new_obj.copy(source_object)
             new_item = ak_tree.ScriptWidgetItem(parent_item, new_obj)
 
@@ -352,11 +359,11 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         new_items = []
         for item in self.cutCopiedItems:
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 new_item = ak_tree.FolderWidgetItem(parent_item, item)
                 ak_tree.WidgetItemFactory.process_folder(new_item, item)
                 parent.add_folder(item)
-            elif isinstance(item, model.Phrase):
+            elif isinstance(item, autokey.model.phrase.Phrase):
                 new_item = ak_tree.PhraseWidgetItem(parent_item, item)
                 parent.add_item(item)
             else:
@@ -383,12 +390,12 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         if len(widget_items) == 1:
             widget_item = widget_items[0]
             data = self.__extractData(widget_item)
-            if isinstance(data, model.Folder):
+            if isinstance(data, autokey.model.folder.Folder):
                 header = "Delete Folder?"
                 msg = "Are you sure you want to delete the '{deleted_folder}' folder and all the items in it?".format(
                     deleted_folder=data.title)
             else:
-                entity_type = "Script" if isinstance(data, model.Script) else "Phrase"
+                entity_type = "Script" if isinstance(data, autokey.model.script.Script) else "Phrase"
                 header = "Delete {}?".format(entity_type)
                 msg = "Are you sure you want to delete '{element}'?".format(element=data.description)
         else:
@@ -466,7 +473,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.__removeItem(source)
             source_model_item = self.__extractData(source)
 
-            if isinstance(source_model_item, model.Folder):
+            if isinstance(source_model_item, autokey.model.folder.Folder):
                 target_model_item.add_folder(source_model_item)
                 self.__moveRecurseUpdate(source_model_item)
             else:
@@ -505,7 +512,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             return selected_items[0]
         else:
             # The user deselected the item, so fall back to scan the whole tree for the desired item
-            currently_edited_item = self.stack.currentWidget().get_current_item()  # type: typing.Optional[model.Item]
+            currently_edited_item = self.stack.currentWidget().get_current_item()
             if currently_edited_item is None:
                 raise RuntimeError("Tried to perform an action on an item, while none is opened.")
 
@@ -525,7 +532,6 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                     for child_index in range(item_widget.childCount()):
                         item_widgets.append(item_widget.child(child_index))
             raise RuntimeError("Expected item {} not found in the tree!".format(currently_edited_item))
-
 
     def get_selected_item(self):
         return self.__getSelection()
@@ -556,7 +562,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             removed_index = parent.indexOfChild(widgetItem)
             parent.removeChild(widgetItem)
 
-            if isinstance(item, model.Folder):
+            if isinstance(item, autokey.model.folder.Folder):
                 item.parent.remove_folder(item)
             else:
                 item.parent.remove_item(item)
@@ -575,17 +581,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(new_index))
 
     def __deleteHotkeys(self, removed_item):
-        if model.TriggerMode.HOTKEY in removed_item.modes:
-            self.window().app.hotkey_removed(removed_item)
-
-        if isinstance(removed_item, model.Folder):
-            for subFolder in removed_item.folders:
-                self.__deleteHotkeys(subFolder)
-
-            for item in removed_item.items:
-                if model.TriggerMode.HOTKEY in item.modes:
-                    self.window().app.hotkey_removed(item)
-
+        self.configManager.delete_hotkeys(removed_item)
 
 class ListWidgetHandler(logging.Handler):
 
@@ -595,7 +591,6 @@ class ListWidgetHandler(logging.Handler):
         self.app = app
         self.level = logging.DEBUG
 
-        root_logger = logging.getLogger()
         log_format = "%(message)s"
         root_logger.addHandler(self)
         self.setFormatter(logging.Formatter(log_format))

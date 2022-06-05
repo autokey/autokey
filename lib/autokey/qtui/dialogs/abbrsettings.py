@@ -19,19 +19,18 @@ This module contains the abbreviation settings dialog and used components.
 This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
 """
 
-import logging
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
 
+import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.phrase
 from autokey.qtui import common as ui_common
 
-from autokey import model
 
-logger = ui_common.logger.getChild("Abbreviation Settings Dialog")  # type: logging.Logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 WORD_CHAR_OPTIONS = {
-                     "All non-word": model.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -124,7 +123,7 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
         self.targetItem = item
         self.abbrListWidget.clear()
 
-        if model.TriggerMode.ABBREVIATION in item.modes:
+        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrListWidget.addItem(AbbrListItem(abbr))
             self.removeButton.setEnabled(True)
@@ -145,16 +144,16 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
                     break
         else:
             # Custom wordchar regex used
-            self.wordCharCombo.addItem(model.extract_wordchars(wordCharRegex))
+            self.wordCharCombo.addItem(autokey.model.helpers.extract_wordchars(wordCharRegex))
             self.wordCharCombo.setCurrentIndex(len(WORD_CHAR_OPTIONS))
 
-        if isinstance(item, model.Folder):
+        if isinstance(item, autokey.model.folder.Folder):
             self.omitTriggerCheckbox.setVisible(False)
         else:
             self.omitTriggerCheckbox.setVisible(True)
             self.omitTriggerCheckbox.setChecked(item.omitTrigger)
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             self.matchCaseCheckbox.setVisible(True)
             self.matchCaseCheckbox.setChecked(item.matchCase)
         else:
@@ -168,7 +167,7 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
         self.buttonBox.button(QDialogButtonBox.Ok).setEnabled(bool(self.get_abbrs()))
 
     def save(self, item):
-        item.modes.append(model.TriggerMode.ABBREVIATION)
+        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 
@@ -178,12 +177,12 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
         if option in WORD_CHAR_OPTIONS:
             item.set_word_chars(WORD_CHAR_OPTIONS[option])
         else:
-            item.set_word_chars(model.make_wordchar_re(option))
+            item.set_word_chars(autokey.model.helpers.make_wordchar_re(option))
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.isChecked()
 
-        if isinstance(item, model.Phrase):
+        if isinstance(item, autokey.model.phrase.Phrase):
             item.matchCase = self.matchCaseCheckbox.isChecked()
 
         item.ignoreCase = self.ignoreCaseCheckbox.isChecked()

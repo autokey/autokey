@@ -14,21 +14,15 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
-import typing
 
 from PyQt5.QtWidgets import QMessageBox
 
+import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.qtui.common as ui_common
 
-from autokey import configmanager as cm
-from autokey.model import Folder
+from autokey.model.folder import Folder
 
-if typing.TYPE_CHECKING:
-    import logging
-
-
-logger = ui_common.logger.getChild("FolderPage")  # type: logging.Logger
-
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 PROBLEM_MSG_PRIMARY = "Some problems were found"
 PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
 
@@ -57,7 +51,7 @@ class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):
         self.current_folder.persist()
         ui_common.set_url_label(self.urlLabel, self.current_folder.path)
 
-        return not self.current_folder.path.startswith(cm.CONFIG_DEFAULT_FOLDER)
+        return not self.current_folder.path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER)
 
     def get_current_item(self):
         """Returns the currently held item."""

@@ -18,27 +18,30 @@ import re
 
 from PyQt5.QtWidgets import QDialog
 
-from autokey.qtui import common as ui_common
+import autokey.iomediator.windowgrabber
+import autokey.model.folder
+import autokey.model.modelTypes
+from autokey.qtui import common as qtui_common
+from autokey import UI_common_functions as UI_common
 from .detectdialog import DetectDialog
 
 from autokey import iomediator
-from autokey import model
+
+logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-# TODO: Once the port to Qt5 is done, enable the clearButtonEnable property for the line edit in the UI editor.
-# TODO: Pure Qt4 does not support the line edit clear button, so this functionality is currently unavailable.
-class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
+class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
 
     def __init__(self, parent):
         super(WindowFilterSettingsDialog, self).__init__(parent)
         self.setupUi(self)
         self.target_item = None
-        self.grabber = None  # type: iomediator.WindowGrabber
+        self.grabber = None  # type: autokey.iomediator._windowgrabber.WindowGrabber
 
-    def load(self, item: model.Item):
+    def load(self, item: autokey.model.modelTypes.Item):
         self.target_item = item
 
-        if not isinstance(item, model.Folder):
+        if not isinstance(item, autokey.model.folder.Folder):
             self.apply_recursive_check_box.hide()
         else:
             self.apply_recursive_check_box.show()
@@ -50,12 +53,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
             self.apply_recursive_check_box.setChecked(item.isRecursive)
 
     def save(self, item):
-        try:
-            item.set_window_titles(self.get_filter_text())
-        except re.error:
-            # TODO: Warn user. Currently just doesn't save regex on error.
-            pass
-        item.set_filter_recursive(self.get_is_recursive())
+        UI_common.save_item_filter(self, item)
 
     def get_is_recursive(self):
         return self.apply_recursive_check_box.isChecked()
@@ -87,7 +85,7 @@ class WindowFilterSettingsDialog(*ui_common.inherits_from_ui_file_with_name("win
 
     def on_detect_window_properties_button_pressed(self):
         self.detect_window_properties_button.setEnabled(False)
-        self.grabber = iomediator.WindowGrabber(self)
+        self.grabber = iomediator.windowgrabber.WindowGrabber(self)
         self.grabber.start()
 
     # --- event handlers ---
