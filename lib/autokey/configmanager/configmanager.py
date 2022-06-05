@@ -268,17 +268,7 @@ class ConfigManager:
 
             self.workAroundApps = re.compile(self.SETTINGS[WORKAROUND_APP_REGEX])
 
-            for entryPath in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
-                if os.path.isdir(entryPath):
-                    logger.debug("Loading folder at '%s'", entryPath)
-                    f = autokey.model.folder.Folder("", path=entryPath)
-                    f.load(None)
-                    self.folders.append(f)
-
-            for folderPath in data["folders"]:
-                f = autokey.model.folder.Folder("", path=folderPath)
-                f.load()
-                self.folders.append(f)
+            self.__load_folders(data)
 
             self.toggleServiceHotkey.load_from_serialized(data["toggleServiceHotkey"])
             self.configHotkey.load_from_serialized(data["configHotkey"])
@@ -288,6 +278,28 @@ class ConfigManager:
 
             self.config_altered(False)
             logger.info("Successfully loaded configuration")
+
+    def __load_folders(self, data):
+        for path in self.get_all_config_folder_paths(data):
+            f = autokey.model.folder.Folder("", path=path)
+            f.load()
+            logger.debug("Loading folder at '%s'", path)
+            self.folders.append(f)
+
+
+    def get_all_config_folder_paths(self, data):
+        for path in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+            if os.path.isdir(path):
+                yield path
+        for path in data["folders"]:
+            yield path
+
+    def get_all_folders(self):
+        out = []
+        for folder in self.folders:
+            out.append(folder)
+            out.extend(folder.get_child_folders())
+        return out
 
     def __checkExisting(self, path):
         # Check if we already know about the path, and return object if found

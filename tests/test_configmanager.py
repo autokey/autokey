@@ -23,7 +23,7 @@ import pytest
 from hamcrest import *
 from tests.engine_helpers import *
 
-import autokey.model.folder
+import autokey.model.folder as akfolder
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import CONFIG_DEFAULT_FOLDER
 import autokey.configmanager.predefined_user_files
@@ -58,6 +58,22 @@ def test_item_has_same_hotkey(create_engine):
     hotkey=(modifiers, key)
     testHK = create_test_hotkey(engine, folder, hotkey)
     assert ConfigManager.item_has_same_hotkey(testHK, modifiers, key, None)
+
+def test_get_all_folders(create_engine):
+    engine, folder = create_engine
+    cm = engine.configManager
+
+    first_child = akfolder.Folder("first child")
+    first_grandchild = akfolder.Folder("first grandchild")
+    second_grandchild = akfolder.Folder("second grandchild")
+    first_child.add_folder(first_grandchild)
+    first_child.add_folder(second_grandchild)
+    cm.folders.append(first_child)
+
+    expected = [folder, first_child, first_grandchild, second_grandchild]
+    result = cm.get_all_folders()
+
+    assert_that(result, equal_to(expected))
 
 def test_create_predefined_user_files_my_phrases_folder(create_engine):
     engine, folder = create_engine
