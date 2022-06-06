@@ -28,3 +28,7 @@ class AutokeyUIInterface(ABC):
     @abstractmethod
     def shutdown(self):
         pass
+
+    @abstractmethod
+    def show_popup_menu(self):
+        pass

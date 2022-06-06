@@ -16,3 +16,4 @@ python-gobject
 zenity
 kdialog
 pyqt5-dev-tools
+xdotool

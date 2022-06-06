@@ -104,6 +104,9 @@ class Application(AutokeyApplication, AutokeyUIInterface):
             """.format(message)
         )
 
+    def show_popup_menu(self):
+        pass
+
 
 import faulthandler
 faulthandler.enable()

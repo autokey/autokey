@@ -29,12 +29,14 @@ import select
 import queue
 import subprocess
 import time
+import xdo
 
 import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, AbstractSysKeyOutputInterface
+from autokey.sys_interface.clipboard import Clipboard
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -122,6 +124,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
         self.shutdown = False
+        self.doer = xdo.Xdo()
 
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
@@ -221,16 +224,34 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         self.__enqueue(self.__sendKey, keyName)
 
-
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
         """
         self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
 
+    def send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
+        """
+        This method is called from the IoMediator for Phrase expansion using one of the clipboard method.
+        :param string: The to-be pasted string
+        :param paste_command: Optional paste command. If None, the mouse selection is used. Otherwise, it contains a
+         keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
+         causing a paste operation to happen.
+        """
+        logger.debug("Sending string via clipboard: " + string)
+        callback_args = []
+        if paste_command in (None, autokey.model.phrase.SendMode.SELECTION):
+            callback_args = [self._send_string_selection, string]
+        else:
+            callback_args = [self._send_string_clipboard, string, paste_command]
+        if common.USED_UI_TYPE == "QT":
+            self.__enqueue(self.app.exec_in_main, *callback_args)
+        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+            self.__enqueue(*callback_args)
+        logger.debug("Sending via clipboard enqueued.")
+
     def fake_keypress(self, keyName):
          self.__enqueue(self.__fakeKeypress, keyName)
-
 
     def fake_keydown(self, keyName):
         self.__enqueue(self.__fakeKeydown, keyName)
@@ -321,6 +342,18 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 logger.exception("Error in X event loop thread: {}".format(e))
 
             self.queue.task_done()
+
+    def xdowrite_delayed(self, text: str, delay: int=12*1000, start_delay:float=1):
+        """
+        Types text, using inter-key delay delay in μs,
+        Wait start_delay seconds before typing to allow switching
+        between windows after hitting enter in the interactive prompt.
+        """
+        time.sleep(start_delay)
+        print(f"Send {text}")
+        current_window = self.doer.get_focused_window_sane()
+        print(f"Current window={current_window}")
+        self.doer.enter_text_window(current_window, text.encode("utf-8"), delay=delay)
 
     def __enqueue(self, method: typing.Callable, *args):
         self.queue.put_nowait((method, args))
@@ -1113,7 +1146,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
 
 
-class XRecordInterface(XInterfaceBase, AbstractSysInterface):
+class XRecordInterface(XInterfaceBase, AbstractSysInterface, AbstractSysKeyOutputInterface):
 
     def initialise(self):
         self.recordDisplay = display.Display()
