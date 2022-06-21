@@ -121,6 +121,8 @@ Result:
 
 Ĉ
 
+Or paste the Unicode character into a phrase and change the "**Paste using**" phrase setting to "**Clipboard**".
+
 ### To print several Unicode characters:
 
 Add a space after the **last** key-combination:
@@ -134,6 +136,8 @@ Or add a plus sign after the **last** key-combination:
 Result:
 
 Ĉ❂♣❀
+
+Or paste the Unicode characters into a phrase and change the "**Paste using**" phrase setting to "**Clipboard**".
 
 ### To print a mixture of single characters and Unicode characters:
 
