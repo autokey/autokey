@@ -8,5 +8,7 @@ Since I cannot find anything in the API that does this, I'm having to fill_clipb
 
 I just tried sending ctrl-v like this:
 `keyboard.send_key("<control>v")`
+and
+`keyboard.send_key("<ctrl>v")`
 
-It crashed Autokey!
+This only outputs one character where the cursor is resting (at the destination).
