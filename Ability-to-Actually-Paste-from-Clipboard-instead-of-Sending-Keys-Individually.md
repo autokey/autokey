@@ -6,9 +6,6 @@ You see, in remote RDP sessions, I lose keystrokes when sending keys the normal 
 
 Since I cannot find anything in the API that does this, I'm having to fill_clipboard in script and manually press ctrl-v after doing so. I'm just trying to automate away that last step of having to press ctrl-v.
 
-I just tried sending ctrl-v like this:
-`keyboard.send_key("<control>v")`
-and
-`keyboard.send_key("<ctrl>v")`
+I just tried sending ctrl-v like this `keyboard.send_key("<control>v")` and `keyboard.send_key("<ctrl>v")`.
 
-This only outputs one character where the cursor is resting (at the destination).
+This only outputs one character where the cursor is resting (at the destination), instead of actually pasting the entire clipboard's contents at once.
