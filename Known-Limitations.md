@@ -57,4 +57,8 @@ Older versions will try to undo such Phrases and most probably fail. This most p
 - You can only place one `<cursor>` macro into a phrase.
 - If you use a `<script>` macro, your script may not alter the system state, otherwise the expansion _will_ fail. See the `Run script` section [here](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases#run-script) for additional details.
 
+# Sticky Keys
+
+If you enable the Sticky Keys accessibility option on your desktop environment, the desktop will process those keypresses and pass them unmodified to AutoKey. This means that AutoKey will see them as separate keypresses and _not_ as multikey hotkeys. I.e. they won't work.
+
 # Scripts
