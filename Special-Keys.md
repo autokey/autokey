@@ -30,6 +30,7 @@ The below table lists all the names used for special keys.
 | LEFT | \<left> |
 | MENU | \<menu> |
 | NP_ADD | \<np_add> |
+| NP_BEGIN | \<np_5> |
 | NP_DELETE | \<np_delete> |
 | NP_DIVIDE | \<np_divide> |
 | NP_DOWN | \<np_down> |
@@ -111,3 +112,4 @@ There are several ways to add special keys to your phrases or scripts:
 # See also
 * For more information on key combinations, see the [Key Combinations](https://github.com/autokey/autokey/wiki/Key-Combinations) page.
 * For more information on the keyboard API calls, see the [Keyboard](https://github.com/autokey/autokey/wiki/API-Examples#keyboard) section of the API wiki page.
+* For more information on the NP_BEGIN key, see this [StackOverflow](https://stackoverflow.com/questions/25259852/what-is-the-begin-key) page.
