@@ -30,6 +30,7 @@
 
 ## Contents of Basic Scripts
 
+* [Display Active Front End](https://github.com/autokey/autokey/wiki/Basic-Scripts#display-the-active-front-end)
 * [Display Active Window Information](https://github.com/autokey/autokey/wiki/Basic-Scripts#displayWindowInfo)
 * [Using Dates in Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts#usingDates)
 * [List Menu](https://github.com/autokey/autokey/wiki/Basic-Scripts#listMenu)
