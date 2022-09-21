@@ -2,6 +2,7 @@
 ## Contents
 
 * [Introduction](#intro)
+* [Display Active Front End](#displayFrontEnd)
 * [Display Active Window Information](#displayWindowInfo)
 * [Using Dates in Scripts](#usingDates)
 * [List Menu](#listMenu)
@@ -22,6 +23,26 @@ All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/l
 
 For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
+## <a id="displayFrontEnd" />Display the Active Front End
+
+Display the AutoKey front end (GTK or Qt) you are currently using:
+```python
+# Run a system command to check for the full name of the current AutoKey process name and store it in a variable:
+process_name = system.exec_command("ps -q $(pgrep autokey) -o comm=")
+
+# If gtk is in the process name:
+if "gtk" in process_name:
+    # Display the specified dialog:
+    dialog.info_dialog(message="You are using the GTK front-end")
+# If qt is in the process name:
+elif "qt" in process_name:
+    # Display the specified dialog:
+    dialog.info_dialog(message="You are using the Qt front-end.")
+# If anything else happens:
+else:
+    # Do nothing:
+    pass
+```
 ## <a id="displayWindowInfo" />Display Active Window Information
 
 Display the information of the active window after 2 seconds:
