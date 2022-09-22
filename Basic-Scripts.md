@@ -4,6 +4,7 @@
 * [Introduction](#intro)
 * [Display Active Front End](#displayFrontEnd)
 * [Display Active Window Information](#displayWindowInfo)
+* [Test for Active Front End](#testFrontEnd)
 * [Using Dates in Scripts](#usingDates)
 * [List Menu](#listMenu)
 * [X Selection](#xSelection)
@@ -52,6 +53,25 @@ Display the information of the active window after 2 seconds:
     winTitle = window.get_active_title()
     winClass = window.get_active_class()
     dialog.info_dialog("Window information", "Active window information:\\nTitle: '%s'\\nClass: '%s'" % (winTitle, winClass))
+```
+## <a id="testFrontEnd" />Test for the Active Front End
+Test for the AutoKey front end (GTK or Qt) you are currently using and store the result in the **result** variable.
+
+```python
+# Create a function to test whether the GTK or Qt front-end is currently in use:
+def test():
+    # Run a system command to get the full name of the current AutoKey process and store it in a variable:
+    process_name = system.exec_command("ps -q $(pgrep autokey) -o comm=")
+    # If gtk is in the process name:
+    if "gtk" in process_name:
+        # Return the specified Boolean value: 
+        return True
+    # If qt is in the process name:
+    else:
+        # Return the specified Boolean value: 
+        return False
+# Run the function and store the result in a variable:
+result = test()
 ```
 ## <a id="usingDates" />Using Dates in Scripts
 
