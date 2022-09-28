@@ -1,7 +1,6 @@
 * [Home](https://github.com/autokey/autokey/wiki)
   * [About](https://github.com/autokey/autokey/wiki/About)
     * [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide)
-    * [Contribute to the Wiki](https://github.com/autokey/autokey/wiki/Contribute-to-the-Wiki)
     * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * Administration
     * [Installing](https://github.com/autokey/autokey/wiki/Installing)
@@ -28,3 +27,5 @@
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
     * [X Clipboards](https://github.com/autokey/autokey/wiki/More-than-you-ever-wanted-to-know-about-X-clipboards)
+  * This Wiki
+    * [Contribute to the Wiki](https://github.com/autokey/autokey/wiki/Contribute-to-the-Wiki)
