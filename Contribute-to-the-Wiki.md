@@ -7,6 +7,7 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 * [Create a new page](#create-a-new-page)
 * [Edit the Table of Contents on the main wiki page](#edit-the-table-of-contents-on-the-main-wiki-page)
 * [Edit and/or rename an existing page](#edit-andor-rename-an-existing-page)
+* [See also](#see-also)
 
 ***
 
@@ -49,3 +50,6 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 10. Delete or archive the text file you had created in step 5 above.
 11. If you changed the page's name,  follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
 12. Optional or if the edit is significant (like a name change): Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
+
+## See also ##
+* See also the [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code) page for contributing code to the AutoKey project.
