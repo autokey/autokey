@@ -51,16 +51,15 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 10. Delete or archive the text file you had created in step 4 above.
 
 ## Rename a page ##
-Before you begin, carefully consider the consequences of changing the name of an existing page. It's possible that doing so will break links to the page. It might also be a good idea to suggest a name change in [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) first so that others can weigh in on whether or not the change would be welcome as an improvement. 
-1. Log in to [GitHub](https://github.com/).
-2. Visit the URL of the page you'd like to edit or open the main wiki page and click on the page you'd like to edit in the **Table of Contents**.
-3. Click the **"Edit"** button in the top right corner of the page.
-4. Change the name of the page in the **"Title"** text-box at the top of the page above the editing pane (note that there's no **"Title"** label for that text-box).
-5. When you're satisfied with your change, write a summary of what you changed in the **"Edit message"** text-box beneath the editing pane using present-tense for the message.
-6. Left-click the **"Save page"** button.
-7. Delete or archive the text file you had created in step 5 above.
-8. If you changed the page's name,  follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
-9. Optional or if the edit is significant (like a name change): Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
+1. **Important:** Before you begin, carefully consider the consequences of changing the name of an existing page. It's possible that doing so will break links to the page. A backlink tool, like [this free one from Ahrefs](https://ahrefs.com/backlink-checker), can help to research those. It might also be a good idea to suggest a name change in [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) first so that others can weigh in on whether or not the change would be welcome as an improvement. 
+2. Log in to [GitHub](https://github.com/).
+3. Visit the URL of the page you'd like to edit or open the main wiki page and click on the page you'd like to edit in the **Table of Contents**.
+4. Click the **"Edit"** button in the top right corner of the page.
+5. Change the name of the page in the **"Title"** text-box at the top of the page above the editing pane (note that there's no **"Title"** label for that text-box).
+6. When you're satisfied with your change, write a summary of what you changed in the **"Edit message"** text-box beneath the editing pane using present-tense for the message.
+7. Left-click the **"Save page"** button.
+8. Follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
+9. Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
 
 ## See also ##
 * See also the [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code) page for contributing code to the AutoKey project.
