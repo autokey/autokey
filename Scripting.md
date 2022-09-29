@@ -2,14 +2,7 @@
 AutoKey scripts accept most Python code. AutoKey also offers some custom API functions that can be used in scripts. For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
 ## Example scripts ##
-These pages contain some example scripts and user-contributed scripts to demonstrate some of the basic and advanced capabilities of AutoKey's scripting service:
-  * [Contents of all example scripts](https://github.com/autokey/autokey/wiki/Contents-of-contributed-script-files)
-  * [Advanced Scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts)
-  * [Basic Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts)
-  * [Contributed Scripts 1](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1)
-  * [Contributed Scripts 2](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2)
-  * [Contributed Scripts 3](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3)
-  * [Mouse Control](https://github.com/autokey/autokey/wiki/Mouse-Control)
+You can find several pages of example scripts and user-contributed scripts on the [Example Scripts](https://github.com/autokey/autokey/wiki/Example-Scripts) page as a demonstration of some of the basic and advanced capabilities of AutoKey's scripting service.
 
 ## Contributing scripts ##
 Feel free to use the scripts for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
