@@ -3,7 +3,7 @@ AutoKey scripts accept most Python code. AutoKey also offers some custom API fun
 
 ## Example scripts ##
 These pages contain some example scripts and user-contributed scripts to demonstrate some of the basic and advanced capabilities of AutoKey's scripting service:
-  * [Contents list of all example scripts](https://github.com/autokey/autokey/wiki/Contents-of-contributed-script-files)
+  * [Contents of all example scripts](https://github.com/autokey/autokey/wiki/Contents-of-contributed-script-files)
     * [Advanced Scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts)
     * [Basic Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts)
     * [Contributed Scripts 1](https://github.com/autokey/autokey/wiki/Contributed-Scripts-1)
