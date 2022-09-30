@@ -25,6 +25,7 @@
 * [Googling query from anywhere](#googlinqQuery)
 * [Search your phrases and scripts](#searchPhrasesScripts)
 * [Dynamically assign hotkey actions](#dynamicallyAssign)
+* [Push to talk](#pushToTalkScript)
 
 ## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
@@ -1021,4 +1022,55 @@ else:
 ```
 
 
+## <a id="pushToTalkScript" />Push to Talk Script ##
 
+**Author**: [Sid Coelho](https://www.linkedin.com/in/sidneydemoraes/)
+
+**Description**: This script was made to allow a push-to-talk feature in applications that don't offer it natively such as Zoom.
+
+```python
+# This AutoKey script was made to allow a push-to-talk feature in applications that don't offer it natively such as Zoom.
+# Do not forget to define your custom parameters, including the expected mute/unmute action, and to match the hotkey variable with the trigger hotkey defined for this script on AutoKey itself.
+# P.S. I kept my debugging code commented out just for reference.
+
+# Enter script code
+import os
+
+import evdev
+    
+# Defining some custom parameters
+lockfile = '.p2t.lockfile'          # => You may choose whatever filename you like here. More details below.
+device_path = '/dev/input/event6'   # => Be sure to check what input device corresponds to your keyboard with `python -m evdev.evtest`.
+hotkey = 'KEY_F1'                   # => This hotkey should be the same one that triggers your script.
+hold_action = 2
+expected_action = '<alt>+A'         # => This is the expected key combination to trigger mute/unmute on the target app.
+
+# Also, you can setup AutoKey to only trigger this script when your target app is open, based on the window title. In my case, I set it up with regex /*Reunião Zoom/.
+#P.S. all lines that are entirely commented out were used for debugging and can be removed if you like.
+
+try:
+  open(lockfile)                                 # => If the lockfile exists, script does nothing. This is important because keeping a key pressed in fact sends several hits like you were typing it very quickly.
+except FileNotFoundError:
+  with open(lockfile, 'w'):                      # => Else, the script creates the lockfile and starts its magic.
+    #print('Starting operation')
+    #counter = 0
+    
+    device = evdev.InputDevice(device_path)      # => EvDev is used to access our keyboard.
+    keyboard.send_keys(expected_action)          # => Here we send our "unmute" command to the target app.
+    
+    for event in device.read_loop():             # => And here we start monitoring the keyboard for keypress events.
+      if event.type == evdev.ecodes.EV_KEY:      # => EvDev sends different types of events and this part ensures we'll check only for keypress events.
+        category = evdev.categorize(event)       # => This is used to view the necessary event details.
+        #print(category.keycode, type(category.keycode), category.keystate)
+        
+        if category.keycode != hotkey or category.keystate != hold_action: # => `keycode` is the pressed key itself and keystate represents one of the three possible actions: down, up or hold.
+          break                                  # => If we detect that we are no longer holding the hotkey, break the loop.
+          
+        #counter += 1
+        #print('Loop ', counter)
+        #print(category.keycode, type(category.keycode), category.keystate)
+    
+  keyboard.send_keys(expected_action)            # => Here we issue the "mute" command to the target app.
+  os.remove(lockfile)                            # => And remove the lockfile so as we can use the Push2Talk script again.
+  #print('Ending operation')
+```
