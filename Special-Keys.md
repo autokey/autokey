@@ -102,11 +102,11 @@ There are several ways to add special keys to your phrases or scripts:
   * The **send_keys** call can be used to press and release more than one key:
     * To press and release two keys at the same time (the Ctrl and Escape keys in this example), insert a plus sign between their strings:
       ```python
-      keyboard.send_keys("<ctrl>+<esc>")
+      keyboard.send_keys("<ctrl>+<escape>")
       ```
     * To press and release two (or more) keys, one after another (the Ctrl and Escape keys in this example), include their strings without anything between them:
       ```python
-      keyboard.send_keys("<ctrl><esc>")
+      keyboard.send_keys("<ctrl><escape>")
       ```
   
 # See also
