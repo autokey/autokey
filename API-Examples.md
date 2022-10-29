@@ -8,6 +8,7 @@ The examples show how to use the various [API calls](https://autokey.github.io/)
 The example types are as follows:
 - [Clipboard](#clipboard)
 - [Dialogs](#dialogs)
+- [Engine](#engine)
 - [Keyboard](#keyboard)
 - [Mouse](#mouse)
 - [Store](#store)
@@ -429,7 +430,23 @@ This script does the following:
 
 
 
-  	
+
+# Engine #
+
+- [run_script](#run_script)
+
+
+## run_script ##
+This script does the following:
+* Runs the **foo** AutoKey script from any other script.
+* Raises an exception if the **foo** script doesn't exist.
+```
+engine.run_script("foo")
+```
+
+
+
+
 # Keyboard #
 	
 - [Fake key press](#fake-key-press)	
