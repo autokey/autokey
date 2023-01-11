@@ -2,7 +2,7 @@ The AutoKey community has come together on a variety of platforms to offer ways 
 
 The current list of platforms can always be found here: 
 * [[Discord]]: https://discord.gg/F5Z2xestcc
-* [[Gitter]]: https://gitter.im/autokey/autokey 
+* [[Gitter]]
 * [[Google Groups]]: https://groups.google.com/g/autokey-users?pli=1
 * [[Reddit]]: https://www.reddit.com/r/autokey/
 
