@@ -4,7 +4,7 @@ The current list of platforms can always be found here:
 * [[Discord]]
 * [[Gitter]]
 * [[Google Groups]]
-* [[Reddit]]: https://www.reddit.com/r/autokey/
+* [[Reddit]]
 
 Contributed Scripts:
 * [[Advanced Scripts]]
