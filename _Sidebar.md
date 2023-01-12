@@ -9,6 +9,10 @@
     * [Troubleshooting](https://github.com/autokey/autokey/wiki/Troubleshooting)
     * [Upgrading](https://github.com/autokey/autokey/wiki/Upgrading-AutoKey)
   * [Community](https://github.com/autokey/autokey/wiki/Community)
+    * [Discord](https://github.com/autokey/autokey/wiki/Discord)
+    * [Gitter](https://github.com/autokey/autokey/wiki/Gitter)
+    * [Google Groups](https://github.com/autokey/autokey/wiki/Google-Groups)
+    * [Reddit](https://github.com/autokey/autokey/wiki/Reddit)
   * Development
     * [Availability In Linux](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
     * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
