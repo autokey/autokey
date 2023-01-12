@@ -53,3 +53,10 @@ We are very flexible as to what you can post on Gitter. It doesn't have to be st
 Keep in mind that there is no usable facility for searching through our content on Gitter, so any coding gems or sage advice will quickly be lost. When you have valuable content to share it is usually better to post on our [forum](https://groups.google.com/forum/#!forum/autokey-users) or open/add to a [Discussion](https://github.com/autokey/autokey/discussions) or to our [wiki](https://github.com/autokey/autokey/wiki) on GitHub.
 
 If you really need to search Gitter, you can create a Matrix account and use the web interface or the Element application to access this content. Matrix has a search option. Matrix does not support threads, so everything appears in a flat format.
+
+You may also have some luck searching Gitter with your favorite search engine using the `site:` predicate:
+
+```
+site:https://gitter.im/autokey/autokey mouse
+```
+
