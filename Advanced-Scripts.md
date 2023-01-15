@@ -1077,7 +1077,7 @@ except FileNotFoundError:
 ```
 
 
-## Run an AutoKey script from another AutoKey script##
+## Run an AutoKey script from another AutoKey script ##
 
 **Author**: Elliria
 
