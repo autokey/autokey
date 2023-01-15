@@ -26,7 +26,7 @@
 * [Search your phrases and scripts](#searchPhrasesScripts)
 * [Dynamically assign hotkey actions](#dynamicallyAssign)
 * [Push to talk](#pushToTalkScript)
-* [Run an AutoKey script from another AutoKey script](#runAutoKeyScriptFromOtherAutoKeyScript)
+* [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
 
 ## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
@@ -1077,7 +1077,7 @@ except FileNotFoundError:
 ```
 
 
-## <a id="runAutoKeyScriptFromOtherAutoKeyScript" />Run an AutoKey script from another AutoKey script ##
+## Run an AutoKey script from another AutoKey script##
 
 **Author**: Elliria
 
