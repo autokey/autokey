@@ -26,6 +26,7 @@
 * [Googling query from anywhere](https://github.com/autokey/autokey/wiki/Advanced-Scripts#googlinqQuery)
 * [Search your phrases and scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts#searchPhrasesScripts)
 * [Dynamically assign hotkey actions](https://github.com/autokey/autokey/wiki/Advanced-Scripts#dynamicallyAssign)
+* [Run an AutoKey script from another AutoKey script](https://github.com/autokey/autokey/wiki/Advanced-Scripts#run-an-autokey-script-from-another-autokey-script)
 
 
 ## Contents of Basic Scripts
