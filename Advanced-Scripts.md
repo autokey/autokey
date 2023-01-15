@@ -26,6 +26,7 @@
 * [Search your phrases and scripts](#searchPhrasesScripts)
 * [Dynamically assign hotkey actions](#dynamicallyAssign)
 * [Push to talk](#pushToTalkScript)
+* [Run an AutoKey script from another AutoKey script](#runAutoKeyScriptFromOtherAutoKeyScript)
 
 ## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
@@ -1074,3 +1075,25 @@ except FileNotFoundError:
   os.remove(lockfile)                            # => And remove the lockfile so as we can use the Push2Talk script again.
   #print('Ending operation')
 ```
+
+
+## <a id="runAutoKeyScriptFromOtherAutoKeyScript" />Run an AutoKey script from another AutoKey script ##
+
+**Author**: Elliria
+
+**Description**: AutoKey scripts can run other AutoKey scripts with the ```engine.run_script(...)``` API call. Note that putting a function into the calling script and then using parentheses on the engine API call to execute the function won't work, so it seems that all the work must be done within the called script, which means these will not function the way imported modules do.
+
+1. Create an AutoKey script (the example uses the ```MyInternalScript``` script) with your contents in it (the example creates and runs a function):
+```python
+# Create a function:
+def myFunction():
+	# Display a dialog:
+	dialog.info_dialog(message="This dialog was created by a function inside of another internal AutoKey script.")
+# Run the above function:
+myFunction()
+```
+2. Then create another AutoKey script and put these contents into it to call the first script:
+```python
+	engine.run_script("MyInternalScript")
+```
+When you run the second AutoKey script, the function in the first script is run and you get its output in the form of a dialog.
