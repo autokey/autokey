@@ -1081,7 +1081,7 @@ except FileNotFoundError:
 
 **Author**: Elliria
 
-**Description**: AutoKey scripts can run other AutoKey scripts with the ```engine.run_script(...)``` API call. Note that putting a function into the calling script and then using parentheses on the engine API call to execute the function won't work, so it seems that all the work must be done within the called script, which means these will not function the way imported modules do.
+**Description**: AutoKey scripts can run other AutoKey scripts with the ```engine.run_script(...)``` API call.
 
 1. Create an AutoKey script (the example uses the ```MyInternalScript``` script) with your contents in it (the example creates and runs a function):
 ```python
@@ -1096,4 +1096,4 @@ myFunction()
 ```python
 	engine.run_script("MyInternalScript")
 ```
-When you run the second AutoKey script, the function in the first script is run and you get its output in the form of a dialog.
+When you run the second AutoKey script, the function in the first AutoKey script is run and you get its output in the form of a dialog.
