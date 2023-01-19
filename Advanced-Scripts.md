@@ -27,6 +27,7 @@
 * [Dynamically assign hotkey actions](#dynamicallyAssign)
 * [Push to talk](#pushToTalkScript)
 * [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
+* [[Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod]]
 
 ## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
