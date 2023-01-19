@@ -1,4 +1,4 @@
-* Author: [[Kreezxil]]
+* Author: [Kreezxil](https://kreezcraft.com)
 * Description: Allows to create a recipe automatically for use with [The Kabbalah Block](https://www.curseforge.com/minecraft/mc-mods/the-kabbalah-block) Mod where Extended Crafting mod is also available.
 * License: MIT
 ```python
