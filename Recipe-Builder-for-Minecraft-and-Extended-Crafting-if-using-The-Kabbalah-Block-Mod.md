@@ -1,5 +1,5 @@
 * Author: Kreezxil
-* Description: Allows to create a recipe automatically for use with The Kabbalah Block Mod where Extended Crafting mod is also available.
+* Description: Allows to create a recipe automatically for use with [The Kabbalah Block](https://www.curseforge.com/minecraft/mc-mods/the-kabbalah-block) Mod where Extended Crafting mod is also available.
 * License: MIT
 ```python
 retCode, userInput = dialog.input_dialog(title='Kabbalah Keys',
