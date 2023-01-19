@@ -28,6 +28,7 @@ About
 **This is an X11 application, and as such will not function on distributions that default to using Wayland instead of Xorg.**
 
 .. _AutoKey: https://github.com/autokey/autokey
+.. _OldAutoKey: https://code.google.com/archive/p/autokey/
 
 Installation
 ============
@@ -61,15 +62,16 @@ The commands accept CLI switches just like the regular installation, so
 
 Documentation
 =============
-Documentation for `new features`_. For older features, please refer to the original AutoKey's `scripting API`_, `wiki`_, and `Stack Overflow`_.
+Documentation for `new features`_. For older features, please refer to the original AutoKey's `Documentation`_, `wiki`_, and `Stack Overflow`_.
 
 Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `wiki`_.
 
-.. _scripting API: https://autokey.github.io/index.html
+.. _scripting API: https://autokey.github.io/autokey/api.html
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
 .. _wiki: https://github.com/autokey/autokey/wiki
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _new features: https://github.com/autokey/autokey/blob/master/new_features.rst
+.. _Documentation: https://autokey.github.io/autokey
 
 Support
 =======
