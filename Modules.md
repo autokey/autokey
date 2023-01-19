@@ -1,7 +1,3 @@
-# AutoKey Modules
-
-Modules
-
 ## Table of Contents
 
   * [Modules - about](#modules---about)
