@@ -1,5 +1,6 @@
 ## Table of Contents
   * [Can I temporarily suspend/resume AutoKey?](#can-i-temporarily-suspendresume-autokey)
+  * [Can I use AutoKey on Wayland?](#can-i-use-autokey-on-wayland)
   * [Can I use Caps Lock in Autokey?](#can-i-use-caps-lock-in-autokey)
   * [Does AutoKey work with scripts that were written with the popular Windows AutoHotKey application?](#does-autokey-work-with-scripts-that-were-written-with-the-popular-windows-autohotkey-application)
   * [How can I show the main AutoKey window?](#how-can-i-show-the-main-autokey-window)
@@ -17,6 +18,9 @@
 
 ### Can I temporarily suspend/resume AutoKey?
 Yes. To toggle AutoKey from suspend/resume, use the hotkey that you have specified in ```Settings -> Advanced Settings -> Special Hotkeys->Use a hotkey to toggle expansions```. Alternatively this can be controlled from the AutoKey system tray pop-up menu.
+
+### Can I use AutoKey on Wayland?
+This is an **X11** application and, as such, will not function on distributions that default to using **Wayland** instead of **Xorg**.
 
 ### Can I use Caps Lock in Autokey?
 1.  Disable caps lock:
