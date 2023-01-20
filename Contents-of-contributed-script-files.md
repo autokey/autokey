@@ -27,7 +27,8 @@
 * [Search your phrases and scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts#searchPhrasesScripts)
 * [Dynamically assign hotkey actions](https://github.com/autokey/autokey/wiki/Advanced-Scripts#dynamicallyAssign)
 * [Run an AutoKey script from another AutoKey script](https://github.com/autokey/autokey/wiki/Advanced-Scripts#run-an-autokey-script-from-another-autokey-script)
-
+* [Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod](https://github.com/autokey/autokey/wiki/Recipe-Builder-for-Minecraft-and-Extended-Crafting-if-using-The-Kabbalah-Block-Mod)
+* [Dynamically create a toggled HTML details block](https://github.com/autokey/autokey/wiki/Advanced-Scripts#dynamically-create-a-toggled-html-details-block)
 
 ## Contents of Basic Scripts
 
