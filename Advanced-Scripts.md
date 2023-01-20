@@ -28,6 +28,7 @@
 * [Push to talk](#pushToTalkScript)
 * [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
 * [[Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod]]
+* [Dynamically create a toggled HTML details block](#dynamically-create-a-toggled-html-details-block)
 
 ## <a id="introduction" >Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
@@ -1098,3 +1099,134 @@ myFunction()
 	engine.run_script("MyInternalScript")
 ```
 When you run the second AutoKey script, the function in the first AutoKey script is run and you get its output in the form of a dialog.
+
+
+## Dynamically create a toggled HTML details block
+
+**Author**: Elliria
+
+**Description**: This script gets the current selection and prompts you for the information needed to create an HTML details block like this one that can be clicked to toggle the display of its contents:
+
+<details><summary>SHOW/HIDE THE CODE</summary>
+
+```python
+# This script works in AutoKey 0.95.10.
+# This script gets the current selection (which can contain HTML and/or Markdown).
+# It then prompts the user for open/closed status and chooses the correct opening details tag based on the answer.
+# If no status is provided, the script displays a dialog and exits.
+# If a status is provided, the status will be used.
+# It then prompts the user for a summary.
+# If no summary is provided, none will be used.
+# If a summary is provided, the summary will be used.
+# It then replaces the selection with a new string wrapped in the tags needed to create an HTML details block using the status and/or summary.
+# To use this script, select some text in any window, click on any window to make it active, and click this script in the AutoKey context menu or press its hotkey.
+
+"""
+More information:
+* This script wraps an HTML details element (toggled block of text) around
+  the currently-selected text and prints it to the currently-active window.
+* It does so by presenting the user with two dialogs:
+    * The first dialog asks for an open or closed status to determine
+      whether the contents of the details element will be shown or hidden
+      by default.
+    * The second dialog asks for a summary. This is the title of the details
+      element and is the clickable text that will toggle the display of its
+      contents.
+    * Various points of failure have been built in to account for a press of
+      the Cancel button, a press of the Escape key, or presses of the OK
+      button without content being typed in.
+* See an example of these detail elements in action here:
+    https://gist.github.com/pierrejoubert73/902cc94d79424356a8d20be2b382e1ab
+* The selected text can accept HTML or Markdown.
+* The selected text can be used in your Markdown.
+* These details elements don't work on Gitter.
+* They do, however, work on GitHub, so you can use them in discussions, issue reports, wiki pages, etc.
+
+# This example uses closed status and no summary:
+    <details>HELLO WORLD</details>
+
+# This example uses closed status and a summary:
+    <details><summary>CLICK ME</summary>HELLO WORLD</details>
+
+# This example uses open status and no summary:
+    <details open>HELLO WORLD</details>
+
+# This example uses open status and a summary:
+    <details open><summary>CLICK ME</summary>HELLO WORLD</details>
+"""
+
+# Try this code:
+try:
+    
+    # Store the selected text in a local variable:
+    selection = clipboard.get_selection()
+    
+    # Pause for a moment:
+    time.sleep(0.2)
+    
+    # Make the status variable globally available:
+    global status
+    
+    # Prompt the user for the status:
+    ret1, status = dialog.input_dialog(title="Status", message="Open or closed details element?:")
+    
+    # If a status was provided:
+    if ret1 == 0:
+
+        # Prompt the user for a summary:
+        ret2, summary = dialog.input_dialog(title="Summary", message="Title of details element?:")
+
+        # If the user provided a summary:
+        if ret2 == 0:
+
+            # If the answer was open:
+            if status == "open":
+                # Use the open tag:
+                details = "details open"
+            
+            # If the answer was closed:
+            else:
+                # Use the closed tag:
+                details = "details"
+ 
+            # If the user pressed OK without providing a statis:
+            if len(status) == 0:
+               dialog.info_dialog(title='No status', message="No status was provided.", width='200')
+               exit
+
+            # If the user provided a status and pressed OK without providing a summary:
+            if len(status) > 0 and len(summary) == 0:
+               # Print the wrapped selection with no summary to the active window:
+               keyboard.send_keys("<%s>%s</details>" % (details, selection))
+
+            # If the user provided a status and provided a summary:
+            if len(status) > 0 and len(summary) > 0:
+                # Print the wrapped selection with a summary to the active window:
+                keyboard.send_keys("<%s><summary>%s</summary>%s</details>" % (details, summary, selection))
+
+        # If the cancel button was pressed during the summary question:
+        elif ret2 == 1:
+            # Print the wrapped selection to the active window:
+            dialog.info_dialog(title='Summary cancelled', message="You cancelled the summary.", width='200')
+
+        else:
+            # Print the wrapped selection to the active window:
+            dialog.info_dialog(title='Summary unknown error', message="Summary unknown error.", width='200')
+                
+    # If the cancel button was pressed during the status question:
+    elif ret1 == 1:
+        dialog.info_dialog(title='Status cancelled', message="You cancelled the status.", width='200')
+     
+    # If something else went wrong with the status:
+    else:
+        # Display a status error dialog:
+        dialog.info_dialog(title='Status unknown error', message="Status unknown error.", width='200')
+        exit
+
+# If anything else happens:
+except:
+
+    # Display a status error dialog:
+    dialog.info_dialog(title='Script unknown error', message="Script unknown error.", width='200')
+```
+</details>
