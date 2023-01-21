@@ -1137,6 +1137,8 @@ More information:
       button without content being typed in.
 * See an example of these detail elements in action here:
     https://gist.github.com/pierrejoubert73/902cc94d79424356a8d20be2b382e1ab
+* See GitHub's official page on these detail elements:
+    https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/organizing-information-with-collapsed-sections
 * The selected text can accept HTML or Markdown.
 * The selected text can be used in your Markdown.
 * These details elements don't work on Gitter.
@@ -1189,10 +1191,12 @@ try:
                 # Use the closed tag:
                 details = "details"
  
-            # If the user pressed OK without providing a statis:
+            # If the user pressed OK without providing a status:
             if len(status) == 0:
-               dialog.info_dialog(title='No status', message="No status was provided.", width='200')
-               exit
+                # Display a "No status" dialog:
+                dialog.info_dialog(title='No status', message="No status was provided.", width='200')
+                # Exit out of this script:
+                exit
 
             # If the user provided a status and pressed OK without providing a summary:
             if len(status) > 0 and len(summary) == 0:
@@ -1206,27 +1210,29 @@ try:
 
         # If the cancel button was pressed during the summary question:
         elif ret2 == 1:
-            # Print the wrapped selection to the active window:
+            # Display a "Summary cancelled" dialog:
             dialog.info_dialog(title='Summary cancelled', message="You cancelled the summary.", width='200')
 
         else:
-            # Print the wrapped selection to the active window:
+            # Display a "Summary unknown error" dialog:
             dialog.info_dialog(title='Summary unknown error', message="Summary unknown error.", width='200')
                 
     # If the cancel button was pressed during the status question:
     elif ret1 == 1:
+        # Display a "Status cancelled" dialog:
         dialog.info_dialog(title='Status cancelled', message="You cancelled the status.", width='200')
      
     # If something else went wrong with the status:
     else:
-        # Display a status error dialog:
+        # Display a "Status unknown error" dialog:
         dialog.info_dialog(title='Status unknown error', message="Status unknown error.", width='200')
+        # Exit the script:
         exit
 
 # If anything else happens:
 except:
 
-    # Display a status error dialog:
+    # Display a "Script unknown error" dialog:
     dialog.info_dialog(title='Script unknown error', message="Script unknown error.", width='200')
 ```
 </details>
