@@ -575,7 +575,7 @@ keyboard.send_keys("<enter>")
 
 **Author**: Joseph Pollock - JPmicrosystems
 
-**Description:***
+**Description:**
 Normally, AutoKey will emit characters from a phrase or script as fast as the system will allow. This is quite a bit faster than typing and some applications may not be able to keep up.
 
 The following script emits/types a string of characters one at a time with a delay between each one.
@@ -597,6 +597,33 @@ def type_slowly(string, delay=0.1):
             time.sleep(delay)
 ```
 
+Here's a more extreme version contributed by @bjohas.
+
+This one assumes the script is set to not remove the trigger abbreviation automatically and does it itself.
+
+```
+Parameters
+string1:   trigger abbreviation
+string2:   replacement text
+backdelay: delay between emitting backspaces when deleting the trigger abbreviation
+delay:     delay between removing the typed abbreviation an starting to emit the replacement string
+typedelay: delay between emitting characters of the replacement string
+```
+
+```python
+def type_slowly(string1, string2, backdelay=0.0, delay=0.3, typedelay=0.0):
+  for c in string1:
+    keyboard.send_keys("<backspace>")
+    time.sleep(backdelay)
+ 
+  time.sleep(delay)
+  
+  for c in string2:
+    keyboard.send_keys(c)
+    time.sleep(typedelay)
+
+  return
+```
 
 ## <a id="listPasswords" />Function to list passwords on Firefox ##
 
