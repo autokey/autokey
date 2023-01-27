@@ -359,7 +359,6 @@ window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, match
 import os
 import re
 import string
-import time
 
 def filenum ():
     ## Gets next file number
@@ -585,12 +584,10 @@ The first parameter is the string of characters to type. The second optional par
 
 ```python
 
-import time
-
 ## Type a string character by character
 ##   from within AutoKey
 ##   with a small delay between characters
-def type_slow(string, delay=0.1):
+def type_slowly(string, delay=0.1):
     if delay <= 0:
         # No delay, directly relay the whole string to the API function.
         keyboard.send_keys(string)
