@@ -1,36 +1,36 @@
 ## Contents
 
 * [Introduction](#introduction)
-* [Case Changer](#caseChanger)
-* [Choose Browser On Link Selection](#chooseBrowser)
-* [Health Potion Drinker](#healthPotion)
-* [Ask For Assistance](#askForAssistance)
-* [Ask For A Cleric](#askForCleric)
-* [Gnome Screenshot](#gnomeScreenshot)
-* [Switch Or Start Firefox](#switchStartFirefox)
-* [Toggle an Application](#toggleApplication)
-* [RSS Zoomer](#rssZoomer)
-* [Move Active Window](#moveActiveWindow)
-* [Offline Print Queue](#offlinePrintQueue)
-* [Key Wrapper](#keyWrapper)
-* [WordPress Hebrew Concordance Linker](#wordpressHebrew)
-* [Function to Type Text Slowly](#typeSlowly)
-* [Function to list passwords on Firefox](#listPasswords)
-* [Cycle case of selected text](#cycleCase)
-* [Open a working directory](#openWorkingDirectory)
-* [Simple IP Manager](#simpleIPManager)
-* [Password Manager](#passwordManager)
-* [SSH Manager](#sshManager)
-* [Url Wrangler](#urlWrangler)
-* [Googling query from anywhere](#googlinqQuery)
-* [Search your phrases and scripts](#searchPhrasesScripts)
-* [Dynamically assign hotkey actions](#dynamicallyAssign)
-* [Push to talk](#pushToTalkScript)
+* [Case Changer](#case-changer)
+* [Choose Browser On Link Selection](#choose-browser-on-link-selection)
+* [Health Potion Drinker](#health-potion-drinker)
+* [Ask For Assistance](#ask-for-assistance)
+* [Ask For A Cleric](#ask-for-a-cleric)
+* [Gnome Screenshot](#gnome-screenshot)
+* [Switch Or Start Firefox](#switch-or-start-firefox)
+* [Toggle an Application](#toggle-an-application)
+* [RSS Zoomer](#rss-zoomer)
+* [Move Active Window](#move-active-window)
+* [Offline Print Queue](#offline-print-queue)
+* [Key Wrapper](#key-wrapper)
+* [WordPress Hebrew Concordance Linker](#wordpress-hebrew-concordance-linker)
+* [Function to Type Text Slowly](#function-to-type-text-slowly)
+* [Function to list passwords on Firefox](#function-to-list-passwords-on-firefox)
+* [Cycle case of selected text](#cycle-case-of-selected-text)
+* [Open a working directory](#open-a-working-directory)
+* [Simple IP Manager](#simple-ip-manager)
+* [Password Manager](#password-manager)
+* [SSH Manager](#ssh-manager)
+* [Url Wrangler](#url-wrangler)
+* [Googling query from anywhere](#googlinq-query-from-anywhere)
+* [Search your phrases and scripts](#search-your-phrases-and-scripts)
+* [Dynamically assign hotkey actions](#dynamically-assign-hotkey-actions)
+* [Push to talk](#push-to-talk)
 * [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
-* [[Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod]]
+* [Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod](#recipe-builder-for-minecraft-and-extended-crafting-if-using-the-kabbalah-block-mod)
 * [Dynamically create a toggled HTML details block](#dynamically-create-a-toggled-html-details-block)
 
-## <a id="introduction" >Introduction
+## Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
 
 Feel free to use the scripts presented for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
@@ -39,7 +39,7 @@ All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/l
 
 For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
-## <a id="caseChanger" />Case Changer ##
+## Case Changer
 **Author**: [Kreezxil](https://kreezcraft.com)
 
 **Description**: Grabs the selected text and changes it to upper case if lower or mixed case, and lower case if upper cased.
@@ -54,7 +54,7 @@ else:
     keyboard.send_keys(sample.lower())
 ```
 
-## <a id="chooseBrowser" />Choose Browser On Link Selection ##
+## Choose Browser On Link Selection
 
 **Discovered at**: [Linux Journal](http://www.linuxjournal.com/content/autokey-desktop-automation-utility-linux)
 
@@ -69,7 +69,7 @@ if retCode == 0:
   system.exec_command(choice + " " + clipboard.get_selection())
 ```
 
-## <a id="healthPotion" />Health Potion Drinker ##
+## Health Potion Drinker
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -96,7 +96,7 @@ pot = pot + 1
 store.set_value("heal",pot)
 ```
 
-## <a id="askForAssistance" />Ask For Assistance ##
+## Ask For Assistance
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -136,7 +136,7 @@ mana = mana + 1
 store.set_value("mana",mana)
 ```
 
-## <a id="askForCleric" />Ask For A Cleric ##
+## Ask For A Cleric
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -177,7 +177,7 @@ pot = pot + 1
 store.set_value("pot",pot)
 ```
 
-## <a id="gnomeScreenshot" />Gnome Screenshot ##
+## Gnome Screenshot
 
 **Author**: [Dave](http://groups.google.com/groups/profile?enc_user=gy_J_BYAAABLTVwIPyUi9oJFSRwGwC70o4cocwWvDVg2RHsu8f1bCg)
 
@@ -195,7 +195,7 @@ window.activate("Save Screenshot", switchDesktop=False)
 keyboard.send_keys("today")
 ```
 
-## <a id="switchStartFirefox" />Switch Or Start Firefox ##
+## Switch Or Start Firefox
 
 **Author**: Jack
 
@@ -216,7 +216,7 @@ else:
 #
 ```
 
-## <a id="toggleApplication" />Toggle an Application ##
+## Toggle an Application
 
 **Author**: mindfulsource
 
@@ -240,7 +240,7 @@ else:
 ```
 
 
-## <a id="rssZoomer" />RSS Zoomer ##
+## RSS Zoomer
 
 **Author**: Jack
 
@@ -270,7 +270,7 @@ else:
 #
 ```
 
-## <a id="moveActiveWindow" />Move Active Window ##
+## Move Active Window
 
 **Author**: Jack
 
@@ -313,7 +313,7 @@ newY=windetails[1] + 20
 window.resize_move(thisWin, xOrigin=-1, yOrigin=newY, width=-1, height=-1, matchClass=False)
 ```
 
-## <a id="offlinePrintQueue" />Offline Print Queue ##
+## Offline Print Queue
 
 **Author**: [Joe](http://groups.google.com/groups/profile?enc_user=wEhtURIAAAD4aTgqVkoh5XFntZCWEVBLD1eZzMt9YX5JjiuRxhHx-A)
 
@@ -488,10 +488,9 @@ keyboard.send_keys("<tab>")
 time.sleep(0.5)
 keyboard.send_keys("<tab>")
 
-
 ```
 
-## <a id="keyWrapper" />Key Wrapper ##
+## Key Wrapper
 
 **Author**: [tpower21](http://groups.google.com/groups/profile?enc_user=x6tfARIAAAAifj82FffFIj7Xx_wp_F3B8rhlH0Pnl47z4AZhN98BFg)
 
@@ -549,7 +548,7 @@ clipboard.fill_clipboard(clip_board)
 del clip_board, selection, wrap, wrap_close
 ```
 
-## <a id="wordpressHebrew" />WordPress Hebrew Concordance Linker ##
+## WordPress Hebrew Concordance Linker
 
 **Author**: [Itscool - Al](http://www.bowierocks.com)
 
@@ -571,7 +570,7 @@ keyboard.send_keys("Strong's Concordance HEBREW %s" % selection)
 keyboard.send_keys("<enter>")
 ```
 
-## <a id="typeSlowly" />Function to Type Text Slowly ##
+## Function to Type Text Slowly
 
 **Author**: Joseph Pollock - JPmicrosystems
 
@@ -625,7 +624,7 @@ def type_slowly(string1, string2, backdelay=0.0, delay=0.3, typedelay=0.0):
   return
 ```
 
-## <a id="listPasswords" />Function to list passwords on Firefox ##
+## Function to list passwords on Firefox
 
 **Author**: Chris Dardis
 
@@ -673,8 +672,7 @@ keyboard.send_keys("<tab>")
 ```
 
 
-
-## <a id="cycleCase" />Cycle case of selected text ##
+## Cycle case of selected text
 
 **Author**: Jack
 
@@ -735,7 +733,7 @@ keyboard.send_keys("<shift>+<left>"*lLength)
 
 ```
 
-## <a id="openWorkingDirectory" />Open a working directory ##
+## Open a working directory
 **Author**: Kolibril13
 
 **Description**: This script opens the working directory, which you define in "/home/username/Desktop/working_directory.txt" (Ubuntu 18.04)
@@ -749,7 +747,7 @@ command = "nautilus " + working_directory
 os.system(command)
 ```
 
-## <a id="simpleIPManager" />Simple IP Manager ##
+## Simple IP Manager
 **Author**: [Kreezxil](https://kreezcraft.com)
 
 **Description**: I created this to manage going to ip addresses that for whatever reason aren't named.
@@ -788,7 +786,7 @@ if retCode == 0:
     ))
 ```
 
-## <a id="passwordManager" />Password Manager ##
+## Password Manager
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -831,7 +829,7 @@ if retCode == 0:
     ))
 ```
 
-## <a id="sshManager" />SSH Manager ##
+## SSH Manager
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -897,7 +895,7 @@ except:
     exit()
 ```
 
-## <a id="urlWrangler" />Url Wrangler ##
+## Url Wrangler
 
 **Author**: [Kreezxil](https://kreezcraft.com)
 
@@ -918,11 +916,11 @@ else:
     changeLog = "{}/files/{}".format(theLink,parts[5])
     keyboard.send_keys("{}\n".format(changeLog))
 ```
-## <a id="googlinqQuery" />Googling query from anywhere ##
+## Googling query from anywhere
 
 **Author**: [Slothworks](https://askubuntu.com/a/685551/1058011)
 
-**Description**: Being able to search any selected text by activating a python script (below) everytime I pressed a set of keyboard buttons.
+**Description**: Being able to search any selected text by activating a python script (below) every time I pressed a set of keyboard buttons.
 ```
 import webbrowser
 base="http://www.google.com/search?q="
@@ -945,7 +943,7 @@ if (not singleWord):
 webbrowser.open_new_tab(search_url)
 ```
 
-## <a id="searchPhrasesScripts" />Search your phrases and scripts ##
+## Search your phrases and scripts
 
 **Author**: [Caspx](https://github.com/caspx)
 
@@ -1014,7 +1012,7 @@ while True:
         continue
 ```
 
-## <a id="dynamicallyAssign" />Dynamically assign hotkey actions ##
+## Dynamically assign hotkey actions
 
 **Author**: [tomrule007](https://github.com/tomrule007)
 
@@ -1049,7 +1047,7 @@ else:
 ```
 
 
-## <a id="pushToTalkScript" />Push to Talk Script ##
+## Push to Talk
 
 **Author**: [Sid Coelho](https://www.linkedin.com/in/sidneydemoraes/)
 
@@ -1103,7 +1101,7 @@ except FileNotFoundError:
 ```
 
 
-## Run an AutoKey script from another AutoKey script ##
+## Run an AutoKey script from another AutoKey script
 
 **Author**: Elliria
 
@@ -1123,6 +1121,17 @@ myFunction()
 	engine.run_script("MyInternalScript")
 ```
 When you run the second AutoKey script, the function in the first AutoKey script is run and you get its output in the form of a dialog.
+
+
+
+## Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod
+
+* Author: [Kreezxil](https://kreezcraft.com)
+* Description: Allows to create a recipe automatically for use with [The Kabbalah Block](https://www.curseforge.com/minecraft/mc-mods/the-kabbalah-block) Mod where Extended Crafting mod is also available.
+* License: MIT
+
+See the script [here](https://github.com/autokey/autokey/wiki/Recipe-Builder-for-Minecraft-and-Extended-Crafting-if-using-The-Kabbalah-Block-Mod).
+
 
 
 ## Dynamically create a toggled HTML details block
