@@ -1,21 +1,21 @@
 
 ## Contents
 
-* [Introduction](#intro)
-* [Display Active Front End](#displayFrontEnd)
-* [Display Active Window Information](#displayWindowInfo)
-* [Test for Active Front End](#testFrontEnd)
-* [Using Dates in Scripts](#usingDates)
-* [List Menu](#listMenu)
-* [X Selection](#xSelection)
-* [Persistent Value](#persistentValue)
-* [Create new abbreviation](#createAbbreviation)
-* [Create new phrase](#createPhrase)
-* [Start external scripts](#startExternalScripts)
+* [Introduction](#introduction)
+* [Display Active Front End](#display-active-front-end)
+* [Display Active Window Information](#display-active-window-information)
+* [Test for Active Front End](#test-for-active-front-end)
+* [Using Dates in Scripts](#using-dates)
+* [List Menu](#list-menu)
+* [X Selection](#x-selection)
+* [Persistent Value](#persistent-value)
+* [Create new abbreviation](#create-new-abbreviation)
+* [Create new phrase](#create-new-prase)
+* [Start external scripts](#start-external-scripts)
 
 
 
-## <a id="intro" />Introduction 
+## Introduction 
 This page contains example scripts to demonstrate the **basic** capabilities of AutoKey's scripting service.
 
 Feel free to use these scripts for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
@@ -24,7 +24,7 @@ All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/l
 
 For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
 
-## <a id="displayFrontEnd" />Display the Active Front End
+## Display the Active Front End
 
 Display the AutoKey front end (GTK or Qt) you are currently using:
 ```python
@@ -44,7 +44,7 @@ else:
     # Do nothing:
     pass
 ```
-## <a id="displayWindowInfo" />Display Active Window Information
+## Display Active Window Information
 
 Display the information of the active window after 2 seconds:
 ```python
@@ -54,7 +54,7 @@ Display the information of the active window after 2 seconds:
     winClass = window.get_active_class()
     dialog.info_dialog("Window information", "Active window information:\\nTitle: '%s'\\nClass: '%s'" % (winTitle, winClass))
 ```
-## <a id="testFrontEnd" />Test for the Active Front End
+## Test for the Active Front End
 Test for the AutoKey front end (GTK or Qt) you are currently using and store the result in the **result** variable.
 
 ```python
@@ -73,7 +73,7 @@ def test():
 # Run the function and store the result in a variable:
 result = test()
 ```
-## <a id="usingDates" />Using Dates in Scripts
+## Using Dates in Scripts
 
 Users frequently need to use the date or time in a script.
 
@@ -111,7 +111,7 @@ Since this is essentially a really big integer, it is a handy form to use for ca
 
 See [datetime](https://docs.python.org/3/library/datetime.html) and [time](https://docs.python.org/3/library/time.html#module-time) for all the gory details.
 
-## <a id="listMenu" />List Menu
+## List Menu
 
 This script shows a simple list menu, grabs the chosen option, and sends it via keyboard output:
 ```python
@@ -120,7 +120,7 @@ This script shows a simple list menu, grabs the chosen option, and sends it via 
     if retCode == 0:
         keyboard.send_keys("You chose " + choice)
 ```
-## <a id="xSelection" />X Selection
+## X Selection
 
 This script grabs the current mouse selection, erases it, and then inserts it again as part of a phrase:
 ```python
@@ -128,7 +128,7 @@ This script grabs the current mouse selection, erases it, and then inserts it ag
     keyboard.send_key("<delete>")
     keyboard.send_keys("The text %s was here previously" % text)
 ```
-## <a id="persistentValue" />Persistent Value
+## Persistent Value
 
 This script demonstrates 'remembering' a value in the store between separate invocations of the script:
 ```python
@@ -142,7 +142,7 @@ This script demonstrates 'remembering' a value in the store between separate inv
 
         keyboard.send_keys("I've been run %d times!" % store.get_value("runs")) ```
 ```
-## <a id="createAbbreviation" />Create new abbreviation
+## Create new abbreviation
 
 This script creates a new phrase with an associated abbreviation from the current contents of the X mouse selection (although you could easily change it to use the clipboard instead by using ```clipboard.get_clipboard()```):
 ```python
@@ -159,7 +159,7 @@ This script creates a new phrase with an associated abbreviation from the curren
             folder = engine.get_folder("My Phrases")
             engine.create_abbreviation(folder, title, abbr, contents)
 ```
-## <a id="createPhrase" />Create new phrase
+## Create new phrase
 
 This is similar to the above script, but creates the phrase without an abbreviation:
 ```python
@@ -174,7 +174,7 @@ This is similar to the above script, but creates the phrase without an abbreviat
         folder = engine.get_folder("My Phrases")
         engine.create_phrase(folder, title, contents)
 ```
-## <a id="startExternalScripts" />Start external scripts
+## Start external scripts
 
 In case you've got some Bash scripts or want to start a program with a shortcut:
 
@@ -188,5 +188,3 @@ To start a program with Wine:
     import subprocess
     subprocess.Popen(["wine", "/home/foobar/wine/program/some.exe"])
 ```
-
-
