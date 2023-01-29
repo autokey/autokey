@@ -5,14 +5,13 @@
 * [Display the Active Front End](#display-the-active-front-end)
 * [Display Active Window Information](#display-active-window-information)
 * [Test for the Active Front End](#test-for-the-active-front-end)
-* [Using Dates in Scripts](#using-dates)
+* [Using Dates in Scripts](#using-dates-in-scripts)
 * [List Menu](#list-menu)
 * [X Selection](#x-selection)
 * [Persistent Value](#persistent-value)
 * [Create new abbreviation](#create-new-abbreviation)
-* [Create new phrase](#create-new-prase)
+* [Create new phrase](#create-new-phrase)
 * [Start external scripts](#start-external-scripts)
-
 
 
 ## Introduction 
