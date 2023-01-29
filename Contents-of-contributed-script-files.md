@@ -61,26 +61,16 @@
 
 ## Contents of Contributed Scripts 2
 
-* [Url Displayer](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#url-displayer)
-* [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#emoji-speak-for-chat-services-such-as-discord)
-* [Coordinate Calculator similar to Dinnerbone's Coordinate Calculator](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#coordinate-calculator-similar-to-dinnerbones-coordinate-calculator)
-* [Autoclicker with toggle using Globals ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#autoclicker-with-toggle-using-globals)
-* [Check held keys (workaround!)](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#check-held-keys-workaround)
-* [Date, Time and Window Title stamp](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#date-time-and-window-title-stamp)
-* [Dialog info useful for displaying debugging info](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#dialog-info-useful-for-displaying-debugging-info)
-* [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#get-the-current-mouse-coordinates)
-* [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#toggle-a-looped-script)
-* [Keyboard Masher](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2
-#keyboard-masher)
+* [Url Displayer](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#url-displayer)
+* [Emoji Speak for chat services such as Discord](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#emoji-speak-for-chat-services-such-as-discord)
+* [Coordinate Calculator similar to Dinnerbone's Coordinate Calculator](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#coordinate-calculator-similar-to-dinnerbones-coordinate-calculator)
+* [Autoclicker with toggle using Globals ](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#autoclicker-with-toggle-using-globals)
+* [Check held keys (workaround!)](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#check-held-keys-workaround)
+* [Date, Time and Window Title stamp](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#date-time-and-window-title-stamp)
+* [Dialog info useful for displaying debugging info](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#dialog-info-useful-for-displaying-debugging-info)
+* [Get the current mouse coordinates](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#get-the-current-mouse-coordinates)
+* [Toggle a looped script](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#toggle-a-looped-script)
+* [Keyboard Masher](https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#keyboard-masher)
 
 ## Contents of Contributed Scripts 3
  
