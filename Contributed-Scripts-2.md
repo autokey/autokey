@@ -4,7 +4,7 @@
 * [Emoji Speak for chat services such as Discord](#emoji-speak-for-chat-services-such-as-discord)
 * [Coordinate Calculator similar to Dinnerbone's Coordinate Calculator](#coordinate-calculator-similar-to-dinnerbones-coordinate-calculator)
 * [Autoclicker with toggle using Globals ](#autoclicker-with-toggle-using-globals)
-* [Check held keys (workaround!)](#check-held-keys)
+* [Check held keys (workaround!)](#check-held-keys-workaround)
 * [Date, Time and Window Title stamp](#date-time-and-window-title-stamp)
 * [Dialog info useful for displaying debugging info](#dialog-info-useful-for-displaying-debugging-info)
 * [Get the current mouse coordinates](#get-the-current-mouse-coordinates)
