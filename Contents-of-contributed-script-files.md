@@ -32,17 +32,17 @@
 
 ## Contents of Basic Scripts
 
-* [Introduction](https://github.com/autokey/autokey/wiki/Advanced-Scripts#introduction)
-* [Display the Active Front End](https://github.com/autokey/autokey/wiki/Advanced-Scripts#display-the-active-front-end)
-* [Display Active Window Information](https://github.com/autokey/autokey/wiki/Advanced-Scripts#display-active-window-information)
-* [Test for the Active Front End](https://github.com/autokey/autokey/wiki/Advanced-Scripts#test-for-the-active-front-end)
-* [Using Dates in Scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts#using-dates-in-scripts)
-* [List Menu](https://github.com/autokey/autokey/wiki/Advanced-Scripts#list-menu)
-* [X Selection](https://github.com/autokey/autokey/wiki/Advanced-Scripts#x-selection)
-* [Persistent Value](https://github.com/autokey/autokey/wiki/Advanced-Scripts#persistent-value)
-* [Create new abbreviation](https://github.com/autokey/autokey/wiki/Advanced-Scripts#create-new-abbreviation)
-* [Create new phrase](https://github.com/autokey/autokey/wiki/Advanced-Scripts#create-new-phrase)
-* [Start external scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts#start-external-scripts)
+* [Introduction](https://github.com/autokey/autokey/wiki/Basic-Scripts#introduction)
+* [Display the Active Front End](https://github.com/autokey/autokey/wiki/Basic-Scripts#display-the-active-front-end)
+* [Display Active Window Information](https://github.com/autokey/autokey/wiki/Basic-Scripts#display-active-window-information)
+* [Test for the Active Front End](https://github.com/autokey/autokey/wiki/Basic-Scripts#test-for-the-active-front-end)
+* [Using Dates in Scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts#using-dates-in-scripts)
+* [List Menu](https://github.com/autokey/autokey/wiki/Basic-Scripts#list-menu)
+* [X Selection](https://github.com/autokey/autokey/wiki/Basic-Scripts#x-selection)
+* [Persistent Value](https://github.com/autokey/autokey/wiki/Basic-Scripts#persistent-value)
+* [Create new abbreviation](https://github.com/autokey/autokey/wiki/Basic-Scripts#create-new-abbreviation)
+* [Create new phrase](https://github.com/autokey/autokey/wiki/Basic-Scripts#create-new-phrase)
+* [Start external scripts](https://github.com/autokey/autokey/wiki/Basic-Scripts#start-external-scripts)
 
 ## Contents of Contributed Scripts 1 
 
