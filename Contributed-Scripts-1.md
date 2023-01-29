@@ -1,20 +1,20 @@
 ## Contents
 
-* [Get a Gmail URL from the 'Open In New Window' button](#getGmailUrl)
-* [Convert text case to lowercase and replace spaces with hyphens](#convertTextCase)
-* [Automatically collect and paste information about the current platform](#getPlatformInfo)
-* [Insert current DateTime in the format YYYY.MM.DD HH:MM:SS](#insertDateTime)
-* [Insert current Time in the format HH:MM:SS](#insertTime)
-* [Insert current Date only in the format YYYY.MM.DD](#insertDate)
-* [Search for text from your clipboard in your Browser](#googleSearchClipboardText)
-* [Open a certain website](#openWebsite)
-* [Unpack all zipped files from the Download folder and delete the zip file afterwards](#unzipFiles)
-* [Reduce image qualities in a certain folder](#reduceImage)
-* [Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard](#takeScreenhot)
-* [Ping or TracePath Mojang Minecraft Services Servers](#pingMojanServers)
+* [Get a Gmail URL from the 'Open In New Window' button](#get-a-gmail-url-from-the-open-in-new-window-button)
+* [Convert text to lowercase and replace spaces with hyphens](#convert-text-to-lowercase-and-replace-spaces-with-hyphens)
+* [Get current platform information](#get-current-platform-information)
+* [Insert current DateTime in the format YYYY.MM.DD HH:MM:SS](#insert-current-datetime-in-the-format-yyyymmdd-hhmmss)
+* [Insert current Time in the format HH:MM:SS](#insert-current-time-in-the-format-hhmmss)
+* [Insert current Date only in the format YYYY.MM.DD](#insert-current-date-only-in-the-format-yyyymmdd)
+* [Search for text from your clipboard in your Browser](#search-for-text-from-your-clipboard-in-your-browser)
+* [Open a certain website](#open-a-certain-website)
+* [Unpack all zipped files from Download folder and delete zip file afterwards](#unpack-all-zipped-files-from-download-folder-and-delete-zip-file-afterwards)
+* [Reduce image qualities in a certain folder](#reduce-image-qualities-in-a-certain-folder)
+* [Make screenshot and move it to Downloads folder if name is given or move it to clipboard](#make-screenshot-and-move-it-to-downloads-folder-if-name-is-given-or-move-it-to-clipboard)
+* [Ping or TracePath Mojang Minecraft Services Servers](#ping-or-tracepath-mojang-minecraft-services-servers)
 
 
-## <a id="getGmailUrl" />Get a Gmail URL from the 'Open In New Window' button 
+## Get a Gmail URL from the 'Open In New Window' button 
 
 If you use the 'preview pane' view in Gmail, you will note that you cannot then see the URLs of individual messages in the address bar. Yet each message does indeed have an unique URL. To get the URL of a message without having to switch to the standard view:
 
@@ -32,7 +32,7 @@ match = re.search(r'(?<=th=)(\w+)(&)', url)
 clipboard.fill_clipboard(gmail_baseurl + match.group(1))
 ```
 
-## Convert text case to lowercase and replace spaces with hyphens <a id="convertTextCase" />
+## Convert text to lowercase and replace spaces with hyphens
 This is useful for converting the name of a GitHub Issue into a string that's suitable for a Git branch, if you follow the style of 'named-branch' Git development.
 
 For example:
@@ -49,7 +49,7 @@ text = clipboard.get_selection()
 clipboard.fill_clipboard(text.lower().replace(' ', '-'))
 ```
 
-## Automatically collect and paste information about the current platform <a id="getPlatformInfo" />
+## Get current platform information
 Useful for making bug reports especially on web applications where the platform and browser version may be relevant.
 
 example:
@@ -70,7 +70,7 @@ output += "Date Tested :" + system.exec_command("date")
 keyboard.send_keys(output)
 ```
 
-## <a id="insertDateTime" />Insert current DateTime in the format YYYY.MM.DD HH:MM:SS 
+## Insert current DateTime in the format YYYY.MM.DD HH:MM:SS 
 example:
 > 2018.04.23 23:47:00 
 
@@ -80,7 +80,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%Y.%m.%d %H:%M:%S'))
 ```
 
-## <a id="insertTime" />Insert current Time in the format HH:MM:SS 
+## Insert current Time in the format HH:MM:SS 
 example:
 > 23:47:00 
 
@@ -90,7 +90,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%H:%M:%S'))
 ```
 
-## <a id="insertDate" />Insert current Date only in the format YYYY.MM.DD 
+## Insert current Date only in the format YYYY.MM.DD 
 example:
 > 2018.04.23
 
@@ -100,7 +100,7 @@ from datetime import datetime
 keyboard.send_keys(datetime.now().strftime('%Y.%m.%d'))
 ```
 
-## <a id="googleSearchClipboardText" />Search for text from your clipboard in your Browser 
+## Search for text from your clipboard in your Browser 
 
 script:
 ```python
@@ -111,7 +111,7 @@ time.sleep(0.1)
 webbrowser.open("http://www.google.de/search?q="+clipboard.get_clipboard())
 ```
 
-## Open a certain website <a id="openWebsite" />
+## Open a certain website
 
 script:
 ```python
@@ -125,7 +125,7 @@ webbrowser.get('google-chrome').open_new_tab(site)
 # webbrowser.get('firefox').open_new_tab(site)
 ```
 
-## <a id="unzipFiles" />Unpack all zipped files from the Download folder and delete the zip file afterwards 
+## Unpack all zipped files from Download folder and delete zip file afterwards
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```py
@@ -152,7 +152,7 @@ for item in os.listdir(dir_name):  # loop through items in dir
         subprocess.Popen(['xdg-open', dir_name + item_name + '/'])
 ```
 
-## <a id="reduceImage" />Reduce image qualities in a certain folder 
+## Reduce image qualities in a certain folder 
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```python
@@ -175,7 +175,7 @@ for file_p in file_paths:
 	os.system(command)
 ```
 
-## <a id="takeScreenhot" /> Make a screenshot and move it to the downloads folder in case that a name is given, otherwise move it to the clipboard 
+## Make screenshot and move it to Downloads folder if name is given or move it to clipboard
 Author: [kolibril13](https://github.com/kolibril13)
 script:
 ```py
@@ -204,7 +204,7 @@ else:
     os.system(command2)
 ```
 
-## <a id="pingMojanServers" />Ping or TracePath Mojang Minecraft Services Servers 
+## Ping or TracePath Mojang Minecraft Services Servers 
 Author: [Kreezxil](https://kreezcraft.com)
 
 While this could've been done easier in a shell script I thought it would be fun to do it in Autokey. The script contains an array of Mojang servers that can cause issues for players if they are down. There is an action array too so you can see how to easily add more actions. 
@@ -292,4 +292,3 @@ else:
     keyboard.send_keys(thisbethat.format(action,server))
     keyboard.send_key("<enter>")
 ```
-
