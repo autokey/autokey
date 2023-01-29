@@ -1,19 +1,18 @@
 ## Contents
 
+* [Url Displayer](#url-displayer)
+* [Emoji Speak for chat services such as Discord](#emoji-speak-for-chat-ervices-such-as-discord)
+* [Coordinate Calculator similar to Dinnerbone's Coordinate Calculator](#coordinate-calculator-similar-to-dinnerbones-coordinate-calculator)
+* [Autoclicker with toggle using Globals ](#autoclicker-with-toggle-using-globals)
+* [Check held keys (workaround!)](#check-held-keys)
+* [Date, Time and Window Title stamp](#date-time-and-window-title-stamp)
+* [Dialog info useful for displaying debugging info](#dialog-info-useful-for-displaying-debugging-info)
+* [Get the current mouse coordinates](#get-the-current-mouse-coordinates)
+* [Toggle a looped script](#toggle-a-looped-script)
+* [Keyboard Masher](#keyboard-masher)
 
-* [Url Displayer](#urlDisplay)
-* [Emoji Speak for chat services such as Discord](#emojiSpeak)
-* [Coordinate Calculator](#coordinateCalc)
-* [Autoclicker with toggle using Globals ](#autoclicker)
-* [Check held keys (https://github.com/autokey/autokey/wiki/Contributed-Scripts-2#workaround!) ](#checkHeldKeys)
-* [Date, Time and Window Title stamp](#dateTimeTitleStamp)
-* [Dialog info useful for displaying debugging info](#dialogDebugInfo)
-* [Get the current mouse coordinates](#getMouseCoordinates)
-* [Toggle a looped script](#toggleLoopedScript)
-* [Keyboard Masher](#keyboardMasher)
 
-
-## <a id="urlDisplay" />Url Displayer
+## Url Displayer
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use a dictionary (associative array) to manage a list of urls using short names
 - **Notes**: now discerns if a browser is being used, if you give it the browsers you use.
@@ -82,7 +81,7 @@ else:
 
 
 ```
-## <a id="emojiSpeak" />Emoji Speak for chat services such as Discord
+## Emoji Speak for chat services such as Discord
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: Use emoji to write a sentence, for instance on Discord.
 - **Notes**: removed the comment and the if statements, decided to go 100% dictionary lookup method. It is certainly cleaner to look up. It feels a bit faster too.
@@ -154,7 +153,7 @@ time.sleep(0.2)
 keyboard.send_keys("<ctrl>+v")
 
 ``` 
-## <a id="coordinateCalc" />Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
+## Coordinate Calculator similar to [Dinnerbone's Coordinate Calculator](https://dinnerbone.com/minecraft/tools/coordinates/)
 - **Porting Author**: [Kreezxil](https://kreezcraft.com)
 - **Original Author**: [sebkuip](https://github.com/sebkuip)
 - **Original Location**: https://github.com/sebkuip/minecraft-region-calculator
@@ -221,7 +220,7 @@ elif utype == "r":
 
 dialog.info_dialog(title=title,message=msg)
 ```
-## <a id="autoclicker" />Autoclicker with toggle using Globals
+## Autoclicker with toggle using Globals
 - **Author**: [Kreezxil](https://kreezcraft.com)
 - **Purpose**: clicks where the mouse is at, when the script is run again, it turns off.
 ```python
@@ -244,7 +243,7 @@ while True:
         break
 ```
 
-## <a id="checkHeldKeys" />Check held keys (workaround!)
+## Check held keys (workaround!)
 Hacky way to check what keys are held down on a device. Uses the `evdev` library which requires additional setup. Check out their readme for more details on installation and what it is capable of. 
 
 https://python-evdev.readthedocs.io/en/latest/
@@ -270,7 +269,7 @@ loop.run_until_complete(check_key())
 loop.close()
 ```
 
-## <a id="dateTimeTitleStamp" />Date, Time and Window Title stamp 
+## Date, Time and Window Title stamp 
 Functions in any window, including Windows apps running on Wine.
 Sample output of this window: 2021-06-10 04:32 - Editing Scripts contributed 1 · autokey/autokey Wiki — Mozilla Firefox
 author: ineuw
@@ -291,7 +290,7 @@ keyboard.send_keys(paste_)
 
 ```
 
-## <a id="dialogDebugInfo" />Dialog info useful for displaying debugging info
+## Dialog info useful for displaying debugging info
 
 This example creates an info dialog to display the character count of a block of text. Information to be displayed must be in text format.
 
@@ -324,7 +323,7 @@ dialog.info_dialog("length: ", chars_)
 
 ```
 
-## <a id="getMouseCoordinates" />Get the current mouse coordinates
+## Get the current mouse coordinates
 - **Author**: Sam Sebastian
 - **Purpose**: Display the current X and Y mouse coordinates in a pop-up dialog.
 ```python
@@ -336,7 +335,7 @@ dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the co
 ```
 
 
-## <a id="toggleLoopedScript" />Toggle a looped script
+## Toggle a looped script
 - **Author**: Elliria
 - **Purpose**: Use a global value and two different key-presses to toggle the start and stop of a looped script.
 - **Notes**: This can be done by writing two scripts, each with a different trigger (hotkey or abbreviation). One script sets a global value and starts a loop that checks for that value in each iteration to determine whether it should continue with the loop or not and, if it's satisfied with the global value, runs the remaining code in the loop and starts over. The other script changes the global value, which ends the loop.
@@ -372,7 +371,7 @@ store.set_global_value("x",False)
 store.remove_global_value("x")
 ```
 
-## <a id="keyboardMasher" /> Keyboard Masher
+## Keyboard Masher
 - **Author**: Kreezxil
 - **Purpose**: To mash all the keys in <a href="https://teagher.itch.io/keymasher-ultimate">Keymasher Ultimate</a>. It might work in other games that require random key mashing. Also checks to make sure a game with the title substring "MASHER" exists as the active window.
 ```python
