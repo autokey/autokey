@@ -265,6 +265,6 @@ mymodule.testing2()
 This displays three dialogs, one after another, when the AutoKey script is run. Two were initiated by the AutoKey script and one was initiated by the Python module using the injector.
 
 ## See also
-* See also [this AutoKey discussion](https://github.com/autokey/autokey/issues/248).
-* See also [this AutoKey discussion](https://github.com/autokey/autokey/discussions/743).
+* See also [this AutoKey discussion](https://github.com/autokey/autokey/issues/248) about injecting API functions into user modules.
+* See also [this AutoKey discussion](https://github.com/autokey/autokey/discussions/743) about running non-local code in an AutoKey script.
 * AutoKey scripts can run other AutoKey scripts with the ```engine.run_script(...)``` API call. See the [Run an AutoKey script from another AutoKey script](https://github.com/autokey/autokey/wiki/Advanced-Scripts#run-an-autokey-script-from-another-autokey-script) section of the [Advanced Scripts](https://github.com/autokey/autokey/wiki/Advanced-Scripts) page for a description and an example.
