@@ -146,13 +146,13 @@ You can change the code inside the internal module while AutoKey is running, but
 1. Close AutoKey.
 2. Open a terminal window.
 3. Type this command to check if the AutoKey process has closed:
-```
-pgrep -c autokey
-```
+	```bash
+	pgrep -c autokey
+	```
 4. If the output is a zero, the AutoKey process has closed and you can go to the next step. If the output is a 1, the AutoKey process is still running, so you'll need to type this command to end the process and then return to step 3:
-```
-pkill autokey
-```
+	```bash
+	pkill autokey
+	```
 5. Launch AutoKey.
 
 ### Remove or change the internal module folder
