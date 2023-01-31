@@ -5,6 +5,7 @@
     * [Choose a folder for use by AutoKey for modules](#choose-a-folder-for-use-by-autokey-for-modules)
     * [Example 1 - internal module](#example-1---internal-module)
     * [Example 2 - internal module using the API injector](#example-2---internal-module-using-the-api-injector)
+    * [Change the internal module](#change-the-internal-module)
     * [Remove or change the internal module folder](#remove-or-change-the-internal-module-folder)
   * [Modules - external](#modules---external)
     * [Example 1 - external module](#example-1---external-module)
@@ -139,6 +140,20 @@ my_module.testing2()
 ```
 
 This displays three dialogs, one after another, when the AutoKey script is run. Two were initiated by the AutoKey script and one was initiated by the Python module using the injector.
+
+### Change the internal module
+You can change the code inside the internal module while AutoKey is running, but there's a [known issue](https://github.com/autokey/autokey/issues/747) that prevents AutoKey from noticing changes to the internal module while AutoKey is running, so you'll need to close and restart AutoKey afterwards:
+1. Close AutoKey.
+2. Open a terminal window.
+3. Type this command to check if the AutoKey process has closed:
+```
+pgrep -c autokey
+```
+4. If the output is a zero, the AutoKey process has closed and you can go to the next step. If the output is a 1, the AutoKey process is still running, so you'll need to type this command to end the process and then return to step 3:
+```
+pkill autokey
+```
+5. Launch AutoKey.
 
 ### Remove or change the internal module folder
 You can change the **User Module Folder** to another one by following the steps above for setting up a **User Module Folder** and choosing a different folder, but if you'd like to just remove the folder you've chosen without choosing another one, that will have to be done manually.
