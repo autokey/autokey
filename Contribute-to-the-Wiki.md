@@ -5,12 +5,13 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 
 ## Table of Contents
 * [Create a page](#create-a-page)
-  * [Put a Table of Contents into your page](put-a-table-of-contents-into-your-page)
-    * [Example Table of Contents](example-table-of-contents)
+  * [Put a Table of Contents into your page](#put-a-table-of-contents-into-your-page)
+    * [Example Table of Contents](#example-table-of-contents)
 * [Edit a page](#edit-a-page)
 * [Edit the Table of Contents on the main wiki page](#edit-the-table-of-contents-on-the-main-wiki-page)
+* [Find a page](#find-a-page)
 * [Rename a page](#rename-a-page)
-* [When Finished](#when-finished)
+* [When finished](#when-finished)
 * [See also](#see-also)
 
 ***
@@ -19,7 +20,7 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 1. Log in to [GitHub](https://github.com/).
 2. Visit the [main wiki URL](https://github.com/autokey/autokey/wiki).
 3. Check the **Table of Contents** on the right side to see if the page you want to create already exists.
-4 If it does, edit that page. Otherwise, click the **"New page"** button in the upper right corner of the page (note that this button is available on all the wiki pages).
+4. If it does, edit that page. Otherwise, click the **"New page"** button in the upper right corner of the page (note that this button is available on all the wiki pages).
 5. Type a title into the **"Title"** text-box at the top of the page.
 6. Create your page in the editing pane.
 7. Left-click the **"Preview"** tab at any time to see how your changes will look, and left-click the **"Write"** tab to return to the editing pane.
@@ -109,6 +110,9 @@ Below is an example with a Table of Contents followed by the headings that it li
 9. Optional: Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
 10. Delete or archive the text file you had created in step 4 above.
 
+## Find a page
+If a wiki page you'd like to find (perhaps one you recently created) isn't listed in the wiki's **Table of Contents** and you'd like to get its name and/or the link to it, you can click the **Pages** drop-down above the wiki's **Table of Contents** and look through all the pages of the wiki to find it.
+
 ## Rename a page
 1. **Important:** Before you begin, carefully consider the consequences of changing the name of an existing page. It's possible that doing so will break links to the page. A backlink tool, like [this free one from Ahrefs](https://ahrefs.com/backlink-checker), can help to research those. It might also be a good idea to suggest a name change in [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) first so that others can weigh in on whether or not the change would be welcome as an improvement. 
 2. Log in to [GitHub](https://github.com/).
@@ -120,7 +124,7 @@ Below is an example with a Table of Contents followed by the headings that it li
 8. Follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
 9. Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
 
-## When Finished
+## When finished
 When you're finished creating or editing a page:
 1. Scroll down to the **Edit message** text-box at the bottom of the GitHub page and write a short message describing what you did, preferably in the present-tense ("Add" rather than "Added" and so on).
 2. Click the **Save page** button.
