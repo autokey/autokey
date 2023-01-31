@@ -22,7 +22,7 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 3. Check the **Table of Contents** on the right side to see if the page you want to create already exists.
 4. If it does, edit that page. Otherwise, click the **"New page"** button in the upper right corner of the page (note that this button is available on all the wiki pages).
 5. Type a title into the **"Title"** text-box at the top of the page.
-6. Create your page in the editing pane.
+6. Create your page in the editing pane, using [Markdown](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax) syntax.
 7. Left-click the **"Preview"** tab at any time to see how your changes will look, and left-click the **"Write"** tab to return to the editing pane.
 8. When you're satisfied with your change(s), write an **"Edit message"** in the little text-box beneath the editing pane.
 9. Click the **"Save page"** button.
