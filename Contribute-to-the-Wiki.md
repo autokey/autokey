@@ -11,7 +11,6 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 * [Edit the Table of Contents on the main wiki page](#edit-the-table-of-contents-on-the-main-wiki-page)
 * [Find a page](#find-a-page)
 * [Rename a page](#rename-a-page)
-* [When finished](#when-finished)
 * [See also](#see-also)
 
 ***
@@ -123,11 +122,6 @@ If a wiki page you'd like to find (perhaps one you recently created) isn't liste
 7. Left-click the **"Save page"** button.
 8. Follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
 9. Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
-
-## When finished
-When you're finished creating or editing a page:
-1. Scroll down to the **Edit message** text-box at the bottom of the GitHub page and write a short message describing what you did, preferably in the present-tense ("Add" rather than "Added" and so on).
-2. Click the **Save page** button.
 
 ## See also
 * See also the [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code) page for contributing code to the AutoKey project.
