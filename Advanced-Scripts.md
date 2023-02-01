@@ -3,6 +3,7 @@
 * [Introduction](#introduction)
 * [Case Changer](#case-changer)
 * [Choose Browser On Link Selection](#choose-browser-on-link-selection)
+* [Cross Application Control](#cross-application-control)
 * [Health Potion Drinker](#health-potion-drinker)
 * [Ask For Assistance](#ask-for-assistance)
 * [Ask For A Cleric](#ask-for-a-cleric)
@@ -67,6 +68,171 @@ choices = ["konqueror", "firefox", "chrome"]
 retCode, choice = dialog.list_menu(choices)
 if retCode == 0:
   system.exec_command(choice + " " + clipboard.get_selection())
+```
+
+## Cross Application Control
+
+**Discovered at**: ---
+
+**Author**: [Albrecht DIETRICH & Elliria](http://DC5GD)
+
+**Description**: AutoKey scripts often do all actions with pure Python code. This
+script demonstrates the use of features provided by your browser and
+LibreOffice Calc to copy text from a web page to a spreadsheet.
+
+```python
+# ################################################################################################################################# #
+# by:           Albrecht Dietrich                                                                                                   #
+# Co-Author:    Elliria                                                                                                             #
+# Date:         26. Sep. 2022                                                                                                       #
+# Update:       01. Feb. 2023                                                                                                       #
+#               Deleted typos and optimized Albrechts's funny English comments.                                                     #
+#               1'000 thanks dear Elliria!                                                                                          #
+# Purpose:      Opens a web page and copies data from it to a CALC sheet.                                                           #
+#               Here my adress data from my HAM webpage is copied to a CALC-sheet.                                                  #
+# Note:         This script demonstrates how to copy data from one application to another.                                          #
+#               It can be easily adapted when one has some basic programming knowledge.                                             #
+#               IMPORTANT:                                                                                                          #
+#               The script has to be started from the LogBuch.ods CALC-sheet.                                                       #
+#               If you want to use another name, just change the TargetWinName                                                      #
+#               variable in the code...                                                                                             #
+# ################################################################################################################################# #
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Load needed libraries                                                                                                             #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+import webbrowser
+import re
+import sys
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Definitions to be made                                                                                                            #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+KeyBoardDelay           = 0.05                          # delay between sending characters
+WebReactionTime         = 5                             # give web page time to get ready
+ClipBoardActionDelay    = 2                             # delay when using Clipboard
+
+SourceWebAdr = 'http://www.dc5gd.info/de/contact.php'   # the web page the address data will be copied from
+SourceWinName = ''
+TargetWinName = 'LogBuch.ods - LibreOffice Calc'        # the window where the address data will be inserted
+
+TargetFirstAddrRow = 3                                  # the row where the adress information will start to be inserted
+                                                        # The row strings will contain the following contents:
+                                                        #   1. full name (given + family name)
+                                                        #   2. Adress information 1 (usually street and house number)
+                                                        #   3. Adress information 2 (usually county)
+                                                        #   4. Adress information 3 (ZIP code and city)
+                                                        #   5. Adress information 4 (usually country)
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Check if the calling window was the CALC one and if not, quit                                                                     #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+ActiveWinTitle = window.get_active_title()
+if  ActiveWinTitle != TargetWinName:
+    dialog.info_dialog("Window information", "You can only use this script when the " + TargetWinName +  " is the active window..." )
+    sys.exit("No message")
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Script to make Autokey slowly send text as single characters)                                                                     #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+def SendSlow(TextToSend, DesiredDelay):
+    for CharToSend in TextToSend:
+        keyboard.send_keys(CharToSend)
+        time.sleep(DesiredDelay)
+    return
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Get all information needed from CALC to find the source data on the web                                                           #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Get a keyword to to be looked up on the website
+# Might be a cell value in CALC or a well-known fixed word like the one used here
+myKeyWord = "Name"
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Get all information needed from the web                                                                                           #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+
+# Open the browser at desired address --------------------------------------------------------------------------------------------- #
+webbrowser.open(SourceWebAdr)
+time.sleep(WebReactionTime)
+
+# search for the keyword in the contents of the web page -------------------------------------------------------------------------- #
+keyboard.send_keys("<ctrl>+F")                          # open search dialogue of browser
+time.sleep(KeyBoardDelay)                               # give browser a chance to react
+for Item in myKeyWord:                                  # enter the call to get to / mark first relevant line
+    SendSlow(Item, 0.1)
+keyboard.send_key("<escape>")                           # close search dialogue (first line of desired information should be marked)
+time.sleep(KeyBoardDelay)                               # give browser a chance to react
+
+# mark all interresting lines ----------------------------------------------------------------------------------------------------- #
+for i in range(8):
+    keyboard.send_keys("<shift>+<down>")
+    time.sleep(KeyBoardDelay)
+keyboard.send_keys("<shift>+<end>")                     # make sure all information in last line is marked
+time.sleep(KeyBoardDelay)
+
+for i in range(10):
+    keyboard.send_keys("<left>")                        # un-mark unnecessary information
+    time.sleep(KeyBoardDelay)
+
+# -------------------------------------------------------------------------------------------------------------------------------- #
+# Copy and transform the marked information
+keyboard.send_keys("<ctrl>+c")                          # copy the address data
+time.sleep(ClipBoardActionDelay)
+AddressData = clipboard.get_clipboard()                 # store the address data
+time.sleep(ClipBoardActionDelay)
+AddressList = re.split('\n|\t', AddressData)            # split the data after <tab>
+
+# Delete all unnecessary items --------------------------------------------------------------------------------------------------- #
+#    del AddressList[0]
+#    del AddressList[0]
+
+# Close browser / browser tab ---------------------------------------------------------------------------------------------------- #
+keyboard.send_keys("<ctrl>+w")
+time.sleep(KeyBoardDelay)
+
+# --------------------------------------------------------------------------------------------------------------------------------- #
+# Place the information from the web into the CALC table                                                                            #
+# --------------------------------------------------------------------------------------------------------------------------------- #
+
+# Activate the CALC table and go to the row where the address data starts --------------------------------------------------------- #
+window.activate(TargetWinName, switchDesktop=False, matchClass=False)
+time.sleep(1)
+keyboard.send_key("<home>")                             # go to first row in the CALC table
+time.sleep(KeyBoardDelay)
+for i in range(TargetFirstAddrRow - 1):                 # go to row where the address starts
+    keyboard.send_keys("<right>")
+    time.sleep(0.1)
+
+# Insert the address information -------------------------------------------------------------------------------------------------- #
+SendSlow(AddressList[1], KeyBoardDelay)
+keyboard.send_keys("<down>")
+SendSlow(AddressList[11], KeyBoardDelay)
+keyboard.send_keys("<down>")
+SendSlow(AddressList[12], KeyBoardDelay)
+keyboard.send_keys("<down>")
+SendSlow(AddressList[13], KeyBoardDelay)
+keyboard.send_keys("<down>")
+
+
+# Optional: Ask for each value if the information shall be inserted --------------------------------------------------------------- #
+# This will make sense if the copied data is not standardized and looking the same ALL the time.
+# Refer to adresses specified here: QRZ.com
+# They are all different. Sometimes, no address is specified or parts of the address information are missing.
+# Asking and showing the information to be inserted is very helpful in this case.
+
+#for item in AddressList:
+#    myMessage = item
+#    retCode, TextToBeInserted = dialog.input_dialog(title='Shall this text be inserted?', message=myMessage, default= item)
+#    if retCode:
+#        # do nothing, dialog had been cancelled
+#        A = 1               # a nil command
+#    else:
+#        # insert the information to CALC and go to next row
+#        time.sleep(0.5)
+#        SendSlow(item, 0.1)
+#        keyboard.send_key("<left>")
+#        keyboard.send_key("<down>")
 ```
 
 ## Health Potion Drinker
