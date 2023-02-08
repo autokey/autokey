@@ -5,6 +5,7 @@ The current list of platforms can always be found here:
 * [[Gitter]]
 * [[Google Groups]]
 * [[Reddit]]
+* [[StackExchange]]
 
 Contributed Scripts:
 * [[Advanced Scripts]]
