@@ -53,7 +53,7 @@ There's a search field on every Stack Exchange page. Aside from using this the s
 autokey
 
   all posts containing "autokey"
-  (including those about the cryptographic algorithhm)
+  (including those about the cryptographic algorithm)
 
 autokey lastactive:1y..
 
