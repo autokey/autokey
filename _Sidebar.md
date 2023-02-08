@@ -13,6 +13,7 @@
     * [Gitter](https://github.com/autokey/autokey/wiki/Gitter)
     * [Google Groups](https://github.com/autokey/autokey/wiki/Google-Groups)
     * [Reddit](https://github.com/autokey/autokey/wiki/Reddit)
+    * [Stack Exchange](https://github.com/autokey/autokey/wiki/StackExchange)
   * Development
     * [Availability In Linux](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
     * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
