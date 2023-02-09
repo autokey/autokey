@@ -31,4 +31,4 @@ window = MagicMock()
 The script should work without errors outside of AutoKey without accessing the actual API functionality.
 Once you've got it working smoothly in your external Python script, you can copy it into AutoKey, remove the Mock code, and replace it with the actual API calls.
 
-_Note that each AutoKey script is stored as a Python file in your home folder, such as `~/.config/autokey/data/My\ Phrases/` in Linux._
+_Note that by default each AutoKey script is stored as a Python file in your home folder, such as `~/.config/autokey/data/My\ Phrases/` in Linux._
