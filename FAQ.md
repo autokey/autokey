@@ -92,3 +92,5 @@ As an alternative, you can use the tray icon or the configured hotkey to show th
 <class 'Xlib.error.BadAccess'>: code = 10, resource_id = 260, sequence_number = 17, major_opcode = 33, minor_opcode = 0
 ```
 Most likely AutoKey has indeed started and these are just benign messages from python-xlib. Verify that AutoKey is running with `ps aux | grep autokey`
+
+There is some indication that the above error(s) might be caused by AutoKey attempting to setup your hotkey triggers using triggers that are already in use by your desktop or other active software.
