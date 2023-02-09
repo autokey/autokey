@@ -1,5 +1,5 @@
 ## Introduction ##
-AutoKey scripts accept most Python code. AutoKey also offers some custom API functions that can be used in scripts. For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io).
+AutoKey scripts accept most Python code. AutoKey also offers some custom API functions that can be used in scripts. For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io/autokey/api.html).
 
 ## Example scripts ##
 You can find several pages of example scripts and user-contributed scripts on the [Example Scripts](https://github.com/autokey/autokey/wiki/Example-Scripts) page as a demonstration of some of the basic and advanced capabilities of AutoKey's scripting service.
