@@ -1,6 +1,6 @@
 Autokey is X system based and the following article was pasted for reference because the original website no longer exists.
 
-Original reference: the ICCCM, (Inter-Client Communication Conventions Manual) obviously-http://www.xfree86.org/~keithp/talks/selection.ps-http://www.jwz.org/doc/x-cut-and-paste.html
+Original reference: the ICCCM, (Inter-Client Communication Conventions Manual) obviously-http://www.xfree86.org/~keithp/talks/selection.ps http://www.jwz.org/doc/x-cut-and-paste.html
 
 PRIMARY or X-PRIMARY - This is normally used by the middle mouse scroller/button to paste selected text. The act of selection, by either mouse or keyboard, copies the selected text to the PRIMARY clipboard. Clicking the middle mouse scroller/button pastes this and the data is retained in the PRIMARY for additional pasting.
 
@@ -65,3 +65,10 @@ I don't think there's a sane mental model if we collapse everything into PRIMARY
 
 A remaining somewhat odd thing about X selections is that exiting the app you did a cut/copy from removes the cut/copied data from the clipboard, since the selection protocol is asynchronous and requires the source app to provide the data at paste time. The solution here would be a standardized protocol for a "clipboard daemon" so that apps could hand off their data to a daemon when they exit. Or alternatively, you can run an application such as xclipboard which constantly "harvests" clipboard selections.
 
+Notes:
+
+This original document (http://www.jwz.org/doc/x-cut-and-paste.html) still exists and says the same thing in a slightly different way. It may be worth reading if this isn't clear.
+
+Also, as noted above, many desktops include a clipboard manager which retains the clipboard selection so that it persists when the application that loaded the selection terminates. These applications typically also retain varying amounts of clipboard history which can be reloaded into clipboard. This is usually done manually by the user.
+
+The xclip and xsel applications can also be used to manipulate the clipboard programmatically.
