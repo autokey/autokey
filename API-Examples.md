@@ -504,13 +504,14 @@ See [Press_key](#press-key)
 
 **send_key** sends a single keystroke one or more times.
 
-The script sends 'z' three times.
+**send_key** doesn't press the **Shift** key on keys that have more than one value on them.
 
-send_key sends a single keystroke. You cannot use send_key on its own to send
+**send_key** sends a single keystroke. You cannot use send_key on its own to send
 keys that are modified with Crtl, Shift, or Alt, for example. 
 
 If you want to use modifiers, use either [send_keys](#send-keys) or [press_key](#press-key).
 
+The script sends 'z' three times.
 
 ### Send key script ###
 
@@ -520,7 +521,9 @@ If you want to use modifiers, use either [send_keys](#send-keys) or [press_key](
 
 **send_keys** sends a sequence of keystrokes.
 
-The scripts sends 'Hello World!'.
+**send_keys** presses the **Shift** key on keys that have more than one value on them. Single-value keys will be lower-case even if the **Caps Lock** key is enabled. If you want to send single-value keys in upper-case, tell AutoKey to send a press of the **Shift** key before a press of the single-value key.
+
+The script sends 'Hello World!'.
 
 ### Send keys script ###
 
