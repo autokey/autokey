@@ -1,3 +1,5 @@
+# AutoKey Wiki
+
 ## About AutoKey
 In a nutshell, AutoKey is a little GUI that runs Python-3 scripts and does text expansion, especially focusing on macro and keypress functionality.
 
