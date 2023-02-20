@@ -13,8 +13,8 @@ Packaging
 ---------
 - Change apt to apt-get to satisfy issue #772.
 
-.. Bug fixes
-.. ---------
+Bug fixes
+---------
 
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
