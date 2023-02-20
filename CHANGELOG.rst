@@ -2,23 +2,20 @@
 Changelog
 =========
 
-..
-   Version Develop
-   =======
-   Bug fixes
-   ---------
-
 Version Develop
 ============================
 
-.. Important misc changes
-.. ----------------------
 Features
 ---------
-Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
+- Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
 
-.. Bug fixes
-.. ---------
+Packaging
+---------
+- Change apt to apt-get to satisfy issue #772.
+- Update Python versions to satisfy issue #773.
+
+Bug fixes
+---------
 
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases

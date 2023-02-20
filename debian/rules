@@ -1,4 +1,4 @@
 #!/usr/bin/make -f
 
 %:
-	PYBUILD_DISABLE="test/python3.8" dh $@ --with python3 --buildsystem=pybuild --disable test
+	PYBUILD_DISABLE="test/python3.11.2" dh $@ --with python3 --buildsystem=pybuild --disable test
