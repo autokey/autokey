@@ -12,6 +12,7 @@ Features
 Packaging
 ---------
 - Change apt to apt-get to satisfy issue #772.
+- Update Python versions to satisfy issue #773.
 
 Bug fixes
 ---------
