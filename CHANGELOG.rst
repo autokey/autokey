@@ -17,6 +17,10 @@ Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
 
+Packaging
+---------
+- Change apt to apt-get to satisfy issue #772.
+
 .. Bug fixes
 .. ---------
 
