@@ -4,31 +4,34 @@
 name: Python test
 
 on:
+  # workflow_dispatch:
   push:
+    # paths:
+    #  - "**.py"
     # Test on tags to ensure that the version metadata has been updated in tag as well.
     tags:
       - "*"
-    branches: [CI, master, develop, beta]
+    branches: [master, develop, beta]
   pull_request:
     branches: [master, develop, beta]
 
 jobs:
   Lint:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.6, 3.10.1]
+        python-version: ["3.7", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python-version }}"
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
@@ -37,6 +40,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
+
       - name: Install dependencies
         run: |
           sudo apt update
@@ -46,7 +50,7 @@ jobs:
           pip install -r pip-requirements.txt
 
       - name: Python Code Quality and Lint
-        uses: ricardochaves/python-lint@v1.3.0
+        uses: ricardochaves/python-lint@v1.4.0
         with:
           python-root-list: "lib/autokey tests"
           use-pylint: false
@@ -75,23 +79,23 @@ jobs:
           extra-isort-options: ""
 
   pytest:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.6, 3.10.1]
+        python-version: ["3.7", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python-version }}"
 
       - name: Cache pip
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           # This path is specific to Ubuntu
           path: ~/.cache/pip
@@ -100,6 +104,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
             ${{ runner.os }}-
+
       - name: Install dependencies
         run: |
           sudo apt update
@@ -109,11 +114,10 @@ jobs:
           pip install -r pip-requirements.txt
 
       - name: Test with tox and pytest
-        run: |
-          tox -e clean,coverage,report
+        run: tox -e clean,coverage,report
 
       - name: Upload pytest test results
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: junit/test-results-${{ matrix.python-version }}.xml
@@ -121,11 +125,10 @@ jobs:
         if: ${{ always() }}
 
       - name: Archive test coverage report
-        run: |
-          tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
+        run: tar -cvzf test_coverage_report-${{ matrix.python-version }}.tar.gz test_coverage_report_html/
 
       - name: Upload test coverage report
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: test_coverage_report-${{ matrix.python-version }}.tar.gz
           path: test_coverage_report-${{ matrix.python-version }}.tar.gz
@@ -135,18 +138,18 @@ jobs:
   test-install:
     # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.6, 3.10.1]
+        python-version: ["3.7", "3.10"]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "${{ matrix.python-version }}"
 
       - name: Install OS dependencies only
         run: |
