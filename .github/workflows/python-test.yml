@@ -15,7 +15,7 @@ on:
 jobs:
   Lint:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -77,7 +77,7 @@ jobs:
 
   pytest:
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
@@ -137,7 +137,7 @@ jobs:
   test-install:
     # Just runs basic app options to ensure pip installation has included relevant imports and put app in path.
 
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     strategy:
       matrix:
