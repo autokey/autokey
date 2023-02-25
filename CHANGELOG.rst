@@ -22,7 +22,6 @@ Bug fixes
 
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
-- Upgrade the **master** branch to work with ubuntu-latest.
 - Upgrade the **develop** branch to satisfy issue #773.
 
 Version 0.96.0-beta.9
