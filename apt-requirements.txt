@@ -14,3 +14,4 @@ python3-gi
 zenity
 kdialog
 pyqt5-dev-tools
+x11-xserver-utils
