@@ -203,7 +203,7 @@ setup(
             },
     test_suite="pytest",
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 0.96.0',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
