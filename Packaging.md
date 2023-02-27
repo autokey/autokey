@@ -61,6 +61,7 @@ Also note that `dpkg-buildpackage` will want to GPG-sign the package using the c
 # Preparing a new release (for maintainers)
 Before publishing a new release do:
 - Draft a new Release on the GitHub page. You can use this unpublished draft to draft the new changelog of the to-be released verion
+- Update version string in ['setup.py`](https://github.com/autokey/autokey/blob/master/setup.py)
 - Update version string in [`lib/autokey/common.py`](https://github.com/autokey/autokey/blob/master/lib/autokey/common.py)
 - Update the [CHANGELOG.rst](https://github.com/autokey/autokey/blob/master/CHANGELOG.rst)
 - Update the [Debian changelog](https://github.com/autokey/autokey/blob/master/debian/changelog)
