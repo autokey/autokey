@@ -9,6 +9,7 @@ Important misc changes
 ----------------------
 
 - Update Development Status in setup.py to 0.96.0.
+- Fix visibility of code block in CONTRIBUTORS.rst.
 
 Features
 ---------
