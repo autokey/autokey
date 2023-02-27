@@ -2,17 +2,14 @@
 Changelog
 =========
 
-..
-   Version Develop
-   =======
-   Bug fixes
-   ---------
-
 Version Develop
 ============================
 
-.. Important misc changes
-.. ----------------------
+Important misc changes
+----------------------
+
+- Update Development Status in setup.py to 0.96.0.
+
 Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
