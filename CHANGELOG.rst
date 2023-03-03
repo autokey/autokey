@@ -11,8 +11,11 @@ Changelog
 Version Develop
 ============================
 
-.. Important misc changes
-.. ----------------------
+Important misc changes
+----------------------
+
+- Change all instances of **sudo apt** to **sudo apt-get**.
+
 Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
