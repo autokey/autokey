@@ -1,7 +1,7 @@
 #!/bin/sh
 
 [ -f debian/build_requirements.txt ] && \
-  cat debian/build_requirements.txt | xargs sudo apt install -y
+  cat debian/build_requirements.txt | xargs sudo apt-get install -y
 
 VERSION=$(git describe --tags --abbrev=0 --match "v*.*.*")
 # Strip leading 'v' because that is invalid as a debian version number
