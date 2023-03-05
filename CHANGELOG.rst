@@ -14,6 +14,7 @@ Important misc changes
 - Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
 - This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
 - Add two sections to the issue template.
+- Change all **sudo apt** references in **master** to **sudo apt-get** to satisfy part of issue #772.
 
 Features
 ---------
