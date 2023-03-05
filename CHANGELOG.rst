@@ -12,6 +12,14 @@ Bug fixes
 
 - Fix crash in qt macro recording window.
 
+Important Misc Changes
+----------------------
+- Format and comment python-test.yml.
+- Update Python lowest- and highest-supported versions for ubuntu-latest.
+- Update all actions to current version major for Dependabot.
+- Update all action warnings with current release versions.
+- Update apt requirements for ubuntu-latest.
+
 Version 0.96.0-beta.10
 ============================
 
