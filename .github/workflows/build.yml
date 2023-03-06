@@ -38,8 +38,8 @@ jobs:
           ${{ runner.os }}-
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install $(cat apt-requirements.txt)
+        sudo apt-get update
+        sudo apt-get install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
         pip install flake8 pytest pytest-cov wheel
         pip install -r pip-requirements.txt
@@ -85,8 +85,8 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt update
-        sudo apt install $(cat apt-requirements.txt)
+        sudo apt-get update
+        sudo apt-get install $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
         pip install build
 

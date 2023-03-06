@@ -43,8 +43,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install $(cat apt-requirements.txt)
+          sudo apt-get update
+          sudo apt-get install $(cat apt-requirements.txt)
           python -m pip install --upgrade pip
           pip install flake8 wheel
           pip install -r pip-requirements.txt
@@ -107,8 +107,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt update
-          sudo apt install $(cat apt-requirements.txt)
+          sudo apt-get update
+          sudo apt-get install $(cat apt-requirements.txt)
           python -m pip install --upgrade pip
           pip install flake8 tox pytest pytest-cov wheel
           pip install -r pip-requirements.txt
@@ -153,8 +153,8 @@ jobs:
 
       - name: Install OS dependencies only
         run: |
-          sudo apt update
-          sudo apt install $(cat apt-requirements.txt)
+          sudo apt-get update
+          sudo apt-get install $(cat apt-requirements.txt)
           python -m pip install --upgrade pip
           pip install dbus-python gobject pygobject PyQt5 qscintilla
 
