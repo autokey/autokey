@@ -52,7 +52,7 @@ These steps take you through the basic workflow for using GitHub in your browser
     4. Click on the name of your pull request.
     5. Scroll down to the **Pull request successfully merged and closed** section at the bottom.
     6. Click the **Delete branch** button in that section to delete the branch and keep the forked repository or, if you no longer want the forked repository, click the **settings** link in that section.
-    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repository's can be identical. To synchronize them:
+    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repositories can be identical. To synchronize them:
         1. Click the **Sync fork** button to the right of that message.
         2. Click the **Update branch** button.
 
