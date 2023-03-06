@@ -1,5 +1,3 @@
-# AutoKey GitHub Cheat Sheet
-
 ## About
 
 This file provides the steps for doing some of the tasks you may want to do when contributing to the [AutoKey project](https://github.com/autokey/autokey). The information is divided into four sections:
