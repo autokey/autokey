@@ -6,7 +6,10 @@ Finally, please read [CONTRIBUTERS.rst](https://github.com/autokey/autokey/blob/
 
 --- BlueDrink9, 2020-10-06
 
-[![Open Source Helpers](https://www.codetriage.com/autokey/autokey/badges/users.svg)](https://www.codetriage.com/autokey/autokey)
+## Help is welcome
+* One way to contribute is by signing up with CodeTriage to receive a daily email with a link to an open AutoKey issue that needs help: [![Open Source Helpers](https://www.codetriage.com/autokey/autokey/badges/users.svg)](https://www.codetriage.com/autokey/autokey)
+
+
 
 ## Basic GitHub Workflow
 
