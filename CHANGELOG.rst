@@ -19,6 +19,7 @@ Important Misc Changes
 - Update all actions to current version major for Dependabot.
 - Update all action warnings with current release versions.
 - Update apt requirements for ubuntu-latest.
+- Change all **sudo apt** references to **sudo apt-get** to satisfy part of issue #772.
 
 Version 0.96.0-beta.10
 ============================
