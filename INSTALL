@@ -15,4 +15,4 @@ Or the Qt version:
 sudo dpkg --install autokey-qt_<version>.deb autokey-common_<version>.deb
 
 After dpkg finished, run this to install any missing dependencies:
-sudo apt install -f
+sudo apt-get install -f
