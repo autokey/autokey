@@ -337,7 +337,7 @@ dialog.info_dialog("(X, Y)", x+", "+y) # create an info dialog to display the co
 
 ## Toggle a looped script
 - **Author**: Elliria
-- **Purpose**: Use a global value and two different key-presses to toggle the start and stop of a looped script.
+- **Purpose**: Use a [global value](https://github.com/autokey/autokey/wiki/Persistent-Values#global-values) and two different key-presses to toggle the start and stop of a looped script.
 - **Notes**: This can be done by writing two scripts, each with a different trigger (hotkey or abbreviation). One script sets a global value and starts a loop that checks for that value in each iteration to determine whether it should continue with the loop or not and, if it's satisfied with the global value, runs the remaining code in the loop and starts over. The other script changes the global value, which ends the loop.
 
   In this example, SCRIPT1 sets a **True** value for the global **x** value, then starts a loop that checks for the value of **x** and presses the right arrow twice and pauses for two seconds, repeating that over and over while that global **x** value remains **True**. SCRIPT2 changes the value of the global **x** variable to **False**, which immediately breaks you out of SCRIPT1's loop.
