@@ -1,6 +1,7 @@
 * [Home](https://github.com/autokey/autokey/wiki)
   * [About](https://github.com/autokey/autokey/wiki/About)
     * [Beginners' Guide](https://github.com/autokey/autokey/wiki/Beginners-Guide)
+    * [Documentation](https://github.com/autokey/autokey/wiki/Documentation)
     * [FAQ](https://github.com/autokey/autokey/wiki/FAQ)
   * Administration
     * [Installing](https://github.com/autokey/autokey/wiki/Installing)
