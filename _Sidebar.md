@@ -23,7 +23,7 @@
     * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
   * Examples
     * [Example Scripts](https://github.com/autokey/autokey/wiki/Example-Scripts)
-  * Features
+  * [Features](https://github.com/autokey/autokey/wiki/Features)
     * [Advanced Topics](https://github.com/autokey/autokey/wiki/Advanced-Topics)
     * [API](https://github.com/autokey/autokey/wiki/API-Examples)
     * [Dynamic Phrases](https://github.com/autokey/autokey/wiki/Dynamic-Phrases,-Using-Macros-as-placeholders-in-Phrases)
