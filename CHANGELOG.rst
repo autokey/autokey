@@ -15,6 +15,7 @@ Important misc changes
 - This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
 - Add two sections to the issue template.
 - Change all **sudo apt** references in **master** to **sudo apt-get** to satisfy part of issue #772.
+- Bump Python version in **autokey.spec** AND **PKG-INFO**.
 
 Features
 ---------
