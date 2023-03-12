@@ -10,6 +10,8 @@
   
 * [`pip` Installation](#pip-installation)
 
+* [Zero Installation Method](#zero-installation-method)
+
 [Dependencies](#Dependencies)
 
 [Running AutoKey](#running-autokey)
@@ -102,6 +104,29 @@ If the Python3 version of `pip` is not already installed, install `pip` using th
 The following Python3 dependencies need to be installed. If the install fails, look at your error messages - you might need to manually install one or more of the dependencies. Many dependencies are not specified in `setup.py`, so are not installed automatically.
 
 Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager whenever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present in the system installation_. This may break software relying on the presence of those plugins, for example the HPLIP software.
+
+
+
+
+
+## Zero-installation Method
+
+AutoKey can be used directly from the cloned repository. This is useful, e.g., for trying out a new version without removing a current installation.
+
+1. Start the Autokey daemon
+
+```bash
+cd lib
+# For the GTK UI (likely to work best with Gnome, e.g. Ubuntu.)
+python3 -m autokey.gtkui
+# or for the QT UI (best on KDE).
+python3 -m autokey.qtui
+# or for no UI at all, if you only want to configure autokey using the scripting API.
+```
+
+2. Show the Autokey config window on startup (if desired) by appending the `--configure` or `-c` command line switch to the end of the command.
+
+The commands accept CLI switches just like the regular installation, so `python3 -m autokey.qtui -lc` works as expected.
 
 ## Dependencies
 
