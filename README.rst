@@ -20,7 +20,7 @@ AutoKey
 
 About
 =====
-`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted at `OldAutoKey`_. Updated to run on Python 3. 
+`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted at `OldAutoKey`_. Updated to run on Python 3.
 
 **Important**: This is an X11 application and, as such, will not function correctly when Wayland is in use instead of Xorg.
 
@@ -36,36 +36,15 @@ For detailed installation instructions, please visit the `Installing`_ page. in 
 
 .. _Installing: https://github.com/autokey/autokey/wiki/Installing
 
-Zero-installation Method
-++++++++++++++++++++++++
-
-AutoKey can also be used directly from the cloned repository. This is useful, e.g., for trying
-out a new version without removing a current installation.
-
-1. Start the Autokey daemon
-
-.. code:: sh
-
-   cd lib
-   # For the GTK UI (likely to work best with Gnome, e.g. Ubuntu.)
-   python3 -m autokey.gtkui
-   # or for the QT UI (best on KDE).
-   python3 -m autokey.qtui
-   # or for no UI at all, if you only want to configure autokey using the scripting API.
-
-2. Show the Autokey config window on startup (if desired) by appending the ``--configure`` or ``-c`` command line switch to the end of the command.
-
-The commands accept CLI switches just like the regular installation, so ``python3 -m autokey.qtui -lc`` works as expected.
-
 Documentation
 =============
-Documentation is available for `new features`_. For older features, please refer to the original AutoKey `scripting API`_, `wiki`_, and `Stack Overflow`_.
-
-Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `wiki`_.
+`Documentation`_ is available for `new features`_. For older features, please refer to the original AutoKey `scripting API`_, `Features wiki page`_ in the wiki, and `Stack Overflow`_. Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `Example Scripts wiki page`_.
 
 .. _scripting API: https://autokey.github.io/index.html
+.. _Documentation: https://autokey.github.io/autokey/api.html
 .. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
-.. _wiki: https://github.com/autokey/autokey/wiki
+.. _Example Scripts wiki page: https://github.com/autokey/autokey/wiki/Example-Scripts
+.. _Features wiki page: https://github.com/autokey/autokey/wiki/Features
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _new features: https://github.com/autokey/autokey/blob/develop/new_features.rst
 
@@ -96,18 +75,9 @@ Bug reports are welcome. Please use the `GitHub Issue Tracker`_ for bug reports.
 Contributing or modifying the source
 ====================================
 
-Pull requests are welcome. If you wish to modify the source code (and especially if you wish to contribute to the code here), useful tips can be found in the `CONTRIBUTORS.rst`_ file.
-
-AutoKey also participates in `CodeTriage`_, where members can sign up to receive a daily email with a link to an open AutoKey issue that needs help.
+Pull requests are welcome from anyone who would like to modify or contribute to the source code. Useful tips for working with and testing the code can be found in the `CONTRIBUTORS.rst`_ file. AutoKey also participates in `CodeTriage`_, where members can sign up to receive a periodic email with a link to an open AutoKey issue that needs help.
 
 .. _CodeTriage: https://www.codetriage.com/autokey/autokey
-.. _CONTRIBUTORS.rst: https://github.com/autokey/autokey/blob/develop/CONTRIBUTORS.rst
-
-Running the unit tests
-======================
-
-See the `CONTRIBUTORS.rst`_ file for instructions.
-
 .. _CONTRIBUTORS.rst: https://github.com/autokey/autokey/blob/develop/CONTRIBUTORS.rst
 
 Changelog
@@ -118,6 +88,7 @@ __ https://github.com/autokey/autokey/blob/develop/CHANGELOG.rst
 
 License
 =======
-`GNU GPL v3.`_ See the LICENSE file alongside this README file for a plain text copy of the license text.
+AutoKey uses the `GNU GPL v3`_. See the `LICENSE`_ file for a plain text copy of the license.
 
-.. _GNU GPL v3.: https://www.gnu.org/licenses/gpl.html
+.. _GNU GPL v3: https://www.gnu.org/licenses/gpl-3.0.html
+.. _LICENSE: https://github.com/autokey/autokey/blob/master/LICENSE
