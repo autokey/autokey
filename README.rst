@@ -20,43 +20,41 @@ AutoKey
 
 About
 =====
-`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted at `OldAutoKey`_. Updated to run on Python 3.
+`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted on `Google`_, has been updated to run on Python 3.
 
 **Important**: This is an X11 application and, as such, will not function correctly when Wayland is in use instead of Xorg.
 
 .. _AutoKey: https://github.com/autokey/autokey
-.. _OldAutoKey: https://code.google.com/archive/p/autokey/
+.. _Google: https://code.google.com/archive/p/autokey/
 
 Installation
 ============
 
-**Important**: Please remove previous installations of both AutoKey and AutoKey-py3 fully before installing!
+**Important**: Please remove previous installations of AutoKey fully before installing!
 
-For detailed installation instructions, please visit the `Installing`_ page. in our wiki.
+For detailed installation instructions, please visit the `Installing`_ page in our wiki.
 
 .. _Installing: https://github.com/autokey/autokey/wiki/Installing
 
 Documentation
 =============
-`Documentation`_ is available for `new features`_. For older features, please refer to the original AutoKey `scripting API`_, `Features wiki page`_ in the wiki, and `Stack Overflow`_. Examples of AutoKey scripts can be found by `searching GitHub`_ and reading AutoKey's `Example Scripts wiki page`_.
+AutoKey documentation is available `here <https://autokey.github.io/autokey/index.html>`__ and, for versions prior to 0.96.0, `here <https://autokey.github.io/index.html>`__. Example code and explanations for how AutoKey works can be found in our `wiki`_ and, in particular, on the `Features`_ and `Example Scripts`_ pages. Additional information can be found by searching `Stack Overflow`_ and `GitHub`_.
 
-.. _scripting API: https://autokey.github.io/index.html
-.. _Documentation: https://autokey.github.io/autokey/api.html
-.. _searching GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
-.. _Example Scripts wiki page: https://github.com/autokey/autokey/wiki/Example-Scripts
-.. _Features wiki page: https://github.com/autokey/autokey/wiki/Features
+.. _wiki: https://github.com/autokey/autokey/wiki
+.. _Features: https://github.com/autokey/autokey/wiki/Features
+.. _Example Scripts: https://github.com/autokey/autokey/wiki/Example-Scripts
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
-.. _new features: https://github.com/autokey/autokey/blob/develop/new_features.rst
+.. _GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
 
 Support
 =======
 
-Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, `StackOverflow`_, on `IRC`_ (#autokey on `Libera.Chat`_), or `Gitter`_ web-based chat.
+Please do not request support on the issue tracker. Instead, head over to the autokey-users `Google Groups`_ forum, `Gitter`_ web-based chat, on `IRC`_ (#autokey on `Libera.Chat`_), or `Stack Overflow`_.
 
-We'd appreciate it if you take a look at `Troubleshooting`_ wiki page before posting. By providing as much information as you can, you'll have a much better chance of getting a good answer in less time.
+We'd appreciate it if you take a look at our `Troubleshooting`_ wiki page before posting. You'll be more likely to get a good answer quickly by providing as much information as you can.
 
 .. _Google Groups: https://groups.google.com/forum/#!forum/autokey-users
-.. _StackOverflow: https://stackoverflow.com/questions/tagged/autokey
+.. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _IRC: https://web.libera.chat/#autokey
 .. _Libera.Chat: https://libera.chat/guides/
 .. _Gitter: https://gitter.im/autokey/autokey
@@ -64,13 +62,17 @@ We'd appreciate it if you take a look at `Troubleshooting`_ wiki page before pos
 
 Bug reports
 ===========
-Bug reports are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please test against the latest ``git HEAD`` and make sure to include as much information as possible to expedite troubleshooting and resolution. For example:
+Bug reports are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please make sure to include as much information as possible to expedite troubleshooting and resolution.
 
-* **Required:** How to reproduce the issue you are experiencing
-* Python tracebacks, if any
-* Verbose logging information obtained by starting the front-end (``autokey-gtk`` or ``autokey-qt``) from terminal with the ``--verbose`` option.
+Here are some possible examples of the type of information you might need to provide:
+
+* How to reproduce the issue you are experiencing.
+* `Python tracebacks`_, if applicable.
+* `Verbose logging information`_ obtained by starting the ``autokey-gtk`` or ``autokey-qt`` front end from a terminal window with the ``--verbose`` option.
 
 .. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
+.. _Python tracebacks: https://www.coursera.org/tutorials/python-traceback
+.. _Verbose logging information: https://github.com/autokey/autokey/wiki/Troubleshooting#feature-x-is-not-working-correctly-for-me-how-do-i-post-useful-debugging-information-on-the-list
 
 Contributing or modifying the source
 ====================================
@@ -82,9 +84,9 @@ Pull requests are welcome from anyone who would like to modify or contribute to 
 
 Changelog
 =========
-The changelog is located here__.
+Our `changelog`_ is the best source of information for what's new and fixed in each release.
 
-__ https://github.com/autokey/autokey/blob/develop/CHANGELOG.rst
+.. _changelog: https://github.com/autokey/autokey/blob/develop/CHANGELOG.rst
 
 License
 =======
