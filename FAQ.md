@@ -78,7 +78,7 @@ you didn't, making sure to use the "Enhancement" label so the developers will kn
 AutoKey is published under the [GNU GPL v3](https://www.gnu.org/licenses/gpl-3.0.en.html) license.
 
 ### Where is my configuration information stored and can I copy it to other machines?
-By default AutoKey stores your settings in the ```~/.config/autokey``` folder. You can create AutoKey folders anywhere you wish, as well, by using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favorite file manager or synchronized using a program such as Dropbox. Please remember to also copy the hidden files, as each script and phrase has one.
+By default AutoKey stores your settings in the ```~/.config/autokey``` folder. You can create AutoKey folders anywhere you wish, as well, by using "Create New Top-Level Folder". Folders containing phrases and scripts can be freely copied between machines using your favorite file manager or synchronized using a program such as Dropbox. (For verions prior to 0.96.0) Please remember to also copy the hidden files, as each script and phrase has one.
 
 ### Why does nothing happen when I start AutoKey?
 AutoKey actually starts and is usable. When starting AutoKey without any command line arguments, it starts in the background without opening any windows. It also puts an icon with an **A** on it in your tray.
