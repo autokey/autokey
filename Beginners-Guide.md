@@ -24,6 +24,7 @@ Scripts: my_script.py / .my_script.json
 
 Phrases: my_phrase.txt / .my_phrase.json
 
+(The following note applies to AutoKey versions prior to 0.96.0)
 Because the metadata file names start with a dot, they are hidden files
 by default and some copy commands like cp will miss them by default.
 rsync will get them. (Credits to Joe)
