@@ -15,6 +15,6 @@ Another feature of AutoKey is that two or more scripts/phrases can have the same
 
 So, for example, a utility for processing multiple variations of print dialogs from different applications could be coded as several separate scripts - one for each variation - rather than as one complex script with conditional code for each variation - with all of them triggered by pressing Ctrl+P.
 
-NOTE: Assuring that these filters are mutually exclusive is the responsibility of the user. AutoKey only detects and rejects identical filters for the same trigger. (It turns out that detecting that two regexes are mutually exclusive is a very difficult problem. It is not clear if it is even generally solvable.)
+NOTE: Assuring that these filters are mutually exclusive is the responsibility of the user. AutoKey only detects and rejects identical filters for the same trigger. (It turns out that detecting that two regexes are mutually exclusive is not generally solvable. See #365 for an enhancement request with a possible wokaround for this.)
 
 If two different actions using the same trigger have different non-mutually exclusive filters, the behavior is undefined, but the first match found (in whatever order the search is done) is probably the one which will succeed.
