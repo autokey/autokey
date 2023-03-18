@@ -137,6 +137,6 @@ subprocess.run(["xdotool", "mousedown", "1"])
 
 ## See also
 * There are some mouse examples that inspired the examples above on the "API Examples" page in the AutoKey wiki: [https://github.com/autokey/autokey/wiki/API-Examples#mouse](https://github.com/autokey/autokey/wiki/API-Examples#mouse)
-* There are also details on this GitHub page under the mouse class: [https://autokey.github.io/](https://autokey.github.io/)
+* There are also details on this GitHub page under the mouse class: [https://autokey.github.io/](https://autokey.github.io/api/mouse.html)
 
 ************************************************************************
