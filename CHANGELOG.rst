@@ -16,6 +16,7 @@ Important misc changes
 
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
+- Update documentation links in README.rst to point to new locations.
 
 Features
 ---------
