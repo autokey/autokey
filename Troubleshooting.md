@@ -51,7 +51,7 @@ This can be helpful when AutoKey runs without crashing, a trigger was used, and 
 8. If it doesn't make sense or if you have questions, select all of the output and copy it.
 
 ## Python traceback
-This can be helpful when something is wrong with your AutoKey script, causing an exception to be shown in an AutoKey error message.
+This can be helpful when something is wrong with your AutoKey script, causing an exception to be shown in an AutoKey error message in the form of a [Python traceback](https://www.coursera.org/tutorials/python-traceback):
 
   1. When there's something wrong with your AutoKey script, AutoKey will display an error pop-up.
   2. View the error by right-clicking the AutoKey icon in the system tray and choosing **View script error**. If it contains one or more Python tracebacks, they will look something like this example of a Python traceback in which the nonexistent **foo** function was called:
