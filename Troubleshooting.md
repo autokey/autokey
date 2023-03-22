@@ -33,7 +33,7 @@ This can be helpful when AutoKey runs without crashing, a trigger was used, and 
 
 1. Close AutoKey if it's currently running.
 2. Open a terminal window.
-3. Make sure the AutoKey process has ended by typing this command into a terminal window and pressing the **Enter** key:
+3. Make sure the AutoKey process has ended by typing this command into the terminal window and pressing the **Enter** key:
    ```python
    pkill autokey
    ```
