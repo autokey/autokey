@@ -1,6 +1,73 @@
-# Introduction
+## Contents 
 
-This page contains solutions to problems frequently experienced by users of AutoKey.
+* [Getting help with AutoKey](#getting-help-with-autokey)
+  * [AutoKey error message](#autokey-error-message)
+  * [AutoKey traceback](#autokey-traceback)
+  * [Python traceback](#python-traceback)
+* [Troubleshooting FAQ](#troubleshooting-faq)
+
+# Getting help with AutoKey
+
+When AutoKey does something unfortunate or unexpected, you can sometimes figure out what went wrong by examining the error message that AutoKey created. If that doesn't solve the problem, you can get additional help in one or more of these ways:
+
+* By posting a message in [AutoKey's Google Groups forum](https://groups.google.com/forum/?hl=en#!forum/autokey-users).
+* By posting a message in [AutoKey's Gitter community platform](https://app.gitter.im/#/room/#autokey_autokey:gitter.im).
+* By creating a new issue or participating in an existing issue in [AutoKey's issue tracker](https://github.com/autokey/autokey/issues).
+
+You'll want to specify the operating system you're using, the AutoKey version you're using, exactly what you did, a description of what did or didn't happen, a description of what you expected to happen, and a copy of your script or phrase. In some cases, it can also be helpful for you to provide the [AutoKey error message](#autokey-error-message) or an [AutoKey traceback](#autokey-traceback) or a [Python traceback](#python-traceback) by pasting the contents of any of those into various places in our AutoKey community in a variety of ways:
+
+* as is into [a Google Groups message](https://groups.google.com/forum/?hl=en#!forum/autokey-users)
+* as is into [the text-box that asks for the output of the AutoKey command in a new AutoKey issue](https://github.com/autokey/autokey/issues)
+* with a row of triple backticks (\```) above and below it in [a comment text-box beneath an existing AutoKey issue](https://github.com/autokey/autokey/issues) or [a Gitter message](https://app.gitter.im/#/room/#autokey_autokey:gitter.im)
+
+## AutoKey error message
+This can be helpful when something is wrong with your AutoKey script.
+
+1. When there's something wrong with your AutoKey script, AutoKey will display an error pop-up.
+2. View the error by right-clicking the AutoKey icon in the system tray and choosing **View script error**. The error message will sometimes contain one or more Python tracebacks.
+3. Examine the information in the AutoKey error message. It may show you what went wrong.
+4. If it doesn't make sense or if you have questions, select all of the error message and copy it.
+
+## AutoKey traceback
+This can be helpful when AutoKey runs without crashing, a trigger was used, and the expected event either didn't occur or something other than the expected result occurred. This information can be obtained by starting the `autokey-gtk` or `autokey-qt` front-end from a terminal window with the --verbose option:
+
+1. Close AutoKey if it's currently running.
+2. Open a terminal window.
+3. Make sure the AutoKey process has ended by typing this command into a terminal window and pressing the **Enter** key:
+   ```python
+   pkill autokey
+   ```
+4. Start AutoKey GTK or QT in verbose mode by typing one of these commands and pressing the **Enter** key:
+   ```
+   autokey-gtk --verbose
+   ```
+   or:
+   ```
+   autokey-qt --verbose
+   ```
+5. Using AutoKey, repeat the action that caused the problem. Note that this will produce a log in the terminal window of what AutoKey is doing.
+6. Close AutoKey.
+7. Examine the output inside of the terminal window. It may show you what went wrong.
+8. If it doesn't make sense or if you have questions, select all of the output and copy it.
+
+## Python traceback
+This can be helpful when something is wrong with your AutoKey script, causing an exception to be shown in an AutoKey error message.
+
+  1. When there's something wrong with your AutoKey script, AutoKey will display an error pop-up.
+  2. View the error by right-clicking the AutoKey icon in the system tray and choosing **View script error**. If it contains one or more Python tracebacks, they will look something like this example of a Python traceback in which the nonexistent **foo** function was called:
+
+     ```python
+     Traceback (most recent call last):
+       File "/home/john_doe/Documents/example.py", line 28, in <module>
+         foo()
+     NameError: name 'foo' is not defined
+     ```
+  3. Examine the information in the traceback(s). It/they may show you what went wrong.
+  4. If it doesn't make sense or if you have questions, select all of the error message and copy it.
+
+# Troubleshooting FAQ
+
+This section contains frequently asked questions about solutions to problems experienced by AutoKey users.
 
 ## I have remapped my Caps-lock key to something else (like `[Ctrl]`). My defined abbreviations don’t work or the output case is inverted after pressing the Caps-lock key. How do I fix this?
 
