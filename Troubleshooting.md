@@ -29,7 +29,7 @@ This can be helpful when something is wrong with your AutoKey script.
 4. If it doesn't make sense or if you have questions, select all of the error message and copy it.
 
 ## AutoKey traceback
-This can be helpful when AutoKey runs without crashing, a trigger was used, and the expected event either didn't occur or something other than the expected result occurred. This information can be obtained by starting the `autokey-gtk` or `autokey-qt` front-end from a terminal window with the --verbose option:
+This can be helpful when AutoKey runs without crashing, a trigger was used, and the expected event either didn't occur or something other than the expected result occurred. This information can be obtained by starting the `autokey-gtk` or `autokey-qt` front-end from a terminal window with the `--verbose` option:
 
 1. Close AutoKey if it's currently running.
 2. Open a terminal window.
