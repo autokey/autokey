@@ -71,13 +71,13 @@ Here are some possible examples of the types of information you might need to pr
 * An `AutoKey traceback`_ is helpful when AutoKey runs without crashing, a trigger was used, and the expected event either didn't occur or something other than the expected result occurred.
 * A `Python traceback`_ is helpful when something is wrong with your AutoKey script, causing an exception to be shown in your AutoKey error message.
 
-If you're not sure your issue is a bug or you'd like help with reporting it, you can post about it first on one of the platforms used by our `Community`_ and we'll assist you.
+If you're not sure your issue is a bug or you'd like help with reporting it, you can post about it first on one of the `platforms used by our community`_ and we'll assist you.
 
 .. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
 .. _AutoKey error message: https://github.com/autokey/autokey/wiki/Troubleshooting#autokey-error-message
 .. _AutoKey traceback: https://github.com/autokey/autokey/wiki/Troubleshooting#autokey-traceback
 .. _Python traceback: https://github.com/autokey/autokey/wiki/Troubleshooting#python-traceback
-.. _Community: https://github.com/autokey/autokey/wiki/Community
+.. _platforms used by our community: https://github.com/autokey/autokey/wiki/Community
 
 Contributing or modifying the source
 ====================================
