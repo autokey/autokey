@@ -8,13 +8,12 @@
 
 # Getting help with AutoKey
 
-When AutoKey does something unfortunate or unexpected, you can sometimes figure out what went wrong by examining the error message that AutoKey created. If that doesn't solve the problem, you can get additional help in one or more of these ways:
+When AutoKey does something unfortunate or unexpected, you can sometimes figure out what went wrong by examining the error message that AutoKey created. If that doesn't solve the problem, you can get additional help in either or both of these ways:
 
-* By posting a message in [AutoKey's Google Groups forum](https://groups.google.com/forum/?hl=en#!forum/autokey-users).
-* By posting a message in [AutoKey's Gitter community platform](https://app.gitter.im/#/room/#autokey_autokey:gitter.im).
 * By creating a new issue or participating in an existing issue in [AutoKey's issue tracker](https://github.com/autokey/autokey/issues).
+* By posting a message about it on one of the platforms used by our [Community](https://github.com/autokey/autokey/wiki/Community).
 
-You'll want to specify the operating system you're using, the AutoKey version you're using, exactly what you did, a description of what did or didn't happen, a description of what you expected to happen, and a copy of your script or phrase. In some cases, it can also be helpful for you to provide the [AutoKey error message](#autokey-error-message) or an [AutoKey traceback](#autokey-traceback) or a [Python traceback](#python-traceback) by pasting the contents of any of those into various places in our AutoKey community in a variety of ways:
+In either case, you'll want to specify the operating system you're using, the AutoKey version you're using, exactly what you did, a description of what did or didn't happen, a description of what you expected to happen, and a copy of your script or phrase. In some cases, it can also be helpful for you to provide the [AutoKey error message](#autokey-error-message) or an [AutoKey traceback](#autokey-traceback) or a [Python traceback](#python-traceback) by pasting the contents of any of those into various places in our AutoKey community in a variety of ways:
 
 * as is into [a Google Groups message](https://groups.google.com/forum/?hl=en#!forum/autokey-users)
 * as is into [the text-box that asks for the output of the AutoKey command in a new AutoKey issue](https://github.com/autokey/autokey/issues)
