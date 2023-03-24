@@ -62,17 +62,22 @@ We'd appreciate it if you take a look at our `Troubleshooting`_ wiki page before
 
 Bug reports
 ===========
-Bug reports are welcome. Please use the `GitHub Issue Tracker`_ for bug reports. When reporting a suspected bug, please make sure to include as much information as possible to expedite troubleshooting and resolution.
+Bug reports are welcome. Please use the `GitHub Issue Tracker`_ to report bugs. When reporting a suspected bug, please make sure to include as much information as possible to expedite troubleshooting and resolution.
 
-Here are some possible examples of the type of information you might need to provide:
+Here are some possible examples of the types of information you might need to provide:
 
-* How to reproduce the issue you are experiencing.
-* `Python tracebacks`_, if applicable.
-* `Verbose logging information`_ obtained by starting the ``autokey-gtk`` or ``autokey-qt`` front end from a terminal window with the ``--verbose`` option.
+* Details on how to reproduce the issue you are experiencing are always helpful.
+* An `AutoKey error message`_ is helpful when something is wrong with your AutoKey script.
+* An `AutoKey traceback`_ is helpful when AutoKey runs without crashing, a trigger was used, and the expected event either didn't occur or something other than the expected result occurred.
+* A `Python traceback`_ is helpful when something is wrong with your AutoKey script, causing an exception to be shown in your AutoKey error message.
+
+If you're not sure your issue is a bug or you'd like help with reporting it, you can post about it first on one of the platforms used by our `Community`_ and we'll assist you.
 
 .. _GitHub Issue Tracker: https://github.com/autokey/autokey/issues
-.. _Python tracebacks: https://www.coursera.org/tutorials/python-traceback
-.. _Verbose logging information: https://github.com/autokey/autokey/wiki/Troubleshooting#feature-x-is-not-working-correctly-for-me-how-do-i-post-useful-debugging-information-on-the-list
+.. _AutoKey error message: https://github.com/autokey/autokey/wiki/Troubleshooting#autokey-error-message
+.. _AutoKey traceback: https://github.com/autokey/autokey/wiki/Troubleshooting#autokey-traceback
+.. _Python traceback: https://github.com/autokey/autokey/wiki/Troubleshooting#python-traceback
+.. _Community: https://github.com/autokey/autokey/wiki/Community
 
 Contributing or modifying the source
 ====================================
