@@ -2,12 +2,6 @@
 Changelog
 =========
 
-..
-   Version Develop
-   =======
-   Bug fixes
-   ---------
-
 Version Develop
 ============================
 
@@ -16,6 +10,8 @@ Important misc changes
 
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
+- Various updates to the **README.rst** file to satisfy issue #681.
+- Various updates to the **README.rst** file to satisfy #pullrequestreview-1336342159.
 
 Features
 ---------
