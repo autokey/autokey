@@ -26,6 +26,7 @@ from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from autokey.model.button import Button
 from .constants import X_RECORD_INTERFACE
 
 CURRENT_INTERFACE = None
@@ -217,7 +218,7 @@ class IoMediator(threading.Thread):
         """
         if len(string) <= 0:
             return
-        logger.debug("Sending string via clipboard: " + string)
+        logger.debug("Sending string via clipboard: {}, PasteCommand: {}".format(string, paste_command))
         if paste_command in (None, SendMode.SELECTION):
             self.send_string_selection(string)
         else:
@@ -336,11 +337,11 @@ class IoMediator(threading.Thread):
             logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
         self.clipboard.text = string
         try:
-            self.interface.send_string(paste_command.value)
+            self.send_string(paste_command.value)
         finally:
             self.interface.ungrab_keyboard()
         # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
-        self.__enqueue(self.__restore_clipboard_text, backup)
+        self.__restore_clipboard_text(backup)
 
     def __restore_clipboard_text(self, backup: str):
         """Restore the clipboard content."""
@@ -355,8 +356,9 @@ class IoMediator(threading.Thread):
         if backup is None:
             logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
-        self.__enqueue(self.interface.click_middle_mouse_button)
-        self.__enqueue(self.__restore_clipboard_selection, backup)
+        pos = self.interface.get_mouse_position()
+        self.interface.send_mouse_click(pos[0], pos[1], Button.MIDDLE, False)
+        self.__restore_clipboard_selection(backup)
 
     def __restore_clipboard_selection(self, backup: str):
         """Restore the selection clipboard content."""
