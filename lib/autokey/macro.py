@@ -5,6 +5,8 @@ import shlex
 from autokey.model.key import Key, KEY_SPLIT_RE
 from autokey import common
 
+import autokey.scripting
+
 
 if common.USED_UI_TYPE == "QT":
     from PyQt5.QtWidgets import QAction
@@ -83,6 +85,7 @@ class MacroManager:
         self.macros.append(FileContentsMacro())
         self.macros.append(CursorMacro())
         self.macros.append(SystemMacro(engine))
+        self.macros.append(ClipboardMacro())
 
     def get_menu(self, callback, menu=None):
         if common.USED_UI_TYPE == "QT":
@@ -180,6 +183,9 @@ class AbstractMacro:
 
 
 class CursorMacro(AbstractMacro):
+    """
+    C{<cursor>} - Positions the text cursor at the indicated text position. There may only be one <cursor> macro in a snippet.
+    """
 
     ID = "cursor"
     TITLE = _("Position cursor")
@@ -196,6 +202,28 @@ class CursorMacro(AbstractMacro):
 
 
 class ScriptMacro(AbstractMacro):
+    """
+    C{<script>} - Runs an autokey script. The script's stdout is inserted into the snippet.
+
+    As of 0.96.0, Scripts outside of autokey can be executed by passing their absolute path (including ~, which is expanded to $HOME) to name= instead of a description.
+
+    Currently, the args argument expects a string containing comma separated values (CSV). 
+    The data is split at the , signs and is available as a list containing strings using the engine.get_macro_arguments() function. 
+    If there is no comma in the input data, the resulting list will contain a single item. Currently, the args argument is required. 
+    So if you don't need it, just feed in some dummy value. This behaviour might be improved in the future.
+
+    Running a Script using the script macro poses some limitations:
+
+    The keyboard built-in cannot be used. It is available and can in theory be used to type, but actually using it will break the Phrase processing.
+        * Because all scripts are executed even before the trigger abbreviation is removed and the whole phrase is pasted/typed in one go, scripts can't be used to type anywhere in the phrase text.
+    Simple rule: Do nothing that alters the current system GUI state.
+        * Do not use keyboard to type/send keys.
+        * Do not use mouse to do mouse clicks anywhere.
+        * Do not use system.exec_command to execute GUI manipulation/automation tools, like xdotool.
+
+    You may use the script to alter background system state, like starting or stopping system services, but simply restricting yourself to reading data in will yield the best results.
+    """
+
 
     ID = "script"
     TITLE = _("Run script")
@@ -214,6 +242,13 @@ class ScriptMacro(AbstractMacro):
 
 
 class SystemMacro(AbstractMacro):
+    """
+    C{<system>} - Runs a system command. The command's stdout is inserted into the snippet.
+
+    C{System.exec_command(args["command"], getOutput=True)} is used to run the command.
+
+    Example: C{<system command="ls -l">}
+    """
 
     ID = "system"
     TITLE = _("Run system command")
@@ -234,6 +269,15 @@ class SystemMacro(AbstractMacro):
 
 
 class DateMacro(AbstractMacro):
+    """
+    C{<date>} - Inserts the current date and time. Has a C{format} parameter that allows you to set the format of the date/time string.
+
+    Uses Python3's datetime.datetime.strftime() to format the date/time string.
+
+    See https://docs.python.org/3/library/datetime.html#strftime-strptime-behavior for a full list of options.
+
+    Example: C{<date format="%Y-%m-%d %H:%M:%S">}
+    """
 
     ID = "date"
     TITLE = _("Insert date")
@@ -249,6 +293,16 @@ class DateMacro(AbstractMacro):
 
 
 class FileContentsMacro(AbstractMacro):
+    """
+    C{<file>} - Inserts the contents of a file. Has a C{name} parameter that allows you to set the name of the file.
+
+    Reads a file from disk and inserts the file content into the phrase. The name parameter takes an absolute file path.
+    The full file content is read into the system memory and then placed into the phrase, so restrict yourself to small text files.
+    When using a 1MB large file, autokey will need about one million key strokes to type the content.
+    Typically, text editors dislike raw binary data, so only use text files.
+
+    This can be used to include another Phrase by specifying its full file path and treating it like an ordinary file.
+    """
 
     ID = "file"
     TITLE = _("Insert file contents")
@@ -261,4 +315,22 @@ class FileContentsMacro(AbstractMacro):
         with open(name, "r") as inputFile:
             sections[i] = inputFile.read()
 
+        return sections
+
+class ClipboardMacro(AbstractMacro):
+    """
+    C{<clipboard>} - Inserts the contents of the clipboard.
+    """
+
+
+    ID = "clipboard"
+    TITLE = _("Insert clipboard contents")
+    ARGS = []
+
+    def __init__(self):
+        self.clipboard = autokey.scripting.Clipboard()
+
+    def do_process(self, sections, i):
+        macro_type, macro = self._extract_macro(sections[i])
+        sections[i] = self.clipboard.get_clipboard()
         return sections
