@@ -37,8 +37,9 @@ This page contains user-contributed scripts to demonstrate the **advanced** capa
 Feel free to use the scripts presented for your own purposes. However, if you significantly modify them or come up with something new as a result of using them, please post them in [one of our community platforms](https://github.com/autokey/autokey/wiki/Community) so one of the wiki moderators can add them here for all to benefit.
 
 Note:
-Abreviations only make sense if one remebers them. A good scheme is an abreviation followed by an "#". This will make sure, that the substitution does NOT take place, when the abrevistion is typed a part of a word.
-Example: Use "dp#" to get a calender to pick a date (mnemonic bridge: **d**ate **p**icker")
+
+Abbreviations only make sense if one remembers them. A good scheme is an abbreviation followed by an "#". This will make sure, that the substitution does NOT take place, when the abbreviation is typed a part of a word. If one has to think about what the abreviation was longer than it would take to type the full text the abbreviation is obsolet cause taking consuming time than typing directly. 
+Example: Use "dp#" to get a calendar to pick a date (mnemonic bridge: **d**ate **p**icker)
 
 All submitted scripts are publicly licensed as [GNU GPL v3](http://www.gnu.org/licenses/gpl.html)
 
