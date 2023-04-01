@@ -14,7 +14,7 @@ class PatternNotFound(Exception):
     """Exception raised by functions"""
     pass
 
-from autokey.model import Button
+from autokey.model.button import Button
 
 
 def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
