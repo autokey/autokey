@@ -15,13 +15,18 @@
 
 """Class for creating Qt dialogs"""
 
-import subprocess
+import tkinter as tk
+from tkinter import messagebox, simpledialog, filedialog
+
+from tkcalendar import Calendar, DateEntry
+
 
 from autokey.scripting.common import DialogData, ColourData
 
 from autokey.scripting.abstract_dialog import AbstractDialog
 
-class QtDialog(AbstractDialog):
+
+class TkDialog(AbstractDialog):
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
 
@@ -33,19 +38,6 @@ class QtDialog(AbstractDialog):
     A note on exit codes: an exit code of 0 indicates that the user clicked OK.
     """
 
-    def _run_kdialog(self, title, args, kwargs) -> DialogData:
-        for k, v in kwargs.items():
-            args.append("--" + k)
-            args.append(v)
-
-        with subprocess.Popen(
-                ["kdialog", "--title", title] + args,
-                stdout=subprocess.PIPE,
-                universal_newlines=True) as p:
-            output = p.communicate()[0][:-1]  # type: str # Drop trailing newline
-            return_code = p.returncode
-
-        return DialogData(return_code, output)
 
     def send_notification(self, title, message, icon="autokey", timeout="10", **kwargs):
         """
@@ -58,7 +50,9 @@ class QtDialog(AbstractDialog):
         @return: A tuple containing the exit code and user input
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--title", title, "--passivepopup", message, "--icon", icon, str(timeout)], kwargs)
+        #TODO/RFC tk does not offer a notification system, should this be a window or use a different library?
+        TkNotification(title, message, icon)
+        #raise NotImplementedError
 
     def info_dialog(self, title="Information", message="", **kwargs):
         """
@@ -71,7 +65,10 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and user input
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--msgbox", message], kwargs)
+
+        messagebox.showinfo(title, message)
+
+    
 
     def input_dialog(self, title="Enter a value", message="Enter a value", default="", **kwargs):
         """
@@ -85,7 +82,15 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and user input
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--inputbox", message, default], kwargs)
+
+        result = simpledialog.askstring(title, message, initialvalue=default)
+        if result is not None:
+            return (1, result)
+        else:
+            return (0, "")
+        
+
+        
 
     def password_dialog(self, title="Enter password", message="Enter password", **kwargs):
         """
@@ -98,7 +103,11 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and user input
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--password", message], kwargs)
+        result = simpledialog.askstring(title, message, show="*")
+        if result is not None:
+            return (1, result)
+        else:
+            return (0, "")
 
     def combo_menu(self, options, title="Choose an option", message="Choose an option", **kwargs):
         """
@@ -112,7 +121,7 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and user choice
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--combobox", message] + options, kwargs)
+        raise NotImplementedError
 
     def list_menu(self, options, title="Choose a value", message="Choose a value", default=None, **kwargs):
         """
@@ -128,21 +137,7 @@ class QtDialog(AbstractDialog):
         @rtype: C{DialogData(int, str)}
         """
 
-        choices = []
-        optionNum = 0
-        for option in options:
-            choices.append(str(optionNum))
-            choices.append(option)
-            if option == default:
-                choices.append("on")
-            else:
-                choices.append("off")
-            optionNum += 1
-
-        return_code, result = self._run_kdialog(title, ["--radiolist", message] + choices, kwargs)
-        choice = options[int(result)]
-
-        return DialogData(return_code, choice)
+        raise NotImplementedError
 
     def list_menu_multi(self, options, title="Choose one or more values", message="Choose one or more values",
                         defaults: list=None, **kwargs):
@@ -159,25 +154,7 @@ class QtDialog(AbstractDialog):
         @rtype: C{DialogData(int, List[str])}
         """
 
-        if defaults is None:
-            defaults = []
-        choices = []
-        optionNum = 0
-        for option in options:
-            choices.append(str(optionNum))
-            choices.append(option)
-            if option in defaults:
-                choices.append("on")
-            else:
-                choices.append("off")
-            optionNum += 1
-
-        return_code, output = self._run_kdialog(title, ["--separate-output", "--checklist", message] + choices, kwargs)
-        results = output.split()
-
-        choices = [options[int(choice_index)] for choice_index in results]
-
-        return DialogData(return_code, choices)
+        raise NotImplementedError
 
     def open_file(self, title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
         """
@@ -192,10 +169,7 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and file path
         @rtype: C{DialogData(int, str)}
         """
-        if rememberAs is not None:
-            return self._run_kdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
-        else:
-            return self._run_kdialog(title, ["--getopenfilename", initialDir, fileTypes], kwargs)
+        raise NotImplementedError
 
     def save_file(self, title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs):
         """
@@ -210,10 +184,7 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and file path
         @rtype: C{DialogData(int, str)}
         """
-        if rememberAs is not None:
-            return self._run_kdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
-        else:
-            return self._run_kdialog(title, ["--getsavefilename", initialDir, fileTypes], kwargs)
+        raise NotImplementedError
 
     def choose_directory(self, title="Select Directory", initialDir="~", rememberAs=None, **kwargs):
         """
@@ -227,10 +198,7 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and chosen path
         @rtype: C{DialogData(int, str)}
         """
-        if rememberAs is not None:
-            return self._run_kdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs], kwargs)
-        else:
-            return self._run_kdialog(title, ["--getexistingdirectory", initialDir], kwargs)
+        return (0, filedialog.askdirectory(title=title, initialdir=initialDir))
 
     def choose_colour(self, title="Select Colour", **kwargs):
         """
@@ -242,11 +210,7 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and colour
         @rtype: C{DialogData(int, str)}
         """
-        return_data = self._run_kdialog(title, ["--getcolor"], kwargs)
-        if return_data.successful:
-            return DialogData(return_data.return_code, ColourData.from_html(return_data.data))
-        else:
-            return DialogData(return_data.return_code, None)
+        raise NotImplementedError
 
     def calendar(self, title="Choose a date", format_str="%Y-%m-%d", date="today", **kwargs):
         """
@@ -262,4 +226,73 @@ class QtDialog(AbstractDialog):
         @return: a tuple containing the exit code and date
         @rtype: C{DialogData(int, str)}
         """
-        return self._run_kdialog(title, ["--calendar", title], kwargs)
+        cal = TkCalendar()
+        return cal.get_date()
+
+
+class TkCalendar:
+    def __init__(self):
+        self.root = tk.Tk()
+        self.result = None
+
+        cal = Calendar(self.root, selectmode="day", date_pattern="yyyy-mm-dd")
+        cal.pack()
+
+        self.date_entry = DateEntry(self.root, width=12, background='darkblue',
+                       foreground='white', borderwidth=2, date_pattern='yyyy-mm-dd')
+        self.date_entry.pack(pady=10)
+
+        # add an "OK" button to the window
+        button_ok = tk.Button(self.root, text="OK", command=self.on_ok)
+        button_ok.pack(pady=10)
+
+        self.root.mainloop()
+
+    def on_ok(self):
+        self.result = self.date_entry.get()
+        self.root.destroy()
+
+    def get_date(self):
+        return self.result
+    
+class TkColorChooser:
+    def __init__(self):
+        pass
+
+class TkNotification:
+    def __init__(self, title="Notification", message="Notification Message", icon=None):
+        # Create the main window
+        root = tk.Tk()
+        root.title(title)
+
+        # Set the window size and position it in the center of the screen
+        #TODO handle multiple monitors?
+        width = root.winfo_screenwidth()
+        height = root.winfo_screenheight()
+        x = (width - 400) // 2
+        y = (height - 200) // 2
+        root.geometry('400x200+{}+{}'.format(x, y))
+
+        # Create a frame to hold the notification message
+        message_frame = tk.Frame(root)
+        message_frame.pack(side=tk.TOP, pady=20)
+
+        # Create a label to display the message
+        message_label = tk.Label(message_frame, text=message, font=("Helvetica", 16))
+        message_label.pack(side=tk.TOP, padx=20, pady=20)
+
+        # Create a button to close the notification
+        button = tk.Button(root, text="Close", command=root.destroy, width=10)
+        button.pack(side=tk.BOTTOM, pady=20)
+
+        # Set the background color and remove the window border
+        root.configure(background='#f0f0f0')
+        root.overrideredirect(True)
+
+        # Set the window to stay on top of other windows
+        root.lift()
+        root.attributes('-topmost', True)
+        root.after_idle(root.attributes, '-topmost', False)
+
+        # Start the main loop
+        root.mainloop()
