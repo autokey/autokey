@@ -29,6 +29,12 @@ import select
 import queue
 import subprocess
 import time
+import json
+
+from . import common
+
+import dbus
+from dbus.mainloop.glib import DBusGMainLoop
 
 import autokey.model.phrase
 if typing.TYPE_CHECKING:
@@ -37,15 +43,40 @@ import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
 
 
-# Imported to enable threading in Xlib. See module description. Not an unused import statement.
-import Xlib.threaded as xlib_threaded
+if common.USED_DISPLAY_SERVER == "x11":
 
-# Delete again, as the reference is not needed anymore after the import side-effect has done it’s work.
-# This (hopefully) also prevents automatic code cleanup software from deleting an "unused" import and re-introduce
-# issues.
-del xlib_threaded
+    # Imported to enable threading in Xlib. See module description. Not an unused import statement.
+    import Xlib.threaded as xlib_threaded
 
-from Xlib.error import ConnectionClosedError
+    # Delete again, as the reference is not needed anymore after the import side-effect has done it's work.
+    # This (hopefully) also prevents automatic code cleanup software from deleting an "unused" import and re-introduce
+    # issues.
+    del xlib_threaded
+
+    from Xlib.error import ConnectionClosedError
+
+    from Xlib import X, XK, display, error
+    try:
+        from Xlib.ext import record, xtest
+        HAS_RECORD = True
+    except ImportError:
+        HAS_RECORD = False
+
+    from Xlib.protocol import rq, event
+
+    MASK_INDEXES = [
+                (X.ShiftMapIndex, X.ShiftMask),
+                (X.ControlMapIndex, X.ControlMask),
+                (X.LockMapIndex, X.LockMask),
+                (X.Mod1MapIndex, X.Mod1Mask),
+                (X.Mod2MapIndex, X.Mod2Mask),
+                (X.Mod3MapIndex, X.Mod3Mask),
+                (X.Mod4MapIndex, X.Mod4Mask),
+                (X.Mod5MapIndex, X.Mod5Mask),
+                ]
+
+    CAPSLOCK_LEDMASK = 1<<0
+    NUMLOCK_LEDMASK = 1<<1
 
 
 from . import common
@@ -65,31 +96,8 @@ if common.USED_UI_TYPE == "GTK":
     except SyntaxError:  # pyatspi 2.26 fails when used with Python 3.7
         HAS_ATSPI = False
 
-from Xlib import X, XK, display, error
-try:
-    from Xlib.ext import record, xtest
-    HAS_RECORD = True
-except ImportError:
-    HAS_RECORD = False
-
-from Xlib.protocol import rq, event
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-
-MASK_INDEXES = [
-               (X.ShiftMapIndex, X.ShiftMask),
-               (X.ControlMapIndex, X.ControlMask),
-               (X.LockMapIndex, X.LockMask),
-               (X.Mod1MapIndex, X.Mod1Mask),
-               (X.Mod2MapIndex, X.Mod2Mask),
-               (X.Mod3MapIndex, X.Mod3Mask),
-               (X.Mod4MapIndex, X.Mod4Mask),
-               (X.Mod5MapIndex, X.Mod5Mask),
-               ]
-
-CAPSLOCK_LEDMASK = 1<<0
-NUMLOCK_LEDMASK = 1<<1
-
 
 def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
     if type(x) == bytes:
@@ -107,8 +115,176 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
 # This tuple is used to return requested window properties.
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
 
+class XWindowInterface(AbstractWindowInterface):
 
-class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInterface):
+    def __init__(self):
+        self.localDisplay = display.Display()
+        # Window name atoms
+        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
+        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
+        pass
+
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
+        try:
+            if window is None:
+                window = self.localDisplay.get_input_focus().focus
+            window_info = self._get_window_info(window, traverse)
+            #logger.debug("Window title: %s, Window class: %s", window_info.wm_title, window_info.wm_class)
+            return window_info
+        except error.BadWindow:
+            logger.warning("Got BadWindow error while requesting window information.")
+            return self._create_window_info(window, "", "")
+
+    def get_window_title(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_title
+
+    def get_window_class(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_class
+    
+    def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
+        new_wm_title = self._try_get_window_title(window)
+        new_wm_class = self._try_get_window_class(window)
+
+        if not wm_title and new_wm_title:  # Found title, update known information
+            wm_title = new_wm_title
+        if not wm_class and new_wm_class:  # Found class, update known information
+            wm_class = new_wm_class
+
+        if traverse:
+            # Recursive operation on the parent window
+            if wm_title and wm_class:  # Both known, abort walking the tree and return the data.
+                return self._create_window_info(window, wm_title, wm_class)
+            else:  # At least one property is still not known. So walk the window tree up.
+                parent = window.query_tree().parent
+                # Stop traversal, if the parent is not a window. When querying the parent, at some point, an integer
+                # is returned. Then just stop following the tree.
+                if isinstance(parent, int):
+                    # At this point, wm_title or wm_class may still be None. The recursive call with traverse=False
+                    # will replace any None with an empty string. See below.
+                    return self._get_window_info(window, False, wm_title, wm_class)
+                else:
+                    return self._get_window_info(parent, traverse, wm_title, wm_class)
+
+        else:
+            # No recursion, so fill unknown values with empty strings.
+            if wm_title is None:
+                wm_title = ""
+            if wm_class is None:
+                wm_class = ""
+            return self._create_window_info(window, wm_title, wm_class)
+
+    def _create_window_info(self, window, wm_title: str, wm_class: str):
+        """
+        Creates a WindowInfo object from the window title and WM_CLASS.
+        Also checks for the Java XFocusProxyWindow workaround and applies it if needed:
+
+        Workaround for Java applications: Java AWT uses a XFocusProxyWindow class, so to get usable information,
+        the parent window needs to be queried. Credits: https://github.com/mooz/xkeysnail/pull/32
+        https://github.com/JetBrains/jdk8u_jdk/blob/master/src/solaris/classes/sun/awt/X11/XFocusProxyWindow.java#L35
+        """
+        if "FocusProxy" in wm_class:
+            parent = window.query_tree().parent
+            # Discard both the already known wm_class and window title, because both are known to be wrong.
+            return self._get_window_info(parent, False)
+        else:
+            return WindowInfo(wm_title=wm_title, wm_class=wm_class)
+
+    def _try_get_window_title(self, window) -> typing.Optional[str]:
+        atom = self._try_read_property(window, self.__VisibleNameAtom)
+        if atom is None:
+            atom = self._try_read_property(window, self.__NameAtom)
+        if atom:
+            value = atom.value  # type: typing.Union[str, bytes]
+            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
+            return value.decode("utf-8") if isinstance(value, bytes) else value
+        else:
+            return None
+        
+    @staticmethod
+    def _try_read_property(window, property_name: str):
+        """
+        Try to read the given property of the given window.
+        Returns the atom, if successful, None otherwise.
+        """
+        try:
+            return window.get_property(property_name, 0, 0, 255)
+        except error.BadAtom:
+            return None
+
+    @staticmethod
+    def _try_get_window_class(window) -> typing.Optional[str]:
+        wm_class = window.get_wm_class()
+        if wm_class:
+            return "{}.{}".format(wm_class[0], wm_class[1])
+        else:
+            return None
+
+class GnomeWindowInterface(AbstractWindowInterface):
+    def __init__(self):
+        mainloop= DBusGMainLoop()
+        session_bus = dbus.SessionBus(mainloop=mainloop)
+        shell_obj = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell/Extensions/Windows')
+        self.windows_iface = dbus.Interface(shell_obj, 'org.gnome.Shell.Extensions.Windows')
+
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
+        """
+        Returns a WindowInfo object containing the class and title.
+        """
+        window = self._active_window()
+        return WindowInfo(wm_class=window['wm_class'], wm_title=window['wm_title'])
+
+    def get_window_class(self, window=None, traverse=True) -> str:
+        """
+        Returns the window class of the currently focused window.
+        """
+        return self._active_window()['wm_class']
+        
+    
+    def get_window_title(self, window=None, traverse=True) -> str:
+        """
+        Returns the active window title
+        """
+        return self._active_window()['wm_title']
+
+
+    def _dbus_window_list(self):
+        #TODO consider how/if error handling can be implemented
+        try:
+            return json.loads(self.windows_iface.List())
+        except dbus.exceptions.DBusException as e:
+            self.__init__() #reconnect to dbus
+            return json.loads(self.windows_iface.List())
+        
+    def _active_window(self):
+        window_list = self._dbus_window_list()
+        for window in window_list:
+            if window['focus']:
+                return window
+            
+    def _dbus_close_window(self, window_id):
+        #TODO consider how/if error handling can be implemented
+        try:
+            self.windows_iface.Close(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.windows_iface.Close(window_id)
+
+    def _dbus_activate_window(self, window_id):
+        self.windows_iface.Activate(window_id)
+
+    def _dbus_move_window(self, window_id, x, y):
+        self.windows_iface.Move(window_id, x, y)
+
+    def _dbus_resize_window(self, window_id, width, height):
+        self.windows_iface.Resize(window_id, width, height)
+
+
+class XMouseInterface(AbstractMouseInterface):
+    pass
+
+
+
+class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     """
     Encapsulates the common functionality for the two X interface classes.
     """
@@ -135,9 +311,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         # Set initial lock state
         self.__set_lock_keys_state()
 
-        # Window name atoms
-        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
-        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
         #move detection of key map changes to X event thread in order to have QT and GTK detection
         # if not common.USING_QT:
@@ -274,21 +447,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def handle_mouseclick(self, button, x, y):
         self.__enqueue(self.__handleMouseclick, button, x, y)
-
-    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        try:
-            if window is None:
-                window = self.localDisplay.get_input_focus().focus
-            return self._get_window_info(window, traverse)
-        except error.BadWindow:
-            logger.warning("Got BadWindow error while requesting window information.")
-            return self._create_window_info(window, "", "")
-
-    def get_window_title(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_title
-
-    def get_window_class(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_class
 
     def cancel(self):
         logger.debug("XInterfaceBase: Try to exit event thread.")
@@ -482,7 +640,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         for window in children:
             try:
-                window_info = self.get_window_info(window, False)
+                window_info = self.mediator.windowInterface.get_window_info(window, False)
 
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
@@ -511,7 +669,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
-        window_info = self.get_window_info(window)
+        window_info = self.mediator.windowInterface.get_window_info(window)
         for item in hotkeys:
             if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
@@ -589,7 +747,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             shouldTrigger = False
 
             if checkWinInfo:
-                window_info = self.get_window_info(window, False)
+                window_info = self.mediator.windowInterface.get_window_info(window, False)
                 shouldTrigger = item._should_trigger_window_title(window_info)
 
             if shouldTrigger or not checkWinInfo:
@@ -922,7 +1080,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         if modifier is not None:
             self.mediator.handle_modifier_down(modifier)
         else:
-            window_info = self.get_window_info(focus)
+            window_info = self.mediator.windowInterface.get_window_info(focus)
             self.mediator.handle_keypress(keyCode, window_info)
 
     def __handleKeyrelease(self, keyCode):
@@ -935,7 +1093,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
         # causing the queried window title (and maybe the window class or even none of those) to be invalid.
         time.sleep(0.005)  # TODO: may need some tweaking
-        window_info = self.get_window_info()
+        window_info = self.mediator.windowInterface.get_window_info()
 
         if x is None and y is None:
             ret = self.localDisplay.get_input_focus().focus.query_pointer()
@@ -967,7 +1125,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def __checkWorkaroundNeeded(self):
         focus = self.localDisplay.get_input_focus().focus
-        window_info = self.get_window_info(focus)
+        window_info = self.mediator.windowInterface.get_window_info(focus)
         w = self.app.configManager.workAroundApps
         if w.match(window_info.wm_title) or w.match(window_info.wm_class):
             self.__enableQT4Workaround = True
@@ -1033,83 +1191,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 logger.error("Unknown key name: %s", char)
                 raise
 
-    def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
-        new_wm_title = self._try_get_window_title(window)
-        new_wm_class = self._try_get_window_class(window)
-
-        if not wm_title and new_wm_title:  # Found title, update known information
-            wm_title = new_wm_title
-        if not wm_class and new_wm_class:  # Found class, update known information
-            wm_class = new_wm_class
-
-        if traverse:
-            # Recursive operation on the parent window
-            if wm_title and wm_class:  # Both known, abort walking the tree and return the data.
-                return self._create_window_info(window, wm_title, wm_class)
-            else:  # At least one property is still not known. So walk the window tree up.
-                parent = window.query_tree().parent
-                # Stop traversal, if the parent is not a window. When querying the parent, at some point, an integer
-                # is returned. Then just stop following the tree.
-                if isinstance(parent, int):
-                    # At this point, wm_title or wm_class may still be None. The recursive call with traverse=False
-                    # will replace any None with an empty string. See below.
-                    return self._get_window_info(window, False, wm_title, wm_class)
-                else:
-                    return self._get_window_info(parent, traverse, wm_title, wm_class)
-
-        else:
-            # No recursion, so fill unknown values with empty strings.
-            if wm_title is None:
-                wm_title = ""
-            if wm_class is None:
-                wm_class = ""
-            return self._create_window_info(window, wm_title, wm_class)
-
-    def _create_window_info(self, window, wm_title: str, wm_class: str):
-        """
-        Creates a WindowInfo object from the window title and WM_CLASS.
-        Also checks for the Java XFocusProxyWindow workaround and applies it if needed:
-
-        Workaround for Java applications: Java AWT uses a XFocusProxyWindow class, so to get usable information,
-        the parent window needs to be queried. Credits: https://github.com/mooz/xkeysnail/pull/32
-        https://github.com/JetBrains/jdk8u_jdk/blob/master/src/solaris/classes/sun/awt/X11/XFocusProxyWindow.java#L35
-        """
-        if "FocusProxy" in wm_class:
-            parent = window.query_tree().parent
-            # Discard both the already known wm_class and window title, because both are known to be wrong.
-            return self._get_window_info(parent, False)
-        else:
-            return WindowInfo(wm_title=wm_title, wm_class=wm_class)
-
-    def _try_get_window_title(self, window) -> typing.Optional[str]:
-        atom = self._try_read_property(window, self.__VisibleNameAtom)
-        if atom is None:
-            atom = self._try_read_property(window, self.__NameAtom)
-        if atom:
-            value = atom.value  # type: typing.Union[str, bytes]
-            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
-            return value.decode("utf-8") if isinstance(value, bytes) else value
-        else:
-            return None
-
-    @staticmethod
-    def _try_read_property(window, property_name: str):
-        """
-        Try to read the given property of the given window.
-        Returns the atom, if successful, None otherwise.
-        """
-        try:
-            return window.get_property(property_name, 0, 0, 255)
-        except error.BadAtom:
-            return None
-
-    @staticmethod
-    def _try_get_window_class(window) -> typing.Optional[str]:
-        wm_class = window.get_wm_class()
-        if wm_class:
-            return "{}.{}".format(wm_class[0], wm_class[1])
-        else:
-            return None
 
 
 
@@ -1207,114 +1288,116 @@ class AtSpiInterface(XInterfaceBase, AbstractSysInterface):
 from autokey.model.key import Key, MODIFIERS
 import autokey.configmanager.configmanager as cm
 
-XK.load_keysym_group('xkb')
+if common.USED_DISPLAY_SERVER == "x11":
 
-XK_TO_AK_MAP = {
-           XK.XK_Shift_L: Key.SHIFT,
-           XK.XK_Shift_R: Key.SHIFT,
-           XK.XK_Caps_Lock: Key.CAPSLOCK,
-           XK.XK_Control_L: Key.CONTROL,
-           XK.XK_Control_R: Key.CONTROL,
-           XK.XK_Alt_L: Key.ALT,
-           XK.XK_Alt_R: Key.ALT,
-           XK.XK_ISO_Level3_Shift: Key.ALT_GR,
-           XK.XK_Super_L: Key.SUPER,
-           XK.XK_Super_R: Key.SUPER,
-           XK.XK_Hyper_L: Key.HYPER,
-           XK.XK_Hyper_R: Key.HYPER,
-           XK.XK_Meta_L: Key.META,
-           XK.XK_Meta_R: Key.META,
-           XK.XK_Num_Lock: Key.NUMLOCK,
-           #SPACE: Key.SPACE,
-           XK.XK_Tab: Key.TAB,
-           XK.XK_Left: Key.LEFT,
-           XK.XK_Right: Key.RIGHT,
-           XK.XK_Up: Key.UP,
-           XK.XK_Down: Key.DOWN,
-           XK.XK_Return: Key.ENTER,
-           XK.XK_BackSpace: Key.BACKSPACE,
-           XK.XK_Scroll_Lock: Key.SCROLL_LOCK,
-           XK.XK_Print: Key.PRINT_SCREEN,
-           XK.XK_Pause: Key.PAUSE,
-           XK.XK_Menu: Key.MENU,
-           XK.XK_F1: Key.F1,
-           XK.XK_F2: Key.F2,
-           XK.XK_F3: Key.F3,
-           XK.XK_F4: Key.F4,
-           XK.XK_F5: Key.F5,
-           XK.XK_F6: Key.F6,
-           XK.XK_F7: Key.F7,
-           XK.XK_F8: Key.F8,
-           XK.XK_F9: Key.F9,
-           XK.XK_F10: Key.F10,
-           XK.XK_F11: Key.F11,
-           XK.XK_F12: Key.F12,
-           XK.XK_F13: Key.F13,
-           XK.XK_F14: Key.F14,
-           XK.XK_F15: Key.F15,
-           XK.XK_F16: Key.F16,
-           XK.XK_F17: Key.F17,
-           XK.XK_F18: Key.F18,
-           XK.XK_F19: Key.F19,
-           XK.XK_F20: Key.F20,
-           XK.XK_F21: Key.F21,
-           XK.XK_F22: Key.F22,
-           XK.XK_F23: Key.F23,
-           XK.XK_F24: Key.F24,
-           XK.XK_F25: Key.F25,
-           XK.XK_F26: Key.F26,
-           XK.XK_F27: Key.F27,
-           XK.XK_F28: Key.F28,
-           XK.XK_F29: Key.F29,
-           XK.XK_F30: Key.F30,
-           XK.XK_F31: Key.F31,
-           XK.XK_F32: Key.F32,
-           XK.XK_F33: Key.F33,
-           XK.XK_F34: Key.F34,
-           XK.XK_F35: Key.F35,
-           XK.XK_Escape: Key.ESCAPE,
-           XK.XK_Insert: Key.INSERT,
-           XK.XK_Delete: Key.DELETE,
-           XK.XK_Home: Key.HOME,
-           XK.XK_End: Key.END,
-           XK.XK_Page_Up: Key.PAGE_UP,
-           XK.XK_Page_Down: Key.PAGE_DOWN,
-           XK.XK_KP_Insert: Key.NP_INSERT,
-           XK.XK_KP_Delete: Key.NP_DELETE,
-           XK.XK_KP_End: Key.NP_END,
-           XK.XK_KP_Down: Key.NP_DOWN,
-           XK.XK_KP_Page_Down: Key.NP_PAGE_DOWN,
-           XK.XK_KP_Left: Key.NP_LEFT,
-           XK.XK_KP_Begin: Key.NP_5,
-           XK.XK_KP_Right: Key.NP_RIGHT,
-           XK.XK_KP_Home: Key.NP_HOME,
-           XK.XK_KP_Up: Key.NP_UP,
-           XK.XK_KP_Page_Up: Key.NP_PAGE_UP,
-           XK.XK_KP_Divide: Key.NP_DIVIDE,
-           XK.XK_KP_Multiply: Key.NP_MULTIPLY,
-           XK.XK_KP_Add: Key.NP_ADD,
-           XK.XK_KP_Subtract: Key.NP_SUBTRACT,
-           XK.XK_KP_Enter: Key.ENTER,
-           XK.XK_space: ' '
-           }
+    XK.load_keysym_group('xkb')
 
-AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.items())
+    XK_TO_AK_MAP = {
+            XK.XK_Shift_L: Key.SHIFT,
+            XK.XK_Shift_R: Key.SHIFT,
+            XK.XK_Caps_Lock: Key.CAPSLOCK,
+            XK.XK_Control_L: Key.CONTROL,
+            XK.XK_Control_R: Key.CONTROL,
+            XK.XK_Alt_L: Key.ALT,
+            XK.XK_Alt_R: Key.ALT,
+            XK.XK_ISO_Level3_Shift: Key.ALT_GR,
+            XK.XK_Super_L: Key.SUPER,
+            XK.XK_Super_R: Key.SUPER,
+            XK.XK_Hyper_L: Key.HYPER,
+            XK.XK_Hyper_R: Key.HYPER,
+            XK.XK_Meta_L: Key.META,
+            XK.XK_Meta_R: Key.META,
+            XK.XK_Num_Lock: Key.NUMLOCK,
+            #SPACE: Key.SPACE,
+            XK.XK_Tab: Key.TAB,
+            XK.XK_Left: Key.LEFT,
+            XK.XK_Right: Key.RIGHT,
+            XK.XK_Up: Key.UP,
+            XK.XK_Down: Key.DOWN,
+            XK.XK_Return: Key.ENTER,
+            XK.XK_BackSpace: Key.BACKSPACE,
+            XK.XK_Scroll_Lock: Key.SCROLL_LOCK,
+            XK.XK_Print: Key.PRINT_SCREEN,
+            XK.XK_Pause: Key.PAUSE,
+            XK.XK_Menu: Key.MENU,
+            XK.XK_F1: Key.F1,
+            XK.XK_F2: Key.F2,
+            XK.XK_F3: Key.F3,
+            XK.XK_F4: Key.F4,
+            XK.XK_F5: Key.F5,
+            XK.XK_F6: Key.F6,
+            XK.XK_F7: Key.F7,
+            XK.XK_F8: Key.F8,
+            XK.XK_F9: Key.F9,
+            XK.XK_F10: Key.F10,
+            XK.XK_F11: Key.F11,
+            XK.XK_F12: Key.F12,
+            XK.XK_F13: Key.F13,
+            XK.XK_F14: Key.F14,
+            XK.XK_F15: Key.F15,
+            XK.XK_F16: Key.F16,
+            XK.XK_F17: Key.F17,
+            XK.XK_F18: Key.F18,
+            XK.XK_F19: Key.F19,
+            XK.XK_F20: Key.F20,
+            XK.XK_F21: Key.F21,
+            XK.XK_F22: Key.F22,
+            XK.XK_F23: Key.F23,
+            XK.XK_F24: Key.F24,
+            XK.XK_F25: Key.F25,
+            XK.XK_F26: Key.F26,
+            XK.XK_F27: Key.F27,
+            XK.XK_F28: Key.F28,
+            XK.XK_F29: Key.F29,
+            XK.XK_F30: Key.F30,
+            XK.XK_F31: Key.F31,
+            XK.XK_F32: Key.F32,
+            XK.XK_F33: Key.F33,
+            XK.XK_F34: Key.F34,
+            XK.XK_F35: Key.F35,
+            XK.XK_Escape: Key.ESCAPE,
+            XK.XK_Insert: Key.INSERT,
+            XK.XK_Delete: Key.DELETE,
+            XK.XK_Home: Key.HOME,
+            XK.XK_End: Key.END,
+            XK.XK_Page_Up: Key.PAGE_UP,
+            XK.XK_Page_Down: Key.PAGE_DOWN,
+            XK.XK_KP_Insert: Key.NP_INSERT,
+            XK.XK_KP_Delete: Key.NP_DELETE,
+            XK.XK_KP_End: Key.NP_END,
+            XK.XK_KP_Down: Key.NP_DOWN,
+            XK.XK_KP_Page_Down: Key.NP_PAGE_DOWN,
+            XK.XK_KP_Left: Key.NP_LEFT,
+            XK.XK_KP_Begin: Key.NP_5,
+            XK.XK_KP_Right: Key.NP_RIGHT,
+            XK.XK_KP_Home: Key.NP_HOME,
+            XK.XK_KP_Up: Key.NP_UP,
+            XK.XK_KP_Page_Up: Key.NP_PAGE_UP,
+            XK.XK_KP_Divide: Key.NP_DIVIDE,
+            XK.XK_KP_Multiply: Key.NP_MULTIPLY,
+            XK.XK_KP_Add: Key.NP_ADD,
+            XK.XK_KP_Subtract: Key.NP_SUBTRACT,
+            XK.XK_KP_Enter: Key.ENTER,
+            XK.XK_space: ' '
+            }
 
-XK_TO_AK_NUMLOCKED = {
-           XK.XK_KP_Insert: "0",
-           XK.XK_KP_Delete: ".",
-           XK.XK_KP_End: "1",
-           XK.XK_KP_Down: "2",
-           XK.XK_KP_Page_Down: "3",
-           XK.XK_KP_Left: "4",
-           XK.XK_KP_Begin: "5",
-           XK.XK_KP_Right: "6",
-           XK.XK_KP_Home: "7",
-           XK.XK_KP_Up: "8",
-           XK.XK_KP_Page_Up: "9",
-           XK.XK_KP_Divide: "/",
-           XK.XK_KP_Multiply: "*",
-           XK.XK_KP_Add: "+",
-           XK.XK_KP_Subtract: "-",
-           XK.XK_KP_Enter: Key.ENTER
-           }
+    AK_TO_XK_MAP = dict((v,k) for k, v in XK_TO_AK_MAP.items())
+
+    XK_TO_AK_NUMLOCKED = {
+            XK.XK_KP_Insert: "0",
+            XK.XK_KP_Delete: ".",
+            XK.XK_KP_End: "1",
+            XK.XK_KP_Down: "2",
+            XK.XK_KP_Page_Down: "3",
+            XK.XK_KP_Left: "4",
+            XK.XK_KP_Begin: "5",
+            XK.XK_KP_Right: "6",
+            XK.XK_KP_Home: "7",
+            XK.XK_KP_Up: "8",
+            XK.XK_KP_Page_Up: "9",
+            XK.XK_KP_Divide: "/",
+            XK.XK_KP_Multiply: "*",
+            XK.XK_KP_Add: "+",
+            XK.XK_KP_Subtract: "-",
+            XK.XK_KP_Enter: Key.ENTER
+            }

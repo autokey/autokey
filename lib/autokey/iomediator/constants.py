@@ -1,1 +1,2 @@
 X_RECORD_INTERFACE = "XRecord"
+WAYLAND_INTERFACE = "Wayland"
