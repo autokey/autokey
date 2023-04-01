@@ -90,3 +90,4 @@ ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 # Set at the top of each entrypoint app
 USED_UI_TYPE = "headless"
+USED_DISPLAY_SERVER = "x11"
