@@ -813,7 +813,7 @@ class ConfigWindow:
             ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
             ("Tools", None, _("_Tools")),
             ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
-            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
+            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), "F5", _("Run the currently selected script"), self.on_run_script),
             ("Help", None, _("_Help")),
             ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
             ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
