@@ -100,8 +100,16 @@ class IoMediator(threading.Thread):
 
     def grab_hotkey(self, item):
         self.interface.grab_hotkey(item)
+        
     def ungrab_hotkey(self, item):
         self.interface.ungrab_hotkey(item)
+
+    def get_window_class(self):
+        return self.interface.get_window_class()
+
+    def get_window_title(self):
+        return self.interface.get_window_title()
+
 
     # Callback methods for Interfaces ----
 
