@@ -20,6 +20,7 @@ Important Misc Changes
 - Update apt requirements for ubuntu-latest.
 - Change all **sudo apt** references to **sudo apt-get** to satisfy part of issue #772.
 - Update the **README.rst** file in **beta** to match the one in **develop**.
+- Update actions in **build.yml**.
 
 Version 0.96.0-beta.10
 ============================
