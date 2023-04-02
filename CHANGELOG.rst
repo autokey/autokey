@@ -9,7 +9,6 @@ Version 0.96.0-beta.11
 
 Bug fixes
 ---------
-
 - Fix crash in qt macro recording window.
 
 Important Misc Changes
@@ -20,6 +19,7 @@ Important Misc Changes
 - Update all action warnings with current release versions.
 - Update apt requirements for ubuntu-latest.
 - Change all **sudo apt** references to **sudo apt-get** to satisfy part of issue #772.
+- Update the **README.rst** file in **beta** to match the one in **develop**.
 
 Version 0.96.0-beta.10
 ============================
