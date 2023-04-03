@@ -11,6 +11,7 @@ Anyone with a [GitHub](https://github.com/) account is welcome to contribute to 
 * [Edit the Table of Contents on the main wiki page](#edit-the-table-of-contents-on-the-main-wiki-page)
 * [Find a page](#find-a-page)
 * [Rename a page](#rename-a-page)
+* [Search this wiki](#search-this-wiki)
 * [See also](#see-also)
 
 ***
