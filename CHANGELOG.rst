@@ -14,6 +14,7 @@ Important misc changes
 - Various updates to the **README.rst** file to satisfy #pullrequestreview-1336342159.
 - Update action versions in build.yaml to latest.
 - Update Qt/GTK "Run" button in interface to run on F5
+- Update two links in the **README.rst** file.
 
 Features
 ---------
