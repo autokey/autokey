@@ -123,5 +123,8 @@ If a wiki page you'd like to find (perhaps one you recently created) isn't liste
 8. Follow this up by editing the **Table of Contents** on the main wiki page and replacing the name and link with the new ones.
 9. Put an announcement about the change(s) into [the AutoKey Gitter chat room](https://gitter.im/autokey/autokey) so that others will know about it.
 
+## Search this wiki
+Use the text box in the upper-left corner of the [https://github.com/autokey/autokey/search?type=wikis](https://github.com/autokey/autokey/search?type=wikis) page to search this wiki.
+
 ## See also
 * See also the [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code) page for contributing code to the AutoKey project.
