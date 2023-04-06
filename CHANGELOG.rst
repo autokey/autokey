@@ -16,6 +16,7 @@ Important misc changes
 - Add two sections to the issue template.
 - Change all **sudo apt** references in **master** to **sudo apt-get** to satisfy part of issue #772.
 - Bump Python version in **autokey.spec** AND **PKG-INFO**.
+- Update the **README.rst** file to satisfy part of issue #681 and issue #779.
 
 Features
 ---------
