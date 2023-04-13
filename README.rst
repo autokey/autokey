@@ -85,13 +85,13 @@ Contributing or modifying the source
 Pull requests are welcome from anyone who would like to modify or contribute to the source code. Useful tips for working with and testing the code can be found in the `CONTRIBUTORS.rst`_ file. AutoKey also participates in `CodeTriage`_, where members can sign up to receive a periodic email with a link to an open AutoKey issue that needs help.
 
 .. _CodeTriage: https://www.codetriage.com/autokey/autokey
-.. _CONTRIBUTORS.rst: https://github.com/autokey/autokey/blob/develop/CONTRIBUTORS.rst
+.. _CONTRIBUTORS.rst: https://github.com/autokey/autokey/blob/master/CONTRIBUTORS.rst
 
 Changelog
 =========
 Our `changelog`_ is the best source of information for what's new and fixed in each release.
 
-.. _changelog: https://github.com/autokey/autokey/blob/develop/CHANGELOG.rst
+.. _changelog: https://github.com/autokey/autokey/blob/master/CHANGELOG.rst
 
 License
 =======

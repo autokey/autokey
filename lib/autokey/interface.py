@@ -720,10 +720,10 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                     self.__sendKeyCode(keyCode, theWindow=focus)
             if offset == 1:
                 self.__send_keycode_with_modifiers_pressed(
-                    keyCode, Key.SHIFT, focus)
+                    keyCode, [Key.SHIFT], focus)
             if offset == 4:
                 self.__send_keycode_with_modifiers_pressed(
-                    keyCode, Key.ALT_GR, focus)
+                    keyCode, [Key.ALT_GR], focus)
             if offset == 5:
                 self.__send_keycode_with_modifiers_pressed(
                     keyCode, [Key.SHIFT, Key.ALT_GR], focus)
@@ -734,7 +734,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 self.__sendKeyCode(keyCode, theWindow=focus)
             if offset == 1:
                 self.__send_keycode_with_modifiers_pressed(
-                    keyCode, Key.SHIFT, focus)
+                    keyCode, [Key.SHIFT], focus)
         else:
             logger.warning("Unable to send character %r", char)
 
