@@ -15,10 +15,13 @@ Important misc changes
 - Update action versions in build.yaml to latest.
 - Update Qt/GTK "Run" button in interface to run on F5
 - Update two links in the **README.rst** file.
+- Updated `extractDoc.py`
+- Updated Qt autocomplete api.txt file (last updated in 2019)
 
 Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
+Added Gtk autocomplete for both scripts and phrases
 
 Bug fixes
 ---------

@@ -42,6 +42,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 from . import dialogs
+from .autocomplete import FileCompletionProvider
 from .settingsdialog import SettingsDialog
 
 import autokey.configmanager.configmanager as cm
@@ -476,6 +477,9 @@ class ScriptPage:
         self.editor.set_insert_spaces_instead_of_tabs(True)
         self.editor.set_tab_width(4)
 
+        self.editor_completion = self.editor.get_completion()
+        self.editor_completion.add_provider(FileCompletionProvider("./autokey/gtkui/data/api.csv"))
+
         self.ui.show_all()
 
     def load(self, theScript):
@@ -624,6 +628,10 @@ class PhrasePage(ScriptPage):
         self.buffer = GtkSource.Buffer()
         self.buffer.connect("changed", self.on_modified)
         self.editor = GtkSource.View.new_with_buffer(self.buffer)
+
+        self.editor_completion = self.editor.get_completion()
+        self.editor_completion.add_provider(FileCompletionProvider("./autokey/gtkui/data/macros.csv", "<"))
+
         scrolledWindow = builder.get_object("scrolledWindow")
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
