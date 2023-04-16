@@ -1,56 +1,55 @@
 .\"                                      Hey, EMACS: -*- nroff -*-
-.\" First parameter, NAME, should be all caps
-.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
-.\" other parameters are allowed: see man(7), man(1)
-.TH AUTOKEY-GTK "1" "February 02, 2020"
-.\" Please adjust this date whenever revising the manpage.
+.\" First parameter, NAME, should be all caps.
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection.
+.\" Other parameters are allowed: see man(7), man(1).
+.TH AUTOKEY-RUN "1" "April 16, 2023"
+.\" Please adjust this date whenever revising the man page.
 .\"
-.\" Some roff macros, for reference:
+.\" Some roff macros for reference:
 .\" .nh        disable hyphenation
 .\" .hy        enable hyphenation
-.\" .ad l      left justify
+.\" .ad l      left-justify
 .\" .ad b      justify to both left and right margins
 .\" .nf        disable filling
 .\" .fi        enable filling
 .\" .br        insert line break
 .\" .sp <n>    insert n+1 empty lines
-.\" for manpage-specific macros, see man(7)
+.\" For man-page-specific macros, see man(7).
 .SH NAME
 autokey-run \- command-line execution utility for AutoKey
 .SH SYNOPSIS
 .B autokey-run
 .RI -[s|p|f] [name]
 .SH DESCRIPTION
-This manual page briefly documents the
-.B autokey-run
-command.
+This manual page briefly documents the \fBautokey-run\fP command.
 .PP
 .\" TeX users may be more comfortable with the \fB<whatever>\fP and
-.\" \fI<whatever>\fP escape sequences to invode bold face and italics,
+.\" \fI<whatever>\fP escape sequences to invoke bold-face or italics,
 .\" respectively.
-\fBautokey-run\fP A command-line execution utility for AutoKey, autokey-run
-allows you to initiate execution of phrases, scripts or folders from the command
-line.
-.br
-For more information refer to the online wiki at:
-    https://github.com/autokey/autokey/wiki
+\fBautokey-run\fP is a command-line execution utility for AutoKey that
+allows you to initiate execution of folders, phrases, or scripts from
+the command line.
+.PP
+See the online wiki at https://github.com/autokey/autokey/wiki for more
+information.
 .SH OPTIONS
-This program follows the usual GNU command line syntax, with long
-options starting with two dashes (`-').
+This program follows the usual GNU command-line syntax in which long
+options start with two dashes (`--').
 A summary of options is included below.
 .TP
-.B \-\-help
-Show summary of options.
+.B \-f, \-\-folder [name]
+Display a pop-up menu for the specified folder.
 .TP
-.B \-s, \-\-script [name]
-Run a script with the specified name.
+.B \-h, \-\-help
+Show a summary of all options.
 .TP
 .B \-p, \-\-phrase [name]
 Paste a phrase with the specified name.
 .TP
-.B \-f, \-\-folder [name]
-Display a popup menu for the specified folder.
+.B \-s, \-\-script [name]
+Run a script with the specified name.
 .SH AUTHOR
-Chris Dekter.
+AutoKey was written by Chris Dekter and was loosely based on a script by
+Sam Peterson.
 .PP
 This manual page was written by Chris Dekter <cdekter@gmail.com>.
