@@ -15,6 +15,7 @@ Important misc changes
 - Update action versions in build.yaml to latest.
 - Update Qt/GTK "Run" button in interface to run on F5
 - Update two links in the **README.rst** file.
+- Fix, update, and add content to the man pages.
 
 Features
 ---------
