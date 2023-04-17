@@ -16,6 +16,7 @@ Important misc changes
 - Update Qt/GTK "Run" button in interface to run on F5
 - Update two links in the **README.rst** file.
 - Fix, update, and add content to the man pages.
+- Fix Qt reference and update the wording in reference to KDE and Qt in the **autokey-qt.1** man page.
 
 Features
 ---------
