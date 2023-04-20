@@ -291,7 +291,7 @@ class Service:
         Update the input stack in non-hotkey mode, and determine if anything
         further is needed.
 
-        @return: True if further action is needed
+        :return: True if further action is needed
         """
 
         key = self.__map_special_key_to_escape_code(key)
@@ -338,7 +338,7 @@ class Service:
         Check for an abbreviation/predictive match among the given folder and items
         (scripts, phrases).
 
-        @return: a tuple possibly containing an item to execute, or a menu to show
+        :return: a tuple possibly containing an item to execute, or a menu to show
         """
         itemMatches = []
         folderMatches = []
@@ -394,7 +394,7 @@ class Service:
 
     def __menuRequired(self, folders, items, buffer):
         """
-        @return: a boolean indicating whether a menu is needed to allow the user to choose
+        :return: a boolean indicating whether a menu is needed to allow the user to choose
         """
         if len(folders) > 0:
             # Folders always need a menu

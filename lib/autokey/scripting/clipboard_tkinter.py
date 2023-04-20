@@ -44,7 +44,7 @@ class TkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_selection(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         logger.error("Headless app clipboard does not support setting selection clipboard")
         pass
@@ -58,8 +58,8 @@ class TkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
-        @rtype: C{str}
+        :return: text contents of the mouse selection
+        :rtype: C{str}
         """
         text = self.tkroot.selection_get(selection="PRIMARY")
         if text is not None:
@@ -74,7 +74,7 @@ class TkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         self.tkroot.clipboard_clear()
         self.tkroot.clipboard_append(contents)
@@ -90,8 +90,8 @@ class TkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_clipboard()}
 
-        @return: text contents of the clipboard
-        @rtype: C{str}
+        :return: text contents of the clipboard
+        :rtype: C{str}
         """
         text = self.tkroot.selection_get(selection="CLIPBOARD")
         if text is not None:
@@ -106,7 +106,7 @@ class TkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        @param path: Path to image file
+        :param path: Path to image file
         """
         logger.error("Headless app clipboard does not support setting clipboard to image.")
         pass

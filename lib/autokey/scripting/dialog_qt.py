@@ -50,12 +50,12 @@ class QtDialog:
         """
         Sends a passive popup (notification) using C{kdialog}
 
-        @param title: Title to be used in the notification
-        @param message: Message to be displayed in the notification
-        @param icon: Icon to be used in the notification (Defaults to "autokey")
-        @param timeout: How long the notification will be on screen (Defaults to 10)
-        @return: A tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: Title to be used in the notification
+        :param message: Message to be displayed in the notification
+        :param icon: Icon to be used in the notification (Defaults to "autokey")
+        :param timeout: How long the notification will be on screen (Defaults to 10)
+        :return: A tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--title", title, "--passivepopup", message, "--icon", icon, str(timeout)], kwargs)
 
@@ -65,10 +65,10 @@ class QtDialog:
 
         Usage: C{dialog.info_dialog(title="Information", message="", **kwargs)}
 
-        @param title: window title for the dialog
-        @param message: message displayed in the dialog
-        @return: a tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed in the dialog
+        :return: a tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--msgbox", message], kwargs)
 
@@ -78,11 +78,11 @@ class QtDialog:
 
         Usage: C{dialog.input_dialog(title="Enter a value", message="Enter a value", default="", **kwargs)}
 
-        @param title: window title for the dialog
-        @param message: message displayed above the input box
-        @param default: default value for the input box
-        @return: a tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed above the input box
+        :param default: default value for the input box
+        :return: a tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--inputbox", message, default], kwargs)
 
@@ -92,10 +92,10 @@ class QtDialog:
 
         Usage: C{dialog.password_dialog(title="Enter password", message="Enter password", **kwargs)}
 
-        @param title: window title for the dialog
-        @param message: message displayed above the password input box
-        @return: a tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed above the password input box
+        :return: a tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--password", message], kwargs)
 
@@ -105,11 +105,11 @@ class QtDialog:
 
         Usage: C{dialog.combo_menu(options, title="Choose an option", message="Choose an option", **kwargs)}
 
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the combobox
-        @return: a tuple containing the exit code and user choice
-        @rtype: C{DialogData(int, str)}
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the combobox
+        :return: a tuple containing the exit code and user choice
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--combobox", message] + options, kwargs)
 
@@ -119,12 +119,12 @@ class QtDialog:
 
         Usage: C{dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None, **kwargs)}
 
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the list
-        @param default: default value to be selected
-        @return: a tuple containing the exit code and user choice
-        @rtype: C{DialogData(int, str)}
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the list
+        :param default: default value to be selected
+        :return: a tuple containing the exit code and user choice
+        :rtype: C{DialogData(int, str)}
         """
 
         choices = []
@@ -150,12 +150,12 @@ class QtDialog:
 
         Usage: C{dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs)}
 
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the list
-        @param defaults: list of default values to be selected
-        @return: a tuple containing the exit code and user choice
-        @rtype: C{DialogData(int, List[str])}
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the list
+        :param defaults: list of default values to be selected
+        :return: a tuple containing the exit code and user choice
+        :rtype: C{DialogData(int, List[str])}
         """
 
         if defaults is None:
@@ -184,12 +184,12 @@ class QtDialog:
 
         Usage: C{dialog.open_file(title="Open File", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs)}
 
-        @param title: window title for the dialog
-        @param initialDir: starting directory for the file dialog
-        @param fileTypes: file type filter expression
-        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
-        @return: a tuple containing the exit code and file path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param initialDir: starting directory for the file dialog
+        :param fileTypes: file type filter expression
+        :param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        :return: a tuple containing the exit code and file path
+        :rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
             return self._run_kdialog(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
@@ -202,12 +202,12 @@ class QtDialog:
 
         Usage: C{dialog.save_file(title="Save As", initialDir="~", fileTypes="*|All Files", rememberAs=None, **kwargs)}
 
-        @param title: window title for the dialog
-        @param initialDir: starting directory for the file dialog
-        @param fileTypes: file type filter expression
-        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
-        @return: a tuple containing the exit code and file path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param initialDir: starting directory for the file dialog
+        :param fileTypes: file type filter expression
+        :param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        :return: a tuple containing the exit code and file path
+        :rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
             return self._run_kdialog(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs], kwargs)
@@ -220,11 +220,11 @@ class QtDialog:
 
         Usage: C{dialog.choose_directory(title="Select Directory", initialDir="~", rememberAs=None, **kwargs)}
 
-        @param title: window title for the dialog
-        @param initialDir: starting directory for the directory chooser dialog
-        @param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
-        @return: a tuple containing the exit code and chosen path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param initialDir: starting directory for the directory chooser dialog
+        :param rememberAs: gives an ID to this file dialog, allowing it to open at the last used path next time
+        :return: a tuple containing the exit code and chosen path
+        :rtype: C{DialogData(int, str)}
         """
         if rememberAs is not None:
             return self._run_kdialog(title, ["--getexistingdirectory", initialDir, ":" + rememberAs], kwargs)
@@ -237,9 +237,9 @@ class QtDialog:
 
         Usage: C{dialog.choose_colour(title="Select Colour")}
 
-        @param title: window title for the dialog
-        @return: a tuple containing the exit code and colour
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :return: a tuple containing the exit code and colour
+        :rtype: C{DialogData(int, str)}
         """
         return_data = self._run_kdialog(title, ["--getcolor"], kwargs)
         if return_data.successful:
@@ -255,10 +255,10 @@ class QtDialog:
 
         Note: the format and date parameters are not currently used
 
-        @param title: window title for the dialog
-        @param format_str: format of date to be returned
-        @param date: initial date as YYYY-MM-DD, otherwise today
-        @return: a tuple containing the exit code and date
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param format_str: format of date to be returned
+        :param date: initial date as YYYY-MM-DD, otherwise today
+        :return: a tuple containing the exit code and date
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_kdialog(title, ["--calendar", title], kwargs)
