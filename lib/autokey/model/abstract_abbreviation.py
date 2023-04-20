@@ -106,7 +106,7 @@ class AbstractAbbreviation:
         Checks whether, based on the settings for the abbreviation and the given input,
         the abbreviation should trigger.
 
-        @param buffer Input buffer to be checked (as string)
+        :param buffer Input buffer to be checked (as string)
         """
         return any(self.__checkInput(buffer, abbr) for abbr in self.abbreviations)
 

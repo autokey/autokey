@@ -74,7 +74,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
     #     """
     #     Show an error notification popup.
 
-    #     @param error: The error that occurred in a Script
+    #     :param error: The error that occurred in a Script
     #     """
     #     message = "The script '{}' encountered an error".format(error.script_name)
     #     self.notifier.notify_error(message)

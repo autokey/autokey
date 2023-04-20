@@ -141,7 +141,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         """
         Show an error notification popup.
 
-        @param error: The error that occurred in a Script
+        :param error: The error that occurred in a Script
         """
         message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
@@ -177,7 +177,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         """
         Convenience method for showing an error dialog.
 
-        @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
+        :param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
             defaults to Gtk.MessageType.ERROR
         """
         # TODO check if gtk threads entered.

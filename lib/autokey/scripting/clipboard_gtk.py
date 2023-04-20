@@ -35,7 +35,7 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: Called when GtkClipboard is imported
 
-        @param app: refers to the application instance
+        :param app: refers to the application instance
         """
 
         self._clipboard = Gtk.Clipboard.get(Gdk.SELECTION_CLIPBOARD)
@@ -57,7 +57,7 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_selection(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         Gdk.threads_enter()
         try:
@@ -75,8 +75,8 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
-        @rtype: C{str}
+        :return: text contents of the mouse selection
+        :rtype: C{str}
         """
         Gdk.threads_enter()
         text = self._selection.wait_for_text()
@@ -93,7 +93,7 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         Gdk.threads_enter()
         if Gtk.get_major_version() >= 3:
@@ -108,8 +108,8 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_clipboard()}
 
-        @return: text contents of the clipboard
-        @rtype: C{str}
+        :return: text contents of the clipboard
+        :rtype: C{str}
         """
         Gdk.threads_enter()
         text = self._clipboard.wait_for_text()
@@ -127,8 +127,8 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        @param path: Path to image file
-        @raise OSError: If path does not exist
+        :param path: Path to image file
+        :raise OSError: If path does not exist
 
         """
         image_path = Path(path).expanduser()

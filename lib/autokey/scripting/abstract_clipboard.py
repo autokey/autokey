@@ -37,7 +37,7 @@ class AbstractClipboard(ABC):
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         return
     @abstractmethod
@@ -47,8 +47,8 @@ class AbstractClipboard(ABC):
 
         Usage: C{clipboard.get_clipboard()}
 
-        @return: text contents of the clipboard
-        @rtype: C{str}
+        :return: text contents of the clipboard
+        :rtype: C{str}
         """
         return
 
@@ -59,7 +59,7 @@ class AbstractClipboard(ABC):
 
         Usage: C{clipboard.fill_selection(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         return
     @abstractmethod
@@ -70,8 +70,8 @@ class AbstractClipboard(ABC):
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
-        @rtype: C{str}
+        :return: text contents of the mouse selection
+        :rtype: C{str}
         """
         return
 
@@ -82,7 +82,7 @@ class AbstractClipboard(ABC):
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        @param path: Path to image file
-        @raise OSError: If path does not exist
+        :param path: Path to image file
+        :raise OSError: If path does not exist
         """
         return

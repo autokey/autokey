@@ -33,9 +33,9 @@ class System:
         AutoKey will not respond to any hotkeys/abbreviations etc until the process started
         by the command exits.
 
-        @param command: command to be executed (including any arguments) - e.g. "ls -l"
-        @param getOutput: whether to capture the (stdout) output of the command
-        @raise subprocess.CalledProcessError: if the command returns a non-zero exit code
+        :param command: command to be executed (including any arguments) - e.g. "ls -l"
+        :param getOutput: whether to capture the (stdout) output of the command
+        :raise subprocess.CalledProcessError: if the command returns a non-zero exit code
         """
         if getOutput:
             with subprocess.Popen(
@@ -60,8 +60,8 @@ class System:
 
         Usage: C{system.create_file(fileName, contents="")}
 
-        @param fileName: full path to the file to be created
-        @param contents: contents to insert into the file
+        :param fileName: full path to the file to be created
+        :param contents: contents to insert into the file
         """
         with open(file_name, "w") as written_file:
             written_file.write(contents)

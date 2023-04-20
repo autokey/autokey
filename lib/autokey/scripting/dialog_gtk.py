@@ -50,11 +50,11 @@ class GtkDialog:
         """
         Sends a notification using C{zenity}
 
-        @param title: Title to be used in the notification
-        @param message: Message displayed in the notification
-        @param icon: Icon for zenity to use. Defaults to Autokey icon
-        @return: A tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        :param title: Title to be used in the notification
+        :param message: Message displayed in the notification
+        :param icon: Icon for zenity to use. Defaults to Autokey icon
+        :return: A tuple containing the exit code and user input
+        :rtype: C{tuple(int, str)}
 
         """
         return self._run_zenity("Autokey Notification", ["--notification", "--text", title+"\n"+message, "--window-icon", icon], kwargs)
@@ -65,10 +65,10 @@ class GtkDialog:
 
         Usage: C{dialog.info_dialog(title="Information", message="", **kwargs)}
 
-        @param title: window title for the dialog
-        @param message: message displayed in the dialog
-        @return: a tuple containing the exit code and user input
-        @rtype: C{tuple(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed in the dialog
+        :return: a tuple containing the exit code and user input
+        :rtype: C{tuple(int, str)}
         """
         return self._run_zenity(title, ["--info", "--text", message], kwargs)
 
@@ -78,11 +78,11 @@ class GtkDialog:
 
         Usage: C{dialog.input_dialog(title="Enter a value", message="Enter a value", default="", **kwargs)}
 
-        @param title: window title for the dialog
-        @param message: message displayed above the input box
-        @param default: default value for the input box
-        @return: a tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed above the input box
+        :param default: default value for the input box
+        :return: a tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_zenity(title, ["--entry", "--text", message, "--entry-text", default], kwargs)
 
@@ -92,10 +92,10 @@ class GtkDialog:
 
         Usage: C{dialog.password_dialog(title="Enter password", message="Enter password")}
 
-        @param title: window title for the dialog
-        @param message: message displayed above the password input box
-        @return: a tuple containing the exit code and user input
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param message: message displayed above the password input box
+        :return: a tuple containing the exit code and user input
+        :rtype: C{DialogData(int, str)}
         """
         return self._run_zenity(title, ["--entry", "--text", message, "--hide-text"], kwargs)
 
@@ -105,9 +105,9 @@ class GtkDialog:
         
         Usage: C{dialog.combo_menu(options, title="Choose an option", message="Choose an option")}
         
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the combobox      
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the combobox      
         """
         #return self._run_zenity(title, ["--combobox", message] + options)
 
@@ -117,12 +117,12 @@ class GtkDialog:
 
         Usage: C{dialog.list_menu(options, title="Choose a value", message="Choose a value", default=None, **kwargs)}
 
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the list
-        @param default: default value to be selected
-        @return: a tuple containing the exit code and user choice
-        @rtype: C{DialogData(int, str)}
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the list
+        :param default: default value to be selected
+        :return: a tuple containing the exit code and user choice
+        :rtype: C{DialogData(int, str)}
         """
 
         choices = []
@@ -146,12 +146,12 @@ class GtkDialog:
 
         Usage: C{dialog.list_menu_multi(options, title="Choose one or more values", message="Choose one or more values", defaults=[], **kwargs)}
 
-        @param options: list of options (strings) for the dialog
-        @param title: window title for the dialog
-        @param message: message displayed above the list
-        @param defaults: list of default values to be selected
-        @return: a tuple containing the exit code and user choice
-        @rtype: C{DialogData(int, List[str])}
+        :param options: list of options (strings) for the dialog
+        :param title: window title for the dialog
+        :param message: message displayed above the list
+        :param defaults: list of default values to be selected
+        :return: a tuple containing the exit code and user choice
+        :rtype: C{DialogData(int, List[str])}
         """
 
         if defaults is None:
@@ -178,9 +178,9 @@ class GtkDialog:
 
         Usage: C{dialog.open_file(title="Open File", **kwargs)}
 
-        @param title: window title for the dialog
-        @return: a tuple containing the exit code and file path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :return: a tuple containing the exit code and file path
+        :rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
         #    return self._run_zenity(title, ["--getopenfilename", initialDir, fileTypes, ":" + rememberAs])
@@ -193,9 +193,9 @@ class GtkDialog:
 
         Usage: C{dialog.save_file(title="Save As", **kwargs)}
 
-        @param title: window title for the dialog
-        @return: a tuple containing the exit code and file path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :return: a tuple containing the exit code and file path
+        :rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
         #    return self._run_zenity(title, ["--getsavefilename", initialDir, fileTypes, ":" + rememberAs])
@@ -208,10 +208,10 @@ class GtkDialog:
 
         Usage: C{dialog.choose_directory(title="Select Directory", **kwargs)}
 
-        @param title: window title for the dialog
-        @param initialDir:
-        @return: a tuple containing the exit code and path
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param initialDir:
+        :return: a tuple containing the exit code and path
+        :rtype: C{DialogData(int, str)}
         """
         #if rememberAs is not None:
         #    return self._run_zenity(title, ["--getexistingdirectory", initialDir, ":" + rememberAs])
@@ -224,9 +224,9 @@ class GtkDialog:
 
         Usage: C{dialog.choose_colour(title="Select Colour")}
 
-        @param title: window title for the dialog
-        @return:
-        @rtype: C{DialogData(int, Optional[ColourData])}
+        :param title: window title for the dialog
+        :return:
+        :rtype: C{DialogData(int, Optional[ColourData])}
         """
         return_data = self._run_zenity(title, ["--color-selection"], kwargs)
         if return_data.successful:
@@ -241,11 +241,11 @@ class GtkDialog:
 
         Usage: C{dialog.calendar_dialog(title="Choose a date", format="%Y-%m-%d", date="YYYY-MM-DD", **kwargs)}
 
-        @param title: window title for the dialog
-        @param format_str: format of date to be returned
-        @param date: initial date as YYYY-MM-DD, otherwise today
-        @return: a tuple containing the exit code and date
-        @rtype: C{DialogData(int, str)}
+        :param title: window title for the dialog
+        :param format_str: format of date to be returned
+        :param date: initial date as YYYY-MM-DD, otherwise today
+        :return: a tuple containing the exit code and date
+        :rtype: C{DialogData(int, str)}
         """
         if re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", date):
             year = date[0:4]

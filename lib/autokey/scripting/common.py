@@ -42,9 +42,9 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
         """
         Parser for KDialog output, which outputs a HTML style hex code like #55aa00
 
-        @param html_style_colour_str: HTML style hex string encoded colour. (#rrggbb)
-        @return: ColourData instance
-        @rtype: ColourData
+        :param html_style_colour_str: HTML style hex string encoded colour. (#rrggbb)
+        :return: ColourData instance
+        :rtype: ColourData
         """
         html_style_colour_str = html_style_colour_str.lstrip("#")
         components = list(map("".join, zip(*[iter(html_style_colour_str)]*2)))
@@ -56,9 +56,9 @@ class ColourData(NamedTuple("ColourData", (("r", int), ("g", int), ("b", int))))
         Parser for Zenity output, which outputs a named tuple-like string: "rgb(R, G, B)", where R, G, B are base10
         integers.
         
-        @param zenity_tuple_str: tuple-like string: "rgb(r, g, b), where r, g, b are base10 integers.
-        @return: ColourData instance
-        @rtype: ColourData
+        :param zenity_tuple_str: tuple-like string: "rgb(r, g, b), where r, g, b are base10 integers.
+        :return: ColourData instance
+        :rtype: ColourData
         """
         components = zenity_tuple_str.strip("rgb()").split(",")
         return ColourData(*map(int, components))

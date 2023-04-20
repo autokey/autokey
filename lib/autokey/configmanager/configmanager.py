@@ -597,7 +597,7 @@ class ConfigManager:
         Called when some element of configuration has been altered, to update
         the lists of phrases/folders.
 
-        @param persistGlobal: save the global configuration at the end of the process
+        :param persistGlobal: save the global configuration at the end of the process
         """
         logger.info("Configuration changed - rebuilding in-memory structures")
 
@@ -698,9 +698,9 @@ class ConfigManager:
         """
         Checks that the given abbreviation is not already in use.
 
-        @param abbreviation: the abbreviation to check
-        @param filterPattern: The filter pattern associated with the abbreviation
-        @param targetItem: the phrase for which the abbreviation to be used
+        :param abbreviation: the abbreviation to check
+        :param filterPattern: The filter pattern associated with the abbreviation
+        :param targetItem: the phrase for which the abbreviation to be used
         """
         for item in itertools.chain(self.allFolders, self.allItems):
             if ConfigManager.item_has_abbreviation(item, abbreviation) and \
@@ -750,10 +750,10 @@ class ConfigManager:
         Checks that the given hotkey is not already in use. Also checks the
         special hotkeys configured from the advanced settings dialog.
 
-        @param modifiers: modifiers for the hotkey
-        @param hotKey: the hotkey to check
-        @param newFilterPattern:
-        @param targetItem: the phrase for which the hotKey to be used
+        :param modifiers: modifiers for the hotkey
+        :param hotKey: the hotkey to check
+        :param newFilterPattern:
+        :param targetItem: the phrase for which the hotKey to be used
         """
         item = self.get_item_with_hotkey(modifiers, hotKey, newFilterPattern)
         if item:
@@ -767,9 +767,9 @@ class ConfigManager:
         special hotkeys configured from the advanced settings dialog.
         Checks folders first, then phrases, then special hotkeys.
 
-        @param modifiers: modifiers for the hotkey
-        @param hotKey: the hotkey to check
-        @param newFilterPattern:
+        :param modifiers: modifiers for the hotkey
+        :param hotKey: the hotkey to check
+        :param newFilterPattern:
         """
         for item in self.globalHotkeys:
             if item.enabled and ConfigManager.item_has_same_hotkey(item,

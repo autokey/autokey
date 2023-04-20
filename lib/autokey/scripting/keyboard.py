@@ -45,8 +45,8 @@ class Keyboard:
 
         Usage: C{keyboard.send_keys(keyString)}
 
-        @param key_string: string of keys to send. Special keys are only possible in keyboard mode.
-        @param send_mode: Determines how the string is sent.
+        :param key_string: string of keys to send. Special keys are only possible in keyboard mode.
+        :param send_mode: Determines how the string is sent.
         """
 
         if not isinstance(key_string, str):
@@ -67,8 +67,8 @@ class Keyboard:
 
         Usage: C{keyboard.send_key(key, repeat=1)}
 
-        @param key: the key to be sent (e.g. "s" or "<enter>")
-        @param repeat: number of times to repeat the key event
+        :param key: the key to be sent (e.g. "s" or "<enter>")
+        :param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
             self.mediator.send_key(key)
@@ -81,7 +81,7 @@ class Keyboard:
         Usage: C{keyboard.press_key(key)}
 
         The key will be treated as down until a matching release_key() is sent.
-        @param key: the key to be pressed (e.g. "s" or "<enter>")
+        :param key: they key to be pressed (e.g. "s" or "<enter>")
         """
         self.mediator.press_key(key)
 
@@ -93,7 +93,7 @@ class Keyboard:
 
         If the specified key was not made down using press_key(), the event will be
         ignored.
-        @param key: the key to be released (e.g. "s" or "<enter>")
+        :param key: the key to be released (e.g. "s" or "<enter>")
         """
         self.mediator.release_key(key)
 
@@ -106,8 +106,8 @@ class Keyboard:
         Uses XTest to 'fake' a keypress. This is useful to send keypresses to some
         applications which won't respond to keyboard.send_key()
 
-        @param key: the key to be sent (e.g. "s" or "<enter>")
-        @param repeat: number of times to repeat the key event
+        :param key: the key to be sent (e.g. "s" or "<enter>")
+        :param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
             self.mediator.fake_keypress(key)
@@ -120,9 +120,9 @@ class Keyboard:
 
         Note: this function cannot be used to wait for modifier keys on their own
 
-        @param key: the key to wait for
-        @param modifiers: list of modifiers that should be pressed with the key
-        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        :param key: the key to wait for
+        :param modifiers: list of modifiers that should be pressed with the key
+        :param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         if modifiers is None:
             modifiers = []
@@ -136,32 +136,35 @@ class Keyboard:
         """
         Wait for a key event, potentially accumulating the intervening characters
         Usage: C{keyboard.wait_for_keypress(self, check, name=None, timeOut=10.0)}
-        @param check: a function that returns True or False to signify we've finished waiting
-        @param name: only one waiter can have this name. Used to prevent more threads waiting on this.
-        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        :param check: a function that returns True or False to signify we've finished waiting
+        :param name: only one waiter can have this name. Used to prevent more threads waiting on this.
+        :param timeOut: maximum time, in seconds, to wait for the keypress to occur
         Example:
-        # Accumulate the traditional emacs C-u prefix arguments
-        # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html
-        def check(waiter,rawKey,modifiers,key,*args):
-            isCtrlU = (key == 'u' and len(modifiers) == 1 and modifiers[0] == '<ctrl>')
-            if isCtrlU: # If we get here, they've already pressed C-u at least 2x
-                try:
-                    val = int(waiter.result) * 4
-                    waiter.result = str(val)
-                except ValueError:
-                    waiter.result = "16"
-                return False
-            elif any(m == "<ctrl>" or m == "<alt>" or m == "<meta>" or m == "<super>" or m == "<hyper>" for m in modifiers):
-                # Some other control character is an indication we're done.
-                if waiter.result is None or waiter.result == "":
-                    waiter.result = "4"
-                store.set_global_value("emacs-prefix-arg", waiter.result)
-                return True
-            else: # accumulate as a string
-                waiter.result = waiter.result + key
-                return False
-                
-        keyboard.wait_for_keyevent(check, "emacs-prefix")
+
+        .. code-block:: python
+
+            # Accumulate the traditional emacs C-u prefix arguments
+            # See https://www.gnu.org/software/emacs/manual/html_node/elisp/Prefix-Command-Arguments.html
+            def check(waiter,rawKey,modifiers,key,*args):
+                isCtrlU = (key == 'u' and len(modifiers) == 1 and modifiers[0] == '<ctrl>')
+                if isCtrlU: # If we get here, they've already pressed C-u at least 2x
+                    try:
+                        val = int(waiter.result) * 4
+                        waiter.result = str(val)
+                    except ValueError:
+                        waiter.result = "16"
+                    return False
+                elif any(m == "<ctrl>" or m == "<alt>" or m == "<meta>" or m == "<super>" or m == "<hyper>" for m in modifiers):
+                    # Some other control character is an indication we're done.
+                    if waiter.result is None or waiter.result == "":
+                        waiter.result = "4"
+                    store.set_global_value("emacs-prefix-arg", waiter.result)
+                    return True
+                else: # accumulate as a string
+                    waiter.result = waiter.result + key
+                    return False
+                    
+            keyboard.wait_for_keyevent(check, "emacs-prefix")
         """
         if name is None or not any(elem.name == name for elem in self.mediator.listeners):
             w = waiter.Waiter(None, None, None, check, name, timeOut)
