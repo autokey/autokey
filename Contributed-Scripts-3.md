@@ -3,6 +3,7 @@
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](#gui-dialog-that-uses-typed-or-typed-and-clicked-input)
 * [GUI Date Dialog](#gui-date-dialog)
 * [GUI Date Dialog With Format Control](#gui-date-dialog-with-format-control)
+* [Archive URLs using the Wayback Machine](#archive-links-with-the-wayback-machine)
 
 
 ## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
@@ -165,4 +166,96 @@ if retCode:
 else:
     # Paste the date into the currently-active window:
     keyboard.send_keys(date)
+```
+
+
+## Archive Links with the Wayback Machine
+- **Author**: [Anatexis](https://github.com/anatexis)
+- **Purpose**: A script that takes a link from the clipboard, archives it using the Wayback Machine, and then places the archived link back in the clipboard as a markdown formatted link as seen here: https://www.flightfromperfection.com/(a).html ([a](https://web.archive.org/web/https://www.flightfromperfection.com/(a).html))
+- **Notes**: You can use plain URLs or markdown formatted links. This script uses the requests library to communicate with the Wayback Machine API for archiving and generating archive URLs. It also uses the PyQt5 library for displaying a message box to inform you when the archiving process is complete. Threading is used to make the archiving process non-blocking, allowing the script to continue running while the archiving takes place in the background.
+```
+###############################################################
+# ABOUT THIS SCRIPT
+###############################################################
+# This script takes a URL from the clipboard, archives it using
+# the Wayback Machine, and then replaces the original URL with
+# the archived URL in the clipboard. It supports both plain URLs
+# and markdown formatted links.
+###############################################################
+# USE THIS SCRIPT
+###############################################################
+# Set a Hotkey for this script (example: Ctrl+Shift+L).
+# Get a link in your clipboard (copy it with e.g. Ctrl+C)
+# The script will activate when you press the assigned hotkey.
+# The script will process the copied link, archive it using the 
+# Wayback Machine, and replace the link in the clipboard with 
+# the archived link in this markdown format:
+# ([a](https://web.archive.org/web/https://www.link.com))
+###############################################################
+# NOTES
+###############################################################
+# This script uses the requests library to communicate with the
+# Wayback Machine API for archiving and generating archive URLs.
+# It also uses the PyQt5 library for displaying a message box to
+# inform the user when the archiving process is complete.
+# Threading is used to make the archiving process non-blocking,
+# allowing the script to continue running while the archiving
+# takes place in the background.
+###############################################################
+# THE SCRIPT
+###############################################################
+
+import re
+import requests
+import threading
+from PyQt5.QtWidgets import QMessageBox
+from typing import Optional, Tuple
+
+def save_web_archive(url: str) -> None:
+    save_url = f'https://web.archive.org/save/{url}'
+    requests.get(save_url)
+
+def extract_url_from_link(link: str) -> Optional[Tuple[str, str]]:
+    markdown_link_pattern = r'\[(.+)\]\((https?://.+)\)'
+    plain_link_pattern = r'(https?://.+)'
+
+    if re.match(markdown_link_pattern, link):
+        label, url = re.findall(markdown_link_pattern, link)[0]
+        return label, url
+    elif re.match(plain_link_pattern, link):
+        url = re.findall(plain_link_pattern, link)[0]
+        return None, url
+    else:
+        return None
+
+def convert_to_web_archive_url(link: str) -> Optional[str]:
+    extracted_data = extract_url_from_link(link)
+    if not extracted_data:
+        return None
+
+    label, url = extracted_data
+    view_url = f'https://web.archive.org/web/{url}'
+    threading.Thread(target=save_web_archive, args=(url,)).start()
+
+    return view_url
+
+def main():
+    link = clipboard.get_clipboard()
+    print(f"Input link: {link}")
+    archived_link = convert_to_web_archive_url(link)
+    if not archived_link:
+        print("Invalid input")
+        return
+
+    print(f"Archived link: {archived_link}")
+
+    msg_box = QMessageBox()
+    msg_box.setWindowTitle("AutoKey")
+    msg_box.setText("Link archived!")
+    msg_box.exec_()
+
+    a_link = f"([a]({archived_link}))"
+    clipboard.fill_clipboard(a_link)
+
+main()
 ```
