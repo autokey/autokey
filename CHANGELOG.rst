@@ -104,6 +104,7 @@ Other changes
 - Update pip installation requirements
 - Add CONTRIBUTERS.rst
 - Internal Code cleanup. The configuration handling module is split into multiple modules inside a dedicated package.
+- Change clipboard wording in the AutoKey documentation.
 - AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
 
 **New Dependencies (test-time only)**
