@@ -98,7 +98,7 @@ class GtkClipboard:
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        @param contents: string to be placed onto the clipboard
         """
         Gdk.threads_enter()
         if Gtk.get_major_version() >= 3:
