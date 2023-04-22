@@ -18,9 +18,9 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="1" column="1">
-    <widget class="QPushButton" name="mod_alt_button">
+    <widget class="QPushButton" name="mod_left_alt_button">
      <property name="text">
-      <string>Alt</string>
+      <string>Left Alt</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -28,9 +28,9 @@
     </widget>
    </item>
    <item row="1" column="4">
-    <widget class="QPushButton" name="mod_hyper_button">
+    <widget class="QPushButton" name="mod_left_hyper_button">
      <property name="text">
-      <string>Hyper</string>
+      <string>Left Hyper</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -38,9 +38,9 @@
     </widget>
    </item>
    <item row="1" column="5">
-    <widget class="QPushButton" name="mod_meta_button">
+    <widget class="QPushButton" name="mod_left_meta_button">
      <property name="text">
-      <string>Meta</string>
+      <string>Left Meta</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -61,9 +61,9 @@
     </spacer>
    </item>
    <item row="1" column="2">
-    <widget class="QPushButton" name="mod_shift_button">
+    <widget class="QPushButton" name="mod_left_shift_button">
      <property name="text">
-      <string>Shift</string>
+      <string>Left Shift</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -71,9 +71,9 @@
     </widget>
    </item>
    <item row="1" column="0">
-    <widget class="QPushButton" name="mod_control_button">
+    <widget class="QPushButton" name="mod_left_control_button">
      <property name="text">
-      <string>Control</string>
+      <string>Left Control</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -81,9 +81,82 @@
     </widget>
    </item>
    <item row="1" column="3">
-    <widget class="QPushButton" name="mod_super_button">
+    <widget class="QPushButton" name="mod_left_super_button">
      <property name="text">
-      <string>Super</string>
+      <string>Left Super</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+      <item row="2" column="1">
+    <widget class="QPushButton" name="mod_right_alt_button">
+     <property name="text">
+      <string>Right Alt</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QPushButton" name="mod_right_hyper_button">
+     <property name="text">
+      <string>Right Hyper</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="5">
+    <widget class="QPushButton" name="mod_right_meta_button">
+     <property name="text">
+      <string>Right Meta</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="6">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>81</width>
+       <height>27</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="mod_right_shift_button">
+     <property name="text">
+      <string>Right Shift</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QPushButton" name="mod_right_control_button">
+     <property name="text">
+      <string>Right Control</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="mod_right_super_button">
+     <property name="text">
+      <string>Right Super</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -138,12 +211,18 @@
   </layout>
  </widget>
  <tabstops>
-  <tabstop>mod_control_button</tabstop>
-  <tabstop>mod_alt_button</tabstop>
-  <tabstop>mod_shift_button</tabstop>
-  <tabstop>mod_super_button</tabstop>
-  <tabstop>mod_hyper_button</tabstop>
-  <tabstop>mod_meta_button</tabstop>
+  <tabstop>mod_left_control_button</tabstop>
+  <tabstop>mod_left_alt_button</tabstop>
+  <tabstop>mod_left_shift_button</tabstop>
+  <tabstop>mod_left_super_button</tabstop>
+  <tabstop>mod_left_hyper_button</tabstop>
+  <tabstop>mod_left_meta_button</tabstop>
+  <tabstop>mod_right_control_button</tabstop>
+  <tabstop>mod_right_alt_button</tabstop>
+  <tabstop>mod_right_shift_button</tabstop>
+  <tabstop>mod_right_super_button</tabstop>
+  <tabstop>mod_right_hyper_button</tabstop>
+  <tabstop>mod_right_meta_button</tabstop>
  </tabstops>
  <resources/>
  <connections>

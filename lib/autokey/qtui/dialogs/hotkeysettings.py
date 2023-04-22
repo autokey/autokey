@@ -63,13 +63,21 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         self.grabber = None  # type: iomediator.KeyGrabber
 
         self.MODIFIER_BUTTONS = {
-            self.mod_control_button: Key.CONTROL,
-            self.mod_alt_button: Key.ALT,
-            # self.mod_altgr_button: Key.ALT_GR,
-            self.mod_shift_button: Key.SHIFT,
-            self.mod_super_button: Key.SUPER,
-            self.mod_hyper_button: Key.HYPER,
-            self.mod_meta_button: Key.META,
+            self.mod_right_control_button: Key.RIGHTCONTROL,
+            self.mod_right_alt_button: Key.RIGHTALT,
+            # self.mod_right_altgr_button: Key.ALT_GR,
+            self.mod_right_shift_button: Key.RIGHTSHIFT,
+            self.mod_right_super_button: Key.RIGHTSUPER,
+            self.mod_right_hyper_button: Key.RIGHTHYPER,
+            self.mod_right_meta_button: Key.RIGHTMETA,
+
+            self.mod_left_control_button: Key.LEFTCONTROL,
+            self.mod_left_alt_button: Key.LEFTALT,
+            # self.mod_left_altgr_button: Key.ALT_GR,
+            self.mod_left_shift_button: Key.LEFTSHIFT,
+            self.mod_left_super_button: Key.LEFTSUPER,
+            self.mod_left_hyper_button: Key.LEFTHYPER,
+            self.mod_left_meta_button: Key.LEFTMETA,
         }
 
     def _update_key(self, key):
