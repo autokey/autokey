@@ -55,17 +55,11 @@ class IoMediator(threading.Thread):
         self.app = service.app
         
         # Modifier tracking
-        self.modifiers = {
-            Key.CONTROL: False,
-            Key.ALT: False,
-            Key.ALT_GR: False,
-            Key.SHIFT: False,
-            Key.SUPER: False,
-            Key.HYPER: False,
-            Key.META: False,
-            Key.CAPSLOCK: False,
-            Key.NUMLOCK: False
-        }
+        self.modifiers = {}
+        for key in MODIFIERS:
+            self.modifiers[key]=False
+
+
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, self.app)
