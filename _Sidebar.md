@@ -20,7 +20,7 @@
     * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
     * [GitHub Cheat Sheet](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet)
     * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
-    * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Unit-Tests)
+    * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Tests)
   * Examples
     * [Example Scripts](https://github.com/autokey/autokey/wiki/Example-Scripts)
   * [Features](https://github.com/autokey/autokey/wiki/Features)
