@@ -204,7 +204,7 @@ If you've got what seems like a good working copy of the code, it's time to buil
 *TODO: An alternative may be to run `autokey/debian/build.sh` to build the **.deb** files, but I'm thinking that will be run automatically when following the steps above. I'll update this once I do a successful build.*
 
 #### Local - update a clone
-If you have a clone of your repository on your local system and you make a change to it on GitHub, you can update your clone with this command: `git fetch`
+If you have a clone of your repository on your local system and you make a change to it on GitHub, you can update your clone with this command inside of a terminal window in the clone's directory: `git fetch`
 
 ******************************************************************************************************************************
 
