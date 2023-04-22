@@ -86,7 +86,7 @@ class QtClipboard:
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        @param contents: string to be placed onto the clipboard
         """
         self.__execAsync(self.__fillClipboard, contents)
 
