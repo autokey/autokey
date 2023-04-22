@@ -66,7 +66,7 @@ class IoMediator(threading.Thread):
         else:
             self.interface = AtSpiInterface(self, self.app)
 
-        if True:
+        if False:
             self.windowInterface = GnomeExtensionWindowInterface()
         else:
             self.windowInterface = XWindowInterface()
