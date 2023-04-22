@@ -7,10 +7,10 @@ The unit test suite has two additional requirements:
 
 Running the test suite is integrated into `setup.py`. The tests can be run by executing `python3 setup.py test` from the repository root directory.
 
-## Trying out the code with a clone
-You can try out the code by cloning it and testing it locally on your machine without having to install it.
+## Trying out AutoKey with a clone
+You can try out the code by cloning it and testing it locally on your machine without having to install it. This is a great way to help the developers when they've created new features or fixed issues and would like feedback from users. It's also a great way to test out your own code if you'd like to do some AutoKey developing of your own.
 
-1. Open a clone's folder in a terminal window on your computer or, if you don't already have a clone, pick one of these to get a clone:
+1. Open a clone's folder in a terminal window on your computer or, if you don't already have a clone, **first make sure that AutoKey is [installed](https://github.com/autokey/autokey/wiki/Installing) on your computer (from your distribution's package manager, etc.) so that you have all of its dependencies already**, and then pick one of these to get a clone:
    * **Clone a repository:**
      1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
      2. Click the **Code** button.
