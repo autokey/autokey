@@ -162,6 +162,7 @@ api += get_api("./lib/autokey/scripting/engine.py")
 api += get_api("./lib/autokey/scripting/highlevel.py", "highlevel")
 api += get_api("./lib/autokey/scripting/abstract_clipboard.py", "clipboard")
 api += get_api("./lib/autokey/scripting/dialog_qt.py", "dialog")
+api += get_api("./lib/autokey/model/store.py")
 # common.py holds classes that are returned by other things, doesn't need to be autocompleted.
 #api += get_api("./lib/autokey/scripting/common.py")
 
@@ -184,6 +185,7 @@ csv_api += get_api("./lib/autokey/scripting/engine.py", csv=True)
 csv_api += get_api("./lib/autokey/scripting/highlevel.py", "highlevel", csv=True)
 csv_api += get_api("./lib/autokey/scripting/abstract_clipboard.py", "clipboard", csv=True)
 csv_api += get_api("./lib/autokey/scripting/dialog_gtk.py", "dialog", csv=True)
+csv_api += get_api("./lib/autokey/model/store.py", csv=True)
 #csv_api += get_api("./lib/autokey/scripting/common.py", csv=True)
 
 filename = "./lib/autokey/gtkui/data/api.csv"

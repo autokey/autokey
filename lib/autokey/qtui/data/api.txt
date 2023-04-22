@@ -84,3 +84,10 @@ dialog.save_file(title, initialDir, fileTypes, rememberAs) Show a Save As dialog
 dialog.choose_directory(title, initialDir, rememberAs) Show a Directory Chooser dialog
 dialog.choose_colour(title) Show a Colour Chooser dialog
 dialog.calendar(title, format_str, date) Show a calendar dialog
+store.set_value(key, value) Store a value
+store.get_value(key) Get a value
+store.remove_value(key) Remove a value
+store.set_global_value(key, value) Store a global value
+store.get_global_value(key) Get a global value
+store.remove_global_value(key) Remove a global value
+store.has_key(key) python 2 compatibility
