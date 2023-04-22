@@ -82,11 +82,13 @@ class FileCompletionProvider(GObject.GObject, GtkSource.CompletionProvider):
                     item.set_icon_name("gtk-jump-to")
 
                     
-                    proposals.append(item)
+                    proposals.append({"func_name": func_name, "completion": item})
 
                     if self.trigger=="<":
                         self.name = "Insert Macro"
                     else:
                         self.name = row[0].split(".")[0]
 
-        context.add_proposals(self, proposals, True)
+        proposals.sort(key=lambda x: x["func_name"])
+        sorted_proposals = [p["completion"] for p in proposals]
+        context.add_proposals(self, sorted_proposals, True)
