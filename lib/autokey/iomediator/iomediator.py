@@ -21,7 +21,7 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.interface import XRecordInterface, AtSpiInterface
+from autokey.interface import XRecordInterface, AtSpiInterface, XWindowInterface, GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -71,6 +71,11 @@ class IoMediator(threading.Thread):
             self.interface = XRecordInterface(self, self.app)
         else:
             self.interface = AtSpiInterface(self, self.app)
+
+        if True:
+            self.windowInterface = GnomeExtensionWindowInterface()
+        else:
+            self.windowInterface = XWindowInterface()
 
         self.clipboard = Clipboard()
 

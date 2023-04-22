@@ -20,7 +20,7 @@ This file handles interactions with X, mainly grabbing hotkeys.
 A better name might be "keyboard_interface.py".
 """
 
-__all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
+#__all__ = ["XRecordInterface", "AtSpiInterface"]
 
 import logging
 import typing
@@ -29,18 +29,23 @@ import select
 import queue
 import subprocess
 import time
+import json
+import functools
+import copy
+import dbus
+from dbus.mainloop.glib import DBusGMainLoop
 
 import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, WindowInfo
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
 import Xlib.threaded as xlib_threaded
 
-# Delete again, as the reference is not needed anymore after the import side-effect has done it’s work.
+# Delete again, as the reference is not needed anymore after the import side-effect has done it's work.
 # This (hopefully) also prevents automatic code cleanup software from deleting an "unused" import and re-introduce
 # issues.
 del xlib_threaded
@@ -104,14 +109,209 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
     raise RuntimeError("x must be str or bytes or memoryview object, type(x)={}, repr(x)={}".format(type(x), repr(x)))
 
 
-# This tuple is used to return requested window properties.
-WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
+
+def queue_method(queue):
+    """
+    Adds the decorated method to the queue with `put_nowait`
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args):
+            queue.put_nowait((func, args))
+        return wrapper
+    return decorator
+
+class XWindowInterface(AbstractWindowInterface):
+    """
+    Window Read interface for x11/xorg.
+
+    Extends :class:`.AbstractWindowInterface`
+    """
+
+    def __init__(self):
+        self.localDisplay = display.Display()
+        # Window name atoms
+        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
+        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
 
-class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInterface):
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
+        try:
+            if window is None:
+                window = self.localDisplay.get_input_focus().focus
+            return self._get_window_info(window, traverse)
+        except error.BadWindow:
+            logger.warning("Got BadWindow error while requesting window information.")
+            return self._create_window_info(window, "", "")
+
+    def get_window_title(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_title
+
+    def get_window_class(self, window=None, traverse=True) -> str:
+        return self.get_window_info(window, traverse).wm_class
+    
+    def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
+        new_wm_title = self._try_get_window_title(window)
+        new_wm_class = self._try_get_window_class(window)
+
+        if not wm_title and new_wm_title:  # Found title, update known information
+            wm_title = new_wm_title
+        if not wm_class and new_wm_class:  # Found class, update known information
+            wm_class = new_wm_class
+
+        if traverse:
+            # Recursive operation on the parent window
+            if wm_title and wm_class:  # Both known, abort walking the tree and return the data.
+                return self._create_window_info(window, wm_title, wm_class)
+            else:  # At least one property is still not known. So walk the window tree up.
+                parent = window.query_tree().parent
+                # Stop traversal, if the parent is not a window. When querying the parent, at some point, an integer
+                # is returned. Then just stop following the tree.
+                if isinstance(parent, int):
+                    # At this point, wm_title or wm_class may still be None. The recursive call with traverse=False
+                    # will replace any None with an empty string. See below.
+                    return self._get_window_info(window, False, wm_title, wm_class)
+                else:
+                    return self._get_window_info(parent, traverse, wm_title, wm_class)
+
+        else:
+            # No recursion, so fill unknown values with empty strings.
+            if wm_title is None:
+                wm_title = ""
+            if wm_class is None:
+                wm_class = ""
+            return self._create_window_info(window, wm_title, wm_class)
+
+    def _create_window_info(self, window, wm_title: str, wm_class: str):
+        """
+        Creates a WindowInfo object from the window title and WM_CLASS.
+        Also checks for the Java XFocusProxyWindow workaround and applies it if needed:
+
+        Workaround for Java applications: Java AWT uses a XFocusProxyWindow class, so to get usable information,
+        the parent window needs to be queried. Credits: https://github.com/mooz/xkeysnail/pull/32
+        https://github.com/JetBrains/jdk8u_jdk/blob/master/src/solaris/classes/sun/awt/X11/XFocusProxyWindow.java#L35
+        """
+        if "FocusProxy" in wm_class:
+            parent = window.query_tree().parent
+            # Discard both the already known wm_class and window title, because both are known to be wrong.
+            return self._get_window_info(parent, False)
+        else:
+            return WindowInfo(wm_title=wm_title, wm_class=wm_class)
+
+    def _try_get_window_title(self, window) -> typing.Optional[str]:
+        atom = self._try_read_property(window, self.__VisibleNameAtom)
+        if atom is None:
+            atom = self._try_read_property(window, self.__NameAtom)
+        if atom:
+            value = atom.value  # type: typing.Union[str, bytes]
+            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
+            return value.decode("utf-8") if isinstance(value, bytes) else value
+        else:
+            return None
+
+    @staticmethod
+    def _try_read_property(window, property_name: str):
+        """
+        Try to read the given property of the given window.
+        Returns the atom, if successful, None otherwise.
+        """
+        try:
+            return window.get_property(property_name, 0, 0, 255)
+        except error.BadAtom:
+            return None
+
+    @staticmethod
+    def _try_get_window_class(window) -> typing.Optional[str]:
+        wm_class = window.get_wm_class()
+        if wm_class:
+            return "{}.{}".format(wm_class[0], wm_class[1])
+        else:
+            return None
+
+class DBusInterface:
+    def __init__(self):
+        mainloop= DBusGMainLoop()
+        session_bus = dbus.SessionBus(mainloop=mainloop)
+        shell_obj = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell/Extensions/AutoKey')
+        self.dbus_interface = dbus.Interface(shell_obj, 'org.gnome.Shell.Extensions.AutoKey')
+
+class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
+    def __init__(self):
+        super().__init__()
+        
+
+    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
+        """
+        Returns a WindowInfo object containing the class and title.
+        """
+        window = self._active_window()
+        return WindowInfo(wm_class=window['wm_class'], wm_title=window['wm_title'])
+
+    def get_window_class(self, window=None, traverse=True) -> str:
+        """
+        Returns the window class of the currently focused window.
+        """
+        return self._active_window()['wm_class']
+        
+    
+    def get_window_title(self, window=None, traverse=True) -> str:
+        """
+        Returns the active window title
+        """
+        return self._active_window()['wm_title']
+
+    def _active_window(self):
+        #TODO probably can be done more efficiently with an additional dbus method in the gnome extension
+        window_list = self._dbus_window_list()
+        for window in window_list:
+            if window['focus']:
+                return window
+            
+    def _dbus_window_list(self):
+        #TODO consider how/if error handling can be implemented
+        try:
+            return json.loads(self.dbus_interface.List())
+        except dbus.exceptions.DBusException as e:
+            self.__init__() #reconnect to dbus
+            return json.loads(self.dbus_interface.List())
+            
+    def _dbus_close_window(self, window_id):
+        #TODO consider how/if error handling can be implemented
+        try:
+            self.dbus_interface.Close(window_id)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.Close(window_id)
+
+    def _dbus_activate_window(self, window_id):
+        try:
+            self.dbus_interface.Activate(window_id)
+        except dbus.exceptions.DBusException as e:  
+            self.__init__()
+            self.dbus_interface.Activate(window_id)
+
+    def _dbus_move_window(self, window_id, x, y):
+        try:
+            self.dbus_interface.Move(window_id, x, y)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.Move(window_id, x, y)
+
+    def _dbus_resize_window(self, window_id, width, height):
+        try:
+            self.dbus_interface.Resize(window_id, width, height)
+        except dbus.exceptions.DBusException as e:
+            self.__init__()
+            self.dbus_interface.Resize(window_id, width, height)
+
+class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     """
     Encapsulates the common functionality for the two X interface classes.
+
+    Extends :class:`.AbstractMouseInterface`
     """
+
+    queue = queue.Queue()
 
     def __init__(self, mediator, app):
         threading.Thread.__init__(self)
@@ -125,7 +325,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
-        self.queue = queue.Queue()
 
         # Event listener
         self.listenerThread = threading.Thread(target=self.__flush_events_loop)
@@ -134,10 +333,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         # Set initial lock state
         self.__set_lock_keys_state()
-
-        # Window name atoms
-        self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
-        self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
         #move detection of key map changes to X event thread in order to have QT and GTK detection
         # if not common.USING_QT:
@@ -149,8 +344,10 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.eventThread.start()
         self.listenerThread.start()
 
+    @queue_method(queue)
     def flush(self):
-        self.__enqueue(self.__flush)
+        self.localDisplay.flush()
+        self.lastChars = []
 
     def on_keys_changed(self, data=None):
         """
@@ -160,34 +357,51 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
             time.sleep(0.2)
-            self.__enqueue(self.__ungrab_all_hotkeys)
-            self.__enqueue(self.__delayedInitMappings)
+            self.__ungrab_all_hotkeys()
+            self.__delayedInitMappings()
         else:
             logger.debug("Ignored keymap change event")
 
+    @queue_method(queue)
     def press_key(self, keyName):
-        self.__enqueue(self.__pressKey, keyName)
+        self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
 
+    @queue_method(queue)
     def release_key(self, keyName):
-        self.__enqueue(self.__releaseKey, keyName)
+        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
+    @queue_method(queue)
     def handle_keypress(self, keyCode):
-        self.__enqueue(self.__handleKeyPress, keyCode)
+        focus = self.localDisplay.get_input_focus().focus
 
+        modifier = self.__decodeModifier(keyCode)
+        if modifier is not None:
+            self.mediator.handle_modifier_down(modifier)
+        else:
+            window_info = self.mediator.windowInterface.get_window_info(focus)
+            self.mediator.handle_keypress(keyCode, window_info)
+
+    @queue_method(queue)
     def handle_keyrelease(self, keyCode):
-        self.__enqueue(self.__handleKeyrelease, keyCode)
+        modifier = self.__decodeModifier(keyCode)
+        if modifier is not None:
+            self.mediator.handle_modifier_up(modifier)
 
+    @queue_method(queue)
     def grab_keyboard(self):
-        self.__enqueue(self.__grab_keyboard)
+        focus = self.localDisplay.get_input_focus().focus
+        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        self.localDisplay.flush()
 
+    @queue_method(queue)
     def ungrab_keyboard(self):
-        self.__enqueue(self.__ungrabKeyboard)
+        self.localDisplay.ungrab_keyboard(X.CurrentTime)
+        self.localDisplay.flush()
 
     def grab_hotkey(self, item):
         self.__enqueue_hotkey_grab_ungrab(item, grab=True)
 
     def ungrab_hotkey(self, item):
-        import copy
         newItem = copy.copy(item)
         self.__enqueue_hotkey_grab_ungrab(newItem, grab=False)
 
@@ -211,43 +425,112 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             except ValueError:
                 return "<code%d>" % keyCode
 
+    @queue_method(queue)
     def send_string(self, string):
-        # Asynchronous send string.
-        self.__enqueue(self.__sendString, string)
+        """
+        Send a string of printable characters.
+        """
+        logger.debug("Sending string: %r", string)
+        # Determine if workaround is needed
+        if not cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND]:
+            self.__checkWorkaroundNeeded()
 
+        # First find out if any chars need remapping
+        remapNeeded = self.__chars_need_remapping(string)
+        # Now we know chars need remapping, do it
+        self.__remap_characters(remapNeeded, string)
+
+        focus = self.localDisplay.get_input_focus().focus
+
+        for char in string:
+            try:
+                self.__send_keycode_for_char(char, focus)
+            except Exception as e:
+                logger.exception("Error sending char %r: %s", char, str(e))
+
+        self.__ignoreRemap = False
+
+    @queue_method(queue)
     def send_key(self, keyName):
         """
-        Send a specific non-printing key, eg Up, Left, etc
+        Send a specific non-printing key, eg <up>, <left>, etc
+
+        :param keyName: Name of the key IE <up>, <left>
         """
-        self.__enqueue(self.__sendKey, keyName)
+        logger.debug("Send special key: [%r]", keyName)
+        self.__sendKeyCode(self.__lookupKeyCode(keyName))
 
-
+    @queue_method(queue)
     def send_modified_key(self, keyName, modifiers):
         """
         Send a modified key (e.g. when emulating a hotkey)
         """
-        self.__enqueue(self.__sendModifiedKey, keyName, modifiers)
+        logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
+        try:
+            keyCode = self.__lookupKeyCode(keyName)
+            self.__send_keycode_with_modifiers_pressed(keyCode,
+                                                       modifiers)
+        except Exception as e:
+            logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
 
+    @queue_method(queue)
     def fake_keypress(self, keyName):
-         self.__enqueue(self.__fakeKeypress, keyName)
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        self.localDisplay.sync()
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        self.localDisplay.sync()
 
 
+    @queue_method(queue)
     def fake_keydown(self, keyName):
-        self.__enqueue(self.__fakeKeydown, keyName)
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
+        self.localDisplay.sync()
 
+    @queue_method(queue)
     def fake_keyup(self, keyName):
-        self.__enqueue(self.__fakeKeyup, keyName)
+        keyCode = self.__lookupKeyCode(keyName)
+        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
+        self.localDisplay.sync()
 
+    @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button, relative):
-        self.__enqueue(self.__sendMouseClick, xCoord, yCoord, button, relative)
+        # Get current pointer position so we can return it there
+        pos = self.rootWindow.query_pointer()
 
+        if relative:
+            focus = self.localDisplay.get_input_focus().focus
+            focus.warp_pointer(xCoord, yCoord)
+            xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
+            xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
+        else:
+            self.rootWindow.warp_pointer(xCoord, yCoord)
+            xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
+            xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
+
+        self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
+
+        self.__flush()
+
+    @queue_method(queue)
     def mouse_press(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mousePress, xCoord, yCoord, button)
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
+        self.__flush()
 
+    @queue_method(queue)
     def mouse_release(self, xCoord, yCoord, button):
-        self.__enqueue(self.__mouseRelease, xCoord, yCoord, button)
+        focus = self.localDisplay.get_input_focus().focus
+        xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
+        self.__flush()
 
     def mouse_location(self):
+        """Returns the location of the Mouse as (x,y)
+
+        :return: Tuple of the Mouse Location(x,y)
+        :rtype: tuple
+        """
         pos = self.rootWindow.query_pointer()
         return (pos.root_x, pos.root_y)
 
@@ -260,35 +543,63 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def scroll_down(self, number):
         for i in range(0, number):
-            self.__enqueue(self.__scroll, Button.SCROLL_DOWN)
+            self.__scroll(Button.SCROLL_DOWN)
 
     def scroll_up(self, number):
         for i in range(0, number):
-            self.__enqueue(self.__scroll, Button.SCROLL_UP)
+            self.__scroll(Button.SCROLL_UP)
 
+    @queue_method(queue)
     def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
-        self.__enqueue(self.__moveCursor, xCoord, yCoord, relative, relative_self)
+        if relative:
+            focus = self.localDisplay.get_input_focus().focus
+            focus.warp_pointer(xCoord, yCoord)
+            self.__flush()
+            return
 
+        if relative_self:
+            pos = self.rootWindow.query_pointer()
+            xCoord += pos.root_x
+            yCoord += pos.root_y
+
+        self.rootWindow.warp_pointer(xCoord,yCoord)
+        self.__flush()
+
+    @queue_method(queue)
     def send_mouse_click_relative(self, xoff, yoff, button):
-        self.__enqueue(self.__sendMouseClickRelative, xoff, yoff, button)
+        # Get current pointer position
+        pos = self.rootWindow.query_pointer()
 
+        xCoord = pos.root_x + xoff
+        yCoord = pos.root_y + yoff
+
+        self.rootWindow.warp_pointer(xCoord, yCoord)
+        xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
+        xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
+
+        self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
+
+        self.__flush()
+
+    @queue_method(queue)
     def handle_mouseclick(self, button, x, y):
-        self.__enqueue(self.__handleMouseclick, button, x, y)
+        # Sleep a bit to timing issues. A mouse click might change the active application.
+        # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
+        # causing the queried window title (and maybe the window class or even none of those) to be invalid.
+        time.sleep(0.005)  # TODO: may need some tweaking
+        window_info = self.mediator.windowInterface.get_window_info()
 
-    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        try:
-            if window is None:
-                window = self.localDisplay.get_input_focus().focus
-            return self._get_window_info(window, traverse)
-        except error.BadWindow:
-            logger.warning("Got BadWindow error while requesting window information.")
-            return self._create_window_info(window, "", "")
+        if x is None and y is None:
+            ret = self.localDisplay.get_input_focus().focus.query_pointer()
+            self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button, window_info)
+        else:
+            focus = self.localDisplay.get_input_focus().focus
+            try:
+                rel = focus.translate_coords(self.rootWindow, x, y)
+                self.mediator.handle_mouse_click(x, y, rel.x, rel.y, button, window_info)
+            except:
+                self.mediator.handle_mouse_click(x, y, 0, 0, button, window_info)
 
-    def get_window_title(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_title
-
-    def get_window_class(self, window=None, traverse=True) -> str:
-        return self.get_window_info(window, traverse).wm_class
 
     def cancel(self):
         logger.debug("XInterfaceBase: Try to exit event thread.")
@@ -325,6 +636,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
     def __enqueue(self, method: typing.Callable, *args):
         self.queue.put_nowait((method, args))
 
+    @queue_method(queue)
     def __delayedInitMappings(self):
         self.__initMappings()
         self.__ignoreRemap = False
@@ -337,7 +649,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         self.__build_usable_offsets()
         self.__build_modifier_mask_mapping()
 
-        self.__grab_all_hotkeys()
+        self.__grab_ungrab_all_hotkeys(grab=True)
         self.localDisplay.flush()
 
         self.__availableKeycodes = self.__get_unused_keycodes()
@@ -441,25 +753,20 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 else:
                     self.__recursive_ungrab(item)
         if grab:
-            self.__enqueue(self.__recurseTree, self.rootWindow, hotkeys)
+            self.recurseTree(self.rootWindow, hotkeys)
         else:
-            self.__recurseTreeUngrab(self.rootWindow, hotkeys)
-
-    def __grab_all_hotkeys(self):
-        """
-        Run during startup to grab global and specific hotkeys in all open windows
-        """
-        self.__grab_ungrab_all_hotkeys(grab=True)
+            self.__recurse_tree_grab_ungrab(self.rootWindow, hotkeys, grab=False)
 
     def __enqueue_grab(self, item):
         self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, self.rootWindow)
         if self.__needsMutterWorkaround(item):
             self.__enqueue(self.__grabRecurse, item, self.rootWindow, False)
 
-    def __recurseTree(self, parent, hotkeys):
+    @queue_method(queue)
+    def recurseTree(self, parent, hotkeys):
         self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=True)
 
-
+    @queue_method(queue)
     def __ungrab_all_hotkeys(self):
         """
         Ungrab all hotkeys in preparation for keymap change
@@ -482,7 +789,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
         for window in children:
             try:
-                window_info = self.get_window_info(window, False)
+                window_info = self.mediator.windowInterface.get_window_info(window, False)
 
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
@@ -499,10 +806,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
                 ungrab = "" if grab else "un"
                 logger.exception("{}grab on window failed".format(ungrab))
 
-
-    def __recurseTreeUngrab(self, parent, hotkeys):
-        self.__recurse_tree_grab_ungrab(parent, hotkeys, grab=False)
-
+    @queue_method(queue)
     def __grabHotkeysForWindow(self, window):
         """
         Grab all hotkeys relevant to the window
@@ -511,7 +815,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         """
         c = self.app.configManager
         hotkeys = c.hotKeys + c.hotKeyFolders
-        window_info = self.get_window_info(window)
+        window_info = self.mediator.windowInterface.get_window_info(window)
         for item in hotkeys:
             if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
                 self.__enqueue(self.__grabHotkey, item.hotKey, item.modifiers, window)
@@ -589,7 +893,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             shouldTrigger = False
 
             if checkWinInfo:
-                window_info = self.get_window_info(window, False)
+                window_info = self.mediator.windowInterface.get_window_info(window, False)
                 shouldTrigger = item._should_trigger_window_title(window_info)
 
             if shouldTrigger or not checkWinInfo:
@@ -612,16 +916,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         Ungrab a specific hotkey in the given window
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
-
-
-    def __grab_keyboard(self):
-        focus = self.localDisplay.get_input_focus().focus
-        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
-        self.localDisplay.flush()
-
-    def __ungrabKeyboard(self):
-        self.localDisplay.ungrab_keyboard(X.CurrentTime)
-        self.localDisplay.flush()
 
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
@@ -683,30 +977,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         keyCode, offset = self.__findUsableKeycode(keyCodeList)
         return keyCode, offset
 
-    def __sendString(self, string):
-        """
-        Send a string of printable characters.
-        """
-        logger.debug("Sending string: %r", string)
-        # Determine if workaround is needed
-        if not cm.ConfigManager.SETTINGS[cm_constants.ENABLE_QT4_WORKAROUND]:
-            self.__checkWorkaroundNeeded()
-
-        # First find out if any chars need remapping
-        remapNeeded = self.__chars_need_remapping(string)
-        # Now we know chars need remapping, do it
-        self.__remap_characters(remapNeeded, string)
-
-        focus = self.localDisplay.get_input_focus().focus
-
-        for char in string:
-            try:
-                self.__send_keycode_for_char(char, focus)
-            except Exception as e:
-                logger.exception("Error sending char %r: %s", char, str(e))
-
-        self.__ignoreRemap = False
-
     def __send_keycode_for_char(self, char, focus):
         # Offset encodes the modifiers needed to convert the base key press
         # into the desired result symbol.
@@ -744,7 +1014,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         ukeyCode, uOffset = self.__findUsableKeycode(ukeyCodeList)
         self.__send_keycode_with_modifiers_pressed(ukeyCode, [Key.CONTROL, Key.SHIFT], focus)
         self.__send_char_as_hex_string(char)
-        self.__pressKey(Key.ENTER)
+        self.__sendKeyPressEvent(self.__lookupKeyCode(Key.ENTER), 0)
 
     def __send_char_as_hex_string(self, char):
         char_as_hex_string = '{:X}'.format(ord(char))
@@ -758,72 +1028,15 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         mask = 0
         for modkey in modifier_keys: mask |= self.modMasks[modkey]
 
-        for modkey in modifier_keys: self.__pressKey(modkey)
+        for modkey in modifier_keys: self.__sendKeyPressEvent(self.__lookupKeyCode(modkey), 0)
         if focus:
             self.__sendKeyCode(keyCode, mask, focus)
         else:
             self.__sendKeyCode(keyCode, mask)
-        for modkey in modifier_keys: self.__releaseKey(modkey)
+        for modkey in modifier_keys: self.__sendKeyReleaseEvent(self.__lookupKeyCode(modkey), 0)
 
 
-    def __sendKey(self, keyName):
-        logger.debug("Send special key: [%r]", keyName)
-        self.__sendKeyCode(self.__lookupKeyCode(keyName))
-
-    def __fakeKeypress(self, keyName):
-        keyCode = self.__lookupKeyCode(keyName)
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        self.localDisplay.sync()
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-        self.localDisplay.sync()
-
-    def __fakeKeydown(self, keyName):
-        keyCode = self.__lookupKeyCode(keyName)
-        xtest.fake_input(self.rootWindow, X.KeyPress, keyCode)
-        self.localDisplay.sync()
-
-    def __fakeKeyup(self, keyName):
-        keyCode = self.__lookupKeyCode(keyName)
-        xtest.fake_input(self.rootWindow, X.KeyRelease, keyCode)
-        self.localDisplay.sync()
-
-    def __sendModifiedKey(self, keyName, modifiers):
-        logger.debug("Send modified key: modifiers: %s key: %s", modifiers, keyName)
-        try:
-            keyCode = self.__lookupKeyCode(keyName)
-            self.__send_keycode_with_modifiers_pressed(keyCode,
-                                                       modifiers)
-        except Exception as e:
-            logger.warning("Error sending modified key %r %r: %s", modifiers, keyName, str(e))
-
-    def __sendMouseClick(self, xCoord, yCoord, button, relative):
-        # Get current pointer position so we can return it there
-        pos = self.rootWindow.query_pointer()
-
-        if relative:
-            focus = self.localDisplay.get_input_focus().focus
-            focus.warp_pointer(xCoord, yCoord)
-            xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
-            xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
-        else:
-            self.rootWindow.warp_pointer(xCoord, yCoord)
-            xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
-            xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
-
-        self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
-
-        self.__flush()
-
-    def __mousePress(self, xCoord, yCoord, button):
-        focus = self.localDisplay.get_input_focus().focus
-        xtest.fake_input(focus, X.ButtonPress, button, x=xCoord, y=yCoord)
-        self.__flush()
-
-    def __mouseRelease(self, xCoord, yCoord, button):
-        focus = self.localDisplay.get_input_focus().focus
-        xtest.fake_input(focus, X.ButtonRelease, button, x=xCoord, y=yCoord)
-        self.__flush()
-
+    @queue_method(queue)
     def __scroll(self, button):
         focus = self.localDisplay.get_input_focus().focus
         x,y = self.mouse_location()
@@ -831,45 +1044,10 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
         xtest.fake_input(self=focus, event_type=X.ButtonRelease, detail=button, x=x, y=y)
         self.__flush()
 
-    def __moveCursor(self, xCoord, yCoord, relative=False, relative_self=False):
-        if relative:
-            focus = self.localDisplay.get_input_focus().focus
-            focus.warp_pointer(xCoord, yCoord)
-            self.__flush()
-            return
-
-        if relative_self:
-            pos = self.rootWindow.query_pointer()
-            xCoord += pos.root_x
-            yCoord += pos.root_y
-
-        self.rootWindow.warp_pointer(xCoord,yCoord)
-        self.__flush()
-
-    def __sendMouseClickRelative(self, xoff, yoff, button):
-        # Get current pointer position
-        pos = self.rootWindow.query_pointer()
-
-        xCoord = pos.root_x + xoff
-        yCoord = pos.root_y + yoff
-
-        self.rootWindow.warp_pointer(xCoord, yCoord)
-        xtest.fake_input(self.rootWindow, X.ButtonPress, button, x=xCoord, y=yCoord)
-        xtest.fake_input(self.rootWindow, X.ButtonRelease, button, x=xCoord, y=yCoord)
-
-        self.rootWindow.warp_pointer(pos.root_x, pos.root_y)
-
-        self.__flush()
-
     def __flush(self):
         self.localDisplay.flush()
         self.lastChars = []
 
-    def __pressKey(self, keyName):
-        self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
-
-    def __releaseKey(self, keyName):
-        self.__sendKeyReleaseEvent(self.__lookupKeyCode(keyName), 0)
 
     def __flush_events_loop(self):
         logger.debug("__flushEvents: Entering event loop.")
@@ -913,40 +1091,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
             for window in createdWindows:
                 if window not in destroyedWindows:
-                    self.__enqueue(self.__grabHotkeysForWindow, window)
-
-    def __handleKeyPress(self, keyCode):
-        focus = self.localDisplay.get_input_focus().focus
-
-        modifier = self.__decodeModifier(keyCode)
-        if modifier is not None:
-            self.mediator.handle_modifier_down(modifier)
-        else:
-            window_info = self.get_window_info(focus)
-            self.mediator.handle_keypress(keyCode, window_info)
-
-    def __handleKeyrelease(self, keyCode):
-        modifier = self.__decodeModifier(keyCode)
-        if modifier is not None:
-            self.mediator.handle_modifier_up(modifier)
-
-    def __handleMouseclick(self, button, x, y):
-        # Sleep a bit to timing issues. A mouse click might change the active application.
-        # If so, the switch happens asynchronously somewhere during the execution of the first two queries below,
-        # causing the queried window title (and maybe the window class or even none of those) to be invalid.
-        time.sleep(0.005)  # TODO: may need some tweaking
-        window_info = self.get_window_info()
-
-        if x is None and y is None:
-            ret = self.localDisplay.get_input_focus().focus.query_pointer()
-            self.mediator.handle_mouse_click(ret.root_x, ret.root_y, ret.win_x, ret.win_y, button, window_info)
-        else:
-            focus = self.localDisplay.get_input_focus().focus
-            try:
-                rel = focus.translate_coords(self.rootWindow, x, y)
-                self.mediator.handle_mouse_click(x, y, rel.x, rel.y, button, window_info)
-            except:
-                self.mediator.handle_mouse_click(x, y, 0, 0, button, window_info)
+                    self.__grabHotkeysForWindow(window)
 
     def __decodeModifier(self, keyCode):
         """
@@ -967,7 +1112,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def __checkWorkaroundNeeded(self):
         focus = self.localDisplay.get_input_focus().focus
-        window_info = self.get_window_info(focus)
+        window_info = self.mediator.windowInterface.get_window_info(focus)
         w = self.app.configManager.workAroundApps
         if w.match(window_info.wm_title) or w.match(window_info.wm_class):
             self.__enableQT4Workaround = True
@@ -1032,84 +1177,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
             except Exception as e:
                 logger.error("Unknown key name: %s", char)
                 raise
-
-    def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
-        new_wm_title = self._try_get_window_title(window)
-        new_wm_class = self._try_get_window_class(window)
-
-        if not wm_title and new_wm_title:  # Found title, update known information
-            wm_title = new_wm_title
-        if not wm_class and new_wm_class:  # Found class, update known information
-            wm_class = new_wm_class
-
-        if traverse:
-            # Recursive operation on the parent window
-            if wm_title and wm_class:  # Both known, abort walking the tree and return the data.
-                return self._create_window_info(window, wm_title, wm_class)
-            else:  # At least one property is still not known. So walk the window tree up.
-                parent = window.query_tree().parent
-                # Stop traversal, if the parent is not a window. When querying the parent, at some point, an integer
-                # is returned. Then just stop following the tree.
-                if isinstance(parent, int):
-                    # At this point, wm_title or wm_class may still be None. The recursive call with traverse=False
-                    # will replace any None with an empty string. See below.
-                    return self._get_window_info(window, False, wm_title, wm_class)
-                else:
-                    return self._get_window_info(parent, traverse, wm_title, wm_class)
-
-        else:
-            # No recursion, so fill unknown values with empty strings.
-            if wm_title is None:
-                wm_title = ""
-            if wm_class is None:
-                wm_class = ""
-            return self._create_window_info(window, wm_title, wm_class)
-
-    def _create_window_info(self, window, wm_title: str, wm_class: str):
-        """
-        Creates a WindowInfo object from the window title and WM_CLASS.
-        Also checks for the Java XFocusProxyWindow workaround and applies it if needed:
-
-        Workaround for Java applications: Java AWT uses a XFocusProxyWindow class, so to get usable information,
-        the parent window needs to be queried. Credits: https://github.com/mooz/xkeysnail/pull/32
-        https://github.com/JetBrains/jdk8u_jdk/blob/master/src/solaris/classes/sun/awt/X11/XFocusProxyWindow.java#L35
-        """
-        if "FocusProxy" in wm_class:
-            parent = window.query_tree().parent
-            # Discard both the already known wm_class and window title, because both are known to be wrong.
-            return self._get_window_info(parent, False)
-        else:
-            return WindowInfo(wm_title=wm_title, wm_class=wm_class)
-
-    def _try_get_window_title(self, window) -> typing.Optional[str]:
-        atom = self._try_read_property(window, self.__VisibleNameAtom)
-        if atom is None:
-            atom = self._try_read_property(window, self.__NameAtom)
-        if atom:
-            value = atom.value  # type: typing.Union[str, bytes]
-            # based on python3-xlib version, atom.value may be a bytes object, then decoding is necessary.
-            return value.decode("utf-8") if isinstance(value, bytes) else value
-        else:
-            return None
-
-    @staticmethod
-    def _try_read_property(window, property_name: str):
-        """
-        Try to read the given property of the given window.
-        Returns the atom, if successful, None otherwise.
-        """
-        try:
-            return window.get_property(property_name, 0, 0, 255)
-        except error.BadAtom:
-            return None
-
-    @staticmethod
-    def _try_get_window_class(window) -> typing.Optional[str]:
-        wm_class = window.get_wm_class()
-        if wm_class:
-            return "{}.{}".format(wm_class[0], wm_class[1])
-        else:
-            return None
 
 
 
