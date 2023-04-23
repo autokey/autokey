@@ -25,7 +25,14 @@ You can try out the code by cloning it and testing it locally on your machine wi
      4. Open a terminal window on your computer in the directory in which you'd like to create the clone's subdirectory.
      5. Enter this command, replacing **mybranch** with the name of the branch you'd like to work on and replace the example URL with the fork's URL: `git clone --branch mybranch --single-branch https://github.com/foo/bar.git`
      6. Press the **Enter** key to create the clone in a new subdirectory named after the repository.
-2. Update your clone so that you have the most current code from the repository by using this command inside of a terminal window in the clone's directory: `git fetch`
+2. Update your clone so that you have the most current code from the repository (must be done in each branch):
+   * Live dangerously:
+     1. Pull the changes (fetch and merge them) from the remote repository to the current branch in your local repository: `git pull`
+   * Be more cautious:
+     1. Fetch the latest meta-data from the remote repository to your local repository (your invisible .git folder), but don't merge the changes into your local branch (leave your files alone): `git fetch`
+     2. Display the log of fetched changes to see what changed: `git log ...@{u}`
+     3. Display what will be changed if you were to merge the fetched changes into your current branch (replace REPO with the repository name and BRANCH with the name of the branch: `git diff REPO/BRANCH`
+     4. Merge the fetched changes into the current branch in your local repository: `git merge`
 3. Change to the **/lib** directory: `cd lib`
 4. Run AutoKey in either GTK or Qt mode by running its module as an executable:
    * GTK: `python3 -m autokey.gtkui`
