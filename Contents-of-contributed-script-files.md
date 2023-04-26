@@ -77,6 +77,7 @@
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#gui-dialog-that-uses-typed-or-typed-and-clicked-input)
 * [GUI Date Dialog](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#gui-date-dialog)
 * [GUI Date Dialog With Format Control](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#gui-date-dialog-with-format-control)
+* [Archive URLs using the Wayback Machine](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#archive-links-with-the-wayback-machine)
 
 ## Mouse Control
   * [Before you begin](https://github.com/autokey/autokey/wiki/Mouse-Control#before-you-begin)
