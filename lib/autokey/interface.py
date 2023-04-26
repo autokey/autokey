@@ -29,17 +29,14 @@ import select
 import queue
 import subprocess
 import time
-import json
-import functools
 import copy
-import dbus
-from dbus.mainloop.glib import DBusGMainLoop
+
 
 import autokey.model.phrase
 if typing.TYPE_CHECKING:
     from autokey.iomediator.iomediator import IoMediator
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, WindowInfo
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, WindowInfo, queue_method
 
 
 # Imported to enable threading in Xlib. See module description. Not an unused import statement.
@@ -110,16 +107,6 @@ def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
 
 
 
-def queue_method(queue):
-    """
-    Adds the decorated method to the queue with `put_nowait`
-    """
-    def decorator(func):
-        @functools.wraps(func)
-        def wrapper(*args):
-            queue.put_nowait((func, args))
-        return wrapper
-    return decorator
 
 class XWindowInterface(AbstractWindowInterface):
     """
@@ -228,84 +215,6 @@ class XWindowInterface(AbstractWindowInterface):
         else:
             return None
 
-class DBusInterface:
-    def __init__(self):
-        mainloop= DBusGMainLoop()
-        session_bus = dbus.SessionBus(mainloop=mainloop)
-        shell_obj = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell/Extensions/AutoKey')
-        self.dbus_interface = dbus.Interface(shell_obj, 'org.gnome.Shell.Extensions.AutoKey')
-
-class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
-    def __init__(self):
-        super().__init__()
-        
-
-    def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        """
-        Returns a WindowInfo object containing the class and title.
-        """
-        window = self._active_window()
-        return WindowInfo(wm_class=window['wm_class'], wm_title=window['wm_title'])
-
-    def get_window_class(self, window=None, traverse=True) -> str:
-        """
-        Returns the window class of the currently focused window.
-        """
-        return self._active_window()['wm_class']
-        
-    
-    def get_window_title(self, window=None, traverse=True) -> str:
-        """
-        Returns the active window title
-        """
-        return self._active_window()['wm_title']
-
-    def _active_window(self):
-        #TODO probably can be done more efficiently with an additional dbus method in the gnome extension
-        window_list = self._dbus_window_list()
-        for window in window_list:
-            if window['focus']:
-                return window
-        # TODO seeing this a lot when I use a script to call `gnome-screenshot -a`, suspect it's just related to that focus behaves differently when that app runs?
-        logger.error("Unable to determine the active window")
-        return None
-            
-    def _dbus_window_list(self):
-        #TODO consider how/if error handling can be implemented
-        try:
-            return json.loads(self.dbus_interface.List())
-        except dbus.exceptions.DBusException as e:
-            self.__init__() #reconnect to dbus
-            return json.loads(self.dbus_interface.List())
-            
-    def _dbus_close_window(self, window_id):
-        #TODO consider how/if error handling can be implemented
-        try:
-            self.dbus_interface.Close(window_id)
-        except dbus.exceptions.DBusException as e:
-            self.__init__()
-            self.dbus_interface.Close(window_id)
-
-    def _dbus_activate_window(self, window_id):
-        try:
-            self.dbus_interface.Activate(window_id)
-        except dbus.exceptions.DBusException as e:  
-            self.__init__()
-            self.dbus_interface.Activate(window_id)
-
-    def _dbus_move_window(self, window_id, x, y):
-        try:
-            self.dbus_interface.Move(window_id, x, y)
-        except dbus.exceptions.DBusException as e:
-            self.__init__()
-            self.dbus_interface.Move(window_id, x, y)
-
-    def _dbus_resize_window(self, window_id, width, height):
-        try:
-            self.dbus_interface.Resize(window_id, width, height)
-        except dbus.exceptions.DBusException as e:
-            self.__init__()
-            self.dbus_interface.Resize(window_id, width, height)
 
 class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     """
@@ -349,6 +258,9 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     @queue_method(queue)
     def flush(self):
+        """
+        Flush the X interface.
+        """
         self.localDisplay.flush()
         self.lastChars = []
 
@@ -367,6 +279,11 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     @queue_method(queue)
     def press_key(self, keyName):
+        """
+        Press passed keyName. 
+
+        :param keyName: 
+        """
         self.__sendKeyPressEvent(self.__lookupKeyCode(keyName), 0)
 
     @queue_method(queue)
