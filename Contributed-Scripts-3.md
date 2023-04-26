@@ -3,7 +3,7 @@
 * [GUI Dialog That Uses Typed Or Typed-And-Clicked Input](#gui-dialog-that-uses-typed-or-typed-and-clicked-input)
 * [GUI Date Dialog](#gui-date-dialog)
 * [GUI Date Dialog With Format Control](#gui-date-dialog-with-format-control)
-* [Archive URLs using the Wayback Machine](#archive-links-with-the-wayback-machine)
+* [Archive URLs using the Wayback Machine (works only with Qt)](#archive-links-with-the-wayback-machine-works-only-with-qt)
 
 
 ## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
@@ -169,7 +169,7 @@ else:
 ```
 
 
-## Archive Links with the Wayback Machine
+## Archive Links with the Wayback Machine (works only with Qt)
 - **Author**: [Anatexis](https://github.com/anatexis)
 - **Purpose**: A script that takes a link from the clipboard, archives it using the Wayback Machine, and then places the archived link back in the clipboard as a markdown formatted link as seen here: https://www.flightfromperfection.com/(a).html ([a](https://web.archive.org/web/https://www.flightfromperfection.com/(a).html))
 - **Notes**: You can use plain URLs or markdown formatted links. This script uses the requests library to communicate with the Wayback Machine API for archiving and generating archive URLs. It also uses the PyQt5 library for displaying a message box to inform you when the archiving process is complete. Threading is used to make the archiving process non-blocking, allowing the script to continue running while the archiving takes place in the background.
@@ -194,6 +194,7 @@ else:
 ###############################################################
 # NOTES
 ###############################################################
+# This script works only with Qt!
 # This script uses the requests library to communicate with the
 # Wayback Machine API for archiving and generating archive URLs.
 # It also uses the PyQt5 library for displaying a message box to
