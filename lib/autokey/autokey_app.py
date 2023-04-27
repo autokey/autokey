@@ -25,6 +25,7 @@ import dbus.mainloop.glib
 import signal
 import subprocess
 from typing import NamedTuple, Iterable
+import re
 
 import autokey.model.script
 from autokey import common
@@ -112,7 +113,47 @@ class AutokeyApplication:
         self.__add_user_code_dir_to_path()
         self.__create_DBus_service()
         self.__register_ctrlc_handler()
+
+        # process command line commands here?
+        try:
+            self.usage_statistics()
+        except Exception as e:
+            logger.error(f"Usage statistics failure: {e}")
+
         logger.info("Autokey application services ready")
+
+    def usage_statistics(self):
+        for item in self.configManager.allItems:
+            # print(type(item))
+            if type(item) is autokey.model.phrase.Phrase:
+                # logger.info(item.description, item.usageCount, item.phrase)
+                logger.info(f"{item.description}, {item.usageCount} {self.getAPIUsage(item.phrase)}")
+            elif type(item) is autokey.model.script.Script:
+                logger.info(f"{item.description}, {item.usageCount} {self.getAPIUsage(item.code)}")
+
+                # apiCounts = checkCount(item.code)
+        print(self.configManager.allItems)
+
+    def getAPIUsage(self, code):
+        api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
+
+        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+
+        results = re.findall(reg, code)
+
+        # Create an empty dictionary to store the counts
+        count_dict = {}
+
+        # Loop through the list and count each item
+        for item in results:
+            if item in count_dict:
+                count_dict[item] += 1
+            else:
+                count_dict[item] = 1
+
+        return count_dict
+        
+
 
     def __create_DBus_service(self):
         logger.info("Creating DBus service")
@@ -279,7 +320,7 @@ class AutokeyApplication:
         Shut down the entire application.
         """
         logger.debug("Shutting down service and file monitor...")
+        self.monitor.stop()
         self.service.shutdown()
         self.dbusService.unregister()
-        self.monitor.stop()
         logger.debug("Finished shutting down service and file monitor...")

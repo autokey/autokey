@@ -89,6 +89,10 @@ def _try_persist_settings(config_manager):
         logger.exception(msg)
         raise Exception(msg)
 
+def save_files(config_manager):
+    logger.info("Persisting files")
+    for item in config_manager.allItems:
+        item.persist()
 
 def save_config(config_manager):
     logger.info("Persisting configuration")
