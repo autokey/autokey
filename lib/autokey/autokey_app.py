@@ -123,16 +123,19 @@ class AutokeyApplication:
         logger.info("Autokey application services ready")
 
     def usage_statistics(self):
+        logger.info("----- AutoKey Usage Statistics -----")
         for item in self.configManager.allItems:
             # print(type(item))
             if type(item) is autokey.model.phrase.Phrase:
                 # logger.info(item.description, item.usageCount, item.phrase)
-                logger.info(f"{item.description}, {item.usageCount} {self.getAPIUsage(item.phrase)}")
+                logger.info(f"Phrase: {item.description}, Usage Count: {item.usageCount} {self.getMacroUsage(item.phrase)}")
             elif type(item) is autokey.model.script.Script:
-                logger.info(f"{item.description}, {item.usageCount} {self.getAPIUsage(item.code)}")
+                logger.info(f"Script: {item.description}, Usage Count: {item.usageCount} {self.getAPIUsage(item.code)}")
+        
+        for item in self.configManager.allFolders:
+            logger.info(f"Folder: {item.title}, Usage Count: {item.usageCount}")
 
-                # apiCounts = checkCount(item.code)
-        print(self.configManager.allItems)
+        logger.info("----- AutoKey Usage Statistics -----")
 
     def getAPIUsage(self, code):
         api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
@@ -152,7 +155,14 @@ class AutokeyApplication:
                 count_dict[item] = 1
 
         return count_dict
-        
+    
+    def getMacroUsage(self, phrase):
+        macros = ["cursor", "script", "system", "date", "file", "clipboard"]
+
+        reg = re.compile("<("+"|".join(macros)+")")
+
+        results = re.findall(reg, phrase)
+        return results
 
 
     def __create_DBus_service(self):
