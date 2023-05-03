@@ -41,7 +41,7 @@ class GtkClipboard:
         """
         self.selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
         """
-        Refers to the "selection" of the clipboard or the highlighted text
+        Refers to the selection of the clipboard or the highlighted text
         """
         self.app = app
         """
@@ -74,13 +74,13 @@ class GtkClipboard:
 
     def get_selection(self):
         """
-        Read text from the X selection
+        Read text from the selection
 
-        The X selection refers to the currently highlighted text.
+        Refers to the currently-highlighted text
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
+        @return: text contents of the selection
         @rtype: C{str}
         @raise Exception: if no text was found in the selection
         """
@@ -131,8 +131,8 @@ class GtkClipboard:
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        @param path: Path to image file
-        @raise OSError: If path does not exist
+        @param path: path to image file
+        @raise OSError: if path does not exist
 
         """
         image_path = Path(path).expanduser()
