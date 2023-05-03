@@ -50,7 +50,7 @@ class GtkClipboard:
 
     def fill_selection(self, contents):
         """
-        Copy text into the X selection
+        Copy text into the selection
 
         Usage: C{clipboard.fill_selection(contents)}
 
