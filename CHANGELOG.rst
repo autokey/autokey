@@ -107,6 +107,7 @@ Other changes
 - Change clipboard wording in the AutoKey documentation.
 - Update formatting and wording in the AutoKey GTK and Qt clipboard API documentation.
 - Remove one reference to X in the AutoKey GTK clipboard API documentation.
+- Remove one reference to mouse in the AutoKey Qt clipboard API documentation.
 - AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
 
 **New Dependencies (test-time only)**

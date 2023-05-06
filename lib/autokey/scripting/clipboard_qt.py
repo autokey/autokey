@@ -70,7 +70,7 @@ class QtClipboard:
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
+        @return: text contents of the selection
         @rtype: C{str}
         """
         self.__execAsync(self.__getSelection)
