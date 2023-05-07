@@ -10,7 +10,13 @@ Running the test suite is integrated into `setup.py`. The tests can be run by ex
 ## Trying out a clone of AutoKey
 You can try out the code by cloning it and testing it locally on your machine without having to install it. This is a great way to help the developers when they've created new features or fixed issues and would like feedback from users. It's also a great way to test out your own code if you'd like to do some AutoKey developing of your own.
 
-1. Open a clone's folder in a terminal window on your computer or, if you don't already have a clone, **first make sure that AutoKey is [installed](https://github.com/autokey/autokey/wiki/Installing) on your computer (from your distribution's package manager, etc.) so that you have all of its dependencies already**.
+1. Prepare your system before cloning:
+   1. **Optional** - Configure Git on your system:
+      * Configure your git username by replacing **John** with your username: `git config --global user.name "John"`
+      * Configure your git user email by replacing John Doe's email address with yours: `git config --global user.email "john.doe@example.com"`
+      * Configure your editor as **nano** instead of the default of **vim**: `git config --global core.editor "nano"`
+      * Configure your pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
+   2. **Important** - Make sure that AutoKey is or was [installed](https://github.com/autokey/autokey/wiki/Installing) on your computer (from your distribution's package manager, etc.) so that you'll already have all of its dependencies.
 2. Pick one of these to get a clone:
    * **Clone a repository:**
      1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
@@ -32,7 +38,9 @@ You can try out the code by cloning it and testing it locally on your machine wi
      1. Pull the changes (fetch and merge them) from the remote repository to the current branch in your local repository: `git pull`
    * Be more cautious:
      1. Fetch the latest meta-data from the remote repository to your local repository (your invisible .git folder), but don't merge the changes into your local branch (leave your files alone): `git fetch`
-     2. Display the log of fetched changes to see what changed: `git log ...@{u}`
+     2. Display the log of fetched changes to see what changed:
+        * Use this command if you configured pushes to **tracking** in step 1 above: `git log ...@{u}`
+        * Use this command if you didn't configure pushes to **tracking** in step 1 above: `git log HEAD..@{u}`
      3. Display what will be changed if you were to merge the fetched changes into your current branch (replace REPO with the repository name and BRANCH with the name of the branch: `git diff REPO/BRANCH`
      4. Merge the fetched changes into the current branch in your local repository: `git merge`
 5. Change to the **/lib** directory: `cd lib`
