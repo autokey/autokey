@@ -137,6 +137,7 @@ Make any changes you feel are needed in the local files in your clone. Note that
 7. Configure your git username by replacing **John** with your username: `git config --global user.name "John"`
 8. Configure your git user email by replacing John Doe's email address with yours: `git config --global user.email "john.doe@example.com"`
 9. (Optional) Configure your editor as **nano** instead of the default of **vim**: `git config --global core.editor "nano"`
+10. (Optional) Configure your pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
 
 #### Local - run tests on a clone
 
