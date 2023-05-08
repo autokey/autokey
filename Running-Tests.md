@@ -41,6 +41,7 @@ You can try out the code by cloning it and testing it locally on your machine wi
      2. Display the log of fetched changes to see what changed:
         * Use this command if you configured pushes to **tracking** in step 1 above: `git log ...@{u}`
         * Use this command if you didn't configure pushes to **tracking** in step 1 above: `git log HEAD..@{u}`
+        * *Note: You'll be using the **less** program to view the logs. Navigate with the arrow keys and quit by pressing the **q** key.*
      3. Display what will be changed if you were to merge the fetched changes into your current branch (replace REPO with the repository name and BRANCH with the name of the branch: `git diff REPO/BRANCH`
      4. Merge the fetched changes into the current branch in your local repository: `git merge`
 5. Change to the **/lib** directory: `cd lib`
