@@ -238,7 +238,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="matchCaseCheckbox">
-                    <property name="label" translatable="yes">Match phrase case to typed abbreviation</property>
+                    <property name="label" translatable="yes">Match output case to abbreviation case</property>
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
@@ -255,7 +255,7 @@
                 </child>
                 <child>
                   <object class="GtkCheckButton" id="ignoreCaseCheckbox">
-                    <property name="label" translatable="yes">Ignore case of typed abbreviation</property>
+                    <property name="label" translatable="yes">Trigger for any abbreviation case</property>
                     <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
