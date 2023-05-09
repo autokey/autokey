@@ -246,7 +246,6 @@
                     <property name="halign">start</property>
                     <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_matchCaseCheckbox_stateChanged" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -264,7 +263,6 @@
                     <property name="halign">start</property>
                     <property name="use_action_appearance">False</property>
                     <property name="draw_indicator">True</property>
-                    <signal name="toggled" handler="on_ignoreCaseCheckbox_stateChanged" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
