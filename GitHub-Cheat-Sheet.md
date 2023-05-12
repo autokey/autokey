@@ -124,15 +124,17 @@ These steps take you through the basic workflow for using GitHub in your browser
 You can do this as often as you like. After cloning a repository, if you've messed up the changes you've made to the files or if you're done working on the code, you can just delete the clone's directory inside of your virtual machine. This will have no effect on the repository you cloned it from.
 
 #### Local - edit a clone
+
 Make any changes you feel are needed in the local files in your clone. Note that this has no effect on the GitHub repository.
 
 #### Local - prepare your computer or virtual machine for development
 
 1. (Optional) Boot into the virtual machine.
 2. Grab all available operating-system updates.
-3. Update the **apt** database: ```sudo apt update```
-4. Install **pip3**: ```sudo apt install python3-pip```
-5. Install **tox**: ```sudo apt install tox```
+3. Update the **apt** database: `sudo apt update`
+4. Install **pip3**: `sudo apt install python3-pip`
+5. Install **tkinter**:  `sudo apt install python3-tk`
+5. Install **tox**: `sudo apt install tox`
 6. Create a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
 7. Configure your git username by replacing **John** with your username: `git config --global user.name "John"`
 8. Configure your git user email by replacing John Doe's email address with yours: `git config --global user.email "john.doe@example.com"`
@@ -246,8 +248,8 @@ To put a link to your official documentation or any other website that you like 
 
 The standard bug report on GitHub is ordinary Markdown. You can create a YAML issue template form that's interactive instead.
 
-1. Create the ``.github/ISSUE_TEMPLATE/bug.yaml`` file while you're in the main branch of your repository. That will create the ``.github`` folder inside of the main branch, the ``ISSUE_TEMPLATE`` folder inside of that one, and the ``bug.yaml`` file inside of that one.
-2. Populate the ``bug.yaml`` file with your YAML code.
+1. Create the `.github/ISSUE_TEMPLATE/bug.yaml` file while you're in the main branch of your repository. That will create the `.github` folder inside of the main branch, the `ISSUE_TEMPLATE` folder inside of that one, and the `bug.yaml` file inside of that one.
+2. Populate the `bug.yaml` file with your YAML code.
 3. Commit the change.
 
 #### Remote - create or add a folder on GitHub
@@ -255,7 +257,7 @@ The standard bug report on GitHub is ordinary Markdown. You can create a YAML is
 GitHub offers a way to create a folder, but you cannot create an empty folder, so the idea is that you create a file and specify a folder for it to go into as part of the creation process.
 1. Open the branch you'd like to create a folder in.
 2. Click the "**Add file**" button.
-3. Type a new folder name followed by `/` followed by a new file name into the text box. *Note that if you regret the folder name you just typed in, typing ``..`` followed by ``/`` will remove it or you can use the backspace key to edit the parent folder's name.*
+3. Type a new folder name followed by `/` followed by a new file name into the text box. *Note that if you regret the folder name you just typed in, typing `..` followed by `/` will remove it or you can use the backspace key to edit the parent folder's name.*
 4. Click the "**Commit new file**" button to create the folder and file and enter the folder.
 
 *Note that you can apparently drag a folder with at least one item inside of it from your computer into the GitHub repository page, but I haven't tested that.*
@@ -314,7 +316,7 @@ Now, you'll be able to click the little curved arrow above any comment field on 
     4. Click on the name of your pull request.
     5. Scroll down to the **Pull request successfully merged and closed** section at the bottom.
     6. Click the **Delete branch** button in that section to delete the branch and keep the forked repository or, if you no longer want the forked repository, click the **settings** link in that section.
-    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repoository's can be identical. To synchronize them:
+    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repository's can be identical. To synchronize them:
         1. Click the **Sync fork** button to the right of that message.
         2. Click the **Update branch** button.
 
@@ -345,9 +347,9 @@ Now, you'll be able to click the little curved arrow above any comment field on 
 If you'd like quick access to one of your gists or repositories from now on:
 
 1. Go to your [GitHub](https://github.com) home page.
-2. Click ```Customize your pins``` in the right center of your home page.
-3. Put a check-mark in the box next to the gist or repository you'e like to pin.
-4. Click the ```Save pins``` button.
+2. Click `Customize your pins` in the right center of your home page.
+3. Put a check-mark in the box next to the gist or repository you'd like to pin.
+4. Click the `Save pins` button.
 
 #### Remote - edit a repository on GitHub (TODO: DELETE ME)
 When your tests are done and you're satisfied with your local code, open the **develop** branch of your fork on GitHub and use the GitHub editor to make your changes to the file(s) on GitHub that you changed inside of the clone in your virtual machine.
@@ -365,7 +367,7 @@ This must be done on the command line.
 5. Merge the resulting pull request.
 
 #### Remote - update the change log (TODO: DELETE ME)
-Add one or more lines to the `CHANGELOG.rst` file in the **develop** brandh of your fork on GitHub describing the change(s) you've made to the code.
+Add one or more lines to the `CHANGELOG.rst` file in the **develop** branch of your fork on GitHub describing the change(s) you've made to the code.
 
 #### Remote - delete a repository from GitHub
 
