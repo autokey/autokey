@@ -45,9 +45,10 @@ You can try out the code by cloning it and testing it locally on your machine wi
      3. Display what will be changed if you were to merge the fetched changes into your current branch (replace REPO with the repository name and BRANCH with the name of the branch: `git diff REPO/BRANCH`
      4. Merge the fetched changes into the current branch in your local repository: `git merge`
 5. Change to the **/lib** directory: `cd lib`
-6. Run AutoKey in either GTK or Qt mode by running its module as an executable:
-   * GTK: `python3 -m autokey.gtkui`
-   * Qt: `python3 -m autokey.qtui`
-   *Note that command-line switches work when added to the end of either of those commands, so if, for example, you wanted to open the AutoKey main window on startup, you could add the **--configure** or **-c** command-line switch to the end of the command, like this: `python3 -m autokey.gtkui -c`*
+6. Run AutoKey in either **GTK** or **Qt** mode by running its module as an isolated executable:
+   * GTK: `python3 -Im autokey.gtkui`
+   * Qt: `python3 -Im autokey.qtui`
+   
+     *Note that command-line switches work when added to the end of either of those commands, so if, for example, you wanted to open the AutoKey main window on startup, you could add the **--configure** or **-c** command-line switch to the end of the command, as in the `python3 -Im autokey.gtkui -c` command or the `python3 -Im autokey.qtui -c` command.*
 7. When you're finished testing either of those clones, close AutoKey normally.
 8. If you're finished with all of your testing and would like to get rid of the clone, delete the clone's directory. Otherwise, you can keep it and use these steps again for further testing another time.
