@@ -134,12 +134,13 @@ Make any changes you feel are needed in the local files in your clone. Note that
 3. Update the **apt** database: `sudo apt update`
 4. Install **pip3**: `sudo apt install python3-pip`
 5. Install **tkinter**:  `sudo apt install python3-tk`
-5. Install **tox**: `sudo apt install tox`
-6. Create a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
-7. Configure your git username by replacing **John** with your username: `git config --global user.name "John"`
-8. Configure your git user email by replacing John Doe's email address with yours: `git config --global user.email "john.doe@example.com"`
-9. (Optional) Configure your editor as **nano** instead of the default of **vim**: `git config --global core.editor "nano"`
-10. (Optional) Configure your pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
+6. Install **Xvfb**: `sudo apt install python3-pytest-xvfb`
+7. Install **tox**: `sudo apt install tox`
+8. Create a [GitHub personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token).
+9. Configure your git username by replacing **John** with your username: `git config --global user.name "John"`
+10. Configure your git user email by replacing John Doe's email address with yours: `git config --global user.email "john.doe@example.com"`
+11. (Optional) Configure your git editor as **nano** instead of the default of **vim**: `git config --global core.editor "nano"`
+12. (Optional) Configure your git pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
 
 #### Local - run tests on a clone
 
