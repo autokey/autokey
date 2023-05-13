@@ -412,6 +412,7 @@ To search by last-updated date, the **updated** qualifier matches wiki pages tha
 #### See also
 
 * **apt packages**: replace **foo** with a package name: [https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo](https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo)
+* **Exit codes for the `tox` command**: [https://docs.pytest.org/en/stable/reference/reference.html#exitcode](https://docs.pytest.org/en/stable/reference/reference.html#exitcode)
 * **GitHub available images**: Do a search for **latest** on here to find out which version of Ubuntu is currently considered the latest: [https://github.com/actions/runner-images#available-images](https://github.com/actions/runner-images#available-images) Then check its current Python or other software versions, check for announcements, etc.
 * **GitHub Python Versions Manifest**: Do a search for 22.04 and find all hits to let you know which are the lowest and highest versions of Python supported for that Ubuntu release: [https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json](https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
 * **Python packages**: [https://pypi.org](https://pypi.org)
