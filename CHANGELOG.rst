@@ -20,6 +20,8 @@ Important misc changes
 - Update the date and remove excess wording in the **autokey-gtk.1** and **autokey-qt.1** man pages.
 - Update the date in the **autokey-run.1** man page.
 - Add the "Environment" section to the .gitignore file.
+- Update the help menu, deprecating one entry, adding several entries, updating existing wording, and sorting the entries.
+- Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
 
 Features
 ---------
