@@ -171,6 +171,7 @@ GitHub Actions can be run locally inside of your virtual machine.
 1. Open the virtual machine.
 2. Open the clone's directory in a terminal window.
 3. Choose a testing command to run:
+   * Run a lint test: `tox -e lint`
    * Run all tests for all platforms in all environments: `tox`
    * Run all tests for all platforms in the environment that tox is installed in: `tox -e test`
    * Run all tests for all platforms in all environments, recreating the virtual environments first: `tox -r`
@@ -179,15 +180,15 @@ GitHub Actions can be run locally inside of your virtual machine.
    * Run all tests for the specified platforms in the specified environments: `tox -e 'py3{7,11}'-test`
    * Run all tests for all platforms iusing the version of Python in PATH: `tox -e py`
    * Run all tests for the specified platform in all environments: `tox -e py37`
-   * Run an individual test on the specified file: `tox -- tests/create_single_phrase.py`
-   * Run an individual test on the specified file: `tox -- tests/engine_helpers.py`
-   * Run an individual test on the specified file: `tox -- tests/test_common.py`
-   * Run an individual test on the specified file: `tox -- tests/test_configmanager.py`
-   * Run an individual test on the specified file: `tox -- tests/test_iomediator.py`
-   * Run an individual test on the specified file: `tox -- tests/test_macro.py`
-   * Run an individual test on the specified file: `tox -- tests/test_phrase.py`
-   * Run an individual test on the specified file: `tox -- tests/test_phrase_runner.py`
-   * Run a lint test: `tox -e lint`
+   * Run individual tests on specified files that start with **test_**:
+     * Run an individual test on the specified file: `tox -- tests/create_single_phrase.py`
+     * Run an individual test on the specified file: `tox -- tests/engine_helpers.py`
+     * Run an individual test on the specified file: `tox -- tests/test_common.py`
+     * Run an individual test on the specified file: `tox -- tests/test_configmanager.py`
+     * Run an individual test on the specified file: `tox -- tests/test_iomediator.py`
+     * Run an individual test on the specified file: `tox -- tests/test_macro.py`
+     * Run an individual test on the specified file: `tox -- tests/test_phrase.py`
+     * Run an individual test on the specified file: `tox -- tests/test_phrase_runner.py`
    * Run the clean, coverage, and report tests: `tox -e clean,coverage,report`
 
 ##### Interpret the test results:
