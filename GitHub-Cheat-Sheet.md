@@ -63,6 +63,28 @@ These steps take you through the basic workflow for using GitHub in your browser
 
 ## Local
 
+#### Local - clone a pull request
+1. Open the repository's home page in your browser.
+2. Click **Pull requests** in the toolbar.
+3. Get the number of the pull request from its description in the list.
+4. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
+5. Enter this command, replacing **develop** with the name of the branch the code from the pull request is in and replace the example URL of the repository:
+   ```
+   git clone --branch develop --single-branch https://github.com/autokey/autokey.git
+   ```
+6. Press the **Enter** key to create the clone in a new subdirectory named after the repository.
+7. Change to the directory you just created:
+   ```
+   cd autokey
+   ```
+8. Fetch the pull request by replacing **844** with your pull-request number:
+   ```
+   git fetch origin pull/844/head:pull_844
+   ```
+9. Change to the pull request's branch by replacing **844** with your pull-request number:
+   ```
+   git checkout pull_844
+   ```
 #### Local - clone a repository
 
 1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
