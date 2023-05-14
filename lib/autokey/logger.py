@@ -51,13 +51,13 @@ def configure_root_logger(args: Namespace):
         logging_level = logging.DEBUG
     if args.mouse_logging:
         logging_level = 9
-    
+
     stdout_stream_handler.setLevel(logging_level)
     stdout_stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
     root_logger.addHandler(stdout_stream_handler)
     root_logger.addHandler(file_handler)
-    if args.cutelog_integration:
+    if args.cutelog:
         socket_handler = logging.handlers.SocketHandler("127.0.0.1", 19996)  # default listening address
         root_logger.addHandler(socket_handler)
         root_logger.info(f"""Connected logger "{root_logger.name}" to local log server.""")
