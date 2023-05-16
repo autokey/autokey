@@ -89,9 +89,9 @@ root # emerge --noreplace --ask dbus-python pyinotify python-xlib qscintilla-pyt
 
 If you are using a distribution other than those listed above or if you want to install AutoKey from GitHub you can use this [`pip`][pip] installation method.
 
-`pip install autokey`
+`pip3 install autokey`
 
-Or to install a beta release: `pip install --pre autokey`
+Or to install a beta release: `pip3 install --pre autokey`
 
 Step-by-step instructions for installing the beta from pip in Ubuntu or Kubuntu can be found [here](https://github.com/autokey/autokey/wiki/AutoKey-beta-from-pip-in-Ubuntu-or-Kubuntu).
 
