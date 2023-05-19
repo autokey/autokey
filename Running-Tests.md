@@ -18,6 +18,8 @@ You can try out the code by cloning it and testing it locally on your machine wi
       * Configure your pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
    2. **Important** - Make sure that AutoKey is or was [installed](https://github.com/autokey/autokey/wiki/Installing) on your computer (from your distribution's package manager, etc.) so that you'll already have all of its dependencies.
 2. Pick one of these to get a clone:
+   * **Clone a pull request:**
+     * See the [Local - clone a pull request](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet#local---clone-a-pull-request) wiki entry for the steps for this one.
    * **Clone a repository:**
      1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
      2. Click the **Code** button.
