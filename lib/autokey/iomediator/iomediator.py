@@ -16,12 +16,13 @@
 import threading
 import time
 import queue
+import os
 
 import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.interface import XRecordInterface, AtSpiInterface, XWindowInterface, GnomeExtensionWindowInterface
+from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -59,14 +60,27 @@ class IoMediator(threading.Thread):
         for key in MODIFIERS:
             self.modifiers[key]=False
 
-
+        # self.interfaceType="uinput"
+        session_type = os.environ.get("XDG_SESSION_TYPE")
+        if session_type == "wayland":
+            self.interfaceType = "uinput"
+        elif session_type == "x11":
+            pass
+        elif session_type is None:
+            pass
         
-        if self.interfaceType == X_RECORD_INTERFACE:
+
+        if self.interfaceType == "uinput":
+            from autokey.uinput_interface import UInputInterface
+            self.interface = UInputInterface(self, self.app)
+        elif self.interfaceType == X_RECORD_INTERFACE:
+            from autokey.interface import XRecordInterface, XWindowInterface
             self.interface = XRecordInterface(self, self.app)
         else:
+            from autokey.interface import AtSpiInterface, XWindowInterface
             self.interface = AtSpiInterface(self, self.app)
 
-        if False:
+        if self.interfaceType == "uinput":
             self.windowInterface = GnomeExtensionWindowInterface()
         else:
             self.windowInterface = XWindowInterface()
@@ -110,7 +124,9 @@ class IoMediator(threading.Thread):
     
     def handle_modifier_down(self, modifier):
         """
-        Updates the state of the given modifier key to 'pressed'
+        Updates the state of the given modifier key to 'pressed'.
+
+        :param modifier: Should be AutoKey Key value
         """
         logger.debug("%s pressed", modifier)
         if modifier in (Key.CAPSLOCK, Key.NUMLOCK):
@@ -151,6 +167,7 @@ class IoMediator(threading.Thread):
 
             # We make a copy here because the wait_for... functions modify the listeners,
             # and we want this processing cycle to complete before changing what happens
+            logger.debug("Raw Key: {} | Modifiers: {} | Key: {} | Window Info: {}".format(raw_key, modifiers, key, window_info))
             for target in self.listeners.copy():
                 target.handle_keypress(raw_key, modifiers, key, window_info)
 
@@ -183,6 +200,7 @@ class IoMediator(threading.Thread):
     @staticmethod
     def _send_string(string, interface):
         modifiers = []
+        logger.debug("Sending string sections: %s", KEY_SPLIT_RE.split(string))
         for section in KEY_SPLIT_RE.split(string):
             if len(section) > 0:
                 if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
@@ -236,7 +254,7 @@ class IoMediator(threading.Thread):
                 backspaces += 1
             else:
                 backspaces += len(section)
-                
+        logger.debug("Sending backspaces: %d", backspaces)
         self.send_backspace(backspaces)
 
     def send_key(self, key_name):
@@ -248,6 +266,7 @@ class IoMediator(threading.Thread):
         self.interface.fake_keydown(key_name)
 
     def release_key(self, key_name):
+        logger.debug("Release key: %s", key_name)
         key_name = key_name.replace('\n', "<enter>")
         self.interface.fake_keyup(key_name)
 
