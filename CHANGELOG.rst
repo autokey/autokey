@@ -24,6 +24,7 @@ Important misc changes
 - Add the "Environment" section to the .gitignore file.
 - Update the help menu, deprecating one entry, adding several entries, updating existing wording, and sorting the entries.
 - Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
+- Update and add to the GTK and Qt man pages (major overhaul with current command-line switches and lots more information).
 
 Features
 ---------
