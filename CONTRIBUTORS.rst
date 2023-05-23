@@ -23,6 +23,8 @@ GitHub Actions are used to run tests on pull requests to `master` and
 Tagged releases merged into `develop`, `beta` and `master` will
 automatically be built.
 
+If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
+
 Testing
 =======
 Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
@@ -70,3 +72,36 @@ https://github.com/autokey/autokey/issues/255 contains a good explanation of how
 Creating and modifying phrases and hotkeys is done through the ConfigManager.
 
 For a detailed walkthrough of how phrases work, see [this comment](https://github.com/autokey/autokey/issues/334#issuecomment-564203873)
+
+
+Autocomplete in the text Editors
+--------------------------------
+Ironically, Qt API autocomplete is super easy to implement but macro/phrase autocomplete appears to be relatively complex.
+
+Gtk Autocomplete is a bit different but I think I've handled it in a pretty good way here.
+
+Both autocomplete implementations are designed to use the output of the extractDoc.py script, this uses the `ast` python module to read in and parse the scripting api and the currently available macros.
+Developers should be aware of exactly where all that information gets pulled from;
+- args come straight from `ast`` and removes `self` if it's present. 
+- It pulls the "comment" from the first line of the DocString, so this should be a short and concise description of the method.
+
+For Macros (currently GTK Autocomplete only):
+- uses the ID, TITLE and ARGS values to generate the lines
+- the was the translation function is used needs to be consistent because it changes the AST, just make any new macros look like the old ones. 
+
+
+For the GTK autocomplete it's sort of custom handling to read in the information for autocompletion, it requires an entire class, Qt interface uses QScintilla text editor which makes it pretty easy.
+
+
+Qt Autocomplete
+^^^^^^^^^^^^^^^
+API Autocomplete happens by using the `QSci.QsciAPIs`, this just reads in the content of the api.txt file.
+
+At this time it doesn't seem like there is a super easy way to add autocomplete to the phrase page, it appears to use a QTextEdit widget, and from what I've read/seen online there is not a super easy way to add autocomplete to that. PRs welcome!
+
+
+GTK Autocomplete
+^^^^^^^^^^^^^^^^
+API Autocomplete reads in the content of the `lib/autokey/gtkui/data/api.csv`, where column 0 is the API call and column 1 is the description. 
+
+Uses the same class for Macro autocomplete, makes the logic a bit tricky, may be worth separating them to be simpler to read. PRs welcome.
