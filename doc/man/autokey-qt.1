@@ -1,9 +1,14 @@
 .\"                                      Hey, EMACS: -*- nroff -*-
+.\" Please adjust this date whenever revising the man page:
+.TH AUTOKEY-QT "1" "May 23, 2023"
+.\"
 .\" First parameter, NAME, should be all caps.
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection.
 .\" Other parameters are allowed: see man(7), man(1).
-.TH AUTOKEY-QT "1" "April 19, 2023"
-.\" Please adjust this date whenever revising the man page.
+.\"
+.\" TeX users may be more comfortable with the \fB<whatever>\fR and
+.\" \fI<whatever>\fR escape sequences to invoke bold-face or italics,
+.\" respectively.
 .\"
 .\" Some roff macros for reference:
 .\" .nh        disable hyphenation
@@ -16,53 +21,102 @@
 .\" .sp <n>    insert n+1 empty lines
 .\" For man-page-specific macros, see man(7).
 .SH NAME
-autokey-qt \- keyboard automation utility for KDE and Qt
+autokey-qt \- automation utility for KDE and Qt
 .SH SYNOPSIS
-.B autokey-qt
-.RI [ options ]
+\fBautokey-qt\fR [\fIoptions\fR]
+
 .SH DESCRIPTION
-This manual page briefly documents the \fBautokey-qt\fP command.
-.PP
-.\" TeX users may be more comfortable with the \fB<whatever>\fP and
-.\" \fI<whatever>\fP escape sequences to invoke bold-face or italics,
-.\" respectively.
-\fBautokey-qt\fP is a desktop automation utility for Linux and X11
-that's customized for use with KDE and Qt. AutoKey allows for the
-automation of virtually any task by responding to typed abbreviations
-and hotkeys. It provides a full-featured GUI to make it
-highly-accessible for novices and a scripting interface to offer the
+\fBautokey-qt\fR is an automation utility for Linux and X11 with a Qt 
+front end customized for use with KDE. AutoKey allows for the 
+automation of virtually any task by responding to typed abbreviations, 
+triggers, and hotkeys. It provides not only a full-featured GUI to make 
+it highly-accessible for novices to quickly set up automatic text 
+insertions or replacements, but also a scripting interface to offer the 
 full flexibility and power of the Python language.
-.PP
-See the online wiki at https://github.com/autokey/autokey/wiki for more
-information.
 .SH OPTIONS
-This program follows the usual GNU command-line syntax in which long
-options start with two dashes (`--').
-A summary of options is included below.
+This program follows the usual GNU command-line syntax with two dashes 
+used for long options. A summary of options is included below.
 .TP
 .B \-c, \-\-configure
 Open the AutoKey main window.
 .TP
-.B \-\-cutelog-integration
-Connect to a locally-running \fBcutelog\fP instance with default
-settings to display the full program log.
-.br
-See the \fBcutelog\fP GitHub page at https://github.com/busimus/cutelog
-for more information.
+.B \-C, \-\-cutelog
+Connect to a local default \fBcutelog\fR instance to display the full 
+program log.
 .TP
 .B \-h, \-\-help
 Show a summary of all options.
 .TP
-.B \-l, \-\-verbose
-Enable verbose (debug) logging.
-.TP
 .B \-m, \-\-mouse
-Enable verbose (debug) logging that includes mouse-button events.
+Enable verbose logging that includes mouse-button events.
+.TP
+.B \-v, \-\-verbose, \-l
+Enable verbose logging (\fB-l\fR is deprecated).
 .TP
 .B \-V, \-\-version
-Print the current AutoKey version to standard output and then exit.
+Print the current AutoKey version to standard output.
 .SH AUTHOR
-AutoKey was written by Chris Dekter and was loosely based on a script by
-Sam Peterson.
-.PP
-This manual page was written by Chris Dekter <cdekter@gmail.com>.
+AutoKey was written by Chris Dekter <cdekter@gmail.com> and was loosely 
+based on a script by Sam Peterson.
+.SH SEE ALSO
+.TP
+\fBpython\fR(1), \fBwmctrl\fR(1), \fBxautomation\fR(7), \fBxdotool\fR(1), \fBxmodmap\fR(1)
+.TP
+\fBRelated software:\fR
+.RS
+.IP \[bu] 2
+\fBcutelog:\fR https://github.com/busimus/cutelog
+.IP \[bu] 2
+\fBKDialog:\fR https://github.com/KDE/kdialog
+.IP \[bu] 2
+\fBRegular expression syntax:\fR https://docs.python.org/3/library/re.html
+.IP \[bu] 2
+\fBRegular expression tutorial:\fR https://docs.python.org/3/howto/regex.html
+.IP \[bu] 2
+\fBXKB:\fR https://www.x.org/releases/current/doc/xorg-docs/input/XKB-Config.html
+.RE
+.TP
+\fBSimilar software in other operating systems:\fR
+.RS
+.IP \[bu] 2
+\fBAutoHotKey\fR is a free and open-source tool available for Micosoft
+Windows users.
+.IP \[bu] 2
+\fBAutomator\fR is a default Apple tool.
+.IP \[bu] 2
+\fBText Replacement\fR is a default Apple tool.
+.RE
+.TP
+\fBAutoKey web pages:\fR
+.RS
+.IP \[bu] 2
+\fBDocumentation:\fR
+.RS
+.IP \[bu] 2
+\fBAutoKey 0.95.0 through 0.95.10:\fR https://autokey.github.io/autokey/index.html
+.IP \[bu] 2
+\fBAutoKey 0.96.0 and newer:\fR https://autokey.github.io/index.html
+.RE
+.IP \[bu] 2
+\fBHome:\fR https://github.com/autokey/autokey
+.IP \[bu] 2
+\fBIssues:\fR https://github.com/autokey/autokey/issues
+.IP \[bu] 2
+\fBSocial:\fR
+.RS
+.IP \[bu] 2
+\fBDiscord:\fR https://github.com/autokey/autokey/wiki/Discord
+.IP \[bu] 2
+\fBDiscussions:\fR https://github.com/autokey/autokey/discussions
+.IP \[bu] 2
+\fBGitter:\fR https://github.com/autokey/autokey/wiki/Gitter
+.IP \[bu] 2
+\fBGoogle Groups:\fR https://github.com/autokey/autokey/wiki/Google-Groups
+.IP \[bu] 2
+\fBReddit:\fR https://github.com/autokey/autokey/wiki/Reddit
+.IP \[bu] 2
+\fBStackExchange:\fR https://github.com/autokey/autokey/wiki/StackExchange
+.RE
+.IP \[bu] 2
+\fBWiki:\fR https://github.com/autokey/autokey/wiki
+.RE
