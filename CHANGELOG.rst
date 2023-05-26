@@ -24,6 +24,7 @@ Important misc changes
 - Add the "Environment" section to the .gitignore file.
 - Update the help menu, deprecating one entry, adding several entries, updating existing wording, and sorting the entries.
 - Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
+- Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
 
 Features
 ---------
