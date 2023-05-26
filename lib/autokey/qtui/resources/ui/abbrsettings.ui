@@ -65,7 +65,7 @@ If unchecked, the abbreviation text is kept.</string>
    <item row="5" column="2" colspan="3">
     <widget class="QCheckBox" name="ignoreCaseCheckbox">
      <property name="text">
-      <string>Trigger for any abbreviation case</string>
+      <string>Accept any typed abbreviation case</string>
      </property>
     </widget>
    </item>
@@ -79,7 +79,7 @@ If unchecked, the abbreviation text is kept.</string>
    <item row="4" column="2" colspan="3">
     <widget class="QCheckBox" name="matchCaseCheckbox">
      <property name="text">
-      <string>Match output case to abbreviation case</string>
+      <string>Match output case to typed abbreviation case</string>
      </property>
     </widget>
    </item>
