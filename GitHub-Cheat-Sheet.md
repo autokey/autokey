@@ -218,17 +218,22 @@ If you've got what seems like a good working copy of the code, it's time to buil
 6. Click **Download ZIP** from the drop-down menu.
 7. Extract the zip file, creating a directory that contains the contents of the repository.
 8. Open that directory in a terminal window.
-9. Install AutoKey with `pip3 install .` or build AutoKey:
-   1. Build the packages in the parent directory: `dpkg-buildpackage -us -uc`
-   2. Change to the parent directory: `cd ..`
-   3. Install the GTK version: `sudo dpkg --install autokey-gtk_<version>.deb autokey-common_<version>.deb`
-   4. Install the Qt version: `sudo dpkg --install autokey-qt_<version>.deb autokey-common_<version>.deb`
-   5. Install any missing dependencies: `sudo apt install -f`
-
-10. See if the build works, where it puts AutoKey, and any messages/errors it generates.
-11. If everything works, copy the `.deb` files it produced to a clean virtual machine and see if they install and work properly there.
-
-*TODO: An alternative may be to run `autokey/debian/build.sh` to build the **.deb** files, but I'm thinking that will be run automatically when following the steps above. I'll update this once I do a successful build.*
+9. Pick one:
+   * Install AutoKey:
+     ```
+     pip3 install .
+     ```
+   * Build AutoKey:
+     1. Build the packages in the parent directory: `dpkg-buildpackage -us -uc`
+     2. Test the build:
+        1. Change to the parent directory: `cd ..`
+        2. Install the GTK version: `sudo dpkg --install autokey-gtk_<version>.deb autokey-common_<version>.deb`
+        3. Install the Qt version: `sudo dpkg --install autokey-qt_<version>.deb autokey-common_<version>.deb`
+        4. Install any missing dependencies: `sudo apt install -f`
+        5. See if the build works, where it puts AutoKey, and any messages/errors it generates.
+        6. If everything works, copy the `.deb` files it produced to a clean virtual machine and see if they'll install and work properly there.
+        
+        ***TODO:** An alternative may be to run `autokey/debian/build.sh` to build the **.deb** files, but I'm thinking that will be run automatically when following the steps above. I'll update this once I do a successful build.*
 
 #### Local - update a clone
 If you have a clone of your repository on your local system and you make a change to it on GitHub, you can update your clone with this command inside of a terminal window in the clone's directory: `git fetch`
