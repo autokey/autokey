@@ -27,6 +27,7 @@
 * [Search your phrases and scripts](#search-your-phrases-and-scripts)
 * [Dynamically assign hotkey actions](#dynamically-assign-hotkey-actions)
 * [Push to talk](#push-to-talk)
+* [Run an AutoKey phrase from an AutoKey script](#run-an-autokey-phrase-from-an-autokey-script)
 * [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
 * [Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod](#recipe-builder-for-minecraft-and-extended-crafting-if-using-the-kabbalah-block-mod)
 * [Dynamically create a toggled HTML details block](#dynamically-create-a-toggled-html-details-block)
@@ -1271,11 +1272,77 @@ except FileNotFoundError:
 ```
 
 
+## Run an AutoKey phrase from an AutoKey script
+
+**Author**: Elliria
+
+**Description**: AutoKey scripts can run AutoKey phrases with the `keyboard.fake_keypress` API call or the `keyboard.press_key` and `keyboard.release_key` API calls. The examples below enable certain abbreviation settings for the phrase. If you use different settings, you may need to adjust the script. For instance, if your phrase requires a trigger character, you'll either need to press it manually after running the script or add a press of the space bar to your script so that AutoKey takes care of it for you. Both examples below will run the specified phrase and cause AutoKey to print the specified message into the active window.
+
+**Example with a script that uses an abbreviation with a single character:**
+1. Create a phrase.
+2. Make these its contents: `foo`
+3. Make this its abbreviation: `x`
+4. Enable these abbreviation settings:
+   * **Remove typed abbreviation**
+   * **Trigger when typed as part of a word**
+   * **Trigger immediately (don't require a trigger character)**
+5. Save the phrase.
+6. Create a script.
+7. Use one of these as its contents:
+   ```
+   keyboard.press_key("x")
+   keyboard.release_key("x")
+   ```
+   or:
+   ```
+   keyboard.fake_keypress("x")
+   ```
+8. Save the script.
+9. Open a text file.
+10. Run the script.
+
+**Example with a script that uses an abbreviation with multiple duplicate characters:**
+1. Create a phrase.
+2. Make these its contents: `foo`
+3. Make this its abbreviation: `xxx`
+4. Enable these abbreviation settings:
+   * **Remove typed abbreviation**
+   * **Trigger when typed as part of a word**
+   * **Trigger immediately (don't require a trigger character)**
+5. Save the phrase.
+6. Create a script.
+7. Use one of these as its contents:
+   ```
+   keyboard.press_key("x")
+   keyboard.release_key("x")
+   keyboard.press_key("x")
+   keyboard.release_key("x")
+   keyboard.press_key("x")
+   keyboard.release_key("x")
+   ```
+   or:
+   ```
+   keyboard.fake_keypress("x", repeat=3)
+   ```
+   or:
+   ```
+   keyboard.fake_keypress("x")
+   keyboard.fake_keypress("x")
+   keyboard.fake_keypress("x")
+   ```
+8. Save the script.
+9. Open a text file.
+10. Run the script.
+
+
+
 ## Run an AutoKey script from another AutoKey script
 
 **Author**: Elliria
 
 **Description**: AutoKey scripts can run other AutoKey scripts with the ```engine.run_script(...)``` API call.
+
+
 
 1. Create an AutoKey script (the example uses the ```MyInternalScript``` script) with your contents in it (the example creates and runs a function):
 ```python
