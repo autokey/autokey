@@ -150,6 +150,7 @@ The GTK GUI additionally depends on these packages:
 | GTK (≥ 3.0) |  | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
 | GtkSourceView | https://wiki.gnome.org/Projects/GtkSourceView | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
 | libappindicator |  | Not available | Loaded at runtime from system-provided C libraries by `GObjectIntrospection` |
+| libdbus-1-dev |  |  |  |
 | libdbus-glib-1-dev |  |  |  |
 | `zenity` CLI tool | https://wiki.gnome.org/Projects/Zenity | Not available | this is used for the dialogue windows available in the Scripting API |
 
