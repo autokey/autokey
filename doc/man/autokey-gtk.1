@@ -1,6 +1,6 @@
 .\"                                      Hey, EMACS: -*- nroff -*-
 .\" Please adjust this date whenever revising the man page:
-.TH AUTOKEY-GTK "1" "June 22, 2023"
+.TH AUTOKEY-GTK "1" "June 25, 2023"
 .\"
 .\" First parameter, NAME, should be all caps.
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection.
@@ -20,10 +20,14 @@
 .\" .br        insert line break
 .\" .sp <n>    insert n+1 empty lines
 .\" For man-page-specific macros, see man(7).
+
 .SH NAME
-\fBautokey-gtk\fR  \- desktop/script-automation utility for GNOME
+\fBautokey-gtk\fR  \- desktop/script-automation utility with a 
+GTK-based graphical interface
+
 .SH SYNOPSIS
 \fBautokey-gtk\fR -[\fIc|C|h|m|v|V\fR]
+
 .SH DESCRIPTION
 \fBAutoKey\fR is a set of command-line and GUI applications using GTK 
 or Qt that can be run in a variety of ways as a 
@@ -32,6 +36,7 @@ allows for the automation of virtually any task by responding to typed
 abbreviations and hotkeys. It provides a full-featured GUI for setting 
 up automatic text insertions or replacements and a scripting interface 
 for access to the flexibility and power of the Python language.
+
 .SH OPTIONS
 This program follows the usual GNU command-line syntax with two dashes 
 used for long options. A summary of options is included below.
@@ -54,9 +59,11 @@ Enable verbose logging (\fB-l\fR is deprecated).
 .TP
 .B \-V, \-\-version
 Print the current AutoKey version to standard output.
+
 .SH AUTHOR
 AutoKey was written by Chris Dekter <cdekter@gmail.com> and was loosely 
 based on a script by Sam Peterson.
+
 .SH SEE ALSO
 .TP
 \fBautokey-qt\fR(1), \fBautokey-run\fR(1), \fBpython\fR(1), \fBwmctrl\fR(1), \fBxautomation\fR(7), \fBxdotool\fR(1), \fBxmodmap\fR(1), \fBzenity\fR(1)
