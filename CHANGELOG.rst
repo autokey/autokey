@@ -26,6 +26,7 @@ Important misc changes
 - Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
 - Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
 - Update the GTK and Qt man pages.
+- Update date, formatting, and NAME section in the GTK and Qt man pages.
 
 Features
 ---------
