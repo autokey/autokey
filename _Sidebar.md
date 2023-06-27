@@ -17,7 +17,7 @@
     * [Stack Exchange](https://github.com/autokey/autokey/wiki/StackExchange)
   * Development
     * [Availability In Linux](https://github.com/autokey/autokey/wiki/Current-Linux-distributions-shipping-AutoKey)
-    * [Contributing Code](https://github.com/autokey/autokey/wiki/Contributing-code)
+    * [Contributing](https://github.com/autokey/autokey/wiki/Contributing)
     * [GitHub Cheat Sheet](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet)
     * [Packaging](https://github.com/autokey/autokey/wiki/Packaging)
     * [Running Tests](https://github.com/autokey/autokey/wiki/Running-Tests)
