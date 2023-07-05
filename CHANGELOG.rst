@@ -27,6 +27,7 @@ Important misc changes
 - Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
 - Update the GTK and Qt man pages.
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
+- Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 
 Features
 ---------
