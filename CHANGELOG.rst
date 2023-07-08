@@ -28,6 +28,7 @@ Important misc changes
 - Update the GTK and Qt man pages.
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
+- Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
 
 Features
 ---------
