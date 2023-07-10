@@ -4,6 +4,7 @@
 * [GUI Date Dialog](#gui-date-dialog)
 * [GUI Date Dialog With Format Control](#gui-date-dialog-with-format-control)
 * [Archive URLs using the Wayback Machine (works only with Qt)](#archive-links-with-the-wayback-machine-works-only-with-qt)
+* [Increment Version Numbers](#increment-version-numbers)
 
 
 ## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
@@ -259,4 +260,21 @@ def main():
     clipboard.fill_clipboard(a_link)
 
 main()
+```
+## Increment Version Numbers
+**Author**: Kreezxil
+**Purpose**: select sequence of version numbers and update them all.
+**Example**: You have 1.2.3 and if you select all of it and activate the script with a hot key you'll get 2.3.4. If you just selected 2.3 you would get 3.4 back.
+```python
+def increment_version(version: str) -> str:
+    version_numbers = version.split('.')
+    incremented_version_numbers = [str(int(num) + 1) for num in version_numbers]
+    new_version = '.'.join(incremented_version_numbers)
+    return new_version
+
+selection = clipboard.get_selection()
+if selection == "":
+    dialog.info_dialog(message="nothing selected!")
+else:
+   keyboard.send_keys(increment_version(selection))
 ```
