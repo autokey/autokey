@@ -262,9 +262,10 @@ def main():
 main()
 ```
 ## Increment Version Numbers
-**Author**: Kreezxil
-**Purpose**: select sequence of version numbers and update them all.
-**Example**: You have 1.2.3 and if you select all of it and activate the script with a hot key you'll get 2.3.4. If you just selected 2.3 you would get 3.4 back.
+- **Author**: Kreezxil
+- **Purpose**: Select a sequence of version numbers and update them all.
+- **Example**: You have 1.2.3 and if you select all of it and activate the script with a hot key you'll get 2.3.4. If you just selected 2.3 you would get 3.4 back.
+- **Notes**: Works best if you assign a hotkey to it, I'm using CTRL+ALT+V
 ```python
 def increment_version(version: str) -> str:
     version_numbers = version.split('.')
