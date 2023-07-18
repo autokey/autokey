@@ -347,7 +347,7 @@ Folders created within temporary folders must themselves be set temporary")
         """
         Run an existing script using its description or path to look it up
 
-        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
+        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar')}
 
         @param description: description of the script to run. If parsable as
         an absolute path to an existing file, that will be run instead.
