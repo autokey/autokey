@@ -19,6 +19,7 @@ Important misc changes
 - Update the **README.rst** file to satisfy part of issue #681 and issue #779.
 - Update the actions in the **build.yml** file to the latest versions in the GitHub Marketplace.
 - Remove extra unneeded curly bracket from line 350 of engine.py for the API documentation.
+- Update the actions in the **pages.yml** file to the latest versions in the GitHub Marketplace.
 
 Features
 ---------
