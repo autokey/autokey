@@ -1,4 +1,4 @@
-## Using macros as placeholders in phrases
+## Create dynamic phrases by using macros as placeholders
 Phrases can be made dynamic by including one or more macros. A macro looks like an XML/HTML `<tag>`, it consists of a special keyword and space separated arguments in the `key=value` form, enclosed in angle brackets (`<` and `>`). Whenever a Phrase is expanded, all included macros are executed. Then the macro tags are replaced with their execution results. When the replacement is finished, the result gets pasted or typed (depending on the phrase setting).
 
 In versions older than `0.96.0`, the interface and implementation is a bit brittle:
