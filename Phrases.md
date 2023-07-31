@@ -69,3 +69,27 @@ You may use the script to alter background system state, like starting or stoppi
 
 ### Run system command
 As of `0.96.0`: `<system command='echo test'>` is replaced in the phrase with the output of `echo test` - i.e., test.
+
+# Renaming phrases
+
+## Rename a phrase in AutoKey
+1. Open AutoKey's main window.
+2. Click the greater-than symbol next to your **My Phrases** directory.
+3. Browse to the phrase you'd like to rename.
+4. Right-click its name.
+5. Choose **Rename** from the context menu.
+6. Type in the new name.
+7. Make sure that the **Update name on file system** box has a check-mark in it (it's checked by default).
+8. Click the **OK** button.
+
+## Rename a phrase in your file manager
+1. Open your file manager.
+2. Open the `~/.config/autokey/data/My Phrases` directory.
+3. Find the `.json` and `.py` files for your script.
+4. Edit the name of its `.py` file.
+5. Edit the name of its `.json` file.
+6. Open its `.json` file in a text editor.
+7. Edit its name in the **description** field.
+8. Save the change.
+9. Shut down AutoKey.
+10. Restart AutoKey.
