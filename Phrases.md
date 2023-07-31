@@ -1,3 +1,16 @@
+# Contents 
+
+* [Create dynamic phrases by using macros as placeholders](#create-dynamic-phrases-by-using-macros-as-placeholders)
+  * [Available macros](#available-macros)
+    * [Position cursor](#position-cursor)
+    * [Insert date](#insert-date)
+    * [Insert file contents](#insert-file-contents)
+    * [Run script](#run-script)
+    * [Run system command](#run-system-command)
+* [Renaming phrases](#renaming-phrases)
+  * [Rename a phrase in AutoKey](#rename-a-phrase-in-autokey)
+  * [Rename a phrase in your file manager](#rename-a-phrase-in-your-file-manager)
+
 # Create dynamic phrases by using macros as placeholders
 Phrases can be made dynamic by including one or more macros. A macro looks like an XML/HTML `<tag>`, it consists of a special keyword and space separated arguments in the `key=value` form, enclosed in angle brackets (`<` and `>`). Whenever a Phrase is expanded, all included macros are executed. Then the macro tags are replaced with their execution results. When the replacement is finished, the result gets pasted or typed (depending on the phrase setting).
 
