@@ -1,3 +1,12 @@
+# Contents 
+* [Introduction](#introduction)
+* [Example scripts](#example-scripts)
+* [Contributing scripts](#contributing-scripts)
+* [Porting your scripts from Python 2 to Python 3](#porting-your-scripts-from-python-2-to-python-3)
+* [Renaming scripts](#renaming-scripts)
+  * [Rename a script in AutoKey](#rename-a-script-in-autokey)
+  * [Rename a script in your file manager](#rename-a-script-in-your-file-manager)
+
 # Introduction #
 AutoKey scripts accept most Python code. AutoKey also offers some custom API functions that can be used in scripts. For specific details on the custom functions available to AutoKey scripts, see the [API reference](https://autokey.github.io/autokey/api.html).
 
