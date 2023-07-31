@@ -1,6 +1,6 @@
 # Contents 
 
-[Installation Options](#installation-options)
+* [Installation Options](#installation-options)
 
 * [Package Manager Installation](#package-manager-installation)
 
@@ -12,9 +12,9 @@
 
 * [Zero Installation Method](#zero-installation-method)
 
-[Dependencies](#Dependencies)
+* [Dependencies](#Dependencies)
 
-[Running AutoKey](#running-autokey)
+* [Running AutoKey](#running-autokey)
 
 # Installation Options
 
