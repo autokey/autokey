@@ -13,6 +13,7 @@
   * [Where is my configuration information stored and can I copy it to other machines?](#where-is-my-configuration-information-stored-and-can-i-copy-it-to-other-machines)
   * [Why does nothing happen when I start AutoKey?](#why-does-nothing-happen-when-i-start-autokey)
     * [Why am I getting X protocol errors on launch?](#why-am-i-getting-x-protocol-errors-on-launch)
+  * [Why is the text messed up when I use a phrase with LibreOffice Writer?](#why-is-the-text-messed-up-when-i-use-a-phrase-with-libreoffice-writer)
 
 ***
 
@@ -94,3 +95,11 @@ As an alternative, you can use the tray icon or the configured hotkey to show th
 Most likely AutoKey has indeed started and these are just benign messages from python-xlib. Verify that AutoKey is running with `ps aux | grep autokey`
 
 There is some indication that the above error(s) might be caused by AutoKey attempting to setup your hotkey triggers using triggers that are already in use by your desktop or other active software.
+
+### Why is the text messed up when I use a phrase with LibreOffice Writer?
+
+When using a text editor, pressing your hotkey or typing your abbreviation (shortcut) followed by a space or other trigger character that you've defined types your phrase. When doing the same thing with LibreOffice Writer, AutoKey types a mixture of your abbreviation and your phrase.
+
+Basically, the keyed shortcut is not removed and the replacement word is not completed. This is an issue with the output arriving at the destination program too soon. It seems to be caused by the `keyboard` module (which we didn't write).
+
+The first thing to try is always to select the **Paste using Ctrl+V** option for your phrases. That fixes most problems and avoids a number of others. If that doesn't work, recode one of your phrases as a script using the [type_slow](https://github.com/autokey/autokey/wiki/Advanced-Scripts#function-to-type-text-slowly) function from our wiki. Try the simple version first (the first one). If you're still having problems, then file an [issue](https://github.com/autokey/autokey/issues) here or reach out to our community on [Gitter](https://gitter.im/autokey/autokey) with the details of what you tried and we'll try to find another solution.
