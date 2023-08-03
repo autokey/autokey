@@ -6,10 +6,3 @@ The current list of platforms can always be found here:
 * [[Google Groups]]
 * [[Reddit]]
 * [[StackExchange]]
-
-Contributed Scripts:
-* [[Advanced Scripts]]
-* [[Basic Scripts]]
-* [[Contributed Scripts 1]]
-* [[Contributed Scripts 2]]
-* [[Contributed Scripts 3]]
