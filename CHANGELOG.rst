@@ -113,6 +113,7 @@ Other changes
 - AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Rename the bug.yaml file to bug.yml.
+- Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to prevent blank issues from being created.
 
 **New Dependencies (test-time only)**
 
