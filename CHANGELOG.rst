@@ -112,6 +112,7 @@ Other changes
 - Remove one reference to mouse in the AutoKey Qt clipboard API documentation.
 - AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
+- Rename the bug.yaml file to bug.yml.
 
 **New Dependencies (test-time only)**
 
