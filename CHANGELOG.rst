@@ -42,6 +42,10 @@ Bug fixes
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
 
+Other changes
+-------------
+- Rename the bug.yaml file to bug.yml.
+
 Version 0.96.0-beta.9
 ============================
 
