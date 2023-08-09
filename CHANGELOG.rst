@@ -45,6 +45,7 @@ Bug fixes
 Other changes
 -------------
 - Rename the bug.yaml file to bug.yml.
+- Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
 
 Version 0.96.0-beta.9
 ============================
