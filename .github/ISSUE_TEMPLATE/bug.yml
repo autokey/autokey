@@ -7,6 +7,24 @@ description: >
 labels: new issue
 body:
 
+  # DO YOU USE XORG OR WAYLAND?
+  - type: dropdown
+    id: display-server-technology
+    attributes:
+      label: AutoKey is a Xorg application and will not function in a Wayland session. Do you use Xorg (X11) or Wayland?
+      description: >
+        To find out your session type, you can type
+        ```echo $XDG_SESSION_TYPE``` into a terminal
+        window and press the **Enter** key or follow
+        your distribution's instructions.
+      multiple: false
+      options:
+        - Unknown
+        - Wayland
+        - Xorg
+    validations:
+      required: true
+
   # HAS THIS ISSUE ALREADY BEEN REPORTED?
   - type: checkboxes
     id: existing-issue
@@ -51,7 +69,38 @@ body:
         - UI/Usability
     validations:
       required: false
-  
+
+  # LABELS:
+  - type: checkboxes
+    id: labels
+    attributes:
+      label: "Choose one or more terms that describe this issue:"
+      options:
+        - label: autokey triggers
+        - label: autokey-gtk
+        - label: autokey-qt
+        - label: beta
+        - label: bug
+        - label: critical
+        - label: development
+        - label: documentation
+        - label: enhancement
+        - label: installation/configuration
+        - label: phrase expansion
+        - label: scripting
+        - label: technical debt
+        - label: user interface
+    validations:
+      required: false
+
+  # OTHER LABELS:
+  - type: input
+    id: other-labels
+    attributes:
+      label: "Other terms that describe this issue if not provided above:"
+    validations:
+      required: false
+
   # WHICH LINUX DISTRIBUTION DID YOU USE?
   - type: textarea
     id: linux-distribution
