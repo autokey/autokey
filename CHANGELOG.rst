@@ -46,6 +46,9 @@ Other changes
 -------------
 - Rename the bug.yaml file to bug.yml.
 - Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
+- Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
+
+.. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
 Version 0.96.0-beta.9
 ============================
