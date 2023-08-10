@@ -89,4 +89,10 @@ ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 # Set at the top of each entrypoint app
+# headless, gtk or qt
 USED_UI_TYPE = "headless"
+# x11 or wayland
+USED_DISPLAY_SERVER = "x11"
+
+# "x11" or "gnomeext"
+USED_WINDOW_INTERFACE = "x11"

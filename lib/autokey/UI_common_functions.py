@@ -24,10 +24,13 @@ gtk_modules = ['gi', 'gi.repository.Gtk', 'gi.repository.Gdk', 'gi.repository.Pa
 qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
             'PyQt5.Qsci']
 
-common_programs = ['wmctrl', 'ps', 'xrandr']
+# wmctrl, xrandr are x11 specific programs.
+x11_programs = ['wmctrl', 'xrandr']
+common_programs = ['ps']
 # Checking some of these appears to be redundant as some are provided by the same packages on my system but 
 # better safe than sorry.
-optional_programs = ['visgrep', 'import', 'png2pat', 'xte', 'xmousepos']
+x11_optional_programs = ['xte', 'xmousepos']
+optional_programs = ['visgrep', 'import', 'png2pat']
 gtk_programs = ['zenity']
 qt_programs = ['kdialog']
 
@@ -57,6 +60,9 @@ def checkProgramImports(programs, optional=False):
     return missing_programs
 
 def checkOptionalPrograms():
+    if common.USED_DISPLAY_SERVER == "x11":
+        checkProgramImports(x11_optional_programs, optional=True)
+
     if common.USED_UI_TYPE == "QT":
         checkProgramImports(optional_programs, optional=True)
     elif common.USED_UI_TYPE == "GTK":
@@ -74,6 +80,10 @@ def getErrorMessage(item_type, missing_items):
 
 def checkRequirements():
     errorMessage = ""
+
+    if common.USED_DISPLAY_SERVER == "x11":
+        missing_programs = checkProgramImports(x11_programs)
+
     if common.USED_UI_TYPE == "QT":
         missing_programs = checkProgramImports(common_programs+qt_programs)
         missing_modules = checkModuleImports(common_modules+qt_modules)

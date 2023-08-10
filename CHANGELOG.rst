@@ -13,6 +13,8 @@ Important misc changes
 - Various updates to the **README.rst** file to satisfy issue #681.
 - Various updates to the **README.rst** file to satisfy #pullrequestreview-1336342159.
 - Update action versions in build.yaml to latest.
+- Breaking changes to Window scripting interface to be more cross compatible.
+- Adds partially implemented 'tk' interface.
 - Update Qt/GTK "Run" button in interface to run on F5
 - Update two links in the **README.rst** file.
 - Updated `extractDoc.py`
@@ -41,6 +43,8 @@ Bug fixes
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
+- Splits missing program checks to display server (x11, wayland) specific
+- Update scripting/window to use iomediator instead of interface directly
 
 Other changes
 -------------

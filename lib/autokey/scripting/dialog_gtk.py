@@ -20,8 +20,10 @@ import subprocess
 
 from autokey.scripting.common import DialogData, ColourData
 
+from autokey.scripting.abstract_dialog import AbstractDialog
 
-class GtkDialog:
+
+class GtkDialog(AbstractDialog):
     """
     Provides a simple interface for the display of some basic dialogs to collect information from the user.
 

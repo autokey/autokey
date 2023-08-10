@@ -19,6 +19,7 @@ import re
 import subprocess
 import time
 
+from autokey.scripting.abstract_window import AbstractWindow
 
 # this regex extracts the pertinant data from wmctrl output, see test_window.py for more info
 WMCTRL_GEOM_REGEX = r"^(0x[0-9a-fA-F]{8})\s{1,}(\d*)\s{1,}(\d*)\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(.*?)\s{1,}(.*?)$"
@@ -30,7 +31,7 @@ XRANDR_MONITOR_REGEX = r" (\d{3,4}).*?x(\d{3,4})\/.*?\+(\d{1,4})\+(\d{1,4})"
 # Regex gets  ____ and ____    ____ _
 # this translates to monitor x and y size, and x and y offset for each monitor
 
-class Window:
+class WindowWmctrl(AbstractWindow):
     """
     Basic window management using wmctrl
 
@@ -146,7 +147,7 @@ class Window:
 
         self._run_wmctrl(xArgs)
 
-    def resize_move(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False, by_hex=False):
+    def resize(self, title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False, by_hex=False):
         """
         Resize and/or move the specified window
 
@@ -170,6 +171,13 @@ class Window:
         if by_hex:
             xArgs += ["-i"]
         self._run_wmctrl(["-r", title, "-e", ','.join(mvArgs)] + xArgs)
+
+    def move(self, title, x, y):
+        """
+        Move the specified window
+
+        """
+        raise NotImplementedError("move() is not implemented yet")
 
     def move_to_desktop(self, title, deskNum, matchClass=False, by_hex=False):
         """
@@ -255,6 +263,18 @@ class Window:
         @rtype: C{str}
         """
         return self.mediator.get_window_class()
+
+
+    def get_active_info(self):
+        """
+        Get all info about the currently active window
+
+        Usage: C{window.get_active_info()}
+
+        @return: a dictionary containing all info about the currently active window
+        @rtype: C{dict}
+        """
+        raise NotImplementedError
 
     def center_window(self, title=":ACTIVE:", win_width=None, win_height=None, monitor=0, matchClass=False, by_hex=False):
         """
@@ -359,7 +379,8 @@ class Window:
                 return window[0]
         return None
 
-
+    def get_window_id(self, title):
+        return self.get_window_hex(title)
 
 
     def get_window_geometry(self, title, by_hex=False):

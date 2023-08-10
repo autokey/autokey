@@ -21,13 +21,13 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.interface import XRecordInterface, AtSpiInterface
+from autokey.interface import XRecordInterface, AtSpiInterface, XWindowInterface, GnomeWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 from autokey.model.button import Button
-from .constants import X_RECORD_INTERFACE
+from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE
 
 CURRENT_INTERFACE = None
 
@@ -69,8 +69,16 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, self.app)
+        elif self.interfaceType == WAYLAND_INTERFACE:
+            pass
+            #self.interface = GnomeExtensionInterface(self, self.app)
         else:
             self.interface = AtSpiInterface(self, self.app)
+
+        if common.USED_WINDOW_INTERFACE == "x11":
+            self.windowInterface = XWindowInterface()
+        elif common.USED_WINDOW_INTERFACE == "gnomeext":
+            self.windowInterface = GnomeWindowInterface()
 
         self.clipboard = Clipboard()
 
@@ -100,8 +108,16 @@ class IoMediator(threading.Thread):
 
     def grab_hotkey(self, item):
         self.interface.grab_hotkey(item)
+        
     def ungrab_hotkey(self, item):
         self.interface.ungrab_hotkey(item)
+
+    def get_window_class(self):
+        return self.windowInterface.get_window_class()
+
+    def get_window_title(self):
+        return self.windowInterface.get_window_title()
+
 
     # Callback methods for Interfaces ----
 

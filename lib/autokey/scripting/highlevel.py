@@ -14,13 +14,7 @@ class PatternNotFound(Exception):
     """Exception raised by functions"""
     pass
 
-# numeric representation of the mouse buttons. For use in visgrep.
-LEFT = 1
-"""Left mouse button"""
-MIDDLE = 2
-"""Middle mouse button"""
-RIGHT = 3
-"""Right mouse button"""
+from autokey.model.button import Button
 
 
 def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
@@ -163,7 +157,7 @@ def acknowledge_gnome_notification():
     mouse_move(10000, 10000)  # TODO: What if the screen is larger? Loop until mouse position does not change anymore?
     x, y = mouse_pos()
     mouse_rmove(-x/2, 0)
-    mouse_click(LEFT)
+    mouse_click(Button.LEFT)
     time.sleep(.2)
     mouse_move(x0, y0)
 

@@ -30,7 +30,14 @@ from .keyboard import Keyboard
 from .mouse import Mouse
 from autokey.model.store import Store
 from .system import System
-from .window import Window
+
+
+if autokey.common.USED_WINDOW_INTERFACE == "gnomeext":
+    from .window_gnome import WindowGnome as Window
+
+elif autokey.common.USED_WINDOW_INTERFACE == "x11":
+    from .window_wmctrl import WindowWmctrl as Window
+
 
 # Platform abstraction; Allows code like `import scripting.Dialog`
 if autokey.common.USED_UI_TYPE == "QT":
