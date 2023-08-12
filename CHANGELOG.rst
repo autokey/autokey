@@ -88,6 +88,9 @@ Bug fixes
 - Expose Alt_GR as a hotkey modifier on GTK.
 - (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383
 - Fix issue with pip installation reporting a missing module
+- Add missing closing backtick to the code snippet on line 113 of the `CHANGELOG.rst` file. Fixes issue `#906`_.
+
+.. _`#906`: https://github.com/autokey/autokey/issues/906
 
 Scripting API
 +++++++++++++
@@ -110,7 +113,7 @@ Other changes
 - Update formatting and wording in the AutoKey GTK and Qt clipboard API documentation.
 - Remove one reference to X in the AutoKey GTK clipboard API documentation.
 - Remove one reference to mouse in the AutoKey Qt clipboard API documentation.
-- AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test
+- AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Rename the bug.yaml file to bug.yml.
 - Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to prevent blank issues from being offered and created. Fixes `#897`_
