@@ -86,7 +86,6 @@ Bug fixes
 - Both QT and GTK versions will reload hotkeys after a keymap change event.
 - Fix locking issue
 - Expose Alt_GR as a hotkey modifier on GTK.
-- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383
 - Fix issue with pip installation reporting a missing module
 - Add missing closing backtick to the code snippet on line 113 of the `CHANGELOG.rst` file. Fixes issue `#906`_.
 
