@@ -29,6 +29,8 @@ Important misc changes
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
+- Bump the version in the `/lib/autokey/common.py` file on the **develop** branch to 0.96.0-beta.11.
+
 
 Features
 ---------
