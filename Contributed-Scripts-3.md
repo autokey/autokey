@@ -5,6 +5,7 @@
 * [GUI Date Dialog With Format Control](#gui-date-dialog-with-format-control)
 * [Archive URLs using the Wayback Machine (works only with Qt)](#archive-links-with-the-wayback-machine-works-only-with-qt)
 * [Increment Version Numbers](#increment-version-numbers)
+* [Get and print the clipboard contents](#get-and-print-the-clipboard-contents)
 
 
 ## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
@@ -278,4 +279,25 @@ if selection == "":
     dialog.info_dialog(message="nothing selected!")
 else:
    keyboard.send_keys(increment_version(selection))
+```
+
+
+## Get and print the clipboard contents
+- **Author**: Elliria
+- **Purpose**: This script puts the contents of the clipboard (or an empty string if the clipboard is empty) into a variable and prints the contents of the variable, if it's not an empty string, to the currently-active window.
+
+```python
+# Get the clipboard contents if the clipboard isn't empty:
+try: 
+    # Get the contents of the clipboard and assign them to a variable:
+    cb = clipboard.get_clipboard()
+    # (Optional) Brief delay to make sure the clipboard has been filled in case you just filled it:
+    time.sleep(0.2)
+# Handle the exception if the clipboard is empty:
+except: 
+    # Assign an empty string value to the variable:
+    cb = ""
+
+# Print the contents of the variable in the active window:
+keyboard.send_keys(cb)
 ```
