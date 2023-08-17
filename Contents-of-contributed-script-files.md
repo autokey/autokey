@@ -79,6 +79,7 @@
 * [GUI Date Dialog](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#gui-date-dialog)
 * [GUI Date Dialog With Format Control](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#gui-date-dialog-with-format-control)
 * [Archive URLs using the Wayback Machine (works only with Qt)](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#archive-links-with-the-wayback-machine-works-only-with-qt)
+* [Get and print the clipboard contents](https://github.com/autokey/autokey/wiki/Contributed-Scripts-3#get-and-print-the-clipboard-contents)
 
 ## Mouse Control
   * [Before you begin](https://github.com/autokey/autokey/wiki/Mouse-Control#before-you-begin)
