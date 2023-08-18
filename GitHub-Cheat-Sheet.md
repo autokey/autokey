@@ -121,8 +121,9 @@ These steps take you through the basic workflow for using GitHub in your browser
    7. Compare the result with the SHA checksum matching your Linux distribution in the **SHA256SUMS** file you downloaded to make sure they're identical. If they're not, delete the **.deb** file and go back to step ii above.
    8. Run this command to generate the MD5 checksum for the **.deb** file you downloaded: `md5sum virtualbox*.deb`
    9. Compare the result with the MD5 checksum matching your Linux distribution in the **MD5SUMS** file you downloaded to make sure they're identical. If they're not, delete the **.deb** file and go back to step ii above.
-   10. Install VirtualBox by double-clicking the **.deb** file in your file manager or by running this command, replacing **foo** with the name of your **.deb** file: `sudo dpkg -i foo`
-   11. Once VirtualBox is installed, you should find a shortcut to it in your main menu (possibly in the **System** section of your menu).
+   10. Install VirtualBox by double-clicking the **.deb** file in your file manager or by running this command: `sudo dpkg -i Virtual*.deb`
+   11. Install the dependencies for VirtualBox and configure VirtualBox with this command: `sudo apt-get install -f`
+   12. Once VirtualBox is installed, you should find a shortcut to it in your main menu (possibly in the **System** section of your menu under the name of **Oracle VM VirtualBox**).
    ____
 
    </details>
