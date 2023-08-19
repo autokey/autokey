@@ -10,6 +10,7 @@
     * [Troubleshooting](https://github.com/autokey/autokey/wiki/Troubleshooting)
     * [Upgrading](https://github.com/autokey/autokey/wiki/Upgrading-AutoKey)
   * [Community](https://github.com/autokey/autokey/wiki/Community)
+    * [Contribute to the Wiki](https://github.com/autokey/autokey/wiki/Contribute-to-the-Wiki)
     * [Discord](https://github.com/autokey/autokey/wiki/Discord)
     * [Gitter](https://github.com/autokey/autokey/wiki/Gitter)
     * [Google Groups](https://github.com/autokey/autokey/wiki/Google-Groups)
@@ -37,5 +38,3 @@
     * [Special Keys](https://github.com/autokey/autokey/wiki/Special-Keys)
     * [Unicode Characters](https://github.com/autokey/autokey/wiki/Unicode-Characters)
     * [X Clipboards](https://github.com/autokey/autokey/wiki/More-than-you-ever-wanted-to-know-about-X-clipboards)
-  * This Wiki
-    * [Contribute to the Wiki](https://github.com/autokey/autokey/wiki/Contribute-to-the-Wiki)
