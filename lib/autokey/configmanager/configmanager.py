@@ -37,7 +37,7 @@ from autokey.configmanager.configmanager_constants import CONFIG_FILE, CONFIG_DE
     RECENT_ENTRIES_FOLDER, IS_FIRST_RUN, SERVICE_RUNNING, MENU_TAKES_FOCUS, SHOW_TRAY_ICON, SORT_BY_USAGE_COUNT, \
     PROMPT_TO_SAVE, ENABLE_QT4_WORKAROUND, UNDO_USING_BACKSPACE, WINDOW_DEFAULT_SIZE, HPANE_POSITION, COLUMN_WIDTHS, \
     SHOW_TOOLBAR, NOTIFICATION_ICON, WORKAROUND_APP_REGEX, TRIGGER_BY_INITIAL, SCRIPT_GLOBALS, INTERFACE_TYPE, \
-    DISABLED_MODIFIERS, GTK_THEME, GTK_TREE_VIEW_EXPANDED_ROWS, PATH_LAST_OPEN
+    DISABLED_MODIFIERS, GTK_THEME, GTK_TREE_VIEW_EXPANDED_ROWS, PATH_LAST_OPEN, KEYBOARD, MOUSE, DEVICES
 import autokey.configmanager.version_upgrading as version_upgrade
 import autokey.configmanager.predefined_user_files
 from autokey.iomediator.constants import X_RECORD_INTERFACE
@@ -219,7 +219,10 @@ class ConfigManager:
                 SCRIPT_GLOBALS: {},
                 GTK_THEME: "classic",
                 GTK_TREE_VIEW_EXPANDED_ROWS: [],
-                PATH_LAST_OPEN: "0"
+                PATH_LAST_OPEN: "0",
+                KEYBOARD: None,
+                MOUSE: None,
+                DEVICES: [],
                 }
 
     def __init__(self, app):
