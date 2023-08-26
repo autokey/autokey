@@ -13,6 +13,7 @@ import time
 import select
 import random
 import re
+import pathlib
 
 from autokey.model.button import Button
 from autokey.model.phrase import SendMode
@@ -21,9 +22,13 @@ from autokey.model.key import Key
 import evdev
 from evdev import ecodes as e
 
+from autokey.autokey_app import AutokeyApplication
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, queue_method
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, queue_method
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.gnome_interface import GnomeMouseReadInterface
 
 
@@ -141,6 +146,19 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         "backslash": "\\", "equal": "=", "minus": "-", "grave": "`",
     }
 
+    #TODO complete this
+    button_map = {
+        Button.LEFT: [e.BTN_LEFT, 0x90001],
+        Button.RIGHT: [e.BTN_RIGHT, 0x90002],
+        Button.MIDDLE: [e.BTN_MIDDLE, 0x90003],
+        #4: [e.BTN_SIDE, 0x90004],
+        #5: [e.BTN_EXTRA, 0x90005],
+        #6: [],
+        #7: [],
+        #8: [e.BTN_BACK, ]
+
+    }
+
     queue = queue.Queue()
 
     def __init__(self, mediator, app):
@@ -148,11 +166,12 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.setDaemon(True)
         self.setName("UInputInterface-thread")
         self.mediator = mediator  # type: IoMediator
-        self.app = app
+        self.app = app # type: AutokeyApplication
         self.shutdown = False
         self.sending = False
         self.keyboard = None
         self.mouse = None
+        self.capabilities = None
         time.sleep(1)
 
         # Event loop
@@ -166,25 +185,45 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         devices = self.get_devices()
 
         #TODO have to find a way to have user select which device to use (or try to find the right one)
+        # something like zenity --list --title="Select an Option" --text="Choose an option:" --column="Option" "Option 1" "Option 2" "Option 3"
+        # just grab the return and set it up
         # should allow user to manually set the input devices in the settings.
+        keyboard_name = cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]
+        mouse_name = cm.ConfigManager.SETTINGS[cm_constants.MOUSE]
+        if cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]:
+            logger.info("Grabbing keyboard from settings: {}".format(keyboard_name))
+            try:
+                self.keyboard = self.grab_device(devices, keyboard_name)
+            except Exception as error:
+                logger.error("Could not grab keyboard from settings: {}".format(error))
+        if cm.ConfigManager.SETTINGS[cm_constants.MOUSE]:
+            logger.info("Grabbing mouse from settings: {}".format(mouse_name))
+            try: 
+                self.mouse = self.grab_device(devices, mouse_name)
+            except Exception as error:
+                logger.error("Could not grab mouse from settings: {}".format(error))
+                # self.app.show_error_dialog("Could not grab mouse name from settings!")
+
+        # attempt to automatically determine keyboard and mouse devices based on device names
         for dev in devices:
             logger.debug("Found device: {}".format(dev.name))
             if self.keyboard is None and re.search("keyboard", dev.name, re.IGNORECASE):
-                logger.debug("Found keyboard: {}".format(dev.name))
+                logger.debug("Found device with keyboard in the name, grabbing it: {}".format(dev.name))
                 self.keyboard = self.grab_device(devices, dev.name)
                 self.keyboard.grab()
             elif self.mouse is None and re.search("mouse", dev.name, re.IGNORECASE):
-                logger.debug("Found mouse: {}".format(dev.name))
+                logger.debug("Found device with mouse in the name, grabbing it: {}".format(dev.name))
                 self.mouse = self.grab_device(devices, dev.name)
-        #self.keyboard = self.grab_device(devices, "ZSA Technology Labs ErgoDox EZ")
-        #self.mouse = self.grab_device(devices, "Logitech MX Master 3")
-        # self.keyboard = self.grab_device(devices, "AT Translated Set 2 keyboard")
-        # self.keyboard.grab() # exclusive grab, no other process can use it, instead pass through input events via uinput
-        # self.mouse = self.grab_device(devices, "VirtualBox mouse integration")
 
-        if self.mouse is None or self.keyboard is None:
-            logger.error("Unable to find mouse or keyboard")
-            raise Exception("Unable to find mouse or keyboard")
+        if self.mouse is None:
+            logger.error("Unable to find mouse")
+            self.app.show_error_dialog_with_link(f"Unable to find mouse {mouse_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
+            self.app.shutdown()
+            # raise Exception("Unable to find mouse or keyboard")
+        if self.keyboard is None:
+            logger.error(f"Unable to find keyboard {keyboard_name}")
+            self.app.show_error_dialog_with_link(f"Unable to find keyboard {keyboard_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
+            self.app.shutdown()
 
         self.devices = [self.keyboard, self.mouse]
         logger.debug("Keyboard: {}, Path: {}".format(self.keyboard.name, self.keyboard.path))
@@ -200,6 +239,12 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             # creating a uinput device with the combined capabilities of the user's mouse and keyboard
             # this will undoubtedly cause issues if user attempts to send signals not supported by their devices
             self.ui = evdev.UInput.from_device(self.mouse.path, self.keyboard.path, name="autokey mouse and keyboard")
+            self.capabilities = self.ui.capabilities(verbose=True)
+            logger.debug("Device capabilities: {}".format(self.capabilities))
+
+            logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
+            logger.info("Supports REL Movement: {}".format(self.supports_rel()))
+            
 
         except Exception as ex:
             logger.error("Unable to create UInput device. {}".format(ex))
@@ -207,6 +252,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             #print("Unable to create UInput device. {}".format(ex))
 
         GnomeMouseReadInterface.__init__(self)
+        logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
 
 
         self.inv_map = self.__reverse_mapping(e.keys)
@@ -220,6 +266,31 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         self.eventThread.start()
         self.listenerThread.start()
+
+    def supports_abs(self):
+        has_abs_x = False
+        has_abs_y = False
+        if self.capabilities.get(('EV_ABS', 3)):
+            for item in self.capabilities[('EV_ABS', 3)]:
+                if item[0][0] == 'ABS_X':
+                    has_abs_x = True
+                if item[0][0] == 'ABS_Y':
+                    has_abs_y = True
+            return has_abs_x and has_abs_y
+        return False
+    
+    def supports_rel(self):
+        has_rel_x = False
+        has_rel_y = False
+
+        if self.capabilities.get(('EV_REL', 2)):
+            for item in self.capabilities[('EV_REL', 2)]:
+                if item[0] == 'REL_X':
+                    has_rel_x = True
+                if item[0] == 'REL_Y':
+                    has_rel_y = True
+            return has_rel_x and has_rel_y
+        return False
 
 
     def __reverse_mapping(self, dictionary):
@@ -246,6 +317,136 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             logger.error("User not in input group add yourself or run program as root")
             logger.error(f"sudo usermod -a -G input {user}")
             raise Exception("User not in input group add yourself or run program as root")
+        
+    @queue_method(queue)
+    def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
+        self.move_cursor(xCoord, yCoord, relative)
+
+        keycode = self.button_map[button][0]
+        scancode = self.button_map[button][1]
+
+        self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
+        self.ui.write(e.EV_KEY, keycode, 1)
+        self.syn_raw()
+
+        self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
+        self.ui.write(e.EV_KEY, keycode, 0)
+        self.syn_raw()
+    
+    @queue_method(queue)
+    def mouse_press(self, xCoord, yCoord, button):
+        self.move_cursor(xCoord, yCoord)
+
+        keycode = self.button_map[button][0]
+        scancode = self.button_map[button][1]
+
+        self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
+        self.ui.write(e.EV_KEY, keycode, 1)
+        self.syn_raw()
+
+    @queue_method(queue)
+    def mouse_release(self, xCoord, yCoord, button):
+        self.move_cursor(xCoord, yCoord)
+
+        keycode = self.button_map[button][0]
+        scancode = self.button_map[button][1]
+
+        self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
+        self.ui.write(e.EV_KEY, keycode, 0)
+        self.syn_raw()
+    
+    # implemented in GnomeMouseReadInterface
+    # def mouse_location(self):
+    #     raise NotImplementedError
+    
+    @queue_method(queue)
+    def relative_mouse_location(self, window=None):
+        # if window is None:
+        #     window = self.mediator.windowInterface.get_active_window()
+        
+        raise NotImplementedError
+    
+    @queue_method(queue)
+    def scroll_down(self, number):
+        for i in range(number):
+            self.ui.write(e.EV_REL, e.REL_WHEEL, -1)
+            self.ui.write(e.EV_REL, e.REL_WHEEL_HI_RES, -120)
+            self.syn_raw()
+    
+    @queue_method(queue)
+    def scroll_up(self, number):
+        for i in range(number):
+            self.ui.write(e.EV_REL, e.REL_WHEEL, 1)
+            self.ui.write(e.EV_REL, e.REL_WHEEL_HI_RES, 120)
+            self.syn_raw()
+    
+    @queue_method(queue)
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        raise NotImplementedError
+        # weirdly I could not find an easier way to do this in a few minutes of searching
+        def sign(val):
+            if val < 0:
+                return -1
+            elif val > 0:
+                return 1
+            else:
+                return 0
+
+        # REL_X - X axis, positive is right, negative is left.
+        # REL_Y - Y axis, positive is down, negative is up.
+        current_x, current_y = self.mouse_location()
+        screen_x, screen_y = self.mediator.windowInterface.get_screen_size()
+        count = 0
+        end_count = 1000
+
+        # check if we can use ABS/REL, currently REL is preferred.
+        rel_mov = self.supports_rel()
+        abs_mov = self.supports_abs()
+
+        while True:
+            # logger.debug("Current X: {}, Current Y: {}".format(current_x, current_y))
+            # logger.debug("X Coord: {}, Y Coord: {}".format(xCoord, yCoord))
+            # logger.debug("current_x == xCoord: {}, current_y == yCoord: {}".format(current_x == xCoord, current_y == yCoord))
+            
+            if current_x == xCoord and current_y == yCoord:
+                break
+            if rel_mov:
+                if current_x < xCoord:
+                    self.ui.write(e.EV_REL, e.REL_X, 1)
+                elif current_x > xCoord:
+                    self.ui.write(e.EV_REL, e.REL_X, -1)
+
+                if current_y < yCoord:
+                    self.ui.write(e.EV_REL, e.REL_Y, 1)
+                elif current_y > yCoord:
+                    self.ui.write(e.EV_REL, e.REL_Y, -1)
+            elif abs_mov:
+                raise NotImplementedError
+                # TODO: Implement ABS movement
+                # I think that if we were able to get the size of the screen we'd be able to more effectively move the mouse here
+                move_x = int(xCoord-current_x/screen_x*65535)*sign(xCoord-current_x)
+                move_y = int(yCoord-current_y/screen_y*65535)*sign(yCoord-current_y)
+
+
+
+                self.ui.write(e.EV_ABS, e.ABS_X, move_x)
+                self.ui.write(e.EV_ABS, e.ABS_Y, move_y)
+
+
+            # self.ui.write(e.EV_REL, e.REL_X, 1)
+            # self.ui.write(e.EV_REL, e.REL_Y, 1)
+            self.syn_raw()
+            current_x, current_y = self.mouse_location()
+
+            count = count+1
+            if count > end_count:
+                break
+
+
+    
+    def send_mouse_click_relative(self, xoff, yoff, button):
+        raise NotImplementedError
+
 
     @queue_method(queue)
     def clear_held_keys(self):
@@ -400,6 +601,16 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         hotkeys = c.hotKeys + c.hotKeyFolders
 
         for item in hotkeys:
+            if "code" in item.hotKey:
+                #this implies that it is a legacy x11 keycode, should we try to remap?
+                # not sure that this would be possible/practical
+                # need to tell the user this is an issue
+                self.app.show_error_dialog(f"Detected Legacy x11 keycode {item.hotKey} for {item}", )
+                # TODO: for some reason the above will prevent the rest of the application from starting?
+                logger.warning(f"Detected likely invalid hotkey: {item}")
+                #from interface import XK_TO_AK_MAP
+
+                pass
             logger.debug("Hotkey: {}, Modifier: {}".format(item.hotKey, item.modifiers))
 
     def isModifier(self, keyCode):
@@ -430,7 +641,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
     @queue_method(queue)
     def handle_keyrelease(self, keyCode):
-        window_info = self.mediator.windowInterface.get_window_info() #not used
+        window_info = self.mediator.windowInterface.get_window_info()
         event_type = evdev.categorize(keyCode)
         logger.debug("handle_keyrelease: KeyState:{}, Un:{}".format(event_type.keystate, event_type.keycode))
         if self.isModifier(event_type.keycode):
@@ -454,6 +665,9 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     def __flush_events(self):
         r,w,x = select.select(self.devices, [], [])
         for fd in r:
+            if not pathlib.Path(self.devices[fd].path).exists():
+                logger.error("__flush_events: Device {} does not exist.".format(fd))
+                continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
                 held = self.keyboard.active_keys(verbose=True)
