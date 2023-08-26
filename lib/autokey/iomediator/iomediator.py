@@ -69,21 +69,22 @@ class IoMediator(threading.Thread):
         elif session_type is None:
             pass
         
+        if self.interfaceType == "uinput":
+            self.windowInterface = GnomeExtensionWindowInterface()
+        else:
+            from autokey.interface import XWindowInterface
+            self.windowInterface = XWindowInterface()
+
 
         if self.interfaceType == "uinput":
             from autokey.uinput_interface import UInputInterface
             self.interface = UInputInterface(self, self.app)
         elif self.interfaceType == X_RECORD_INTERFACE:
-            from autokey.interface import XRecordInterface, XWindowInterface
+            from autokey.interface import XRecordInterface
             self.interface = XRecordInterface(self, self.app)
         else:
-            from autokey.interface import AtSpiInterface, XWindowInterface
+            from autokey.interface import AtSpiInterface
             self.interface = AtSpiInterface(self, self.app)
-
-        if self.interfaceType == "uinput":
-            self.windowInterface = GnomeExtensionWindowInterface()
-        else:
-            self.windowInterface = XWindowInterface()
 
         self.clipboard = Clipboard()
 
