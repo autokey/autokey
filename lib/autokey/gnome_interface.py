@@ -15,6 +15,15 @@ class DBusInterface:
         shell_obj = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell/Extensions/AutoKey')
         self.dbus_interface = dbus.Interface(shell_obj, 'org.gnome.Shell.Extensions.AutoKey')
 
+        version = self.dbus_interface.CheckVersion()
+        logger.debug("AutoKey Gnome Extension version: %s" % version)
+        if version == "0.1":
+            pass
+        else:
+            raise Exception("Incompatible version of AutoKey Gnome Extension")
+
+
+
 class GnomeMouseReadInterface(DBusInterface):
     def __init__(self):
         super().__init__()
@@ -26,7 +35,10 @@ class GnomeMouseReadInterface(DBusInterface):
 class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
     def __init__(self):
         super().__init__()
-        
+    
+    def get_screen_size(self):
+        x,y = self.dbus_interface.ScreenSize()
+        return [int(x), int(y)]
 
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         """
