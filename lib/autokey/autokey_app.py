@@ -24,6 +24,7 @@ import dbus
 import dbus.mainloop.glib
 import signal
 import subprocess
+import hashlib
 from typing import NamedTuple, Iterable
 import re
 
@@ -123,17 +124,20 @@ class AutokeyApplication:
         logger.info("Autokey application services ready")
 
     def usage_statistics(self):
+        def get_digest(value):
+            return hashlib.md5(str(value).encode()).hexdigest()[0:8]
+
         logger.info("----- AutoKey Usage Statistics -----")
         for item in self.configManager.allItems:
-            # print(type(item))
             if type(item) is autokey.model.phrase.Phrase:
                 # logger.info(item.description, item.usageCount, item.phrase)
-                logger.info(f"Phrase: {item.description}, Usage Count: {item.usageCount} {self.getMacroUsage(item.phrase)}")
+                logger.info(f"Phrase: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getMacroUsage(item.phrase)}")
             elif type(item) is autokey.model.script.Script:
-                logger.info(f"Script: {item.description}, Usage Count: {item.usageCount} {self.getAPIUsage(item.code)}")
+                logger.info(f"Script: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getAPIUsage(item.code)}")
         
         for item in self.configManager.allFolders:
-            logger.info(f"Folder: {item.title}, Usage Count: {item.usageCount}")
+            
+            logger.info(f"Folder: {get_digest(item.title)}, Usage Count: {item.usageCount}")
 
         logger.info("----- AutoKey Usage Statistics -----")
 
