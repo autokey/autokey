@@ -147,7 +147,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     }
 
     #TODO complete this
-    button_map = {
+    btn_map = {
         Button.LEFT: [e.BTN_LEFT, 0x90001],
         Button.RIGHT: [e.BTN_RIGHT, 0x90002],
         Button.MIDDLE: [e.BTN_MIDDLE, 0x90003],
@@ -157,6 +157,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         #7: [],
         #8: [e.BTN_BACK, ]
 
+    }
+    inv_btn_map = {
+        "BTN_LEFT": Button.LEFT,
+        "BTN_RIGHT": Button.RIGHT,
+        "BTN_MIDDLE": Button.MIDDLE
     }
 
     queue = queue.Queue()
@@ -322,8 +327,8 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
         self.move_cursor(xCoord, yCoord, relative)
 
-        keycode = self.button_map[button][0]
-        scancode = self.button_map[button][1]
+        keycode = self.btn_map[button][0]
+        scancode = self.btn_map[button][1]
 
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 1)
@@ -337,8 +342,8 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     def mouse_press(self, xCoord, yCoord, button):
         self.move_cursor(xCoord, yCoord)
 
-        keycode = self.button_map[button][0]
-        scancode = self.button_map[button][1]
+        keycode = self.btn_map[button][0]
+        scancode = self.btn_map[button][1]
 
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 1)
@@ -348,8 +353,8 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     def mouse_release(self, xCoord, yCoord, button):
         self.move_cursor(xCoord, yCoord)
 
-        keycode = self.button_map[button][0]
-        scancode = self.button_map[button][1]
+        keycode = self.btn_map[button][0]
+        scancode = self.btn_map[button][1]
 
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 0)
@@ -867,9 +872,16 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         elif len(key) == 1, assume that this is an ascii char, check if "KEY_"+key exists in any of the character maps and process accordingly
         return (0, false)
         """
+        #TODO this could probably do with an optimization pass
         if type(key)==str and "KEY_" in key[:4]: #if it is a "KEY_A" type value return evdev int from map
             # print("Type str")
             return self.inv_map[key], False
+        elif type(key)==list and "BTN_" in key[0][:4]:
+            return self.inv_btn_map[key[0]], False
+        elif type(key)==str and "BTN_" in key[:4]:
+            return self.inv_btn_map[key], False
+        elif type(key)==Button:
+            return self.btn_map[key]
         elif type(key)==int: #if it is type int it should be a evdev raw value
             # print("Type int")
             return key, False
@@ -908,6 +920,9 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         #TODO handle special keys like backslash etc.
         code, shifted_ = self.translate_to_evdev(keyCode[0])
         evdev_name = e.keys[code]
+        # for mouse buttons this returns a list like ['BTN_LEFT', 'BTN_MOUSE']
+        if type(evdev_name) is list:
+            evdev_name = evdev_name[0]
         # modifiers
         if evdev_name in self.uinput_modifiers_to_ak_map:
             logger.debug("Modifier: {}".format(evdev_name))
