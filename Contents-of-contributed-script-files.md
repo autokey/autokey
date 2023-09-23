@@ -1,4 +1,4 @@
-## Contents of Advanced Scripts
+## List of Advanced Scripts
 
 * [Introduction](https://github.com/autokey/autokey/wiki/Advanced-Scripts#introduction)
 * [Case Changer](https://github.com/autokey/autokey/wiki/Advanced-Scripts#case-changer)
