@@ -155,8 +155,8 @@ This script creates a new phrase with an associated abbreviation from the curren
             title = contents[0:17] + "..."
         else:
             title = contents
-            folder = engine.get_folder("My Phrases")
-            engine.create_abbreviation(folder, title, abbr, contents)
+        folder = engine.get_folder("My Phrases")
+        engine.create_abbreviation(folder, title, abbr, contents)
 ```
 ## Create new phrase
 
@@ -170,8 +170,8 @@ This is similar to the above script, but creates the phrase without an abbreviat
         title = contents[0:17] + "..."
     else:
         title = contents
-        folder = engine.get_folder("My Phrases")
-        engine.create_phrase(folder, title, contents)
+    folder = engine.get_folder("My Phrases")
+    engine.create_phrase(folder, title, contents)
 ```
 ## Start external scripts
 
