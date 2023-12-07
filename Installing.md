@@ -124,7 +124,7 @@ AutoKey can be used directly from a cloned repository as long as you have all of
      ```bash
      pip3 install packaging
      ```
-3. Pick one of these commands to clone AutoKey:
+4. Pick one of these commands to clone AutoKey:
    * Clone **a branch** (example: `develop`):
      ```bash
      git clone --branch develop --single-branch https://github.com/autokey/autokey.git
@@ -133,15 +133,15 @@ AutoKey can be used directly from a cloned repository as long as you have all of
      ```bash
      git clone https://github.com/autokey/autokey.git
      ```
-4. Open the `autokey` directory you just created:
+5. Open the `autokey` directory you just created:
    ```bash
    cd autokey
 	 ```
-5. Open the `lib` sub-directory:
+6. Open the `lib` sub-directory:
    ```bash
    cd lib
    ```
-6. Pick one of these commands to start the Autokey daemon:
+7. Pick one of these commands to start the Autokey daemon:
    * Run the **GTK UI**:
      ```bash
      python3 -m autokey.gtkui
@@ -150,8 +150,8 @@ AutoKey can be used directly from a cloned repository as long as you have all of
      ```bash
      python3 -m autokey.qtui
      ```
-7. When you're finished, close AutoKey normally and close the terminal window.
-8. Delete the cloned `autokey` directory if you will no longer need it.
+8. When you're finished, close AutoKey normally and close the terminal window.
+9. Delete the cloned `autokey` directory if you will no longer need it.
 
 ### Zero-installation Method Notes
 
