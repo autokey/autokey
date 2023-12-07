@@ -173,7 +173,7 @@ AutoKey depends on (regardless of the used GUI):
 Python 3.7
 
   * [dbus-python](https://www.freedesktop.org/wiki/Software/DBusBindings/#python) \[[PyPI](https://pypi.org/project/dbus-python/)\] - Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead.
-  * [packaging](https://github.com/pypa/packaging) \[[PyPI](https://pypi.org/project/packaging/)\] - Install with pip or install the `python3-packaging` package from your distribution's repository instead.
+  * [packaging](https://github.com/pypa/packaging) \[[PyPI](https://pypi.org/project/packaging/)\] - Install with pip or install the `python3-packaging` package from your distribution's repository instead. This package is needed when working with cloned copies of AutoKey.
   * [pyinotify](https://github.com/seb-m/pyinotify) \[[PyPI](https://pypi.org/project/pyinotify/)\]
   * [python-xlib](https://github.com/python-xlib/python-xlib) \[[PyPI](https://pypi.org/project/python-xlib/)\]
   * [wmctrl](http://tripie.sweb.cz/utils/wmctrl/) (CLI tool) - used for window manipulation functions available in the Scripting API.
