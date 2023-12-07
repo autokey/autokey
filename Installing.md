@@ -12,6 +12,8 @@
 
 * [Zero Installation Method](#zero-installation-method)
 
+  * [Zero-installation Notes](#zero-installation-method-notes)
+
 * [Dependencies](#Dependencies)
 
 * [Running AutoKey](#running-autokey)
@@ -105,28 +107,64 @@ The following Python3 dependencies need to be installed. If the install fails, l
 
 Installing the dependencies from PyPI may be tricky and break your system in unexpected ways, so prefer to install the dependencies from your Distribution’s package manager whenever possible. For example, installing `dbus-python` from PyPI will _shadow_ your local `dbus-python` installation (even if installed later by your package manager), _including any plugins present in the system installation_. This may break software relying on the presence of those plugins, for example the HPLIP software.
 
-
-
-
-
 ## Zero-installation Method
 
-AutoKey can be used directly from the cloned repository. This is useful, e.g., for trying out a new version without removing a current installation.
+AutoKey can be used directly from a cloned repository as long as you have all of its dependencies already on your system. This can be useful for trying out a new version without removing a current installation.
 
-1. Start the Autokey daemon
+1. Open a terminal window.
+2. Pick one of these actions to install all or most of AutoKey's dependencies if AutoKey isn't already installed on your system:
+   * Install the [dependencies](#dependencies) for AutoKey manually.
+   * Install AutoKey [from your package manager](#package-manager-installation).
+3. Pick one of these commands to install the Python **packaging** module if it isn't already on your system:
+   * Install it with **apt**:
+     ```bash
+     sudo apt install python3-packaging
+     ```
+   * Install it with **pip**:
+     ```bash
+     pip3 install packaging
+     ```
+3. Pick one of these commands to clone AutoKey:
+   * Clone **a branch** (example: `develop`):
+     ```bash
+     git clone --branch develop --single-branch https://github.com/autokey/autokey.git
+     ```
+   * Clone **the repository**:
+     ```bash
+     git clone https://github.com/autokey/autokey.git
+     ```
+4. Open the `autokey` directory you just created:
+   ```bash
+   cd autokey
+	 ```
+5. Open the `lib` sub-directory:
+   ```bash
+   cd lib
+   ```
+6. Pick one of these commands to start the Autokey daemon:
+   * Run the **GTK UI**:
+     ```bash
+     python3 -m autokey.gtkui
+     ```
+   * Run the **Qt UI**:
+     ```bash
+     python3 -m autokey.qtui
+     ```
+7. When you're finished, close AutoKey normally and close the terminal window.
+8. Delete the cloned `autokey` directory if you will no longer need it.
 
-```bash
-cd lib
-# For the GTK UI (likely to work best with Gnome, e.g. Ubuntu.)
-python3 -Im autokey.gtkui
-# or for the QT UI (best on KDE).
-python3 -Im autokey.qtui
-# or for no UI at all, if you only want to configure autokey using the scripting API.
-```
+### Zero-installation Method Notes
 
-2. Show the Autokey config window on startup (if desired) by appending the `--configure` or `-c` command line switch to the end of the command.
-
-The commands accept CLI switches just like the regular installation, so `python3 -Im autokey.qtui -lc` works as expected.
+  * The **GTK UI** is likely to work best with Gnome. The **Qt UI** is likely to work best with KDE, but also works when configuring AutoKey using the scripting API.
+  * Command-line switches are accepted with either of those commands just as they are in a regular installation. For example:
+    * Run the GTK UI with its main window open on startup:
+      ```bash
+      python3 -m autokey.gtkui -c
+      ```
+    * Run the Qt UI in isolated mode with its main window open on startup:
+      ```bash
+      python3 -Im autokey.qtui -c
+      ```
 
 ## Dependencies
 
@@ -134,13 +172,11 @@ AutoKey depends on (regardless of the used GUI):
 
 Python 3.7
 
-[dbus-python](https://www.freedesktop.org/wiki/Software/DBusBindings/#python) \[[PyPI](https://pypi.org/project/dbus-python/)\] - Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead.
-
-[pyinotify](https://github.com/seb-m/pyinotify) \[[PyPI](https://pypi.org/project/pyinotify/)\]
-
-[python-xlib](https://github.com/python-xlib/python-xlib) \[[PyPI](https://pypi.org/project/python-xlib/)\]
-
-[wmctrl](http://tripie.sweb.cz/utils/wmctrl/) (CLI tool) - used for window manipulation functions available in the Scripting API.
+  * [dbus-python](https://www.freedesktop.org/wiki/Software/DBusBindings/#python) \[[PyPI](https://pypi.org/project/dbus-python/)\] - Install from your distribution’s repository. because installing from PyPI may break your system. Additionally, installing from PyPi requires a C compiler and the dbus C header files, because it will compile the C libraries locally at installation time. Spare your time and install dbus-python from your distribution’s repository instead.
+  * [packaging](https://github.com/pypa/packaging) \[[PyPI](https://pypi.org/project/packaging/)\] - Install with pip or install the `python3-packaging` package from your distribution's repository instead.
+  * [pyinotify](https://github.com/seb-m/pyinotify) \[[PyPI](https://pypi.org/project/pyinotify/)\]
+  * [python-xlib](https://github.com/python-xlib/python-xlib) \[[PyPI](https://pypi.org/project/python-xlib/)\]
+  * [wmctrl](http://tripie.sweb.cz/utils/wmctrl/) (CLI tool) - used for window manipulation functions available in the Scripting API.
 
 The GTK GUI additionally depends on these packages:
 
@@ -167,7 +203,7 @@ The Qt5-based GUI additionally depends on:
 ### Installing Dependencies for Debian
 
     # Needed for both GUIs:
-    sudo apt install python3-dbus python3-xlib python3-pyinotify wmctrl
+    sudo apt install python3-dbus python3-packaging python3-pyinotify python3-xlib wmctrl
     # Needed for autokey-gtk:
     sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-gtksource-3.0 gir1.2-appindicator3-0.1 gir1.2-glib-2.0 gir1.2-notify-0.7 zenity
     # Needed for autokey-qt:
@@ -182,7 +218,7 @@ https://aur.archlinux.org/packages/autokey-common/
 ### Installing Dependencies from PyPI
 TODO.
 
-(Checkout the PyPI links from the tables above.)
+(Check out the PyPI links from the tables above.)
 
 ### Installing AutoKey
 Install AutoKey from the [AutoKey GitHub repository][autorepo] for your user only:
