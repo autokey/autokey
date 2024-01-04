@@ -86,6 +86,7 @@ Errors with QT plugins may be solved by updating the QT plugin path. `export QT_
 ```
 root # emerge --noreplace --ask dbus-python pyinotify python-xlib qscintilla-python wmctrl
 ```
+This section is incomplete. Gentoo users are encouraged to update it.
 
 # `pip` Installation
 
