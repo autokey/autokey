@@ -6,7 +6,7 @@
 
   * [Debian and Derivatives](#debian-and-derivatives)
   * [Arch](#arch-linux)
-  * [Gentoo](#gentoo)
+  * [Gentoo](#gentoo-linux)
   
 * [`pip` Installation](#pip-installation)
 
@@ -83,12 +83,9 @@ Errors with QT plugins may be solved by updating the QT plugin path. `export QT_
 
 ## Gentoo Linux
 
-```
-root # emerge --noreplace --ask dbus-python pyinotify python-xlib qscintilla-python wmctrl
-```
 This section is incomplete. Gentoo users are encouraged to update it.
 
-Update for GTK:
+2024-01-05: Update for GTK, autokey 0.96
 
 1) Create a set in /etc/portage/sets/autokey-gtk.set:
 * dev-cpp/gtksourceviewmm
@@ -111,8 +108,6 @@ Going for a venv installation as it seems the easiest longterm. Run as user:
 * pip install autokey
 * cd "$path_venv"/bin
 * ./autokey-gtk
-
-That's it.
 
 
 # `pip` Installation
