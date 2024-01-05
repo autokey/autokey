@@ -88,6 +88,35 @@ root # emerge --noreplace --ask dbus-python pyinotify python-xlib qscintilla-pyt
 ```
 This section is incomplete. Gentoo users are encouraged to update it.
 
+## Update for GTK:
+## ===============
+### A) Requirements: 
+
+1) Create a set in /etc/portage/sets/autokey-gtk.set:
+dev-cpp/gtksourceviewmm
+dev-libs/dbus-glib
+dev-libs/gobject-introspection
+dev-libs/libappindicator
+dev-python/dbus-python
+dev-python/pip
+gnome-extra/zenity
+media-gfx/imagemagick
+x11-misc/xautomation
+x11-misc/wmctrl
+
+pyinotify and python-xlib should be installed by autokey automatically in venv. 
+
+### B) Installation:
+Going for a venv installation as it seems the easiest longterm. Run as user:
+a) python -m venv <path-to-your-venv>
+b) . <path-to-your-venv>/bin/activate
+c) pip install autokey
+d) cd <path-to-your-venv>/bin
+e) autokey-gtk
+
+That's it.
+
+
 # `pip` Installation
 
 If you are using a distribution other than those listed above or if you want to install AutoKey from GitHub you can use this [`pip`][pip] installation method.
