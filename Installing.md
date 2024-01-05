@@ -86,15 +86,16 @@ Errors with QT plugins may be solved by updating the QT plugin path. `export QT_
 This section is incomplete. Gentoo users are encouraged to update it.
 
 2024-01-05: Update for GTK, autokey 0.96
+(Can't say much about dependencies for QT, but the last 5 will be needed too probably.)
 
 1) Create a set in /etc/portage/sets/autokey-gtk.set:
 * dev-cpp/gtksourceviewmm
 * dev-libs/dbus-glib
 * dev-libs/gobject-introspection
 * dev-libs/libappindicator
+* gnome-extra/zenity
 * dev-python/dbus-python
 * dev-python/pip
-* gnome-extra/zenity
 * media-gfx/imagemagick
 * x11-misc/xautomation
 * x11-misc/wmctrl
