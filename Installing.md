@@ -105,10 +105,11 @@ Update for GTK:
 pyinotify and python-xlib should be installed by autokey automatically in venv. 
 
 Going for a venv installation as it seems the easiest longterm. Run as user:
-* a) python -m venv *path-to-your-venv*
-* b) . <<path-to-your-venv>>/bin/activate
+path_venv="this_is_the_path_to_your_venv" (p. e. ~/autokey)
+* a) python -m venv "$path_venv"
+* b) . "$path_venv"/bin/activate
 * c) pip install autokey
-* d) cd <<path-to-your-venv>>/bin
+* d) cd "$path_venv"/bin
 * e) ./autokey-gtk
 
 That's it.
