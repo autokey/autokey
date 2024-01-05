@@ -101,7 +101,9 @@ This section is incomplete. Gentoo users are encouraged to update it.
 
 pyinotify and python-xlib should be installed by autokey automatically in venv. 
 
-Going for a venv installation as it seems the easiest longterm. Run as user:
+Going for a venv installation as it seems the easiest longterm. You can't screw up your python profile for this user also which might be important if the python version in gentoo changes. It's much easier to create a new venv if needed ;).
+
+Run as user:
 * path_venv="this_is_the_path_to_your_venv" (p. e. ~/autokey)`
 * python -m venv "${path_venv}"
 * . "${path_venv}/bin/activate"
