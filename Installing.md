@@ -88,7 +88,13 @@ This section is incomplete. Gentoo users are encouraged to update it.
 2024-01-05: Update for GTK, autokey 0.96
 (Can't say much about dependencies for QT, but the last 5 will be needed too probably.)
 
-1) Create a set in /etc/portage/sets/autokey-gtk.set:
+Going for a venv installation as it seems:
+* easier to maintian longterm
+* you can't screw up your python profile for this user also which might be important if the python version in gentoo changes
+* avoid bugs in new python versions like [Python 12 pyinotify] (https://github.com/autokey/autokey/issues/916)
+* It's much easier to create a new venv if needed ;).
+
+1) Dependencies. Create a set in /etc/portage/sets/autokey-gtk.set:
 * dev-cpp/gtksourceviewmm
 * dev-libs/dbus-glib
 * dev-libs/gobject-introspection
@@ -102,9 +108,7 @@ This section is incomplete. Gentoo users are encouraged to update it.
 
 pyinotify and python-xlib should be installed by autokey automatically in venv. 
 
-Going for a venv installation as it seems the easiest longterm. You can't screw up your python profile for this user also which might be important if the python version in gentoo changes. It's much easier to create a new venv if needed ;).
-
-Run as user:
+2) Run as user:
 * path_venv="/this/is/the/path/to/your/venv" (p. e. ~/autokey)`
 * python -m venv "${path_venv}"
 * . "${path_venv}/bin/activate"
