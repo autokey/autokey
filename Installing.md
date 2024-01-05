@@ -91,7 +91,7 @@ This section is incomplete. Gentoo users are encouraged to update it.
 Going for a venv installation as it seems:
 * easier to maintian longterm
 * you can't screw up your python profile for this user also which might be important if the python version in gentoo changes
-* avoid bugs in new python versions like [Python 12 pyinotify] (https://github.com/autokey/autokey/issues/916)
+* avoid bugs in new python versions like #916 [Python 12 pyinotify] (https://github.com/autokey/autokey/issues/916)
 * It's much easier to create a new venv if needed ;).
 
 1) Dependencies. Create a set in /etc/portage/sets/autokey-gtk.set:
