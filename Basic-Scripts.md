@@ -139,7 +139,7 @@ This script demonstrates 'remembering' a value in the store between separate inv
         cur = store.get_value("runs")
         store.set_value("runs", cur + 1)
 
-        keyboard.send_keys("I've been run %d times!" % store.get_value("runs")) ```
+        keyboard.send_keys("I've been run %d times!" % store.get_value("runs"))
 ```
 ## Create new abbreviation
 
