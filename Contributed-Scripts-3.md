@@ -323,7 +323,7 @@ FORMULA_EXAMPLE = '2d10+5'
 # Formula must contain the letter 'd' to separate number of dices from number of dice sides.
 index_of_d = dice_formula.find('d')
 if index_of_d < 0:
-    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Fórmula inválida. A fórmula deve ser similar a este exemplo: {FORMULA_EXAMPLE}")
+    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Invalid Formula. It must be similar to the following example: {FORMULA_EXAMPLE}")
     exit()
 
 # Getting number of dice
@@ -331,7 +331,7 @@ number_of_dice = dice_formula[:index_of_d]
 try:
     number_of_dice = int(number_of_dice)
 except ValueError:
-    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Fórmula inválida. Antes da letra 'd' deve ser inserido um número. Você inseriu {number_of_dice}.")
+    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Invalid formula. A number must be typed before letter 'd'. You typed {number_of_dice}.")
     exit()
 
 # Checking if there's any modified to be applied to the total result.
@@ -345,7 +345,7 @@ if match_of_modifier:
     try:
         modifier_amount = int(modifier_amount)
     except ValueError:
-        dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Fórmula inválida. O modificador deve ser um número. Você inseriu {modifier_amount}.")
+        dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Invalid formula. Modifier must be a number. You typed {modifier_amount}.")
         exit()
     if modifier == '-':
         modifier_amount = -modifier_amount
@@ -356,7 +356,7 @@ else:
 try:
     number_of_sides = int(number_of_sides)
 except ValueError:
-    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Fórmula inválida. Depois da letra 'd' deve ser inserido um número. Você inseriu {number_of_sides}.")
+    dialog.info_dialog(title=TITLE_FORMULA_ERROR, message=f"Invalid formula. A number must be typed after letter 'd'. You typed {number_of_sides}.")
     exit()
 
 # Generating final result
@@ -367,6 +367,6 @@ for roll in range(number_of_dice):
 
 individual_rolls = '[' + ', '.join(list(map(str, all_rolls))) + ']'
 total_roll = sum(all_rolls) + modifier_amount
-dialog.info_dialog(title=f"Resultado:", message=f"Total: {total_roll}\r\n{individual_rolls}\r\nFórmula: {dice_formula}")
+dialog.info_dialog(title=f"Result:", message=f"Total: {total_roll}\r\n{individual_rolls}\r\nFórmula: {dice_formula}")
 
 ```
