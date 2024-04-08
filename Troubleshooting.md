@@ -34,7 +34,7 @@ This can be helpful when AutoKey runs without crashing, a trigger was used, and 
 2. Open a terminal window.
 3. Make sure the AutoKey process has ended by typing this command into the terminal window and pressing the **Enter** key:
    ```python
-   pkill autokey
+   pkill -f autokey
    ```
 4. Start AutoKey GTK or QT in verbose mode by typing one of these commands and pressing the **Enter** key:
    ```
