@@ -47,7 +47,7 @@ window.get_active_class() Get the class of the currently active window
 window.get_active_geometry() Get the geometry of the currently active window
 window.get_active_title() Get the visible title of the currently active window
 window.move_to_desktop(title, deskNum, matchClass=False) Move the specified window to the given desktop
-window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False) Resize and/or move the specified window
+window.resize_move(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False) Resize and/or move the specified window
 window.set_property(title, action, prop, matchClass=False) Set a property on the given window using the specified action
 window.switch_desktop(deskNum) Switch to the specified desktop
 window.wait_for_exist(title, timeOut=5) Wait for window with the given title to be created
