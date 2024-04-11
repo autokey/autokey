@@ -129,7 +129,7 @@ class Window:
         """
         Resize and/or move the specified window
 
-        Usage: C{window.close(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False)}
+        Usage: C{window.resize_move(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False)}
 
         Leaving and of the position/dimension values as the default (-1) will cause that
         value to be left unmodified.
