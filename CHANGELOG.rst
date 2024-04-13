@@ -17,7 +17,7 @@ Important misc changes
 - Update two links in the **README.rst** file.
 - Updated `extractDoc.py`
 - Updated Qt autocomplete api.txt file (last updated in 2019)
-- Fix, update, and add content to the man pages.
+- Fix, update, and add content to the main pages.
 - Fix Qt reference and update the wording in reference to KDE and Qt in the **autokey-qt.1** man page.
 - Update the date and remove excess wording in the **autokey-gtk.1** and **autokey-qt.1** man pages.
 - Update the date in the **autokey-run.1** man page.
@@ -29,6 +29,8 @@ Important misc changes
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
+- Fix erroneous `window.close` in place of `window.resize_move` in documentation
+- Fix typo in `resize_move` description: *Leaving **and** of the position/dimension values* → ***any***
 
 Features
 ---------
