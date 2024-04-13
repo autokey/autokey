@@ -150,7 +150,7 @@ class Window:
 
         Usage: C{window.resize_move(title, xOrigin=-1, yOrigin=-1, width=-1, height=-1, matchClass=False)}
 
-        Leaving and of the position/dimension values as the default (-1) will cause that
+        Leaving any of the position/dimension values as the default (-1) will cause that
         value to be left unmodified.
 
         :param title: window title to match against (as case-insensitive substring match)
