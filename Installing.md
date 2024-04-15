@@ -105,12 +105,16 @@ Going for a venv installation as it seems:
 * media-gfx/imagemagick
 * x11-misc/xautomation
 * x11-misc/wmctrl
+* dev-python/virtualenv
 
 pyinotify and python-xlib should be installed by autokey automatically in venv. 
 
-2) Run as user:
+2) Install/update the above set: emerge --ask @autokey-gtk.set
+
+3) Run as user:
 * path_venv="/this/is/the/path/to/your/venv" (p. e. ~/autokey)`
 * python -m venv "${path_venv}"
+* virtualenv "${path_venv}" --system-site-packages
 * . "${path_venv}/bin/activate"
 * pip install autokey
 * cd "${path_venv}/bin"
