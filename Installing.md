@@ -95,7 +95,7 @@ Going for a venv installation as it seems:
 * It's much easier to create a new venv if needed ;).
 
 1) Dependencies. Create a set in /etc/portage/sets/autokey-gtk.set:
-* dev-cpp/gtksourceviewmm
+* dev-cpp/gtksourceviewmm (for x11-libs/gtksourceview < 4)
 * dev-libs/dbus-glib
 * dev-libs/gobject-introspection
 * dev-libs/libappindicator
