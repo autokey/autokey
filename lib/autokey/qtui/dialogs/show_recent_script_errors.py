@@ -115,7 +115,7 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         Switch to the next error in the error list.
         The connection from the Next button to this slot function is defined in the .ui file.
         """
-        # Out of bounds handling is not needed, as the Next button gets disables when the last error is reached.
+        # Out of bounds handling is not needed, as the Next button gets disabled when the last error is reached.
         # See has_next_error Signal.
         self.currently_viewed_error_index += 1
         self._emit_has_next_error()
@@ -127,7 +127,7 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
         Switch to the previous error in the error list.
         The connection from the Previous button to this slot function is defined in the .ui file.
         """
-        # Out of bounds handling is not needed, as the Previous button gets disables when the first error is reached.
+        # Out of bounds handling is not needed, as the Previous button gets disabled when the first error is reached.
         # See has_previous_error Signal.
         self.currently_viewed_error_index -= 1
         self._emit_has_previous_error()
