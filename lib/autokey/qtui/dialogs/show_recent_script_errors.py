@@ -32,8 +32,6 @@ class ShowRecentScriptErrorsDialog(*ui_common.inherits_from_ui_file_with_name("s
     with errors, which can be viewed and cleared using this dialogue window.
 
     """
-    # TODO: When the minimal python version is raised to >= 3.6, add millisecond display to both the script start
-    # timestamp and the error timestamp.
 
     # When switching errors, emit a boolean indicating if previous errors are available. The Previous button reacts on
     # this and enables/disables itself based on the boolean value. The connection is defined in the .ui file.
