@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Next Version
+============================
+Other
++++++
+- Add `show_recent_script_errors_dialog` to display errors with millisecond precision.
+
 Version 0.96.0
 ============================
 
@@ -79,7 +85,6 @@ Other
 - Link to script `.py` and `.json` above editor.
 - Add appropriate keywords to `.desktop` files for both UIs.
 - Build debs and update pypi on new releases
-- add `show_recent_script_errors_dialog` to display errors with millisecond precision.
 
 Bug fixes
 ---------
