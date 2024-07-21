@@ -2,6 +2,12 @@
 Changelog
 =========
 
+Next Version
+============================
+Other
++++++
+- Add `show_recent_script_errors_dialog` to display errors with millisecond precision.
+
 Version 0.96.0
 ============================
 
