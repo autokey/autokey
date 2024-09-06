@@ -76,4 +76,5 @@ AutoKey has not yet installed the [Opire bot](https://docs.opire.dev/overview/in
 When a person who offered a reward gets a notification that the issue has been solved:
 
 1. Verify that the pull request satisfies the reward.
-2. Use the dashboard on the [Opire website](https://app.opire.dev/) to pay the full reward amount to the developer directly via [Stripe](https://stripe.com/payments/payment-methods). Note that an additional 4% fee will be added on and given to Opire for handling the transaction.
+2. Use the dashboard on the [Opire website](https://app.opire.dev/) to pay the full reward amount to the developer directly via [Stripe](https://stripe.com/payments/payment-methods). Note that the total cost will consist of the reward amount plus the Stripe fee ($0.85 + 5.25%) and the Opire fee (4% of the reward) for handling the transaction.
+
