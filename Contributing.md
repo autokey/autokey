@@ -52,17 +52,17 @@ AutoKey doesn't have its own platform for accepting donations, but the AutoKey c
 ##### About Opire
 [Opire](https://opire.dev/) is a reward platform that provides a convenient way for community members to incentivize development on specific issues in open-source programs by offering financial rewards that are handled directly between the community members and the developers.
 
-A reward is a bounty that anyone create for any issue, with the minimum amount for any reward being $20. Anyone can also add to an existing reward to increase it. Anyone can claim a reward if they earn it by solving an issue and submitting a pull request that's accepted.
+A reward is a bounty that anyone can create for any issue, with the minimum amount for a reward being $20. Anyone can also add to an existing reward to increase it and anyone can claim a reward if they earn it by solving an issue and submitting an accepted pull request.
 
-No money changes hands until or unless a pull request is accepted as the solution to a reward issue. At that point, the developer who solved the issue can use Opire to claim the reward and the person or persons who offered the reward receive a notification letting them know that the issue has been solved and payment is due.
+No money changes hands until or unless a pull request is accepted as the solution to a reward issue. At that point, the developer who solved the issue can use Opire to claim the reward and the person who offered the reward receives a notification that the issue has been solved and payment is due. If more than one person created a reward for the same issue, each of them will receive the notification.
 
-Payment of rewards is on the honor system. If a person repeatedly creates awards and fails to pay for them when the issues have been solved, that person will no longer be able to create new rewards until the existing ones are paid in full.
+Payment of rewards is done on the honor system. If a person repeatedly creates awards and fails to pay for them when the issues have been solved, that person will no longer be able to create new rewards until the existing ones are paid in full.
 
 Full documentation is available [here](https://docs.opire.dev).
 
 ##### How to use Opire
 
-AutoKey has not yet installed the [Opire bot](https://docs.opire.dev/overview/install-bot) that offers commands that can be used in any [AutoKey issue](https://github.com/autokey/autokey/issues) or [AutoKey pull request](https://github.com/autokey/autokey/pulls) to create or manage rewards without having to log in to the Opire website. For now, community members can create or pay rewards on the Opire website.
+AutoKey has not yet installed the [Opire bot](https://docs.opire.dev/overview/install-bot) that offers commands to use in any [AutoKey issue](https://github.com/autokey/autokey/issues) or [AutoKey pull request](https://github.com/autokey/autokey/pulls) to create or manage rewards without having to log in to the Opire website. For now, community members can create or pay rewards on the Opire website.
 
 ###### Create a reward
 
@@ -77,4 +77,3 @@ When a person who offered a reward gets a notification that the issue has been s
 
 1. Verify that the pull request satisfies the reward.
 2. Use the dashboard on the [Opire website](https://app.opire.dev/) to pay the full reward amount to the developer directly via [Stripe](https://stripe.com/payments/payment-methods). Note that the total cost will consist of the reward amount plus the Stripe fee ($0.85 + 5.25%) and the Opire fee (4% of the reward) for handling the transaction.
-
