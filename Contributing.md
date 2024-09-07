@@ -58,7 +58,7 @@ No money changes hands until or unless a pull request is accepted as the solutio
 
 Payment of rewards is done on the honor system. If a person repeatedly creates awards and fails to pay for them when the issues have been solved, that person will no longer be able to create new rewards until the existing ones are paid in full.
 
-Full documentation is available [here](https://docs.opire.dev).
+Full documentation is available [here](https://docs.opire.dev) and a video showing how it works is available [here](https://www.youtube.com/watch?v=pq7fluN44hA).
 
 ##### How to use Opire
 
