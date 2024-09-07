@@ -67,7 +67,7 @@ AutoKey has not yet installed the [Opire bot](https://docs.opire.dev/overview/in
 ###### Create a reward
 
 1. Log in to the [Opire website](https://app.opire.dev/) using your GitHub account.
-2. Click ***My dashboard*** in the left pane.
+2. Click **My dashboard** in the left pane.
 3. Click **Rewards** in the left pane.
 4. Click the **Create a new reward** button in the right pane to create a new reward, providing the URL of the GitHub issue and the amount of the reward.
 
