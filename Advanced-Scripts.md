@@ -31,6 +31,7 @@
 * [Run an AutoKey script from another AutoKey script](#run-an-autokey-script-from-another-autokey-script)
 * [Recipe Builder for Minecraft and Extended Crafting if using The Kabbalah Block Mod](#recipe-builder-for-minecraft-and-extended-crafting-if-using-the-kabbalah-block-mod)
 * [Dynamically create a toggled HTML details block](#dynamically-create-a-toggled-html-details-block)
+* [Programmatically toggle AutoKey service](#programmatically-toggle-autokey-service)
 
 ## Introduction
 This page contains user-contributed scripts to demonstrate the **advanced** capabilities of AutoKey's scripting service.
@@ -1506,3 +1507,30 @@ except:
     dialog.info_dialog(title='Script unknown error', message="Script unknown error.", width='200')
 ```
 </details>
+
+
+## Programmatically toggle AutoKey service
+
+**Author**: [kstillson](https://github.com/kstillson)
+
+**Description**: Useful as a mitigation to [Issue 249](https://github.com/autokey/autokey/issues/249), or any other cases where you want to toggle AutoKey expansion (aka "monitoring") from an AutoKey script.
+
+For example, if you lock your screen via an AutoKey script, add this code snippet to disable further AutoKey processing:
+
+```python
+clipboard.app.pause_service()
+```
+
+You can re-enable AutoKey from a script, just by changing "pause_service" to "unpause_service", but the challenge is how to trigger that script when the AutoKey service is disabled.
+
+For newer versions of AutoKey, "unpause" is exposed directly as a DBus method:
+
+```shell
+dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.unpause
+```
+
+If that returns a message about an unknown method, just create a script named "unpause" which calls the unpause_service() API, and then use the following dbus call:
+
+```shell
+dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.run_script string:unpause
+```
