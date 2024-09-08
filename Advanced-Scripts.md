@@ -1523,7 +1523,7 @@ clipboard.app.pause_service()
 
 You can re-enable AutoKey from a script, just by changing "pause_service" to "unpause_service", but the challenge is how to trigger that script when the AutoKey service is disabled.
 
-The easiest way is to create a script called "unpause" (same as the above snipped, but change pause_service() to unpause_service()), and then from the command line:  autokey-run -s "unpause"
+The easiest way is to create a script called "unpause" (same as the above snippet, but change pause_service() to unpause_service()), and then from the command line:  autokey-run -s "unpause"
 
 Alternatively, for newer versions of AutoKey, "unpause" is exposed directly as a DBus method:
 
