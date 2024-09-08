@@ -32,3 +32,26 @@ The script should work without errors outside of AutoKey without accessing the a
 Once you've got it working smoothly in your external Python script, you can copy it into AutoKey, remove the Mock code, and replace it with the actual API calls.
 
 _Note that by default each AutoKey script is stored as a Python file in your home folder, such as `~/.config/autokey/data/My\ Phrases/` in Linux._
+
+## Print-style Debugging
+
+If you have the Linux package Zenity installed, the following code-snippet allows you to print the value of variables or Python expression during a script's execution:
+
+```python
+import subprocess
+def Debug(msg):
+    subprocess.Popen(["zenity", "--info", "--text", str(msg)])
+```
+
+_Note that subprocess is used rather than system.exec_command() because we want
+ to pause the running script until the popup is closed, but cannot use
+ exec_command(...,getOutput=True )as Zenity does not produce anything on stdout,
+ and at least on some versions of autokey, that crashes the script.)_
+
+
+An a usage example: if you want to display a list of the current variables your 
+script has access to:
+
+```python
+Debug(dir())
+```
