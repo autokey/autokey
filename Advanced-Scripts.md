@@ -1515,24 +1515,27 @@ except:
 
 **Description**: Useful as a mitigation to [Issue 249](https://github.com/autokey/autokey/issues/249), or any other cases where you want to toggle AutoKey expansion (aka "monitoring") from an AutoKey script.
 
-For example, if you lock your screen via an AutoKey script, add this code snippet to disable further AutoKey processing:
+For example, if you lock your screen via an AutoKey script, you could add a call to this pause_autokey() function to ensure AutoKey is disabled when the screen is locked:
 
 ```python
-clipboard.app.pause_service()
+def pause_autokey(): 
+    clipboard.app.pause_service()
+
+def resume_autokey(): 
+    clipboard.app.unpause_service()
 ```
 
-You can re-enable AutoKey from a script, just by changing "pause_service" to "unpause_service", but the challenge is how to trigger that script when the AutoKey service is disabled.
-
-The easiest way is to create a script called "unpause" (same as the above snippet, but change pause_service() to unpause_service()), and then from the command line:  autokey-run -s "unpause"
-
-Alternatively, for newer versions of AutoKey, "unpause" is exposed directly as a DBus method:
+The challenge is how to trigger resume_autokey() when the AutoKey service is disabled.
+Here are some options to re-activate AutoKey from the command line:
 
 ```shell
-dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.unpause
+- option 1: have autokey-run trigger the function
+  $ autokey-run -s "resume_autokey"
+
+- option 2: direct DBus unpause (needs a newish version of AutoKey):
+  $ dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.unpause
+
+- option 3: have DBus call the resume function:
+  $ dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.run_script string:resume_autokey
 ```
 
-If that returns a message about an unknown method, again create a script named "unpause" which calls the unpause_service() API, and then use the following dbus call:
-
-```shell
-dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.run_script string:unpause
-```
