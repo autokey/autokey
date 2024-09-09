@@ -40,14 +40,13 @@ If you have the Linux package Zenity installed, the following code-snippet allow
 ```python
 import subprocess
 def Debug(msg):
-    subprocess.Popen(["zenity", "--info", "--text", str(msg)])
+    subprocess.Popen(["zenity", "--info", "--text", str(msg)]).wait()
 ```
 
 _Note that subprocess is used rather than system.exec_command() because we want
  to pause the running script until the popup is closed, but cannot use
- exec_command(...,getOutput=True )as Zenity does not produce anything on stdout,
+ exec_command(...,getOutput=True ) as Zenity does not produce anything on stdout,
  and at least on some versions of autokey, that crashes the script.)_
-
 
 An a usage example: if you want to display a list of the current variables your 
 script has access to:
