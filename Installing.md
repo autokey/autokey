@@ -12,8 +12,6 @@
 
 * [Zero Installation Method](#zero-installation-method)
 
-  * [Zero-installation Notes](#zero-installation-method-notes)
-
 * [Dependencies](#Dependencies)
 
 * [Running AutoKey](#running-autokey)
@@ -175,30 +173,25 @@ AutoKey can be used directly from a cloned repository as long as you have all of
    ```bash
    cd lib
    ```
-7. Pick one of these commands to start the Autokey daemon:
-   * Run the **GTK UI**:
+7. The **GTK UI** is likely to work best with Gnome. The **Qt UI** is likely to work best with KDE, but also works when configuring AutoKey using the scripting API. Pick one of these commands to start the Autokey daemon:
+   * Run the **GTK UI** in the background:
      ```bash
      python3 -m autokey.gtkui
      ```
-   * Run the **Qt UI**:
+   * Run the **Qt UI** in the background:
      ```bash
      python3 -m autokey.qtui
      ```
-8. When you're finished, close AutoKey normally and close the terminal window.
-9. Delete the cloned `autokey` directory if you will no longer need it.
-
-### Zero-installation Method Notes
-
-  * The **GTK UI** is likely to work best with Gnome. The **Qt UI** is likely to work best with KDE, but also works when configuring AutoKey using the scripting API.
-  * Command-line switches are accepted with either of those commands just as they are in a regular installation. For example:
-    * Run the GTK UI with its main window open on startup:
+    * Run the **GTK UI** with its main window open:
       ```bash
       python3 -m autokey.gtkui -c
       ```
-    * Run the Qt UI in isolated mode with its main window open on startup:
+    * Run the **Qt UI** with its main window open:
       ```bash
-      python3 -Im autokey.qtui -c
+      python3 -m autokey.qtui -c
       ```
+8. When you're finished, close AutoKey normally and close the terminal window.
+9. Delete the cloned `autokey` directory if you will no longer need it.
 
 ## Dependencies
 
