@@ -1526,16 +1526,21 @@ def resume_autokey():
 ```
 
 The challenge is how to trigger resume_autokey() when the AutoKey service is disabled.
+
 Here are some options to re-activate AutoKey from the command line:
 
-```shell
 - option 1: have autokey-run trigger the function
-  $ autokey-run -s "resume_autokey"
+```shell
+autokey-run -s "resume_autokey"
+```
 
 - option 2: direct DBus unpause (needs a newish version of AutoKey):
-  $ dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.unpause
+```shell
+dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.unpause
+```
 
 - option 3: have DBus call the resume function:
-  $ dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.run_script string:resume_autokey
+```shell
+dbus-send  --type=method_call --print-reply --dest=org.autokey.Service /AppService org.autokey.Service.run_script string:resume_autokey
 ```
 
