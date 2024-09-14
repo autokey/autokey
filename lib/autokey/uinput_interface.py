@@ -197,14 +197,12 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             self.ui = evdev.UInput.from_device(self.mouse.path, self.keyboard.path, name="autokey mouse and keyboard")
             self.capabilities = self.ui.capabilities(verbose=True)
             logger.debug("Device capabilities: {}".format(self.capabilities))
-
             logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
             logger.info("Supports REL Movement: {}".format(self.supports_rel()))
-            
-
         except Exception as ex:
             logger.error("Unable to create UInput device. {}".format(ex))
             logger.error("Check out how to resolve this issue here: https://github.com/philipl/evdevremapkeys/issues/24")
+            raise Exception
             #print("Unable to create UInput device. {}".format(ex))
 
         GnomeMouseReadInterface.__init__(self)
@@ -280,7 +278,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     def supports_abs(self):
         has_abs_x = False
         has_abs_y = False
-        if self.capabilities.get(('EV_ABS', 3)):
+        if self.capabilities and self.capabilities.get(('EV_ABS', 3)):
             for item in self.capabilities[('EV_ABS', 3)]:
                 if item[0][0] == 'ABS_X':
                     has_abs_x = True
@@ -318,7 +316,6 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         Prints out error message currently if that fails.
         """
-        #TODO run checks that uinput will work as expected.
         user = os.getlogin()
         input_group = grp.getgrnam("input")
         if user in input_group.gr_mem or os.geteuid()==0:
@@ -369,12 +366,16 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     # def mouse_location(self):
     #     raise NotImplementedError
     
-    @queue_method(queue)
     def relative_mouse_location(self, window=None):
-        # if window is None:
-        #     window = self.mediator.windowInterface.get_active_window()
-        
-        raise NotImplementedError
+        mousex,mousey = self.mouse_location()
+        if window is None:
+            window = self.mediator.windowInterface.get_active_window()
+        winx = window.get('x')
+        winy = window.get('y')
+        relx = mousex - winx
+        rely = mousey - winy
+
+        return (relx, rely)
     
     @queue_method(queue)
     def scroll_down(self, number):
@@ -392,71 +393,68 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     
     @queue_method(queue)
     def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
-        raise NotImplementedError
-        # weirdly I could not find an easier way to do this in a few minutes of searching
-        def sign(val):
-            if val < 0:
-                return -1
-            elif val > 0:
-                return 1
-            else:
-                return 0
-
-        # REL_X - X axis, positive is right, negative is left.
-        # REL_Y - Y axis, positive is down, negative is up.
+        #TODO implement relative
+        if relative or relative_self:
+            raise NotImplementedError
         current_x, current_y = self.mouse_location()
         screen_x, screen_y = self.mediator.windowInterface.get_screen_size()
         count = 0
-        end_count = 1000
+        max_count = 1000
+        xstep = 200
+        ystep = 200
+        range1 = 200
+        range2 = 10
 
-        # check if we can use ABS/REL, currently REL is preferred.
-        rel_mov = self.supports_rel()
-        abs_mov = self.supports_abs()
+        # check that REL is supported
+        if not self.supports_rel():
+            raise RuntimeError("Need REL support")
 
         while True:
-            # logger.debug("Current X: {}, Current Y: {}".format(current_x, current_y))
-            # logger.debug("X Coord: {}, Y Coord: {}".format(xCoord, yCoord))
-            # logger.debug("current_x == xCoord: {}, current_y == yCoord: {}".format(current_x == xCoord, current_y == yCoord))
-            
+            logger.debug(f"Current X: {current_x}, Current Y: {current_y}, xstep: {xstep}, ystep:{ystep}")
+
             if current_x == xCoord and current_y == yCoord:
+                logger.debug(f"Took {count} steps")
                 break
-            if rel_mov:
-                if current_x < xCoord:
-                    self.ui.write(e.EV_REL, e.REL_X, 1)
-                elif current_x > xCoord:
-                    self.ui.write(e.EV_REL, e.REL_X, -1)
 
-                if current_y < yCoord:
-                    self.ui.write(e.EV_REL, e.REL_Y, 1)
-                elif current_y > yCoord:
-                    self.ui.write(e.EV_REL, e.REL_Y, -1)
-            elif abs_mov:
-                raise NotImplementedError
-                # TODO: Implement ABS movement
-                # I think that if we were able to get the size of the screen we'd be able to more effectively move the mouse here
-                move_x = int(xCoord-current_x/screen_x*65535)*sign(xCoord-current_x)
-                move_y = int(yCoord-current_y/screen_y*65535)*sign(yCoord-current_y)
+            #xstep logic
+            if xstep==200 and (current_x <= xCoord+range1 and current_x >= xCoord-range1):
+                logger.debug(f"Changing xstep to 10 at {current_x} within 100 of {xCoord} [{xCoord-range1},  {xCoord+range1}]")
+                xstep = 10
+            if xstep==10 and (current_x <= xCoord+range2 and current_x >= xCoord-range2):
+                logger.debug(f"Changing xstep to 1 at {current_x} within 10 of {xCoord} [{xCoord-range2},  {xCoord+range2}]")
+                xstep = 1
 
+            #x move
+            # REL_X - X axis, positive is right, negative is left.
+            if current_x < xCoord: self.ui.write(e.EV_REL, e.REL_X, xstep)
+            elif current_x > xCoord: self.ui.write(e.EV_REL, e.REL_X, -xstep)
 
+            #ystep logic
+            if ystep==200 and (current_y <= yCoord+range1 and current_y >= yCoord-range1):
+                logger.debug(f"Changing ystep to 10 at {current_y} within 100 of {yCoord} [{yCoord-range1},  {yCoord+range1}]")
+                ystep = 10
+            if ystep==10 and (current_y <= yCoord+range2 and current_y >= yCoord-range2):
+                logger.debug(f"Changing ystep to 1 at {current_y} within 10 of {yCoord} [{yCoord-range2},  {yCoord+range2}]")
+                ystep = 1
 
-                self.ui.write(e.EV_ABS, e.ABS_X, move_x)
-                self.ui.write(e.EV_ABS, e.ABS_Y, move_y)
+            #y move
+            # REL_Y - Y axis, positive is down, negative is up.
+            if current_y < yCoord: self.ui.write(e.EV_REL, e.REL_Y, ystep)
+            elif current_y > yCoord: self.ui.write(e.EV_REL, e.REL_Y, -ystep)
 
-
-            # self.ui.write(e.EV_REL, e.REL_X, 1)
-            # self.ui.write(e.EV_REL, e.REL_Y, 1)
             self.syn_raw()
             current_x, current_y = self.mouse_location()
 
+            #prevent inf looping from bad logic
             count = count+1
-            if count > end_count:
+            if count > max_count:
                 break
 
 
     
     def send_mouse_click_relative(self, xoff, yoff, button):
-        raise NotImplementedError
-
+        x,y = self.mouse_location()
+        self.send_mouse_click(x+xoff, y+yoff, button)
 
     @queue_method(queue)
     def clear_held_keys(self):
@@ -595,7 +593,6 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         Grabs hotkeys. Under X11 this means blocking the hotkeys from sending to individual applications. 
         Not sure if this can be accomplished via uinput/wayland?
         """
-        pass
         self.__grab_hotkeys()
 
     def __grab_hotkeys(self):

@@ -43,6 +43,9 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
         x,y = self.dbus_interface.ScreenSize()
         return [int(x), int(y)]
 
+    def  get_active_window(self):
+        return self._active_window()
+
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         """
         Returns a WindowInfo object containing the class and title.
