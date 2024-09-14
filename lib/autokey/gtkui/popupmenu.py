@@ -99,7 +99,7 @@ class PopupMenu(Gtk.Menu):
     def show_on_desktop(self):
         def position_popup(menu, x, y, user_data):
             (x,y) = self.service.mediator.interface.mouse_location()
-            #print(f"Placing popup at Mouse postition: X:{x} Y:{y}")
+            logger.debug(f"Placing popup at Mouse postition: X:{x} Y:{y}")
             return (x,y, True)
         Gdk.threads_enter()
         time.sleep(0.2)
