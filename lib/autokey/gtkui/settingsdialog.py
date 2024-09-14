@@ -107,8 +107,12 @@ class SettingsDialog:
         # UInput Settings
         self.uinput_keyboard = builder.get_object("uinput_keyboard")
         self.uinput_mouse = builder.get_object("uinput_mouse")
-        self.uinput_keyboard.set_text(cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD])
-        self.uinput_mouse.set_text(cm.ConfigManager.SETTINGS[cm_constants.MOUSE])
+        keyboard = cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]
+        if keyboard:
+            self.uinput_keyboard.set_text(keyboard)
+        mouse = cm.ConfigManager.SETTINGS[cm_constants.MOUSE]
+        if mouse:
+            self.uinput_mouse.set_text(mouse)
         self.uinput_delay = builder.get_object("uinput_delay")
         self.uinput_delay.set_text(str(cm.ConfigManager.SETTINGS[cm_constants.DELAY]))
         
