@@ -1,0 +1,5 @@
+<cursor>,Position cursor
+"<script name=""Name"" args=""Arguments (comma separated)"">",Run script
+"<system command=""Command to be executed (including any arguments) - e.g. 'ls -l'"">",Run system command
+"<date format=""Format"">",Insert date
+"<file name=""File name"">",Insert file contents

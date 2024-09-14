@@ -106,7 +106,7 @@
 <a name="L48"></a><tt class="py-lineno">  48</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
 <a name="L49"></a><tt class="py-lineno">  49</tt>  <tt class="py-line"><tt class="py-docstring">        Usage: C{keyboard.send_key(key, repeat=1)}</tt> </tt>
 <a name="L50"></a><tt class="py-lineno">  50</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
-<a name="L51"></a><tt class="py-lineno">  51</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: they key to be sent (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
+<a name="L51"></a><tt class="py-lineno">  51</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to be sent (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
 <a name="L52"></a><tt class="py-lineno">  52</tt>  <tt class="py-line"><tt class="py-docstring">        @param repeat: number of times to repeat the key event</tt> </tt>
 <a name="L53"></a><tt class="py-lineno">  53</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt>         </tt>
 <a name="L54"></a><tt class="py-lineno">  54</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">xrange</tt><tt class="py-op">(</tt><tt class="py-name">repeat</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
@@ -120,7 +120,7 @@
 <a name="L62"></a><tt class="py-lineno">  62</tt>  <tt class="py-line"><tt class="py-docstring">        Usage: C{keyboard.press_key(key)}</tt> </tt>
 <a name="L63"></a><tt class="py-lineno">  63</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
 <a name="L64"></a><tt class="py-lineno">  64</tt>  <tt class="py-line"><tt class="py-docstring">        The key will be treated as down until a matching release_key() is sent.</tt> </tt>
-<a name="L65"></a><tt class="py-lineno">  65</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: they key to be pressed (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
+<a name="L65"></a><tt class="py-lineno">  65</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to be pressed (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
 <a name="L66"></a><tt class="py-lineno">  66</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L67"></a><tt class="py-lineno">  67</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">mediator</tt><tt class="py-op">.</tt><tt id="link-1" class="py-name" targets="Method lib.scripting.Keyboard.press_key()=lib.scripting.Keyboard-class.html#press_key"><a title="lib.scripting.Keyboard.press_key" class="py-name" href="#" onclick="return doclink('link-1', 'press_key', 'link-1');">press_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">.</tt><tt class="py-name">decode</tt><tt class="py-op">(</tt><tt class="py-string">"utf-8"</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 </div><a name="L68"></a><tt class="py-lineno">  68</tt>  <tt class="py-line">         </tt>
@@ -132,7 +132,7 @@
 <a name="L74"></a><tt class="py-lineno">  74</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
 <a name="L75"></a><tt class="py-lineno">  75</tt>  <tt class="py-line"><tt class="py-docstring">        If the specified key was not made down using press_key(), the event will be </tt> </tt>
 <a name="L76"></a><tt class="py-lineno">  76</tt>  <tt class="py-line"><tt class="py-docstring">        ignored.</tt> </tt>
-<a name="L77"></a><tt class="py-lineno">  77</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: they key to be released (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
+<a name="L77"></a><tt class="py-lineno">  77</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to be released (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
 <a name="L78"></a><tt class="py-lineno">  78</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L79"></a><tt class="py-lineno">  79</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">mediator</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method lib.scripting.Keyboard.release_key()=lib.scripting.Keyboard-class.html#release_key"><a title="lib.scripting.Keyboard.release_key" class="py-name" href="#" onclick="return doclink('link-2', 'release_key', 'link-2');">release_key</a></tt><tt class="py-op">(</tt><tt class="py-name">key</tt><tt class="py-op">.</tt><tt class="py-name">decode</tt><tt class="py-op">(</tt><tt class="py-string">"utf-8"</tt><tt class="py-op">)</tt><tt class="py-op">)</tt>         </tt>
 </div><a name="L80"></a><tt class="py-lineno">  80</tt>  <tt class="py-line"> </tt>
@@ -145,7 +145,7 @@
 <a name="L87"></a><tt class="py-lineno">  87</tt>  <tt class="py-line"><tt class="py-docstring">        Uses XTest to 'fake' a keypress. This is useful to send keypresses to some</tt> </tt>
 <a name="L88"></a><tt class="py-lineno">  88</tt>  <tt class="py-line"><tt class="py-docstring">        applications which won't respond to keyboard.send_key()</tt> </tt>
 <a name="L89"></a><tt class="py-lineno">  89</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
-<a name="L90"></a><tt class="py-lineno">  90</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: they key to be sent (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
+<a name="L90"></a><tt class="py-lineno">  90</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to be sent (e.g. "s" or "&lt;enter&gt;")</tt> </tt>
 <a name="L91"></a><tt class="py-lineno">  91</tt>  <tt class="py-line"><tt class="py-docstring">        @param repeat: number of times to repeat the key event</tt> </tt>
 <a name="L92"></a><tt class="py-lineno">  92</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>
 <a name="L93"></a><tt class="py-lineno">  93</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">x</tt> <tt class="py-keyword">in</tt> <tt class="py-name">xrange</tt><tt class="py-op">(</tt><tt class="py-name">repeat</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
@@ -159,7 +159,7 @@
 <a name="L101"></a><tt class="py-lineno"> 101</tt>  <tt class="py-line"><tt class="py-docstring">        </tt> </tt>
 <a name="L102"></a><tt class="py-lineno"> 102</tt>  <tt class="py-line"><tt class="py-docstring">        Note: this function cannot be used to wait for modifier keys on their own</tt> </tt>
 <a name="L103"></a><tt class="py-lineno"> 103</tt>  <tt class="py-line"><tt class="py-docstring"></tt> </tt>
-<a name="L104"></a><tt class="py-lineno"> 104</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: they key to wait for</tt> </tt>
+<a name="L104"></a><tt class="py-lineno"> 104</tt>  <tt class="py-line"><tt class="py-docstring">        @param key: the key to wait for</tt> </tt>
 <a name="L105"></a><tt class="py-lineno"> 105</tt>  <tt class="py-line"><tt class="py-docstring">        @param modifiers: list of modifiers that should be pressed with the key</tt> </tt>
 <a name="L106"></a><tt class="py-lineno"> 106</tt>  <tt class="py-line"><tt class="py-docstring">        @param timeOut: maximum time, in seconds, to wait for the keypress to occur</tt> </tt>
 <a name="L107"></a><tt class="py-lineno"> 107</tt>  <tt class="py-line"><tt class="py-docstring">        """</tt> </tt>

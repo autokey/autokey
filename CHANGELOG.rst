@@ -15,11 +15,27 @@ Important misc changes
 - Update action versions in build.yaml to latest.
 - Update Qt/GTK "Run" button in interface to run on F5
 - Update two links in the **README.rst** file.
+- Updated `extractDoc.py`
+- Updated Qt autocomplete api.txt file (last updated in 2019)
+- Fix, update, and add content to the man pages.
+- Fix Qt reference and update the wording in reference to KDE and Qt in the **autokey-qt.1** man page.
+- Update the date and remove excess wording in the **autokey-gtk.1** and **autokey-qt.1** man pages.
+- Update the date in the **autokey-run.1** man page.
+- Add the "Environment" section to the .gitignore file.
+- Update the help menu, deprecating one entry, adding several entries, updating existing wording, and sorting the entries.
+- Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
+- Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
+- Update the GTK and Qt man pages.
+- Update date, formatting, and NAME section in the GTK and Qt man pages.
+- Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
+- Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
+
 
 Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
+Added Gtk autocomplete for both scripts and phrases
 
 Allows the distinction between left and right modifier keys for ``[Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]``.
 
@@ -42,6 +58,14 @@ Bug fixes
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
+
+Other changes
+-------------
+- Rename the bug.yaml file to bug.yml.
+- Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
+- Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
+
+.. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
 Version 0.96.0-beta.9
 ============================

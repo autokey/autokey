@@ -28,43 +28,45 @@ Namespace = NamedTuple("Namespace", [
     # Mock Namespace that mimics the object returned by parse_args() and should have the same signature.
     # Used to provide better static type checking inside the IDE. Can also be used for unit testing.
     # TODO: Convert to a class when the minimum Python version is risen to >= 3.6.
-    ("verbose", bool),
     ("configure", bool),
-    ("cutelog_integration", bool),
+    ("cutelog", bool),
+    ("mouse", bool),
+    ("verbose", bool),
+    ("version", bool),
 ])
 
 
 def _generate_argument_parser() -> argparse.ArgumentParser:
     """Generates an ArgumentParser for AutoKey"""
-    parser = argparse.ArgumentParser(description="Desktop automation ")
-    parser.add_argument(
-        "-l", "--verbose",
-        action="store_true",
-        help="Enable verbose logging"
-    )
+    parser = argparse.ArgumentParser(description="desktop automation ")
     parser.add_argument(
         "-c", "--configure",
         action="store_true",
         dest="show_config_window",
-        help="Show the configuration window on startup"
-    )
-    # %(prog)s substitution only works for installations. It shows "__main__.py", if run from the source tree.
-    parser.add_argument(
-        "-V", "--version",
-        action="version",
-        version="%(prog)s Version {}".format(autokey.common.VERSION)
+        help="open the AutoKey main window"
     )
     parser.add_argument(
-        "--cutelog-integration",
+        "-C", "--cutelog",
         action="store_true",
-        help="Connect to a locally running cutelog instance with default settings to display the full program log. "
-             "See https://github.com/busimus/cutelog"
+        help="connect to a local default cutelog instance to display the full program log"
     )
     parser.add_argument(
         "-m", "--mouse",
         action="store_true",
         dest="mouse_logging",
-        help="Similar to -l/--verbose but includes mouse button events"
+        help="enable verbose logging including mouse button events"
+    )
+    parser.add_argument(
+        "-v", "--verbose", "-l",
+        action="store_true",
+        help="enable verbose logging (-l is deprecated)"
+    )
+    # %(prog)s substitution only works for installations. It shows "__main__.py", if run from the source tree.
+    parser.add_argument(
+        "-V", "--version",
+        action="version",
+        help="print the current AutoKey version to standard output",
+        version="%(prog)s Version {}".format(autokey.common.VERSION)
     )
     return parser
 
@@ -76,4 +78,5 @@ def parse_args() -> Namespace:
     """
     parser = _generate_argument_parser()
     args = parser.parse_args()
+
     return args

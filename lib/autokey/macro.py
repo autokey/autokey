@@ -320,6 +320,8 @@ class FileContentsMacro(AbstractMacro):
 class ClipboardMacro(AbstractMacro):
     """
     C{<clipboard>} - Inserts the contents of the clipboard.
+
+    :param clipboard:  The clipboard to use, defaults to "clipboard", can use "selection" to use the clipboard's selection.
     """
 
 
@@ -332,5 +334,11 @@ class ClipboardMacro(AbstractMacro):
 
     def do_process(self, sections, i):
         macro_type, macro = self._extract_macro(sections[i])
-        sections[i] = self.clipboard.get_clipboard()
+        args = split_key_val(macro)
+        if args.get("clipboard") and args.get("clipboard")=="selection":
+            sections[i] = self.clipboard.get_selection()
+        else:
+            sections[i] = self.clipboard.get_clipboard()
+
+
         return sections

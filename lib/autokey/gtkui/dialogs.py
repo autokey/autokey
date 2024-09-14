@@ -397,14 +397,6 @@ class AbbrSettingsDialog(DialogBase):
     def on_abbrList_cursorchanged(self, widget, data=None):
         pass
 
-    def on_ignoreCaseCheckbox_stateChanged(self, widget, data=None):
-        if not self.ignoreCaseCheckbox.get_active():
-            self.matchCaseCheckbox.set_active(False)
-
-    def on_matchCaseCheckbox_stateChanged(self, widget, data=None):
-        if self.matchCaseCheckbox.get_active():
-            self.ignoreCaseCheckbox.set_active(True)
-
     def on_immediateCheckbox_stateChanged(self, widget, data=None):
         if self.immediateCheckbox.get_active():
             self.omitTriggerCheckbox.set_active(False)

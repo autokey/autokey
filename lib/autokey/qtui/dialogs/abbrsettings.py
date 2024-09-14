@@ -104,14 +104,6 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
     def on_abbrListWidget_itemDoubleClicked(self, item):
         self.abbrListWidget.editItem(item)
 
-    def on_ignoreCaseCheckbox_stateChanged(self, state):
-        if not state:
-            self.matchCaseCheckbox.setChecked(False)
-
-    def on_matchCaseCheckbox_stateChanged(self, state):
-        if state:
-            self.ignoreCaseCheckbox.setChecked(True)
-
     def on_immediateCheckbox_stateChanged(self, state):
         if state:
             self.omitTriggerCheckbox.setChecked(False)

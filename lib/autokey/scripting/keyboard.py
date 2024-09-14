@@ -67,7 +67,7 @@ class Keyboard:
 
         Usage: C{keyboard.send_key(key, repeat=1)}
 
-        :param key: they key to be sent (e.g. "s" or "<enter>")
+        :param key: the key to be sent (e.g. "s" or "<enter>")
         :param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
@@ -93,7 +93,7 @@ class Keyboard:
 
         If the specified key was not made down using press_key(), the event will be
         ignored.
-        :param key: they key to be released (e.g. "s" or "<enter>")
+        :param key: the key to be released (e.g. "s" or "<enter>")
         """
         self.mediator.release_key(key)
 
@@ -106,7 +106,7 @@ class Keyboard:
         Uses XTest to 'fake' a keypress. This is useful to send keypresses to some
         applications which won't respond to keyboard.send_key()
 
-        :param key: they key to be sent (e.g. "s" or "<enter>")
+        :param key: the key to be sent (e.g. "s" or "<enter>")
         :param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
@@ -120,7 +120,8 @@ class Keyboard:
 
         Note: this function cannot be used to wait for modifier keys on their own
 
-        :param key: they key to wait for
+
+        :param key: the key to wait for
         :param modifiers: list of modifiers that should be pressed with the key
         :param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """

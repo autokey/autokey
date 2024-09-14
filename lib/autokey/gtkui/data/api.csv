@@ -1,0 +1,92 @@
+"keyboard.send_keys(key_string, send_mode)",Send a sequence of keys via keyboard events as the default or via clipboard pasting.
+"keyboard.send_key(key, repeat)",Send a keyboard event
+keyboard.press_key(key),Send a key down event
+keyboard.release_key(key),Send a key up event
+"keyboard.fake_keypress(key, repeat)",Fake a keypress
+"keyboard.wait_for_keypress(key, modifiers, timeOut)",Wait for a keypress or key combination
+"keyboard.wait_for_keyevent(check, name, timeOut)","Wait for a key event, potentially accumulating the intervening characters"
+"mouse.click_relative(x, y, button)",Send a mouse click relative to the active window
+"mouse.click_relative_self(x, y, button)",Send a mouse click relative to the current mouse position
+"mouse.click_absolute(x, y, button)",Send a mouse click relative to the screen (absolute)
+"mouse.wait_for_click(button, timeOut)",Wait for a mouse click
+"mouse.move_cursor(x, y)",Move mouse cursor to xy location on screen without warping back to the start location
+"mouse.move_relative(x, y)",Move cursor relative to xy location based on the top left hand corner of the window that has input focus
+"mouse.move_relative_self(x, y)",Move cursor relative to the location of the mouse cursor
+mouse.press_button(button),Send mouse button down signal at current  location
+mouse.release_button(button),Send mouse button up signal at current location
+"mouse.select_area(startx, starty, endx, endy, button, scrollNumber, down, warp)","""Drag and Select"" for an area with the top left corner at (startx, starty)"
+mouse.get_location(),Returns the current location of the mouse.
+mouse.get_relative_location(),Returns the relative location of the mouse in the window that has input focus
+mouse.scroll_down(number),Fires the mouse button 5 signal the specified number of times.
+mouse.scroll_up(number),Fires the mouse button 4 signal the specified number of times.
+"window.wait_for_focus(title, timeOut)",Wait for window with the given title to have focus
+"window.wait_for_exist(title, timeOut, by_hex)",Wait for window with the given title to be created
+"window.activate(title, switchDesktop, matchClass, by_hex)","Activate the specified window, giving it input focus"
+"window.close(title, matchClass, by_hex)",Close the specified window gracefully
+"window.resize_move(title, xOrigin, yOrigin, width, height, matchClass, by_hex)",Resize and/or move the specified window
+"window.move_to_desktop(title, deskNum, matchClass, by_hex)",Move the specified window to the given desktop
+window.switch_desktop(deskNum),Switch to the specified desktop
+"window.set_property(title, action, prop, matchClass, by_hex)",Set a property on the given window using the specified action
+window.get_active_geometry(),Get the geometry of the currently active window. Uses the C{:ACTIVE:} function of C{wmctrl}.
+window.get_active_title(),Get the visible title of the currently active window
+window.get_active_class(),Get the class of the currently active window
+"window.center_window(title, win_width, win_height, monitor, matchClass, by_hex)",Centers the active (or window selected by title) window. Requires xrandr for getting monitor sizes and offsets.
+window.get_window_list(filter_desktop),"Returns a list of windows matching an optional desktop filter, requires C{wmctrl}!"
+window.get_window_hex(title),Returns the hexid of the first window to match title.
+"window.get_window_geometry(title, by_hex)",Uses C{wmctrl} to return the window geometry of the given window title. Returns where the location of the
+"system.exec_command(command, getOutput)",Execute a shell command
+"system.create_file(file_name, contents)",Create a file with contents
+engine.get_folder(title),Retrieve a folder by its title
+"engine.create_folder(title, parent_folder, temporary)",Create and return a new folder.
+"engine.create_phrase(folder, name, contents, abbreviations, hotkey, send_mode, window_filter, show_in_system_tray, always_prompt, temporary, replace_existing_hotkey)",Create a new text phrase inside the given folder. Use C{engine.get_folder(folder_name)} to retrieve the folder
+"engine.create_abbreviation(folder, description, abbr, contents)",DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
+"engine.create_hotkey(folder, description, modifiers, key, contents)",DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
+engine.run_script(description),Run an existing script using its description or path to look it up
+engine.run_script_from_macro(args),Used internally by AutoKey for phrase macros
+engine.run_system_command_from_macro(args),Used internally by AutoKey for system macros
+engine.get_script_arguments(),Get the arguments supplied to the current script via the scripting api
+engine.get_script_keyword_arguments(),Get the arguments supplied to the current script via the scripting api
+engine.get_macro_arguments(),Get the arguments supplied to the current script via its macro
+engine.set_return_value(val),Store a return value to be used by a phrase macro
+engine.get_triggered_abbreviation(),This function can be queried by a script to get the abbreviation text that triggered it’s execution.
+"engine.remove_all_temporary(folder, in_temp_parent)","Removes all temporary folders and phrases, as well as any within"
+engine.get_item_with_hotkey(hotkey),
+engine.validateAbbreviations(abbreviations),Checks if the given abbreviations are a list/iterable of strings
+"engine.check_abbreviation_unique(configmanager, abbreviations, window_filter)",Checks if the given abbreviations are unique
+"engine.check_hotkey_unique(configmanager, hotkey, window_filter)",Checks if the given hotkey is unique
+engine.isValidHotkeyType(item),Checks if the hotkey is valid.
+engine.validateHotkey(hotkey),    
+"engine.validateArguments(folder, name, contents, abbreviations, hotkey, send_mode, window_filter, show_in_system_tray, always_prompt, temporary, replace_existing_hotkey)",
+"engine.validateType(item, name, type_)","type_ may be a list, in which case if item matches"
+"highlevel.visgrep(scr, pat, tolerance)","Usage: C{visgrep(scr: str, pat: str, tolerance: int = 0) -> int}"
+highlevel.get_png_dim(filepath),Usage: C{get_png_dim(filepath:str) -> (int)}
+"highlevel.mouse_move(x, y, display)",Moves the mouse using xte C{mousemove} from xautomation
+"highlevel.mouse_rmove(x, y, display)",Moves the mouse using xte C{mousermove} command from xautomation
+"highlevel.mouse_click(button, display)",Clicks the mouse in the current location using xte C{mouseclick} from xautomation
+highlevel.mouse_pos(),Returns the current location of the mouse.
+"highlevel.click_on_pat(pat, mousebutton, offset, tolerance, restore_pos)","Requires C{imagemagick}, C{xautomation}, C{xwd}."
+"highlevel.move_to_pat(pat, offset, tolerance)",See L{click_on_pat}
+highlevel.acknowledge_gnome_notification(),Moves mouse pointer to the bottom center of the screen and clicks on it.
+clipboard.fill_clipboard(contents),Copy text into the clipboard
+clipboard.get_clipboard(),Read text from the clipboard
+clipboard.fill_selection(contents),Copy text into the X selection
+clipboard.get_selection(),Read text from the X selection
+clipboard.set_clipboard_image(path),Set clipboard to image
+"dialog.send_notification(title, message, icon)",Sends a notification using C{zenity}
+"dialog.info_dialog(title, message)",Show an information dialog
+"dialog.input_dialog(title, message, default)",Show an input dialog
+"dialog.password_dialog(title, message)",Show a password input dialog
+"dialog.list_menu(options, title, message, default)",Show a single-selection list menu
+"dialog.list_menu_multi(options, title, message, defaults)",Show a multiple-selection list menu
+dialog.open_file(title),Show an Open File dialog
+dialog.save_file(title),Show a Save As dialog
+"dialog.choose_directory(title, initialDir)",Show a Directory Chooser dialog
+dialog.choose_colour(title),Show a Colour Chooser dialog
+"dialog.calendar(title, format_str, date)",Show a calendar dialog
+"store.set_value(key, value)",Store a value
+store.get_value(key),Get a value
+store.remove_value(key),Remove a value
+"store.set_global_value(key, value)",Store a global value
+store.get_global_value(key),Get a global value
+store.remove_global_value(key),Remove a global value
+store.has_key(key),python 2 compatibility

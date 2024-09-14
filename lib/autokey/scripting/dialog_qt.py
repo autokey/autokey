@@ -139,7 +139,10 @@ class QtDialog:
             optionNum += 1
 
         return_code, result = self._run_kdialog(title, ["--radiolist", message] + choices, kwargs)
-        choice = options[int(result)]
+        if (return_code == 0):
+            choice = options[int(result)]
+        else:
+            choice = None
 
         return DialogData(return_code, choice)
 
