@@ -109,6 +109,8 @@ class SettingsDialog:
         self.uinput_mouse = builder.get_object("uinput_mouse")
         self.uinput_keyboard.set_text(cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD])
         self.uinput_mouse.set_text(cm.ConfigManager.SETTINGS[cm_constants.MOUSE])
+        self.uinput_delay = builder.get_object("uinput_delay")
+        self.uinput_delay.set_text(str(cm.ConfigManager.SETTINGS[cm_constants.DELAY]))
         
         self.useConfigHotkey = self.__loadHotkey(configManager.configHotkey, self.configKeyLabel, 
                                                  self.showConfigDlg, self.clearConfigButton)
@@ -144,6 +146,8 @@ class SettingsDialog:
         # UInput Settings
         cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD] = self.uinput_keyboard.get_text()
         cm.ConfigManager.SETTINGS[cm_constants.MOUSE] = self.uinput_mouse.get_text()
+        cm.ConfigManager.SETTINGS[cm_constants.DELAY] = float(self.uinput_delay.get_text())
+
         self._save_disable_capslock_setting()
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)

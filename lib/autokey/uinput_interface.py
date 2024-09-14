@@ -536,9 +536,8 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             self.syn_raw()
 
     def get_delay(self):
-        #return 0.01+random.randrange(1,10)/1000
-        #return 0.001
-        return 0.005
+        #TODO does this need to be cached?
+        return float(cm.ConfigManager.SETTINGS[cm_constants.DELAY])/1000
 
     @queue_method(queue)
     def syn(self):
