@@ -61,7 +61,7 @@ class IoMediator(threading.Thread):
             self.modifiers[key]=False
 
         # self.interfaceType="uinput"
-        session_type = os.environ.get("XDG_SESSION_TYPE")
+        session_type = common.SESSION_TYPE
         if session_type == "wayland":
             self.interfaceType = "uinput"
         elif session_type == "x11":
@@ -70,6 +70,7 @@ class IoMediator(threading.Thread):
             pass
         
         if self.interfaceType == "uinput":
+            logger.debug("Using gnome extension window interface")
             self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
@@ -225,6 +226,7 @@ class IoMediator(threading.Thread):
                             interface.send_key(section)
                         else:
                             interface.send_string(section)
+        logger.debug("Finished Sending string?")
 
     def paste_string(self, string, paste_command: SendMode):
         """

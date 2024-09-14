@@ -23,6 +23,7 @@ XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.confi
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
 XDG_CACHE_HOME = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share"))
+SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE")
 
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "autokey")
 RUN_DIR = os.path.join(os.environ.get('XDG_RUNTIME_DIR', XDG_CACHE_HOME), "autokey")
@@ -46,6 +47,7 @@ COPYRIGHT = """
 (c) 2014 GuoCi
 (c) 2017, 2018 Thomas Hess
 (c) 2020, 2021 BlueDrink9
+(c) 2024 sebastiansam55
 """
 
 
@@ -64,7 +66,8 @@ author_data = (
     AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
     AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
     AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
-    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com")
+    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com"),
+    AuthorData("Sam Sebastian", "Wayland port", "sebastiansam55@gmail.com")
 )
 about_data = AboutData(
    program_name="AutoKey",
