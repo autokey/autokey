@@ -6,6 +6,7 @@ import re
 import subprocess
 import sys
 import time
+import os
 
 from . import common
 import autokey.model.helpers
@@ -24,12 +25,51 @@ gtk_modules = ['gi', 'gi.repository.Gtk', 'gi.repository.Gdk', 'gi.repository.Pa
 qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
             'PyQt5.Qsci']
 
-common_programs = ['wmctrl', 'ps', 'xrandr']
+# wmctrl, xrandr are x11 specific programs.
+x11_programs = ['wmctrl', 'xrandr']
+common_programs = ['ps']
 # Checking some of these appears to be redundant as some are provided by the same packages on my system but 
 # better safe than sorry.
-optional_programs = ['visgrep', 'import', 'png2pat', 'xte', 'xmousepos']
+x11_optional_programs = ['xte', 'xmousepos']
+optional_programs = ['visgrep', 'import', 'png2pat']
 gtk_programs = ['zenity']
 qt_programs = ['kdialog']
+
+def checkGnomeAutokeyExtension():
+    bus_name = "org.gnome.Shell"
+    object_path = "/org/gnome/Shell/Extensions/AutoKey"
+    interface_name = "org.gnome.Shell.Extensions.AutoKey"
+    check_dbus_object_exists(bus_name, object_path, interface_name)
+    pass
+
+
+def check_dbus_object_exists(bus_name, object_path, interface_name):
+    #keep dbus import here
+    import dbus
+    try:
+        # Connect to the D-Bus session bus
+        bus = dbus.SessionBus()
+
+        # Get a reference to the service and object
+        obj = bus.get_object(bus_name, object_path)
+
+        # Get a reference to the desired interface
+        interface = dbus.Interface(obj, interface_name)
+
+        # Call a method on the object (e.g., 'Get') and check if it returns a valid result
+        interface.List()  # Replace 'property_name' with an actual property name
+
+        # If the method call was successful, the object exists
+        return True
+
+    except dbus.exceptions.DBusException as e:
+        # Handle the exception and return False if the object does not exist
+        if e.get_dbus_name() == 'org.freedesktop.DBus.Error.UnknownObject':
+            return False
+        else:
+            # If the exception is not related to the unknown object, re-raise it
+            raise
+
 
 def checkModuleImports(modules):
     missing_modules = []
@@ -57,6 +97,9 @@ def checkProgramImports(programs, optional=False):
     return missing_programs
 
 def checkOptionalPrograms():
+    if os.environ.get("XDG_SESSION_TYPE") == "x11":
+        checkProgramImports(x11_optional_programs, optional=True)
+
     if common.USED_UI_TYPE == "QT":
         checkProgramImports(optional_programs, optional=True)
     elif common.USED_UI_TYPE == "GTK":
@@ -74,6 +117,10 @@ def getErrorMessage(item_type, missing_items):
 
 def checkRequirements():
     errorMessage = ""
+
+    if os.environ.get("XDG_SESSION_TYPE") == "x11":
+        missing_programs = checkProgramImports(x11_programs)
+
     if common.USED_UI_TYPE == "QT":
         missing_programs = checkProgramImports(common_programs+qt_programs)
         missing_modules = checkModuleImports(common_modules+qt_modules)

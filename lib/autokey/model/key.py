@@ -31,6 +31,26 @@ class Key(str, enum.Enum):
     CAPSLOCK = "<capslock>"
     NUMLOCK = "<numlock>"
     META = "<meta>"
+
+    # Left Modifier Keys
+    LEFTCONTROL = "<left_ctrl>"
+    LEFTALT = "<left_alt>"
+    LEFTSHIFT = "<left_shift>"
+    LEFTSUPER = "<left_super>"
+    LEFTHYPER = "<left_hyper>"
+    LEFTCAPSLOCK = "<left_capslock>"
+    LEFTNUMLOCK = "<left_numlock>"
+    LEFTMETA = "<left_meta>"
+
+    # Right Modifier Keys
+    RIGHTCONTROL = "<right_ctrl>"
+    RIGHTALT = "<right_alt>"
+    RIGHTSHIFT = "<right_shift>"
+    RIGHTSUPER = "<right_super>"
+    RIGHTHYPER = "<right_hyper>"
+    RIGHTCAPSLOCK = "<right_capslock>"
+    RIGHTNUMLOCK = "<right_numlock>"
+    RIGHTMETA = "<right_meta>"
     
     F1 = "<f1>"
     F2 = "<f2>"
@@ -120,6 +140,27 @@ _ALL_MODIFIERS_ = (
 # Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
 KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
-MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
-HELD_MODIFIERS = [Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META
-]
+
+# these types of modifiers are accepted as either left or right versions when used in hotkeys
+# when sent via keyboard they will send the LEFT version of the modifier
+UNIVERSAL_MODIFIERS = [Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]
+MAPPED_UNIVERSAL_MODIFIERS = {
+    Key.CONTROL: [Key.LEFTCONTROL, Key.RIGHTCONTROL],
+    Key.ALT: [Key.LEFTALT, Key.RIGHTALT],
+    Key.SUPER: [Key.LEFTSUPER, Key.RIGHTSUPER],
+    Key.SHIFT: [Key.LEFTSHIFT, Key.RIGHTSHIFT],
+    Key.HYPER: [Key.LEFTHYPER, Key.RIGHTHYPER],
+    Key.META: [Key.LEFTMETA, Key.RIGHTMETA]
+}
+
+MODIFIERS = [
+    Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK,
+    Key.LEFTCONTROL,Key.LEFTALT,Key.LEFTSHIFT,Key.LEFTSUPER,Key.LEFTHYPER,Key.LEFTMETA,
+    Key.RIGHTCONTROL,Key.RIGHTALT,Key.RIGHTSHIFT,Key.RIGHTSUPER,Key.RIGHTHYPER,Key.RIGHTMETA
+    ]
+HELD_MODIFIERS = [
+    Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META,
+    Key.LEFTCONTROL,Key.LEFTALT,Key.LEFTSHIFT,Key.LEFTSUPER,Key.LEFTHYPER,Key.LEFTMETA,
+    Key.RIGHTCONTROL,Key.RIGHTALT,Key.RIGHTSHIFT,Key.RIGHTSUPER,Key.RIGHTHYPER,Key.RIGHTMETA
+    ]
+

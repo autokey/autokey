@@ -102,7 +102,13 @@ class SettingsDialog:
         self.configKeyLabel = builder.get_object("configKeyLabel")
         self.clearConfigButton = builder.get_object("clearConfigButton")
         self.monitorKeyLabel = builder.get_object("monitorKeyLabel")
-        self.clearMonitorButton = builder.get_object("clearMonitorButton")    
+        self.clearMonitorButton = builder.get_object("clearMonitorButton")
+
+        # UInput Settings
+        self.uinput_keyboard = builder.get_object("uinput_keyboard")
+        self.uinput_mouse = builder.get_object("uinput_mouse")
+        self.uinput_keyboard.set_text(cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD])
+        self.uinput_mouse.set_text(cm.ConfigManager.SETTINGS[cm_constants.MOUSE])
         
         self.useConfigHotkey = self.__loadHotkey(configManager.configHotkey, self.configKeyLabel, 
                                                  self.showConfigDlg, self.clearConfigButton)
@@ -134,6 +140,10 @@ class SettingsDialog:
         cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
+
+        # UInput Settings
+        cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD] = self.uinput_keyboard.get_text()
+        cm.ConfigManager.SETTINGS[cm_constants.MOUSE] = self.uinput_mouse.get_text()
         self._save_disable_capslock_setting()
         self.configManager.userCodeDir = self.userModuleChooserButton.get_current_folder()
         sys.path.append(self.configManager.userCodeDir)

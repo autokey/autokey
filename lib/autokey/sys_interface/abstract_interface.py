@@ -15,6 +15,7 @@
 
 from abc import ABC, ABCMeta, abstractmethod
 import typing
+import functools
 
 from autokey import common
 from autokey.scripting import Clipboard as APIClipboard
@@ -23,6 +24,17 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 # This tuple is used to return requested window properties.
 WindowInfo = typing.NamedTuple("WindowInfo", [("wm_title", str), ("wm_class", str)])
+
+def queue_method(queue):
+    """
+    Adds the decorated method to the queue with `put_nowait`
+    """
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args):
+            queue.put_nowait((func, args))
+        return wrapper
+    return decorator
 
 class AbstractSysInterface(ABC, metaclass=ABCMeta):
     """

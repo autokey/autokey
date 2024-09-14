@@ -18,7 +18,7 @@ import typing
 
 from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_window_filter import AbstractWindowFilter
-from autokey.model.key import Key
+from autokey.model.key import Key, UNIVERSAL_MODIFIERS, MAPPED_UNIVERSAL_MODIFIERS
 
 
 class AbstractHotkey(AbstractWindowFilter):
@@ -57,8 +57,27 @@ class AbstractHotkey(AbstractWindowFilter):
             self.modes.remove(TriggerMode.HOTKEY)
 
     def check_hotkey_has_properties(self, modifiers, key, windowTitle):
+        """
+        This method is run whenever a key is pressed for all of the scripts in autokey
+
+        :param modifiers: The modifiers that were pressed when the key was pressed
+        :param key: The key that was pressed
+        :param windowTitle: The title of the window that was active when the key was pressed
+        :return Boolean: Whether or not the hotkey matches
+        """
+        left_mods = []
+        right_mods = []
+        for modifier in self.modifiers:
+            if modifier in UNIVERSAL_MODIFIERS: # if one of the hotkey modifiers is universal. Generate a left and right version of the hotkey. the same way it does below and return if true?
+                left_mods.append(MAPPED_UNIVERSAL_MODIFIERS[modifier][0])
+                right_mods.append(MAPPED_UNIVERSAL_MODIFIERS[modifier][1])
+            else:
+                left_mods.append(modifier)
+                right_mods.append(modifier)
+
+        #print(modifiers, self.modifiers, left_mods, right_mods)
         if self.hotKey is not None and self._should_trigger_window_title(windowTitle):
-            return (self.modifiers == modifiers) and (self.hotKey == key)
+            return (self.modifiers == modifiers or left_mods == modifiers or right_mods == modifiers) and (self.hotKey == key)
         else:
             return False
 

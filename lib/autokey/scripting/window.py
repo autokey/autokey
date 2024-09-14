@@ -60,7 +60,7 @@ class Window:
         regex = re.compile(title)
         waited = 0
         while waited <= timeOut:
-            if regex.match(self.mediator.interface.get_window_title()):
+            if regex.match(self.mediator.windowInterface.get_window_title()):
                 return True
 
             if timeOut == 0:
@@ -256,7 +256,7 @@ class Window:
         :return: the visible title of the currentle active window
         :rtype: C{str}
         """
-        return self.mediator.interface.get_window_title()
+        return self.mediator.windowInterface.get_window_title()
 
     def get_active_class(self):
         """
@@ -267,7 +267,7 @@ class Window:
         :return: the class of the currently active window
         :rtype: C{str}
         """
-        return self.mediator.interface.get_window_class()
+        return self.mediator.windowInterface.get_window_class()
 
     def center_window(self, title=":ACTIVE:", win_width=None, win_height=None, monitor=0, matchClass=False, by_hex=False):
         """

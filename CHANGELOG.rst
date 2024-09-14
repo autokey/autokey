@@ -29,11 +29,28 @@ Important misc changes
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
+- Adds GNOME Window Extension for interacting with Windows on x11/wayland
+
 
 Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
 Added Gtk autocomplete for both scripts and phrases
+
+Allows the distinction between left and right modifier keys for ``[Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]``.
+
+At this time you cannot "mix and match", IE if you have a ``Key.CONTROL`` and ``Key.ALT`` as the hotkeys it will check for;
+``Key.LEFTCONTROL, Key.LEFTALT``
+and
+``Key.RIGHTCONTROL, Key.RIGHTALT``
+
+But not for;
+``Key.LEFTCONTROL, Key.RIGHTALT``
+``Key.RIGHTCONTROL, Key.RIGHTALT``
+
+This is considered a breaking change, prior it would, in effect, check for all of those scenarios. 
+
+Currently the left/right modifiers GUI option is only accessible via the GTK interface, but they should be respected if you manually update your config files.
 
 Bug fixes
 ---------

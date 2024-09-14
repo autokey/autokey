@@ -120,6 +120,7 @@ class Keyboard:
 
         Note: this function cannot be used to wait for modifier keys on their own
 
+
         :param key: the key to wait for
         :param modifiers: list of modifiers that should be pressed with the key
         :param timeOut: maximum time, in seconds, to wait for the keypress to occur
