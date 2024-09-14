@@ -31,6 +31,7 @@ import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.gnome_interface import GnomeMouseReadInterface
 
+#TODO when exiting the thread waits for one more signal and that signal repeats  for a bit during exit
 
 class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInterface):
     """
@@ -185,6 +186,44 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         ### UINPUT init
         self.validate()
 
+        self.grab_devices()
+
+
+        try:
+            # mouse = "/dev/input/event12"
+            # keyboard = "/dev/input/event4"
+            # creating a uinput device with the combined capabilities of the user's mouse and keyboard
+            # this will undoubtedly cause issues if user attempts to send signals not supported by their devices
+            self.ui = evdev.UInput.from_device(self.mouse.path, self.keyboard.path, name="autokey mouse and keyboard")
+            self.capabilities = self.ui.capabilities(verbose=True)
+            logger.debug("Device capabilities: {}".format(self.capabilities))
+
+            logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
+            logger.info("Supports REL Movement: {}".format(self.supports_rel()))
+            
+
+        except Exception as ex:
+            logger.error("Unable to create UInput device. {}".format(ex))
+            logger.error("Check out how to resolve this issue here: https://github.com/philipl/evdevremapkeys/issues/24")
+            #print("Unable to create UInput device. {}".format(ex))
+
+        GnomeMouseReadInterface.__init__(self)
+        logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
+
+
+        self.inv_map = self.__reverse_mapping(e.keys)
+        self.inv_autokey_map = self.__reverse_mapping(self.autokey_map)
+        logger.debug("Inverted Map:", self.inv_map)
+
+        # Event listener
+        self.listenerThread = threading.Thread(target=self.__flush_events_loop)
+
+        self.__initMappings()
+
+        self.eventThread.start()
+        self.listenerThread.start()
+
+    def grab_devices(self):
         ### UINPUT Listener one for keyboard and eventually one for mouse
         # creating this before creating the new uinput device !important
         devices = self.get_devices()
@@ -237,41 +276,6 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         # logger.debug("Keyboard DIR: {}".format(dir(self.keyboard)))
         
         self.devices = {dev.fd: dev for dev in self.devices}
-
-
-        try:
-            # mouse = "/dev/input/event12"
-            # keyboard = "/dev/input/event4"
-            # creating a uinput device with the combined capabilities of the user's mouse and keyboard
-            # this will undoubtedly cause issues if user attempts to send signals not supported by their devices
-            self.ui = evdev.UInput.from_device(self.mouse.path, self.keyboard.path, name="autokey mouse and keyboard")
-            self.capabilities = self.ui.capabilities(verbose=True)
-            logger.debug("Device capabilities: {}".format(self.capabilities))
-
-            logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
-            logger.info("Supports REL Movement: {}".format(self.supports_rel()))
-            
-
-        except Exception as ex:
-            logger.error("Unable to create UInput device. {}".format(ex))
-            logger.error("Check out how to resolve this issue here: https://github.com/philipl/evdevremapkeys/issues/24")
-            #print("Unable to create UInput device. {}".format(ex))
-
-        GnomeMouseReadInterface.__init__(self)
-        logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
-
-
-        self.inv_map = self.__reverse_mapping(e.keys)
-        self.inv_autokey_map = self.__reverse_mapping(self.autokey_map)
-        logger.debug("Inverted Map:", self.inv_map)
-
-        # Event listener
-        self.listenerThread = threading.Thread(target=self.__flush_events_loop)
-
-        self.__initMappings()
-
-        self.eventThread.start()
-        self.listenerThread.start()
 
     def supports_abs(self):
         has_abs_x = False
@@ -672,6 +676,9 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         for fd in r:
             if not pathlib.Path(self.devices[fd].path).exists():
                 logger.error("__flush_events: Device {} does not exist.".format(fd))
+                #TODO handle device loss more gracefully
+                self.app.show_error_dialog("__flush_events: Device {} does not exist. Shutting down autokey".format(fd))
+                self.shutdown=True
                 continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
@@ -694,11 +701,17 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                         #TODO: handle hold event
                         pass
                     #TODO can also handle scroll events here
+
+                    if event_type.keycode == 'KEY_ESC' and event_type.keystate == 1:
+                        #TODO implement. I think we'd need to break out into a separate input and send queue.
+                        # logger.info("Escape key pressed. Clearing the queue.")
+                        #self.clear_queue()
+                        pass
                         
                     
                 elif type(event_type) is evdev.RelEvent:
                     pass
-                    #mouse movement event
+                    #TODO: mouse movement event
                     #logger.debug("Mouse: {}".format(event_type))
                     #if event_type.
                     #self.handle_mouseclick(event)
@@ -708,6 +721,15 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                 if not self.sending and fd == self.keyboard.fd:
                     self.ui.write(event.type, event.code, event.value)
 
+    # def clear_queue(self):
+    #     """Clear the current queue of events."""
+    #     while not self.queue.empty():
+    #         try:
+    #             self.queue.get_nowait()
+    #             self.queue.task_done()
+    #         except queue.Empty:
+    #             break
+    #     logger.info("Queue cleared.")
 
     def flush(self):
         """

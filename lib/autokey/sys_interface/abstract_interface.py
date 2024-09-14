@@ -148,6 +148,9 @@ class AbstractWindowInterface(ABC, metaclass=ABCMeta):
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         return
     @abstractmethod
+    def get_window_list(self):
+        return
+    @abstractmethod
     def get_window_title(self, window=None, traverse=True) -> str:
         return
     @abstractmethod

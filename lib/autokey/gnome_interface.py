@@ -35,7 +35,10 @@ class GnomeMouseReadInterface(DBusInterface):
 class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
     def __init__(self):
         super().__init__()
-    
+
+    def get_window_list(self):
+        return self._dbus_window_list()
+
     def get_screen_size(self):
         x,y = self.dbus_interface.ScreenSize()
         return [int(x), int(y)]
@@ -59,6 +62,12 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
         Returns the active window title
         """
         return self._active_window()['wm_title']
+    
+    def close_window(self, window_id):
+        self._dbus_close_window(window_id)
+
+    def activate_window(self, window_id):
+        self._dbus_activate_window(window_id)
 
     def _active_window(self):
         #TODO probably can be done more efficiently with an additional dbus method in the gnome extension
