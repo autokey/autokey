@@ -199,6 +199,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             logger.info("Grabbing keyboard from settings: {}".format(keyboard_name))
             try:
                 self.keyboard = self.grab_device(devices, keyboard_name)
+                self.keyboard.grab()
             except Exception as error:
                 logger.error("Could not grab keyboard from settings: {}".format(error))
         if cm.ConfigManager.SETTINGS[cm_constants.MOUSE]:
