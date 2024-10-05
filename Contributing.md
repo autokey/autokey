@@ -54,7 +54,7 @@ AutoKey doesn't have its own platform for accepting donations, but the AutoKey c
 
 A reward is a bounty that anyone can create for any issue, with the minimum amount for a reward being $20. Anyone can also add to an existing reward to increase it and anyone can claim a reward if they earn it by solving an issue and submitting an accepted pull request.
 
-No money changes hands until or unless a pull request is accepted as the solution to a reward issue. At that point, the developer who solved the issue can use Opire to claim the reward and the person who offered the reward receives a notification that the issue has been solved and payment is due. If more than one person created a reward for the same issue, each of them will receive the notification.
+A claim is a request for payment based on the completion of the specified task that has one or more rewards associated with it. A developer who solves an issue can use Opire to file a claim for the reward. The claim automatically triggers a notification to be sent to each creator of any rewards associated with that task letting them know that the issue has been solved and payment is due. It's then up to the reward creators to review the claim, examine the pull request, and decide whether or not to accept it as completion of the task and the solution to the reward issue. If the pull request is accepted, payment is made to the claimant by the reward creator(s).
 
 Payment of rewards is done on the honor system. If a person repeatedly creates awards and fails to pay for them when the issues have been solved, that person will no longer be able to create new rewards until the existing ones are paid in full.
 
@@ -75,5 +75,8 @@ AutoKey has not yet installed the [Opire bot](https://docs.opire.dev/overview/in
 
 When a person who offered a reward gets a notification that the issue has been solved:
 
-1. Verify that the pull request satisfies the reward.
+1. Verify that the pull request satisfies the reward. Below are some things to consider when doing this:
+   * Check whether or not the name of the pull request's author matches that of the claimant.
+   * Check whether or not the pull request has been merged.
+   * Test out the code for that pull request to see if the issue has been solved by [cloning the pull request](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet#local---clone-a-pull-request) and [running the clone](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet#local---run-a-clone).
 2. Use the dashboard on the [Opire website](https://app.opire.dev/) to pay the full reward amount to the developer directly via [Stripe](https://stripe.com/payments/payment-methods). Note that the total cost will consist of the reward amount plus the Stripe fee ($0.85 + 5.25%) and the Opire fee (4% of the reward) for handling the transaction.
