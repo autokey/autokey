@@ -79,4 +79,5 @@ When a person who offered a reward gets a notification that the issue has been s
    * Check whether or not the name of the pull request's author matches that of the claimant.
    * Check whether or not the pull request has been merged.
    * Test out the code for that pull request to see if the issue has been solved by [cloning the pull request](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet#local---clone-a-pull-request) and [running the clone](https://github.com/autokey/autokey/wiki/GitHub-Cheat-Sheet#local---run-a-clone).
+   * Consider whether you, the donor, are satisfied with the resolution of the issue.  If you have concerns, document them in the issue's comments section.
 2. Use the dashboard on the [Opire website](https://app.opire.dev/) to pay the full reward amount to the developer directly via [Stripe](https://stripe.com/payments/payment-methods). Note that the total cost will consist of the reward amount plus the Stripe fee ($0.85 + 5.25%) and the Opire fee (4% of the reward) for handling the transaction.
