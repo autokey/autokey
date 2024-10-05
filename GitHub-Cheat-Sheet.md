@@ -165,6 +165,22 @@ Make any changes you feel are needed in the local files in your clone. Note that
 11. (Optional) Configure your git editor as **nano** instead of the default of **vim**: `git config --global core.editor "nano"`
 12. (Optional) Configure your git pushes to tracking so that they'll go wherever they're being tracked to go automatically based on your clone command: `git config push.default tracking`
 
+#### Local - run a clone
+
+Once a clone is on your system, you can run the cloned copy of AutoKey without installing it by using either of the commands below. This section assumes that you cloned the repository onto your desktop, so you'd want to edit the commands to suit the path to your clone.
+1. Open a terminal window.
+2. Pick one, replacing `~/Desktop/autokey` with the path to your cloned copy of autokey below before following the steps, to change to the `autokey` directory, activate the venv virtual environment, change to the `lib` subdirectory, and run AutoKey:
+	* **AutoKey GTK**:
+		```
+		cd ~/Desktop/autokey; cd lib; python3 -m autokey.gtkui -lc
+		```
+	* **AutoKey Qt**:
+		```
+		cd ~/Desktop/autokey; cd lib; python3 -m autokey.qtui -lc
+		```
+3. When finished, close AutoKey.
+4. Close the terminal window.
+
 #### Local - run tests on a clone
 
 GitHub Actions can be run locally inside of your virtual machine.
