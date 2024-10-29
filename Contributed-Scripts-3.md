@@ -376,6 +376,7 @@ dialog.info_dialog(title=f"Result:", message=f"Total: {total_roll}\r\n{individua
 - **Purpose**: A script that should be locked to the window that when activated will continuously cycle thru the 'a' and 'b' keys for buying normal upgrades. 
 - **Notes**: Issuing your desired hotkey will both start and end the script. Make sure to click on the game window. I used ChatGPT to rewrite one of my scripts: https://chatgpt.com/share/67203306-40cc-8000-aa56-bcf75d73b7fb
 - **Extra**: ![image](https://github.com/user-attachments/assets/9ee3aec9-831f-4be4-92f5-ab3992d9175d)
+- **Requirements**: tkinter
 
 ```python
 # get the game at https://store.steampowered.com/app/2763740/Revolution_Idle/
@@ -385,34 +386,59 @@ dialog.info_dialog(title=f"Result:", message=f"Total: {total_roll}\r\n{individua
 # is a mint feature. I have some windows that have no titles. So there is a try block around the getting of the window title
 # if that should fail, the script uses the continue to skip the statements and do the loop again so as to avoid sending
 # the keys in the wrong window.
+# took this a step further, added a bit of parallel processing to it. a tinker box appears that shows the stats of key cycler
+# and gives you a button to toggle it and also to quit it. Which means you don't have to hit hot key again after you trigger it to manage it.
 
 import time
+import tkinter as tk
 
-debug = False  # Set to True if you need debugging
+root = tk.Tk()
+root.title("Revidle Controller")
 
 current_status = store.get_global_value("revidle")
-
-if current_status == "on":
+if current_status is None:
     store.set_global_value("revidle", "off")
+    status = False
+elif current_status.lower() == "on":
+    store.set_global_value("revidle", "off")
+    status = False
 else:
     store.set_global_value("revidle", "on")
+    status = True
+
+status_label = tk.Label(root, text=f"revidle status: {status}")
+status_label.pack(pady=10)
 
 keys = ["a", "b"]
 index = 0
 required_window_title = "Revolution Idle"
 
-while store.get_global_value("revidle") == "on":
-    try:
+def toggle_status():
+    global status
+    status = not status
+    store.set_global_value("revidle", "on" if status else "off")
+    status_label.config(text=f"revidle status: {status}")
+
+def quit_script():
+    store.set_global_value("revidle", "off")
+    root.destroy()
+
+toggle_button = tk.Button(root, text="Toggle", command=toggle_status)
+toggle_button.pack(pady=5)
+
+quit_button = tk.Button(root, text="Quit", command=quit_script)
+quit_button.pack(pady=5)
+
+def send_keys():
+    global index
+    revidle = store.get_global_value("revidle")
+    if revidle and revidle.lower() == "on":
         active_window_title = window.get_active_title()
-    except Exception:
-        time.sleep(0.25)
-        continue
+        if "revolution idle" in active_window_title.lower():
+            keyboard.send_keys(keys[index])
+            index = (index + 1) % len(keys)
+    root.after(250, send_keys)
 
-    if required_window_title.lower() in active_window_title.lower():
-        keyboard.send_keys(keys[index])
-        index = (index + 1) % len(keys)
-    
-    time.sleep(0.25)
-
-
+send_keys()
+root.mainloop()
 ```
