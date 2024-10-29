@@ -379,39 +379,58 @@ dialog.info_dialog(title=f"Result:", message=f"Total: {total_roll}\r\n{individua
 
 ```python
 # get the game at https://store.steampowered.com/app/2763740/Revolution_Idle/
+# it also ensures that the active window title is Revolution Idle before sending the keys.
+# as i noticed it wasn't enough to limit the script hot keys only being fireable in that window.
+
 import time
+import logging
+
+# Debugging flag
+debug = True
+
+# Configure logging if debug is enabled
+if debug:
+    logging.basicConfig(
+        filename='/home/kreezxil/downloads/autokey_revidle.log',
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
 
 # Toggle the "revidle" status
 current_status = store.get_global_value("revidle")
 
 if current_status == "on":
-    # Turn it off if it is currently on
     store.set_global_value("revidle", "off")
+    if debug:
+        logging.info('Revidle toggled off.')
 else:
-    # Turn it on if it is currently off or undefined
     store.set_global_value("revidle", "on")
+    if debug:
+        logging.info('Revidle toggled on.')
 
 # Define the keys to cycle through
 keys = ["a", "b"]
 index = 0
 
-# Start the key sending loop
-while True:
-    # Sleep for 0.25 seconds before sending the next key
+# Required window title (case-insensitive)
+required_window_title = "Revolution Idle"
+
+# Start the key sending loop if "revidle" is on
+while store.get_global_value("revidle") == "on":
+    active_window_title = window.get_active_title()
+    
+    if debug:
+        logging.info(f"Active window: '{active_window_title}'")
+    
+    if required_window_title.lower() in active_window_title.lower():
+        keyboard.send_keys(keys[index])
+        if debug:
+            logging.info(f"Sent key: '{keys[index]}' to window: '{active_window_title}'")
+        index = (index + 1) % len(keys)
+    else:
+        if debug:
+            logging.info(f"Active window does not match: '{active_window_title}'")
+    
     time.sleep(0.25)
-    
-    # Send the current key
-    keyboard.send_keys(keys[index])
-    
-    # Update the index to cycle through the keys list
-    index = (index + 1) % len(keys)
-    
-    # Sleep intermittently for another 0.25 seconds
-    time.sleep(0.25)
-    
-    # Check the "revidle" status to determine if the loop should continue
-    current_status = store.get_global_value("revidle")
-    if current_status == "off":
-        # Exit the loop if "revidle" has been turned off
-        break
+
 ```
