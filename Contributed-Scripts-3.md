@@ -6,7 +6,7 @@
 * [Archive URLs using the Wayback Machine (works only with Qt)](#archive-links-with-the-wayback-machine-works-only-with-qt)
 * [Increment Version Numbers](#increment-version-numbers)
 * [Get and print the clipboard contents](#get-and-print-the-clipboard-contents)
-
+* [Revolution Idle on Steam Basic Buyers](#revolution-idle-on-steam-basic-buyers)
 
 ## GUI Dialog That Uses Typed Or Typed-And-Clicked Input
 - **Author**: Elliria
@@ -369,4 +369,49 @@ individual_rolls = '[' + ', '.join(list(map(str, all_rolls))) + ']'
 total_roll = sum(all_rolls) + modifier_amount
 dialog.info_dialog(title=f"Result:", message=f"Total: {total_roll}\r\n{individual_rolls}\r\nFórmula: {dice_formula}")
 
+```
+
+## Revolution Idle on Steam Basic Buyers
+- **Author**: Kreezxil
+- **Purpose**: A script that should be locked to the window that when activated will continuously cycle thru the 'a' and 'b' keys for buying normal upgrades. 
+- **Notes**: Issuing your desired hotkey will both start and end the script. Make sure to click on the game window. I used ChatGPT to rewrite one of my scripts: https://chatgpt.com/share/67203306-40cc-8000-aa56-bcf75d73b7fb
+- **Extra**: ![image](https://github.com/user-attachments/assets/9ee3aec9-831f-4be4-92f5-ab3992d9175d)
+
+```python
+# get the game at https://store.steampowered.com/app/2763740/Revolution_Idle/
+import time
+
+# Toggle the "revidle" status
+current_status = store.get_global_value("revidle")
+
+if current_status == "on":
+    # Turn it off if it is currently on
+    store.set_global_value("revidle", "off")
+else:
+    # Turn it on if it is currently off or undefined
+    store.set_global_value("revidle", "on")
+
+# Define the keys to cycle through
+keys = ["a", "b"]
+index = 0
+
+# Start the key sending loop
+while True:
+    # Sleep for 0.25 seconds before sending the next key
+    time.sleep(0.25)
+    
+    # Send the current key
+    keyboard.send_keys(keys[index])
+    
+    # Update the index to cycle through the keys list
+    index = (index + 1) % len(keys)
+    
+    # Sleep intermittently for another 0.25 seconds
+    time.sleep(0.25)
+    
+    # Check the "revidle" status to determine if the loop should continue
+    current_status = store.get_global_value("revidle")
+    if current_status == "off":
+        # Exit the loop if "revidle" has been turned off
+        break
 ```
