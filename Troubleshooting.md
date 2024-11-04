@@ -49,6 +49,24 @@ This can be helpful when AutoKey runs without crashing, a trigger was used, and 
 7. Examine the output inside of the terminal window. It may show you what went wrong.
 8. If it doesn't make sense or if you have questions, select all of the output and copy it.
 
+## Writing custom debugging messages from an AutoKey script
+
+This can be useful when you are trying to trace the execution of a custom AutoKey script you are developing.  If you are running AutoKey with the ```--verbose``` option mentioned above then you can add these three lines to the script to enable it to write messages to the terminal window where AutoKey is running:
+```
+import logging
+from autokey.common import APP_NAME
+logger = logging.getLogger(APP_NAME)
+```
+After that is in place you can call the Python logging functions to write in the terminal window.  For example, you might do something like this in your script:
+```
+logger.debug('I am a debugging message issued by the script')
+```
+which would result in a message like this appearing in the terminal window:
+```
+2024-11-04 01:03:30,485 DEBUG - autokey - I am a debugging message issued by the script
+```
+Python provides several logging functions for info, debugging, warning, error, and other types of messages.  Complete details can be found in [the Python documentation](https://docs.python.org/3/library/logging.html#logger-objects).
+ 
 ## Python traceback
 This can be helpful when something is wrong with your AutoKey script, causing an exception to be shown in an AutoKey error message in the form of a [Python traceback](https://www.coursera.org/tutorials/python-traceback):
 
