@@ -55,15 +55,15 @@ This can be useful when you are trying to trace the execution of a custom AutoKe
 ```
 import logging
 from autokey.common import APP_NAME
-logger = logging.getLogger(APP_NAME)
+script_logger = logging.getLogger(APP_NAME + ".script")
 ```
 After that is in place you can call the Python logging functions to write in the terminal window.  For example, you might do something like this in your script:
 ```
-logger.debug('I am a debugging message issued by the script')
+script_logger.debug('I am a debugging message issued by the script')
 ```
 which would result in a message like this appearing in the terminal window:
 ```
-2024-11-04 01:03:30,485 DEBUG - autokey - I am a debugging message issued by the script
+2024-11-04 01:03:30,485 DEBUG - autokey.script - I am a debugging message issued by the script
 ```
 Python provides several logging functions for info, debugging, warning, error, and other types of messages.  Complete details can be found in [the Python documentation](https://docs.python.org/3/library/logging.html#logger-objects).
  
