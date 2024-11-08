@@ -4,6 +4,13 @@ Changelog
 
 Next Version
 ============================
+
+Important misc changes
+----------------------
+- Bump action versions in pages.yml to satisfy part of issue #963.
+- Bump action versions in build.yml to satisfy part of issue #963.
+- Bump action versions in python-test.yml to satisfy part of issue #963.
+
 Other
 +++++
 - Add `show_recent_script_errors_dialog` to display errors with millisecond precision.
