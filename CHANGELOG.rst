@@ -37,6 +37,7 @@ Features
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
 Added Gtk autocomplete for both scripts and phrases
 
+
 Allows the distinction between left and right modifier keys for ``[Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]``.
 
 At this time you cannot "mix and match", IE if you have a ``Key.CONTROL`` and ``Key.ALT`` as the hotkeys it will check for;
@@ -58,13 +59,13 @@ Bug fixes
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
+- Fix selection when cloning a phrase or script
 
 Other changes
 -------------
 - Rename the bug.yaml file to bug.yml.
 - Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
 - Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
-
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
 Version 0.96.0-beta.9
@@ -189,7 +190,8 @@ Bug fixes
 - Both QT and GTK versions will reload hotkeys after a keymap change event.
 - Fix locking issue
 - Expose Alt_GR as a hotkey modifier on GTK.
-- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won't post more than one notification per second. Fixes issue #383 
+- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383
+
 
 Scripting API
 ^^^^^^^^^^^^^
