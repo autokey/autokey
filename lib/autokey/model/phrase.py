@@ -19,8 +19,10 @@ import json
 import os
 import typing
 
+import autokey.model.helpers as helpers
+import autokey.model.common as model_common
 from autokey.model.key import NAVIGATION_KEYS, Key, KEY_SPLIT_RE
-from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path, TriggerMode
+from autokey.model.triggermode import TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
@@ -51,15 +53,10 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.path = path
 
     def build_path(self, base_name=None):
-        if base_name is None:
-            base_name = self.description
-        else:
-            base_name = base_name[:-4]
-        self.path = get_safe_path(self.parent.path, base_name, ".txt")
+        return model_common.build_path(self, ".txt", base_name)
 
     def get_json_path(self):
-        directory, base_name = os.path.split(self.path[:-4])
-        return JSON_FILE_PATTERN.format(directory, base_name)
+        return model_common.get_json_path(self.path)
 
     def persist(self):
         if self.path is None:
@@ -72,88 +69,40 @@ class Phrase(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             out_file.write(self.phrase)
 
     def get_serializable(self):
-        d = {
+        d = model_common.get_serializable_scriptphrase(self)
+        d2 = {
             "type": "phrase",
-            "description": self.description,
-            "modes": [mode.value for mode in self.modes],  # Store the enum value for compatibility with old user data.
-            "usageCount": self.usageCount,
-            "prompt": self.prompt,
-            "omitTrigger": self.omitTrigger,
             "matchCase": self.matchCase,
-            "showInTrayMenu": self.show_in_tray_menu,
-            "abbreviation": AbstractAbbreviation.get_serializable(self),
-            "hotkey": AbstractHotkey.get_serializable(self),
-            "filter": AbstractWindowFilter.get_serializable(self),
             "sendMode": self.sendMode.value
             }
+        d.update(d2)
         return d
 
     def load(self, parent):
-        self.parent = parent
-
-        with open(self.path, "r") as inFile:
-            self.phrase = inFile.read()
-
-        if os.path.exists(self.get_json_path()):
-            self.load_from_serialized()
-        else:
-            self.description = os.path.basename(self.path)[:-4]
+        model_common.load(self, parent)
 
     def load_from_serialized(self):
-        try:
-            with open(self.get_json_path(), "r") as json_file:
-                data = json.load(json_file)
-                self.inject_json_data(data)
-        except Exception:
-            logger.exception("Error while loading json data for " + self.description)
-            logger.error("JSON data not loaded (or loaded incomplete)")
+        model_common.load_from_serialized(self)
 
     def inject_json_data(self, data: dict):
-        self.description = data["description"]
-        self.modes = [TriggerMode(item) for item in data["modes"]]
-        self.usageCount = data["usageCount"]
-        self.prompt = data["prompt"]
-        self.omitTrigger = data["omitTrigger"]
+        model_common.inject_json_data_scriptphrase(self, data)
         self.matchCase = data["matchCase"]
-        self.show_in_tray_menu = data["showInTrayMenu"]
         self.sendMode = SendMode(data.get("sendMode", SendMode.KEYBOARD))
-        AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
-        AbstractHotkey.load_from_serialized(self, data["hotkey"])
-        AbstractWindowFilter.load_from_serialized(self, data["filter"])
 
     def rebuild_path(self):
-        if self.path is not None:
-            old_name = self.path
-            old_json = self.get_json_path()
-            self.build_path()
-            os.rename(old_name, self.path)
-            os.rename(old_json, self.get_json_path())
-        else:
-            self.build_path()
+        model_common.rebuild_path(self)
 
     def remove_data(self):
-        if self.path is not None:
-            if os.path.exists(self.path):
-                os.remove(self.path)
-            if os.path.exists(self.get_json_path()):
-                os.remove(self.get_json_path())
+        model_common.remove_data(self)
 
     def copy(self, source_phrase):
-        self.description = source_phrase.description
+        model_common.copy_scriptphrase(self, source_phrase)
         self.phrase = source_phrase.phrase
-
+        self.omitTrigger = source_phrase.omitTrigger
+        self.matchCase = source_phrase.matchCase
         # TODO - re-enable me if restoring predictive functionality
         #if TriggerMode.PREDICTIVE in source_phrase.modes:
         #    self.modes.append(TriggerMode.PREDICTIVE)
-
-        self.prompt = source_phrase.prompt
-        self.omitTrigger = source_phrase.omitTrigger
-        self.matchCase = source_phrase.matchCase
-        self.parent = source_phrase.parent
-        self.show_in_tray_menu = source_phrase.show_in_tray_menu
-        self.copy_abbreviation(source_phrase)
-        self.copy_hotkey(source_phrase)
-        self.copy_window_filter(source_phrase)
 
     def get_tuple(self):
         return "text-plain", self.description, self.get_abbreviations(), self.get_hotkey_string(), self

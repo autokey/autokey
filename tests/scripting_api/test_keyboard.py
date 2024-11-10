@@ -55,10 +55,10 @@ def test_send_keys_type_checking(key_string, send_mode, expected_exception):
     assert_that(calling(keyboard.send_keys).with_args(key_string, send_mode), raises(expected_exception))
     # System state is unaltered
     mock_mediator: MagicMock = keyboard.mediator
-    mock_mediator.interface.begin_send.assert_not_called()
+    mock_mediator.begin_send.assert_not_called()
     mock_mediator.send_string.assert_not_called()
     mock_mediator.paste_string.assert_not_called()
-    mock_mediator.interface.finish_send.assert_not_called()
+    mock_mediator.finish_send.assert_not_called()
 
 
 @pytest.mark.parametrize("cause_error", [False, True])
@@ -73,7 +73,7 @@ def test_send_keys_send_mode_default(cause_error: bool):
     mock_mediator: MagicMock = keyboard.mediator
     mock_mediator.send_string.assert_called_once_with(sent_string)
     mock_mediator.paste_string.assert_not_called()
-    mock_mediator.interface.finish_send.assert_called_once()
+    mock_mediator.finish_send.assert_called_once()
 
 
 @pytest.mark.parametrize("cause_error", [False, True])
@@ -90,7 +90,7 @@ def test_send_keys_send_mode_keyboard(cause_error: bool):
     mock_mediator: MagicMock = keyboard.mediator
     mock_mediator.send_string.assert_called_once_with(sent_string)
     mock_mediator.paste_string.assert_not_called()
-    mock_mediator.interface.finish_send.assert_called_once()
+    mock_mediator.finish_send.assert_called_once()
 
 
 @pytest.mark.parametrize("cause_error", [False, True])
@@ -108,7 +108,7 @@ def test_send_keys_send_mode_keyboard_index(cause_error: bool):
     mock_mediator: MagicMock = keyboard.mediator
     mock_mediator.send_string.assert_called_once_with(sent_string)
     mock_mediator.paste_string.assert_not_called()
-    mock_mediator.interface.finish_send.assert_called_once()
+    mock_mediator.finish_send.assert_called_once()
 
 
 @pytest.mark.parametrize("send_mode, cause_error", itertools.product(
@@ -146,4 +146,4 @@ def test_send_keys_send_mode_clipboard(send_mode: Union[Keyboard.SendMode, int],
         send_mode = mode_list[send_mode]
 
     mock_mediator.paste_string.assert_called_once_with(sent_string, send_mode)
-    mock_mediator.interface.finish_send.assert_called_once()
+    mock_mediator.finish_send.assert_called_once()

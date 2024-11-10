@@ -30,7 +30,7 @@ from .keyboard import Keyboard
 from .mouse import Mouse
 from autokey.model.store import Store
 from .system import System
-from .window import Window
+
 
 # Platform abstraction; Allows code like `import scripting.Dialog`
 if autokey.common.USED_UI_TYPE == "QT":
@@ -43,3 +43,10 @@ elif autokey.common.USED_UI_TYPE == "headless":
     from .clipboard_tkinter import TkClipboard as Clipboard
     # Doesn't actually use anything gtk-specific.
     from .dialog_gtk import GtkDialog as Dialog
+
+if autokey.common.SESSION_TYPE == "wayland":
+    from .window_gnome import Window
+    pass
+elif autokey.common.SESSION_TYPE == "x11":
+    from .window import Window
+    pass

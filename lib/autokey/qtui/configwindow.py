@@ -172,6 +172,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         self.action_copy_item.setShortcuts(QKeySequence.Copy)
         self.action_paste_item.setShortcuts(QKeySequence.Paste)
         self.action_delete_item.setShortcuts(QKeySequence.Delete)
+        self.action_run_script.setShortcuts(QKeySequence.Refresh) #set run to use F5 as shortcut
 
         self.action_configure_autokey.setShortcuts(QKeySequence.Preferences)
 

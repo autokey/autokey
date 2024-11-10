@@ -15,16 +15,16 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-from abc import abstractmethod
+from abc import ABC, ABCMeta, abstractmethod
 
-class AutokeyUIInterface():
+class AutokeyUIInterface(ABC):
+    __metaclass__ = ABCMeta
 
     @abstractmethod
     def show_error_dialog(self, message: str, details: str=None):
-        raise NotImplementedError
+        pass
 
 
     @abstractmethod
     def shutdown(self):
-        raise NotImplementedError
-
+        pass

@@ -24,7 +24,8 @@ from autokey.scripting import System
     ["printf 'tree\\n'", "tree", "newline at end isn't trimmed"],
     ["printf 'tree'", "tree", "Commands without newline aren't returned properly"],
     ["true", "", "Empty command output causes issue."],  # GitHub issue #379
-    ["printf '\\n'", "", "Newline-only command causes issue"],
+    ["printf ' '", " ", "Whitespace-only command output causes issue"],
+    ["printf '\\n'", "", "Newline-only command output causes issue"],
 ])
 def test_system_exec_command(command, expected, errormsg):
     assert_that(System.exec_command(command, getOutput=True), is_(expected), errormsg)

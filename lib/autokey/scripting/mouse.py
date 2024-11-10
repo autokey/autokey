@@ -43,9 +43,9 @@ class Mouse:
 
         Usage: C{mouse.click_relative(x, y, button)}
 
-        @param x: x-coordinate in pixels, relative to upper left corner of window
-        @param y: y-coordinate in pixels, relative to upper left corner of window
-        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        :param x: x-coordinate in pixels, relative to upper left corner of window
+        :param y: y-coordinate in pixels, relative to upper left corner of window
+        :param button: mouse button to simulate (left=1, middle=2, right=3)
         """
         self.interface.send_mouse_click(x, y, button, True)
 
@@ -55,9 +55,9 @@ class Mouse:
 
         Usage: C{mouse.click_relative_self(x, y, button)}
 
-        @param x: x-offset in pixels, relative to current mouse position
-        @param y: y-offset in pixels, relative to current mouse position
-        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        :param x: x-offset in pixels, relative to current mouse position
+        :param y: y-offset in pixels, relative to current mouse position
+        :param button: mouse button to simulate (left=1, middle=2, right=3)
         """
         self.interface.send_mouse_click_relative(x, y, button)
 
@@ -67,9 +67,9 @@ class Mouse:
 
         Usage: C{mouse.click_absolute(x, y, button)}
 
-        @param x: x-coordinate in pixels, relative to upper left corner of window
-        @param y: y-coordinate in pixels, relative to upper left corner of window
-        @param button: mouse button to simulate (left=1, middle=2, right=3)
+        :param x: x-coordinate in pixels, relative to upper left corner of window
+        :param y: y-coordinate in pixels, relative to upper left corner of window
+        :param button: mouse button to simulate (left=1, middle=2, right=3)
         """
         self.interface.send_mouse_click(x, y, button, False)
 
@@ -79,12 +79,16 @@ class Mouse:
 
         Usage: C{mouse.wait_for_click(self, button, timeOut=10.0)}
 
-        @param button: they mouse button click to wait for as a button number, 1-9
-        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        :param button: they mouse button click to wait for as a button number, 1-9
+        :param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        :return: Returns true if mouse is clicked, false if timeout is reached.
         """
         button = int(button)
         w = autokey.iomediator.waiter.Waiter(None, None, button, None, None, timeOut)
-        w.wait()
+        self.mediator.listeners.append(w)
+        rtn = w.wait()
+        self.mediator.listeners.remove(w)
+        return rtn
 
     def move_cursor(self, x,y):
         """
@@ -92,8 +96,8 @@ class Mouse:
 
         Usage: C{mouse.move_cursor(x,y)}
 
-        @param x: x-coordinate in pixels, relative to upper left corner of screen
-        @param y: y-coordinate in pixels, relative to upper left corner of screen
+        :param x: x-coordinate in pixels, relative to upper left corner of screen
+        :param y: y-coordinate in pixels, relative to upper left corner of screen
         """
         self.interface.move_cursor(x,y)
 
@@ -103,8 +107,8 @@ class Mouse:
 
         Usage: C{mouse.move_relative(x,y)}
 
-        @param x: x-coordinate in pixels, relative to upper left corner of window
-        @param y: y-coordinate in pixels, relative to upper left corner of window
+        :param x: x-coordinate in pixels, relative to upper left corner of window
+        :param y: y-coordinate in pixels, relative to upper left corner of window
         """
         self.interface.move_cursor(x,y,relative=True)
 
@@ -115,8 +119,8 @@ class Mouse:
 
         Usage: C{mouse.move_relative_self(x,y)}
 
-        @param x: x-coordinate in pixels, relative to current position of mouse cursor
-        @param y: y-coordinate in pixels, relative to current position of mouse cursor
+        :param x: x-coordinate in pixels, relative to current position of mouse cursor
+        :param y: y-coordinate in pixels, relative to current position of mouse cursor
         """
         self.interface.move_cursor(x, y, relative_self=True)
 
@@ -126,7 +130,7 @@ class Mouse:
 
         Usage: C{mouse.press_button(button)}
 
-        @param button: the mouse button to press down
+        :param button: the mouse button to press down
         """
         x,y = self.interface.mouse_location()
         self.interface.mouse_press(x,y,button)
@@ -137,7 +141,7 @@ class Mouse:
 
         Usage: C{mouse.release_button(button)}
 
-        @param button: the mouse button to press down
+        :param button: the mouse button to press down
         """
         x,y = self.interface.mouse_location()
         self.interface.mouse_release(x,y,button)
@@ -149,14 +153,14 @@ class Mouse:
 
         Usage: C{mouse.select_area(startx, starty, endx, endy, button)}
 
-        @param startx: X coordinate of where to start the drag and select
-        @param starty: Y coordinate of where to start the drag and select
-        @param endx: X coordinate of where to end the drag and select
-        @param endy: Y coordinate of where to end the drag and select
-        @param button: What mouse button to press at the start coordinates and release at the end coordinates
-        @param scrollNumber: Number of times to scroll, defaults to 0
-        @param down: Boolean to choose which direction to scroll, True for down, False for up., defaults to scrolling down.
-        @param warp: If True method will return cursor to the position it was at at the start of execution
+        :param startx: X coordinate of where to start the drag and select
+        :param starty: Y coordinate of where to start the drag and select
+        :param endx: X coordinate of where to end the drag and select
+        :param endy: Y coordinate of where to end the drag and select
+        :param button: What mouse button to press at the start coordinates and release at the end coordinates
+        :param scrollNumber: Number of times to scroll, defaults to 0
+        :param down: Boolean to choose which direction to scroll, True for down, False for up., defaults to scrolling down.
+        :param warp: If True method will return cursor to the position it was at at the start of execution
         """
         #store mouse location
         x,y = self.interface.mouse_location()
@@ -182,8 +186,8 @@ class Mouse:
 
         Usage: C{mouse.get_location()}
 
-        @return: x,y location of the mouse
-        @rtype: C{tuple(int,int)}
+        :return: x,y location of the mouse
+        :rtype: C{tuple(int,int)}
         """
         #minimal delay added to make sure location is correct
         time.sleep(0.05)
@@ -196,8 +200,8 @@ class Mouse:
 
         Usage: C{mouse.get_relative_location()}
         
-        @return: x,y location of the mouse relative to the top left hand corner of the window that has input focus
-        @rtype: C{tuple(int, int)}
+        :return: x,y location of the mouse relative to the top left hand corner of the window that has input focus
+        :rtype: C{tuple(int, int)}
         """
         time.sleep(0.05)
         return self.interface.relative_mouse_location()
@@ -210,7 +214,7 @@ class Mouse:
         
         Usage: C{mouse.scroll_down()}
     
-        @param number: The number of times the scroll up signal will be fired.
+        :param number: The number of times the scroll up signal will be fired.
         """
         self.interface.scroll_down(number)
 
@@ -222,6 +226,6 @@ class Mouse:
 
         Usage: C{mouse.scroll_up()}
 
-        @param number: The number of times the scroll up signal will be fired.
+        :param number: The number of times the scroll up signal will be fired.
         """
         self.interface.scroll_up(number)

@@ -33,8 +33,8 @@ except ImportError:
 else:
     import setuptools.command.build_py
 
-if sys.version_info < (3, 5, 0):
-    print("Autokey requires Python 3.5 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
+if sys.version_info < (3, 7, 15):
+    print("Autokey requires Python 3.7.15 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
 
 
@@ -137,7 +137,7 @@ setup(
     # If using this, would have to also set common.VERSION from this so that
     # the autokey 'about' menu shows the correct version.
     # use_scm_version=True,
-    python_requires=">=3.5",
+    python_requires=">=3.7.15",
     # This requires autokey submodules (subdirectories) to contain their own `__init__.py` file (i.e.
     # they advertise themselves as modules).
     # find_namespace_packages might be a better alternative that doesn't
@@ -192,6 +192,15 @@ setup(
         'python-xlib',
         'packaging',
     ],
+    extras_require={
+            "QT": [
+                "PyQt5",
+                "QScintilla"
+                ],
+            "GTK": [
+                "PyGObject"
+                ]
+            },
     test_suite="pytest",
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -200,7 +209,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.7',
     ],
-    keywords='automation hotkey expansion expander phrase',
+    keywords='automation hotkey expansion expander phrase macros keyboard auto key autokey ak shortcuts bind autohotkey mouse customization',
 )

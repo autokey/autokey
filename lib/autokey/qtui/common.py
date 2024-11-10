@@ -20,7 +20,7 @@ import enum
 import functools
 
 from PyQt5.QtCore import QFile, QSize
-from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor
+from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor, QFontDatabase
 from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
@@ -62,14 +62,15 @@ def monospace_font() -> QFont:
     Returns a monospace font used in the code editor widgets.
     :return: QFont instance having a monospace font.
     """
-    font = QFont("monospace")
-    font.setStyleHint(QFont.Monospace)
+    font = QFontDatabase.systemFont(QFontDatabase.FixedFont)
+    # font = QFont("monospace")
+    # font.setStyleHint(QFont.Monospace)
     return font
 
 
 def set_url_label(label: QLabel, path: str):
 
-    # In both cases, only replace the first occurence.
+    # In both cases, only replace the first occurrence.
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
         text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
     else:

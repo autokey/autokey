@@ -77,14 +77,14 @@ class Engine:
 
         Descriptions for the optional arguments:
 
-        @param parentFolder: Folder to make this folder a subfolder of. If
-        passed as a folder, it will be that folder within auotkey.
-        If passed as pathlib.Path, it will be created or added at that path.
-        Paths expand ~ to $HOME.
-        @param temporary: Folders created with temporary=True are
-                                    not persisted.
-                                    Used for single-source rc-style scripts.
-                                    Cannot be used if parent_folder is a Path.
+        :param parentFolder: Folder to make this folder a subfolder of. If
+            passed as a folder, it will be that folder within AutoKey.
+            If passed as pathlib.Path, it will be created or added at that path.
+            Paths expand ~ to $HOME.
+        :param temporary: Folders created with temporary=True are
+            not persisted.
+            Used for single-source rc-style scripts.
+            Cannot be used if parent_folder is a Path.
 
         If a folder of that name already exists, this will return it unchanged.
         If the folder wasn't already added to autokey, it will be.
@@ -171,12 +171,14 @@ Folders created within temporary folders must themselves be set temporary")
         element and an unshifted (lowercase) key as the second element.
         Modifier keys must be given as a list of strings (or Key enum instances), with the following
         values permitted:
-            <ctrl>
-            <alt>
-            <super>
-            <hyper>
-            <meta>
-            <shift>
+        
+        - <ctrl>
+        - <alt>
+        - <super>
+        - <hyper>
+        - <meta>
+        - <shift>
+
         The key must be an unshifted character (i.e. lowercase) or a Key enum instance. Modifier keys from the list
         above are NOT allowed here. Example: (["<ctrl>", "<alt>"], "9") to assign "<Ctrl>+<Alt>+9" as a hotkey.
         The Key enum contains objects representing various special keys and is available as an attribute of the "engine"
@@ -187,41 +189,43 @@ Folders created within temporary folders must themselves be set temporary")
         using the clipboard. It accepts items from the SendMode enumeration, which is also available from the engine
         object as engine.SendMode. The parameter defaults to
         engine.SendMode.KEYBOARD. Available send modes are:
-            KEYBOARD
-            CB_CTRL_V
-            CB_CTRL_SHIFT_V
-            CB_SHIFT_INSERT
-            SELECTION
+
+        - KEYBOARD
+        - CB_CTRL_V
+        - CB_CTRL_SHIFT_V
+        - CB_SHIFT_INSERT
+        - SELECTION
+
         To paste the Phrase using "<shift>+<insert>, set send_mode=engine.SendMode.CB_SHIFT_INSERT
 
         window_filter: Accepts a string which will be used as a regular expression to match window titles or
         applications using the WM_CLASS attribute.
 
-        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
-        @param name: Name/description for the phrase.
-        @param contents: the expansion text
-        @param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase
-        @param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.
-                       First element is a list of modifiers, second element is the key.
-        @param send_mode: The pasting mode that will be used to expand the Phrase.
-                          Used to configure, how the Phrase is expanded. Defaults to typing using the "CTRL+V" method.
-        @param window_filter: A string containing a regular expression that will be used as the window filter.
-        @param show_in_system_tray: A boolean defaulting to False.
-                                    If set to True, the new Phrase will be shown in the tray icon context menu.
-        @param always_prompt: A boolean defaulting to False. If set to True,
-                              the Phrase expansion has to be manually confirmed, each time it is triggered.
-        @param temporary: Hotkeys created with temporary=True are
-                                    not persisted as .jsons, and are replaced if the description is not
-                                    unique within the folder.
-                                     Used for single-source rc-style scripts.
-        @param replace_existing_hotkey: If true, instead of warning if the hotkey
+        :param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        :param name: Name/description for the phrase.
+        :param contents: the expansion text
+        :param abbreviations: Can be a single string or a list (or other iterable) of strings. Assigned to the Phrase
+        :param hotkey: A tuple containing a keyboard combination that will be assigned as a hotkey.
+            First element is a list of modifiers, second element is the key.
+        :param send_mode: The pasting mode that will be used to expand the Phrase.
+            Used to configure, how the Phrase is expanded. Defaults to typing using the "CTRL+V" method.
+        :param window_filter: A string containing a regular expression that will be used as the window filter.
+        :param show_in_system_tray: A boolean defaulting to False.
+            If set to True, the new Phrase will be shown in the tray icon context menu.
+        :param always_prompt: A boolean defaulting to False. If set to True,
+            the Phrase expansion has to be manually confirmed, each time it is triggered.
+        :param temporary: Hotkeys created with temporary=True are
+            not persisted as .jsons, and are replaced if the description is not
+            unique within the folder.
+            Used for single-source rc-style scripts.
+        :param replace_existing_hotkey: If true, instead of warning if the hotkey
             is already in use by another phrase or folder, it removes the hotkey
             from those clashes and keeps this phrase's hotkey.
-        @raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
-        @return The created Phrase object. This object is NOT considered part of the public API and exposes the raw
-          internals of AutoKey. Ignore it, if you don’t need it or don’t know what to do with it.
-          It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
-          risk. No guarantees are made about the object’s structure. Read the AutoKey source code for details.
+        :raise ValueError: If a given abbreviation or hotkey is already in use or parameters are otherwise invalid
+        :return: The created Phrase object. This object is NOT considered part of the public API and exposes the raw
+            internals of AutoKey. Ignore it, if you don't need it or don't know what to do with it.
+            It can be used for _really_ advanced use cases, where further customizations are desired. Use at your own
+            risk. No guarantees are made about the object's structure. Read the AutoKey source code for details.
         """
 
         validateArguments(folder, name, contents,
@@ -284,11 +288,11 @@ Folders created within temporary folders must themselves be set temporary")
         When the given abbreviation is typed, it will be replaced with the given
         text.
 
-        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
-        @param description: description for the phrase
-        @param abbr: the abbreviation that will trigger the expansion
-        @param contents: the expansion text
-        @raise Exception: if the specified abbreviation is not unique
+        :param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        :param description: description for the phrase
+        :param abbr: the abbreviation that will trigger the expansion
+        :param contents: the expansion text
+        :raise Exception: if the specified abbreviation is not unique
         """
         if not self.configManager.check_abbreviation_unique(abbr, None, None)[0]:
             raise Exception("The specified abbreviation is already in use")
@@ -305,7 +309,6 @@ Folders created within temporary folders must themselves be set temporary")
     def create_hotkey(self, folder, description, modifiers, key, contents):
         """
         DEPRECATED. Use engine.create_phrase() with appropriate keyword arguments instead.
-
         Create a text hotkey
 
         Usage: C{engine.create_hotkey(folder, description, modifiers, key, contents)}
@@ -314,21 +317,21 @@ Folders created within temporary folders must themselves be set temporary")
         text. Modifiers must be given as a list of strings, with the following
         values permitted:
 
-        <ctrl>
-        <alt>
-        <super>
-        <hyper>
-        <meta>
-        <shift>
+        - <ctrl>
+        - <alt>
+        - <super>
+        - <hyper>
+        - <meta>
+        - <shift>
 
         The key must be an unshifted character (i.e. lowercase)
 
-        @param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
-        @param description: description for the phrase
-        @param modifiers: modifiers to use with the hotkey (as a list)
-        @param key: the hotkey
-        @param contents: the expansion text
-        @raise Exception: if the specified hotkey is not unique
+        :param folder: folder to place the abbreviation in, retrieved using C{engine.get_folder()}
+        :param description: description for the phrase
+        :param modifiers: modifiers to use with the hotkey (as a list)
+        :param key: the hotkey
+        :param contents: the expansion text
+        :raise Exception: if the specified hotkey is not unique
         """
         modifiers.sort()
         if not self.configManager.check_hotkey_unique(modifiers, key, None, None)[0]:
@@ -349,9 +352,9 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
-        @param description: description of the script to run. If parsable as
-        an absolute path to an existing file, that will be run instead.
-        @raise Exception: if the specified script does not exist
+        :param description: description of the script to run. If parsable as
+            an absolute path to an existing file, that will be run instead.
+        :raise Exception: if the specified script does not exist
         """
         self._script_args = args
         self._script_kwargs = kwargs
@@ -401,8 +404,8 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.get_script_arguments()}
 
-        @return: the arguments
-        @rtype: C{list[Any]}
+        :return: the arguments
+        :rtype: C{list[Any]}
         """
         return self._script_args
 
@@ -413,8 +416,8 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.get_script_keyword_arguments()}
 
-        @return: the arguments
-        @rtype: C{Dict[str, Any]}
+        :return: the arguments
+        :rtype: C{Dict[str, Any]}
         """
         return self._script_kwargs
 
@@ -424,8 +427,8 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.get_macro_arguments()}
 
-        @return: the arguments
-        @rtype: C{list(str())}
+        :return: the arguments
+        :rtype: C{list(str())}
         """
         return self._macro_args
 
@@ -435,7 +438,7 @@ Folders created within temporary folders must themselves be set temporary")
 
         Usage: C{engine.set_return_value(val)}
 
-        @param val: value to be stored
+        :param val: value to be stored
         """
         self._return_value = val
 
@@ -450,15 +453,15 @@ Folders created within temporary folders must themselves be set temporary")
     def _set_triggered_abbreviation(self, abbreviation: str, trigger_character: str):
         """
         Used internally by AutoKey to provide the abbreviation and trigger that caused the script to execute.
-        @param abbreviation: Abbreviation that caused the script to execute
-        @param trigger_character: Possibly empty "trigger character". As defined in the abbreviation configuration.
+        :param abbreviation: Abbreviation that caused the script to execute
+        :param trigger_character: Possibly empty "trigger character". As defined in the abbreviation configuration.
         """
         self._triggered_abbreviation = abbreviation
         self._triggered_character = trigger_character
 
     def get_triggered_abbreviation(self) -> Tuple[Optional[str], Optional[str]]:
         """
-        This function can be queried by a script to get the abbreviation text that triggered it’s execution.
+        This function can be queried by a script to get the abbreviation text that triggered it's execution.
 
         If a script is triggered by an abbreviation, this function returns a tuple containing two strings. First element
         is the abbreviation text. The second element is the trigger character that finally caused the execution. It is
@@ -472,8 +475,8 @@ Folders created within temporary folders must themselves be set temporary")
         You can determine if the script was triggered by an abbreviation by simply testing the truth value of the first
         returned value.
 
-        @return: Abbreviation that triggered the script execution, if any.
-        @rtype: C{Tuple[Optional[str], Optional[str]]}
+        :return: Abbreviation that triggered the script execution, if any.
+        :rtype: C{Tuple[Optional[str], Optional[str]]}
         """
         return self._triggered_abbreviation, self._triggered_character
 
@@ -499,8 +502,8 @@ def validateAbbreviations(abbreviations):
     """
     Checks if the given abbreviations are a list/iterable of strings
 
-    @param abbreviations: Abbreviations list to be validated
-    @raise ValueError: Raises C{ValueError} if C{abbreviations} is anything other than C{str} or C{Iterable}
+    :param abbreviations: Abbreviations list to be validated
+    :raise ValueError: Raises C{ValueError} if C{abbreviations} is anything other than C{str} or C{Iterable}
     """
     if abbreviations is None:
         return
@@ -522,10 +525,10 @@ def check_abbreviation_unique(configmanager, abbreviations, window_filter):
     """
     Checks if the given abbreviations are unique
 
-    @param configmanager: ConfigManager Instance to check abbrevations
-    @param abbreviations: List of abbreviations to be checked
-    @param window_filter: Window filter that the abbreviation will apply to.
-    @raise ValueError: Raises C{ValueError} if an abbreviation is already in use.
+    :param configmanager: ConfigManager Instance to check abbrevations
+    :param abbreviations: List of abbreviations to be checked
+    :param window_filter: Window filter that the abbreviation will apply to.
+    :raise ValueError: Raises C{ValueError} if an abbreviation is already in use.
     """
     if not abbreviations:
         return
@@ -538,9 +541,9 @@ def check_hotkey_unique(configmanager, hotkey, window_filter):
     """
     Checks if the given hotkey is unique
 
-    @param configmanager: ConfigManager Instance used to check hotkey
-    @param hotkey: hotkey to be check if unique
-    @param window_filter: Window filter to be applied to the hotkey
+    :param configmanager: ConfigManager Instance used to check hotkey
+    :param hotkey: hotkey to be check if unique
+    :param window_filter: Window filter to be applied to the hotkey
     """
     if not hotkey:
         return
@@ -553,8 +556,8 @@ def isValidHotkeyType(item):
     """
     Checks if the hotkey is valid.
 
-    @param item: Hotkey to be checked
-    @return: Returns C{True} if hotkey is valid, C{False} otherwise
+    :param item: Hotkey to be checked
+    :return: Returns C{True} if hotkey is valid, C{False} otherwise
     """
     fail=False
     if isinstance(item, Key):
@@ -604,6 +607,8 @@ def validateArguments(folder, name, contents,
                           abbreviations, hotkey, send_mode, window_filter,
                           show_in_system_tray, always_prompt, temporary,
                           replace_existing_hotkey):
+    if folder is None:
+        raise ValueError("Parameter 'folder' is None. Check the folder is a valid autokey folder")
     validateType(folder, "folder", autokey.model.folder.Folder)
     # For when we allow pathlib.Path
     # validateType(folder, "folder",

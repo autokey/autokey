@@ -26,7 +26,7 @@ import pathlib
 from autokey.model.folder import Folder
 from autokey.model.script import Script
 from autokey.model.phrase import Phrase
-from autokey.model.helpers import TriggerMode
+from autokey.model.triggermode import TriggerMode
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 # A Hotkey is defined by a list of modifier keys and a printable key.
@@ -210,7 +210,7 @@ def create_my_phrases_folder() -> Folder:
 def create_sample_scripts_folder():
     """
     Creates the "Sample Scripts" folder. It contains a bunch of pre-defined example scripts.
-    The exact script content is read from the predifined_user_scripts directory inside this Python package.
+    The exact script content is read from the predefined_user_scripts directory inside this Python package.
     """
     sample_scripts = _create_folder("Sample Scripts")
     sample_scripts.persist()

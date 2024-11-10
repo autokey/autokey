@@ -17,8 +17,8 @@
 import re
 import typing
 
-from autokey.model.helpers import DEFAULT_WORDCHAR_REGEX, TriggerMode
-
+from autokey.model.triggermode import TriggerMode
+from autokey.model.constants import DEFAULT_WORDCHAR_REGEX
 
 class AbstractAbbreviation:
     """
@@ -70,14 +70,17 @@ class AbstractAbbreviation:
     def get_word_chars(self):
         return self.wordChars.pattern
 
+    def __set_abbr_triggermode(self):
+        if TriggerMode.ABBREVIATION not in self.modes:
+            self.modes.append(TriggerMode.ABBREVIATION)
+
     def add_abbreviation(self, abbr):
         if not isinstance(abbr, str):
             raise ValueError("Abbreviations must be strings. Cannot add abbreviation '{}', having type {}.".format(
                 abbr, type(abbr)
             ))
         self.abbreviations.append(abbr)
-        if TriggerMode.ABBREVIATION not in self.modes:
-            self.modes.append(TriggerMode.ABBREVIATION)
+        self.__set_abbr_triggermode()
 
     def add_abbreviations(self, abbreviation_list: typing.Iterable[str]):
         if not isinstance(abbreviation_list, list):
@@ -85,8 +88,7 @@ class AbstractAbbreviation:
         if not all(isinstance(abbr, str) for abbr in abbreviation_list):
             raise ValueError("All added Abbreviations must be strings.")
         self.abbreviations += abbreviation_list
-        if TriggerMode.ABBREVIATION not in self.modes:
-            self.modes.append(TriggerMode.ABBREVIATION)
+        self.__set_abbr_triggermode()
 
     def clear_abbreviations(self):
         self.abbreviations = []
@@ -104,7 +106,7 @@ class AbstractAbbreviation:
         Checks whether, based on the settings for the abbreviation and the given input,
         the abbreviation should trigger.
 
-        @param buffer Input buffer to be checked (as string)
+        :param buffer Input buffer to be checked (as string)
         """
         return any(self.__checkInput(buffer, abbr) for abbr in self.abbreviations)
 
@@ -112,7 +114,6 @@ class AbstractAbbreviation:
         for abbr in self.abbreviations:
             if self.__checkInput(buffer, abbr):
                 return abbr
-
         return None
 
     def __checkInput(self, buffer, abbr):

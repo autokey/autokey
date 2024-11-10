@@ -25,6 +25,7 @@ import unittest.mock
 import pytest
 from hamcrest import *
 
+import tests.helpers_for_tests as testhelpers
 import autokey.model.folder
 import autokey.service
 from autokey.service import PhraseRunner
@@ -34,12 +35,7 @@ from autokey.scripting import Engine
 from autokey.macro import *
 
 
-def get_autokey_dir():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)),
-    "..")
-
-
-path =  get_autokey_dir() + "/tests/dummy_file.txt"
+path = testhelpers.get_autokey_test_dir() + "/dummy_file.txt"
 
 
 def create_engine() -> typing.Tuple[Engine, autokey.model.folder.Folder]:
@@ -152,7 +148,7 @@ def test_script_macro():
         dummy = engine.create_phrase(dummy_folder, "arg 1", "arg2", temporary=True)
         assert_that(folder.items, not_(has_item(dummy)))
 
-        script = get_autokey_dir() + "/tests/create_single_phrase.py"
+        script = testhelpers.get_autokey_test_dir() + "/create_single_phrase.py"
         test = "<script name='{}' args='arg 1',arg2>".format(script)
 
         expandMacro(engine, test)
@@ -205,7 +201,7 @@ def test_date_macro():
 
 def test_file_macro():
     engine, folder = create_engine()
-    path =  get_autokey_dir() + "/tests/dummy_file.txt"
+    path =  testhelpers.get_autokey_test_dir() + "/dummy_file.txt"
     test="<file name={}>".format(path)
     expected="test result macro expansion\n"
     assert_that(expandMacro(engine, test), is_(equal_to(expected)),

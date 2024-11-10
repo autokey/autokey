@@ -37,8 +37,8 @@ class Window:
     Note: in all cases where a window title is required (with the exception of wait_for_focus()),
     two special values of window title are permitted:
 
-    :ACTIVE: - select the currently active window
-    :SELECT: - select the desired window by clicking on it
+    - :\:ACTIVE: - select the currently active window
+    - :\:SELECT: - select the desired window by clicking on it
     """
 
     def __init__(self, mediator):
@@ -53,14 +53,14 @@ class Window:
         If the window becomes active, returns True. Otherwise, returns False if
         the window has not become active by the time the timeout has elapsed.
 
-        @param title: title to match against (as a regular expression)
-        @param timeOut: period (seconds) to wait before giving up
-        @rtype: boolean
+        :param title: title to match against (as a regular expression)
+        :param timeOut: period (seconds) to wait before giving up
+        :rtype: boolean
         """
         regex = re.compile(title)
         waited = 0
         while waited <= timeOut:
-            if regex.match(self.mediator.interface.get_window_title()):
+            if regex.match(self.mediator.windowInterface.get_window_title()):
                 return True
 
             if timeOut == 0:
@@ -77,13 +77,12 @@ class Window:
 
         Usage: C{window.wait_for_exist(title, timeOut=5)}
 
-        If the window is in existence, returns True. Otherwise, returns False if
-        the window has not been created by the time the timeout has elapsed.
+        If the window is in existence, returns True. Otherwise, returns False if the window has not been created by the time the timeout has elapsed.
 
-        @param title: title to match against (as a regular expression)
-        @param timeOut: period (seconds) to wait before giving up
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
-        @rtype: boolean
+        :param title: title to match against (as a regular expression)
+        :param timeOut: period (seconds) to wait before giving up
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :rtype: boolean
         """
         waited = 0
         while waited <= timeOut:
@@ -108,13 +107,12 @@ class Window:
 
         Usage: C{window.activate(title, switchDesktop=False, matchClass=False)}
 
-        If switchDesktop is False (default), the window will be moved to the current desktop
-        and activated. Otherwise, switch to the window's current desktop and activate it there.
+        If switchDesktop is False (default), the window will be moved to the current desktop and activated. Otherwise, switch to the window's current desktop and activate it there.
 
-        @param title: window title to match against (as case-insensitive substring match)
-        @param switchDesktop: whether or not to switch to the window's current desktop
-        @param matchClass: if True, match on the window class instead of the title
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param title: window title to match against (as case-insensitive substring match)
+        :param switchDesktop: whether or not to switch to the window's current desktop
+        :param matchClass: if True, match on the window class instead of the title
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         if switchDesktop:
             xArgs = ["-a", title]
@@ -134,9 +132,9 @@ class Window:
 
         Usage: C{window.close(title, matchClass=False)}
 
-        @param title: window title to match against (as case-insensitive substring match)
-        @param matchClass: if True, match on the window class instead of the title
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param title: window title to match against (as case-insensitive substring match)
+        :param matchClass: if True, match on the window class instead of the title
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         xArgs = ["-c", title]
         if matchClass:
@@ -155,13 +153,13 @@ class Window:
         Leaving and of the position/dimension values as the default (-1) will cause that
         value to be left unmodified.
 
-        @param title: window title to match against (as case-insensitive substring match)
-        @param xOrigin: new x origin of the window (upper left corner)
-        @param yOrigin: new y origin of the window (upper left corner)
-        @param width: new width of the window
-        @param height: new height of the window
-        @param matchClass: if C{True}, match on the window class instead of the title
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param title: window title to match against (as case-insensitive substring match)
+        :param xOrigin: new x origin of the window (upper left corner)
+        :param yOrigin: new y origin of the window (upper left corner)
+        :param width: new width of the window
+        :param height: new height of the window
+        :param matchClass: if C{True}, match on the window class instead of the title
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         mvArgs = ["0", str(xOrigin), str(yOrigin), str(width), str(height)]
         xArgs = []
@@ -177,10 +175,10 @@ class Window:
 
         Usage: C{window.move_to_desktop(title, deskNum, matchClass=False)}
 
-        @param title: window title to match against (as case-insensitive substring match)
-        @param deskNum: desktop to move the window to (note: zero based)
-        @param matchClass: if True, match on the window class instead of the title
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param title: window title to match against (as case-insensitive substring match)
+        :param deskNum: desktop to move the window to (note: zero based)
+        :param matchClass: if True, match on the window class instead of the title
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         xArgs = []
         if matchClass:
@@ -195,7 +193,7 @@ class Window:
 
         Usage: C{window.switch_desktop(deskNum)}
 
-        @param deskNum: desktop to switch to (note: zero based)
+        :param deskNum: desktop to switch to (note: zero based)
         """
         self._run_wmctrl(["-s", str(deskNum)])
 
@@ -205,15 +203,30 @@ class Window:
 
         Usage: C{window.set_property(title, action, prop, matchClass=False)}
 
-        Allowable actions: C{add, remove, toggle}
-        Allowable properties: C{modal, sticky, maximized_vert, maximized_horz, shaded, skip_taskbar,
-        skip_pager, hidden, fullscreen, above}
+        Allowable actions:
 
-        @param title: window title to match against (as case-insensitive substring match)
-        @param action: one of the actions listed above
-        @param prop: one of the properties listed above
-        @param matchClass: if True, match on the window class instead of the title
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        - add
+        - remove
+        - toggle
+
+        Allowable properties: 
+
+        - modal
+        - sticky
+        - maximized_vert
+        - maximized_horz
+        - shaded
+        - skip_taskbar
+        - skip_pager
+        - hidden
+        - fullscreen
+        - above
+
+        :param title: window title to match against (as case-insensitive substring match)
+        :param action: one of the actions listed above
+        :param prop: one of the properties listed above
+        :param matchClass: if True, match on the window class instead of the title
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         xArgs = []
         if matchClass:
@@ -228,8 +241,8 @@ class Window:
 
         Usage: C{window.get_active_geometry()}
 
-        @return: a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)
-        @rtype: C{tuple(int, int, int, int)}
+        :return: a 4-tuple containing the x-origin, y-origin, width and height of the window (in pixels)
+        :rtype: C{tuple(int, int, int, int)}
         """
         #wrapper for get_window_geometry()
         return self.get_window_geometry(":ACTIVE:")
@@ -240,10 +253,10 @@ class Window:
 
         Usage: C{window.get_active_title()}
 
-        @return: the visible title of the currentle active window
-        @rtype: C{str}
+        :return: the visible title of the currentle active window
+        :rtype: C{str}
         """
-        return self.mediator.interface.get_window_title()
+        return self.mediator.windowInterface.get_window_title()
 
     def get_active_class(self):
         """
@@ -251,22 +264,22 @@ class Window:
 
         Usage: C{window.get_active_class()}
 
-        @return: the class of the currentle active window
-        @rtype: C{str}
+        :return: the class of the currently active window
+        :rtype: C{str}
         """
-        return self.mediator.interface.get_window_class()
+        return self.mediator.windowInterface.get_window_class()
 
     def center_window(self, title=":ACTIVE:", win_width=None, win_height=None, monitor=0, matchClass=False, by_hex=False):
         """
         Centers the active (or window selected by title) window. Requires xrandr for getting monitor sizes and offsets.
 
-        @param title: Title of the window to center (defaults to using the active window)
-        @param win_width: Width of the centered window, defaults to screenx/3. Use -1 to center without size change.
-        @param win_height: Height of the centered window, defaults to screeny/3. Use -1 to center without size change.
-        @param monitor: Monitor number (0 is primary, listed via C{xrandr --listactivemonitors} etc.)
-        @param matchClass: if True, match on the window class instead of the title
-        @raises ValueError: If title or desktop is not found by wmctrl
-        @param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
+        :param title: Title of the window to center (defaults to using the active window)
+        :param win_width: Width of the centered window, defaults to screenx/3. Use -1 to center without size change.
+        :param win_height: Height of the centered window, defaults to screeny/3. Use -1 to center without size change.
+        :param monitor: Monitor number (0 is primary, listed via C{xrandr --listactivemonitors} etc.)
+        :param matchClass: if True, match on the window class instead of the title
+        :raises ValueError: If title or desktop is not found by wmctrl
+        :param by_hex: If true, C{wmctrl} will interpret the C{title} as a hexid
         """
         #could also use Gdk.Display.get_default().get_montiors etc.
         #Used xrandr for ease of cross Gtk/Qt use, wayland might require an alternate implementation
@@ -326,9 +339,8 @@ class Window:
 
         C{title} is the title that you would usually see in your window manager of choice.
 
-        @param filter_desktop: String, (usually 0-n) to filter the windows by. Any window not on the given desktop will not be returned.
-        @return: C{[[hexid1, desktop1, hostname1, title1], [hexid2,desktop2,hostname2,title2], ...etc]}
-        Returns C{[]} if no windows are found.
+        :param filter_desktop: String, (usually 0-n) to filter the windows by. Any window not on the given desktop will not be returned.
+        :return: C{[[hexid1, desktop1, hostname1, title1], [hexid2,desktop2,hostname2,title2], ...etc]} Returns C{[]} if no windows are found.
         """
         returncode, output = self._run_wmctrl(["-lG"])
         matches = re.findall(WMCTRL_GEOM_REGEX, output, re.MULTILINE)
@@ -348,8 +360,8 @@ class Window:
         """
         Returns the hexid of the first window to match title.
 
-        @param title: Window title to match for returning hexid
-        @return: Returns hexid of the window to be used for other functions See L{get_window_geom}, L{visgrep_by_window_id}
+        :param title: Window title to match for returning hexid
+        :return: Returns hexid of the window to be used for other functions See L{get_window_geom}, L{visgrep_by_window_id}
 
         Returns C{None} if no matches are found
         """
@@ -368,8 +380,8 @@ class Window:
         top left hand corner of the window is and the width/height of the window.
 
 
-        @param title
-        @return: C{[offsetx, offsety, sizex, sizey]} Returns none if no matches are found
+        :param title
+        :return: C{[offsetx, offsety, sizex, sizey]} Returns none if no matches are found
         """
 
         index = -1 # by default use the window title for matching

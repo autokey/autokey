@@ -365,7 +365,7 @@
     <string>&amp;Show recorded errors from Scripts</string>
    </property>
    <property name="toolTip">
-    <string>Show recorded errors that occured in recently-run Scripts.</string>
+    <string>Show recorded errors that occurred in recently-run Scripts.</string>
    </property>
   </action>
   <action name="action_enable_monitoring">

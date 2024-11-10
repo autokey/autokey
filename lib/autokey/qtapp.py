@@ -20,7 +20,6 @@
 import sys
 import os.path
 import queue
-from typing import NamedTuple, Iterable
 
 from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
 from PyQt5.QtGui import QCursor, QIcon
@@ -47,44 +46,11 @@ import autokey.UI_common_functions as UI_common
 logger = get_logger(__name__)
 del get_logger
 
+# Need to solve metaclass conflict with QApplication and AutokeyUIInterface
+class QtAppMetaClass(type(AutokeyUIInterface), type(QApplication)):
+    pass
 
-# TODO move this metadata to common
-AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
-AboutData = NamedTuple("AboutData", (
-    ("program_name", str),
-    ("version", str),
-    ("program_description", str),
-    ("license_text", str),
-    ("copyright_notice", str),
-    ("homepage_url", str),
-    ("bug_report_email", str),
-    ("author_list", Iterable[AuthorData])
-))
-
-COPYRIGHT = """(c) 2009-2012 Chris Dekter
-(c) 2014 GuoCi
-(c) 2017, 2018 Thomas Hess
-"""
-
-author_data = (
-    AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
-    AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
-    AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
-    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com")
-)
-about_data = AboutData(
-   program_name="AutoKey",
-   version=common.VERSION,
-   program_description="Desktop automation utility",
-   license_text="GPL v3",  # TODO: load actual license text from disk somewhere
-   copyright_notice=COPYRIGHT,
-   homepage_url=common.HOMEPAGE,
-   bug_report_email=common.BUG_EMAIL,
-   author_list=author_data
-)
-
-
-class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
+class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclass=QtAppMetaClass):
     """
     Main application class; starting and stopping of the application is controlled
     from here, together with some interactions from the tray icon.
@@ -120,15 +86,6 @@ class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
 
         self.installEventFilter(KeyboardChangeFilter(self.service.mediator.interface))
         UI_common.show_config_window(self)
-
-    def _try_start_service(self):
-        try:
-            self.service.start()
-        except Exception as e:
-            logger.exception("Error starting interface: " + str(e))
-            self.serviceDisabled = True
-            self.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
 
     def init_global_hotkeys(self, configManager):
         super().init_global_hotkeys(configManager)
@@ -166,7 +123,7 @@ class Application(QApplication, AutokeyApplication, AutokeyUIInterface):
         """
         Show an error notification popup.
 
-        @param error: The error that occurred in a Script
+        :param error: The error that occurred in a Script
         """
         message = "The script '{}' encountered an error".format(error.script_name)
         self.exec_in_main(self.notifier.notify_error, message)

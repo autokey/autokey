@@ -27,6 +27,7 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
+from autokey.model.triggermode import TriggerMode
 
 require_version('Gtk', '3.0')
 require_version('GtkSource', '3.0')
@@ -41,6 +42,7 @@ locale.setlocale(locale.LC_ALL, '')
 
 
 from . import dialogs
+from .autocomplete import FileCompletionProvider
 from .settingsdialog import SettingsDialog
 
 import autokey.configmanager.configmanager as cm
@@ -63,8 +65,9 @@ from .shared import get_ui
 
 
 def set_linkbutton(button, path, filename_only=False):
-    button.set_sensitive(True)
-
+    label = button.get_child()
+    label.set_sensitive(True)
+    
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
         text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, _("(Default folder)"))
     else:
@@ -72,12 +75,11 @@ def set_linkbutton(button, path, filename_only=False):
 
     if filename_only:
         filename = os.path.basename(path)
-        button.set_label(filename)
+        label.set_label(filename)
     else:
-        button.set_label(text)
+        label.set_label(text)
 
     button.set_uri("file://" + path)
-    label = button.get_child()
     label.set_ellipsize(Pango.EllipsizeMode.START)
 
 
@@ -141,7 +143,7 @@ class SettingsWidget:
         self.currentItem = item
 
         self.abbrDialog.load(self.currentItem)
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if TriggerMode.ABBREVIATION in item.modes:
             self.abbrLabel.set_text(item.get_abbreviations())
             self.clearAbbrButton.set_sensitive(True)
             self.abbrEnabled = True
@@ -151,7 +153,7 @@ class SettingsWidget:
             self.abbrEnabled = False
 
         self.hotkeyDialog.load(self.currentItem)
-        if autokey.model.helpers.TriggerMode.HOTKEY in item.modes:
+        if TriggerMode.HOTKEY in item.modes:
             self.hotkeyLabel.set_text(item.get_hotkey_string())
             self.clearHotkeyButton.set_sensitive(True)
             self.hotkeyEnabled = True
@@ -175,7 +177,7 @@ class SettingsWidget:
 
     def save(self):
         # Perform hotkey ungrab
-        if autokey.model.helpers.TriggerMode.HOTKEY in self.currentItem.modes:
+        if TriggerMode.HOTKEY in self.currentItem.modes:
             self.parentWindow.app.hotkey_removed(self.currentItem)
 
         self.currentItem.set_modes([])
@@ -475,6 +477,9 @@ class ScriptPage:
         self.editor.set_insert_spaces_instead_of_tabs(True)
         self.editor.set_tab_width(4)
 
+        self.editor_completion = self.editor.get_completion()
+        self.editor_completion.add_provider(FileCompletionProvider("./autokey/gtkui/data/api.csv"))
+
         self.ui.show_all()
 
     def load(self, theScript):
@@ -554,7 +559,7 @@ class ScriptPage:
     def record_keystrokes(self, isActive):
         if isActive:
             self.recorder = autokey.iomediator.keygrabber.Recorder(self)
-            dlg = dialogs.RecordDialog(self.ui, self.on_rec_response)
+            dlg = dialogs.RecordDialog(self.parentWindow.ui, self.on_rec_response)
             dlg.run()
         else:
             self.recorder.stop()
@@ -623,6 +628,10 @@ class PhrasePage(ScriptPage):
         self.buffer = GtkSource.Buffer()
         self.buffer.connect("changed", self.on_modified)
         self.editor = GtkSource.View.new_with_buffer(self.buffer)
+
+        self.editor_completion = self.editor.get_completion()
+        self.editor_completion.add_provider(FileCompletionProvider("./autokey/gtkui/data/macros.csv", "<"))
+
         scrolledWindow = builder.get_object("scrolledWindow")
         scrolledWindow.add(self.editor)
         self.promptCheckbox = builder.get_object("promptCheckbox")
@@ -649,7 +658,7 @@ class PhrasePage(ScriptPage):
         #self.__m = GtkSource.LanguageManager()
         self.__sm = GtkSource.StyleSchemeManager()
         self.buffer.set_language(None)
-        self.buffer.set_style_scheme(self.__sm.get_scheme("kate"))
+        self.buffer.set_style_scheme(self.__sm.get_scheme(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         self.buffer.set_highlight_matching_brackets(False)
         self.editor.set_auto_indent(False)
         self.editor.set_smart_home_end(False)
@@ -812,7 +821,7 @@ class ConfigWindow:
             ("preferences", Gtk.STOCK_PREFERENCES, _("_Preferences"), "", _("Additional options"), self.on_advanced_settings),
             ("Tools", None, _("_Tools")),
             ("script-error", Gtk.STOCK_DIALOG_ERROR, _("Vie_w script error"), None, _("View script error information"), self.on_show_error),
-            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), None, _("Run the currently selected script"), self.on_run_script),
+            ("run", Gtk.STOCK_MEDIA_PLAY, _("_Run current script"), "F5", _("Run the currently selected script"), self.on_run_script),
             ("Help", None, _("_Help")),
             ("faq", None, _("_F.A.Q."), None, _("Display Frequently Asked Questions"), self.on_show_faq),
             ("help", Gtk.STOCK_HELP, _("Online _Help"), None, _("Display Online Help"), self.on_show_help),
@@ -1062,16 +1071,20 @@ class ConfigWindow:
 
     def __createFolder(self, title, parentIter, path=None):
         self.app.monitor.suspend()
-        theModel = self.treeView.get_model()
         newFolder = autokey.model.folder.Folder(title, path=path)
-
+        theModel = self.treeView.get_model()
         newIter = theModel.append_item(newFolder, parentIter)
         newFolder.persist()
-        self.app.monitor.unsuspend()
+        self.__expand_and_select_new_item(newIter, theModel)
 
-        self.treeView.expand_to_path(theModel.get_path(newIter))
+    def __expand_and_select_new_item(self, item, theModel):
+        self.app.monitor.unsuspend()
+        self.treeView.expand_to_path(theModel.get_path(item))
+        self.__change_selected_item(item)
+
+    def __change_selected_item(self, item):
         self.treeView.get_selection().unselect_all()
-        self.treeView.get_selection().select_iter(newIter)
+        self.treeView.get_selection().select_iter(item)
         self.on_tree_selection_changed(self.treeView)
 
     def __getNewItemName(self, itemType):
@@ -1094,53 +1107,44 @@ class ConfigWindow:
     def on_new_phrase(self, widget, data=None):
         name = self.__getNewItemName("Phrase")
         if name is not None:
-            self.app.monitor.suspend()
-            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newPhrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
-            newIter = theModel.append_item(newPhrase, parentIter)
-            newPhrase.persist()
-            self.app.monitor.unsuspend()
-            self.treeView.expand_to_path(theModel.get_path(newIter))
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(newIter)
-            self.on_tree_selection_changed(self.treeView)
-            #self.on_rename(self.treeView)
+            newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=False)
+            self.__expand_and_select_new_iter(newIter)
 
     def on_new_script(self, widget, data=None):
         name = self.__getNewItemName("Script")
         if name is not None:
-            self.app.monitor.suspend()
-            theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
-            parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
-            newScript = autokey.model.script.Script(name, "# Enter script code")
-            newIter = theModel.append_item(newScript, parentIter)
-            newScript.persist()
-            self.app.monitor.unsuspend()
-            self.treeView.expand_to_path(theModel.get_path(newIter))
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(newIter)
-            self.on_tree_selection_changed(self.treeView)
-           # self.on_rename(self.treeView)
+            newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=True)
+            self.__expand_and_select_new_iter(newIter)
+
+    def __add_new_scriptphrase(self, name, isScriptNotPhrase=True):
+        self.app.monitor.suspend()
+        if isScriptNotPhrase:
+            scriptphrase = autokey.model.script.Script(name, "# Enter script code")
+        else:
+            scriptphrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
+        theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
+        parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
+        newIter = theModel.append_item(scriptphrase, parentIter)
+        scriptphrase.persist()
+        return newIter
+
 
     # Edit Menu
 
     def on_cut_item(self, widget, data=None):
         self.cutCopiedItems = self.__getTreeSelection()
         selection = self.treeView.get_selection()
-        model, selectedPaths = selection.get_selected_rows()
+        theModel, selectedPaths = selection.get_selected_rows()
         refs = []
         for path in selectedPaths:
-            refs.append(Gtk.TreeRowReference(model, path))
+            refs.append(Gtk.TreeRowReference(theModel, path))
 
         for ref in refs:
             if ref.valid():
-                self.__removeItem(model, model[ref.get_path()].iter)
+                self.__removeItem(theModel, theModel[ref.get_path()].iter)
 
         if len(selectedPaths) > 1:
-            self.treeView.get_selection().unselect_all()
-            self.treeView.get_selection().select_iter(model.get_iter_first())
-            self.on_tree_selection_changed(self.treeView)
+            self.__change_selected_item(theModel.get_iter_first())
 
         self.app.config_altered(True)
 
@@ -1236,9 +1240,7 @@ class ConfigWindow:
 
         if modified:
             if len(selectedPaths) > 1:
-                self.treeView.get_selection().unselect_all()
-                self.treeView.get_selection().select_iter(theModel.get_iter_first())
-                self.on_tree_selection_changed(self.treeView)
+                self.__change_selected_item(theModel.get_iter_first())
 
             self.app.config_altered(True)
 

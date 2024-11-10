@@ -23,6 +23,7 @@ import sys
 import os.path
 import time
 import threading
+import subprocess
 
 import gettext
 
@@ -141,7 +142,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         """
         Show an error notification popup.
 
-        @param error: The error that occurred in a Script
+        :param error: The error that occurred in a Script
         """
         message = "The script '{}' encountered an error".format(error.script_name)
         self.notifier.notify_error(message)
@@ -177,13 +178,13 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         """
         Convenience method for showing an error dialog.
 
-        @param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
+        :param dialog_type: One of Gtk.MessageType.ERROR, Gtk.MessageType.WARNING , Gtk.MessageType.INFO, Gtk.MessageType.OTHER, Gtk.MessageType.QUESTION
             defaults to Gtk.MessageType.ERROR
         """
-        # TODO check if gtk threads entered.
-            # Gdk.threads_enter()
-            # display error
-            # Gdk.threads_leave()
+        # TODO does this cause issues with other places the error dialog is shown?
+        # without this threads_enter/threads_leave it  would fail to show dialog/create 
+        # app indicator when error is thrown from uinput interfaced
+        Gdk.threads_enter()
         logger.debug("Displaying "+dialog_type.value_name+" Dialog")
         dlg = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.OK,
                                  message_format=message)
@@ -191,6 +192,33 @@ class Application(AutokeyApplication, AutokeyUIInterface):
             dlg.format_secondary_text(details)
         dlg.run()
         dlg.destroy()
+        Gdk.threads_leave()
+
+    def show_error_dialog_with_link(self, message, details=None, link_data=None, dialog_type=Gtk.MessageType.ERROR):
+        Gdk.threads_enter()
+        # logger.debug("Displaying )
+        label = Gtk.Label()
+        label.set_markup(f'<span foreground="white">{link_data}</span>')
+        # label.set_tooltip_text("Click to open file")
+        # label.set_cursor(Gdk.Cursor.new(Gdk.CursorType.HAND1))
+        # label.connect("activate-link", open_file_link, link_data)
+        
+        dialog = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.NONE, message_format=message)
+        open_button = dialog.add_button("Open", Gtk.ResponseType.YES)
+
+        dialog.get_message_area().add(label)
+
+        dialog.show_all()
+
+        response = dialog.run()
+
+        if response == Gtk.ResponseType.YES:
+            logger.info(f"Attempting to open {link_data}")
+            subprocess.Popen(['xdg-open', link_data])
+
+        dialog.destroy()
+        Gdk.threads_leave()
+
 
     def show_script_error(self, parent):
         """

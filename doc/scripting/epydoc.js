@@ -22,7 +22,7 @@ function toggle_private() {
           }
         }
         // Update all table rows containing private objects.  Note, we
-        // use "" instead of "block" becaue IE & firefox disagree on what
+        // use "" instead of "block" because IE & firefox disagree on what
         // this should be (block vs table-row), and "" just gives the
         // default for both browsers.
         var elts = document.getElementsByTagName("tr");

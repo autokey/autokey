@@ -23,7 +23,7 @@ class QtClipboard(AbstractClipboard):
 
         Usage: Called when QtClipboard is imported.
 
-        @param app: refers to the application instance
+        :param app: refers to the application instance
         """
         self.clipBoard = QApplication.clipboard()
         """
@@ -51,7 +51,7 @@ class QtClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_selection(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         self.__execAsync(self.__fillSelection, contents)
 
@@ -61,7 +61,7 @@ class QtClipboard(AbstractClipboard):
 
         Sets the selection text to the C{string} value
 
-        @param string: Value to change the selection to
+        :param string: Value to change the selection to
         """
         self.clipBoard.setText(string, QClipboard.Selection)
         if self.app:
@@ -73,8 +73,8 @@ class QtClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_selection()}
 
-        @return: text contents of the mouse selection
-        @rtype: C{str}
+        :return: text contents of the mouse selection
+        :rtype: C{str}
         """
         self.__execAsync(self.__getSelection)
         return str(self.text)
@@ -90,7 +90,7 @@ class QtClipboard(AbstractClipboard):
 
         Usage: C{clipboard.fill_clipboard(contents)}
 
-        @param contents: string to be placed in the selection
+        :param contents: string to be placed in the selection
         """
         self.__execAsync(self.__fillClipboard, contents)
 
@@ -100,8 +100,8 @@ class QtClipboard(AbstractClipboard):
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        @param path: Path to image file
-        @raise OSError: If path does not exist
+        :param path: Path to image file
+        :raise OSError: If path does not exist
         """
         self.__execAsync(self.__set_clipboard_image, path)
 
@@ -125,8 +125,8 @@ class QtClipboard(AbstractClipboard):
 
         Usage: C{clipboard.get_clipboard()}
 
-        @return: text contents of the clipboard
-        @rtype: C{str}
+        :return: text contents of the clipboard
+        :rtype: C{str}
         """
         self.__execAsync(self.__getClipboard)
         return str(self.text)

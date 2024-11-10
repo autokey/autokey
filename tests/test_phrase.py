@@ -19,11 +19,11 @@ from unittest.mock import MagicMock
 import pytest
 from hamcrest import *
 
-import autokey.model.helpers
+from autokey.model.triggermode import TriggerMode
 import autokey.model.phrase
 from autokey.interface import WindowInfo
 
-ABBR_ONLY = [autokey.model.helpers.TriggerMode.ABBREVIATION]
+ABBR_ONLY = [TriggerMode.ABBREVIATION]
 
 AbbreviationType = typing.Union[str, typing.List[str]]
 
@@ -34,7 +34,7 @@ PhraseData = typing.NamedTuple("PhraseData", [
     ("name", str),
     ("abbreviation", AbbreviationType),
     ("content", str),
-    ("trigger_modes", typing.List[autokey.model.helpers.TriggerMode]),
+    ("trigger_modes", typing.List[TriggerMode]),
     ("ignore_case", bool),
     ("match_case", bool),
     ("trigger_immediately", bool)
@@ -52,13 +52,13 @@ def create_phrase(
         name: str = "phrase",
         abbreviation: AbbreviationType = "xp@",
         content: str = "expansion@autokey.com",  # Values taken from original test code
-        trigger_modes: typing.List[autokey.model.helpers.TriggerMode] = None,
+        trigger_modes: typing.List[TriggerMode] = None,
         ignore_case: bool = False,
         match_case: bool = False,
         trigger_immediately: bool = False) -> autokey.model.phrase.Phrase:
     """Save typing by wrapping the Phrase constructor, attribute setters and attributes into a single call."""
     if trigger_modes is None:
-        trigger_modes = [autokey.model.helpers.TriggerMode.ABBREVIATION]
+        trigger_modes = [TriggerMode.ABBREVIATION]
     phrase = autokey.model.phrase.Phrase(name, content)
     if isinstance(abbreviation, str):
         phrase.add_abbreviation(abbreviation)
@@ -84,7 +84,7 @@ def generate_test_cases_for_ignore_case():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation=abbreviation, content=phrase_content,
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=False,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=False,
             trigger_immediately=False)
 
     def phrase_result(expansion_result: str, triggered: bool) -> PhraseResult:
@@ -132,7 +132,7 @@ def generate_test_cases_for_match_case():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation=abbreviation, content=phrase_content,
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=True, match_case=True,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=True, match_case=True,
             trigger_immediately=False)
     
     def phrase_result(expansion_result: str) -> PhraseResult:
@@ -219,7 +219,7 @@ def generate_test_cases_for_trigger_immediately():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation=abbreviation, content="Phrase Content.",
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=match_case,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=ignore_case, match_case=match_case,
             trigger_immediately=True)
 
     def phrase_result(expansion_result: str, triggered: bool) -> PhraseResult:
@@ -332,7 +332,7 @@ def generate_test_cases_for_undo_on_backspace():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation="tri", content="ab br",
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
             trigger_immediately=trigger_immediately)
 
     def phrase_result(backspace_count: int) -> PhraseResult:
@@ -385,7 +385,7 @@ def generate_test_cases_for_omit_trigger():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation="tri", content="ab br",
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
             trigger_immediately=trigger_immediately)
 
     def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:
@@ -445,7 +445,7 @@ def generate_test_cases_for_trigger_phrase_inside_word():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation="tri", content="ab br",
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
             trigger_immediately=trigger_immediately)
 
     def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:
@@ -498,7 +498,7 @@ def generate_test_cases_for_count_lefts_for_cursor_macro():
         """Local helper function to save typing constant data"""
         return PhraseData(
             name="name", abbreviation="tri", content=content,
-            trigger_modes=[autokey.model.helpers.TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
             trigger_immediately=trigger_immediately)
 
     def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:

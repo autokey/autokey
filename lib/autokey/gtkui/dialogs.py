@@ -23,7 +23,11 @@ from gi.repository import Gtk, Gdk, Pango, Gio
 
 import autokey.model.folder
 import autokey.model.helpers
+import autokey.model.triggermode
+import autokey.model.constants
 import autokey.model.phrase
+from autokey.model.key import MAPPED_UNIVERSAL_MODIFIERS
+from autokey.model.triggermode import TriggerMode
 import autokey.iomediator.keygrabber
 import autokey.iomediator.windowgrabber
 
@@ -42,7 +46,7 @@ from .shared import get_ui
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 WORD_CHAR_OPTIONS = {
-                     "All non-word": autokey.model.helpers.DEFAULT_WORDCHAR_REGEX,
+                     "All non-word": autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
                      "Space and Enter": r"[^ \n]",
                      "Tab": r"[^\t]"
                      }
@@ -244,7 +248,7 @@ class AbbrSettingsDialog(DialogBase):
         self.targetItem = item
         self.abbrList.get_model().clear()
 
-        if autokey.model.helpers.TriggerMode.ABBREVIATION in item.modes:
+        if TriggerMode.ABBREVIATION in item.modes:
             for abbr in item.abbreviations:
                 self.abbrList.get_model().append((abbr,))
             self.removeButton.set_sensitive(True)
@@ -286,7 +290,7 @@ class AbbrSettingsDialog(DialogBase):
         self.immediateCheckbox.set_active(item.immediate)
 
     def save(self, item):
-        item.modes.append(autokey.model.helpers.TriggerMode.ABBREVIATION)
+        item.modes.append(TriggerMode.ABBREVIATION)
         item.clear_abbreviations()
         item.abbreviations = self.get_abbrs()
 
@@ -393,14 +397,6 @@ class AbbrSettingsDialog(DialogBase):
     def on_abbrList_cursorchanged(self, widget, data=None):
         pass
 
-    def on_ignoreCaseCheckbox_stateChanged(self, widget, data=None):
-        if not self.ignoreCaseCheckbox.get_active():
-            self.matchCaseCheckbox.set_active(False)
-
-    def on_matchCaseCheckbox_stateChanged(self, widget, data=None):
-        if self.matchCaseCheckbox.get_active():
-            self.ignoreCaseCheckbox.set_active(True)
-
     def on_immediateCheckbox_stateChanged(self, widget, data=None):
         if self.immediateCheckbox.get_active():
             self.omitTriggerCheckbox.set_active(False)
@@ -430,23 +426,60 @@ class HotkeySettingsDialog(DialogBase):
         self.closure = closure
         self.key = None
 
-        self.controlButton = builder.get_object("controlButton")
-        self.altButton = builder.get_object("altButton")
+        self.universalControl = builder.get_object("universalControl")
+        self.universalAlt = builder.get_object("universalAlt")
+        self.universalShift = builder.get_object("universalShift")
+        self.universalSuper = builder.get_object("universalSuper")
+        self.universalHyper = builder.get_object("universalHyper")
+        self.universalMeta = builder.get_object("universalMeta")
+
+        self.rcontrolButton = builder.get_object("rcontrolButton")
+        self.raltButton = builder.get_object("raltButton")
+        self.rshiftButton = builder.get_object("rshiftButton")
+        self.rsuperButton = builder.get_object("rsuperButton")
+        self.rhyperButton = builder.get_object("rhyperButton")
+        self.rmetaButton = builder.get_object("rmetaButton")
+
+        self.lcontrolButton = builder.get_object("lcontrolButton")
+        self.laltButton = builder.get_object("laltButton")
+        self.lshiftButton = builder.get_object("lshiftButton")
+        self.lsuperButton = builder.get_object("lsuperButton")
+        self.lhyperButton = builder.get_object("lhyperButton")
+        self.lmetaButton = builder.get_object("lmetaButton")
+
         self.altgrButton = builder.get_object("altgrButton")
-        self.shiftButton = builder.get_object("shiftButton")
-        self.superButton = builder.get_object("superButton")
-        self.hyperButton = builder.get_object("hyperButton")
-        self.metaButton = builder.get_object("metaButton")
         self.setButton = builder.get_object("setButton")
         self.keyLabel = builder.get_object("keyLabel")
         self.MODIFIER_BUTTONS = {
-            self.controlButton: Key.CONTROL,
-            self.altButton: Key.ALT,
+            self.lcontrolButton: Key.LEFTCONTROL,
+            self.rcontrolButton: Key.RIGHTCONTROL,
+
+            self.laltButton: Key.LEFTALT,
+            self.raltButton: Key.RIGHTALT,
+
             self.altgrButton: Key.ALT_GR,
-            self.shiftButton: Key.SHIFT,
-            self.superButton: Key.SUPER,
-            self.hyperButton: Key.HYPER,
-            self.metaButton: Key.META,
+
+            self.lshiftButton: Key.LEFTSHIFT,
+            self.rshiftButton: Key.RIGHTSHIFT,
+
+            self.lsuperButton: Key.LEFTSUPER,
+            self.rsuperButton: Key.RIGHTSUPER,
+
+            self.lhyperButton: Key.LEFTHYPER,
+            self.rhyperButton: Key.RIGHTHYPER,
+
+            self.lmetaButton: Key.LEFTMETA,
+            self.rmetaButton: Key.RIGHTMETA,
+
+        }
+
+        self.MODIFIER_SWITCHES ={
+            self.universalControl: Key.CONTROL,
+            self.universalAlt: Key.ALT,
+            self.universalShift: Key.SHIFT,
+            self.universalSuper: Key.SUPER,
+            self.universalHyper: Key.HYPER,
+            self.universalMeta: Key.META,
         }
 
         DialogBase.__init__(self)
@@ -468,11 +501,17 @@ class HotkeySettingsDialog(DialogBase):
         for button, key in self.MODIFIER_BUTTONS.items():
             button.set_active(key in modifiers)
 
+        for button, key in self.MODIFIER_SWITCHES.items():
+            button.set_active(key in modifiers)
+
     def save(self, item):
         UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
         for button in self.MODIFIER_BUTTONS:
+            button.set_active(False)
+
+        for button in self.MODIFIER_SWITCHES:
             button.set_active(False)
 
         self._setKeyLabel(_("(None)"))
@@ -503,6 +542,12 @@ class HotkeySettingsDialog(DialogBase):
         for button, key in self.MODIFIER_BUTTONS.items():
             if button.get_active():
                 modifiers.append(key)
+        for button, key in self.MODIFIER_SWITCHES.items():
+            if button.get_active():
+                for item in MAPPED_UNIVERSAL_MODIFIERS[key]: # remove the left/right modifier versions if the switch is active
+                    if item in modifiers:
+                        modifiers.remove(item)
+                modifiers.append(key)
         modifiers.sort()
         return modifiers
 
@@ -527,6 +572,28 @@ class HotkeySettingsDialog(DialogBase):
         self.keyLabel.set_text(_("Press a key..."))
         self.grabber = autokey.iomediator.keygrabber.KeyGrabber(self)
         self.grabber.start()
+
+    def on_switch_activate(self, widget, data=None):
+        # print(widget, widget.get_name())
+        name = widget.get_name()
+        if name == "<ctrl>":
+            self.lcontrolButton.set_active(False)
+            self.rcontrolButton.set_active(False)
+        elif name == "<alt>":
+            self.laltButton.set_active(False)
+            self.raltButton.set_active(False)
+        elif name == "<shift>":
+            self.lshiftButton.set_active(False)
+            self.rshiftButton.set_active(False)
+        elif name == "<super>":
+            self.lsuperButton.set_active(False)
+            self.rsuperButton.set_active(False)
+        elif name == "<meta>":
+            self.lmetaButton.set_active(False)
+            self.rmetaButton.set_active(False)
+        elif name == "<hyper>":
+            self.lhyperButton.set_active(False)
+            self.rhyperButton.set_active(False)
 
 
 class GlobalHotkeyDialog(HotkeySettingsDialog):

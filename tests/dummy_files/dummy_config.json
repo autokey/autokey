@@ -1,0 +1,49 @@
+{
+    "version": "0.95.99",
+    "userCodeDir": null,
+    "settings": {
+        "dummy_variable": "You found me!",
+        "isFirstRun": false,
+        "serviceRunning": true,
+        "menuTakesFocus": false,
+        "showTrayIcon": true,
+        "sortByUsageCount": true,
+        "promptToSave": false,
+        "enableQT4Workaround": false,
+        "interfaceType": "XRecord",
+        "undoUsingBackspace": true,
+        "windowDefaultSize": [
+            907,
+            1026
+        ],
+        "hPanePosition": 260,
+        "columnWidths": [
+            158,
+            49,
+            100
+        ],
+        "showToolbar": true,
+        "notificationIcon": "autokey-status-dark",
+        "workAroundApps": ".*VirtualBox.*|krdc.Krdc",
+        "triggerItemByInitial": false,
+        "disabledModifiers": [],
+        "scriptGlobals": {},
+        "gtkTheme": "classic"
+    },
+    "folders": [],
+    "toggleServiceHotkey": {
+        "enabled": true,
+        "modifiers": [
+            "<shift>",
+            "<super>"
+        ],
+        "hotKey": "k"
+    },
+    "configHotkey": {
+        "enabled": true,
+        "modifiers": [
+            "<super>"
+        ],
+        "hotKey": "k"
+    }
+}

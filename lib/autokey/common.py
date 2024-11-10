@@ -17,11 +17,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
+from typing import NamedTuple, Iterable
 
 XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.config'))
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
 XDG_CACHE_HOME = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share"))
+SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE")
 
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "autokey")
 RUN_DIR = os.path.join(os.environ.get('XDG_RUNTIME_DIR', XDG_CACHE_HOME), "autokey")
@@ -40,6 +42,44 @@ AUTHOR_EMAIL = 'cdekter@gmail.com'
 MAINTAINER = 'GuoCi'
 MAINTAINER_EMAIL = 'guociz@gmail.com'
 BUG_EMAIL = "guociz@gmail.com"
+COPYRIGHT = """
+(c) 2009-2012 Chris Dekter
+(c) 2014 GuoCi
+(c) 2017, 2018 Thomas Hess
+(c) 2020, 2021 BlueDrink9
+(c) 2024 sebastiansam55
+"""
+
+
+AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
+AboutData = NamedTuple("AboutData", (
+    ("program_name", str),
+    ("version", str),
+    ("program_description", str),
+    ("license_text", str),
+    ("copyright_notice", str),
+    ("homepage_url", str),
+    ("bug_report_email", str),
+    ("author_list", Iterable[AuthorData])
+))
+author_data = (
+    AuthorData("Thomas Hess", "PyKDE4 to PyQt5 port", "thomas.hess@udo.edu"),
+    AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
+    AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
+    AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com"),
+    AuthorData("Sam Sebastian", "Wayland port", "sebastiansam55@gmail.com")
+)
+about_data = AboutData(
+   program_name="AutoKey",
+   version=VERSION,
+   program_description="Desktop automation utility",
+   license_text="GPL v3",  # TODO: load actual license text from disk somewhere
+   copyright_notice=COPYRIGHT,
+   homepage_url=HOMEPAGE,
+   bug_report_email=BUG_EMAIL,
+   author_list=author_data
+)
+
 
 FAQ_URL = "https://github.com/autokey/autokey/wiki/FAQ"
 API_URL = "https://autokey.github.io/"
