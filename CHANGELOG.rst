@@ -17,7 +17,7 @@ Important misc changes
 - Update two links in the **README.rst** file.
 - Updated `extractDoc.py`
 - Updated Qt autocomplete api.txt file (last updated in 2019)
-- Fix, update, and add content to the main pages.
+- Fix, update, and add content to the man pages.
 - Fix Qt reference and update the wording in reference to KDE and Qt in the **autokey-qt.1** man page.
 - Update the date and remove excess wording in the **autokey-gtk.1** and **autokey-qt.1** man pages.
 - Update the date in the **autokey-run.1** man page.
