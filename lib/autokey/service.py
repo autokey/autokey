@@ -35,7 +35,7 @@ from autokey.iomediator.iomediator import IoMediator
 from autokey.macro import MacroManager
 
 import autokey.scripting
-from autokey.configmanager.configmanager import ConfigManager, save_config
+from autokey.configmanager.configmanager import ConfigManager, save_config, save_files
 import autokey.configmanager.configmanager_constants as cm_constants
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -116,6 +116,7 @@ class Service:
         if self.mediator is not None: self.mediator.shutdown()
         if save:
             save_config(self.configManager)
+            save_files(self.configManager)
         logger.debug("Service shutdown completed.")
 
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
@@ -506,7 +507,7 @@ class ScriptRunner:
 
     @threaded
     def execute_script(self, script: autokey.model.script.Script, buffer=''):
-        logger.debug("Script runner executing: %r", script)
+        logger.debug("Script runner executing: %r, usageCount: %r", script, script.usageCount)
 
         scope = self.scope.copy()
         scope["store"] = script.store

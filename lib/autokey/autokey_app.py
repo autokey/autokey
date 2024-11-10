@@ -24,7 +24,9 @@ import dbus
 import dbus.mainloop.glib
 import signal
 import subprocess
+import hashlib
 from typing import NamedTuple, Iterable
+import re
 
 import autokey.model.script
 from autokey import common
@@ -112,7 +114,60 @@ class AutokeyApplication:
         self.__add_user_code_dir_to_path()
         self.__create_DBus_service()
         self.__register_ctrlc_handler()
+
+        # process command line commands here?
+        try:
+            self.usage_statistics()
+        except Exception as e:
+            logger.error(f"Usage statistics failure: {e}")
+
         logger.info("Autokey application services ready")
+
+    def usage_statistics(self):
+        def get_digest(value):
+            return hashlib.md5(str(value).encode()).hexdigest()[0:8]
+
+        logger.info("----- AutoKey Usage Statistics -----")
+        for item in self.configManager.allItems:
+            if type(item) is autokey.model.phrase.Phrase:
+                # logger.info(item.description, item.usageCount, item.phrase)
+                logger.info(f"Phrase: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getMacroUsage(item.phrase)}")
+            elif type(item) is autokey.model.script.Script:
+                logger.info(f"Script: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getAPIUsage(item.code)}")
+        
+        for item in self.configManager.allFolders:
+            
+            logger.info(f"Folder: {get_digest(item.title)}, Usage Count: {item.usageCount}")
+
+        logger.info("----- AutoKey Usage Statistics -----")
+
+    def getAPIUsage(self, code):
+        api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
+
+        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+
+        results = re.findall(reg, code)
+
+        # Create an empty dictionary to store the counts
+        count_dict = {}
+
+        # Loop through the list and count each item
+        for item in results:
+            if item in count_dict:
+                count_dict[item] += 1
+            else:
+                count_dict[item] = 1
+
+        return count_dict
+    
+    def getMacroUsage(self, phrase):
+        macros = ["cursor", "script", "system", "date", "file", "clipboard"]
+
+        reg = re.compile("<("+"|".join(macros)+")")
+
+        results = re.findall(reg, phrase)
+        return results
+
 
     def __create_DBus_service(self):
         logger.info("Creating DBus service")
@@ -279,7 +334,7 @@ class AutokeyApplication:
         Shut down the entire application.
         """
         logger.debug("Shutting down service and file monitor...")
+        self.monitor.stop()
         self.service.shutdown()
         self.dbusService.unregister()
-        self.monitor.stop()
         logger.debug("Finished shutting down service and file monitor...")
