@@ -1,5 +1,6 @@
 ## About AutoKey
-* [AutoKey](https://github.com/autokey/autokey) is a Python 3 automation utility with GTK and Qt versions that allows you to write **actions** ([phrases](https://github.com/autokey/autokey/wiki/Phrases) and [scripts](https://github.com/autokey/autokey/wiki/Scripting)) that can perform text-expansion or run scripts for you automatically when you trigger them with hotkeys or typed abbreviations.
+* [AutoKey](https://github.com/autokey/autokey) is a Python 3 automation utility for Linux and X11 with GTK and Qt versions.
+* AutoKey allows you to write **actions** ([phrases](https://github.com/autokey/autokey/wiki/Phrases) and [scripts](https://github.com/autokey/autokey/wiki/Scripting)) that can perform text-expansion or run scripts for you automatically when you trigger them with hotkeys or typed abbreviations.
 * AutoKey is fully customizable and you can use it to automate pretty much any computer behaviors or tasks that you can think of.
 * The current version of AutoKey is available in the Debian and Ubuntu repositories, so you can install it with your package manager, although other [installation](https://github.com/autokey/autokey/wiki/Installing) options are also provided.
 * AutoKey has an active [community](https://github.com/autokey/autokey/wiki/Community) on a variety of platforms. To get started, join us in our [wiki](https://github.com/autokey/autokey/wiki), our [support forum](https://groups.google.com/forum/#!forum/autokey-users), or our [Gitter platform](https://gitter.im/autokey/autokey).
