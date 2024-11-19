@@ -17,8 +17,8 @@
 
 ### Trigger AutoKey actions
 Actions can be triggered by a **hotkey** or when a specific **abbreviation** is typed:
-* An **abbreviation** (which is a string of text) can be assigned to an action so that the action runs whenever you type that text in the active or specified window.
-* A **hotkey** (which can be a single key or a key-combination) can be assigned to an action so that the action runs whenever that hotkey is pressed in the active or specified window.
+* An **abbreviation** (which is a string of text) can be assigned to an action so that the action runs whenever you type that text in the active window.
+* A **hotkey** (which can be a single key or a key-combination) can be assigned to an action so that the action runs whenever that hotkey is pressed in the active window.
 
 ### Customize AutoKey actions:
 Actions can be customized to fine-tune their behavior:
@@ -29,4 +29,4 @@ Actions can be customized to fine-tune their behavior:
 	* Ignore the case of the typed abbreviation.
 	* Trigger when typed as part of a word.
 	* Trigger immediately without requiring a trigger character.
-* A **window filter** can be defined for any action so that the the hotkey or abbreviation that triggers the action will be ignored unless the currently-active window matches its filter.
+* A **window filter** can be defined for any action so that the hotkey or abbreviation that triggers the action will be ignored unless the currently-active window matches its filter.
