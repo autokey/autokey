@@ -12,7 +12,9 @@ Build-Depends: debhelper-compat (= 12),
                python3-pyqt5.qsci,
                python3-pyqt5.qtsvg,
                python3-setuptools,
-               python3-xlib
+               python3-xlib,
+               python3-pywayland,
+               python3-libinput
 Standards-Version: 4.5.0
 Vcs-Browser: https://salsa.debian.org/python-team/applications/autokey
 Vcs-Git: https://salsa.debian.org/python-team/applications/autokey.git

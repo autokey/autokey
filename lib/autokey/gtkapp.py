@@ -56,6 +56,18 @@ PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
 
+# Add Wayland support
+from pywayland.client import Display
+from pywayland.protocol.wayland import WlRegistry, WlSeat
+from pywayland.protocol.wayland import WlKeyboard, WlPointer
+from pywayland.protocol.wayland import WlShm, WlCompositor
+from pywayland.protocol.wayland import WlShell, WlShellSurface
+from pywayland.protocol.wayland import WlSurface
+from pywayland.protocol.wayland import WlOutput
+from pywayland.protocol.wayland import WlDataDeviceManager
+from pywayland.protocol.wayland import WlDataSource
+from pywayland.protocol.wayland import WlDataOffer
+from pywayland.protocol.wayland import WlDataDevice
 
 class Application:
     """

@@ -20,6 +20,19 @@ from .iomediator import IoMediator
 from autokey.model.key import Key, MODIFIERS
 from . import iomediator
 
+# Add Wayland support
+from pywayland.client import Display
+from pywayland.protocol.wayland import WlRegistry, WlSeat
+from pywayland.protocol.wayland import WlKeyboard, WlPointer
+from pywayland.protocol.wayland import WlShm, WlCompositor
+from pywayland.protocol.wayland import WlShell, WlShellSurface
+from pywayland.protocol.wayland import WlSurface
+from pywayland.protocol.wayland import WlOutput
+from pywayland.protocol.wayland import WlDataDeviceManager
+from pywayland.protocol.wayland import WlDataSource
+from pywayland.protocol.wayland import WlDataOffer
+from pywayland.protocol.wayland import WlDataDevice
+
 
 class KeyGrabber:
     """
