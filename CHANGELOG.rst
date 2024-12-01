@@ -12,6 +12,7 @@ Important misc changes
 - Bump action versions in python-test.yml to satisfy part of issue #963.
 - Bump Python version in build.yml to satisfy part of issue #964.
 - Bump Python versions in python-test.yml to satisfy part of issue #964.
+- Add `pyasyncore` to `[testenv]` section of the `setup.cfg` file to satisfy issue #964.
 
 Other
 +++++
