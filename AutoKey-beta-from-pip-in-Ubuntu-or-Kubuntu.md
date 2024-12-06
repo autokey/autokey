@@ -23,12 +23,12 @@ If you don't already have AutoKey installed:
     🟥 **Important:** _If you'd rather not install AutoKey and would like to just install the AutoKey beta, you'll want to check that you have all of the [dependencies](https://github.com/autokey/autokey/wiki/Installing#dependencies) needed by the beta before moving forward._
 
 ### Install pip
-1. Install pip by typing this command in a terminal window in any directory:\
+1. Install pip3 by typing this command in a terminal window in any directory:\
 ```sudo apt install python3-pip```
 
 ### Install AutoKey beta
 1. Install both versions of the AutoKey beta at once by typing this command in a terminal window in any directory:\
-```pip install --user --pre autokey```\
+```pip3 install --user --pre autokey```\
     _Note that you'll get a warning about the scripts not being on your PATH. This is because the beta doesn't affect your system settings._
 
 ### Run AutoKey beta
@@ -95,13 +95,13 @@ or:\
 ```~/.local/bin/autokey-qt --version```
  2. Visit the [https://github.com/autokey/autokey/releases/](https://github.com/autokey/autokey/releases/) page to see the current beta version.
 2. If the latest release version is higher than your installed copy, type this command into a terminal window in any directory to upgrade AutoKey:\
-```pip install --user --pre --upgrade autokey```
+```pip3 install --user --pre --upgrade autokey```
 
 If you'd like to be notified of beta releases automatically, choose **Notifications** from the **Settings** menu after clicking on your avatar in your GitHub account and customize those settings.
 
 ### Uninstall AutoKey beta
 1. Type this command into a terminal window in any directory to uninstall AutoKey:\
-```pip uninstall autokey```
+```pip3 uninstall autokey```
 2. You may need to clean up any residual files that are left behind in the autokey directory:\
 ```rm ~/.local/bin/autokey*```
 3. If you've created any shortcuts in your menu, on your desktop, tasbar, panel, etc., you'll want to remove those as well.
