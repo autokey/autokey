@@ -188,6 +188,7 @@ setup(
     # Some are not included here because they should be installed
     # through the system package manager, not pip.
     install_requires=[
+        'pyasyncore',
         'pyinotify',
         'python-xlib',
         'packaging',
