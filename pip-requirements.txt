@@ -5,3 +5,4 @@ PyGObject
 PyQt5
 QScintilla
 pyhamcrest
+pyasyncore
