@@ -14,6 +14,8 @@
 ### Install AutoKey
 The beta can coexist with your regular installation of AutoKey. In fact, adding the beta to a machine that already has AutoKey installed on it is a way to make sure the beta has all of its needed dependencies.
 
+🟥 **Important:** AutoKey and the AutoKey beta will share the configuration files in the `~/.local/bin/autokey` directory, so it's a good idea to back those up before experimenting with the beta.
+
 If you don't already have AutoKey installed:
 1. Install the GTK version by typing this command in a terminal window in any directory:\
 ```sudo apt install autokey-gtk```
@@ -102,9 +104,9 @@ If you'd like to be notified of beta releases automatically, choose **Notificati
 ### Uninstall AutoKey beta
 1. Type this command into a terminal window in any directory to uninstall AutoKey:\
 ```pip3 uninstall autokey```
-2. You may need to clean up any residual files that are left behind in the autokey directory:\
+2. You may need to clean up any residual configuration files that are left behind in the `autokey` directory, but not if you have another copy of AutoKey on the machine, since they share the configuration files:\
 ```rm ~/.local/bin/autokey*```
-3. If you've created any shortcuts in your menu, on your desktop, tasbar, panel, etc., you'll want to remove those as well.
+3. If you've created any shortcuts in your menu, on your desktop, taskbar, panel, etc., you'll want to remove those as well.
 
 ### Having trouble installing AutoKey beta?
 * Get information on pip dependencies, etc., here: [https://github.com/autokey/autokey/wiki/Installing#pip-installation](https://github.com/autokey/autokey/wiki/Installing#pip-installation)
