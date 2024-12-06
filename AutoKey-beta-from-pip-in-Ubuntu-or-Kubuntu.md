@@ -84,7 +84,7 @@ Add AutoKey to your path permanently so you can run it from anywhere without hav
 🟥 **Important:** _This is not recommended because of security reasons and to prevent possible conflicts, but it can be done and if you've researched it, are aware of the possible risks, and are comfortable with it, it's an option._
 
 Add AutoKey to your path so you can run it from anywhere without having to specify a path. This temporarily adds the ```.local/bin``` directory to your path and reverts at the next log-in:
-1. Type this command into a terminal windiw in any directory and press the Enter key:\
+1. Type this command into a terminal window in any directory and press the Enter key:\
 ```export PATH="$HOME/.local/bin:$PATH"```
 
 ### Upgrade AutoKey beta to the latest version
