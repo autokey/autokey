@@ -11,7 +11,7 @@ on:
     # Test on tags to ensure that the version metadata has been updated in tag as well.
     tags:
       - "*"
-    branches: [master, develop, beta]
+    branches: [master, develop, beta, update-gha-to-py-312-313]
   pull_request:
     branches: [master, develop, beta]
 

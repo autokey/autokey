@@ -8,7 +8,7 @@ on:
     tags:
       - 'v*.*.*'
     # Always manually run on CI
-    branches: [ CI ]
+    branches: [ CI, update-gha-to-py-312-313]
 
 jobs:
 
