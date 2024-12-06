@@ -141,7 +141,7 @@ class AbstractAbbreviation:
 
             # Check chars ahead of abbr
             # length of stringBefore should always be > 0
-            if len(stringBefore) > 0 and not re.match('(^\s)', stringBefore[-1]) and not self.triggerInside:
+            if len(stringBefore) > 0 and not re.match(r'(^\s)', stringBefore[-1]) and not self.triggerInside:
                 # check if last char before the typed abbreviation is a word char
                 # if triggerInside is not set, can't trigger when inside a word
                 return False

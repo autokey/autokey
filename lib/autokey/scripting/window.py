@@ -209,7 +209,7 @@ class Window:
         - remove
         - toggle
 
-        Allowable properties: 
+        Allowable properties:
 
         - modal
         - sticky

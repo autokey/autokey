@@ -16,6 +16,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import re
 
-DEFAULT_WORDCHAR_REGEX = '[\w]'
+DEFAULT_WORDCHAR_REGEX = r'[\w]'
 JSON_FILE_PATTERN = "{}/{}.json"
 SPACES_RE = re.compile(r"^ | $")
