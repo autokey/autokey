@@ -20,7 +20,7 @@ class Key(str, enum.Enum):
     PRINT_SCREEN = "<print_screen>"
     PAUSE = "<pause>"
     MENU = "<menu>"
-    
+
     # Modifier keys
     CONTROL = "<ctrl>"
     ALT = "<alt>"
@@ -51,7 +51,7 @@ class Key(str, enum.Enum):
     RIGHTCAPSLOCK = "<right_capslock>"
     RIGHTNUMLOCK = "<right_numlock>"
     RIGHTMETA = "<right_meta>"
-    
+
     F1 = "<f1>"
     F2 = "<f2>"
     F3 = "<f3>"
@@ -87,7 +87,7 @@ class Key(str, enum.Enum):
     F33 = "<f33>"
     F34 = "<f34>"
     F35 = "<f35>"
-    
+
     # Other
     ESCAPE = "<escape>"
     INSERT = "<insert>"
@@ -139,7 +139,7 @@ _ALL_MODIFIERS_ = (
 
 # Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
-KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
+KEY_SPLIT_RE = re.compile(r"(<[^<>]+>\+?)")
 
 # these types of modifiers are accepted as either left or right versions when used in hotkeys
 # when sent via keyboard they will send the LEFT version of the modifier
@@ -163,4 +163,3 @@ HELD_MODIFIERS = [
     Key.LEFTCONTROL,Key.LEFTALT,Key.LEFTSHIFT,Key.LEFTSUPER,Key.LEFTHYPER,Key.LEFTMETA,
     Key.RIGHTCONTROL,Key.RIGHTALT,Key.RIGHTSHIFT,Key.RIGHTSUPER,Key.RIGHTHYPER,Key.RIGHTMETA
     ]
-

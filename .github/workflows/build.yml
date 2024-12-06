@@ -8,15 +8,20 @@ on:
     tags:
       - 'v*.*.*'
     # Always manually run on CI
-    branches: [ CI ]
+    branches: [ CI, update-gha-to-py-312-313]
 
 jobs:
 
   build_deb:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version:
+          - 3.10.15
+          - 3.11.11
+          - 3.12.8
+          - 3.13.1
     steps:
     - uses: actions/checkout@v3
       with:
@@ -63,8 +68,13 @@ jobs:
   build_pypi_wheel:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version:
+          - 3.10.15
+          - 3.11.11
+          - 3.12.8
+          - 3.13.1
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
@@ -109,8 +119,13 @@ jobs:
   release:
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.10]
+        python-version:
+          - 3.10.15
+          - 3.11.11
+          - 3.12.8
+          - 3.13.1
     needs: [build_pypi_wheel, build_deb]
     steps:
     - uses: actions/checkout@v3
@@ -164,4 +179,3 @@ jobs:
     # ../autokey-common_${{ github.ref }}_all.deb
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-

@@ -134,9 +134,9 @@ class AutokeyApplication:
                 logger.info(f"Phrase: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getMacroUsage(item.phrase)}")
             elif type(item) is autokey.model.script.Script:
                 logger.info(f"Script: {get_digest(item.description)}, Usage Count: {item.usageCount} {self.getAPIUsage(item.code)}")
-        
+
         for item in self.configManager.allFolders:
-            
+
             logger.info(f"Folder: {get_digest(item.title)}, Usage Count: {item.usageCount}")
 
         logger.info("----- AutoKey Usage Statistics -----")
@@ -144,7 +144,7 @@ class AutokeyApplication:
     def getAPIUsage(self, code):
         api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
 
-        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+        reg = re.compile("("+"|".join(api_modules)+r")\.(\w*)\(")
 
         results = re.findall(reg, code)
 
@@ -159,7 +159,7 @@ class AutokeyApplication:
                 count_dict[item] = 1
 
         return count_dict
-    
+
     def getMacroUsage(self, phrase):
         macros = ["cursor", "script", "system", "date", "file", "clipboard"]
 

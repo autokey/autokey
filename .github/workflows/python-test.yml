@@ -11,7 +11,7 @@ on:
     # Test on tags to ensure that the version metadata has been updated in tag as well.
     tags:
       - "*"
-    branches: [master, develop, beta]
+    branches: [master, develop, beta, update-gha-to-py-312-313]
   pull_request:
     branches: [master, develop, beta]
 
@@ -20,8 +20,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version:
+          - "3.7"
+          - "3.9"
+          - "3.10"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
     steps:
       - uses: actions/checkout@v3
@@ -48,7 +55,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install flake8 wheel
           pip install -r pip-requirements.txt
-          
+
       - name: Python Code Quality and Lint
         uses: ricardochaves/python-lint@v1.4.0
         with:
@@ -82,8 +89,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version:
+          - "3.7"
+          - "3.9"
+          - "3.9"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
     steps:
       - uses: actions/checkout@v3
@@ -141,8 +155,15 @@ jobs:
     runs-on: ubuntu-latest
 
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ["3.7", "3.10"]
+        python-version:
+          - "3.7"
+          - "3.9"
+          - "3.9"
+          - "3.11"
+          - "3.12"
+          - "3.13"
 
     steps:
       - uses: actions/checkout@v3
