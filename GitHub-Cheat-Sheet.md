@@ -23,8 +23,8 @@ These steps take you through the basic workflow for using GitHub in your browser
    6. **Uncheck** the **Copy the master branch only** box (*this is important*).
    7. Click the **Create fork** button. *Note that once the forking process is complete, you'll automatically be at the main page of your new forked repository.*
 2. Open the branch you'd like to work on.
-3. Create a new branch off of that branch with a name that lets you know what kind of change you're about to make. *Note that this will be a temporary branch that's for your use only and won't be copied to the remote repository that you forked.*
-4. Make one or more changes to one or more files inside the new branch you just created with one of these methods:
+3. Create a new branch off of that branch with a name that lets you know what kind of change you're about to make. *Note that this will be a temporary branch that's for your use only and won't be copied to the remote repository that you forked from.*
+4. Make one or more changes to files inside the new branch with one of these methods:
 	* Use the GitHub editor to make the changes, committing each one with a comment describing what you did.
 	* Use the command line to clone your fork, make the changes, and push them to your fork.
 5. Update the **CHANGELOG.rst** file to note the change(s).
@@ -40,24 +40,24 @@ These steps take you through the basic workflow for using GitHub in your browser
    * the **head** or **compare** is the branch that contains your change(s)
 8. Scroll down to review the change(s) you made to the file(s).
 9. When you're satisfied with the settings and your changes, click the **Create pull request** button.
-10. Verify that you have an **Able to merge** message from GitHub.
+10. Wait for the tests to complete and verify that you have an **Able to merge** message from GitHub.
 11. Type a meaningful title for the pull request into the top text box to give the remote repository's maintainer a quick idea of the reason for this pull request.
-12. Type a detailed comment into the **Write** text box, if you like, letting the remote repository's maintainer know more about the change(s) that you've made.
+12. Optionally, type a detailed comment into the **Write** text box, letting the remote repository's maintainer know more about the change(s) that you've made.
 13. Click the **Create pull request** button.
-14. Once the remote repository's maintainer has merged the pull request into the remote repository (you'll be notified by email when that happens), you can delete the temporary branch you had created in your fork in step 3 above or delete the entire fork:
+14. You'll be notified by email once the remote repository's maintainer has merged the pull request into the remote repository. You can then delete the temporary branch you had created in your fork in step 3 above or delete the entire fork:
     1. Go to the remote repository's main page.
     2. Click the **Pull requests** entry in the menu.
     3. Click **Closed** in the heading above the list of pull requests on that page.
     4. Click on the name of your pull request.
     5. Scroll down to the **Pull request successfully merged and closed** section at the bottom.
     6. Click the **Delete branch** button in that section to delete the branch and keep the forked repository or, if you no longer want the forked repository, click the **settings** link in that section.
-    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repositories can be identical. To synchronize them:
+    7. The next time you open the affected branch in your fork, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in your temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repositories can be identical. To synchronize them:
         1. Click the **Sync fork** button to the right of that message.
         2. Click the **Update branch** button.
 
 *As an example, if you created the **foo** branch off of the **develop** branch in your fork, changed the contents of its **readme.txt** file, did a pull request, chose **develop** as the **base**, and chose **foo** as the **head**, the **readme.txt** file in the remote repository's **develop** branch will be the file that changes. The remote repository will not get a copy of your **foo** branch and you'll be able to delete the **foo** branch once the pull request is merged into the remote repository.*
 
-*If, instead of following the above steps and editing a file in your fork, you attempt to edit a file in a repository that you don't have push rights to (the AutoKey repository), when you commit the change(s), GitHub will automatically offer to create a branch with the default name of **patch-1** (or **patch-2**, etc., depending on whether other patch branches exist). You can edit the branch name if you like. That branch gets created in the repository you don't have push rights to (in this case, the AutoKey repository) when you do a pull request and it's accepted, and it's the branch that's used as the source for the pull request. Your fork will then get a copy of that branch the next time you sync the branches. If you then view the branches in your fork, you'll see that you own that branch. Once the pull request is accepted, you can delete the branch from your fork and it will be automatically deleted from the remote repository that you don't have push access to without a pull request.*
+*If, instead of following the above steps and editing a file in your fork, you attempt to edit a file in a repository that you don't have push rights to (the AutoKey repository), when you commit the change(s), GitHub will automatically offer to create a branch with the default name of **patch-1** (or **patch-2**, etc., depending on whether other patch branches exist). You can edit the branch name if you like. That branch gets created in the remote repository you don't have push rights to (in this case, the AutoKey repository) when you do a pull request and it's accepted, and it's the branch that's used as the base for the pull request. Your fork will then get a copy of that branch the next time you sync the branches. If you then view the branches in your fork, you'll see that you own that branch. Once the pull request is accepted, you can delete the branch from your fork and it will be automatically deleted from the remote repository that you don't have push access to without a pull request.*
 
 ******************************************************************************************************************************
 
@@ -68,32 +68,31 @@ These steps take you through the basic workflow for using GitHub in your browser
 2. Click **Pull requests** in the toolbar.
 3. Get the number of the pull request from its description in the list.
 4. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
-5. Enter this command, replacing **develop** with the name of the branch the code from the pull request is in and replace the example URL of the repository:
+5. Clone the AutoKey repository:
    ```
-   git clone --branch develop --single-branch https://github.com/autokey/autokey.git
+   git clone https://github.com/autokey/autokey.git
    ```
-6. Press the **Enter** key to create the clone in a new subdirectory named after the repository.
+6. Press the **Enter** key to create the **autokey** subdirectory inside of the current directory.
 7. Change to the directory you just created:
    ```
    cd autokey
    ```
-8. Fetch the pull request by replacing **844** with your pull-request number:
+8. Fetch the pull request by its number and put it into the specified new branch (replace **844** with your pull-request number):
    ```
    git fetch origin pull/844/head:pull_844
    ```
-9. Change to the pull request's branch by replacing **844** with your pull-request number:
+9. Change to the new branch you just created (replace **844** with your pull-request number):
    ```
    git checkout pull_844
    ```
-#### Local - clone a repository
+
+#### Local - clone the repository
 
 1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
 2. Click the **Code** button.
-3. Click the clipboard icon to the right of the HTTPS URL.
-4. Boot into your virtual machine.
-5. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
-6. Enter this command, replacing the example URL with the fork's URL: `git clone https://github.com/foo/bar.git`
-7. Press the **Enter** key to create the clone in a new subdirectory named after the repository.
+3. Click the clipboard icon to the right of the URL.
+4. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
+5. Create the clone in the **autokey** subdirectory inside the current directory: `git clone https://github.com/autokey/autokey.git`
 
 #### Local - clone a repository branch
 
@@ -102,8 +101,7 @@ These steps take you through the basic workflow for using GitHub in your browser
 3. Click the clipboard icon to the right of the HTTPS URL.
 4. Boot into your virtual machine.
 5. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
-6. Enter this command, replacing **mybranch** with the name of the branch you'd like to work on and replace the example URL with the fork's URL: `git clone --branch mybranch --single-branch https://github.com/foo/bar.git`
-7. Press the **Enter** key to create the clone in a new subdirectory named after the repository.
+6. Create the clone in the **autokey** subdirectory inside the current directory (replace **develop** with the name of the branch you'd like to clone): `git clone --branch develop --single-branch https://github.com/autokey/autokey.git`
 
 #### Local - create a virtual machine
 
@@ -144,11 +142,11 @@ These steps take you through the basic workflow for using GitHub in your browser
 
 #### Local - delete a clone
 
-You can do this as often as you like. After cloning a repository, if you've messed up the changes you've made to the files or if you're done working on the code, you can just delete the clone's directory inside of your virtual machine. This will have no effect on the repository you cloned it from.
+After cloning a repository, if you've messed up the changes you've made to the files or if you're done working on the code, you can just delete the clone's directory inside of your virtual machine. This will have no effect on the remote repository you cloned it from.
 
 #### Local - edit a clone
 
-Make any changes you feel are needed in the local files in your clone. Note that this has no effect on the GitHub repository.
+Make any changes you feel are needed in the local files in your clone. Note that this has no effect on the remote repository unless you push the changes back to the remote repository.
 
 #### Local - prepare your computer or virtual machine for development
 
@@ -169,25 +167,46 @@ Make any changes you feel are needed in the local files in your clone. Note that
 
 Once a clone is on your system, you can run the cloned copy of AutoKey without installing it by using either of the commands below. This section assumes that you cloned the repository onto your desktop, so you'd want to edit the commands to suit the path to your clone.
 1. Open a terminal window.
-2. Pick one, replacing `~/Desktop/autokey` with the path to your cloned copy of autokey below before following the steps, to change to the `autokey` directory, activate the venv virtual environment, change to the `lib` subdirectory, and run AutoKey:
-	* **AutoKey GTK**:
-		```
-		cd ~/Desktop/autokey; cd lib; python3 -m autokey.gtkui -lc
-		```
-	* **AutoKey Qt**:
-		```
-		cd ~/Desktop/autokey; cd lib; python3 -m autokey.qtui -lc
-		```
+2. Pick one to run AutoKey:
+   * Run AutoKey from anywhere with its full path:
+     1. Open a terminal window.
+     2. Pick one, replacing `~/Desktop/autokey` with the path to your clone:
+        * **AutoKey GTK**:
+
+          ```
+          cd ~/Desktop/autokey; cd lib; python3 -m autokey.gtkui -lc
+          ```
+        * **AutoKey Qt**:
+
+          ```
+          cd ~/Desktop/autokey; cd lib; python3 -m autokey.qtui -lc
+          ```
+   * Run AutoKey from inside the lib subdirectory:
+     1. Open the `autokey` directory in a terminal window.
+     2. Change to the `lib` subdirectory:
+        ```
+        cd lib
+        ```
+     3. Pick one:
+        * **AutoKey GTK**:
+        
+          ```
+          python3 -m autokey.gtkui -lc
+          ```
+        * **AutoKey Qt**:
+        
+          ```
+          python3 -m autokey.qtui -lc
+          ```
 3. When finished, close AutoKey.
 4. Close the terminal window.
 
 #### Local - run tests on a clone
 
-GitHub Actions can be run locally inside of your virtual machine.
+GitHub Actions can be run locally on your machine or inside of your virtual machine.
 
-1. Open the virtual machine.
-2. Open the clone's directory in a terminal window.
-3. Choose a testing command to run:
+1. Open the clone's directory in a terminal window.
+2. Choose a testing command to run:
    * Run a lint test: `tox -e lint`
    * Run all tests for all platforms in all environments: `tox`
    * Run all tests for all platforms in the environment that tox is installed in: `tox -e test`
@@ -210,16 +229,16 @@ GitHub Actions can be run locally inside of your virtual machine.
 
 ##### Interpret the test results:
 
-When interpreting the test results, note that tests can be marked by the developers with **skip** or **xfail** if they're expected to fail for some reason, as they might with a feature not implemented yet or a bug not fixed yet.
+When interpreting the test results, note that tests can be marked by the developers with **skip** or **xfail** if they're expected to fail for some reason, as they might be with a feature not implemented yet or an unfixed bug.
 
 * Marking a test with **skip** will prevent that test from being run at all.
-* Marking a test with **xfail** will run that test so you can check if it fails or not.
+* Marking a test with **xfail** will run that test so you can check if it still fails or not.
 
 ##### Interpret the **tox** output:
 
 * **SKIPPED** means that a test marked with **skip** wasn't tested, as expected.
-* **XFAIL** means that a test marked with **xfail** failed, as expected.
-* **XPASS** means that a test marked with xfail passed.
+* **XFAIL** means that a test marked with **xfail** failed the test, as expected.
+* **XPASS** means that a test marked with **xfail** passed the test.
 
 #### Local - try out your built code
 
@@ -236,11 +255,13 @@ If you've got what seems like a good working copy of the code, it's time to buil
 7. Extract the zip file, creating a directory that contains the contents of the repository.
 8. Open that directory in a terminal window.
 9. Pick one:
+
    * Install AutoKey:
      ```
      pip3 install .
      ```
    * Build AutoKey:
+
      1. Build the packages in the parent directory: `dpkg-buildpackage -us -uc`
      2. Test the build:
         1. Change to the parent directory: `cd ..`
@@ -253,18 +274,38 @@ If you've got what seems like a good working copy of the code, it's time to buil
         ***TODO:** An alternative may be to run `autokey/debian/build.sh` to build the **.deb** files, but I'm thinking that will be run automatically when following the steps above. I'll update this once I do a successful build.*
 
 #### Local - update a clone
-If you have a clone of your repository on your local system and you make a change to it on GitHub, you can update your clone with this command inside of a terminal window in the clone's directory: `git fetch`
+If there are changes to the remote repository, you'll want to update your clone. To do that:
+
+* Pick one:
+
+  * Update the current branch with changes from the remote repository:
+
+      ```
+      git pull
+      ```
+  * Check what's new on the remote repository before updating the current branch:
+
+    1. Check what has changed in the remote repository on the current branch:
+
+       ```
+       git fetch
+       ```
+    2. Update the current branch with the change(s):
+
+       ```
+       git merge
+       ```
 
 ******************************************************************************************************************************
 
 ## Remote
 
-#### Remote - add a link to a URL in your main GitHub page
+#### Remote - add a link to a URL on your repository's main GitHub page
 
-To put a link to your official documentation or any other website that you like in the right panel of your main GitHub page:
+To put a link to your official documentation or any other website that you like in the right panel of your repository's main GitHub page:
 
 1. Go to your repository's main page.
-2. Click the little gear next to **About** in the right panel.
+2. Click the gear next to **About** in the right panel.
 3. Paste the URL into the **Website** box.
 4. Save the change.
 
@@ -298,9 +339,20 @@ The standard bug report on GitHub is ordinary Markdown. You can create a YAML is
 2. Populate the `bug.yaml` file with your YAML code.
 3. Commit the change.
 
+If you'd like to prevent blank issues from being used and ensure that your users will use your issue template:
+1. Create the `config.yml` file inside of the `/.github/ISSUE_TEMPLATE` folder.
+2. Paste or type this line into it:
+
+   ```
+   blank_issues_enabled: false
+   ```
+3. Save the file.
+4. Commit the change.
+
 #### Remote - create or add a folder on GitHub
 
 GitHub offers a way to create a folder, but you cannot create an empty folder, so the idea is that you create a file and specify a folder for it to go into as part of the creation process.
+
 1. Open the branch you'd like to create a folder in.
 2. Click the "**Add file**" button.
 3. Type a new folder name followed by `/` followed by a new file name into the text box. *Note that if you regret the folder name you just typed in, typing `..` followed by `/` will remove it or you can use the backspace key to edit the parent folder's name.*
@@ -332,45 +384,9 @@ Now, you'll be able to click the little curved arrow above any comment field on 
 
 #### Remote - do a pull request on GitHub
 
-1. Fork a remote repository by visiting the its main page and clicking the **Fork** button in the top right of the page. *Note that once the forking process is complete, you'll automatically be at the main page of your new forked repository.*
-2. Open the branch you'd like to work on.
-3. Create a new branch off of that branch with a name that lets you know what kind of change you're about to make. *Note that this will be a temporary branch that's for your use only and won't be copied to the remote repository that you forked.*
-4. Make one or more changes to one or more files inside the new branch you just created with one of these methods:
-	* Use the GitHub editor to make the changes, committing each one with a comment describing what you did.
-	* Use the command line to clone your fork, make the changes, and push them to your fork.
-5. Update the **CHANGELOG.rst** file to note the change(s).
-6. Start a pull request with any **one** of these methods:
-   * Click the **Compare & pull request** button above the file list.
-   * Click the link in the note above the file list that tells you that this branch is ahead of the branch your changes will be made in.
-   * Click **Pull requests** in the top menu and then click the **Compare and pull request** button.
-   * Click **Pull requests** in the top menu and then click the **New pull request** button.
-7. Check the information in the grey section at the top to make sure that:
-   * the **base repository** is the remote repository that you forked
-   * the **base** is the remote branch that you want to change
-   * the **head repository** is your fork
-   * the **head** or **compare** is the branch that contains your change(s)
-8. Scroll down to review the change(s) you made to the file(s).
-9. When you're satisfied with the settings and your changes, click the **Create pull request** button.
-10. Verify that you have an **Able to merge** message from GitHub.
-11. Type a meaningful title for the pull request into the top text box to give the remote repository's maintainer a quick idea of the reason for this pull request.
-12. Type a detailed comment into the **Write** text box, if you like, letting the remote repository's maintainer know more about the change(s) that you've made.
-13. Click the **Create pull request** button.
-14. Once the remote repository's maintainer has merged the pull request into the remote repository, you can delete the temporary branch you had created in your fork in step 3 above or delete the entire fork:
-    1. Go to the remote repository's main page.
-    2. Click the **Pull requests** entry in the menu.
-    3. Click **Closed** in the heading above the list of pull requests on that page.
-    4. Click on the name of your pull request.
-    5. Scroll down to the **Pull request successfully merged and closed** section at the bottom.
-    6. Click the **Delete branch** button in that section to delete the branch and keep the forked repository or, if you no longer want the forked repository, click the **settings** link in that section.
-    7. The next time you open the branch in your fork in which these changes were made, GitHub will notify you at the top of the file listing that your branch is out-of-date. This is because the changes you made in the temporary branch have now been made in the **base** branch you chose in the remote repository and they now need to be made in your fork so the two repository's can be identical. To synchronize them:
-        1. Click the **Sync fork** button to the right of that message.
-        2. Click the **Update branch** button.
+See the [Basic GitHub Workflow](#basic-github-workflow) section above.
 
-*As an example, if you created the **foo** branch off of the **develop** branch in your fork, changed the contents of its **readme.txt** file, did a pull request, chose **develop** as the **base**, and chose **foo** as the **head**, the **readme.txt** file in the remote repository's **develop** branch will be the file that changes. The remote repository will not get a copy of your **foo** branch and you'll be able to delete the **foo** branch once the pull request is merged into the remote repository.*
-
-*If, instead of following the above steps and editing a file in your fork, you attempt to edit a file in a repository that you don't have push rights to (the AutoKey repository), when you commit the change(s), GitHub will automatically offer to create a branch with the default name of **patch-1** (or **patch-2**, etc., depending on whether other patch branches exist). You can edit the branch name if you like. That branch gets created in the repository you don't have push rights to (in this case, the AutoKey repository) when you do a pull request and it's accepted, and it's the branch that's used as the source for the pull request. Your fork will then get a copy of that branch the next time you sync the branches. If you then view the branches in your fork, you'll see that you own that branch. Once the pull request is accepted, you can delete the branch from your fork and it will be automatically deleted from the remote repository that you don't have push access to without a pull request.*
-
-#### Remote - enable the GitHub issue tracker
+#### Remote - enable the GitHub issue tracker in your repository
 
 1. Log into your GitHub account.
 2. Select your repository.
@@ -397,23 +413,22 @@ If you'd like quick access to one of your gists or repositories from now on:
 3. Put a check-mark in the box next to the gist or repository you'd like to pin.
 4. Click the `Save pins` button.
 
-#### Remote - edit a repository on GitHub (TODO: DELETE ME)
-When your tests are done and you're satisfied with your local code, open the **develop** branch of your fork on GitHub and use the GitHub editor to make your changes to the file(s) on GitHub that you changed inside of the clone in your virtual machine.
-
 #### Remote - revert a commit on GitHub
 
-This must be done on the command line.
+This must be done on the command line with **git**.
 
 #### Remote - revert a pull request on GitHub
 
 1. Open your repository on GitHub.
-2. Click the "Pull requests" tab.
+2. Click the **Pull requests** tab.
 3. Click the pull request that you'd like to revert.
-4. Click the "Revert" button. Note that this will create a new pull request that reverts the changes.
-5. Merge the resulting pull request.
+4. Click the **Revert** button. Note that this will create a new pull request that reverts the changes.
+5. Submit the resulting pull request.
 
-#### Remote - update the change log (TODO: DELETE ME)
-Add one or more lines to the `CHANGELOG.rst` file in the **develop** branch of your fork on GitHub describing the change(s) you've made to the code.
+#### Remote - update the change log
+1. Edit the `CHANGELOG.rst` file on the branch you've made one or more changes to.
+2. Add one or more lines to the file to describe the change(s) you've made to the code.
+3. Commit the change.
 
 #### Remote - delete a repository from GitHub
 
@@ -449,17 +464,15 @@ To search by last-updated date, the **updated** qualifier matches wiki pages tha
 
 ## Notes
 
-* The **.tox** directory grows each time the **tox** command is run. It can be [manually removed, removed internally if its output contains no errors, or destroyed and recreated each time](https://stackoverflow.com/questions/59563746/how-to-clean-a-tox-environment-after-running).
-* Tagged releases merged into develop, beta, and master will automatically be built.
-* `git fetch` downloads the changes from the remote repository to your local repository.
-* `git pull` downloads the changes from the remote repository to your local repository and merges them into your current branch.
+* The **.tox** directory grows each time the **tox** command is run. It can be [manually removed, removed internally if its output contains no errors, or it can be destroyed and recreated each time](https://stackoverflow.com/questions/59563746/how-to-clean-a-tox-environment-after-running).
+* Tagged releases merged onto **beta** or **master** will automatically be built.
 
 #### See also
 
-* **apt packages**: replace **foo** with a package name: [https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo](https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo)
+* **apt packages**: Do a search for a package (replacing **foo** with the package name): [https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo](https://packages.ubuntu.com/search?suite=jammy&arch=any&searchon=names&keywords=foo)
 * **Exit codes for the `tox` command**: [https://docs.pytest.org/en/stable/reference/reference.html#exitcode](https://docs.pytest.org/en/stable/reference/reference.html#exitcode)
 * **GitHub available images**: Do a search for **latest** on here to find out which version of Ubuntu is currently considered the latest: [https://github.com/actions/runner-images#available-images](https://github.com/actions/runner-images#available-images) Then check its current Python or other software versions, check for announcements, etc.
-* **GitHub Python Versions Manifest**: Do a search for 22.04 and find all hits to let you know which are the lowest and highest versions of Python supported for that Ubuntu release: [https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json](https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
+* **GitHub Python Versions Manifest**: Do a search for an Ubuntu release number (for example, 24.04) and find all hits to let you know which are the lowest and highest versions of Python supported for that Ubuntu release: [https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json](https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json)
 * **Python packages**: [https://pypi.org](https://pypi.org)
-* **Ubuntu manifest - current**: [https://releases.ubuntu.com/22.04/ubuntu-22.04.2-desktop-amd64.manifest](https://releases.ubuntu.com/22.04/ubuntu-22.04.2-desktop-amd64.manifest)
-* **Ubuntu manifests - all**: Click on any old or current release to find and download its manifest from: [https://old-releases.ubuntu.com/releases/](https://old-releases.ubuntu.com/releases/)
+* **Ubuntu manifest - current**: Example for 24.04: [https://releases.ubuntu.com/24.04/ubuntu-24.04.1-desktop-amd64.manifest](https://releases.ubuntu.com/24.04/ubuntu-24.04.1-desktop-amd64.manifest)
+* **Ubuntu manifests - old**: Click on any old or current release to find and download its manifest from: [https://old-releases.ubuntu.com/releases/](https://old-releases.ubuntu.com/releases/)
