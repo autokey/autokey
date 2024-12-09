@@ -14,6 +14,7 @@ Important misc changes
 - Bump Python versions in python-test.yml to satisfy part of issue #964.
 - Bump Python versions in setup.cfg to satisfy issue #969.
 - Bump Python versions in setup.py to satisfy issue #970.
+- Bump Python versions to all GitHub-supported versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
 
 Other
