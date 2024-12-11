@@ -12,6 +12,8 @@
 * [Create new abbreviation](#create-new-abbreviation)
 * [Create new phrase](#create-new-phrase)
 * [Start external scripts](#start-external-scripts)
+* [Filter window by class](#filter-window-by-class)
+* [Filter window by title](#filter-window-by-title)
 
 
 ## Introduction 
@@ -186,4 +188,78 @@ To start a program with Wine:
 ```python
     import subprocess
     subprocess.Popen(["wine", "/home/foobar/wine/program/some.exe"])
+```
+## Filter window by class
+This script checks if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
+```python
+"""
+This script check if the active window **is** running the specified
+program and displays a different dialog depending on the result.
+"""
+# Get the class of the active window:
+winClass = window.get_active_class()
+    # Display this dialog:
+    dialog.info_dialog(title="Example", message="Firefox.")
+# if this is not a Firefox window:
+if "firefox" in winClass:
+# if this is a Firefox window:
+else:
+    # Display this dialog:
+    dialog.info_dialog(title="Example", message="Not Firefox.")
+```
+Or:
+```python
+"""
+This script check if the active window **isn't** running the specified
+program and displays a different dialog depending on the result.
+"""
+# Get the class of the active window:
+winClass = window.get_active_class()
+
+# if this is not a Firefox window:
+if not "firefox" in winClass:
+    # Display this dialog:
+    dialog.info_dialog(title="Example", message="Not Firefox.")
+# if this is a Firefox window:
+else:
+    # Display this dialog:
+    dialog.info_dialog(title="Example", message="Firefox.")
+```
+
+## Filter window by title
+This script checks if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
+```python
+"""
+This script check if the active window **is** running the specified
+program and displays a different dialog depending on the result.
+"""
+# Get the title of the active window:
+winTitle = window.get_active_title()
+
+# if this is not a Firefox window:
+if not "Firefox" in winTitle:
+    # Display this dialog:
+	dialog.info_dialog(title="Example", message="Firefox.")
+# if this is a Firefox window:
+else:
+    # Display this dialog:
+	dialog.info_dialog(title="Example", message="Not Firefox.")
+```
+Or:
+```python
+"""
+This script check if the active window **isn't** running the specified
+program and displays a different dialog depending on the result.
+"""
+# Get the title of the active window:
+winTitle = window.get_active_title()
+
+# if this is not a Firefox window:
+if not "Firefox" in winTitle:
+    # Display this dialog:
+	dialog.info_dialog(title="Example", message="Not Firefox.")
+# if this is a Firefox window:
+else:
+    # Display this dialog:
+	dialog.info_dialog(title="Example", message="Firefox.")
 ```
