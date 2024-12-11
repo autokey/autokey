@@ -190,10 +190,10 @@ To start a program with Wine:
     subprocess.Popen(["wine", "/home/foobar/wine/program/some.exe"])
 ```
 ## Filter window by class
-This script checks if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
+These scripts check if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
 ```python
 """
-This script check if the active window **is** running the specified
+This script checks if the active window **is** running the specified
 program and displays a different dialog depending on the result.
 """
 # Get the class of the active window:
@@ -210,7 +210,7 @@ else:
 Or:
 ```python
 """
-This script check if the active window **isn't** running the specified
+This script checks if the active window **isn't** running the specified
 program and displays a different dialog depending on the result.
 """
 # Get the class of the active window:
@@ -227,10 +227,10 @@ else:
 ```
 
 ## Filter window by title
-This script checks if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
+These scripts check if the active window is or isn't running the specified program (Firefox in this example) and displays a different dialog depending on the result:
 ```python
 """
-This script check if the active window **is** running the specified
+This script checks if the active window **is** running the specified
 program and displays a different dialog depending on the result.
 """
 # Get the title of the active window:
@@ -248,7 +248,7 @@ else:
 Or:
 ```python
 """
-This script check if the active window **isn't** running the specified
+This script checks if the active window **isn't** running the specified
 program and displays a different dialog depending on the result.
 """
 # Get the title of the active window:
