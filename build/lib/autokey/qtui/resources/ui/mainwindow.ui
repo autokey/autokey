@@ -1,0 +1,547 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>878</width>
+    <height>574</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>AutoKey</string>
+  </property>
+  <widget class="QWidget" name="center">
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="0" column="0">
+     <widget class="CentralWidget" name="central_widget" native="true"/>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>878</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menu_file">
+    <property name="title">
+     <string>Fi&amp;le</string>
+    </property>
+    <widget class="QMenu" name="menu_new">
+     <property name="title">
+      <string>&amp;New</string>
+     </property>
+     <property name="icon">
+      <iconset theme="document-new">
+       <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+     </property>
+     <addaction name="action_new_top_folder"/>
+     <addaction name="action_new_sub_folder"/>
+     <addaction name="action_new_phrase"/>
+     <addaction name="action_new_script"/>
+    </widget>
+    <addaction name="menu_new"/>
+    <addaction name="action_save"/>
+    <addaction name="separator"/>
+    <addaction name="action_close_window"/>
+    <addaction name="separator"/>
+    <addaction name="action_quit"/>
+   </widget>
+   <widget class="QMenu" name="menu_edit">
+    <property name="title">
+     <string>Edi&amp;t</string>
+    </property>
+    <addaction name="action_undo"/>
+    <addaction name="action_redo"/>
+    <addaction name="separator"/>
+    <addaction name="action_cut_item"/>
+    <addaction name="action_copy_item"/>
+    <addaction name="action_paste_item"/>
+    <addaction name="action_clone_item"/>
+    <addaction name="action_delete_item"/>
+    <addaction name="separator"/>
+    <addaction name="action_rename_item"/>
+   </widget>
+   <widget class="QMenu" name="menu_tools">
+    <property name="title">
+     <string>T&amp;ools</string>
+    </property>
+    <widget class="QMenu" name="menu_insert_macros">
+     <property name="title">
+      <string>&amp;Insert Macro</string>
+     </property>
+    </widget>
+    <addaction name="action_show_last_script_errors"/>
+    <addaction name="action_record_script"/>
+    <addaction name="action_run_script"/>
+    <addaction name="separator"/>
+    <addaction name="menu_insert_macros"/>
+   </widget>
+   <widget class="QMenu" name="menu_settings">
+    <property name="title">
+     <string>Setti&amp;ngs</string>
+    </property>
+    <addaction name="action_enable_monitoring"/>
+    <addaction name="action_show_toolbar"/>
+    <addaction name="action_show_log_view"/>
+    <addaction name="separator"/>
+    <addaction name="action_configure_autokey"/>
+   </widget>
+   <widget class="QMenu" name="menu_help">
+    <property name="title">
+     <string>Hel&amp;p</string>
+    </property>
+    <addaction name="action_show_online_manual"/>
+    <addaction name="action_show_faq"/>
+    <addaction name="action_show_api"/>
+    <addaction name="separator"/>
+    <addaction name="action_report_bug"/>
+    <addaction name="separator"/>
+    <addaction name="action_about_autokey"/>
+    <addaction name="action_about_qt"/>
+   </widget>
+   <addaction name="menu_file"/>
+   <addaction name="menu_edit"/>
+   <addaction name="menu_tools"/>
+   <addaction name="menu_settings"/>
+   <addaction name="menu_help"/>
+  </widget>
+  <widget class="QToolBar" name="toolbar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonFollowStyle</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="action_save"/>
+   <addaction name="action_cut_item"/>
+   <addaction name="action_copy_item"/>
+   <addaction name="action_paste_item"/>
+   <addaction name="action_delete_item"/>
+   <addaction name="separator"/>
+   <addaction name="action_undo"/>
+   <addaction name="action_redo"/>
+   <addaction name="separator"/>
+   <addaction name="action_run_script"/>
+   <addaction name="action_show_last_script_errors"/>
+  </widget>
+  <action name="action_new_top_folder">
+   <property name="icon">
+    <iconset theme="folder-new">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new top level Folder anywhere in the file system.</string>
+   </property>
+  </action>
+  <action name="action_new_sub_folder">
+   <property name="icon">
+    <iconset theme="folder-new">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Sub-folder</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new sub-folder in the currently selected folder.</string>
+   </property>
+  </action>
+  <action name="action_new_script">
+   <property name="icon">
+    <iconset theme="text-x-python">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>S&amp;cript</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Script in the currently selected folder.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+N</string>
+   </property>
+  </action>
+  <action name="action_new_phrase">
+   <property name="icon">
+    <iconset theme="text-x-generic">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Phrase</string>
+   </property>
+   <property name="toolTip">
+    <string>Create a new Phrase in the currently selected folder.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="action_save">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="document-save">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Save</string>
+   </property>
+   <property name="toolTip">
+    <string>Save changes.</string>
+   </property>
+  </action>
+  <action name="action_close_window">
+   <property name="icon">
+    <iconset theme="window-close">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Close Window</string>
+   </property>
+   <property name="toolTip">
+    <string>Close the AutoKey window</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="action_quit">
+   <property name="icon">
+    <iconset theme="application-exit">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="toolTip">
+    <string>Quit AutoKey</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::QuitRole</enum>
+   </property>
+  </action>
+  <action name="action_undo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-undo">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Undo</string>
+   </property>
+   <property name="toolTip">
+    <string>Undo the last change.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Z</string>
+   </property>
+  </action>
+  <action name="action_redo">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="edit-redo">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Redo</string>
+   </property>
+   <property name="toolTip">
+    <string>Redo the last undone change.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+Z</string>
+   </property>
+  </action>
+  <action name="action_cut_item">
+   <property name="icon">
+    <iconset theme="edit-cut">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Cut Item</string>
+   </property>
+   <property name="toolTip">
+    <string>Cut the selected item(s).</string>
+   </property>
+  </action>
+  <action name="action_copy_item">
+   <property name="icon">
+    <iconset theme="edit-copy">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>Copy &amp;Item</string>
+   </property>
+   <property name="toolTip">
+    <string>Copy the selected item(s).</string>
+   </property>
+  </action>
+  <action name="action_paste_item">
+   <property name="icon">
+    <iconset theme="edit-paste">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Paste Item</string>
+   </property>
+   <property name="toolTip">
+    <string>Paste items from the clipboard into the currently selected folder.</string>
+   </property>
+  </action>
+  <action name="action_clone_item">
+   <property name="icon">
+    <iconset theme="edit-clone">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>C&amp;lone Item</string>
+   </property>
+   <property name="toolTip">
+    <string>Duplicate the selected item(s).</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Shift+C</string>
+   </property>
+  </action>
+  <action name="action_delete_item">
+   <property name="icon">
+    <iconset theme="edit-delete">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Delete</string>
+   </property>
+   <property name="toolTip">
+    <string>Delete the selected items. Deleting folders also deletes the content.</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="action_rename_item">
+   <property name="icon">
+    <iconset theme="edit-rename">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>R&amp;ename</string>
+   </property>
+   <property name="toolTip">
+    <string>Rename the first selected item.</string>
+   </property>
+   <property name="shortcut">
+    <string>F2</string>
+   </property>
+  </action>
+  <action name="action_show_last_script_errors">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="dialog-error">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Show recorded errors from Scripts</string>
+   </property>
+   <property name="toolTip">
+    <string>Show recorded errors that occured in recently-run Scripts.</string>
+   </property>
+  </action>
+  <action name="action_enable_monitoring">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Enable Monitoring</string>
+   </property>
+  </action>
+  <action name="action_show_toolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>&amp;Show Toolbar</string>
+   </property>
+  </action>
+  <action name="action_show_log_view">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show &amp;log view</string>
+   </property>
+  </action>
+  <action name="action_configure_shortcuts">
+   <property name="text">
+    <string>&amp;Configure Shortcuts…</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
+  </action>
+  <action name="action_configure_toolbars">
+   <property name="text">
+    <string>C&amp;onfigure Toolbars…</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
+  </action>
+  <action name="action_configure_autokey">
+   <property name="icon">
+    <iconset theme="configure">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>Configure &amp;AutoKey</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::PreferencesRole</enum>
+   </property>
+  </action>
+  <action name="action_show_online_manual">
+   <property name="icon">
+    <iconset theme="help-contents">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Online Manual</string>
+   </property>
+  </action>
+  <action name="action_show_faq">
+   <property name="icon">
+    <iconset theme="help-hint">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;F. A. Q.</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the online FAQ.</string>
+   </property>
+  </action>
+  <action name="action_show_api">
+   <property name="icon">
+    <iconset theme="help-contents">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Scripting Help</string>
+   </property>
+   <property name="toolTip">
+    <string>Show the online scripting Help and API documentation.</string>
+   </property>
+  </action>
+  <action name="action_report_bug">
+   <property name="icon">
+    <iconset theme="tools-report-bug">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Report a Bug</string>
+   </property>
+   <property name="toolTip">
+    <string>Report a Bug on the GitHub issue tracker.</string>
+   </property>
+  </action>
+  <action name="action_about_autokey">
+   <property name="icon">
+    <iconset theme="help-about">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;About AutoKey</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutRole</enum>
+   </property>
+  </action>
+  <action name="action_about_qt">
+   <property name="icon">
+    <iconset theme="help-about">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>About &amp;Qt</string>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::AboutQtRole</enum>
+   </property>
+  </action>
+  <action name="action_record_script">
+   <property name="icon">
+    <iconset theme="media-record">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Record Script</string>
+   </property>
+  </action>
+  <action name="action_run_script">
+   <property name="icon">
+    <iconset theme="media-playback-start">
+     <normaloff>../../../../../../../.designer/backup</normaloff>../../../../../../../.designer/backup</iconset>
+   </property>
+   <property name="text">
+    <string>R&amp;un Script</string>
+   </property>
+   <property name="toolTip">
+    <string>Run the currently opened Script. Execution start is delayed by two seconds.</string>
+   </property>
+  </action>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CentralWidget</class>
+   <extends>QWidget</extends>
+   <header>autokey.qtui.centralwidget</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>action_show_toolbar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>toolbar</receiver>
+   <slot>setVisible(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>391</x>
+     <y>48</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

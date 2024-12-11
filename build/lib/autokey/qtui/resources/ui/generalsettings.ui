@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>general_settings</class>
+ <widget class="QWidget" name="general_settings">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>557</width>
+    <height>557</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QGroupBox" name="application_groupbox">
+     <property name="title">
+      <string>Application</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QCheckBox" name="autosave_checkbox">
+        <property name="toolTip">
+         <string>If checked, automatically save changes to the current Script or Phrase without asking for confirmation.
+If unchecked, ask if changes should be saved or not.</string>
+        </property>
+        <property name="text">
+         <string>Automatically save changes without confirmation</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="system_tray_groupbox">
+     <property name="title">
+      <string>System tray icon</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <item row="1" column="2">
+       <spacer name="system_tray_horizontal_spacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QComboBox" name="system_tray_icon_theme_combobox">
+        <property name="toolTip">
+         <string>Choose between a light and a dark icon theme.</string>
+        </property>
+        <item>
+         <property name="text">
+          <string>Light</string>
+         </property>
+         <property name="icon">
+          <iconset theme="autokey-status">
+           <normaloff>.</normaloff>.</iconset>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>Dark</string>
+         </property>
+         <property name="icon">
+          <iconset theme="autokey-status-dark">
+           <normaloff>.</normaloff>.</iconset>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="system_tray_icon_theme_label">
+        <property name="text">
+         <string>Used system tray icon theme:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="3">
+       <widget class="QCheckBox" name="show_tray_checkbox">
+        <property name="toolTip">
+         <string>Enabling this places an icon in the desktop system tray or notification area.
+The icon can be used to show the main window.
+It also provides access to scripts and phrases marked for display in the tray icon context menu.</string>
+        </property>
+        <property name="text">
+         <string>Show a notification icon in the system tray or notification area</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="autostart_groupbox">
+     <property name="toolTip">
+      <string>Enable to automatically start AutoKey after logging in.</string>
+     </property>
+     <property name="whatsThis">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enabling this option places a &lt;span style=&quot; font-weight:600;&quot;&gt;autokey.desktop&lt;/span&gt; file into the autostart folder inside the user folder. It can be found in  &lt;a href=&quot;file://$XDG_CONFIG_HOME/autostart&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;$XDG_CONFIG_HOME/autostart&lt;/span&gt;&lt;/a&gt;. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="title">
+      <string>A&amp;utomatically start AutoKey after login</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+     <layout class="QGridLayout" name="gridLayout">
+      <item row="0" column="2">
+       <spacer name="horizontal_spacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" colspan="3">
+       <widget class="QCheckBox" name="autostart_show_main_window_checkbox">
+        <property name="toolTip">
+         <string>If checked, start in the foreground by showing the main window.
+If unchecked, start in the background.</string>
+        </property>
+        <property name="text">
+         <string>Show main window when starting</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLabel" name="autostart_interface_choice_label">
+        <property name="text">
+         <string>Start using this interface:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="autostart_interface_choice_combobox">
+        <property name="toolTip">
+         <string>Choose which GUI should be starting. Only available if both the Qt and GTK+ GUIs are installed.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="popup_menu_groupbox">
+     <property name="title">
+      <string>Popup Menu</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <widget class="QCheckBox" name="allow_kb_nav_checkbox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
+        <property name="text">
+         <string>Allow keyboard navigation of popup menu</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="sort_by_usage_checkbox">
+        <property name="text">
+         <string>Sort menu items with most frequently used first</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="phrase_expansion_groupbox">
+     <property name="title">
+      <string>Phrase expansions</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="enable_undo_checkbox">
+        <property name="toolTip">
+         <string>Enable undoing Phrase expansions using the backspace key
+
+Undo only works if the Phrase does not contain any special keys.
+AutoKey will refuse to perform an undo of a Phrase containing any such keys,
+regardless of this setting.</string>
+        </property>
+        <property name="text">
+         <string>Enable undo by pressing backspace</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox">
+     <property name="title">
+      <string>Modifier Keys</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_5">
+      <item>
+       <widget class="QCheckBox" name="disable_capslock_checkbox">
+        <property name="toolTip">
+         <string>Enable this, if you remapped the Capslock key to be something else, like Ctrl.
+This will prevent any special handling for this key.</string>
+        </property>
+        <property name="text">
+         <string>Disable handling of the Capslock key.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

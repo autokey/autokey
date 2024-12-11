@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SettingsWidget</class>
+ <widget class="QWidget" name="SettingsWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>353</width>
+    <height>132</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Abbreviations:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="QLabel" name="abbreviation_label">
+     <property name="text">
+      <string>$abbr</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Hotkey:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLabel" name="hotkey_label">
+     <property name="text">
+      <string>$hotkey</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Window Filter:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="window_filter_label">
+     <property name="text">
+      <string>$filter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="3">
+    <widget class="QPushButton" name="set_abbreviation_button">
+     <property name="toolTip">
+      <string>Add abbreviations and edit already assigned abbreviations</string>
+     </property>
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QPushButton" name="clear_abbreviation_button">
+     <property name="toolTip">
+      <string>Clear all assigned abbreviations</string>
+     </property>
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear">
+       <normaloff>.</normaloff>.</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QPushButton" name="set_hotkey_button">
+     <property name="toolTip">
+      <string>Assign a new hotkey</string>
+     </property>
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="4">
+    <widget class="QPushButton" name="clear_hotkey_button">
+     <property name="toolTip">
+      <string>Clear the assigned hotkey</string>
+     </property>
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear">
+       <normaloff>.</normaloff>.</iconset>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="3">
+    <widget class="QPushButton" name="set_window_filter_button">
+     <property name="toolTip">
+      <string>Set a regular expression based window filter.
+If set, this item will only trigger, if the currently active window matches this filter.</string>
+     </property>
+     <property name="text">
+      <string>Set&amp;</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="4">
+    <widget class="QPushButton" name="clear_window_filter_button">
+     <property name="toolTip">
+      <string>Clear the current window filter</string>
+     </property>
+     <property name="text">
+      <string>Clear&amp;</string>
+     </property>
+     <property name="icon">
+      <iconset theme="edit-clear">
+       <normaloff>.</normaloff>.</iconset>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
