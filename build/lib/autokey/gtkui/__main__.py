@@ -1,7 +1,6 @@
 import faulthandler
 faulthandler.enable()
 
-
 from autokey.gtkapp import Application
 
 

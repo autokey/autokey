@@ -180,6 +180,7 @@ setup(
         'pyinotify',
         'python-xlib',
         'packaging',
+        'pywayland>=0.4.14',
     ],
     test_suite="pytest",
     classifiers=[

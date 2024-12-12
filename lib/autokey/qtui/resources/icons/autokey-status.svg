@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 15.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="svg2408"
+   x="0px"
+   y="0px"
+   width="96px"
+   height="96px"
+   viewBox="0 0 96 96"
+   enable-background="new 0 0 96 96"
+   xml:space="preserve"
+   inkscape:version="0.48.1 r9760"
+   sodipodi:docname="autokey.svg"><metadata
+   id="metadata106"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs104"><filter
+     id="filter3237"
+     inkscape:label="Drop shadow"
+     width="1.5"
+     height="1.5"
+     x="-.25"
+     y="-.25"><feGaussianBlur
+       id="feGaussianBlur3239"
+       in="SourceAlpha"
+       stdDeviation="1"
+       result="blur" /><feColorMatrix
+       id="feColorMatrix3241"
+       result="bluralpha"
+       type="matrix"
+       values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 0.5 0 " /><feOffset
+       id="feOffset3243"
+       in="bluralpha"
+       dx="3"
+       dy="3"
+       result="offsetBlur" /><feMerge
+       id="feMerge3245"><feMergeNode
+         id="feMergeNode3247"
+         in="offsetBlur" /><feMergeNode
+         id="feMergeNode3249"
+         in="SourceGraphic" /></feMerge></filter></defs><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="899"
+   inkscape:window-height="730"
+   id="namedview102"
+   showgrid="false"
+   inkscape:zoom="3.2395833"
+   inkscape:cx="48"
+   inkscape:cy="48"
+   inkscape:window-x="311"
+   inkscape:window-y="281"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="svg2408" />
+<filter
+   id="filter3794"
+   x="-0.192"
+   width="1.3839999"
+   y="-0.192"
+   height="1.3839999"
+   color-interpolation-filters="sRGB">
+	<feGaussianBlur
+   id="feGaussianBlur3796"
+   stdDeviation="5.28" />
+</filter>
+<filter
+   id="filter3218"
+   color-interpolation-filters="sRGB">
+	<feGaussianBlur
+   id="feGaussianBlur3220"
+   stdDeviation="1.71" />
+</filter>
+<g
+   id="layer2"
+   display="none">
+	<g
+   id="rect3745"
+   display="inline"
+   opacity="0.9"
+   filter="url(#filter3218)"
+   enable-background="new    ">
+		
+			<linearGradient
+   id="SVGID_1_"
+   gradientUnits="userSpaceOnUse"
+   x1="37.8677"
+   y1="-22.7129"
+   x2="37.8677"
+   y2="62.7856"
+   gradientTransform="matrix(1.0059 0 0 -0.9942 9.9104 69.4184)">
+			<stop
+   offset="0"
+   style="stop-color:#000000"
+   id="stop10" />
+			<stop
+   offset="1"
+   style="stop-color:#000000;stop-opacity:0.5882"
+   id="stop12" />
+		</linearGradient>
+		<path
+   fill="url(#SVGID_1_)"
+   d="M12,7h72c3.866,0,7,3.134,7,7v71c0,3.866-3.134,7-7,7H12c-3.866,0-7-3.134-7-7V14    C5,10.134,8.134,7,12,7z"
+   id="path14" />
+	</g>
+</g>
+
+<g
+   id="g92">
+	
+		
+	<g
+   id="g96"
+   style="filter:url(#filter3237);fill:#ffffff">
+		<g
+   id="g98"
+   style="fill:#ffffff">
+			<path
+   stroke-miterlimit="10"
+   d="M69.063,74.334H58.117l-2.245-13.232H36.023     l-6.095,13.232h-9.263L46.89,19.601h12.149L69.063,74.334z M54.949,53.483l-4.29-24.299L39.392,53.483H54.949z"
+   id="path100"
+   stroke-width="0.5"
+   stroke="#BABABD"
+   fill="#FFFCD6"
+   style="fill:#ffffff" />
+		</g>
+	</g>
+</g>
+</svg>

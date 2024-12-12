@@ -1,0 +1,35 @@
+#!/usr/bin/python
+
+# -*- coding: utf-8 -*-
+# -*- mode: python -*-
+import distutils.spawn
+import subprocess
+import sys
+
+start_script = '''
+import autokey.iomediator
+import autokey.configmanager.configmanager
+import autokey.scripting as scripting
+import autokey.scripting.highlevel as hl
+system = scripting.System()
+print("""
+AutoKey functions from “autokey.scripting.highlevel” (under name “hl”)
+and “autokey.scripting.System()” (under name “system”) are imported.
+You can try the functions on the interpreter. For example:
+help(hl.click_on_pat)
+print(system.exec_command('ls'))
+""")
+'''
+
+ipython3_cmd = distutils.spawn.find_executable('ipython3')
+if ipython3_cmd is not None:
+    retcode = subprocess.call([ipython3_cmd, '-ic', start_script])
+    raise SystemExit(retcode)
+
+python3_path = distutils.spawn.find_executable('python3')
+if python3_path is not None:
+    retcode = subprocess.call([python3_path, '-ic', start_script])
+    raise SystemExit(retcode)
+
+print('\033[91m' + 'Error! No Python 3 shell found.' + '\033[0m')
+sys.exit(1)
