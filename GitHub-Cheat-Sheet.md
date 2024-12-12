@@ -94,15 +94,6 @@ These steps take you through the basic workflow for using GitHub in your browser
 4. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
 5. Create the clone in the **autokey** subdirectory inside the current directory: `git clone https://github.com/autokey/autokey.git`
 
-#### Local - clone a repository branch
-
-1. Open the repository's main GitHub page in your browser (note that this can be one of your repositories or a remote repository not owned by you).
-2. Click the **Code** button.
-3. Click the clipboard icon to the right of the HTTPS URL.
-4. Boot into your virtual machine.
-5. Open a terminal window in the directory in which you'd like to create the clone's subdirectory.
-6. Create the clone in the **autokey** subdirectory inside the current directory (replace **develop** with the name of the branch you'd like to clone): `git clone --branch develop --single-branch https://github.com/autokey/autokey.git`
-
 #### Local - create a virtual machine
 
 1. <details><summary>Click here to toggle VirtualBox installation instructions.</summary>
@@ -424,11 +415,6 @@ This must be done on the command line with **git**.
 3. Click the pull request that you'd like to revert.
 4. Click the **Revert** button. Note that this will create a new pull request that reverts the changes.
 5. Submit the resulting pull request.
-
-#### Remote - update the change log
-1. Edit the `CHANGELOG.rst` file on the branch you've made one or more changes to.
-2. Add one or more lines to the file to describe the change(s) you've made to the code.
-3. Commit the change.
 
 #### Remote - delete a repository from GitHub
 
