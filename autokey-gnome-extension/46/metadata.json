@@ -1,0 +1,12 @@
+{
+  "name": "Autokey Extension",
+  "description": "Adds dbus calls which can return list of windows, move, resize, close them for use with Autokey scripting. This extension is a fork of ickyicky's window-calls found at https://github.com/ickyicky/window-calls",
+  "uuid": "autokey-gnome-extension@autokey",
+  "shell-version": [
+    "45",
+    "46",
+    "47"
+  ],
+  "version": 0.2,
+  "url": "https://github.com/autokey/autokey/autokey-gnome-extension"
+}

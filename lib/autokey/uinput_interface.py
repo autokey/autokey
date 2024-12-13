@@ -260,12 +260,12 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         if self.mouse is None:
             logger.error("Unable to find mouse")
-            self.app.show_error_dialog_with_link(f"Unable to find mouse {mouse_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
+            self.app.show_error_dialog_with_link(f"Unable to find mouse {mouse_name}", f"Update {cm_constants.CONFIG_FILE} with name of your mouse device", link_data=cm_constants.CONFIG_FILE)
             self.app.shutdown()
             # raise Exception("Unable to find mouse or keyboard")
         if self.keyboard is None:
             logger.error(f"Unable to find keyboard {keyboard_name}")
-            self.app.show_error_dialog_with_link(f"Unable to find keyboard {keyboard_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
+            self.app.show_error_dialog_with_link(f"Unable to find keyboard {keyboard_name}", f"Update {cm_constants.CONFIG_FILE} with name of your keyboard device", link_data=cm_constants.CONFIG_FILE)
             self.app.shutdown()
 
         self.devices = [self.keyboard, self.mouse]
