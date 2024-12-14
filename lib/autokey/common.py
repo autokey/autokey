@@ -50,7 +50,6 @@ COPYRIGHT = """
 (c) 2024 sebastiansam55
 """
 
-
 AuthorData = NamedTuple("AuthorData", (("name", str), ("role", str), ("email", str)))
 AboutData = NamedTuple("AboutData", (
     ("program_name", str),

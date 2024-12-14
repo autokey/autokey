@@ -1,0 +1,14 @@
+dbus
+dbus-devel
+dbus-glib
+gnome-extensions-app
+gobject-introspection
+kdialog
+pygobject2
+python3-dbus
+python3-gobject
+python3-pip
+python3-qt5-base
+wmctrl
+xrandr
+zenity

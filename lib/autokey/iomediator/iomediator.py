@@ -68,7 +68,7 @@ class IoMediator(threading.Thread):
             pass
         elif session_type is None:
             pass
-        
+
         if self.interfaceType == "uinput":
             logger.debug("Using gnome extension window interface")
             self.windowInterface = GnomeExtensionWindowInterface()

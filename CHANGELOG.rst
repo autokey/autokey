@@ -2,6 +2,14 @@
 Changelog
 =========
 
+@dlk3 updates to "develop" branch
+============================
+
+- Rewrite wayland_install.md instructions to add support for installation on Fedora. (Includes updating apt-requirements.txt and creating rpm-requirements.txt.)
+- Bring @samsebastian55's gnome-autokey-extension into the repository and rewrite the make file it so that it makes/installs properly.
+- Fix syntax error in autokey_app.getAPIUsage() line 147 re.compile statement.
+- Create a stub autokey.interface.get_window_list() method to satisfy the requirements of the abstract class when running in X11.
+
 Version Develop
 ============================
 

@@ -121,7 +121,6 @@ class XWindowInterface(AbstractWindowInterface):
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
-
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         try:
             if window is None:
@@ -130,7 +129,12 @@ class XWindowInterface(AbstractWindowInterface):
         except error.BadWindow:
             logger.warning("Got BadWindow error while requesting window information.")
             return self._create_window_info(window, "", "")
-
+            
+	#  Add missing method as a stub - @dlk3
+    def get_window_list(self):
+        raise NotImplementedError('autokey.interface.get_window_list() is a stub function that is never supposed to get called, yet something just called it')
+        return
+	
     def get_window_title(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_title
 

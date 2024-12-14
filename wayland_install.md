@@ -1,54 +1,40 @@
-# wayland testing
-Currently wayland support is largely limited (and only tested on) to gnome based distributions as it relies on a gnome-shell extension to provide information about windows.
+#  Testing AutoKey on Wayland
+Wayland support is limited to GNOME-based desktops.  It relies on a custom GNOME Shell extension to provide the information it needs about desktop windows.
 
-Tested on fresh install of Ubuntu 24.04 (Gnome Shell 46). Please note that the gnome extension was just updated. It is only compatible with Gnome Shell 45+. Check your gnome shell version with `gnome-shell --version`
+This version still supports X11 desktops.  You should be able to switch between Wayland and X11 desktop environments without any problems.
 
-Instructions assume that `git`, `pip` and `venv` are already installed
+So far this update has been tested on Ubuntu 24.04 and Fedora 40 using GNOME Shell 46.
 
-```sh
+## Clone the development version of AutoKey
+```
+#  Clone the "wayland" branch from my fork of the autokey repository
+mkdir -p ~/src/autokey
+cd ~/src/autokey
+git clone https://github.com/dlk3/autokey --branch wayland
+```
+## Install system-wide prerequisites
+On Debian/Ubuntu systems do:
+```
 sudo apt update
-sudo apt install gnome-shell-extension-manager make build-essential libcairo2-dev -y
-git clone https://github.com/sebastiansam55/autokey-gnome-extension
-cd autokey-gnome-extension
-make
-gnome-extensions install autokey-gnome-extension@sebastiansam55.shell-extension.zip
-
-cd ..
-git clone https://github.com/autokey/autokey --branch develop
-cd autokey
+sudo apt install make build-essential libcairo2-dev -y
+cd ~/src/autokey
 xargs -a apt-requirements.txt sudo apt install -y
-
-python3 -m venv ~/venv
-source ~/venv/bin/activate
-
-pip install packaging pyasyncore evdev
-pip install -r pip-requirements.txt
-
-# add user to input group
-sudo usermod -a -G input $USER
-
-# add udev rule
-sudo tee /etc/udev/rules.d/10-autokey.rules > /dev/null <<EOF
-KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
-EOF
-sudo udevadm control --reload-rules
-sudo udevadm trigger
 ```
-Reboot!
-
-```sh
-# now you can run autokey and it will work
-gnome-extensions enable autokey-extension@sebastiansam55
-
-cd autokey/lib
-python3 -m autokey.gtkui -lc
+On Fedora/Redhat systems do:
 ```
-
-# dlk - wayland testing on Fedora 40
+sudo dnf -y install git make dbus-glib-devel
+cd ~/src/autokey
+xargs -a rpm-requirements.txt sudo dnf -y install
 ```
-#  Install system-wide prereqs:
-sudo dnf -y install gnome-extensions-app git make
-
+**NOTE** If you only run under X11 and don't need Wayland support you can skip the next four steps and jump down to the "Install AutoKey in a Python virtual environment" step
+##  Install the autokey-gnome-extension
+```
+cd ~/src/autokey/autokey-gnome-extension
+make
+gnome-extensions install autokey-gnome-extension@autokey.zip
+```
+##  Make system configuration changes
+```
 #  Add your userid to the "input" user group
 sudo usermod -a -G input $USER
 
@@ -57,54 +43,33 @@ sudo tee /etc/udev/rules.d/10-autokey.rules > /dev/null <<EOF
 KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
 EOF
 ```
-The system must be rebooted to pick up the UDEV change, but we'll do the next step before we reboot so that we only have to reboot once ...
-
-sebastiansam55's autokey-gnome-extension does not install due to inconsistant file naming in the ```metadata.js``` and zip files.  I have created a version that installs successfully in my fork of the autokey repo on github:
+## Reboot
+The GNOME Shell extension and the UDEV changes we have made require a system reboot to come into effect.
+## Enable the GNOME Shell Extension
 ```
-#  Clone the "wayland" branch from my fork of the autokey repository
-mkdir -p ~/src/autokey
-cd ~/src/autokey
-git clone https://github.com/dlk3/autokey --branch wayland
-
-#  Install the autokey-gnome-extension
-cd ~/src/autokey/autokey-gnome-extension
-make
-gnome-extensions install autokey-gnome-extension@autokey.zip
-```
-Gnome has to be restarted to pick up this new extension, so we'll reboot now to pickup the UDEV changes from earlier and to restart Gnome:
-```
-sudo shutdown -r now
-```
-After logging back in continue with:
-```
-#  Enable the Gnome extension
 gnome-extensions enable autokey-gnome-extension@autokey
+```
+##  Install AutoKey in a Python virtual environment
+Using a virtual environment is highly recommended to ensure that your default Python environment is not corrupted by the modules installed to run AutoKey.
+```
+#  Create the virtual environment in the ~/venv directory and activate it
+python3 -m venv ~/venv
+source ~/venv/bin/activate
 
-#  Create a Python virtual environment in which to test autokey
-python -m venv ~/autokey-test
-source ~/autokey-test/bin/activate
-
-#  Install autokey's prereqs in the virtual environment
-cd ~/src/autokey
+#  Install prerequisite Python modules into the virtual environment
 pip install packaging pyasyncore evdev
 pip install -r pip-requirements.txt
-
+```
+## Run AutoKey
+```
 #  Backup your existing autokey configuration files, this new version of autokey will modify them:
 cp -R $HOME/.config/autokey $HOME/.config/autokey-backup
 
 #  Run autokey
 cd ~/src/autokey/lib
-python -m autokey.gtkui -lc
+python3 -m autokey.gtkui -lc
 ```
-After exiting autokey you can terminate the Python virtual environment and return to your workstation's default Python environment by entering the ```deactivate``` command or simply closing the terminal window.  
-
-To run autokey again in subsequent sessions all that is necessary is:
-```
-source ~/autokey-test/bin/activate
-cd ~/src/autokey/lib
-python -m autokey.gtkui -lc
-```
-## dlk - specifying the name of your keyboard and mouse devices
+## Specifying the name of your keyboard and mouse devices
 
 When first run, autokey may display messages about it being unable to identify your keyboard or mouse device and terminate with an exception.  If it does this then you must manually configure these devices in your ```$HOME/.config/autokey/autokey.json``` file.
 
@@ -142,7 +107,8 @@ to make them look like this:
 ```
 Now I can run autokey and it will start up as expected.
 
-## dlk - cleaning up after ourselves
+## Cleaning up after ourselves
+To completely remove the test version of Autokey:
 ```
 rm -fr ~/src/autokey
 rm -fr ~/autokey-test
