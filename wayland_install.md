@@ -112,4 +112,3 @@ sudo usermod -r -G input $USER
 mv ~/.config/autokey-backup ~/.config/autokey
 sudo shutdown -r now
 ```
-
