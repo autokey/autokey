@@ -263,7 +263,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             dev_list = []
             for dev in devices:
                 dev_list.append(dev.name)
-            self.app.show_error_dialog_with_link(f"Unable to find a mouse device", f"I am unable to identify your mouse device.  Update the {cm_constants.CONFIG_FILE} configuration file with the device name for your mouse.  Here are the names of the devices on your system:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            if mouse_name == None:
+                display_mouse_name = "null"
+            else:
+                display_mouse_name = mouse_name
+            self.app.show_error_dialog_with_link(f"Unable to find a mouse device", f"I am unable to identify your mouse device.  Update the \"\"mouse\": {display_mouse_name}\" line in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name of your mouse device from this list:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
             exit(1)
             #self.app.shutdown()
         if self.keyboard is None:
@@ -271,7 +275,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             dev_list = []
             for dev in devices:
                 dev_list.append(dev.name)
-            self.app.show_error_dialog_with_link(f"Unable to find a keyboard device", f"I am unable to identify your keyboard device.  Update the {cm_constants.CONFIG_FILE} configuration file with the device name for your keyboard.  Here are the names of the devices on your system:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            if keyboard_name == None:
+                display_keyboard_name = "null"
+            else:
+                display_keyboard_name = keyboard_name
+            self.app.show_error_dialog_with_link(f"Unable to find a keyboard device", f"I am unable to identify your keyboard device.  Update the \"\"keyboard\": {display_keyboard_name}\" line in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name of your keyboard device from this list:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
             exit(1)
             #self.app.shutdown()
 
