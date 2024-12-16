@@ -92,6 +92,7 @@ MASK_INDEXES = [
 CAPSLOCK_LEDMASK = 1<<0
 NUMLOCK_LEDMASK = 1<<1
 
+WMCTRL_GEOM_REGEX = r"^(0x[0-9a-fA-F]{8})\s{1,}(\d*)\s{1,}(\d*)\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(.*?)\s{1,}(.*?)$"
 
 def str_or_bytes_to_bytes(x: typing.Union[str, bytes, memoryview]) -> bytes:
     if type(x) == bytes:
@@ -130,11 +131,41 @@ class XWindowInterface(AbstractWindowInterface):
             logger.warning("Got BadWindow error while requesting window information.")
             return self._create_window_info(window, "", "")
             
-	#  Add missing method as a stub - @dlk3
-    def get_window_list(self):
-        raise NotImplementedError('autokey.interface.get_window_list() is a stub function that is never supposed to get called, yet something just called it')
-        return
-	
+    #  @dlk3 - Add missing get_window_list() method required by AbstractWindowInterface
+    #
+    #  I'm not sure if this ever gets called but this is my best guess, based off
+    #  the gnome_autokey_extension List() function for the return data structure 
+    #  and the autokey.scripting.window.get_window_list() method's use of wmctrl.
+    def get_window_list(self, filter_desktop=-1):
+        try:
+            p = subprocess.run("wmctrl -lGp", shell=True, capture_output=True, check=True)
+        except:
+            logger.exception('Call to "wmctrl -lG" command failed with an exception')
+        REGEX = r"^(0x[0-9a-fA-F]{8})\s{1,}(\d*)\s{1,}(\d*)\s{1,}(\d*)\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(\d{1,})\s{1,}(.*?)\s{1,}(.*?)$"
+        matches = re.findall(REGEX, p.stdout.decode().strip(), re.MULTILINE)
+        winjsonarr = []
+        for match in matches:
+            if filter_desktop == -1 or match[1] == filter_desktop:
+                winjsonarr.append({
+                    'wm_class': None,
+                    'wm_class_instance': None,
+                    'wm_title': match[8],
+                    'workspace': None,
+                    'desktop': match[1],
+                    'pid': match[2],
+                    'id': match[0],
+                    'frame_type': None,
+                    'window_type': None,
+                    'width': match[5],
+                    'height': match[6],
+                    'x': match[3],
+                    'y': match[4],
+                    'focus': None,
+                    'in_current_workspace': None
+            })
+        logger.debug('autokey.interface.get_window_list(filter_desktop={}) returned {}'.format(filter_desktop, json.dumps(winjsonarr, indent=4)))
+        return winjsonarr
+		
     def get_window_title(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_title
 

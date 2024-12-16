@@ -1,39 +1,47 @@
 #  Testing AutoKey on Wayland
 Wayland support is limited to GNOME-based desktops.  It relies on a custom GNOME Shell extension to provide the information it needs about desktop windows.
 
-This version still supports X11 desktops.  You should be able to switch between Wayland and X11 desktop environments without any problems.
+This version of AutoKey still supports X11 desktops.  You should be able to switch between Wayland and X11 desktop environments without any problems.  AutoKey looks at the XDG_SESSION_TYPE environment variable to determine whether or not it is running in Wayland.
 
-So far this update has been tested on Ubuntu 24.04 and Fedora 40 using GNOME Shell 46.
+Basic testing of this version of AutoKey has been done on:
+- Ubuntu 24.04 (GNOME Shell 46.0) - under Wayland and X11
+- Fedora 40 Workstation (GNOME Shell 46.6) - under Wayland and X11 
+- Fedora 41 Workstation (GNOME Shell 47.2) - under Wayland only, X11 is deprecated in this release
 
-## Clone the development version of AutoKey
+## 1) Clone the development version of AutoKey
 ```
-#  Clone the "wayland" branch from my fork of the autokey repository
-mkdir -p ~/src/autokey
-cd ~/src/autokey
+#  Clone the "wayland" branch from my fork of the AutoKey repository
+mkdir -p ~/src
+cd ~/src
 git clone https://github.com/dlk3/autokey --branch wayland
 ```
-## Install system-wide prerequisites
-On Debian/Ubuntu systems do:
+**NOTE** Assuming the pull request with my updates gets merged into the develop branch of the master AutoKey repository, once that is done the code can be cloned from that repo as well, using this command:
+```
+git clone https://github.com/autokey/autokey --branch develop
+```
+## 2a) Install Ubuntu system prereqs:
 ```
 sudo apt update
-sudo apt install make build-essential libcairo2-dev -y
+sudo apt install make build-essential libcairo2-dev python3-venv gnome-shell-extension-manager -y
 cd ~/src/autokey
 xargs -a apt-requirements.txt sudo apt install -y
 ```
-On Fedora/Redhat systems do:
+## 2b) Install Fedora system prereqs:
 ```
-sudo dnf -y install git make dbus-glib-devel
+sudo dnf -y group install c-development
+sudo dnf -y install git make cmake dbus-glib-devel python3-devel cairo-devel gobject-introspection-devel cairo-gobject-devel
 cd ~/src/autokey
 xargs -a rpm-requirements.txt sudo dnf -y install
 ```
-**NOTE** If you only run under X11 and don't need Wayland support you can skip the next four steps and jump down to the "Install AutoKey in a Python virtual environment" step
-##  Install the autokey-gnome-extension
+## 3) Install AutoKey
+**NOTE** If you only ever run under X11 and don't need Wayland support you can skip the next four steps and jump down to the "3.5 Install AutoKey in a Python virtual environment" step.
+###  3.1) Install the autokey-gnome-extension GNOME Shell extension
 ```
 cd ~/src/autokey/autokey-gnome-extension
 make
 gnome-extensions install autokey-gnome-extension@autokey.zip
 ```
-##  Make system configuration changes
+###  3.2) Make system configuration changes to enable use of the uinput interface
 ```
 #  Add your userid to the "input" user group
 sudo usermod -a -G input $USER
@@ -43,13 +51,16 @@ sudo tee /etc/udev/rules.d/10-autokey.rules > /dev/null <<EOF
 KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
 EOF
 ```
-## Reboot
+### 3.3) Reboot
 The GNOME Shell extension and the UDEV changes we have made require a system reboot to come into effect.
-## Enable the GNOME Shell Extension
+```
+sudo shutdown -r now
+```
+### 3.4) Enable the GNOME Shell extension
 ```
 gnome-extensions enable autokey-gnome-extension@autokey
 ```
-##  Install AutoKey in a Python virtual environment
+###  3.5) Install AutoKey in a Python virtual environment
 Using a virtual environment is highly recommended to ensure that your default Python environment is not corrupted by the modules installed to run AutoKey.
 ```
 #  Create the virtual environment in the ~/venv directory and activate it
@@ -58,64 +69,47 @@ source ~/venv/bin/activate
 
 #  Install prerequisite Python modules into the virtual environment
 pip install packaging pyasyncore evdev
+cd ~/src/autokey
 pip install -r pip-requirements.txt
 ```
-## Run AutoKey
+### 3.6) Run AutoKey
 ```
 #  Backup your existing autokey configuration files, this new version of autokey will modify them:
-cp -R $HOME/.config/autokey $HOME/.config/autokey-backup
+cp -R ~/.config/autokey ~/.config/autokey-backup
 
 #  Run autokey
 cd ~/src/autokey/lib
-python3 -m autokey.gtkui -lc
+python3 -m autokey.gtkui -vc
 ```
-## Specifying the name of your keyboard and mouse devices
+After AutoKey has been terminated, the Python virtual environment can be deactivated by entering the command ```deactivate``` at the command prompt, or by exiting the terminal window.
 
-When first run, autokey may display messages about it being unable to identify your keyboard or mouse device and terminate with an exception.  If it does this then you must manually configure these devices in your ```$HOME/.config/autokey/autokey.json``` file.
-
-The debug output from autokey will contain a list of all of the devices it found.  This is what that looks like on my workstation:
+On subsequent runs, start AutoKey with these commands:
 ```
-2024-12-13 14:46:30,099 DEBUG - autokey.uinput_interface - Found device: Sleep Button
-2024-12-13 14:46:30,099 DEBUG - autokey.uinput_interface - Found device: Power Button
-2024-12-13 14:46:30,099 DEBUG - autokey.uinput_interface - Found device: Power Button
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: Logitech ERGO M575
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: Logitech K330
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: PC Speaker
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: Eee PC WMI hotkeys
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA NVidia HDMI/DP,pcm=3
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA NVidia HDMI/DP,pcm=7
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA NVidia HDMI/DP,pcm=8
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA NVidia HDMI/DP,pcm=9
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Rear Mic
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Front Mic
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Line
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Line Out Front
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Line Out Surround
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Line Out CLFE
-2024-12-13 14:46:30,100 DEBUG - autokey.uinput_interface - Found device: HDA Intel PCH Front Headphone
-2024-12-13 14:46:30,100 ERROR - autokey.uinput_interface - Unable to find mouse
+source ~/venv/bin/activate
+cd ~/src/autokey/lib
+python3 -m autokey.gtkui -v
 ```
-My mouse is the "Logitech ERGO M575" device and my keyboard is the "Logitech K330" device.  I must edit ```$HOME/.config/autokey/autokey.json``` and update these two lines in the ```settings``` element:
+## 4) Installing the AutoKey icons
+If you don't already have the AutoKey icons installed on your system, AutoKey will show up on the taskbar as an unknown three dot icon.  To install the AutoKey icons:
 ```
-        "keyboard": null,
-        "mouse": null,
+mkdir ~/.local/share/icons   #  If you don't already have this directory
+cd ~/src/autokey/config/
+cp -vr *.png *.svg Humanity ubuntu-mono-* ~/.local/share/icons/
 ```
-to make them look like this:
-```
-        "keyboard": "Logitech K330",
-        "mouse": "Logitech ERGO M575",
-```
-Now I can run autokey and it will start up as expected.
-
-## Cleaning up after ourselves
+**NOTE** By default, the GNOME desktop on Fedora does not have a taskbar.  There will be no AutoKey icon or any way to access the AutoKey main window until a GNOME Shell extension is added that displays a taskbar.  My favorite extension for this purpose is "AppIndicator and KStatusNotifierItem Support by 3v1n0" but there are other choices.  Go to https://extensions.gnome.org to find, install, and manage GNOME Shell extensions on your desktop.
+## 5) Cleaning up after ourselves
 To completely remove the test version of Autokey:
 ```
+#  If you installed the AutoKey icon files in ~/.local/share/icons, then:
+find ~/.local/share/icons -iwholename \*/autokey\* -delete
+
 rm -fr ~/src/autokey
-rm -fr ~/autokey-test
+rm -fr ~/venv
 gnome-extension disable autokey-gnome-extension-autokey@autokey
 gnome-extension uninstall autokey-gnome-extension-autokey@autokey
 sudo rm /etc/udev/rules.d/10-autokey.rules
 sudo usermod -r -G input $USER
-mv $HOME/.config/autokey-backup $HOME/.config/autokey
+mv ~/.config/autokey-backup ~/.config/autokey
 sudo shutdown -r now
 ```
+

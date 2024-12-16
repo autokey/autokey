@@ -259,14 +259,21 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                 self.mouse = self.grab_device(devices, dev.name)
 
         if self.mouse is None:
-            logger.error("Unable to find mouse")
-            self.app.show_error_dialog_with_link(f"Unable to find mouse {mouse_name}", f"Update {cm_constants.CONFIG_FILE} with name of your mouse device", link_data=cm_constants.CONFIG_FILE)
-            self.app.shutdown()
-            # raise Exception("Unable to find mouse or keyboard")
+            logger.error(f"Unable to find mouse \"{mouse_name}\"")
+            dev_list = []
+            for dev in devices:
+                dev_list.append(dev.name)
+            self.app.show_error_dialog_with_link(f"Unable to find a mouse device", f"I am unable to identify your mouse device.  Update the {cm_constants.CONFIG_FILE} configuration file with the device name for your mouse.  Here are the names of the devices on your system:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            exit(1)
+            #self.app.shutdown()
         if self.keyboard is None:
-            logger.error(f"Unable to find keyboard {keyboard_name}")
-            self.app.show_error_dialog_with_link(f"Unable to find keyboard {keyboard_name}", f"Update {cm_constants.CONFIG_FILE} with name of your keyboard device", link_data=cm_constants.CONFIG_FILE)
-            self.app.shutdown()
+            logger.error(f"Unable to find keyboard \"{keyboard_name}\"")
+            dev_list = []
+            for dev in devices:
+                dev_list.append(dev.name)
+            self.app.show_error_dialog_with_link(f"Unable to find a keyboard device", f"I am unable to identify your keyboard device.  Update the {cm_constants.CONFIG_FILE} configuration file with the device name for your keyboard.  Here are the names of the devices on your system:\n\n{'\n'.join(dev_list)}\n\nClick the \"Open\" button below to edit the configuration file now or press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            exit(1)
+            #self.app.shutdown()
 
         self.devices = [self.keyboard, self.mouse]
         logger.debug("Keyboard: {}, Path: {}".format(self.keyboard.name, self.keyboard.path))

@@ -5,10 +5,21 @@ Changelog
 @dlk3 updates to "develop" branch
 ============================
 
-- Rewrite wayland_install.md instructions to add support for installation on Fedora. (Includes updating apt-requirements.txt and creating rpm-requirements.txt.)
-- Bring @samsebastian55's gnome-autokey-extension into the repository and rewrite the make file it so that it makes/installs properly.
-- Fix syntax error in autokey_app.getAPIUsage() line 147 re.compile statement.
-- Create a stub autokey.interface.get_window_list() method to satisfy the requirements of the abstract class when running in X11.
+These are the changes I made to install and test the "develop" branch on Ubuntu and Fedora under Wayland and X11:
+
+- Rewrite wayland_install.md instructions to add support for installation on Fedora. (Includes updating apt-requirements.txt and creating Fedora equivalent rpm-requirements.txt.)
+- Bring @samsebastian55's gnome-autokey-extension into the repository and rewrite the make file so that it makes/installs properly.
+- Fix syntax errors, fixing the escapes used in regular expression strings:
+  - lib/autokey/autokey_app.py at line 147
+  - lib/autokey/model/abstract_abbreviation.py at line 144
+  - lib/autokey/model/constants.py at line 19
+  - lib/autokey/model/key.py at line 142
+- Create an autokey.interface.get_window_list() method to satisfy the requirements of its abstract class.
+- Python imghdr function in lib/autokey/sripting/highlevel.py is deprecated in Python 3.11 and removed in 3.13.  Replaced it with puremagic module function.
+  - Updated pip-requirements.txt to include puremagic
+- Improved the error messages displayed when AutoKey is unable to identify the keyboard or mouse device to provide the user with the information they need to fix the problem.
+  -  Changed error messages in lib/autokey/uinput_interface.py at lines 261-276
+  -  Fixed the autokey.gtkapp.show_error_dialog_with_link() method so that it will now show the error details text passed to it.
 
 Version Develop
 ============================

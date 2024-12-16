@@ -6,7 +6,7 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
+import puremagic
 import struct
 
 
@@ -72,7 +72,7 @@ def get_png_dim(filepath: str) -> int:
     :returns: (width, height).
     :raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
+    if not puremagic.from_file(filepath) == '.png':
         raise Exception("not PNG")
     head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])

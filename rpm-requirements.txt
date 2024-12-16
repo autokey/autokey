@@ -3,8 +3,9 @@ dbus-devel
 dbus-glib
 gnome-extensions-app
 gobject-introspection
+gtksourceview3
 kdialog
-pygobject2
+libayatana-appindicator-gtk3
 python3-dbus
 python3-gobject
 python3-pip
