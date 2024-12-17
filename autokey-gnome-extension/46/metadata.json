@@ -8,5 +8,9 @@
     "47"
   ],
   "version": 0.2,
-  "url": "https://github.com/autokey/autokey/autokey-gnome-extension"
+  "url": "https://github.com/autokey/autokey/autokey-gnome-extension",
+  "session-modes": [
+    "user",
+    "unlock-dialog"
+  ]
 }
