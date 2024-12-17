@@ -27,7 +27,7 @@ You can try out the code by cloning it and testing it locally on your machine wi
      3. Run the AutoKey module in either **GTK** or **Qt** mode:
         * AutoKey GTK: `python3 -m autokey.gtkui`
         * AutoKey Qt: `python3 -m autokey.qtui`
-   * Run the clone from anywhere or from a shortcut by replacing `~/Desktop/autokey` in the examples with the path to your clone:
+   * Run the clone from anywhere by replacing the example `~/Desktop/autokey` path with the path to your clone:
      * AutoKey GTK: `cd ~/Desktop/autokey; cd lib; python3 -m autokey.gtkui`
      * AutoKey Qt: `cd ~/Desktop/autokey; cd lib; python3 -m autokey.qtui`
 	 * Note that command-line options (like `-c` can be added to the end of any of those AutoKey commands.
