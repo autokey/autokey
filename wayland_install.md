@@ -105,8 +105,8 @@ find ~/.local/share/icons -iwholename \*/autokey\* -delete
 
 rm -fr ~/src/autokey
 rm -fr ~/venv
-gnome-extension disable autokey-gnome-extension-autokey@autokey
-gnome-extension uninstall autokey-gnome-extension-autokey@autokey
+gnome-extensions disable autokey-gnome-extension-autokey@autokey
+gnome-extensions uninstall autokey-gnome-extension-autokey@autokey
 sudo rm /etc/udev/rules.d/10-autokey.rules
 sudo usermod -r -G input $USER
 mv ~/.config/autokey-backup ~/.config/autokey

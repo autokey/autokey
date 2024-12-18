@@ -6,6 +6,7 @@ __pycache__
 *.pyc
 .tox/
 build/*
+lib/autokey/qtui/resources/icons/
 
 # Environments
 .env

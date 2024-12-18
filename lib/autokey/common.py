@@ -35,13 +35,13 @@ LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
 
 APP_NAME = "autokey"
 CATALOG = ""
-VERSION = "0.96.0-beta.9"
+VERSION = "1.0.0-beta.1"
 HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'
-MAINTAINER = 'GuoCi'
-MAINTAINER_EMAIL = 'guociz@gmail.com'
-BUG_EMAIL = "guociz@gmail.com"
+MAINTAINER = 'sebastiansam55'
+MAINTAINER_EMAIL = 'sebastiansam55@gmail.com'
+BUG_EMAIL = ""
 COPYRIGHT = """
 (c) 2009-2012 Chris Dekter
 (c) 2014 GuoCi
