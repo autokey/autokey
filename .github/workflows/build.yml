@@ -16,18 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: [3.12.3]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         # This path is specific to Ubuntu
         path: ~/.cache/pip
@@ -53,7 +53,7 @@ jobs:
         mv ../*.deb debs
 
     - name: Upload built debs as artifacts
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v4
       with:
         name: debs
         path: debs
@@ -64,16 +64,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: [3.12.3]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Cache pip
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         # This path is specific to Ubuntu
         path: ~/.cache/pip
@@ -99,7 +99,7 @@ jobs:
         --outdir dist/
 
     - name: Upload built dist as artifact
-      uses: actions/upload-artifact@master
+      uses: actions/upload-artifact@v4
       with:
         name: dist
         path: dist/
@@ -110,10 +110,10 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.10]
+        python-version: [3.12.3]
     needs: [build_pypi_wheel, build_deb]
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         # Fetch all history so that we get tags.
         fetch-depth: 0
@@ -125,15 +125,15 @@ jobs:
         ref: ${{ github.ref }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
-        check-name: 'pytest (3.10)'
+        check-name: 'pytest (3.12.3)'
 
     - name: Download built dist as artifact
-      uses: actions/download-artifact@master
+      uses: actions/download-artifact@v4
       with:
         name: dist
         path: dist/
     - name: Download built debs as artifacts
-      uses: actions/download-artifact@master
+      uses: actions/download-artifact@v4
       with:
         name: debs
         path: ../debs

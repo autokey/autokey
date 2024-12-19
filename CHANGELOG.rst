@@ -31,6 +31,11 @@ Important misc changes
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
 - Fix erroneous `window.close` in place of `window.resize_move` in documentation
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
+- Copy bumped versions in ``build.yml`` to **develop** -- issue #993.
+- Copy ``pages.yml`` to **develop** -- issue #993.
+- Copy bumped versions in ``python-test.yml`` to **develop** -- issue #993.
+- Copy bumped versions in ``setup.cfg`` to **develop** -- issue #993.
+- Copy bumped versions and **pyasyncore** fix in ``setup.py`` to **develop** -- issue #993.
 
 
 Features
