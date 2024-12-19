@@ -27,6 +27,8 @@ These are the changes I made to install and test the "develop" branch on Ubuntu 
   -  Changed error messages in lib/autokey/uinput_interface.py at lines 261-276
   -  Fixed the autokey.gtkapp.show_error_dialog_with_link() method so that it will now show the error details text passed to it.
 
+- Improved the error message displayed when AutoKey is unable to connect to the GNOME Shell extension, at lines 203-205 in lib/autokey/autokey_app.py.
+
 - Fixed bug associated with TODO at line 81 in lib/autokey/gnome_interface.py that casued an exception that caused AutoKey to miss matching abbreviations that were typed after one of the GNOME session utilities (Activities page, screen lock, screenshot, etc) had been active.
 - Fix path specifications for macros.csv and api.csv files in lib/autokey/gtkui/configwindow.py.
 
