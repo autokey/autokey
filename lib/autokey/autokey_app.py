@@ -201,8 +201,8 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
+            self.UI.show_error_dialog("Error starting the keyboard/mouse interface. Keyboard and mouse monitoring will be disabled.",
+                                   "Do you have the AutoKey GNOME Shell extension installed and enabled?  Issue the following command to try to enable the extension and then restart AutoKey:\n\ngnome-extensions enable autokey-gnome-extension@autokey\n\nIf that command fails, see the installation instructions for information on how to install the GNOME Shell extension.")
 
     def __try_start_monitor(self):
         try:
