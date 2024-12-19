@@ -109,7 +109,7 @@ class AutokeyApplication:
         if self.__verify_not_running():
             AutokeyApplication.create_lock_file()
             atexit.register(os.remove, common.LOCK_FILE)
-
+			
         self.__initialise_services()
         self.__add_user_code_dir_to_path()
         self.__create_DBus_service()
@@ -144,7 +144,7 @@ class AutokeyApplication:
     def getAPIUsage(self, code):
         api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
 
-        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+        reg = re.compile("("+"|".join(api_modules)+")\\.(\\w*)\\(")
 
         results = re.findall(reg, code)
 
@@ -201,8 +201,8 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
+            self.UI.show_error_dialog("Error starting the keyboard/mouse interface. Keyboard and mouse monitoring will be disabled.",
+                                   "Do you have the AutoKey GNOME Shell extension installed and enabled?  Issue the following command to try to enable the extension and then restart AutoKey:\n\ngnome-extensions enable autokey-gnome-extension@autokey\n\nIf that command fails, see the installation instructions for information on how to install the GNOME Shell extension.")
 
     def __try_start_monitor(self):
         try:
