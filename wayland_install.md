@@ -43,10 +43,7 @@ gnome-extensions install autokey-gnome-extension@autokey.zip
 ```
 ###  3.2) Make system configuration changes to enable use of the uinput interface
 ```
-#  Add your userid to the "input" user group
-sudo usermod -a -G input $USER
-
-#  Add a new udev rule configuration file (copy these three lines together as one into a terminal window and press enter)
+#  Add a new udev rule configuration file that grants the "input" user group access to the /dev/uinput kernel device (copy these three lines together as one into a terminal window and press enter)
 sudo tee /etc/udev/rules.d/10-autokey.rules > /dev/null <<EOF
 KERNEL=="uinput", SUBSYSTEM=="misc", OPTIONS+="static_node=uinput", TAG+="uaccess", GROUP="input", MODE="0660"
 EOF
@@ -56,10 +53,12 @@ The GNOME Shell extension and the UDEV changes we have made require a system reb
 ```
 sudo shutdown -r now
 ```
-### 3.4) Enable the GNOME Shell extension
+### 3.4) Enable the GNOME Shell extension and add your userid to the "input" user group
+Run this script:
 ```
-gnome-extensions enable autokey-gnome-extension@autokey
+~/src/autokey/autokey-user-config
 ```
+You will be prompted to log off and log back on again after running that script.
 ###  3.5) Install AutoKey in a Python virtual environment
 Using a virtual environment is highly recommended to ensure that your default Python environment is not corrupted by the modules installed to run AutoKey.
 ```

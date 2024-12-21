@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+
+#  Copyright (C) 2024  David King <dave@daveking.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#################################################################################
+#  This script builds a source RPM for AutoKey and submits it to Fedora COPR
+#  for build and distribution.  This expects to be run from its position in
+#  the source tree.  File paths will need adjustment if that's not the case.
+
+import subprocess
+import os, shutil
+import re
+from optparse import OptionParser
+
+import logging
+log_datefmt = '%d-%b-%y %H:%M:%S'
+logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt=log_datefmt, level=logging.INFO)
+
+#  A utility function to execute a shell command
+def doCmd(cmd, capture=True):
+	try:
+		p = subprocess.run(cmd, shell=True, capture_output=capture, check=True)
+	except subprocess.CalledProcessError as e:
+		logging.error(f'{cmd} failed, return code = {e.returncode}')
+		if capture:
+			logging.info(f'stdout:\n{e.stdout}')
+			logging.info(f'stderr:\n{e.stderr}')
+		return e
+	except Exception as e:
+		logging.exception(f'"{cmd}" command failed, return code = {e.returncode}')
+		return e
+	return p
+
+# Handle command line arguments and options
+usage = 'usage: %prog [-n|--no-copr]'
+desc = 'This script creates a source RPM locally and sends it to Fedora COPR where RPMs will be built and made available in an installation repo. Run this script from its location within the project\'s source tree.'
+parser = OptionParser(usage=usage, description=desc)
+parser.add_option('-n', '--nocopr', action='store_false', dest='do_copr', default=True, help='Just build a source RPM locally, don\'t send it to COPR for building/distrbution.')
+(opts, args) = parser.parse_args()
+
+logging.info('Setting up RPM package build environment')
+
+#  Make sure that the rpmbuild and rpmdev-setuptree tools are installed
+p = doCmd('sudo dnf -y install rpm-build rpmdevtools')
+if p.returncode != 0:
+	exit(p.returncode)
+
+#  Make sure that the rpmbuild directory tree is in place
+p = doCmd('rpmdev-setuptree')
+if p.returncode != 0:
+	exit(p.returncode)
+
+#  Copy the spec file to the SPECS directory
+specfile = os.path.join(os.path.expanduser('~'), 'rpmbuild/SPECS/autokey.spec')
+try:
+	shutil.copy('autokey.spec', specfile)
+except:
+	logging.exception('Unexpected exception while trying to copy file')
+	exit(1)
+	
+#  Get the package name and version number out of the spec file
+try:
+	with open(specfile) as f:
+		spec = f.read()
+	name = re.search(r'^Name:\s*(.*)', spec, re.M).group(1).strip()
+	version = re.search(r'^Version:\s*(.*)', spec, re.M).group(1).strip()
+except:
+	logging.exception(f'Unexpected exception while reading name and/or version number from {specfile}')
+	exit(1)
+
+logging.info(f'Building source package (SRPM) for {name}-{version}')
+
+#  tar the source code into the SOURCES directory
+tarfile = os.path.join(os.path.expanduser('~'), f'rpmbuild/SOURCES/v{version}.tar.gz')
+p = doCmd(f'tar -C .. --exclude=.git* --exclude=build --exclude=.tox --exclude=*/__pycache__/* --exclude=lib/autokey/qtui/resources/icons  --transform="s/.\\//{name}-{version}\\//" -zcf {tarfile} .')
+if p.returncode != 0:
+	exit(p.returncode)
+
+#  Put additional files into SOURCES
+try:
+	shutil.copy('../debian/10-autokey.rules', os.path.join(os.path.expanduser('~'), f'rpmbuild/SOURCES/10-autokey.rules'))
+	shutil.copy('../autokey-gnome-extension/46/metadata.json', os.path.join(os.path.expanduser('~'), f'rpmbuild/SOURCES/metadata.json'))
+	shutil.copy('../autokey-gnome-extension/46/extension.js', os.path.join(os.path.expanduser('~'), f'rpmbuild/SOURCES/extension.js'))
+except:
+	logging.exception('Unexpected exception while trying to copy file')
+	exit(1)	
+
+#  Build the source RPM file
+srpmfile = os.path.join(os.path.expanduser('~'), f'rpmbuild/SRPMS/{name}-{version}*.src.rpm')
+doCmd(f'rm -f {srpmfile}')
+p = doCmd(f'rpmbuild -bs {specfile}', capture=False)
+if p.returncode != 0:
+	exit(p.returncode)
+
+if opts.do_copr:
+	#  Send the source RPM file to COPR for building
+	logging.info('Sending SRPM to COPR for build')
+	#  To make this work you'll have to set up copr-cli on your own system with your 
+	#  own API token for authentication and your own copr_project name.  
+	#  See https://docs.pagure.org/copr.copr/user_documentation.html
+	copr_project = 'dlk/autokey'
+	#  Note: Python setuptools needs network access during build hence the --enable-net option
+	p = doCmd(f'copr-cli build --enable-net=on {copr_project} {srpmfile}', capture=False)
+	exit(p.returncode)
+

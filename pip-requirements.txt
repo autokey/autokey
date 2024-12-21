@@ -5,4 +5,4 @@ PyGObject
 PyQt5
 QScintilla
 pyhamcrest
-puremagic
+file-magic

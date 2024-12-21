@@ -35,7 +35,7 @@ LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
 
 APP_NAME = "autokey"
 CATALOG = ""
-VERSION = "1.0.0-beta.1"
+VERSION = "0.97.0-b1"
 HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'

@@ -18,9 +18,9 @@ These are the changes I made to install and test the "develop" branch on Ubuntu 
   - lib/autokey/model/key.py at line 142
 
 - Create an autokey.interface.get_window_list() method to satisfy the requirements of its abstract class.
-- Python imghdr function in lib/autokey/sripting/highlevel.py is deprecated in Python 3.11 and removed in 3.13.  Replaced it with puremagic module function.
+- Python imghdr function in lib/autokey/sripting/highlevel.py is deprecated in Python 3.11 and removed in 3.13.  Replaced it with a magic module function.
 
-  - Updated pip-requirements.txt to include puremagic
+  - Updated pip-requirements.txt and setup.py to include magic
 
 - Improved the error messages displayed when AutoKey is unable to identify the keyboard or mouse device to provide the user with the information they need to fix the problem.
 
@@ -31,6 +31,12 @@ These are the changes I made to install and test the "develop" branch on Ubuntu 
 
 - Fixed bug associated with TODO at line 81 in lib/autokey/gnome_interface.py that casued an exception that caused AutoKey to miss matching abbreviations that were typed after one of the GNOME session utilities (Activities page, screen lock, screenshot, etc) had been active.
 - Fix path specifications for macros.csv and api.csv files in lib/autokey/gtkui/configwindow.py.
+
+- Update the autokey.spec file that enables building installation packages for Fedora.  The net of this is that I can now create Fedora installation RPMs for AutoKey with Wayland support.  (I don't know who maintains this package on Fedora's official repos.  It looks like it currently has a generic assignment.)
+
+  - I created a new "fedora" folder in the "develop" branch and placed the fedora.spec file and the build script I created in there.  There's a README.md there that describes the content and how it can be used in more detail.
+
+- Set the version number to "0.97.0"
 
 Version Develop
 ============================

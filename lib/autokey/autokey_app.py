@@ -202,7 +202,7 @@ class AutokeyApplication:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
             self.UI.show_error_dialog("Error starting the keyboard/mouse interface. Keyboard and mouse monitoring will be disabled.",
-                                   "Do you have the AutoKey GNOME Shell extension installed and enabled?  Issue the following command to try to enable the extension and then restart AutoKey:\n\ngnome-extensions enable autokey-gnome-extension@autokey\n\nIf that command fails, see the installation instructions for information on how to install the GNOME Shell extension.")
+                                   "When running under Wayland, AutoKey needs to use the /dev/uinput device and the AutoKey GNOME Shell extension.  Please run the \"autokey-user-config\" command to enable your id to access these resources.\n\nIf this problem persists, please run AutoKey with the \"-v\" option for debugging information.  If you report a problem, please be sure to include all of the debug output in your report.")
 
     def __try_start_monitor(self):
         try:

@@ -183,7 +183,7 @@ setup(
             'autokey-headless=autokey.headless_app:main',
         ]
     },
-    scripts=['autokey-run', 'autokey-shell'],
+    scripts=['autokey-run', 'autokey-shell', 'autokey-user-config'],
     # Minimal installation pre-requisite python packages.
     # Some are not included here because they should be installed
     # through the system package manager, not pip.
@@ -191,7 +191,7 @@ setup(
         'pyinotify',
         'python-xlib',
         'packaging',
-        'puremagic'
+        'file-magic'
     ],
     extras_require={
             "QT": [

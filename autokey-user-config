@@ -1,0 +1,74 @@
+#!/usr/bin/env sh
+
+#  Copyright (C) 2024  David King <dave@daveking.com>
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#################################################################################
+#  Configure the userid that is running this script to use AutoKey on Wayland.
+#  - Enable the AutoKey GNOME Shell extension for this user so that AutoKey can
+#    obtain the desktop window information it needs from Wayland.
+#  - Add this user to the input user's group so that they can access /dev/uinput.
+
+#  Enable autokey-gnome-extension@autokey GNOME Shell extension
+EXT_NAME="autokey-gnome-extension@autokey"
+INFO=$(gnome-extensions info -q $EXT_NAME)
+RC=$?
+if [ $RC -ne 0 ]; then
+  echo "The AutoKey GNOME Shell extension is not visible to your userid.  Have you"
+  echo "logged off and back on since you installed AutoKey?  If not, please do so and"
+  echo "then run this script again."
+  echo
+  echo "If you have logged off and back on already and this problem persists, then"
+  echo "please run AutoKey with the \"-v\" option and examine the debug output to"
+  echo "determine the cause of the problem."
+  exit $RC
+elif [[ ! "$INFO" =~ "Enabled: Yes" ]]; then 
+  gnome-extensions enable $EXT_NAME
+  RC=$?
+  if [ $RC -ne 0 ]; then
+    echo "Enabling the $EXT_NAME GNOME Shell extension failed."
+    echo "This probably indicates that the AutoKey installation on your system did not"
+    echo "complete successfully.  You may want to consult the AutoKey installation"
+    echo "documentation and try uninstalling and reinstalling AutoKey."
+    exit $RC
+  fi
+fi
+
+#  Add this user to the "input" users group
+USER="$(id -un)"
+if [[ ! "$(id -Gn)" =~ "input" ]]; then
+  echo "Adding \"$USER\" to the \"input\" user group so that it can use the /dev/uinput"
+  echo "device. Root privileges will be required to do this, running the command:"
+  echo
+  echo "  sudo usermod -aG \"input\" \"$USER\""
+  sudo usermod -aG "input" "$USER"
+  RC=$?
+  if [ $RC -eq 0 ]; then
+    echo
+    echo "Your userid is now a member of the \"input\" user group but you must log off" 
+    echo "and back on to make the group active for your userid.  Please do that before"
+    echo "running AutoKey again."
+    echo
+  else
+    echo
+	echo "The user group update failed."
+	echo
+    echo "This probably indicates that the AutoKey installation on your system did not"
+    echo "complete successfully.  You may want to consult the AutoKey installation"
+    echo "documentation and try uninstalling and reinstalling AutoKey."
+    exit $RC
+  fi 
+fi
+
+echo "${USER} has been successfully configured to use AutoKey"
