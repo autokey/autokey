@@ -6,7 +6,7 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
+import magic
 import struct
 
 
@@ -72,11 +72,11 @@ def get_png_dim(filepath: str) -> int:
     @returns: (width, height).
     @raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
-        raise Exception("not PNG")
-    head = open(filepath, 'rb').read(24)
-    return struct.unpack('!II', head[16:24])
-
+    with open(filepath, 'rb') as f:
+        if not magic.detect_from_fobj(f).mime_type == "image/png":
+            raise Exception("not PNG")
+        head = f.read(24)
+        return struct.unpack('!II', head[16:24])
 
 def mouse_move(x: int, y: int, display: str=''):
     """
