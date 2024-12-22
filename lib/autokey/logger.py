@@ -44,6 +44,7 @@ def configure_root_logger(args: Namespace):
         backupCount=MAX_LOG_COUNT
     )
     file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
     stdout_stream_handler = logging.StreamHandler(sys.stdout)
     logging_level = logging.INFO

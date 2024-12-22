@@ -2,44 +2,22 @@
 Changelog
 =========
 
-@dlk3 updates to "develop" branch
-=================================
-
-These are the changes I made to install and test the "develop" branch on Ubuntu and Fedora under Wayland and X11:
-
-- Rewrite wayland_install.md instructions to add support for installation on Fedora. (Includes updating apt-requirements.txt and creating Fedora equivalent rpm-requirements.txt.)
-- Bring @samsebastian55's gnome-autokey-extension into the repository and rewrite the make file so that it makes/installs properly.
-- Add "unlock-dialog" to "session-modes" in gnome-autokey-extension metadata.json files to prevent extension from being disabled during GNOME screen lock, which causes unhandled exceptions in AutoKey.
-- Fix syntax errors, fixing the escapes used in regular expression strings:
-
-  - lib/autokey/autokey_app.py at line 147
-  - lib/autokey/model/abstract_abbreviation.py at line 144
-  - lib/autokey/model/constants.py at line 19
-  - lib/autokey/model/key.py at line 142
-
-- Create an autokey.interface.get_window_list() method to satisfy the requirements of its abstract class.
-- Python imghdr function in lib/autokey/sripting/highlevel.py is deprecated in Python 3.11 and removed in 3.13.  Replaced it with a magic module function.
-
-  - Updated pip-requirements.txt and setup.py to include magic
-
-- Improved the error messages displayed when AutoKey is unable to identify the keyboard or mouse device to provide the user with the information they need to fix the problem.
-
-  -  Changed error messages in lib/autokey/uinput_interface.py at lines 261-276
-  -  Fixed the autokey.gtkapp.show_error_dialog_with_link() method so that it will now show the error details text passed to it.
-
-- Improved the error message displayed when AutoKey is unable to connect to the GNOME Shell extension, at lines 203-205 in lib/autokey/autokey_app.py.
-
-- Fixed bug associated with TODO at line 81 in lib/autokey/gnome_interface.py that casued an exception that caused AutoKey to miss matching abbreviations that were typed after one of the GNOME session utilities (Activities page, screen lock, screenshot, etc) had been active.
-- Fix path specifications for macros.csv and api.csv files in lib/autokey/gtkui/configwindow.py.
-
-- Update the autokey.spec file that enables building installation packages for Fedora.  The net of this is that I can now create Fedora installation RPMs for AutoKey with Wayland support.  (I don't know who maintains this package on Fedora's official repos.  It looks like it currently has a generic assignment.)
-
-  - I created a new "fedora" folder in the "develop" branch and placed the fedora.spec file and the build script I created in there.  There's a README.md there that describes the content and how it can be used in more detail.
-
-- Set the version number to "0.97.0"
-
 Version Develop
 ============================
+
+Additional fixes as of December 21, 2024
+----------------------------------------
+- The version number has been changed to 0.97.0
+- Fixed a missing method bug that was causing exceptions in the XWindowInterface class in interface.py and preventing AutoKey from running under X11 - issue #87
+- Integrated the code for the AutoKey GNOME Shell extension into this project, rather than keeping it separately in @sebastiansam55's GitHub repository - issue #87
+- Fixed issue that caused AutoKey to hang after GNOME's screen lock, screenshot, login screen, or other session utilities had been active - issue #87
+- Fixed syntax errors in multiple regex expressions located throughout the code - issue #87
+- Fixed the issue caused by the **imghdr** module being removed in Python 3.13 (Fedora 41) - issue #961
+- Updated the Fedora installation specification file, **autokey.spec**, to work with this version of AutoKey, adding Wayland-related components.  - The installation process now includes manual system configuration actions that the user must perform.  An end-user script is provided for this purpose and instructions are display during the Fedora installation process and in AutoKey error messages.  These assets were moved into a new **fedora** folder created in the project.
+
+  - TODO: The Debian/Ubuntu installation process needs to be similarly modified - issue #998
+
+- Improved the clarity of the error messages shown to users when AutoKey fails to start under Wayland due to configuration problems with their userid that only they can correct.
 
 Important misc changes
 ----------------------
