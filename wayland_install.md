@@ -60,7 +60,7 @@ Run this script:
 ```
 You will be prompted to log off and log back on again after running that script.
 ###  3.5) Install AutoKey in a Python virtual environment
-Using a virtual environment is highly recommended to ensure that your default Python environment is not corrupted by the modules installed to run AutoKey.
+Using a virtual environment is highly recommended to ensure that the modules installed to support AutoKey do not conflict with your default Python environment.
 ```
 #  Create the virtual environment in the ~/venv directory and activate it
 python3 -m venv ~/venv
