@@ -5,8 +5,8 @@ Changelog
 Version Develop
 ============================
 
-Additional fixes as of December 21, 2024
-----------------------------------------
+Fixes To Enable Use Under X11 And To Package AutoKey For Fedora Systems (commit f705f79)
+----------------------------------------------------------------------------------------
 - The version number has been changed to 0.97.0
 - Fixed a missing method bug that was causing exceptions in the XWindowInterface class in interface.py and preventing AutoKey from running under X11 - issue #87
 - Integrated the code for the AutoKey GNOME Shell extension into this project, rather than keeping it separately in @sebastiansam55's GitHub repository - issue #87
@@ -18,6 +18,7 @@ Additional fixes as of December 21, 2024
   - TODO: The Debian/Ubuntu installation process needs to be similarly modified - issue #998
 
 - Improved the clarity of the error messages shown to users when AutoKey fails to start under Wayland due to configuration problems with their userid that only they can correct.
+- Made the format of the log records written to the on-disk log file match those written to the console.  All of the same records written to the console will now be written to the on-disk log file, including debugging and mouse messages.
 
 Important misc changes
 ----------------------
