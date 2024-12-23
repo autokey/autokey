@@ -53,6 +53,7 @@ def configure_root_logger(args: Namespace):
     if args.mouse_logging:
         logging_level = 9
 
+    file_handler.setLevel(logging_level)
     stdout_stream_handler.setLevel(logging_level)
     stdout_stream_handler.setFormatter(logging.Formatter(LOG_FORMAT))
 
