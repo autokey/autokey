@@ -1,0 +1,16 @@
+dbus
+dbus-devel
+dbus-glib
+gnome-extensions-app
+gobject-introspection
+gtksourceview3
+kdialog
+libayatana-appindicator-gtk3
+python3-dbus
+python3-gobject
+python3-file-magic
+python3-pip
+python3-qt5-base
+wmctrl
+xrandr
+zenity
