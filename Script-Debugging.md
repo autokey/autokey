@@ -56,13 +56,13 @@ Debug(dir())
 ```
 ## Writing messages to the AutoKey log from a script
 
-Including the following three lines of code in your script will allow you to use the facilities of the Python logging module to write log messages to the AutoKey console and disk log file.
+Including the following three lines of code in your script will allow you to use the facilities of the Python [logging module](https://docs.python.org/3/library/logging.html) to write log messages to the AutoKey console and disk log file.
 ```
 import logging
 from autokey.common import APP_NAME
 script_logger = __import__("autokey.logger").logger.get_logger(APP_NAME + '.script')
 ```
-Now you can use any of the logging functions from the "logging" module to output log messages at different levels of severity.  For example, if you want to write a list of the variables your script has access to into the log:
+Now you can use any of the logging functions from the [logging module](https://docs.python.org/3/library/logging.html) to output log messages at different levels of severity.  For example, if you want to write a list of the variables your script has access to into the log:
 ```
 script_logger.debug(f"Here is a list of the variables this script has access to:\n{dir()}")
 ```
