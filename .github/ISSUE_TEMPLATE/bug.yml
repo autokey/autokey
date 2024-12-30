@@ -1,0 +1,254 @@
+---
+name: "Open a new issue using our issue-reporting form:"
+description: >
+  Having an issue with AutoKey? Answer a few questions in our report
+  form to help us solve the issue as quickly as possible. Please click
+  the "Get started" button when you're ready to begin.
+labels: new issue
+body:
+
+  # DO YOU USE XORG OR WAYLAND?
+  - type: dropdown
+    id: display-server-technology
+    attributes:
+      label: AutoKey is a Xorg application and will not function in a Wayland session. Do you use Xorg (X11) or Wayland?
+      description: >
+        To find out your session type, you can type
+        ```echo $XDG_SESSION_TYPE``` into a terminal
+        window and press the **Enter** key or follow
+        your distribution's instructions.
+      multiple: false
+      options:
+        - Unknown
+        - Wayland
+        - Xorg
+    validations:
+      required: true
+
+  # HAS THIS ISSUE ALREADY BEEN REPORTED?
+  - type: checkboxes
+    id: existing-issue
+    attributes:
+      label: Has this issue already been reported?
+      description: >
+        If someone else has [already filled out a bug report for the
+        issue you're having](https://github.com/autokey/autokey/issues),
+        consider contributing to that report instead of creating a new
+        one. If your issue hasn't been reported yet, check this box and
+        continue filling out this form.
+      options:
+        - label: I have searched through the existing issues.
+          required: true
+
+  # IS THIS A QUESTION RATHER THAN AN ISSUE?
+  - type: checkboxes
+    id: is-a-question-not-an-issue
+    attributes:
+      label: Is this a question rather than an issue?
+      description: >+
+        When creating AutoKey issues, whenever you have a question (as opposed to an issue), it's better to post it on our [Google list](https://groups.google.com/forum/#!forum/autokey-users) or in our [Gitter chat](https://gitter.im/autokey/autokey). The list is more user-oriented, whereas more technical questions will get a better answer on Gitter.
+
+
+        Both of these venues have a number of active users, so you are likely to get more, better, and faster answers on them than in here on GitHub, where only our very busy developers and a few users see the posts. We also prefer to have the developers developing rather than taking time to answer questions and manage issues that the user-community could handle for them.
+      options:
+        - label: This is not a question.
+          required: true
+
+  # WHAT TYPE OF ISSUE IS THIS?
+  - type: dropdown
+    id: classification
+    attributes:
+      label: What type of issue is this?
+      multiple: false
+      options:
+        - Bug
+        - Crash/Hang/Data loss
+        - Documentation
+        - Enhancement
+        - Environment
+        - Performance
+        - UI/Usability
+    validations:
+      required: false
+
+  # LABELS:
+  - type: checkboxes
+    id: labels
+    attributes:
+      label: "Choose one or more terms that describe this issue:"
+      options:
+        - label: autokey triggers
+        - label: autokey-gtk
+        - label: autokey-qt
+        - label: beta
+        - label: bug
+        - label: critical
+        - label: development
+        - label: documentation
+        - label: enhancement
+        - label: installation/configuration
+        - label: phrase expansion
+        - label: scripting
+        - label: technical debt
+        - label: user interface
+    validations:
+      required: false
+
+  # OTHER LABELS:
+  - type: input
+    id: other-labels
+    attributes:
+      label: "Other terms that describe this issue if not provided above:"
+    validations:
+      required: false
+
+  # WHICH LINUX DISTRIBUTION DID YOU USE?
+  - type: textarea
+    id: linux-distribution
+    attributes:
+      label: Which Linux distribution did you use?
+      description: >
+        Provide information about your Linux distribution and its
+        release or version number.
+    validations:
+      required: false
+  
+  # WHICH AUTOKEY GUI DID YOU USE?
+  - type: dropdown
+    id: gui
+    attributes:
+      label: Which AutoKey GUI did you use?
+      multiple: false
+      options:
+        - GTK
+        - Qt
+        - Both
+    validations:
+      required: false
+  
+  # WHICH AUTOKEY VERSION DID YOU USE?
+  - type: textarea
+    id: autokey-version
+    attributes:
+      label: Which AutoKey version did you use?
+      description: >
+        Paste in your AutoKey version and, if the problem is known
+        to be present in more than one version, please list them all.
+    validations:
+      required: false
+  
+  # HOW DID YOU INSTALL AUTOKEY?
+  - type: textarea
+    id: installation-method
+    attributes:
+      label: How did you install AutoKey?
+      description: >
+        Describe where your copy of AutoKey came from.
+      placeholder: From Git, pip3, a PPA, my distribution's repository, etc.
+    validations:
+      required: false
+  
+  # CAN YOU DESCRIBE THE ISSUE?
+  - type: textarea
+    id: summary
+    attributes:
+      label: Can you briefly describe the issue?
+      description: Provide a short summary of the problem.
+    validations:
+      required: false
+  
+  # CAN THE ISSUE BE REPRODUCED?
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Can the issue be reproduced?
+      description: null
+      multiple: false
+      options:
+        - Always
+        - I didn't try
+        - N/A
+        - Rarely
+        - Sometimes
+        - Unable
+    validations:
+      required: false
+  
+  # WHAT ARE THE STEPS TO RREPRODUCE THE ISSUE?
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: What are the steps to reproduce the issue?
+      description: >
+        Provide the steps that need to be taken to reproduce the
+        behavior. For example:
+      placeholder: |
+        1. Do this.
+        2. Then do that.
+        3. Etc.
+    validations:
+      required: false
+  
+  # WHAT SHOULD HAVE HAPPENED?
+  - type: textarea
+    id: expected-result
+    attributes:
+      label: What should have happened?
+      description: Provide a description of what you expected to happen.
+    validations:
+      required: false
+  
+  # WHAT ACTUALLY HAPPENED?
+  - type: textarea
+    id: actual-result
+    attributes:
+      label: What actually happened?
+      description: Provide a description of what actually happened.
+    validations:
+      required: false
+  
+  # DO YOU HAVE SCREENSHOTS?
+  - type: textarea
+    id: screenshot
+    attributes:
+      label: Do you have screenshots?
+      description: >
+        If you have one or more screenshots of the issue, include
+        them by dragging the image file(s) below:
+    validations:
+      required: false
+  
+  # CAN YOU PROVIDE THE OUTPUT OF THE AUTOKEY COMMAND?
+  - type: textarea
+    id: verbose-output
+    attributes:
+      label: Can you provide the output of the AutoKey command?
+      description: >
+        This is only needed for some bugs. Sometimes, the output from
+        starting AutoKey from a terminal window with either the
+        ```autokey-gtk``` or ```autokey-qt``` command provides helpful
+        messages that can be pasted below. If those aren't sufficient or
+        if your issue involves a crash, throws an exception, or produces
+        other unexpected results,
+        [running an AutoKey trace](https://github.com/autokey/autokey-python2/wiki/Problem-Reporting-Guide)
+        may be helpful. You can do this by running AutoKey from a
+        terminal window with the ```autokey-gtk --verbose``` or
+        ```autokey-qt --verbose``` command, then recreating your issue,
+        then closing AutoKey, and then pasting any messages it produces
+        below:
+      render: bash
+    validations:
+      required: false
+  
+  # ANYTHING ELSE?
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: >
+        Describe any debugging steps you've taken, a workaround you've
+        figured out, or any other information you think we might need,
+        including links or references.
+    validations:
+      required: false
+...

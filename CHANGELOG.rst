@@ -2,12 +2,6 @@
 Changelog
 =========
 
-..
-   Version Develop
-   =======
-   Bug fixes
-   ---------
-
 Version Develop
 ============================
 
@@ -21,6 +15,161 @@ Create a GUI-free headless entrypoint to autokey, which can be run without GUI l
 .. ---------
 
 - Fix crash in qt macro recording window.
+- Bump action versions in pages.yml to satisfy part of issue #963.
+- Bump action versions in build.yml to satisfy part of issue #963.
+- Bump action versions in python-test.yml to satisfy part of issue #963.
+- Bump Python version in build.yml to satisfy part of issue #964.
+- Bump Python versions in python-test.yml to satisfy part of issue #964.
+- Bump Python versions in setup.cfg to satisfy issue #969.
+- Bump Python versions in setup.py to satisfy issue #970.
+- Bump to all GitHub-supported Python versions to satisfy issue #986.
+- Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
+
+Other
++++++
+- Add `show_recent_script_errors_dialog` to display errors with millisecond precision.
+- Add **Environment** as an issue type in the `bug.yml` file.
+
+Version 0.96.0
+============================
+
+
+Important misc changes
+----------------------
+
+- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted, but if switch back to versions prior to this one, you will need to copy or symlink them back to dotfile form.
+- Scripting API files are now in Python packages, which may require adjusting imports if you have scripts that import them directly.
+- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
+- This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
+- Add two sections to the issue template.
+- Change all **sudo apt** references in **master** to **sudo apt-get** to satisfy part of issue #772.
+- Bump Python version in **autokey.spec** AND **PKG-INFO**.
+- Update the **README.rst** file to satisfy part of issue #681 and issue #779.
+- Update the actions in the **build.yml** file to the latest versions in the GitHub Marketplace.
+- Remove extra unneeded curly bracket from line 350 of engine.py for the API documentation.
+- Update the actions in the **pages.yml** file to the latest versions in the GitHub Marketplace.
+
+Features
+---------
+
+Scripting API
+^^^^^^^^^^^^^
+
+**engine API object**
+
+- Deprecated: Confusingly named engine.create_abbreviation() and engine.create_hotkey() are deprecated and will be removed in the future. Use engine.create_phrase() with appropriate arguments instead.
+- Extended: engine.create_phrase() now supports multiple new optional arguments, allowing to fully configure the created phrase. It can set everything the GUI can do.
+- New: Scripts can use engine.get_triggered_abbreviation() to read which abbreviation triggered it’s execution.
+  The function returns a tuple containing the abbreviation and the trigger character (the character that 'completed' or 'confirmed' the abbreviation. Both tuple elements are None if the script was not triggered by an abbreviation. The trigger character is None if the script was configured to 'trigger immediately'. The function always returns a tuple, so direct tuple unpacking like abbreviation, trigger = engine.get_triggered_abbreviation() will always work.
+- Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
+- Allow overriding existing hotkeys when creating phrases with hotkeys.
+- Allow creation of folders.
+- Add `set_clipboard_image` methods for both Gtk and Qt. Takes a file path to an image to load into the clipboard.
+
+**keyboard API object**
+
+- keyboard.send_keys() got a new optional parameter send_mode, allowing to specify how the given text is sent. It basically offers the same pasting options as are available to AutoKey Phrases.
+- keyboard.send_keys() now raises a TypeError instead of a generic AssertionError, if parameters don’t match the expected types.
+
+**New clipboard API method**
+- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
+
+**New mouse API object**
+
+- Add mouse drag, click and scroll options to the API.
+
+Command line interface
+++++++++++++++++++++++
+
+- Added a --version command line switch. It prints the current AutoKey version on the standard output and then exits.
+
+Graphical user interfaces
++++++++++++++++++++++++++
+
+- (GTK) Warn user about missing required and optional programs on startup.
+- (GTK) UI will now update when changes are detected to watched files.
+- (GTK) refresh UI if script files are modified externally
+- Use system monospace font
+- Add setting to change GtkSourceView theme, (defaults to classic).
+
+Other
++++++
+
+- Add `wait_for_keyevent` scripting function.
+- Rewrote script error logging system, with a neat Script Error Dialog to go with it.
+- `<script>` script macros accept absolute paths.
+- Macro arguments can be quoted, allowing arguments containing spaces.
+- Macro arguments can contain angle bracket characters, if escaped.
+- Add `<system>` macro for replacing phrase contents with output of an external process.
+- Allow `autokey-run` to accept full paths to python scripts (if no full path is given, will treat as an existing Autokey script name instead).
+- Expand unicode characters using code points (hacky workaround for being unable to send actual unicode).
+- Allow disabling Capslock in settings
+- Link to script `.py` and `.json` above editor.
+- Add appropriate keywords to `.desktop` files for both UIs.
+- Build debs and update pypi on new releases
+
+Bug fixes
+---------
+
+- Both QT and GTK versions will reload hotkeys after a keymap change event.
+- Fix locking issue
+- Expose Alt_GR as a hotkey modifier on GTK.
+- Fix issue with pip installation reporting a missing module
+- Add missing closing backtick to the code snippet on line 113 of the `CHANGELOG.rst` file. Fixes issue `#906`_.
+
+.. _`#906`: https://github.com/autokey/autokey/issues/906
+
+Scripting API
++++++++++++++
+
+- Fixed API call `system.exec_command()` crashing, if output capturing is active, but the executed command has empty output. Fixes issue #379
+
+Packaging
++++++++++
+
+- Fixed AutoKey PNG icon size. Now, the icon size is 96x96 pixels, fixing Lintian warnings on Debian. Fixes issue #369
+
+Other changes
+---------
+
+- Add CI for testing
+- Update pip installation requirements
+- Add CONTRIBUTERS.rst
+- Internal Code cleanup. The configuration handling module is split into multiple modules inside a dedicated package.
+- Change clipboard wording in the AutoKey documentation.
+- Update formatting and wording in the AutoKey GTK and Qt clipboard API documentation.
+- Remove one reference to X in the AutoKey GTK clipboard API documentation.
+- Remove one reference to mouse in the AutoKey Qt clipboard API documentation.
+- AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
+- Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
+- Rename the bug.yaml file to bug.yml.
+- Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to prevent blank issues from being offered and created. Fixes `#897`_
+- Remove unnecessary white-space from the `config.yml` file.
+
+.. _`#897`: https://github.com/autokey/autokey/issues/897
+
+**New Dependencies (test-time only)**
+
+The new unit tests introduce two new, *test-time only* dependencies. These are used for unit tests only and not during normal AutoKey execution.
+
+- `pytest`
+- `PyHamcrest`
+
+Version 0.96.0-beta.11
+============================
+
+Bug fixes
+---------
+
+- Fix crash in qt macro recording window.
+
+Version 0.96.0-beta.10
+============================
+
+Bug fixes
+---------
+
+- Beta: Fix Segfault from modifying files when open in off-screen AK window
 
 Version 0.96.0-beta.9
 ============================
@@ -64,113 +213,7 @@ Version 0.96.0-beta.2
 Version 0.96.0-beta.1
 ============================
 
-Important misc changes
-----------------------
-
-- Script and phrase metadata are no longer stored as hidden dotfiles. Existing scripts should be automatically converted, but if switch back to versions prior to this one, you will need to copy or symlink them back to dotfile form.
-- Scripting API files are now in Python packages, which may require adjusting imports if you have scripts that import them directly.
-- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather  than sending keys one at a time.
-- This version represents some significant refactoring since the previous update, so bug reports will be highly appreciated.
-
-
-Features
----------
-
-Scripting API
-^^^^^^^^^^^^^
-
-**engine API object**
-
-- Deprecated: Confusingly named engine.create_abbreviation() and engine.create_hotkey() are deprecated and will be removed in the future. Use engine.create_phrase() with appropriate arguments instead.
-- Extended: engine.create_phrase() now supports multiple new optional arguments, allowing to fully configure the created phrase. It can set everything the GUI can do.
-- New: Scripts can use engine.get_triggered_abbreviation() to read which abbreviation triggered it’s execution.
-  The function returns a tuple containing the abbreviation and the trigger character (the character that 'completed' or 'confirmed' the abbreviation. Both tuple elements are None if the script was not triggered by an abbreviation. The trigger character is None if the script was configured to 'trigger immediately'. The function always returns a tuple, so direct tuple unpacking like abbreviation, trigger = engine.get_triggered_abbreviation() will always work.
-- Allow creation of 'temporary' hotkeys and whole folders (which do not persist between sessions).
-- Allow overriding existing hotkeys when creating phrases with hotkeys.
-- Allow creation of folders.
-
-**keyboard API object**
-
-- keyboard.send_keys() got a new optional parameter send_mode, allowing to specify how the given text is sent. It basically offers the same pasting options as are available to AutoKey Phrases.
-- keyboard.send_keys() now raises a TypeError instead of a generic AssertionError, if parameters don’t match the expected types.
-
-**New clipboard API method**
-- Change the default phrase send mode to `ctrl+v` (paste using clipboard) rather than sending keys one at a time.
-
-**New mouse API object**
-
-- Add mouse drag, click and scroll options to the API.
-
-**New window API method**
-
-- Adds `center_window` to center selected window on selected monitor.
-- Adds `get_window_geom` to fetch the window geometry of a window.
-- Adds `get_window_hex` to get the hex id of the first window that matches the given title.
-- Adds `get_window_list` to get list of windows via `wmctrl`.
-
-
-Command line interface
-++++++++++++++++++++++
-
-- Added a --version command line switch. It prints the current AutoKey version on the standard output and then exits.
-
-Graphical user interfaces
-+++++++++++++++++++++++++
-
-- (GTK) Warn user about missing required and optional programs on startup.
-- (GTK) UI will now update when changes are detected to watched files.
-- (GTK) refresh UI if script files are modified externally
-- Use system monospace font
-- Add setting to change GtkSourceView theme, (defaults to classic).
-
-Other
-+++++
-
-- Add `wait_for_keyevent` scripting function.
-- Rewrote script error logging system, with a neat Script Error Dialog to go with it.
-- `<script>` script macros accept absolute paths.
-- Macro arguments can be quoted, allowing arguments containing spaces.
-- Macro arguments can contain angle bracket characters, if escaped.
-- Add `<system>` macro for replacing phrase contents with output of an external process.
-- Allow `autokey-run` to accept full paths to python scripts (if no full path is given, will treat as an existing Autokey script name instead).
-- Expand unicode characters using code points (hacky workaround for being unable to send actual unicode).
-- Allow disabling Capslock in settings
-- Link to script `.py` and `.json` above editor.
-- Add appropriate keywords to `.desktop` files for both UIs.
-
-Bug fixes
----------
-
-- Both QT and GTK versions will reload hotkeys after a keymap change event.
-- Fix locking issue
-- Expose Alt_GR as a hotkey modifier on GTK.
-- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383 
-
-Scripting API
-+++++++++++++
-
-- Fixed API call `system.exec_command()` crashing, if output capturing is active, but the executed command has empty output. Fixes issue #379
-
-Packaging
-+++++++++
-
-- Fixed AutoKey PNG icon size. Now, the icon size is 96x96 pixels, fixing Lintian warnings on Debian. Fixes issue #369
-
-Other changes
----------
-
-- Add CI for testing
-- Update pip installation requirements
-- Add CONTRIBUTERS.rst
-- Internal Code cleanup. The configuration handling module is split into multiple modules inside a dedicated package.
-- AutoKey now has a working test environment again. `pytest` based unit-tests can be launched from the source checkout using `python3 setup.py test`
-
-**New Dependencies (test-time only)**
-
-The new unit tests introduce two new, *test-time only* dependencies. These are used for unit tests only and not during normal AutoKey execution.
-
-- `pytest`
-- `PyHamcrest`
+See 0.96.0 for details
 
 Version 0.95.10 <2019-12-16>
 ============================

@@ -355,6 +355,21 @@ class ConfigManager:
         for path in data["folders"]:
             yield path
 
+    def __load_folders(self, data):
+        for path in self.get_all_config_folder_paths(data):
+            f = autokey.model.folder.Folder("", path=path)
+            f.load()
+            logger.debug("Loading folder at '%s'", path)
+            self.folders.append(f)
+
+
+    def get_all_config_folder_paths(self, data):
+        for path in glob.glob(CONFIG_DEFAULT_FOLDER + "/*"):
+            if os.path.isdir(path):
+                yield path
+        for path in data["folders"]:
+            yield path
+
     def get_all_folders(self):
         out = []
         for folder in self.folders:

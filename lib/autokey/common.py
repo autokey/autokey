@@ -34,7 +34,7 @@ LOCK_FILE = os.path.join(RUN_DIR, "autokey.pid")
 
 APP_NAME = "autokey"
 CATALOG = ""
-VERSION = "0.96.0-beta.9"
+VERSION = "0.96.0"
 HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
 AUTHOR_EMAIL = 'cdekter@gmail.com'
@@ -90,3 +90,4 @@ ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 # Set at the top of each entrypoint app
 USED_UI_TYPE = "headless"
+USING_QT = False

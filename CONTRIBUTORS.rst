@@ -7,11 +7,12 @@ Please add a line to CHANGELOG.rst when creating PRs
 Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
 
 .. code:: sh
-    remote="$1"
-    url="$2"
 
-    tox
-    exit $?
+  remote="$1"
+  url="$2"
+
+  tox
+  exit $?
 
 This will abort the push if any tests fail.
 

@@ -27,7 +27,6 @@ from hamcrest import *
 from tests.engine_helpers import *
 import tests.helpers_for_tests as testhelpers
 
-import autokey.model.folder
 from autokey.configmanager import configmanager
 import autokey.model.folder as akfolder
 from autokey.configmanager.configmanager import ConfigManager
