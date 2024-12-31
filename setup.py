@@ -33,7 +33,7 @@ except ImportError:
 else:
     import setuptools.command.build_py
 
-if sys.version_info < (3, 9, 20):
+if sys.version_info < (3, 9, 0):
     print("Autokey requires Python 3.9 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
 
