@@ -32,6 +32,7 @@ def get_recent_git_tag(extra_args=[]):
 # Skip this test if the tag contains "CI_test"
 @pytest.mark.skipif("CI_test" in get_recent_git_tag(),
     reason="Don't test version for CI_test tags")
+@pytest.mark.skip(reason="This adds too much git complexity for the current maintainers. They'll just have to remember to do it properly manually.")
 def test_version_number_accurate():
     # git_tag_version = get_recent_git_tag(["--match='v*.*.*'"])
     git_tag_version = get_recent_git_tag()
