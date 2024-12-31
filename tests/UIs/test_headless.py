@@ -24,6 +24,7 @@ skip = pytest.mark.skip
 import hamcrest as hm
 
 import autokey.headless_app as headless
+import tests.helpers_for_tests as testhelpers
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -37,9 +38,16 @@ def get_errors_in_log(caplog):
 
 @patch('autokey.dbus_service.AppService' , unittest.mock.MagicMock())
 @patch('sys.argv', ['autokey-app-testing'])
-def test_application_runs_without_errors(caplog):
-    subprocess.call(["xhost", "+SI:localuser:{}".format(os.environ.get('USER'))])
-    app = headless.Application()
-    with pytest.raises(SystemExit):
-        app.shutdown()
-    hm.assert_that(get_errors_in_log(caplog), hm.empty())
+def test_application_runs_without_errors(caplog, tmp_path):
+    config = str(testhelpers.make_dummy_config(tmp_path))
+    backup = str(tmp_path / "autokey.json~")
+    confman_module_path = "autokey.configmanager.configmanager"
+    with \
+        patch(confman_module_path + ".CONFIG_DEFAULT_FOLDER", str(tmp_path)), \
+        patch(confman_module_path + ".CONFIG_FILE", config), \
+        patch(confman_module_path + ".CONFIG_FILE_BACKUP", backup):
+            subprocess.call(["xhost", "+SI:localuser:{}".format(os.environ.get('USER'))])
+            app = headless.Application()
+            with pytest.raises(SystemExit):
+                app.shutdown()
+                hm.assert_that(get_errors_in_log(caplog), hm.empty())
