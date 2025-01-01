@@ -77,7 +77,7 @@ class FileMonitor(threading.Thread):
         self.manager = WatchManager()
         self.notifier = Notifier(self.manager, self.__p)
         self.event = threading.Event()
-        self.setDaemon(True)
+        self.daemon = True
         self.watches = []
         self.__isSuspended = False
 
@@ -120,7 +120,7 @@ class FileMonitor(threading.Thread):
                 break
 
     def run(self):
-        while not self.event.isSet():
+        while not self.event.is_set():
             self.notifier.process_events()
             if self.notifier.check_events(1000):
                 self.notifier.read_events()

@@ -115,8 +115,8 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface, AbstractWindowInt
 
     def __init__(self, mediator, app):
         threading.Thread.__init__(self)
-        self.setDaemon(True)
-        self.setName("XInterface-thread")
+        self.daemon = True
+        self.name = "XInterface-thread"
         self.mediator = mediator  # type: IoMediator
         self.app = app
         self.lastChars = [] # QT4 Workaround
