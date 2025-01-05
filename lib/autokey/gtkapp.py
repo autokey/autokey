@@ -204,6 +204,8 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         # label.connect("activate-link", open_file_link, link_data)
         
         dialog = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.NONE, message_format=message)
+        if details is not None:
+            dialog.format_secondary_text(details)
         open_button = dialog.add_button("Open", Gtk.ResponseType.YES)
 
         dialog.get_message_area().add(label)

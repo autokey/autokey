@@ -109,7 +109,7 @@ class AutokeyApplication:
         if self.__verify_not_running():
             AutokeyApplication.create_lock_file()
             atexit.register(os.remove, common.LOCK_FILE)
-
+			
         self.__initialise_services()
         self.__add_user_code_dir_to_path()
         self.__create_DBus_service()
@@ -144,7 +144,7 @@ class AutokeyApplication:
     def getAPIUsage(self, code):
         api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
 
-        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+        reg = re.compile("("+"|".join(api_modules)+")\\.(\\w*)\\(")
 
         results = re.findall(reg, code)
 
@@ -201,8 +201,8 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
+            self.UI.show_error_dialog("Error starting the keyboard/mouse interface. Keyboard and mouse monitoring will be disabled.",
+                                   "When running under Wayland, AutoKey needs to use the /dev/uinput device and the AutoKey GNOME Shell extension.  Please run the \"autokey-user-config\" command to enable your id to access these resources.\n\nIf this problem persists, please run AutoKey with the \"-v\" option for debugging information.  If you report a problem, please be sure to include all of the debug output in your report.")
 
     def __try_start_monitor(self):
         try:
