@@ -44,6 +44,7 @@ Important misc changes
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
+- Fix erroneous `window.close` in place of `window.resize_move` in documentation
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
 
 
@@ -51,6 +52,7 @@ Features
 ---------
 Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
 Added Gtk autocomplete for both scripts and phrases
+
 
 Allows the distinction between left and right modifier keys for ``[Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]``.
 
@@ -73,13 +75,13 @@ Bug fixes
 - Fix crash in qt macro recording window.
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
+- Fix selection when cloning a phrase or script
 
 Other changes
 -------------
 - Rename the bug.yaml file to bug.yml.
 - Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
 - Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
-
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
 Version 0.96.0-beta.9
@@ -204,7 +206,8 @@ Bug fixes
 - Both QT and GTK versions will reload hotkeys after a keymap change event.
 - Fix locking issue
 - Expose Alt_GR as a hotkey modifier on GTK.
-- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won't post more than one notification per second. Fixes issue #383 
+- (GTK) Fixed GUI lock-up, if multiple script error notifications are posted in quick succession. The notifications are now rate-limited and won’t post more than one notification per second. Fixes issue #383
+
 
 Scripting API
 ^^^^^^^^^^^^^

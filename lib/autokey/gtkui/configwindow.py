@@ -1204,6 +1204,9 @@ class ConfigWindow:
 
         self.app.monitor.unsuspend()
         newIter = theModel.append_item(newObj, parentIter)
+        self.treeView.get_selection().unselect_all()
+        self.treeView.get_selection().select_iter(newIter)
+        self.on_tree_selection_changed(self.treeView)
         self.app.config_altered(False)
 
     def on_delete_item(self, widget, data=None):
