@@ -16,6 +16,7 @@ Important misc changes
 - Bump Python versions in setup.py to satisfy issue #970.
 - Bump to all GitHub-supported Python versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
+- Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
 
 Other
 +++++

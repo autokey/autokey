@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12.3]
+        python-version: [3.12.9]
     steps:
     - uses: actions/checkout@v4
       with:
@@ -64,7 +64,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12.3]
+        python-version: [3.12.9]
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
@@ -110,7 +110,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.12.3]
+        python-version: [3.12.9]
     needs: [build_pypi_wheel, build_deb]
     steps:
     - uses: actions/checkout@v4
@@ -125,7 +125,7 @@ jobs:
         ref: ${{ github.ref }}
         repo-token: ${{ secrets.GITHUB_TOKEN }}
         wait-interval: 10
-        check-name: 'pytest (3.12.3)'
+        check-name: 'pytest (3.12.9)'
 
     - name: Download built dist as artifact
       uses: actions/download-artifact@v4

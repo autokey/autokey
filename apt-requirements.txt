@@ -1,5 +1,6 @@
 dbus
 python3-dbus
+libcairo2-dev
 libdbus-1-dev
 libpython3-dev
 libdbus-glib-1-dev
