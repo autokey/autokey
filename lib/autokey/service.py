@@ -591,5 +591,6 @@ class ScriptRunner:
 
     def _set_script_arguments(self, script_args: typing.List[str], script_kwargs: typing.Dict[str, str]):
         """Set the arguments available via the scripting engine."""
+        logger.debug("Setting script arguments for execution: args_len=%d kwargs_len=%d", len(script_args), len(script_kwargs))
         self.engine._script_args = script_args
         self.engine._script_kwargs = script_kwargs
