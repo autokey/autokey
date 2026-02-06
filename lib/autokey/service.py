@@ -236,8 +236,8 @@ class Service:
         self.phraseRunner.execute(phrase)
 
     def run_script(self, name, script_args=None, script_kwargs=None):
-        normalized_args = [] if script_args is None else list(script_args)
-        normalized_kwargs = {} if script_kwargs is None else dict(script_kwargs)
+        normalized_args = [] if script_args is None else [str(arg) for arg in script_args]
+        normalized_kwargs = {} if script_kwargs is None else {str(k): str(v) for k, v in script_kwargs.items()}
 
         path = pathlib.Path(name)
         path = path.expanduser()
@@ -485,6 +485,7 @@ class ScriptRunner:
         self.scope["clipboard"] = autokey.scripting.Clipboard(app)
 
         self.engine = self.scope["engine"]
+    self._thread_local = threading.local()
 
     def clear_error_records(self):
         self.error_records.clear()
@@ -537,6 +538,11 @@ class ScriptRunner:
         # noinspection PyBroadException
         try:
             compiled_code = self._compile_script(script)
+            engine_obj = scope.get("engine")
+            try:
+                logger.info("About to exec script=%r args=%r kwargs=%r", script, getattr(engine_obj, "_script_args", None), getattr(engine_obj, "_script_kwargs", None))
+            except Exception:
+                logger.exception("Failed logging script arguments before exec")
             exec(compiled_code, scope)
         except Exception:  # Catch everything raised by the User code. Those Exceptions must not crash the thread.
             traceback.print_exc()
@@ -591,6 +597,8 @@ class ScriptRunner:
 
     def _set_script_arguments(self, script_args: typing.List[str], script_kwargs: typing.Dict[str, str]):
         """Set the arguments available via the scripting engine."""
-        logger.debug("Setting script arguments for execution: args_len=%d kwargs_len=%d", len(script_args), len(script_kwargs))
+        logger.info("Setting script arguments for execution: args_len=%d kwargs_len=%d", len(script_args), len(script_kwargs))
         self.engine._script_args = script_args
         self.engine._script_kwargs = script_kwargs
+        self._thread_local.script_args = script_args
+        self._thread_local.script_kwargs = script_kwargs

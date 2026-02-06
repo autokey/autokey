@@ -40,8 +40,10 @@ class AppService(dbus.service.Object):
 
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='sasa{ss}', out_signature='')
     def run_script_with_arguments(self, name, script_args, script_kwargs):
-        logger.debug("run_script_with_arguments called via DBus: name=%r args=%r kwargs_keys=%r", name, script_args, list(script_kwargs.keys()))
-        self.app.service.run_script(name, list(script_args), dict(script_kwargs))
+        logger.info("run_script_with_arguments via DBus: name=%r args=%r kwargs_keys=%r", name, script_args, list(script_kwargs.keys()))
+        normalized_args = [str(arg) for arg in script_args]
+        normalized_kwargs = {str(k): str(v) for k, v in script_kwargs.items()}
+        self.app.service.run_script(str(name), normalized_args, normalized_kwargs)
 
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
     def run_phrase(self, name):
