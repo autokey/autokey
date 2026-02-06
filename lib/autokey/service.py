@@ -485,7 +485,7 @@ class ScriptRunner:
         self.scope["clipboard"] = autokey.scripting.Clipboard(app)
 
         self.engine = self.scope["engine"]
-    self._thread_local = threading.local()
+        self._thread_local = threading.local()
 
     def clear_error_records(self):
         self.error_records.clear()
