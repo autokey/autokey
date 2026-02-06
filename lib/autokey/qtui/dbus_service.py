@@ -28,6 +28,11 @@ class AppService(QDBusAbstractAdaptor):
         '    <method name="run_script">\n'
         '      <arg type="s" name="name" direction="in"/>\n'
         '    </method>\n'
+        '    <method name="run_script_with_arguments">\n'
+        '      <arg type="s" name="name" direction="in"/>\n'
+        '      <arg type="as" name="arguments" direction="in"/>\n'
+        '      <arg type="a{ss}" name="keyword_arguments" direction="in"/>\n'
+        '    </method>\n'
         '    <method name="run_phrase">\n'
         '      <arg type="s" name="name" direction="in"/>\n'
         '    </method>\n'
@@ -53,6 +58,10 @@ class AppService(QDBusAbstractAdaptor):
     @pyqtSlot(str)
     def run_script(self, name):
         self.parent().service.run_script(name)
+
+    @pyqtSlot(str, list, dict)
+    def run_script_with_arguments(self, name, arguments, keyword_arguments):
+        self.parent().service.run_script(name, arguments, keyword_arguments)
 
     @pyqtSlot(str)
     def run_phrase(self, name):

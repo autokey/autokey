@@ -235,15 +235,18 @@ class Service:
         phrase = self.__findItem(name, autokey.model.phrase.Phrase, "phrase")
         self.phraseRunner.execute(phrase)
 
-    def run_script(self, name):
+    def run_script(self, name, script_args=None, script_kwargs=None):
+        normalized_args = [] if script_args is None else list(script_args)
+        normalized_kwargs = {} if script_kwargs is None else dict(script_kwargs)
+
         path = pathlib.Path(name)
         path = path.expanduser()
         # Check if absolute path.
         if pathlib.PurePath(path).is_absolute() and path.exists():
-            self.scriptRunner.execute_path(path)
+            self.scriptRunner.execute_path(path, normalized_args, normalized_kwargs)
         else:
             script = self.__findItem(name, autokey.model.script.Script, "script")
-            self.scriptRunner.execute_script(script)
+            self.scriptRunner.execute_script(script, buffer='', script_args=normalized_args, script_kwargs=normalized_kwargs)
 
     def __findItem(self, name, objType, typeDescription):
         for item in self.configManager.allItems:
@@ -487,11 +490,15 @@ class ScriptRunner:
         self.error_records.clear()
 
     @threaded
-    def execute_script(self, script: autokey.model.script.Script, buffer=''):
+    def execute_script(self, script: autokey.model.script.Script, buffer='', script_args=None, script_kwargs=None):
         logger.debug("Script runner executing: %r", script)
 
         scope = self.scope.copy()
         scope["store"] = script.store
+
+        normalized_args = [] if script_args is None else list(script_args)
+        normalized_kwargs = {} if script_kwargs is None else dict(script_kwargs)
+        self._set_script_arguments(normalized_args, normalized_kwargs)
 
         backspaces, trigger_character = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
@@ -505,11 +512,14 @@ class ScriptRunner:
         self.mediator.send_string(trigger_character)
 
     @threaded
-    def execute_path(self, path: pathlib.Path):
+    def execute_path(self, path: pathlib.Path, script_args=None, script_kwargs=None):
         logger.debug("Script runner executing: {}".format(path))
         scope = self.scope.copy()
         # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
         scope["__file__"] = str(path.resolve())
+        normalized_args = [] if script_args is None else list(script_args)
+        normalized_kwargs = {} if script_kwargs is None else dict(script_kwargs)
+        self._set_script_arguments(normalized_args, normalized_kwargs)
         self._execute(scope, path)
 
     def _record_error(self, script: typing.Union[autokey.model.script.Script, pathlib.Path], start_time: time.time):
@@ -578,3 +588,8 @@ class ScriptRunner:
 
         compiled_code = self._compile_script(script)
         exec(compiled_code, scope)
+
+    def _set_script_arguments(self, script_args: typing.List[str], script_kwargs: typing.Dict[str, str]):
+        """Set the arguments available via the scripting engine."""
+        self.engine._script_args = script_args
+        self.engine._script_kwargs = script_kwargs

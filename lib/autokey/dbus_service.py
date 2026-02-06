@@ -38,6 +38,10 @@ class AppService(dbus.service.Object):
     def run_script(self, name):
         self.app.service.run_script(name)
 
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='sasa{ss}', out_signature='')
+    def run_script_with_arguments(self, name, script_args, script_kwargs):
+        self.app.service.run_script(name, script_args, script_kwargs)
+
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
     def run_phrase(self, name):
         self.app.service.run_phrase(name)
