@@ -38,7 +38,7 @@ class AppService(dbus.service.Object):
     def run_script(self, name):
         self.app.service.run_script(name)
 
-    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='sas a{ss}', out_signature='')
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='sasa{ss}', out_signature='')
     def run_script_with_arguments(self, name, script_args, script_kwargs):
         self.app.service.run_script(name, list(script_args), dict(script_kwargs))
 
