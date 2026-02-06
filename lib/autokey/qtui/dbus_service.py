@@ -14,7 +14,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from PyQt5.QtCore import Q_CLASSINFO, pyqtSlot
+import autokey.logger as ak_logger
 from PyQt5.QtDBus import QDBusAbstractAdaptor, QDBusConnection
 
 
@@ -29,10 +31,9 @@ class AppService(QDBusAbstractAdaptor):
         '    <method name="run_script">\n'
         '      <arg type="s" name="name" direction="in"/>\n'
         '    </method>\n'
-        '    <method name="run_script_with_arguments">\n'
+        '    <method name="run_script_with_args_json">\n'
         '      <arg type="s" name="name" direction="in"/>\n'
-        '      <arg type="as" name="arguments" direction="in"/>\n'
-        '      <arg type="a{ss}" name="keyword_arguments" direction="in"/>\n'
+        '      <arg type="s" name="args_json" direction="in"/>\n'
         '    </method>\n'
         '    <method name="run_phrase">\n'
         '      <arg type="s" name="name" direction="in"/>\n'
@@ -45,6 +46,7 @@ class AppService(QDBusAbstractAdaptor):
 
     def __init__(self, parent):
         super(AppService, self).__init__(parent)
+        self.logger = ak_logger.get_logger(__name__)
         self.connection = QDBusConnection.sessionBus()
         path = '/AppService'
         service = 'org.autokey.Service'
@@ -58,11 +60,18 @@ class AppService(QDBusAbstractAdaptor):
 
     @pyqtSlot(str)
     def run_script(self, name):
+        self.logger.info("Qt DBus run_script called: name=%r", name)
         self.parent().service.run_script(name)
 
-    @pyqtSlot(str, list, dict)
-    def run_script_with_arguments(self, name, arguments, keyword_arguments):
-        self.parent().service.run_script(name, list(arguments), dict(keyword_arguments))
+    @pyqtSlot(str, str)
+    def run_script_with_args_json(self, name, args_json):
+        """Run a script with arguments encoded as a JSON string.
+        The JSON should be an object with 'args' (list of strings) and 'kwargs' (dict of string to string)."""
+        self.logger.info("Qt DBus run_script_with_args_json: name=%r json=%r", name, args_json)
+        data = json.loads(args_json)
+        script_args = [str(arg) for arg in data.get("args", [])]
+        script_kwargs = {str(k): str(v) for k, v in data.get("kwargs", {}).items()}
+        self.parent().service.run_script(str(name), script_args, script_kwargs)
 
     @pyqtSlot(str)
     def run_phrase(self, name):
