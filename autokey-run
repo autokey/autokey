@@ -81,7 +81,9 @@ if __name__ == "__main__":
                 script_args.append(raw_arg)
 
         try:
-            dbus_service.run_script_with_arguments(arguments.name, script_args, script_kwargs, dbus_interface="org.autokey.Service")
+            dbus_args = dbus.Array([dbus.String(arg) for arg in script_args], signature='s')
+            dbus_kwargs = dbus.Dictionary({dbus.String(k): dbus.String(v) for k, v in script_kwargs.items()}, signature='ss')
+            dbus_service.run_script_with_arguments(arguments.name, dbus_args, dbus_kwargs, dbus_interface="org.autokey.Service")
             sys.exit(0)
         except dbus.DBusException as e:
             if e.get_dbus_name() == "org.freedesktop.DBus.Error.UnknownMethod":

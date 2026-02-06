@@ -61,7 +61,7 @@ class AppService(QDBusAbstractAdaptor):
 
     @pyqtSlot(str, list, dict)
     def run_script_with_arguments(self, name, arguments, keyword_arguments):
-        self.parent().service.run_script(name, arguments, keyword_arguments)
+        self.parent().service.run_script(name, list(arguments), dict(keyword_arguments))
 
     @pyqtSlot(str)
     def run_phrase(self, name):
