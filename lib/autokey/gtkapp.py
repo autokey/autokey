@@ -78,6 +78,13 @@ class Application:
             Gdk.threads_leave()
             sys.exit("Missing required programs and/or python modules, exiting")
 
+        wayland_error = UI_common.get_wayland_error_message()
+        if wayland_error:
+            Gdk.threads_enter()
+            self.show_error_dialog("AutoKey requires X11 to run.", wayland_error)
+            Gdk.threads_leave()
+            sys.exit(1)
+
         try:
             create_storage_directories()
 

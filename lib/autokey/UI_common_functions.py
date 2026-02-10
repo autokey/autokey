@@ -78,6 +78,21 @@ def checkRequirements():
     return errorMessage
 
 
+def get_wayland_error_message():
+    session_type = os.environ.get('XDG_SESSION_TYPE', '').lower()
+    has_wayland_display = bool(os.environ.get('WAYLAND_DISPLAY'))
+    has_x11_display = bool(os.environ.get('DISPLAY'))
+
+    if (session_type == 'wayland' or has_wayland_display) and not has_x11_display:
+        return (
+            "Wayland session detected but no X11 display is available. "
+            "AutoKey currently requires X11. Please run under an X11 session "
+            "or enable XWayland."
+        )
+
+    return ""
+
+
 def create_storage_directories():
     """Create various storage directories, if those do not exist."""
     # Create configuration directory

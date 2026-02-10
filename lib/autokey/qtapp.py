@@ -112,6 +112,11 @@ class Application(QApplication):
             self.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
             sys.exit("Missing required programs and/or python modules, exiting")
 
+        wayland_error = UI_common.get_wayland_error_message()
+        if wayland_error:
+            self.show_error_dialog("AutoKey requires X11 to run.", wayland_error)
+            sys.exit(1)
+
         logger.info("Initialising application")
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, ui_common.load_icon(ui_common.AutoKeyIcon.AUTOKEY)))
         try:
