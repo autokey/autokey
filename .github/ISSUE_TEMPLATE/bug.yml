@@ -65,6 +65,7 @@ body:
         - Crash/Hang/Data loss
         - Documentation
         - Enhancement
+        - Environment
         - Performance
         - UI/Usability
     validations:

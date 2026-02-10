@@ -46,7 +46,7 @@
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
      <property name="displayFormat">
-      <string>HH:mm:ss</string>
+      <string>HH:mm:ss.zzz</string>
      </property>
     </widget>
    </item>
@@ -178,7 +178,7 @@
       <bool>false</bool>
      </property>
      <property name="placeholderText">
-      <string notr="true">The failing script’s stack trace is shown here.</string>
+      <string notr="true">The failing script's stack trace is shown here.</string>
      </property>
      <property name="openLinks">
       <bool>false</bool>
@@ -200,7 +200,7 @@
       <enum>QAbstractSpinBox::NoButtons</enum>
      </property>
      <property name="displayFormat">
-      <string>HH:mm:ss</string>
+      <string>HH:mm:ss.zzz</string>
      </property>
     </widget>
    </item>

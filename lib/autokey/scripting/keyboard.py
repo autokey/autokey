@@ -67,8 +67,8 @@ class Keyboard:
 
         Usage: C{keyboard.send_key(key, repeat=1)}
 
-        :param key: the key to be sent (e.g. "s" or "<enter>")
-        :param repeat: number of times to repeat the key event
+        @param key: the key to be sent (e.g. "s" or "<enter>")
+        @param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
             self.mediator.send_key(key)
@@ -81,7 +81,7 @@ class Keyboard:
         Usage: C{keyboard.press_key(key)}
 
         The key will be treated as down until a matching release_key() is sent.
-        :param key: they key to be pressed (e.g. "s" or "<enter>")
+        @param key: the key to be pressed (e.g. "s" or "<enter>")
         """
         self.mediator.press_key(key)
 
@@ -93,7 +93,7 @@ class Keyboard:
 
         If the specified key was not made down using press_key(), the event will be
         ignored.
-        :param key: the key to be released (e.g. "s" or "<enter>")
+        @param key: the key to be released (e.g. "s" or "<enter>")
         """
         self.mediator.release_key(key)
 
@@ -106,8 +106,8 @@ class Keyboard:
         Uses XTest to 'fake' a keypress. This is useful to send keypresses to some
         applications which won't respond to keyboard.send_key()
 
-        :param key: the key to be sent (e.g. "s" or "<enter>")
-        :param repeat: number of times to repeat the key event
+        @param key: the key to be sent (e.g. "s" or "<enter>")
+        @param repeat: number of times to repeat the key event
         """
         for _ in range(repeat):
             self.mediator.fake_keypress(key)
@@ -120,10 +120,9 @@ class Keyboard:
 
         Note: this function cannot be used to wait for modifier keys on their own
 
-
-        :param key: the key to wait for
-        :param modifiers: list of modifiers that should be pressed with the key
-        :param timeOut: maximum time, in seconds, to wait for the keypress to occur
+        @param key: the key to wait for
+        @param modifiers: list of modifiers that should be pressed with the key
+        @param timeOut: maximum time, in seconds, to wait for the keypress to occur
         """
         if modifiers is None:
             modifiers = []

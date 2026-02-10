@@ -8,11 +8,11 @@ Please make sure tests pass before you submit PRs. To ensure this happens automa
 
 .. code:: sh
 
-    remote="$1"
-    url="$2"
+  remote="$1"
+  url="$2"
 
-    tox
-    exit $?
+  tox
+  exit $?
 
 This will abort the push if any tests fail.
 
