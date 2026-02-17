@@ -34,10 +34,10 @@ PR #1076 Changes
 
   In Debian builds these scripts are implemented as files in the ``debian`` directory: ``debian/autokey-common.portinst`` and ``debian/autokey-common.prerm``.  For Fedora package builds the scripts are included as new sections in the ``fedora/autokey.spec`` file.
 
-* I adjusted the pip-requirements.txt file to account for a few missing dependencies.
-* I created a rpm-requirements for use on Fedora, which has different pre-install dependencies and package names from Debian/Ubuntu systems.  This is equivalent to the apt-requirements.txt file already in place for Debian/Ubuntu installs.
+* I adjusted the ``pip-requirements.txt`` file to account for a few missing dependencies.
+* I created a ``rpm-requirements.txt`` file for use on Fedora, which has different pre-install dependencies and package names from Debian/Ubuntu systems.  This is equivalent to the ``apt-requirements.txt`` file already in place for Debian/Ubuntu installs.
 * I implemented fixes for issues #961, #1000, #1052 and #1066.
-* I added a new option to AutoKey that controls the 'grabkey" messages that are sent to the log when debugging is enabled on an X11 system, i.e., when the ``-v`` or ``-l`` options are used.  The new ``-g`` or ``--grabkey`` option includes the "grabkey" messages in the log, ``-v`` and ``-l`` no longer do.  There is no need to use both options together, ``-g`` gives you the same debugging output that ``-v`` does and adds in the grabkey messages.  
+* I added a new option to AutoKey that controls the "grabkey" messages that are sent to the log when debugging is enabled on an X11 system, i.e., when the ``-v`` or ``-l`` options are used.  The new ``-g`` or ``--grabkey`` option includes the "grabkey" messages in the log, ``-v`` and ``-l`` no longer do.  There is no need to use both options together, ``-g`` gives you the same debugging output that ``-v`` does and adds in the grabkey messages.  
 
   This change was intended to address a complaint that @joseph11 had and which we discussed a while back.  (I cannot find, and therefore cannot reference the comment thread in which that discussion happened.)
 
