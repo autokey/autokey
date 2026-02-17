@@ -8,11 +8,11 @@ Version Develop
 PR #1076 Changes
 ----------------
 
-- Fixed the Python syntax errors that threw the exceptions that prevented the develop branch from running.  This includes fixing the three regex syntax errors mentioned in #1075.
+- Fixed the Python syntax errors that threw the exceptions that prevented the develop branch from running.  This includes fixing the three regex syntax errors mentioned in `#1075 <https://github.com/autokey/autokey/pull/1075>`__.
 
 - Modified the error messages that display when AutoKey under Wayland cannot find a keyboard/mouse device to monitor, to make it easier for the user to know what they need to do.
 
-  AutoKey under Wayland does not recognize a keyboard or mouse device on the system that does not have the word "keyboard" or "mouse" in its device name.  Devices without those words must be manually added to the AutoKey configuration.  On the first run of AutoKey this can only be done by editing the ``.config/autokey/autokey.json`` file directly.  On subsequent runs, changes can be made through the AutoKey Preferences dialog.  For more detail on how this works see `this FAQ <https://github.com/dlk3/autokey-wayland/wiki/FAQ-%E2%80%90-Frequently-Asked-Questions#autokey-tells-me-it-cant-find-my-keyboardmouse>`__ that I've provided for the users of my fork of AutoKey.
+  AutoKey under Wayland does not recognize a keyboard or mouse device on the system that does not have the word "keyboard" or "mouse" in its device name.  Devices without those words must be manually added to the AutoKey configuration.  On the first run of AutoKey, this can only be done by editing the ``.config/autokey/autokey.json`` file directly.  On subsequent runs, changes can be made through the AutoKey Preferences dialog.  For more detail on how this works, see `this FAQ <https://github.com/dlk3/autokey-wayland/wiki/FAQ-%E2%80%90-Frequently-Asked-Questions#autokey-tells-me-it-cant-find-my-keyboardmouse>`__ that I've provided for the users of my fork of AutoKey.
 - Modified AutoKey under Wayland to support more than one keyboard and one mouse at a time.
 - Modified AutoKey under Wayland to support the "hot-plugging" of USB and Bluetooth keyboard/mouse devices.
 - Added a ``wayland_checks.py`` module that validates the run-time environment as AutoKey is starting up on a Wayland system.  If the user is running AutoKey under Wayland, the module checks:
@@ -22,11 +22,11 @@ PR #1076 Changes
   - Is the user a member of the "input" users group?  (Which is a precondition for the next check.)
   - Do we have write access to the /dev/input device?
 
-  If these conditions are not met, a pop-up message is displayed telling the user what the problem is and what they can do about it.  Appropriate log messages are also written for each check and if any popup message is shown.
+  If these conditions are not met, a pop-up message is displayed telling the user what the problem is and what they can do about it.  Appropriate log messages are also written for each check, and if any pop-up message is shown.
 
-  Any user who installs AutoKey on Wayland, and does not reboot at the end of the install, will see this error when they start AutoKey.  Setting up write access to the /dev/input cannot be accomplished without a reboot and the Gnome Shell Extension installation requires at least a logoff/logon.  Asking the user to reboot covers everything in one.
+  Any user who installs AutoKey on Wayland, and does not reboot at the end of the install will see this error when they start AutoKey.  Setting up write access to the /dev/input cannot be accomplished without a reboot, and the Gnome Shell Extension installation requires at least a logoff/logon.  Asking the user to reboot covers everything in one.
 
-- Created the postinstall and preremove scripts that are needed for the Debian/Ubuntu of Fedora installation packages, DEBs and RPMs.  These scripts handle the system changes needed to allow AutoKey to run under Wayland:
+- Created the postinstall and preremove scripts that are needed for the Debian/Ubuntu and Fedora installation packages, DEBs and RPMs.  These scripts handle the system changes needed to allow AutoKey to run under Wayland:
 
   - Install the AutoKey Gnome Shell Extension
   - Add the user to the "input" user group
@@ -36,10 +36,10 @@ PR #1076 Changes
 
 * I adjusted the ``pip-requirements.txt`` file to account for a few missing dependencies.
 * I created a ``rpm-requirements.txt`` file for use on Fedora, which has different pre-install dependencies and package names from Debian/Ubuntu systems.  This is equivalent to the ``apt-requirements.txt`` file already in place for Debian/Ubuntu installs.
-* I implemented fixes for issues #961, #1000, #1052 and #1066.
+* I implemented fixes for issues `#961 <https://github.com/autokey/autokey/issues/961>`__, `#1000 <https://github.com/autokey/autokey/issues/1000>`__, `#1052 <https://github.com/autokey/autokey/issues/1052>`__ and `#1066 <https://github.com/autokey/autokey/issues/1066>`__.
 * I added a new option to AutoKey that controls the "grabkey" messages that are sent to the log when debugging is enabled on an X11 system, i.e., when the ``-v`` or ``-l`` options are used.  The new ``-g`` or ``--grabkey`` option includes the "grabkey" messages in the log, ``-v`` and ``-l`` no longer do.  There is no need to use both options together, ``-g`` gives you the same debugging output that ``-v`` does and adds in the grabkey messages.  
 
-  This change was intended to address a complaint that @joseph11 had and which we discussed a while back.  (I cannot find, and therefore cannot reference the comment thread in which that discussion happened.)
+  This change was intended to address a complaint that `@josephj11 <https://github.com/josephj11>`__ had and which we discussed a while back.  (I cannot find, and therefore cannot reference the comment thread in which that discussion happened.)
 
 Important misc changes
 ----------------------
