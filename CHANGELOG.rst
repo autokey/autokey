@@ -5,7 +5,7 @@ Changelog
 Version Develop
 ============================
 
-@dlk3 PR Changes
+PR #1076 Changes
 ----------------
 
 - Fixed the Python syntax errors that threw the exceptions that prevented the develop branch from running.  This includes fixing the three regex syntax errors mentioned in #1075.
