@@ -220,8 +220,8 @@ class ConfigManager:
                 GTK_THEME: "classic",
                 GTK_TREE_VIEW_EXPANDED_ROWS: [],
                 PATH_LAST_OPEN: "0",
-                KEYBOARD: None,
-                MOUSE: None,
+                KEYBOARD: [],
+                MOUSE: [],
                 DEVICES: [],
                 DELAY: 0.5
                 }

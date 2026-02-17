@@ -1,4 +1,4 @@
 version=4
 opts="filenamemangle=s%(?:.*?)?v?(\d[\d.]*)\.tar\.gz%autokey-$1.tar.gz%" \
-    https://github.com/autokey/autokey/tags \
+    https://github.com/dlk3/autokey-wayland/tags \
     (?:.*?/)?v?(\d[\d.]*)\.tar\.gz debian

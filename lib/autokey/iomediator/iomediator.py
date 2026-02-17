@@ -68,7 +68,7 @@ class IoMediator(threading.Thread):
             pass
         elif session_type is None:
             pass
-        
+
         if self.interfaceType == "uinput":
             logger.debug("Using gnome extension window interface")
             self.windowInterface = GnomeExtensionWindowInterface()
@@ -102,6 +102,7 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         logger.debug("IoMediator shutting down")
         self.interface.cancel()
+        logger.debug("queue.put_nowait()")
         self.queue.put_nowait((None, None))
         logger.debug("Waiting for IoMediator thread to end")
         self.join()

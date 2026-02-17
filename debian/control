@@ -1,5 +1,5 @@
 Source: autokey
-Maintainer: Python Applications Packaging Team <python-apps-team@lists.alioth.debian.org>
+Maintainer: David King <dave@daveking.com>
 Section: utils
 Priority: optional
 Build-Depends: debhelper-compat (= 12),
@@ -12,21 +12,25 @@ Build-Depends: debhelper-compat (= 12),
                python3-pyqt5.qsci,
                python3-pyqt5.qtsvg,
                python3-setuptools,
-               python3-xlib
+               python3-xlib,
+               python3-pyinotify
 Standards-Version: 4.5.0
 Vcs-Browser: https://salsa.debian.org/python-team/applications/autokey
 Vcs-Git: https://salsa.debian.org/python-team/applications/autokey.git
-Homepage: https://github.com/autokey/autokey
+Homepage: https://github.com/dlk3/autokey-wayland
 
 Package: autokey-common
 Architecture: all
-Depends: python3-dbus,
+Depends: imagemagick,
+         python3-dbus,
+         python3-evdev,
          python3-pyinotify,
+         python3-pyudev,
          python3-xlib,
          wmctrl,
+         xautomation,
          ${misc:Depends},
          ${python3:Depends}
-Suggests: python3-pyatspi
 Description: desktop automation utility - common data
  AutoKey is a desktop automation utility for Linux and X11. It allows the
  automation of virtually any task by responding to typed abbreviations and

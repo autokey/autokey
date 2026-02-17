@@ -1,18 +1,3 @@
 $Id$
 
-The full application can be installed using pip3 from the cloned repository:
-pip3 install .
-
-Alternatively, you can build Debian packages using the following command:
-
-dpkg-buildpackage -us -uc # The built packages are placed in the parent directory
-cd ../
-
-Then to install the GTK version:
-sudo dpkg --install autokey-gtk_<version>.deb autokey-common_<version>.deb
-
-Or the Qt version:
-sudo dpkg --install autokey-qt_<version>.deb autokey-common_<version>.deb
-
-After dpkg finished, run this to install any missing dependencies:
-sudo apt-get install -f
+See https://github.com/dlk3/autokey-wayland/wiki/Installing-AutoKey-for-Wayland

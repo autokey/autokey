@@ -5,3 +5,6 @@ PyGObject
 PyQt5
 QScintilla
 pyhamcrest
+python-magic
+pyudev
+evdev

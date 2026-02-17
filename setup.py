@@ -33,8 +33,8 @@ except ImportError:
 else:
     import setuptools.command.build_py
 
-if sys.version_info < (3, 8, 18):
-    print("Autokey requires Python 3.8 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
+if sys.version_info < (3, 9, 0):
+    print("Autokey requires Python 3.9.0 or later. You are using " + ".".join(map(str, sys.version_info[:3])))
     sys.exit(1)
 
 
@@ -113,25 +113,25 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
 
 ak_metadata = extract_autokey_metadata()
 this_directory = PurePath(__file__).parent
-with open(this_directory / 'README.rst', encoding='utf-8') as f:
+with open(this_directory / 'README.md', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='autokey',
     version=ak_metadata.version,
-    description='Keyboard and GUI automation on Linux (X11)',
+    description='Keyboard and GUI automation on Linux',
     long_description=long_description,
-    long_description_content_type='text/x-rst',
+    long_description_content_type='text/x-markdown',
     author=ak_metadata.author,
     author_email=ak_metadata.author_email,
     maintainer=ak_metadata.maintainer,
     maintainer_email=ak_metadata.maintainer_email,
-    url='https://github.com/autokey/autokey',
+    url='https://github.com/dlk3/autokey-wayland',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
     # setuptools_scm removes need for MANIFEST.in. Allows setuptools to get which files to
     # include in source distributions from git.
-    setup_requires=['setuptools_scm'],
+    # setup_requires=['setuptools_scm'],
     # Use setuptools_scm to get version number from git! (Gives tag, plus dev
     # commit details since most recent tag if not on tagged commit).
     # If using this, would have to also set common.VERSION from this so that
@@ -174,7 +174,11 @@ setup(
                 ('share/man/man1/',
                  ['doc/man/autokey-qt.1',
                   'doc/man/autokey-gtk.1',
-                  'doc/man/autokey-run.1'])
+                  'doc/man/autokey-run.1']),
+                ('share/autokey/gnome-shell-extension/',
+                 ['autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip']),
+                ('share/autokey/uinput-udev-rule/',
+                 ['config/10-autokey.rules'])
                 ],
     entry_points={
         'console_scripts': [
@@ -192,6 +196,8 @@ setup(
         'pyinotify',
         'python-xlib',
         'packaging',
+        'python-magic',
+        'pyasyncore; python_version>="3.12"'
     ],
     extras_require={
             "QT": [
@@ -210,7 +216,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.10',
     ],
     keywords='automation hotkey expansion expander phrase macros keyboard auto key autokey ak shortcuts bind autohotkey mouse customization',
 )

@@ -337,7 +337,9 @@ class AbbrSettingsDialog(DialogBase):
         # TODO: list comprehension or for loop, instead of manual loop
         try:
             while True:
-                text = model.get_value(i.next().iter, 0)
+                # Fix issue 646
+                #text = model.get_value(i.next().iter, 0)
+                text = model.get_value(next(i).iter, 0)
                 ret.append(text)
                 # ret.append(text.decode("utf-8"))
         except StopIteration:

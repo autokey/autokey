@@ -5,6 +5,11 @@ __pycache__
 *.egg-info
 *.pyc
 .tox/
+build/*
+lib/autokey/qtui/resources/icons/
+
+# build artifacts
+autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip
 
 # Environments
 .env
