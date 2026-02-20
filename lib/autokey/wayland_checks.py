@@ -33,17 +33,22 @@ except Exception:
 
 def waylandChecks():
 
-    #  We only do this stuff when running under Wayland
-    if os.environ['XDG_SESSION_TYPE'] != "wayland":
-        return True
+    try:
+        #  We only do this stuff when running under Wayland
+        if os.environ['XDG_SESSION_TYPE'] != "wayland":
+            return True
 
-    #  Check that we're running on a supported desktop environment
-    if os.environ['XDG_SESSION_DESKTOP'] not in ('gnome'):
-        logger.debug(f"waylandChecks() found AutoKey running under an unsupported desktop environment: {os.environ['XDG_SESSION_DESKTOP']}, displaying popup.")
-        __show_unsupported_desktop_popup()
+        #  Check that we're running on a supported desktop environment
+        #  dlk3 for future reference, the check for KDE on Ubunntu is os.environ['KDE_FULL_SESSION']
+        if os.environ['XDG_SESSION_DESKTOP'] == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
+            logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
+        else:
+            logger.debug(f"waylandChecks() found AutoKey running under an unsupported desktop environment, displaying popup.")
+            __show_unsupported_desktop_popup()
+            return False
+    except Exception as e:
+        logger.exception('Unexpected exception in waylandChecks() while examining environment variables')
         return False
-    else:
-        logger.debug(f"waylandChecks() found AutoKey running under a supported desktopi environment: {os.environ['XDG_SESSION_DESKTOP']}")
 
     #  Do we show popup message?
     show_popup = False
