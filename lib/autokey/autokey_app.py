@@ -82,7 +82,7 @@ class AutokeyApplication:
         if self.__verify_not_running():
             AutokeyApplication.create_lock_file()
             atexit.register(os.remove, common.LOCK_FILE)
-			
+            
         self.__initialise_services()
         self.__add_user_code_dir_to_path()
         self.__create_DBus_service()
