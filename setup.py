@@ -113,7 +113,7 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
 
 ak_metadata = extract_autokey_metadata()
 this_directory = PurePath(__file__).parent
-with open(this_directory / 'README.md', encoding='utf-8') as f:
+with open(this_directory / 'README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
@@ -121,12 +121,12 @@ setup(
     version=ak_metadata.version,
     description='Keyboard and GUI automation on Linux',
     long_description=long_description,
-    long_description_content_type='text/x-markdown',
+    long_description_content_type='text/x-rst',
     author=ak_metadata.author,
     author_email=ak_metadata.author_email,
     maintainer=ak_metadata.maintainer,
     maintainer_email=ak_metadata.maintainer_email,
-    url='https://github.com/dlk3/autokey-wayland',
+    url='https://github.com/autokey/autokey',
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
     # setuptools_scm removes need for MANIFEST.in. Allows setuptools to get which files to
@@ -216,7 +216,7 @@ setup(
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Natural Language :: English',
         'Operating System :: POSIX :: Linux',
-        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords='automation hotkey expansion expander phrase macros keyboard auto key autokey ak shortcuts bind autohotkey mouse customization',
 )
