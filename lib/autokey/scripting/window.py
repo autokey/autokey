@@ -37,6 +37,8 @@ class Window:
     Note: in all cases where a window title is required (with the exception of wait_for_focus()),
     two special values of window title are permitted:
 
+    - :\:ACTIVE: - select the currently active window
+    - :\:SELECT: - select the desired window by clicking on it
     """
 
     def __init__(self, mediator):

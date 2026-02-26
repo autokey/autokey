@@ -1,21 +1,4 @@
-#  Copyright (C) 2026  David King <dave@daveking.com>
-#
-#  This program is free software; you can redistribute it and/or
-#  modify it under the terms of the GNU General Public License,
-#  version 2, as published by the Free Software Foundation.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License,
-#  version 2, along with this program; if not, see 
-#  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>.
-#
-#####################################################################
-
-#  When running under Wayland, check to be sure we're running under a supported
+#  When running under Wayland, check to be sure running under a supported
 #  desktop environment and that the prereqs that desktop environment needs are 
 #  in place.
 
@@ -34,12 +17,11 @@ except Exception:
 def waylandChecks():
 
     try:
-        #  We only do this stuff when running under Wayland
+        #  only do this stuff when running under Wayland
         if os.environ['XDG_SESSION_TYPE'] != "wayland":
             return True
 
-        #  Check that we're running on a supported desktop environment
-        #  dlk3 for future reference, the check for KDE on Ubunntu is os.environ['KDE_FULL_SESSION']
+        #  Check that running on a supported desktop environment
         if os.environ['XDG_SESSION_DESKTOP'] == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
             logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
         else:
@@ -50,7 +32,7 @@ def waylandChecks():
         logger.exception('Unexpected exception in waylandChecks() while examining environment variables')
         return False
 
-    #  Do we show popup message?
+    #  show popup message?
     show_popup = False
 
     #  Gnome check: is the Gnome Shell extension present?
@@ -76,14 +58,14 @@ def waylandChecks():
         logger.critical(f'waylandChecks() did not find the "{user}" userid in the "{group}" user group, displaying popup.')
         show_popup = True
 
-    #  Gnome check: do we have write access to the /dev/uinput device?
+    #  Gnome check: have write access to the /dev/uinput device?
     if os.access('/dev/uinput', os.W_OK):
         logger.debug(f'waylandChecks() found write access to the /dev/uinput device')
     else:
         logger.critical(f'waylandChecks() did not find write access to the /dev/uinput device')
         show_popup = True
 
-    #  If there was a problem, throw up a popup box telling them what to do
+    #  If there was a problem, throw up a popup box
     if show_popup:
         #  This is Gnome-specific, other DTEs added in the future may need 
         #  different messages
@@ -97,7 +79,7 @@ def waylandChecks():
 def __show_unsupported_desktop_popup():
         dte = os.environ['XDG_SESSION_DESKTOP']
         title = 'Unsupported Desktop Environment'
-        message = f'AutoKey does not support the "{dte}" desktop environment on a system that uses the Wayland window manageri like this one. The "{dte}" desktop environment is supported under X11, but not here under Wayland.  Future development may remove this restriction, please stay tuned.'
+        message = f'AutoKey does not support the "{dte}" desktop environment on a system that uses the Wayland window manager like this one. The "{dte}" desktop environment is supported under X11, but not here under Wayland.  Future development may remove this restriction, please stay tuned.'
         __show_popup(title, message)
 
 #  Show popup using kdialog, if it's installed, or zenity, otherwise write the
