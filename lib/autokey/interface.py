@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2011 Chris Dekter
-# Copyright (C) 2026 David King <dave@daveking.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -133,9 +132,9 @@ class XWindowInterface(AbstractWindowInterface):
             logger.warning("Got BadWindow error while requesting window information.")
             return self._create_window_info(window, "", "")
             
-    #  @dlk3 - Add missing get_window_list() method required by AbstractWindowInterface
+    #  Add missing get_window_list() method required by AbstractWindowInterface
     #
-    #  I'm not sure if this ever gets called but this is my best guess, based off
+    #  Not sure if this ever gets called but this is a best guess, based off
     #  the gnome_autokey_extension List() function for the return data structure 
     #  and the autokey.scripting.window.get_window_list() method's use of wmctrl.
     def get_window_list(self, filter_desktop=-1):

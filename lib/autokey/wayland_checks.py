@@ -1,4 +1,4 @@
-#  When running under Wayland, check to be sure running under a supported
+#  When running under Wayland, check if running under a supported
 #  desktop environment and that the prereqs that desktop environment needs are 
 #  in place.
 
@@ -21,7 +21,7 @@ def waylandChecks():
         if os.environ['XDG_SESSION_TYPE'] != "wayland":
             return True
 
-        #  Check that running on a supported desktop environment
+        #  Check if running on a supported desktop environment
         if os.environ['XDG_SESSION_DESKTOP'] == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
             logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
         else:

@@ -12,7 +12,7 @@ VERSION=$(git describe --tags --abbrev=0 --match "v*.*.*")
 # Strip leading 'v' because that is invalid as a debian version number
 DEBVERSION="${VERSION#?}"
 
-export DEBEMAIL='dave@daveking.com'
+export DEBEMAIL='guociz@gmail.com'
 
 uscan -dd
 # Create fake changelog entry just to get the correct version number on the deb

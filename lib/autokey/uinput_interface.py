@@ -241,14 +241,14 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         #  Handler runs in its own thread when it's invoked by monitor
         def event_handler(action, device):
             if action == 'bind':
-                logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse that I should grab.")
+                logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse to grab.")
                 self.grab_multiple_devices()
                 self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
-                logger.debug("Devices that I've grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
+                logger.debug("Devices grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
 
         monitor = pyudev.Monitor.from_netlink(pyudev.Context())
 
-        #  Tell the monitor that we only want to see events from these UDEV "subsystems"
+        #  Tell the monitor only want to see events from these UDEV "subsystems"
         monitor.filter_by('usb')
         monitor.filter_by('hidraw')  # Covers bluetooth devices
 
@@ -653,7 +653,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         Grabs hotkeys. Under X11 this means blocking the hotkeys from sending to individual applications.
         Not sure if this can be accomplished via uinput/wayland?
 
-        It needs to be done and I added code to suppress hotkeys being
+        It needs to be done.  Added code to suppress hotkeys being
         sent though to apps at the end of the __flush_events() method below.
         """
         self.__grab_hotkeys()
@@ -801,7 +801,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                     #self.handle_mouseclick(event)
 
                 # the following self.ui.write sends through AutoKey hotkeys,
-                # which it shouldn't do, so we'll return now, before that happens,
+                # which it shouldn't do, so return now, before that happens,
                 # if the "held" list holds an AutoKey hotkey
                 if self.__isAutoKeyHotkey(held):
                     return
@@ -814,7 +814,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
     #  Does the list of keys from __flush_events() match an AutoKey hotkey?
     def __isAutoKeyHotkey(self, key_list):
-        #  If the key_list passed to us doesn't contain at least two keys
+        #  If the key_list passed in doesn't contain at least two keys
         #  then it can't be a hot key
         if len(key_list) < 2:
             return False
@@ -834,14 +834,14 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                     continue
 
             #  Convert this hotkey from a list of tuples to a simple list of
-            #  key codes so that we can compare it to the key_list
+            #  key codes and compare it to the key_list
             hotkey_codes = [self.translate_to_evdev(item.hotKey)]
             for modifier in item.modifiers:
                 hotkey_codes.append(self.translate_to_evdev(modifier))
             hotkey_codes = [ x[0] for x in hotkey_codes ]
             hotkey_codes.sort()
 
-            #  Check if the hotkey_codes match the key_list we received
+            #  Check if the hotkey_codes match the key_list received
             #logger.debug(f"Will block hotkey if key_list: {key_list} == hotkey_codes: {hotkey_codes}")
             if key_list == hotkey_codes:
                 return True

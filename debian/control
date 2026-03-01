@@ -1,5 +1,5 @@
 Source: autokey
-Maintainer: David King <dave@daveking.com>
+Maintainer: guociz@gmail.com
 Section: utils
 Priority: optional
 Build-Depends: debhelper-compat (= 12),
@@ -17,7 +17,7 @@ Build-Depends: debhelper-compat (= 12),
 Standards-Version: 4.5.0
 Vcs-Browser: https://salsa.debian.org/python-team/applications/autokey
 Vcs-Git: https://salsa.debian.org/python-team/applications/autokey.git
-Homepage: https://github.com/dlk3/autokey-wayland
+Homepage: https://github.com/autokey/autokey
 
 Package: autokey-common
 Architecture: all
