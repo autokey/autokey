@@ -22,6 +22,8 @@ XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.confi
 # Runtime dir falls back to cache dir, as a fallback is suggested by the spec
 XDG_CACHE_HOME = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share"))
+# Detect session type (wayland or x11)
+SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE", "x11")
 
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "autokey")
 RUN_DIR = os.path.join(os.environ.get('XDG_RUNTIME_DIR', XDG_CACHE_HOME), "autokey")

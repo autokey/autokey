@@ -180,6 +180,7 @@ setup(
         'pyinotify',
         'python-xlib',
         'packaging',
+        'evdev',  # For Wayland keyboard/mouse simulation
     ],
     test_suite="pytest",
     classifiers=[

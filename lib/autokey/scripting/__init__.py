@@ -33,9 +33,13 @@ from .system import System
 from .window import Window
 
 # Platform abstraction
-if autokey.common.USING_QT:
+if autokey.common.SESSION_TYPE == "wayland":
+    # Wayland clipboard using wl-clipboard
+    from .clipboard_wayland import WaylandClipboard as Clipboard
+elif autokey.common.USING_QT:
     from .clipboard_qt import QtClipboard as Clipboard
-    from .dialog_qt import QtDialog as Dialog
 else:
     from .clipboard_gtk import GtkClipboard as Clipboard
-    from .dialog_gtk import GtkDialog as Dialog
+
+# Dialog is always GTK-based for now
+from .dialog_gtk import GtkDialog as Dialog

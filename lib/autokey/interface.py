@@ -128,6 +128,8 @@ class AbstractClipboard:
         return
 
 
+# Clipboard class - X11 version (default)
+# Wayland clipboard is handled in the scripting module
 if common.USING_QT:
     class Clipboard(AbstractClipboard):
         def __init__(self):
@@ -1460,3 +1462,507 @@ XK_TO_AK_NUMLOCKED = {
            XK.XK_KP_Subtract: "-",
            XK.XK_KP_Enter: Key.ENTER
            }
+
+
+# Wayland interface imports - only import if on Wayland
+try:
+    import evdev
+    from evdev import ecodes, UInput
+    HAS_EVDEV = True
+except ImportError:
+    HAS_EVDEV = False
+
+# Check for wl-clipboard for Wayland clipboard support
+import subprocess
+import shutil
+
+def check_wayland_tools():
+    """Check if required Wayland tools are available."""
+    tools = {
+        'wl-copy': shutil.which('wl-copy'),
+        'wl-paste': shutil.which('wl-paste'),
+    }
+    return tools
+
+
+class WaylandInterface(threading.Thread):
+    """
+    Wayland interface for keyboard and mouse input.
+    Uses python-evdev (uinput) for keyboard/mouse simulation.
+    """
+    
+    # Key code mapping from AutoKey to evdev
+    AK_TO_EVDEV = {
+        Key.ESCAPE: ecodes.KEY_ESC,
+        Key.F1: ecodes.KEY_F1,
+        Key.F2: ecodes.KEY_F2,
+        Key.F3: ecodes.KEY_F3,
+        Key.F4: ecodes.KEY_F4,
+        Key.F5: ecodes.KEY_F5,
+        Key.F6: ecodes.KEY_F6,
+        Key.F7: ecodes.KEY_F7,
+        Key.F8: ecodes.KEY_F8,
+        Key.F9: ecodes.KEY_F9,
+        Key.F10: ecodes.KEY_F10,
+        Key.F11: ecodes.KEY_F11,
+        Key.F12: ecodes.KEY_F12,
+        Key.BACKSPACE: ecodes.KEY_BACKSPACE,
+        Key.TAB: ecodes.KEY_TAB,
+        Key.ENTER: ecodes.KEY_ENTER,
+        Key.SHIFT: ecodes.KEY_LEFTSHIFT,
+        Key.CONTROL: ecodes.KEY_LEFTCTRL,
+        Key.ALT: ecodes.KEY_LEFTALT,
+        Key.ALT_GR: ecodes.KEY_RIGHTALT,
+        Key.SUPER: ecodes.KEY_LEFTMETA,
+        Key.CAPSLOCK: ecodes.KEY_CAPSLOCK,
+        Key.NUMLOCK: ecodes.KEY_NUMLOCK,
+        Key.UP: ecodes.KEY_UP,
+        Key.DOWN: ecodes.KEY_DOWN,
+        Key.LEFT: ecodes.KEY_LEFT,
+        Key.RIGHT: ecodes.KEY_RIGHT,
+        Key.INSERT: ecodes.KEY_INSERT,
+        Key.DELETE: ecodes.KEY_DELETE,
+        Key.HOME: ecodes.KEY_HOME,
+        Key.END: ecodes.KEY_END,
+        Key.PAGE_UP: ecodes.KEY_PAGEUP,
+        Key.PAGE_DOWN: ecodes.KEY_PAGEDOWN,
+        Key.SPACE: ecodes.KEY_SPACE,
+        Key.EXCLAM: ecodes.KEY_1,
+        Key.AT: ecodes.KEY_2,
+        Key.NUMBERSIGN: ecodes.KEY_3,
+        Key.DOLLAR: ecodes.KEY_4,
+        Key.PERCENT: ecodes.KEY_5,
+        Key.CARET: ecodes.KEY_6,
+        Key.AMPERSAND: ecodes.KEY_7,
+        Key.ASTERISK: ecodes.KEY_8,
+        Key.PARENLEFT: ecodes.KEY_9,
+        Key.PARENRIGHT: ecodes.KEY_0,
+    }
+    
+    # Mouse button mapping
+    AK_TO_EVDEV_MOUSE = {
+        1: ecodes.BTN_LEFT,
+        2: ecodes.BTN_MIDDLE,
+        3: ecodes.BTN_RIGHT,
+        4: ecodes.BTN_WHEEL_UP,
+        5: ecodes.BTN_WHEEL_DOWN,
+    }
+
+    def __init__(self, mediator, app):
+        threading.Thread.__init__(self)
+        self.setDaemon(True)
+        self.setName("WaylandInterface-thread")
+        self.mediator = mediator
+        self.app = app
+        self.shutdown = False
+        
+        # Event queue
+        self.queue = queue.Queue()
+        
+        # Initialize uinput device for keyboard simulation
+        self.uinput = None
+        if HAS_EVDEV:
+            try:
+                # Create uinput device for keyboard and mouse
+                self.uinput = UInput()
+            except Exception as e:
+                logger.warning("Failed to create uinput device: %s", e)
+                logger.warning("Keyboard/mouse simulation may not work without uinput access.")
+                logger.warning("Try adding user to 'input' group or running with appropriate permissions.")
+        
+        # Wayland tools check
+        self.wayland_tools = check_wayland_tools()
+        
+        # Start event processing thread
+        self.eventThread = threading.Thread(target=self._event_loop)
+        self.eventThread.start()
+        
+        logger.info("Wayland interface initialized")
+        
+    def run(self):
+        """Main thread - listen for events (not used in current implementation)."""
+        while not self.shutdown:
+            time.sleep(0.1)
+            
+    def _event_loop(self):
+        """Process events from queue."""
+        while not self.shutdown:
+            try:
+                method, args = self.queue.get(timeout=0.1)
+                if method is not None:
+                    method(*args)
+                self.queue.task_done()
+            except queue.Empty:
+                continue
+            except Exception as e:
+                logger.exception("Error in Wayland event loop")
+                
+    def _enqueue(self, method, *args):
+        self.queue.put_nowait((method, args))
+        
+    def flush(self):
+        """Flush pending events."""
+        if self.uinput:
+            self.uinput.syn()
+            
+    def cancel(self):
+        """Shutdown the interface."""
+        logger.debug("WaylandInterface: Shutting down")
+        self.shutdown = True
+        if self.uinput:
+            self.uinput.close()
+        self.join()
+        
+    def on_keys_changed(self):
+        """Handle keyboard layout changes - not applicable for Wayland."""
+        pass
+        
+    def handle_keypress(self, keyCode):
+        """Handle keypress - not used in Wayland interface."""
+        pass
+        
+    def handle_keyrelease(self, keyCode):
+        """Handle keyrelease - not used in Wayland interface."""
+        pass
+        
+    def grab_keyboard(self):
+        """Grab keyboard - not fully supported in Wayland."""
+        logger.debug("WaylandInterface: Keyboard grab not fully supported")
+        
+    def ungrab_keyboard(self):
+        """Ungrab keyboard."""
+        logger.debug("WaylandInterface: Keyboard ungrab")
+        
+    def grab_hotkey(self, item):
+        """Grab hotkey - uses GNOME Shell extension or similar."""
+        logger.debug("WaylandInterface: Grab hotkey not fully implemented")
+        
+    def ungrab_hotkey(self, item):
+        """Ungrab hotkey."""
+        logger.debug("WaylandInterface: Ungrab hotkey")
+        
+    def send_string(self, string):
+        """Send a string of characters."""
+        for char in string:
+            self._send_character(char)
+        self.flush()
+        
+    def _send_character(self, char):
+        """Send a single character."""
+        if not self.uinput:
+            logger.warning("Cannot send character - no uinput device")
+            return
+            
+        # Get keycode for character
+        keycode = self._char_to_keycode(char)
+        if keycode:
+            # Press and release the key
+            self.uinput.write(ecodes.EV_KEY, keycode, 1)  # Key down
+            self.uinput.syn()
+            self.uinput.write(ecodes.EV_KEY, keycode, 0)  # Key up
+            self.uinput.syn()
+            
+    def _char_to_keycode(self, char):
+        """Convert character to evdev keycode."""
+        # Simple mapping for common characters
+        char_map = {
+            'a': ecodes.KEY_A, 'b': ecodes.KEY_B, 'c': ecodes.KEY_C, 'd': ecodes.KEY_D,
+            'e': ecodes.KEY_E, 'f': ecodes.KEY_F, 'g': ecodes.KEY_G, 'h': ecodes.KEY_H,
+            'i': ecodes.KEY_I, 'j': ecodes.KEY_J, 'k': ecodes.KEY_K, 'l': ecodes.KEY_L,
+            'm': ecodes.KEY_M, 'n': ecodes.KEY_N, 'o': ecodes.KEY_O, 'p': ecodes.KEY_P,
+            'q': ecodes.KEY_Q, 'r': ecodes.KEY_R, 's': ecodes.KEY_S, 't': ecodes.KEY_T,
+            'u': ecodes.KEY_U, 'v': ecodes.KEY_V, 'w': ecodes.KEY_W, 'x': ecodes.KEY_X,
+            'y': ecodes.KEY_Y, 'z': ecodes.KEY_Z,
+            '0': ecodes.KEY_0, '1': ecodes.KEY_1, '2': ecodes.KEY_2, '3': ecodes.KEY_3,
+            '4': ecodes.KEY_4, '5': ecodes.KEY_5, '6': ecodes.KEY_6, '7': ecodes.KEY_7,
+            '8': ecodes.KEY_8, '9': ecodes.KEY_9,
+            ' ': ecodes.KEY_SPACE, '\n': ecodes.KEY_ENTER, '\t': ecodes.KEY_TAB,
+            '-': ecodes.KEY_MINUS, '=': ecodes.KEY_EQUAL, '[': ecodes.KEY_LEFTBRACE,
+            ']': ecodes.KEY_RIGHTBRACE, '\\': ecodes.KEY_BACKSLASH, ';': ecodes.KEY_SEMICOLON,
+            "'": ecodes.KEY_APOSTROPHE, ',': ecodes.KEY_COMMA, '.': ecodes.KEY_DOT,
+            '/': ecodes.KEY_SLASH, '`': ecodes.KEY_GRAVE,
+        }
+        return char_map.get(char)
+        
+    def send_key(self, key_name):
+        """Send a named key."""
+        self._enqueue(self._send_key_queued, key_name)
+        
+    def _send_key_queued(self, key_name):
+        """Send a named key (queued)."""
+        if not self.uinput:
+            logger.warning("Cannot send key - no uinput device")
+            return
+            
+        keycode = self.AK_TO_EVDEV.get(key_name)
+        if keycode:
+            self.uinput.write(ecodes.EV_KEY, keycode, 1)
+            self.uinput.syn()
+            self.uinput.write(ecodes.EV_KEY, keycode, 0)
+            self.uinput.syn()
+        else:
+            # Try to send as character
+            if len(key_name) == 1:
+                self._send_character(key_name)
+                
+    def send_modified_key(self, key_name, modifiers):
+        """Send a key with modifiers."""
+        if not self.uinput:
+            logger.warning("Cannot send modified key - no uinput device")
+            return
+            
+        # Press modifiers
+        for mod in modifiers:
+            modcode = self.AK_TO_EVDEV.get(mod)
+            if modcode:
+                self.uinput.write(ecodes.EV_KEY, modcode, 1)
+                
+        # Press and release the key
+        keycode = self.AK_TO_EVDEV.get(key_name)
+        if keycode:
+            self.uinput.write(ecodes.EV_KEY, keycode, 1)
+            self.uinput.syn()
+            self.uinput.write(ecodes.EV_KEY, keycode, 0)
+            
+        # Release modifiers
+        for mod in modifiers:
+            modcode = self.AK_TO_EVDEV.get(mod)
+            if modcode:
+                self.uinput.write(ecodes.EV_KEY, modcode, 0)
+        self.uinput.syn()
+        
+    def press_key(self, key_name):
+        """Press a key (hold down)."""
+        if not self.uinput:
+            return
+        keycode = self.AK_TO_EVDEV.get(key_name)
+        if keycode:
+            self.uinput.write(ecodes.EV_KEY, keycode, 1)
+            self.uinput.syn()
+            
+    def release_key(self, key_name):
+        """Release a pressed key."""
+        if not self.uinput:
+            return
+        keycode = self.AK_TO_EVDEV.get(key_name)
+        if keycode:
+            self.uinput.write(ecodes.EV_KEY, keycode, 0)
+            self.uinput.syn()
+            
+    def fake_keydown(self, key_name):
+        """Fake a key down event."""
+        self.press_key(key_name)
+        
+    def fake_keyup(self, key_name):
+        """Fake a key up event."""
+        self.release_key(key_name)
+        
+    def fake_keypress(self, key_name):
+        """Fake a key press (down and up)."""
+        self._send_key_queued(key_name)
+        
+    def lookup_string(self, key_code, shifted, num_lock, alt_gr):
+        """Look up string for key code - not applicable for Wayland."""
+        return ""
+        
+    # Mouse methods
+    def send_mouse_click(self, xCoord, yCoord, button, relative):
+        """Send mouse click at coordinates."""
+        if not self.uinput:
+            return
+            
+        button_code = self.AK_TO_EVDEV_MOUSE.get(button)
+        if button_code:
+            # Move mouse to position
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_X, xCoord)
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_Y, yCoord)
+            self.uinput.syn()
+            
+            # Click
+            self.uinput.write(ecodes.EV_KEY, button_code, 1)
+            self.uinput.syn()
+            self.uinput.write(ecodes.EV_KEY, button_code, 0)
+            self.uinput.syn()
+            
+    def mouse_press(self, xCoord, yCoord, button):
+        """Press mouse button."""
+        if not self.uinput:
+            return
+        button_code = self.AK_TO_EVDEV_MOUSE.get(button)
+        if button_code:
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_X, xCoord)
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_Y, yCoord)
+            self.uinput.write(ecodes.EV_KEY, button_code, 1)
+            self.uinput.syn()
+            
+    def mouse_release(self, xCoord, yCoord, button):
+        """Release mouse button."""
+        if not self.uinput:
+            return
+        button_code = self.AK_TO_EVDEV_MOUSE.get(button)
+        if button_code:
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_X, xCoord)
+            self.uinput.write(ecodes.EV_ABS, ecodes.ABS_Y, yCoord)
+            self.uinput.write(ecodes.EV_KEY, button_code, 0)
+            self.uinput.syn()
+            
+    def mouse_location(self):
+        """Get mouse location - not implemented for Wayland."""
+        return 0, 0
+        
+    def relative_mouse_location(self, window=None):
+        """Get relative mouse location."""
+        return 0, 0
+        
+    def scroll_down(self, number):
+        """Scroll down."""
+        if not self.uinput:
+            return
+        for _ in range(number):
+            self.uinput.write(ecodes.EV_REL, ecodes.REL_WHEEL, -1)
+            self.uinput.syn()
+            
+    def scroll_up(self, number):
+        """Scroll up."""
+        if not self.uinput:
+            return
+        for _ in range(number):
+            self.uinput.write(ecodes.EV_REL, ecodes.REL_WHEEL, 1)
+            self.uinput.syn()
+            
+    def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        """Move cursor to position."""
+        if not self.uinput:
+            return
+        self.uinput.write(ecodes.EV_ABS, ecodes.ABS_X, xCoord)
+        self.uinput.write(ecodes.EV_ABS, ecodes.ABS_Y, yCoord)
+        self.uinput.syn()
+        
+    def send_mouse_click_relative(self, xoff, yoff, button):
+        """Send mouse click at relative offset."""
+        x, y = self.mouse_location()
+        self.send_mouse_click(x + xoff, y + yoff, button, False)
+        
+    def handle_mouseclick(self, button, x, y):
+        """Handle mouse click event."""
+        pass
+        
+    # Window methods
+    def get_window_info(self, window=None, traverse=True):
+        """Get window info - uses wmctrl or GNOME Shell extension."""
+        # Try wmctrl first
+        try:
+            result = subprocess.run(
+                ['wmctrl', '-l'],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+            if result.returncode == 0:
+                # Get active window
+                active = subprocess.run(
+                    ['xdotool', 'getactivewindow'],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if active.returncode == 0:
+                    win_id = active.stdout.strip()
+                    for line in result.stdout.splitlines():
+                        if line.startswith(win_id):
+                            parts = line.split(None, 3)
+                            if len(parts) >= 4:
+                                return WindowInfo(wm_title=parts[3], wm_class=parts[2])
+        except Exception as e:
+            logger.debug("Failed to get window info: %s", e)
+            
+        return WindowInfo(wm_title="", wm_class="")
+        
+    def get_window_list(self):
+        """Get list of windows."""
+        try:
+            result = subprocess.run(
+                ['wmctrl', '-l'],
+                capture_output=True,
+                text=True,
+                check=False
+            )
+            if result.returncode == 0:
+                return result.stdout.splitlines()
+        except Exception as e:
+            logger.debug("Failed to get window list: %s", e)
+        return []
+        
+    def get_window_title(self, window=None, traverse=True):
+        """Get window title."""
+        return self.get_window_info(window, traverse).wm_title
+        
+    def get_window_class(self, window=None, traverse=True):
+        """Get window class."""
+        return self.get_window_info(window, traverse).wm_class
+
+
+class WaylandClipboard:
+    """
+    Wayland clipboard implementation using wl-clipboard.
+    """
+    def __init__(self):
+        self.wayland_tools = check_wayland_tools()
+        
+    @property
+    def text(self):
+        """Get clipboard text."""
+        if self.wayland_tools.get('wl-paste'):
+            try:
+                result = subprocess.run(
+                    ['wl-paste'],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.returncode == 0:
+                    return result.stdout
+            except Exception as e:
+                logger.debug("Failed to get clipboard: %s", e)
+        return ""
+        
+    @text.setter
+    def text(self, value):
+        """Set clipboard text."""
+        if self.wayland_tools.get('wl-copy'):
+            try:
+                subprocess.run(
+                    ['wl-copy', value],
+                    check=True
+                )
+            except Exception as e:
+                logger.debug("Failed to set clipboard: %s", e)
+                
+    @property
+    def selection(self):
+        """Get selection (primary) clipboard."""
+        if self.wayland_tools.get('wl-paste'):
+            try:
+                result = subprocess.run(
+                    ['wl-paste', '--primary'],
+                    capture_output=True,
+                    text=True,
+                    check=False
+                )
+                if result.returncode == 0:
+                    return result.stdout
+            except Exception as e:
+                logger.debug("Failed to get selection: %s", e)
+        return ""
+        
+    @selection.setter
+    def selection(self, value):
+        """Set selection (primary) clipboard."""
+        if self.wayland_tools.get('wl-copy'):
+            try:
+                subprocess.run(
+                    ['wl-copy', '--primary', value],
+                    check=True
+                )
+            except Exception as e:
+                logger.debug("Failed to set selection: %s", e)
