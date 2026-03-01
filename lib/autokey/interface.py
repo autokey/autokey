@@ -757,6 +757,11 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
                      un, modifiers, key)
         try:
             keycode = self.__lookupKeyCode(key)
+            if keycode == 0:
+                # Keysym has no keycode in the current keymap (keysym_to_keycode returned 0).
+                # Avoid calling grab_key/ungrab_key with keycode 0 (AnyKey) which would grab all keys.
+                logger.debug("Skipping grab/ungrab for key %r: keysym maps to keycode 0 (not present in current keymap)", key)
+                return
             masks = self.__build_modifier_mask(modifiers)
             for mask in masks:
                 if grab:
