@@ -6,7 +6,7 @@ Summary:	Desktop automation utility
 
 
 License:	GPLv3
-URL:		https://github.com/autokey/autokey-wayland
+URL:		https://github.com/autokey/autokey
 Source0:	https://github.com/autokey/autokey/archive/v%{version}.tar.gz
 Source1:	10-autokey.rules
 Source2:	autokey-gnome-extension@autokey.shell-extension.zip
