@@ -3,7 +3,7 @@
 [ -f debian/build_requirements.txt ] && \
   cat debian/build_requirements.txt | xargs sudo apt-get install -y
 
-VERSION=$(git describe --tags --abbrev=0 --match "v*.*.*")
+VERSION=$(python3 -c "from lib.autokey.common import VERSION; print(VERSION)" 2>/dev/null)
 # Strip leading 'v' because that is invalid as a debian version number
 DEBVERSION="${VERSION#?}"
 uscan -dd
