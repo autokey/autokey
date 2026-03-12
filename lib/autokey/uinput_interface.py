@@ -184,7 +184,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.eventThread = threading.Thread(target=self.__eventLoop)
 
         ### UINPUT init
-        self.validate()
+        # self.validate()
 
         self.grab_devices()
 
@@ -205,7 +205,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             raise Exception
             #print("Unable to create UInput device. {}".format(ex))
 
-        GnomeMouseReadInterface.__init__(self)
+        pass
         logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
 
 
@@ -261,12 +261,12 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         if self.mouse is None:
             logger.error("Unable to find mouse")
             self.app.show_error_dialog_with_link(f"Unable to find mouse {mouse_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
-            self.app.shutdown()
+            # self.app.shutdown()
             # raise Exception("Unable to find mouse or keyboard")
         if self.keyboard is None:
             logger.error(f"Unable to find keyboard {keyboard_name}")
             self.app.show_error_dialog_with_link(f"Unable to find keyboard {keyboard_name}", f"Update in {cm_constants.CONFIG_FILE}", link_data=cm_constants.CONFIG_FILE)
-            self.app.shutdown()
+            # self.app.shutdown()
 
         self.devices = [self.keyboard, self.mouse]
         logger.debug("Keyboard: {}, Path: {}".format(self.keyboard.name, self.keyboard.path))

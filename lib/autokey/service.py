@@ -1,3 +1,4 @@
+import autokey.scripting.window
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -180,7 +181,7 @@ class Service:
 
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
-        logger.debug("Window visible title: %r, Window class: %r" % window_info)
+        logger.debug("Window visible title: %s, Window class: %s" % (window_info.wm_title, window_info.wm_class))
         self.configManager.lock.acquire()
 
         # Check global hotkeys regardless of whether autokey is paused, because
@@ -494,7 +495,7 @@ class ScriptRunner:
         self.scope["keyboard"] = autokey.scripting.Keyboard(mediator)
         self.scope["mouse"] = autokey.scripting.Mouse(mediator)
         self.scope["system"] = autokey.scripting.System()
-        self.scope["window"] = autokey.scripting.Window(mediator)
+        self.scope["window"] = autokey.scripting.window.Window(mediator)
         self.scope["engine"] = autokey.scripting.Engine(app.configManager, self)
 
         self.scope["dialog"] = autokey.scripting.Dialog()

@@ -1,3 +1,4 @@
+from autokey.sys_interface.kde_interface import KDEWaylandInterface
 # Copyright (C) 2011 Chris Dekter
 #
 # This program is free software: you can redistribute it and/or modify
@@ -71,15 +72,15 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == "uinput":
             logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            self.windowInterface = KDEWaylandInterface()
         else:
             from autokey.interface import XWindowInterface
-            self.windowInterface = XWindowInterface()
+            self.windowInterface = KDEWaylandInterface()
 
 
         if self.interfaceType == "uinput":
             from autokey.uinput_interface import UInputInterface
-            self.interface = UInputInterface(self, self.app)
+            self.interface = UInputInterface(self, self.app); self.interface.window_interface = self.app.window_interface
         elif self.interfaceType == X_RECORD_INTERFACE:
             from autokey.interface import XRecordInterface
             self.interface = XRecordInterface(self, self.app)
