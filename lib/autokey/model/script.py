@@ -25,11 +25,12 @@ from autokey.model.helpers import JSON_FILE_PATTERN, get_safe_path, TriggerMode
 from autokey.model.abstract_abbreviation import AbstractAbbreviation
 from autokey.model.abstract_window_filter import AbstractWindowFilter
 from autokey.model.abstract_hotkey import AbstractHotkey
+from autokey.model.abstract_controller import AbstractControllerTrigger
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
-class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
+class Script(AbstractAbbreviation, AbstractHotkey, AbstractControllerTrigger, AbstractWindowFilter):
     """
     Encapsulates all data and behaviour for a script.
     """
@@ -37,6 +38,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
     def __init__(self, description: str, source_code: str, path=None):
         AbstractAbbreviation.__init__(self)
         AbstractHotkey.__init__(self)
+        AbstractControllerTrigger.__init__(self)
         AbstractWindowFilter.__init__(self)
         self.description = description
         self.code = source_code
@@ -81,6 +83,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
             "showInTrayMenu": self.show_in_tray_menu,
             "abbreviation": AbstractAbbreviation.get_serializable(self),
             "hotkey": AbstractHotkey.get_serializable(self),
+            "controller": AbstractControllerTrigger.get_serializable(self),
             "filter": AbstractWindowFilter.get_serializable(self)
             }
         return d
@@ -163,6 +166,7 @@ class Script(AbstractAbbreviation, AbstractHotkey, AbstractWindowFilter):
         self.show_in_tray_menu = data["showInTrayMenu"]
         AbstractAbbreviation.load_from_serialized(self, data["abbreviation"])
         AbstractHotkey.load_from_serialized(self, data["hotkey"])
+        AbstractControllerTrigger.load_from_serialized(self, data.get("controller", {}))
         AbstractWindowFilter.load_from_serialized(self, data["filter"])
 
     def rebuild_path(self):

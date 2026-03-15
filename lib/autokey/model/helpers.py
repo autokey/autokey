@@ -60,8 +60,11 @@ class TriggerMode(enum.Enum):
     NONE: Don't trigger this phrase (phrase will only be shown in its folder).
     ABBREVIATION: Trigger this phrase using an abbreviation.
     PREDICTIVE: Trigger this phrase using predictive mode.
+    HOTKEY: Trigger this phrase using a keyboard hotkey.
+    CONTROLLER: Trigger this phrase using a game controller input.
     """
     NONE = 0
     ABBREVIATION = 1
     PREDICTIVE = 2
     HOTKEY = 3
+    CONTROLLER = 4
