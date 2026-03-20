@@ -147,12 +147,25 @@ class AbstractWindowInterface(ABC, metaclass=ABCMeta):
     @abstractmethod
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
         return
+
     @abstractmethod
     def get_window_list(self):
         return
+
     @abstractmethod
     def get_window_title(self, window=None, traverse=True) -> str:
         return
+
     @abstractmethod
     def get_window_class(self, window=None, traverse=True) -> str:
+        return
+
+    @abstractmethod
+    def get_screen_size(self):
+        """Return current screen size as [width, height]."""
+        return
+
+    @abstractmethod
+    def get_active_window(self):
+        """Return active window descriptor used by platform specific APIs."""
         return

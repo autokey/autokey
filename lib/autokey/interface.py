@@ -136,6 +136,24 @@ class XWindowInterface(AbstractWindowInterface):
 
     def get_window_class(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_class
+
+    def get_screen_size(self):
+        screen = self.localDisplay.screen()
+        return [int(screen.width_in_pixels), int(screen.height_in_pixels)]
+
+    def get_active_window(self):
+        window = self.localDisplay.get_input_focus().focus
+        info = self.get_window_info(window)
+        geom = window.get_geometry()
+        return {
+            "id": getattr(window, "id", None),
+            "wm_class": info.wm_class,
+            "wm_title": info.wm_title,
+            "x": int(geom.x),
+            "y": int(geom.y),
+            "width": int(geom.width),
+            "height": int(geom.height),
+        }
     
     def _get_window_info(self, window, traverse: bool, wm_title: str=None, wm_class: str=None) -> WindowInfo:
         new_wm_title = self._try_get_window_title(window)
