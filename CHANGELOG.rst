@@ -71,6 +71,7 @@ Bug fixes
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
 - Fix selection when cloning a phrase or script
+- Fixed intermittent python-xlib RuntimeError caused by concurrent thread access to the X11 display.
 
 Other changes
 -------------
