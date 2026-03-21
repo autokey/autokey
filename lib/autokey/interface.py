@@ -119,19 +119,21 @@ class XWindowInterface(AbstractWindowInterface):
 
     def __init__(self):
         self.localDisplay = display.Display()
+        self.xlib_lock = threading.Lock()
         # Window name atoms
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        try:
-            if window is None:
-                window = self.localDisplay.get_input_focus().focus
-            return self._get_window_info(window, traverse)
-        except error.BadWindow:
-            logger.warning("Got BadWindow error while requesting window information.")
-            return self._create_window_info(window, "", "")
-            
+        with self.xlib_lock:
+            try:
+                if window is None:
+                    window = self.localDisplay.get_input_focus().focus
+                return self._get_window_info(window, traverse)
+            except error.BadWindow:
+                logger.warning("Got BadWindow error while requesting window information.")
+                return self._create_window_info(window, "", "")
+
     #  Add missing get_window_list() method required by AbstractWindowInterface
     #
     #  Not sure if this ever gets called but this is a best guess, based off
@@ -166,7 +168,7 @@ class XWindowInterface(AbstractWindowInterface):
             })
         logger.debug('autokey.interface.get_window_list(filter_desktop={}) returned {}'.format(filter_desktop, json.dumps(winjsonarr, indent=4)))
         return winjsonarr
-		
+
     def get_window_title(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_title
 
@@ -291,6 +293,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
         self.eventThread.start()
         self.listenerThread.start()
+        self.xlib_lock = threading.Lock()
 
     @queue_method(queue)
     def flush(self):
@@ -487,15 +490,17 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         :return: Tuple of the Mouse Location(x,y)
         :rtype: tuple
         """
-        pos = self.rootWindow.query_pointer()
-        return (pos.root_x, pos.root_y)
+        with self.xlib_lock:
+            pos = self.rootWindow.query_pointer()
+            return (pos.root_x, pos.root_y)
 
     def relative_mouse_location(self, window=None):
         #return relative mouse location within given window
-        if window==None:
-            window = self.localDisplay.get_input_focus().focus
-        pos = window.query_pointer()
-        return (pos.win_x, pos.win_y)
+        with self.xlib_lock:
+            if window==None:
+                window = self.localDisplay.get_input_focus().focus
+            pos = window.query_pointer()
+            return (pos.win_x, pos.win_y)
 
     def scroll_down(self, number):
         for i in range(0, number):
