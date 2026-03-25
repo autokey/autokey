@@ -96,6 +96,7 @@ class Application(QApplication):
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv)
+        self.setQuitOnLastWindowClosed(False)
         self.handler = CallbackEventHandler()
         self.args = autokey.argument_parser.parse_args()
         try:
@@ -226,6 +227,7 @@ class Application(QApplication):
         self.quit()
         os.remove(common.LOCK_FILE)  # TODO: maybe use atexit to remove the lock/pid file?
         logger.debug("All shutdown tasks complete... quitting")
+        sys.exit(0)
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
@@ -245,6 +247,15 @@ class Application(QApplication):
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logger.info("Displaying configuration window")
+        if not self.configWindow.isVisible():
+            geometry = cm.ConfigManager.SETTINGS.get(cm_constants.WINDOW_GEOMETRY)
+            if geometry:
+                from PyQt5.QtCore import QByteArray
+                self.configWindow.restoreGeometry(QByteArray.fromBase64(geometry.encode("ascii")))
+            else:
+                size = cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE]
+                self.configWindow.resize(size[0], size[1])
+            self.configWindow.central_widget.set_splitter(self.configWindow.size())
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()

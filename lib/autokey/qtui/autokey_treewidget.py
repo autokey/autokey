@@ -16,16 +16,123 @@
 
 from typing import Union, List, Optional
 
-from PyQt5.QtCore import Qt, QEvent, QModelIndex
+from PyQt5.QtCore import Qt, QEvent, QModelIndex, QObject, QPoint
 from PyQt5.QtGui import QKeySequence, QIcon, QKeyEvent, QMouseEvent, QDragMoveEvent, QDropEvent
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView
+from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView, QHeaderView
 
 import autokey.model.folder
 import autokey.model.phrase
 import autokey.model.script
 
 
+def _sort_key(item: QTreeWidgetItem, col: int, reverse: bool):
+    is_folder = isinstance(item, FolderWidgetItem)
+    folder_bucket = (1 if reverse else 0) if is_folder else (0 if reverse else 1)
+    return (folder_bucket, item.text(col).lower())
+
+
+def _collect_expanded(item: QTreeWidgetItem, result: dict):
+    """Walk tree and record expanded state by item id before any structural changes."""
+    result[id(item)] = item.isExpanded()
+    for i in range(item.childCount()):
+        _collect_expanded(item.child(i), result)
+
+
+def _restore_expanded(item: QTreeWidgetItem, saved: dict):
+    """Restore expanded state after structural changes."""
+    if id(item) in saved:
+        item.setExpanded(saved[id(item)])
+    for i in range(item.childCount()):
+        _restore_expanded(item.child(i), saved)
+
+
+def _sort_children(parent: QTreeWidgetItem, col: int, order: Qt.SortOrder, saved_expanded: dict):
+    count = parent.childCount()
+    if count == 0:
+        return
+    children = [parent.takeChild(0) for _ in range(count)]
+    reverse = (order == Qt.DescendingOrder)
+    children.sort(key=lambda item: _sort_key(item, col, reverse), reverse=reverse)
+    for child in children:
+        parent.addChild(child)
+        _restore_expanded(child, saved_expanded)
+        if isinstance(child, FolderWidgetItem):
+            _sort_children(child, col, order, saved_expanded)
+
+
+class HeaderClickFilter(QObject):
+    """Event filter installed on the header view to intercept mouse clicks for sorting."""
+
+    def __init__(self, tree: 'AkTreeWidget'):
+        super().__init__(tree)
+        self.tree = tree
+        self._sort_col = 0
+        self._sort_order = Qt.AscendingOrder
+
+    def eventFilter(self, obj, event: QEvent) -> bool:
+        if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+            header = self.tree.header()
+            col = header.logicalIndexAt(event.pos())
+            if col >= 0:
+                if col == self._sort_col:
+                    self._sort_order = (
+                        Qt.DescendingOrder if self._sort_order == Qt.AscendingOrder
+                        else Qt.AscendingOrder
+                    )
+                else:
+                    self._sort_col = col
+                    self._sort_order = Qt.AscendingOrder
+                header.setSortIndicator(self._sort_col, self._sort_order)
+                header.setSortIndicatorShown(True)
+                self.tree._apply_sort(self._sort_col, self._sort_order)
+                return True
+        return False
+
+
 class AkTreeWidget(QTreeWidget):
+
+    def install_sort_filter(self):
+        """Call this after setupUi to attach the header click filter."""
+        self._header_filter = HeaderClickFilter(self)
+        self.header().installEventFilter(self._header_filter)
+        if self.header().viewport():
+            self.header().viewport().installEventFilter(self._header_filter)
+        self.header().setSortIndicatorShown(True)
+        self.header().setSortIndicator(0, Qt.AscendingOrder)
+
+    def sortItems(self, col: int, order: Qt.SortOrder):
+        """Override to use Python-driven sort instead of Qt's internal comparator."""
+        self.header().setSortIndicator(col, order)
+        self.header().setSortIndicatorShown(True)
+        if hasattr(self, '_header_filter'):
+            self._header_filter._sort_col = col
+            self._header_filter._sort_order = order
+        self._apply_sort(col, order)
+
+    def _apply_sort(self, col: int, order: Qt.SortOrder):
+        reverse = (order == Qt.DescendingOrder)
+        count = self.topLevelItemCount()
+        if count == 0:
+            return
+
+        # Collect expanded state and current selection BEFORE touching the tree
+        saved_expanded = {}
+        for i in range(count):
+            _collect_expanded(self.topLevelItem(i), saved_expanded)
+        current = self.currentItem()
+
+        # Sort top-level items
+        items = [self.takeTopLevelItem(0) for _ in range(count)]
+        items.sort(key=lambda item: _sort_key(item, col, reverse), reverse=reverse)
+        for item in items:
+            self.addTopLevelItem(item)
+            _restore_expanded(item, saved_expanded)
+            if isinstance(item, FolderWidgetItem):
+                _sort_children(item, col, order, saved_expanded)
+
+        # Restore selection
+        if current is not None:
+            self.setCurrentItem(current)
 
     def edit(self, index: QModelIndex, trigger: QAbstractItemView.EditTrigger, event: QEvent):
         if index.column() == 0:
@@ -87,18 +194,6 @@ class FolderWidgetItem(QTreeWidgetItem):
         self.setText(1, self.folder.get_abbreviations())
         self.setText(2, self.folder.get_hotkey_string())
 
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return False
-
-    def __lt__(self, other):
-        if isinstance(other, FolderWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return True
-
 
 class PhraseWidgetItem(QTreeWidgetItem):
 
@@ -120,18 +215,6 @@ class PhraseWidgetItem(QTreeWidgetItem):
         self.setText(1, self.phrase.get_abbreviations())
         self.setText(2, self.phrase.get_hotkey_string())
 
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return True
-
-    def __lt__(self, other):
-        if isinstance(other, PhraseWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return False
-
 
 class ScriptWidgetItem(QTreeWidgetItem):
 
@@ -151,18 +234,6 @@ class ScriptWidgetItem(QTreeWidgetItem):
         self.setText(0, self.script.description)
         self.setText(1, self.script.get_abbreviations())
         self.setText(2, self.script.get_hotkey_string())
-
-    def __ge__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__ge__(self, other)
-        else:
-            return True
-
-    def __lt__(self, other):
-        if isinstance(other, ScriptWidgetItem):
-            return QTreeWidgetItem.__lt__(self, other)
-        else:
-            return False
 
 
 ItemType = Union[autokey.model.folder.Folder, autokey.model.phrase.Phrase, autokey.model.script.Script]

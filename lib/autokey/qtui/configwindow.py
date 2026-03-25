@@ -252,6 +252,8 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         cm.ConfigManager.SETTINGS[cm_constants.COLUMN_WIDTHS] = [
             self.central_widget.treeWidget.columnWidth(column_index) for column_index in range(3)
         ]
+        cm.ConfigManager.SETTINGS[cm_constants.WINDOW_GEOMETRY] = self.saveGeometry().toBase64().data().decode("ascii")
+        self.central_widget.save_expanded_state()
         
         if self.is_dirty():
             if self.central_widget.promptToSave():
