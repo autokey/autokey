@@ -50,21 +50,24 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
         """
         Returns a WindowInfo object containing the class and title.
         """
-        window = self._active_window()
-        return WindowInfo(wm_class=window['wm_class'], wm_title=window['wm_title'])
+        active = self._active_window()
+        if not active:
+            return WindowInfo(wm_class="", wm_title="")
+        return WindowInfo(wm_class=active.get('wm_class', ''), wm_title=active.get('wm_title', ''))
 
     def get_window_class(self, window=None, traverse=True) -> str:
         """
         Returns the window class of the currently focused window.
         """
-        return self._active_window()['wm_class']
-        
-    
+        active = self._active_window()
+        return active.get('wm_class', '') if active else ''
+
     def get_window_title(self, window=None, traverse=True) -> str:
         """
         Returns the active window title
         """
-        return self._active_window()['wm_title']
+        active = self._active_window()
+        return active.get('wm_title', '') if active else ''
     
     def close_window(self, window_id):
         self._dbus_close_window(window_id)

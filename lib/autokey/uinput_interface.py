@@ -26,7 +26,7 @@ from autokey.autokey_app import AutokeyApplication
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, queue_method
+from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, WindowInfo, queue_method
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.gnome_interface import GnomeMouseReadInterface
@@ -370,8 +370,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         mousex,mousey = self.mouse_location()
         if window is None:
             window = self.mediator.windowInterface.get_active_window()
-        winx = window.get('x')
-        winy = window.get('y')
+        if not window:
+            logger.warning("relative_mouse_location: active window unavailable, returning absolute coordinates")
+            return (mousex, mousey)
+        winx = int(window.get('x', 0))
+        winy = int(window.get('y', 0))
         relx = mousex - winx
         rely = mousey - winy
 
@@ -635,7 +638,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     
     @queue_method(queue)
     def handle_keypress(self, keyCode):
-        window_info = self.mediator.windowInterface.get_window_info()
+        try:
+            window_info = self.mediator.windowInterface.get_window_info()
+        except Exception as e:
+            logger.warning("handle_keypress: failed to fetch window info: %s", e)
+            window_info = WindowInfo(wm_title="", wm_class="")
         event_type = evdev.categorize(keyCode)
         logger.debug("handle_keypress: KeyState:{}, Un:{}".format(event_type.keystate, event_type.keycode))
         if self.isModifier(event_type.keycode):
@@ -647,7 +654,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
     @queue_method(queue)
     def handle_keyrelease(self, keyCode):
-        window_info = self.mediator.windowInterface.get_window_info()
+        try:
+            window_info = self.mediator.windowInterface.get_window_info()
+        except Exception as e:
+            logger.warning("handle_keyrelease: failed to fetch window info: %s", e)
+            window_info = WindowInfo(wm_title="", wm_class="")
         event_type = evdev.categorize(keyCode)
         logger.debug("handle_keyrelease: KeyState:{}, Un:{}".format(event_type.keystate, event_type.keycode))
         if self.isModifier(event_type.keycode):

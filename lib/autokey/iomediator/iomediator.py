@@ -23,6 +23,7 @@ from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.gnome_interface import GnomeExtensionWindowInterface
+from autokey.sys_interface.abstract_interface import WindowInfo
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -33,6 +34,28 @@ from .constants import X_RECORD_INTERFACE
 CURRENT_INTERFACE = None
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
+
+
+class _NullWindowInterface:
+    """Fallback for Wayland sessions when desktop-specific DBus integration is unavailable."""
+
+    def get_window_info(self, window=None, traverse=True):
+        return WindowInfo(wm_title="", wm_class="")
+
+    def get_window_class(self, window=None, traverse=True):
+        return ""
+
+    def get_window_title(self, window=None, traverse=True):
+        return ""
+
+    def get_window_list(self):
+        return []
+
+    def get_screen_size(self):
+        return [1920, 1080]
+
+    def get_active_window(self):
+        return None
 
 
 class IoMediator(threading.Thread):
@@ -71,7 +94,11 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == "uinput":
             logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            try:
+                self.windowInterface = GnomeExtensionWindowInterface()
+            except Exception as e:
+                logger.warning("Failed to initialize GNOME Wayland window interface, using null window info fallback: %s", e)
+                self.windowInterface = _NullWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
