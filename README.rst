@@ -22,7 +22,7 @@ About
 =====
 `AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted on `Google`_, has been updated to run on Python 3.
 
-**Important**: This is an X11 application and, as such, will not function correctly when Wayland is in use instead of Xorg.
+**Important**: AutoKey supports both X11 and Wayland. The ``develop`` branch provides Wayland support (particularly for GNOME and KDE Plasma). See ``wayland_install.md`` for installation instructions on Wayland.
 
 .. _AutoKey: https://github.com/autokey/autokey
 .. _Google: https://code.google.com/archive/p/autokey/
