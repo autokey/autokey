@@ -180,7 +180,10 @@ class Service:
 
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
-        logger.debug("Window visible title: %r, Window class: %r" % window_info)
+        if window_info is not None:
+            logger.debug("Window visible title: %r, Window class: %r" % window_info)
+        else:
+            logger.debug("Window info unavailable (compositor may not support window detection)")
         self.configManager.lock.acquire()
 
         # Check global hotkeys regardless of whether autokey is paused, because
@@ -371,6 +374,8 @@ class Service:
         """
         Return a boolean indicating whether we should take any action on the keypress
         """
+        if windowInfo is None:
+            return self.is_running()
         return windowInfo[0] != "Set Abbreviations" and self.is_running()
 
     def __processItem(self, item, buffer=''):

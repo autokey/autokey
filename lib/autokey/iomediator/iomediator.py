@@ -22,7 +22,7 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+from autokey.wayland_compositor import create_wayland_window_interface, detect_wayland_compositor, COMPOSITOR_GNOME
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -70,8 +70,8 @@ class IoMediator(threading.Thread):
             pass
         
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            logger.debug("Creating Wayland window interface")
+            self.windowInterface = create_wayland_window_interface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
@@ -80,6 +80,9 @@ class IoMediator(threading.Thread):
         if self.interfaceType == "uinput":
             from autokey.uinput_interface import UInputInterface
             self.interface = UInputInterface(self, self.app)
+            # Wire up mouse reader if the window interface supports it
+            if hasattr(self.windowInterface, 'mouse_location'):
+                self.interface.set_mouse_reader(self.windowInterface)
         elif self.interfaceType == X_RECORD_INTERFACE:
             from autokey.interface import XRecordInterface
             self.interface = XRecordInterface(self, self.app)

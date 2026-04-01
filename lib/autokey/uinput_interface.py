@@ -29,11 +29,11 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, queue_method
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.gnome_interface import GnomeMouseReadInterface
+
 
 #TODO when exiting the thread waits for one more signal and that signal repeats  for a bit during exit
 
-class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInterface):
+class UInputInterface(threading.Thread, AbstractSysInterface):
     """
     god this is complicated lol
     """
@@ -205,7 +205,9 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             raise Exception
             #print("Unable to create UInput device. {}".format(ex))
 
-        GnomeMouseReadInterface.__init__(self)
+        # Mouse location reading is provided by the window interface
+        # (GNOME extension, or fallback). We delegate to it via the mediator.
+        self._mouse_reader = None
         logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
 
 
@@ -220,6 +222,25 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         self.eventThread.start()
         self.listenerThread.start()
+
+    def set_mouse_reader(self, mouse_reader):
+        """Set the object used to read mouse position (e.g. GNOME extension DBus)."""
+        self._mouse_reader = mouse_reader
+
+    def mouse_location(self):
+        """
+        Get current mouse position.
+
+        Delegates to the compositor-specific mouse reader if available.
+        """
+        if self._mouse_reader is not None:
+            try:
+                return self._mouse_reader.mouse_location()
+            except Exception as ex:
+                logger.warning("mouse_location via compositor interface failed: %s", ex)
+        # Absolute mouse position is not available via evdev without compositor help
+        logger.debug("No mouse reader available, returning (0, 0)")
+        return [0, 0]
 
     def grab_devices(self):
         ### UINPUT Listener one for keyboard and eventually one for mouse
