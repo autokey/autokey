@@ -108,8 +108,12 @@ class SettingsDialog:
         self.uinput_keyboard = builder.get_object("uinput_keyboard")
         self.uinput_mouse = builder.get_object("uinput_mouse")
         keyboard = cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]
+        # dlk3 - keyboard might be a list
         if keyboard:
-            self.uinput_keyboard.set_text(keyboard)
+            if isinstance(keyboard, str):
+                self.uinput_keyboard.set_text(keyboard)
+            else:
+                self.uinput_keyboard.set_text(', '.join(keyboard))
         mouse = cm.ConfigManager.SETTINGS[cm_constants.MOUSE]
         if mouse:
             self.uinput_mouse.set_text(mouse)
@@ -148,7 +152,8 @@ class SettingsDialog:
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
 
         # UInput Settings
-        cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD] = self.uinput_keyboard.get_text()
+        # dlk - keyboard might be a list
+        cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD] = [s.strip() for s in self.uinput_keyboard.get_text().split(',')]
         cm.ConfigManager.SETTINGS[cm_constants.MOUSE] = self.uinput_mouse.get_text()
         cm.ConfigManager.SETTINGS[cm_constants.DELAY] = float(self.uinput_delay.get_text())
 

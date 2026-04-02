@@ -1,8 +1,6 @@
-
 import dbus
 import json
 from dbus.mainloop.glib import DBusGMainLoop
-
 
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, AbstractWindowInterface, WindowInfo
 
@@ -10,7 +8,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class DBusInterface:
     def __init__(self):
-        mainloop= DBusGMainLoop()
+        mainloop = DBusGMainLoop()
         session_bus = dbus.SessionBus(mainloop=mainloop)
         shell_obj = session_bus.get_object('org.gnome.Shell', '/org/gnome/Shell/Extensions/AutoKey')
         self.dbus_interface = dbus.Interface(shell_obj, 'org.gnome.Shell.Extensions.AutoKey')
@@ -21,8 +19,6 @@ class DBusInterface:
             pass
         else:
             raise Exception("Incompatible version of AutoKey Gnome Extension")
-
-
 
 class GnomeMouseReadInterface(DBusInterface):
     def __init__(self):
@@ -79,8 +75,33 @@ class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
             if window['focus']:
                 return window
         # TODO seeing this a lot when I use a script to call `gnome-screenshot -a`, suspect it's just related to that focus behaves differently when that app runs?
-        logger.error("Unable to determine the active window")
-        return None
+        logger.error(f"Unable to determine the active window. The window list: {window_list}")
+        
+        # @dlk3 - This happens when any GNOME session utility is active, like gnome-screenshot, the Activites screen, or the screen lock.  None of the windows in the 
+        # window_list have focus when those things do.  Need to return something, however, or get_active_window() above throws an exception that causes even more 
+        # problems - any keystrokes made on the GNOME session utility sit in the queue, preventing abbreviations being recognized, until the queue gets flushed 
+        # somehow.
+        #
+        # This seems to work to prevent the exceptions and the follow-on problems ...
+        # Return an empty window object (Only really need wm_class and wm_title, but hey, why not do it all)
+        empty_window = {
+            'wm_class': '', 
+            'wm_class_instance': '', 
+            'wm_title': '', 
+            'workspace': None, 
+            'desktop': None, 
+            'pid': None, 
+            'id': None, 
+            'frame_type': None, 
+            'window_type': None, 
+            'width': None, 
+            'height': None, 
+            'x': None, 
+            'y': None, 
+            'focus': False, 
+            'in_current_workspace': False
+        }
+        return empty_window
             
     def _dbus_window_list(self):
         #TODO consider how/if error handling can be implemented

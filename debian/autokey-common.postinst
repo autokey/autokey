@@ -1,0 +1,35 @@
+#!/bin/sh
+
+set -e 
+
+#  Change group ownership on /dev/uinput to permit non-root write access
+if [ -e /dev/uinput ]; then
+    cp /usr/share/autokey/uinput-udev-rule/* '/etc/udev/rules.d/'
+    /usr/bin/udevadm control --reload
+    /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+fi
+
+if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
+    #  Add the user to the "input" group
+    if [ -e /dev/uinput ]; then
+        usermod -a -G "input" "$(logname)"
+    fi
+    #  If Gnome is present, install the Gnome Shell extension
+    gnome-extensions &>/dev/null
+    if [ $? -ne 127 ]; then 
+        su -c 'gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip' $(logname)
+    fi
+else
+    echo "*******************************************************************************"
+    echo "*  If you plan to run AutoKey on a Wayland desktop, please enter the          *"
+    echo "*  following commands to configure your userid to run AutoKey:                *"
+    echo "*                                                                             *"
+    echo "sudo usermod -a -G input \$(id -u -n)"
+    echo "gnome-extension install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip"
+    echo "*                                                                             *"
+    echo "*  You will need to log off and log back on so that these changes take        *"
+    echo "*  effect before trying to run AutoKey.                                       *"
+    echo "*******************************************************************************"
+fi
+
+#DEBHELPER#

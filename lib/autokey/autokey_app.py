@@ -42,6 +42,8 @@ import autokey.dbus_service
 from autokey.logger import get_logger, configure_root_logger
 import autokey.UI_common_functions as UI_common
 
+import autokey.wayland_checks as awc
+
 logger = get_logger(__name__)
 del get_logger
 
@@ -70,6 +72,11 @@ class AutokeyApplication:
 
     def __initialise(self):
         configure_root_logger(self.args)
+        if awc.waylandChecks() :
+            logger.debug('autokey.waylandChecks() succeeded')
+        else:
+            logger.error('autokey.waylandChecks() failed')
+            sys.exit(1)
         self.__warn_about_missing_requirements()
         AutokeyApplication.create_storage_directories()
         if self.__verify_not_running():
@@ -110,7 +117,7 @@ class AutokeyApplication:
     def getAPIUsage(self, code):
         api_modules = ["engine","keyboard","mouse","highlevel","store","dialog","clipboard","system","window"]
 
-        reg = re.compile("("+"|".join(api_modules)+")\.(\w*)\(")
+        reg = re.compile("("+"|".join(api_modules)+")\\.(\\w*)\\(")
 
         results = re.findall(reg, code)
 
@@ -167,8 +174,6 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Error starting interface: " + str(e))
             self.serviceDisabled = True
-            self.UI.show_error_dialog("Error starting interface. Keyboard monitoring will be disabled.\n" +
-                                   "Check your system/configuration.", str(e))
 
     def __try_start_monitor(self):
         try:

@@ -7,3 +7,7 @@ python3-pyqt5.qsci
 python3-pyqt5.qtsvg
 python3-xlib
 devscripts
+python3-pip
+python3-pyinotify
+python3-packaging
+python3-pytest

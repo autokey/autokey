@@ -38,6 +38,8 @@ import autokey.scripting
 from autokey.configmanager.configmanager import ConfigManager, save_config, save_files
 import autokey.configmanager.configmanager_constants as cm_constants
 
+import autokey.common
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 MAX_STACK_LENGTH = 150
 
@@ -122,8 +124,8 @@ class Service:
     def handle_mouseclick(self, rootX, rootY, relX, relY, button, windowTitle):
         # logger.debug("Received mouse click - resetting buffer")
         self.inputStack.clear()
-
-        logger.log(level=9, msg="Mouse click at root:("+str(rootX)+", "+str(rootY)+") Relative:("+str(relX)+","+str(relY)+") Button: "+str(button)+" In window: "+str(windowTitle))
+        if autokey.common.ARGS.mouse_logging:
+            logger.debug("Mouse click at root:("+str(rootX)+", "+str(rootY)+") Relative:("+str(relX)+","+str(relY)+") Button: "+str(button)+" In window: "+str(windowTitle))
         # If we had a menu and receive a mouse click, means we already
         # hid the menu. Don't need to do it again
         self.lastMenu = None

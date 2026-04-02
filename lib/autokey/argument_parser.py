@@ -51,6 +51,12 @@ def _generate_argument_parser() -> argparse.ArgumentParser:
         help="connect to a local default cutelog instance to display the full program log"
     )
     parser.add_argument(
+        "-g", "--grabkey",
+        action="store_true",
+        dest="grabkey_logging",
+        help="enable verbose logging including X11 \"grabbing hotkey\" events"
+    )
+    parser.add_argument(
         "-m", "--mouse",
         action="store_true",
         dest="mouse_logging",
@@ -78,5 +84,11 @@ def parse_args() -> Namespace:
     """
     parser = _generate_argument_parser()
     args = parser.parse_args()
-
+    #  Make sure verbose logging is also turned on when either --mouse or --grabkey options are used
+    if args.mouse_logging and not args.verbose:
+        args.verbose = True
+    if args.grabkey_logging and not args.verbose:
+        args.verbose = True
+    # Share parsed command line arguments with other modules
+    autokey.common.ARGS = args
     return args
