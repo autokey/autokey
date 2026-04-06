@@ -1,4 +1,12 @@
 =======
+Changes in this version:
+
+- The three columns in the main window are sortable by clicking on the column heads
+- Script errors display immediately without additional user action needed
+
+=======
+
+=======
 AutoKey
 =======
 
