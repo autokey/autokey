@@ -31,7 +31,7 @@ XRANDR_MONITOR_REGEX = r" (\d{3,4}).*?x(\d{3,4})\/.*?\+(\d{1,4})\+(\d{1,4})"
 # this translates to monitor x and y size, and x and y offset for each monitor
 
 class Window:
-    """
+    r"""
     Basic window management using wmctrl
 
     Note: in all cases where a window title is required (with the exception of wait_for_focus()),
