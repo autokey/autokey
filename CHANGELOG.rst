@@ -93,6 +93,7 @@ Other changes
 - Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
 - Use raw-string format in `window.py` to handle invalid escape sequences.
 - Bump GitHub Action and Python versions.
+- Update white-space in `setup.cfg` for readability and consistency with other lines.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
