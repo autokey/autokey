@@ -18,10 +18,10 @@ import logging
 import pathlib
 import typing
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QIcon, QCursor, QBrush
-from PyQt5.QtWidgets import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QMenu
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem
+from qtpy.QtCore import Qt
+from qtpy.QtGui import QIcon, QCursor, QBrush
+from qtpy.QtWidgets import QHeaderView, QMessageBox, QFileDialog, QAction, QWidget, QMenu
+from qtpy.QtWidgets import QListWidget, QListWidgetItem
 
 import autokey.model.folder
 import autokey.model.helpers
@@ -191,7 +191,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         )
         message_box.button(QMessageBox.No).setText("Create elsewhere")  # TODO: i18n
-        result = message_box.exec_()
+        result = message_box.exec()
 
         self.window().app.monitor.suspend()
 
