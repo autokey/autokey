@@ -94,6 +94,8 @@ Other changes
 - Use raw-string format in `window.py` to handle invalid escape sequences.
 - Bump GitHub Action and Python versions.
 - Update white-space in `setup.cfg` for readability and consistency with other lines.
+- Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
+
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
