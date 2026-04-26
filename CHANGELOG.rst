@@ -95,6 +95,7 @@ Other changes
 - Bump GitHub Action and Python versions.
 - Update white-space in `setup.cfg` for readability and consistency with other lines.
 - Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
+- Remove white-space from **addopts** lines in `setup.cfg` for readability.
 
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
