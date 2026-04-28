@@ -93,7 +93,14 @@ Other changes
 - Rename the bug.yaml file to bug.yml.
 - Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
 - Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
-- Align AutoKey version with 0.97.0 release target.
+- Use raw-string format in `window.py` to handle invalid escape sequences.
+- Bump GitHub Action and Python versions.
+- Update white-space in `setup.cfg` for readability and consistency with other lines.
+- Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
+- Remove white-space from **addopts** lines in `setup.cfg` for readability.
+- Use distinct comment types in `setup.cfg` for maintainability.
+- Clean up local test-build version and entries.
+
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
 Version 0.96.0-beta.9
