@@ -1,6 +1,6 @@
 %{?python_enable_dependency_generator}
 Name:		autokey
-Version:	0.97.0
+Version:	0.97.0~beta0
 Release:	2%{?dist}
 Summary:	Desktop automation utility
 
