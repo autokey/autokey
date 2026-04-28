@@ -97,7 +97,7 @@ Other changes
 - Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
 - Remove white-space from **addopts** lines in `setup.cfg` for readability.
 - Use distinct comment types in `setup.cfg` for maintainability.
-
+- Adjust blank lines in `tests/test_interface.py` for readability.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
