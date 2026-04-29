@@ -12,12 +12,14 @@ PR #1076 Changes
 - Modified the error messages that display when AutoKey under Wayland cannot find a keyboard/mouse device to monitor.
 - Modified AutoKey under Wayland to support more than one keyboard and one mouse at a time.
 - Modified AutoKey under Wayland to support the "hot-plugging" of USB and Bluetooth keyboard/mouse devices.
+- Modified debug logging and error messages to provide additional useful information when problems occur.
 - Added a module that validates the run-time environment as AutoKey is starting up on a Wayland system.
 - Created the postinstall and preremove scripts that are needed for the Debian/Ubuntu and Fedora installation packages, DEBs and RPMs.
 - Adjusted the ``pip-requirements.txt`` file to account for missing dependencies.
 - Created a ``rpm-requirements.txt`` file for use on Fedora, which has different pre-install dependencies and package names from Debian/Ubuntu systems.  This is equivalent to the ``apt-requirements.txt`` file already in place for Debian/Ubuntu installs.
 - Implemented fixes for issues `#961 <https://github.com/autokey/autokey/issues/961>`__, `#1000 <https://github.com/autokey/autokey/issues/1000>`__, `#1052 <https://github.com/autokey/autokey/issues/1052>`__ and `#1066 <https://github.com/autokey/autokey/issues/1066>`__.
 - Added a new option to AutoKey that controls the "grabkey" messages that are sent to the log when debugging is enabled on an X11 system, i.e., when the ``-v`` or ``-l`` options are used.
+- Updated Debian build scripts.
  
 Important misc changes
 ----------------------
@@ -99,6 +101,7 @@ Other changes
 - Adjust blank lines in `tests/test_interface.py` for readability.
 - Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
 - Sort some of the `setup.cf` sections for readability and maintainability.
+- Clean up local test-build version and entries.
 
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml

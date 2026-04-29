@@ -1,6 +1,6 @@
 %{?python_enable_dependency_generator}
 Name:		autokey
-Version:	0.97.1
+Version:	0.96.0
 Release:	2%{?dist}
 Summary:	Desktop automation utility
 
@@ -192,16 +192,6 @@ install -m 644 -D --target-dir=%{buildroot}%{_datadir}/autokey/gnome-shell-exten
 %{_mandir}/man1/autokey-qt.1*
 
 %changelog
-* Sun Feb 8 2026 David King <dave@daveking.com> - 0.97.1-1
-- Updated installation process
-
-* Mon Feb 2 2026 David King <dave@daveking.com> - 0.97.1-0
-- Bug fixes
-- Support for more than one keyboard and mouse
-
-* Fri Dec 20 2024 David King <dave@daveking.com> - 0.97.0-0
-- Beta test release with support for the Wayland desktop environment
-
 * Mon Jan 22 2024 Fedora Release Engineering <releng@fedoraproject.org> - 0.96.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
 
