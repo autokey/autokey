@@ -33,7 +33,6 @@ Important misc changes
 - Bump to all GitHub-supported Python versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
 - Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
-
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
 - Various updates to the **README.rst** file to satisfy issue #681.
@@ -99,7 +98,11 @@ Other changes
 - Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
 - Remove white-space from **addopts** lines in `setup.cfg` for readability.
 - Use distinct comment types in `setup.cfg` for maintainability.
+- Adjust blank lines in `tests/test_interface.py` for readability.
+- Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
+- Sort some of the `setup.cf` sections for readability and maintainability.
 - Clean up local test-build version and entries.
+
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
