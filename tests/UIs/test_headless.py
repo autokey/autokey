@@ -36,6 +36,7 @@ def get_errors_in_log(caplog):
     return errors
 
 
+@pytest.mark.xfail(reason="Test requires X11/xhost and is incompatible with Wayland.")
 @patch('autokey.dbus_service.AppService' , unittest.mock.MagicMock())
 @patch('sys.argv', ['autokey-app-testing'])
 def test_application_runs_without_errors(caplog, tmp_path):
