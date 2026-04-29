@@ -102,7 +102,7 @@ Other changes
 - Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
 - Sort some of the `setup.cf` sections for readability and maintainability.
 - Clean up local test-build version and entries.
-
+- Handle Window import error on scripting tests in `lib/autokey/scripting/__init__.py`.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
