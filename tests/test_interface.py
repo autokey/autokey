@@ -90,6 +90,7 @@ class TestXrecord():
          "Xinterface doesn't send a space-only string properly",
          ],
     ])
+
     def test_send_string(self, inpt, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_string(inpt)
@@ -97,13 +98,13 @@ class TestXrecord():
             self.cancel()
         assert_that(self.ec.get_result(), is_(equal_to(expected)), failmsg)
 
-
     @pytest.mark.parametrize(
     "inpt, expected, failmsg", [
         ["a",
          [(38, 0, 'p'), (38, 0, 'r')],
          "Xinterface doesn't send a normal key properly",],
     ])
+
     def test_send_key(self, inpt, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_key(inpt)
@@ -122,6 +123,7 @@ class TestXrecord():
          "Xinterface doesn't send a multiply-modified key properly",
          ],
     ])
+
     def test_send_modified_key(self, inpt, mods, expected, failmsg):
         with self.event_capture_patch, self.check_workaround_patch:
             self.ifc.send_modified_key(inpt, mods)
