@@ -97,6 +97,8 @@ Other changes
 - Remove white-space from **addopts** lines in `setup.cfg` for readability.
 - Use distinct comment types in `setup.cfg` for maintainability.
 - Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
+- Sort some of the `setup.cf` sections for readability and maintainability.
+
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
