@@ -100,7 +100,7 @@ Other changes
 - Use distinct comment types in `setup.cfg` for maintainability.
 - Adjust blank lines in `tests/test_interface.py` for readability.
 - Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
-- Sort some of the `setup.cf` sections for readability and maintainability.
+- Sort some of the `setup.cfg` sections for readability and maintainability.
 - Clean up local test-build version and entries.
 - Update `setup.cfg` comments (fix typo, succinctness, punctuation).
 
