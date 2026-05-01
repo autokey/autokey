@@ -103,6 +103,7 @@ Other changes
 - Sort some of the `setup.cf` sections for readability and maintainability.
 - Clean up local test-build version and entries.
 - Update `setup.cfg` comments (fix typo, succinctness, punctuation).
+- Add Wayland-related test-handling to `test_interface.py`.
 
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
