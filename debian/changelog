@@ -1,3 +1,9 @@
+autokey (0.97.0~beta0) noble; urgency=medium
+
+  * First beta release of the new version.
+
+ -- Elliria <Elliria@users.noreply.github.com>  Sun, 03 May 2026 11:42:00 -0400
+
 autokey (0.95.10-0) bionic; urgency=medium
 
   [ Thomas Hess ]
