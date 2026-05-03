@@ -67,8 +67,8 @@ class Mouse:
 
         Usage: C{mouse.click_absolute(x, y, button)}
 
-        :param x: x-coordinate in pixels, relative to upper left corner of window
-        :param y: y-coordinate in pixels, relative to upper left corner of window
+        :param x: x-coordinate in pixels, relative to upper left corner of screen
+        :param y: y-coordinate in pixels, relative to upper left corner of screen
         :param button: mouse button to simulate (left=1, middle=2, right=3)
         """
         self.interface.send_mouse_click(x, y, button, False)
