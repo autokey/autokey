@@ -46,7 +46,5 @@ elif autokey.common.USED_UI_TYPE == "headless":
 
 if autokey.common.SESSION_TYPE == "wayland":
     from .window_gnome import Window
-    pass
-elif autokey.common.SESSION_TYPE == "x11":
-    from .window import Window
-    pass
+else:
+    from autokey.scripting.window import Window
