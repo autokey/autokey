@@ -56,6 +56,7 @@ Important misc changes
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
 - Fix erroneous `window.close` in place of `window.resize_move` in documentation
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
+- Fix typos in mouse documentation (**window** --> **screen**).
 
 
 Features
