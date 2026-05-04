@@ -4,12 +4,11 @@
 __pycache__
 *.egg-info
 *.pyc
-.tox/
-build/*
 lib/autokey/qtui/resources/icons/
 
-# build artifacts
+# Build artifacts
 autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip
+build/
 
 # Environments
 .env
@@ -20,9 +19,16 @@ ENV/
 env.bak/
 venv.bak/
 
-# IDE's
+# IDE
 .idea
 .vscode
 
+# Tests
 test_coverage_annotated_source/
 test_coverage_report_html/
+.coverage
+.coverage.*
+htmlcov/
+*.lcov
+.pytest_cache/
+.tox/

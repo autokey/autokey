@@ -58,6 +58,7 @@ Important misc changes
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
 - Fix typos in mouse documentation (**window** --> **screen**).
 
+- Bump AutoKey version to **0.97.0~beta0** in `debian/changelog`, `fedora/autokey.spec`, and `lib/autokey/common.py`.
 
 Features
 ---------
@@ -106,6 +107,8 @@ Other changes
 - Update `setup.cfg` comments (fix typo, succinctness, punctuation).
 - Add Wayland-related test-handling to `test_interface.py`.
 - Handle Window import error on scripting tests in `lib/autokey/scripting/__init__.py`.
+- Clean up and expand test and IDE exclusions in the `.gitignore` file.
+- Enable **coverage** tests.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
