@@ -56,7 +56,7 @@ Important misc changes
 - Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
 - Fix erroneous `window.close` in place of `window.resize_move` in documentation
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
-
+- Bump AutoKey version to **0.97.0~beta0** in `debian/changelog`, `fedora/autokey.spec`, and `lib/autokey/common.py`.
 
 Features
 ---------
@@ -106,6 +106,7 @@ Other changes
 - Add Wayland-related test-handling to `test_interface.py`.
 - Handle Window import error on scripting tests in `lib/autokey/scripting/__init__.py`.
 - Clean up and expand test and IDE exclusions in the `.gitignore` file.
+- Enable **coverage** tests.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
