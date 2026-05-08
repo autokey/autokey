@@ -109,7 +109,8 @@ Other changes
 - Handle Window import error on scripting tests in `lib/autokey/scripting/__init__.py`.
 - Clean up and expand test and IDE exclusions in the `.gitignore` file.
 - Enable **coverage** tests.
-- Add measurement and timeout and blame settings to `setup.cfg` for more robust testing. 
+- Add measurement and timeout and blame settings to `setup.cfg` for more robust testing.
+- Sort the packages in `apt-requirements.txt` alphabetically for easier comparison on changes.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 
