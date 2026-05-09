@@ -112,6 +112,7 @@ Other changes
 - Add measurement and timeout and blame settings to `setup.cfg` for more robust testing.
 - Sort the packages in `apt-requirements.txt` alphabetically for easier comparison on changes.
 - Pin **PyGObject** version in `setup.cfg` to ensure cross-version harmony.
+- Update the dependencies in the `apt-requirements.txt` file.
 
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
