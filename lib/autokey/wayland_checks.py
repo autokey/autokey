@@ -2,6 +2,7 @@
 #  desktop environment and that the prereqs that desktop environment needs are 
 #  in place.
 
+import getpass
 import grp
 import os
 import subprocess
@@ -18,11 +19,12 @@ def waylandChecks():
 
     try:
         #  only do this stuff when running under Wayland
-        if os.environ['XDG_SESSION_TYPE'] != "wayland":
+        if os.environ.get('XDG_SESSION_TYPE') != "wayland":
             return True
 
         #  Check if running on a supported desktop environment
-        if os.environ['XDG_SESSION_DESKTOP'] == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
+        session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
+        if session_desktop.lower() == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
             logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
         else:
             logger.debug(f"waylandChecks() found AutoKey running under an unsupported desktop environment, displaying popup.")
@@ -50,13 +52,18 @@ def waylandChecks():
 
     #  Gnome check: is the user in the input user group"
     group = 'input'
-    user = os.getlogin()
-    input_group = grp.getgrnam(group)
-    if user in input_group.gr_mem or os.geteuid() == 0:
-        logger.debug(f'waylandChecks() found the "{user}" userid in the "{group}" user group.')
-    else:
-        logger.critical(f'waylandChecks() did not find the "{user}" userid in the "{group}" user group, displaying popup.')
+    user = getpass.getuser()
+    try:
+        input_group = grp.getgrnam(group)
+    except KeyError:
+        logger.critical(f'waylandChecks() did not find the "{group}" user group, displaying popup.')
         show_popup = True
+    else:
+        if user in input_group.gr_mem or os.geteuid() == 0:
+            logger.debug(f'waylandChecks() found the "{user}" userid in the "{group}" user group.')
+        else:
+            logger.critical(f'waylandChecks() did not find the "{user}" userid in the "{group}" user group, displaying popup.')
+            show_popup = True
 
     #  Gnome check: have write access to the /dev/uinput device?
     if os.access('/dev/uinput', os.W_OK):
@@ -70,14 +77,14 @@ def waylandChecks():
         #  This is Gnome-specific, other DTEs added in the future may need 
         #  different messages
         title = 'AutoKey System Configuration Needed'
-        message = f'Your user id is not configured to run AutoKey under Waland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
+        message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
         __show_popup(title, message)
         return False
 
     return True
 
 def __show_unsupported_desktop_popup():
-        dte = os.environ['XDG_SESSION_DESKTOP']
+        dte = os.environ.get('XDG_SESSION_DESKTOP') or os.environ.get('DESKTOP_SESSION') or 'unknown'
         title = 'Unsupported Desktop Environment'
         message = f'AutoKey does not support the "{dte}" desktop environment on a system that uses the Wayland window manager like this one. The "{dte}" desktop environment is supported under X11, but not here under Wayland.  Future development may remove this restriction, please stay tuned.'
         __show_popup(title, message)
