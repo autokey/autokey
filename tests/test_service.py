@@ -1,5 +1,4 @@
 # Copyright (C) 2021 BlueDrink9
-
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
@@ -27,10 +26,13 @@ from tests.engine_helpers import *
 import tests.helpers_for_tests as testhelpers
 
 import autokey.model.folder
+import autokey.model.helpers
+import autokey.model.script
 from autokey.configmanager import configmanager
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.service import Service
 from autokey.service import PhraseRunner
+from autokey.service import ScriptRunner
 import autokey.service
 from autokey.scripting import Engine
 
@@ -59,3 +61,30 @@ def test_start(tmp_path):
     s = Service(app)
     s.start()
     s.shutdown()
+
+
+def create_script(abbreviation, trigger_immediately=False, ignore_case=False):
+    script = autokey.model.script.Script("script", "")
+    script.add_abbreviation(abbreviation)
+    script.set_modes([autokey.model.helpers.TriggerMode.ABBREVIATION])
+    script.immediate = trigger_immediately
+    script.ignoreCase = ignore_case
+    script.parent = MagicMock()
+    return script
+
+
+@pytest.mark.parametrize("buffer, abbreviation, immediate, ignore_case, expected", [
+    ("abbr ", "abbr", False, False, ("abbr", " ")),
+    ("prefix abbr ", "abbr", False, False, ("abbr", " ")),
+    ("abbr", "abbr", True, False, ("abbr", "")),
+    ("ABBR", "abbr", True, True, ("ABBR", "")),
+])
+def test_set_triggered_abbreviation_uses_typed_abbreviation(
+        buffer, abbreviation, immediate, ignore_case, expected):
+    script = create_script(abbreviation, immediate, ignore_case)
+    _, trigger_character = script.process_buffer(buffer)
+    engine = MagicMock()
+
+    ScriptRunner._set_triggered_abbreviation({"engine": engine}, script, buffer, trigger_character)
+
+    engine._set_triggered_abbreviation.assert_called_once_with(*expected)
