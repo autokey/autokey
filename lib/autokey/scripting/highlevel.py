@@ -6,7 +6,6 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
 import struct
 
 
@@ -72,9 +71,12 @@ def get_png_dim(filepath: str) -> int:
     @returns: (width, height).
     @raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
+    with open(filepath, 'rb') as image_file:
+        head = image_file.read(24)
+
+    if len(head) < 24 or head[:8] != b'\x89PNG\r\n\x1a\n':
         raise Exception("not PNG")
-    head = open(filepath, 'rb').read(24)
+
     return struct.unpack('!II', head[16:24])
 
 
@@ -166,4 +168,3 @@ def acknowledge_gnome_notification():
     mouse_click(LEFT)
     time.sleep(.2)
     mouse_move(x0, y0)
-
