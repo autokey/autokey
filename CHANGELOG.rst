@@ -58,7 +58,7 @@ Important misc changes
 - Adds GNOME Window Extension for interacting with Windows on x11/wayland
 - Fix typos in mouse documentation (**window** --> **screen**).
 - Bump AutoKey version to **0.97.0~beta0** in `debian/changelog`, `fedora/autokey.spec`, and `lib/autokey/common.py`.
-- Bump the VERSION to **0.97.0-beta.0** in `lib/autokey/common.py] for compliance with [PEP 440](https://peps.python.org/pep-0440/).
+- Bump the VERSION to **0.97.0-beta.0** in `lib/autokey/common.py` for compliance with `PEP 440`_.
 
 
 Features
@@ -117,6 +117,7 @@ Other changes
 
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
+.. _PEP 440: https://peps.python.org/pep-0440/
 
 Version 0.96.0-beta.9
 ============================
