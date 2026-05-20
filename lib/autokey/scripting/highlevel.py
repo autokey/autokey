@@ -6,7 +6,6 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
 import struct
 
 
@@ -63,18 +62,19 @@ def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
     return coord
 
 
-def get_png_dim(filepath: str) -> int:
+def get_png_dim(filepath: str) -> tuple[int, int]:
     """
-    Usage: C{get_png_dim(filepath:str) -> (int)}
+    Usage: C{get_png_dim(filepath:str) -> (int, int)}
 
     Finds the dimension of a PNG.
     @param filepath: file path of the PNG.
     @returns: (width, height).
     @raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
+    with open(filepath, 'rb') as png_file:
+        head = png_file.read(24)
+    if len(head) < 24 or not head.startswith(b'\x89PNG\r\n\x1a\n'):
         raise Exception("not PNG")
-    head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
 
