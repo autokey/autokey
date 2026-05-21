@@ -6,7 +6,6 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
 import struct
 
 
@@ -63,7 +62,7 @@ def visgrep(scr: str, pat: str, tolerance: int = 0) -> int:
     return coord
 
 
-def get_png_dim(filepath: str) -> int:
+def get_png_dim(filepath: str) -> tuple[int, int]:
     """
     Usage: C{get_png_dim(filepath:str) -> (int)}
 
@@ -72,9 +71,10 @@ def get_png_dim(filepath: str) -> int:
     @returns: (width, height).
     @raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
+    with open(filepath, "rb") as f:
+        head = f.read(24)
+    if head[:8] != b"\x89PNG\r\n\x1a\n":
         raise Exception("not PNG")
-    head = open(filepath, 'rb').read(24)
     return struct.unpack('!II', head[16:24])
 
 
@@ -166,4 +166,3 @@ def acknowledge_gnome_notification():
     mouse_click(LEFT)
     time.sleep(.2)
     mouse_move(x0, y0)
-
