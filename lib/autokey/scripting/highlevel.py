@@ -6,8 +6,9 @@ import time
 import os
 import subprocess
 import tempfile
-import imghdr
 import struct
+
+PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 
 
 class PatternNotFound(Exception):
@@ -72,9 +73,10 @@ def get_png_dim(filepath: str) -> int:
     @returns: (width, height).
     @raise Exception: Raised if the file is not a png
     """
-    if not imghdr.what(filepath) == 'png':
-        raise Exception("not PNG")
     head = open(filepath, 'rb').read(24)
+    if not head.startswith(PNG_SIGNATURE):
+        raise Exception("not PNG")
+
     return struct.unpack('!II', head[16:24])
 
 
