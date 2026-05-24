@@ -22,7 +22,6 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -70,8 +69,9 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            from autokey.wayland_compositor import create_window_interface
+            logger.debug("Wayland session: creating compositor-aware window interface")
+            self.windowInterface = create_window_interface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
