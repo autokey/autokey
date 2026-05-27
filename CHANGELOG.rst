@@ -114,7 +114,7 @@ Other changes
 - Sort the packages in `apt-requirements.txt` alphabetically for easier comparison on changes.
 - Pin **PyGObject** version in `setup.cfg` to ensure cross-version harmony.
 - Update the dependencies in the `apt-requirements.txt` file.
-
+- Fix typos and formatting and wording in the ``_README.txt` file.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 .. _PEP 440: https://peps.python.org/pep-0440/
