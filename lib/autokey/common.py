@@ -52,3 +52,16 @@ ICON_FILE_NOTIFICATION_DARK = "autokey-status-dark"
 ICON_FILE_NOTIFICATION_ERROR = "autokey-status-error"
 
 USING_QT = False
+
+
+def is_wayland() -> bool:
+    """Detect if the current session is running under Wayland."""
+    xdg_session = os.environ.get("XDG_SESSION_TYPE", "").lower()
+    if xdg_session == "wayland":
+        return True
+    if os.environ.get("WAYLAND_DISPLAY"):
+        return True
+    return False
+
+
+WAYLAND = is_wayland()
