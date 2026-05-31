@@ -22,6 +22,7 @@ Other
 +++++
 - Add `show_recent_script_errors_dialog` to display errors with millisecond precision.
 - Add **Environment** as an issue type in the `bug.yml` file.
+- Add the **referral** section to `bug.yml` issue-report form.
 
 Version 0.96.0
 ============================
