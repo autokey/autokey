@@ -239,7 +239,18 @@ body:
       render: bash
     validations:
       required: false
-  
+
+  # HOW DID YOU FIND THE AUTOKEY PROJECT?
+  - type: textarea
+    id: referral
+    attributes:
+      label: How did you find the AutoKey project?
+      description: >
+        If this is your first AutoKey pull request, please
+        describe how you found the AutoKey project.
+    validations:
+      required: false
+
   # ANYTHING ELSE?
   - type: textarea
     id: notes
