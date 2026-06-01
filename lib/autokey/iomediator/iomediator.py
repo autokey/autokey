@@ -63,7 +63,12 @@ class IoMediator(threading.Thread):
             Key.NUMLOCK: False
         }
         
-        if self.interfaceType == X_RECORD_INTERFACE:
+        import os
+        session_type = os.environ.get("XDG_SESSION_TYPE", "x11").lower()
+        if session_type == "wayland":
+            from autokey.evdev_interface import EvdevInterface
+            self.interface = EvdevInterface(self, service.app)
+        elif self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
         else:
             self.interface = AtSpiInterface(self, service.app)

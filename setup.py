@@ -180,6 +180,7 @@ setup(
         'pyinotify',
         'python-xlib',
         'packaging',
+        'evdev',
     ],
     test_suite="pytest",
     classifiers=[
