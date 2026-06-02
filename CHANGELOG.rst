@@ -115,6 +115,7 @@ Other changes
 - Pin **PyGObject** version in `setup.cfg` to ensure cross-version harmony.
 - Update the dependencies in the `apt-requirements.txt` file.
 - Fix typos and formatting and wording in the ``_README.txt` file.
+- Cherry-pick the the `bug.yml` file from **master** to get the update that added a referral question to the issue-report form.
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 .. _PEP 440: https://peps.python.org/pep-0440/
