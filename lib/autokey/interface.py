@@ -1243,6 +1243,8 @@ class XInterfaceBase(threading.Thread):
         return self.get_window_info(window, traverse).wm_class
 
     def cancel(self):
+        logger.debug("XInterfaceBase: Ungrabbing all hotkeys before shutdown.")
+        self.__ungrabAllHotkeys()
         logger.debug("XInterfaceBase: Try to exit event thread.")
         self.queue.put_nowait((None, None))
         logger.debug("XInterfaceBase: Event thread exit marker enqueued.")
