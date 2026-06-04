@@ -1,3 +1,21 @@
+#  Copyright (C) 2024  Sam Sebastian
+#  Copyright (C) 2026  David King <dave@daveking.com>
+#
+#  This program is free software; you can redistribute it and/or
+#  modify it under the terms of the GNU General Public License,
+#  version 2, as published by the Free Software Foundation.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License,
+#  version 2, along with this program; if not, see
+#  <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>.
+#
+#####################################################################
+
 # items avaliable on inputevents
 # https://python-evdev.readthedocs.io/en/latest/apidoc.html#evdev.events.InputEvent
 # sec, usec, type, code, value
@@ -8,6 +26,7 @@ import queue
 import os
 import grp
 import evdev
+#  @dlk3 - support multiple keyboards/mice
 import pyudev
 import time
 import select
@@ -25,20 +44,26 @@ from evdev import ecodes as e
 
 from autokey.autokey_app import AutokeyApplication
 
+#  @dlk3 - support multiple keyboards/mice
+from . import common
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, queue_method
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.gnome_interface import GnomeMouseReadInterface
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeMouseInterface as MouseReadInterface
+else:
+    from autokey.gnome_interface import GnomeMouseReadInterface as MouseReadInterface
 
 #TODO when exiting the thread waits for one more signal and that signal repeats  for a bit during exit
-#  Put a timeout on the select in __flush_events() so that it would not
+#  @dlk3 I put a timeout on the select in __flush_events() so that it would not
 #  block forever waiting for a keypress after a self.ui device has been closed.
 #  This matches how things are done in the equivalent function in the X11
 #  interface.py module.
 
-class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInterface):
+class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
     """
     god this is complicated lol
     """
@@ -180,7 +205,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.app = app            #  type - AutokeyApplication
         self.shutdown = False
         self.sending = False
-        #  support multiple keyboards/mice
+        #  @dlk3 - support multiple keyboards/mice
         self.keyboards = []
         self.mice = []
         self.device_paths = []
@@ -197,7 +222,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         #self.grab_devices()
 
-        # support multiple keyboards/mice
+        # @dlk3 - support multiple keyboards/mice
         self.grab_multiple_devices()
         logger.debug("The following devices are available on this system:\n\t{}".format('\n\t'.join([ dev.name for dev in self.get_devices() ])))
         logger.debug("I grabbed these devices from that list: \n\t{}".format('\n\t'.join([ dev.name for dev in self.keyboards + self.mice ])))
@@ -219,8 +244,11 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             raise Exception
             #print("Unable to create UInput device. {}".format(ex))
 
-        GnomeMouseReadInterface.__init__(self)
-        logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
+        MouseReadInterface.__init__(self)
+        if common.DESKTOP == 'KDE':
+            logger.debug("Screen size: We're rnning on KDE.  The interface to the KWin script API cannot accept calls this early in the startup process.")
+        else:
+            logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
 
         self.inv_map = self.__reverse_mapping(e.keys)
         self.inv_autokey_map = self.__reverse_mapping(self.autokey_map)
@@ -234,28 +262,49 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.eventThread.start()
         self.listenerThread.start()
 
-    #  support multiple keyboards/mice
+    #  @dlk3 - support multiple keyboards/mice
     #  Watch for new USB or Bluetooth devices to be added to the system and rerun
     #  grab_multiple_devices() and reset the fake uinput device when they are
     def __watch_for_new_devices(self):
         #  Handler runs in its own thread when it's invoked by monitor
         def event_handler(action, device):
             if action == 'bind':
-                logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse to grab.")
+                logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse that I should grab.")
                 self.grab_multiple_devices()
                 self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
-                logger.debug("Devices grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
+                logger.debug("Devices that I've grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
 
         monitor = pyudev.Monitor.from_netlink(pyudev.Context())
 
-        #  Tell the monitor only want to see events from these UDEV "subsystems"
+        #  Tell the monitor that we only want to see events from these UDEV "subsystems"
         monitor.filter_by('usb')
-        monitor.filter_by('hidraw')  # Covers bluetooth devices
+        monitor.filter_by('hidraw')  # Covers bluetooth devices, I think. I can't test this, I don't have any bluetooth keyboards/mice.
 
         self.udev_observer = pyudev.MonitorObserver(monitor, event_handler)
         self.udev_observer.start()
 
-    #  support multiple keyboards/mice
+    #  @dlk3 - support multiple keyboards/mice
+    def __grab_keyboard(self, devices, device):
+        try:
+            #logger.debug("Device has the word \"keyboard\" as part of its name, grabbing it.")
+            keyboard = self.grab_device(devices, device.name)
+            keyboard.grab()
+            self.keyboards.append(keyboard)
+            self.device_paths.append(keyboard.path)
+            #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
+        except Exception as error:
+            logger.error(f"Could not grab keyboard device \"{dev.name}\" from list of devices found on system: {error}")
+
+    def __grab_mouse(self, devices, device):
+        try:
+            #logger.debug("Device has the word \"mouse\" as part of its name, grabbing it.")
+            mouse = self.grab_device(devices, device.name)
+            self.mice.append(mouse)
+            self.device_paths.append(mouse.path)
+            #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
+        except Exception as error:
+            logger.error(f"Could not grab mouse device  \"{dev.name}\" from list of devices found on system: {error}")
+
     def grab_multiple_devices(self):
         ### UINPUT Listener one for keyboard and eventually one for mouse
         # creating this before creating the new uinput device !important
@@ -268,58 +317,32 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             if dev.name == 'autokey mouse and keyboard':
                 self.ui.close()
                 continue
-            #  Ignore devices already grabbed during prior calls to this method
+            #  Ignore devices we already grabbed during prior calls to this method
             if dev.path in self.device_paths:
                 #logger.debug('This device has already been grabbed')
                 continue
 
             if re.search("keyboard", dev.name, re.IGNORECASE):
-                try:
-                    #logger.debug("Device has the word \"keyboard\" as part of its name, grabbing it.")
-                    keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
-                    self.keyboards.append(keyboard)
-                    self.device_paths.append(keyboard.path)
-                    #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
-                except Exception as error:
-                    logger.error(f"Could not grab keyboard device \"{dev.name}\" from list of devices found on system: {error}")
+                self.__grab_keyboard(devices, dev)
             elif re.search("mouse", dev.name, re.IGNORECASE):
-                try:
-                    #logger.debug("Device has the word \"mouse\" as part of its name, grabbing it.")
-                    mouse = self.grab_device(devices, dev.name)
-                    self.mice.append(mouse)
-                    self.device_paths.append(mouse.path)
-                    #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
-                except Exception as error:
-                    logger.error(f"Could not grab mouse device  \"{dev.name}\" from list of devices found on system: {error}")
+                self.__grab_mouse(devices, dev)
             elif dev.name in cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]:
-                try:
-                    #logger.debug("Device name matches a keyboard listed in the config file, grabbing it.")
-                    keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
-                    self.keyboards.append(keyboard)
-                    self.device_paths.append(keyboard.path)
-                    #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
-                except Exception as error:
-                    logger.error(f"Could not grab keyboard device \"{dev.name}\" from configuration settings: {error}")
+                self.__grab_keyboard(devices, dev)
             elif dev.name in cm.ConfigManager.SETTINGS[cm_constants.MOUSE]:
-                try:
-                    #logger.debug("Device name matches a mouse listed in the config file, grabbing it.")
-                    mouse = self.grab_device(devices, dev.name)
-                    self.mice.append(mouse)
-                    self.device_paths.append(mouse.path)
-                    #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
-                except Exception as error:
-                    logger.error(f"Could not grab mouse device \"{dev.name}\" from configuration settings: {error}")
+                self.__grab_mouse(devices, dev)
+            elif dev.name in common.WAYLAND_KEYBOARD_DEVICE_LIST:
+                self.__grab_keyboard(devices, dev)
+            elif dev.name in common.WAYLAND_MOUSE_DEVICE_LIST:
+                self.__grab_mouse(devices, dev)
 
-        dev_list = "\n(AutoKey could not get the list of devices.  Please press \"Esc\", log off and back on, and try running AutoKey again."
+        dev_list = "\n(I could not get the list of devices.  Please press \"Esc\", log off and back on, and try running AutoKey again."
         if len(self.keyboards) == 0:
             logger.error(f"Unable to find a keyboard to connect to")
             dev_list = ''
             if len(devices) > 0:
                 for dev in devices:
                     dev_list = dev_list + '\n' + dev.name
-            self.app.show_error_dialog_with_link(f"Unable to connect a keyboard device", f"AutoKey is unable to recognize your keyboard device.  Please update the \"keyboard\" and \"mouse\" lists in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name(s) of your keyboard and mouse device(s) from this list:\n{dev_list}\n\nClick the \"Open\" button below to edit the configuration file now or simply press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            self.app.show_error_dialog_with_link(f"Unable to connect a keyboard device", f"I am unable to recognize your keyboard device.  Please update the \"keyboard\" and \"mouse\" lists in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name(s) of your keyboard and mouse device(s) from this list:\n{dev_list}\n\nClick the \"Open\" button below to edit the configuration file now or simply press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
             exit(1)
         if len(self.mice) == 0:
             logger.error(f"Unable to find a mouse to connect to")
@@ -327,7 +350,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             if len(devices) > 0:
                 for dev in devices:
                     dev_list = dev_list + '\n' + dev.name
-            self.app.show_error_dialog_with_link(f"Unable to connect a mouse device", f"AutoKey unable to recognize your mouse device.  Please update the \"keyboard\" and \"mouse\" lists in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name(s) of your keyboard and mouse device(s) from this list:\n{dev_list}\n\nClick the \"Open\" button below to edit the configuration file now or simply press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
+            self.app.show_error_dialog_with_link(f"Unable to connect a mouse device", f"I am unable to recognize your mouse device.  Please update the \"keyboard\" and \"mouse\" lists in the AutoKey configuration file {cm_constants.CONFIG_FILE} with the name(s) of your keyboard and mouse device(s) from this list:\n{dev_list}\n\nClick the \"Open\" button below to edit the configuration file now or simply press \"Esc\" to close this message.", link_data=cm_constants.CONFIG_FILE)
             exit(1)
 
         self.devices = self.keyboards + self.mice
@@ -419,7 +442,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.ui.write(e.EV_KEY, keycode, 0)
         self.syn_raw()
 
-    # implemented in GnomeMouseReadInterface
+    # implemented in MouseReadInterface
     # def mouse_location(self):
     #     raise NotImplementedError
 
@@ -514,7 +537,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
     @queue_method(queue)
     def clear_held_keys(self):
         #self.held_keys = self.keyboard.active_keys()
-        #  mutiple devices fix
+        # @dlk3  - mutiple devices fix
         self.held_keys = []
         for keyboard in self.keyboards:
             self.held_keys = self.held_keys + keyboard.active_keys(verbose=True)
@@ -529,7 +552,6 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         logger.debug("Reapply held keys: {}".format(self.held_keys))
         for key in self.held_keys:
             self.ui.write(e.EV_KEY, key, 1)
-
 
     @queue_method(queue)
     def send_string(self, string):
@@ -552,9 +574,6 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
 
         for key in string:
             self.__send_key(key)
-
-    def paste_string(self, string, paste_command: SendMode):
-        raise NotImplementedError
 
     @queue_method(queue)
     def send_key(self, key_name):
@@ -653,7 +672,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         Grabs hotkeys. Under X11 this means blocking the hotkeys from sending to individual applications.
         Not sure if this can be accomplished via uinput/wayland?
 
-        It needs to be done.  Added code to suppress hotkeys being
+        @dlk3 - It needs to be done and I added code to suppress hotkeys being
         sent though to apps at the end of the __flush_events() method below.
         """
         self.__grab_hotkeys()
@@ -732,18 +751,18 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         logger.debug("Left event loop.")
 
     def __flush_events(self):
-        #  select needs a timeout or it hangs when a new input device is added to self.devices
+        #  @dlk3 select needs a timeout or it hangs when a new input device is added to self.devices
         r,w,x = select.select(self.devices, [], [], 1)
         for fd in r:
             if not pathlib.Path(self.devices[fd].path).exists():
-                # multidevice fix - remove the missing device from the lists and redefine the fake uinput device
+                # @dlk3 - multidevice fix - remove the missing device from the lists and redefine the fake uinput device
                 logger.info(f"The \"{self.devices[fd].name}\" device has dissappeared from the system.")
                 self.device_paths.remove(self.devices[fd].path)
                 self.devices.pop(fd)
 
                 if len(self.devices) == 0:
                     logger.error("The last keyboard/mouse input device has been removed from the system")
-                    self.app.show_error_dialog(f"Last keyboard/mouse removed", details="The last keyboard/mouse has been removed from the system.  There's no reason for AutoKey to keep running.\"")
+                    self.app.show_error_dialog(f"Last keyboard/mouse removed", details="The last keyboard/mouse has been removed from the system.  There's no reason for AutoKey to keep running so I'll be saying \"Bye, bye.\"")
                     self.shutdown = True
                     return
 
@@ -764,7 +783,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                 continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
-                # mutiple devices fix
+                # @dlk3  - mutiple devices fix
                 held = []
                 for keyboard in self.keyboards:
                     held = held + keyboard.active_keys(verbose=True)
@@ -800,21 +819,21 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                     #if event_type.
                     #self.handle_mouseclick(event)
 
-                # the following self.ui.write sends through AutoKey hotkeys,
-                # which it shouldn't do, so return now, before that happens,
+                # dlk3 - the following self.ui.write sends through AutoKey hotkeys,
+                # which it shouldn't do, so we'll return now, before that happens,
                 # if the "held" list holds an AutoKey hotkey
                 if self.__isAutoKeyHotkey(held):
                     return
 
-                # support multiple keyboards/mice
+                # dlk3 - support multiple keyboards/mice
                 # pass through to autokey uinput device
                 for keyboard in self.keyboards:
                     if not self.sending and fd == keyboard.fd:
                         self.ui.write(event.type, event.code, event.value)
 
-    #  Does the list of keys from __flush_events() match an AutoKey hotkey?
+    #  @dlk3 - Does the list of keys from __flush_events() match an AutoKey hotkey?
     def __isAutoKeyHotkey(self, key_list):
-        #  If the key_list passed in doesn't contain at least two keys
+        #  If the key_list passed to us doesn't contain at least two keys
         #  then it can't be a hot key
         if len(key_list) < 2:
             return False
@@ -834,14 +853,14 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
                     continue
 
             #  Convert this hotkey from a list of tuples to a simple list of
-            #  key codes and compare it to the key_list
+            #  key codes so that we can compare it to the key_list
             hotkey_codes = [self.translate_to_evdev(item.hotKey)]
             for modifier in item.modifiers:
                 hotkey_codes.append(self.translate_to_evdev(modifier))
             hotkey_codes = [ x[0] for x in hotkey_codes ]
             hotkey_codes.sort()
 
-            #  Check if the hotkey_codes match the key_list received
+            #  Check if the hotkey_codes match the key_list we received
             #logger.debug(f"Will block hotkey if key_list: {key_list} == hotkey_codes: {hotkey_codes}")
             if key_list == hotkey_codes:
                 return True

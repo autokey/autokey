@@ -22,7 +22,10 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeWindowInterface
+else:
+    from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -39,14 +42,14 @@ class IoMediator(threading.Thread):
     """
     The IoMediator is responsible for tracking the state of modifier keys and
     interfacing with the various Interface classes to obtain the correct
-    characters to pass to the expansion service. 
-    
+    characters to pass to the expansion service.
+
     This class must not store or maintain any configuration details.
     """
-    
+
     # List of targets interested in receiving keypress, hotkey and mouse events
     listeners = []
-    
+
     def __init__(self, service):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
 
@@ -54,7 +57,7 @@ class IoMediator(threading.Thread):
         self.listeners.append(service)
         self.interfaceType = ConfigManager.SETTINGS[INTERFACE_TYPE]
         self.app = service.app
-        
+
         # Modifier tracking
         self.modifiers = {}
         for key in MODIFIERS:
@@ -70,8 +73,13 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            logger.debug(f'common.DESKTOP = {common.DESKTOP}')
+            if common.DESKTOP == 'KDE':
+                logger.debug("Using kde window interface")
+                self.windowInterface = KdeWindowInterface()
+            else:
+                logger.debug("Using gnome extension window interface")
+                self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
@@ -100,6 +108,12 @@ class IoMediator(threading.Thread):
 
 
     def shutdown(self):
+        #  If the windowInterface has a cancel method, call it.
+        #  KdeWindowInterface needs this to shutdown cleanly.
+        cancel_method = getattr(self.windowInterface, "cancel", None)
+        if callable(cancel_method):
+            logger.debug('windowInterface shutting down.')
+            self.windowInterface.cancel()
         logger.debug("IoMediator shutting down")
         self.interface.cancel()
         logger.debug("queue.put_nowait()")
@@ -124,7 +138,7 @@ class IoMediator(threading.Thread):
     def set_modifier_state(self, modifier, state):
         logger.debug("Set modifier %s to %r", modifier, state)
         self.modifiers[modifier] = state
-    
+
     def handle_modifier_down(self, modifier):
         """
         Updates the state of the given modifier key to 'pressed'.
@@ -139,7 +153,7 @@ class IoMediator(threading.Thread):
                 self.modifiers[modifier] = True
         else:
             self.modifiers[modifier] = True
-        
+
     def handle_modifier_up(self, modifier):
         """
         Updates the state of the given modifier key to 'released'.
@@ -151,17 +165,17 @@ class IoMediator(threading.Thread):
 
     def handle_keypress(self, key_code, window_info):
         """
-        Looks up the character for the given key code, applying any 
+        Looks up the character for the given key code, applying any
         modifiers currently in effect, and passes it to the expansion service.
         """
         self.queue.put_nowait((key_code, window_info))
-        
+
     def run(self):
         while True:
             key_code, window_info = self.queue.get()
             if key_code is None and window_info is None:
                 break
-            
+
             num_lock = self.modifiers[Key.NUMLOCK]
             modifiers = self._get_modifiers_on()
             shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
@@ -175,13 +189,13 @@ class IoMediator(threading.Thread):
                 target.handle_keypress(raw_key, modifiers, key, window_info)
 
             self.queue.task_done()
-            
+
     def handle_mouse_click(self, root_x, root_y, rel_x, rel_y, button, window_info):
         # We make a copy here because the wait_for... functions modify the listeners,
         # and we want this processing cycle to complete before changing what happens
         for target in self.listeners.copy():
             target.handle_mouseclick(root_x, root_y, rel_x, rel_y, button, window_info)
-        
+
     # Methods for expansion service ----
 
     def send_string(self, string: str):
@@ -193,7 +207,7 @@ class IoMediator(threading.Thread):
 
         string = string.replace('\n', "<enter>")
         string = string.replace('\t', "<tab>")
-        
+
         logger.debug("Send via event interface")
         self._clear_modifiers()
         IoMediator._send_string(string, self.interface)
@@ -247,7 +261,7 @@ class IoMediator(threading.Thread):
 
     def remove_string(self, string):
         backspaces = -1  # Start from -1 to discount the backspace already pressed by the user
-        
+
         for section in KEY_SPLIT_RE.split(string):
             if Key.is_key(section):
                 # TODO: Only a subset of keys defined in Key are printable, thus require a backspace.
@@ -288,11 +302,11 @@ class IoMediator(threading.Thread):
     def send_right(self, count):
         for _ in range(count):
             self.send_key(Key.RIGHT)
-    
+
     def send_up(self, count):
         """
         Sends the given number of up key presses.
-        """        
+        """
         for _ in range(count):
             self.send_key(Key.UP)
 
@@ -305,12 +319,12 @@ class IoMediator(threading.Thread):
 
     def flush(self):
         self.interface.flush()
-        
+
     # Utility methods ----
-    
+
     def _clear_modifiers(self):
         self.releasedModifiers = []
-        
+
         for modifier in list(self.modifiers.keys()):
             if self.modifiers[modifier] and modifier not in (Key.CAPSLOCK, Key.NUMLOCK):
                 self.releasedModifiers.append(modifier)
@@ -325,7 +339,7 @@ class IoMediator(threading.Thread):
         for modifier in HELD_MODIFIERS:
             if self.modifiers[modifier]:
                 modifiers.append(modifier)
-        
+
         modifiers.sort()
         return modifiers
 
