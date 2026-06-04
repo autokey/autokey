@@ -111,8 +111,8 @@ def __show_popup(title, message):
         except Exception:
             try:
 
-                newline = '\n'
-                    subprocess.run(f"zenity --error --title='{title}' --text='{message.replace('<br />', newline)}'", shell=True, check=True)
+                _nl = '\n'
+                subprocess.run(f"zenity --error --title='{title}' --text='{message.replace('<br />', _nl)}'", shell=True, check=True)
             except Exception:
                 logger.critical(message)
 
