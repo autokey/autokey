@@ -69,6 +69,8 @@ if common.USED_UI_TYPE == "GTK":
         HAS_ATSPI = False
 
 from Xlib import X, XK, display, error
+from autokey import wayland_checks
+import os
 try:
     from Xlib.ext import record, xtest
     HAS_RECORD = True
@@ -345,9 +347,10 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     @queue_method(queue)
     def grab_keyboard(self):
+        if os.environ.get('XDG_SESSION_TYPE') == 'wayland':
+            return
         focus = self.localDisplay.get_input_focus().focus
-        if not isinstance(focus, int):
-            focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
 
     @queue_method(queue)
