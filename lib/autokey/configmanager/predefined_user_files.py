@@ -123,7 +123,7 @@ sample_scripts_data = [
         trigger_modes=[],
         window_filter=None,
         show_in_tray_menu=False,
-        content="create_phrase_from_selection"),
+        content="create_phrase_from_selection"),        
     ItemData(
         name="Display window info",
         hotkey=None,
@@ -131,7 +131,15 @@ sample_scripts_data = [
         trigger_modes=[],
         window_filter=None,
         show_in_tray_menu=True,
-        content="display_window_info")
+        content="display_window_info"),
+    ItemData(
+        name="Unicode Strings In Scripts",
+        hotkey=None,
+        abbreviations=[],
+        trigger_modes=[],
+        window_filter=None,
+        show_in_tray_menu=True,
+        content="unicode_strings_in_scripts")
 ]
 
 

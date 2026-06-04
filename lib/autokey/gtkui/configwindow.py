@@ -1329,14 +1329,15 @@ class ConfigWindow:
     def on_show_about(self, widget, data=None):
         dlg = Gtk.AboutDialog()
         dlg.set_name("AutoKey")
-        dlg.set_comments(_("A desktop automation utility for Linux and X11."))
+        dlg.set_comments(_("A desktop automation utility for Linux, Wayland and X11."))
         dlg.set_version(common.VERSION)
         p = Gtk.IconTheme.get_default().load_icon(common.ICON_FILE, 100, 0)
         dlg.set_logo(p)
         dlg.set_website(common.HOMEPAGE)
-        dlg.set_authors(["GuoCi (Python 3 port maintainer) <guociz@gmail.com>",
-                         "Chris Dekter (Developer) <cdekter@gmail.com>",
-                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
+        authors_list = []
+        for author in common.author_data:
+            authors_list.append(f"{author.name} ({author.role}) <{author.email}>")
+        dlg.set_authors(authors_list)
         dlg.set_transient_for(self.ui)
         dlg.run()
         dlg.destroy()

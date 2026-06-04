@@ -27,6 +27,7 @@ qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
 
 # wmctrl, xrandr are x11 specific programs.
 x11_programs = ['wmctrl', 'xrandr']
+wayland_programs = ['wl-copy', 'wl-paste']
 common_programs = ['ps']
 # Checking some of these appears to be redundant as some are provided by the same packages on my system but 
 # better safe than sorry.
@@ -120,6 +121,8 @@ def checkRequirements():
 
     if os.environ.get("XDG_SESSION_TYPE") == "x11":
         missing_programs = checkProgramImports(x11_programs)
+    elif os.environ.get("XDG_SESSION_TYPE") == "wayland":
+        missing_programs = checkProgramImports(wayland_programs)
 
     if common.USED_UI_TYPE == "QT":
         missing_programs = checkProgramImports(common_programs+qt_programs)

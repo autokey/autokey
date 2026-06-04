@@ -132,7 +132,7 @@ def click_on_pat(pat: str, mousebutton: int=1, offset: (float, float)=None, tole
     :param offset: offset from the top left point of the match. (float,float)
     :param tolerance: An integer ≥ 0 to specify the level of tolerance for 'fuzzy' matches. If negative or not convertible to int, raises ValueError.
     :param restore_pos: return to the initial mouse position after the click.
-    :raises: L{PatternNotFound}: Raised when the pattern is not found on the screen
+    :raise PatternNotFound: Raised when the pattern is not found on the screen
     """
     x0, y0 = mouse_pos()
     move_to_pat(pat, offset, tolerance)

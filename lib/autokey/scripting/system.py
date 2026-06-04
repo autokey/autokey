@@ -60,7 +60,7 @@ class System:
 
         Usage: C{system.create_file(fileName, contents="")}
 
-        :param fileName: full path to the file to be created
+        :param file_name: full path to the file to be created
         :param contents: contents to insert into the file
         """
         with open(file_name, "w") as written_file:

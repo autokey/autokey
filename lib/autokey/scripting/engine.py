@@ -77,7 +77,7 @@ class Engine:
 
         Descriptions for the optional arguments:
 
-        :param parentFolder: Folder to make this folder a subfolder of. If
+        :param parent_folder: Folder to make this folder a subfolder of. If
             passed as a folder, it will be that folder within AutoKey.
             If passed as pathlib.Path, it will be created or added at that path.
             Paths expand ~ to $HOME.
@@ -350,7 +350,7 @@ Folders created within temporary folders must themselves be set temporary")
         """
         Run an existing script using its description or path to look it up
 
-        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar')}
+        Usage: C{engine.run_script(description, 'foo', 'bar', foobar='foobar'})}
 
         :param description: description of the script to run. If parsable as
             an absolute path to an existing file, that will be run instead.

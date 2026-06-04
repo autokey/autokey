@@ -15,11 +15,15 @@
 """Keyboard Functions"""
 
 import typing
+import time
 
 import autokey.model.phrase
 import autokey.iomediator.waiter as waiter
 from autokey import iomediator, model
 from typing import Callable
+
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 class Keyboard:
     """
@@ -32,7 +36,7 @@ class Keyboard:
         self.mediator = mediator  # type: iomediator.IoMediator
         """See C{IoMediator} documentation"""
 
-    def send_keys(self, key_string, send_mode: typing.Union[
+    def send_keys(self, key_string, delay = 0, send_mode: typing.Union[
         autokey.model.phrase.SendMode, int] = autokey.model.phrase.SendMode.KEYBOARD):
         """
         Send a sequence of keys via keyboard events as the default or via clipboard pasting.
@@ -42,16 +46,22 @@ class Keyboard:
         Trying to send special keys using a clipboard pasting method will paste the literal representation
         (e.g. "<ctrl>+<f11>") instead of the actual special key or key combination.
 
-
         Usage: C{keyboard.send_keys(keyString)}
 
         :param key_string: string of keys to send. Special keys are only possible in keyboard mode.
+        :param delay: delay, in milliseconds, between sending each keystroke.  Only effective under Wayland, has no effect on X11 systems.
         :param send_mode: Determines how the string is sent.
         """
 
         if not isinstance(key_string, str):
             raise TypeError("Only strings can be sent using this function")
         send_mode = _validate_send_mode(send_mode)
+
+        #  @dlk3 Fix for #19 - Temporarily change the setting for the uinput keystoke delay
+        if delay > 0:
+            saved_delay = cm.ConfigManager.SETTINGS[cm_constants.DELAY] 
+            cm.ConfigManager.SETTINGS[cm_constants.DELAY] = saved_delay + delay
+
         self.mediator.begin_send()
         try:
             if send_mode is autokey.model.phrase.SendMode.KEYBOARD:
@@ -60,6 +70,11 @@ class Keyboard:
                 self.mediator.paste_string(key_string, send_mode)
         finally:
             self.mediator.finish_send()
+        
+        #  @dlk3 Fix for #19 - Temporarily change the setting for the uinput keystoke delay
+        if delay > 0:
+            time.sleep(len(key_string) * delay / 1000)    # Give the thread that does the typing time to complete
+            cm.ConfigManager.SETTINGS[cm_constants.DELAY] = saved_delay
 
     def send_key(self, key, repeat=1):
         """
@@ -119,6 +134,7 @@ class Keyboard:
         Usage: C{keyboard.wait_for_keypress(self, key, modifiers=[], timeOut=10.0)}
 
         Note: this function cannot be used to wait for modifier keys on their own
+
 
         :param key: the key to wait for
         :param modifiers: list of modifiers that should be pressed with the key
