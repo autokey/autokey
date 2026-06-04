@@ -346,7 +346,8 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     @queue_method(queue)
     def grab_keyboard(self):
         focus = self.localDisplay.get_input_focus().focus
-        focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
+        if not isinstance(focus, int):
+            focus.grab_keyboard(True, X.GrabModeAsync, X.GrabModeAsync, X.CurrentTime)
         self.localDisplay.flush()
 
     @queue_method(queue)
