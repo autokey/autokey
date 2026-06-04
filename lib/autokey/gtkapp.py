@@ -90,7 +90,12 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         self.notifier.rebuild_menu()
 
     def path_created_or_modified(self, path):
-        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
+	#  @dlk3  Fix for issue #16.  Wrap this call to 
+        #  catch an exception, log and otherwise ignore it
+        try:
+            UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
+        except Exception as e:
+            logger.exception("Unexpected error in gtkapp.path_created_or_modified, program continues: " + str(e))
 
     def path_removed(self, path):
         UI_common.path_removed(self.configManager, self.configWindow, path)

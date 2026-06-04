@@ -44,7 +44,7 @@ class GtkClipboard(AbstractClipboard):
         """
         self._selection = Gtk.Clipboard.get(Gdk.SELECTION_PRIMARY)
         """
-        Refers to the selection of the clipboard or the highlighted text
+        Refers to the "selection" of the clipboard or the highlighted text
         """
         self.app = app
         """
@@ -69,9 +69,9 @@ class GtkClipboard(AbstractClipboard):
 
     def get_selection(self):
         """
-        Read text from the selection
+        Read text from the X selection
 
-        Refers to the currently-highlighted text
+        The X selection refers to the currently highlighted text.
 
         Usage: C{clipboard.get_selection()}
 
@@ -109,7 +109,7 @@ class GtkClipboard(AbstractClipboard):
         Usage: C{clipboard.get_clipboard()}
 
         :return: text contents of the clipboard
-        :rtype: C{str}
+        :rtype: C{str}, or C{bytearray} on Python >= 3.13
         """
         Gdk.threads_enter()
         text = self._clipboard.wait_for_text()
@@ -127,8 +127,8 @@ class GtkClipboard(AbstractClipboard):
 
         Usage: C{clipboard.set_clipboard_image(path)}
 
-        :param path: path to image file
-        :raise OSError: if path does not exist
+        :param path: Path to image file
+        :raise OSError: If path does not exist
 
         """
         image_path = Path(path).expanduser()

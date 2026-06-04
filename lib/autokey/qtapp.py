@@ -96,7 +96,10 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         self.notifier.create_assign_context_menu()
 
     def path_created_or_modified(self, path):
-        UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
+        try:
+            UI_common.path_created_or_modified(self.configManager, self.configWindow, path)
+        except AttributeError:
+            logger.exception('Unexpected exception.  If this is the first time AutoKey has been started on this system, then this exception can safely be ignored.')
 
     def path_removed(self, path):
         UI_common.path_removed(self.configManager, self.configWindow, path)

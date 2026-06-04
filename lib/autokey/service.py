@@ -517,7 +517,7 @@ class ScriptRunner:
         backspaces, trigger_character = script.process_buffer(buffer)
         self.mediator.send_backspace(backspaces)
 
-        self._set_triggered_abbreviation(scope, script, buffer, trigger_character)
+        self._set_triggered_abbreviation(scope, buffer, trigger_character)
         if script.path is not None:
             # Overwrite __file__ to contain the path to the user script instead of the path to this service.py file.
             scope["__file__"] = script.path
@@ -577,16 +577,11 @@ class ScriptRunner:
         return script_code, script_name
 
     @staticmethod
-    def _set_triggered_abbreviation(
-            scope: dict,
-            script: autokey.model.script.Script,
-            buffer: str,
-            trigger_character: str):
+    def _set_triggered_abbreviation(scope: dict, buffer: str, trigger_character: str):
         """Provide the triggered abbreviation to the executed script, if any"""
         engine = scope["engine"]  # type: autokey.scripting.Engine
         if buffer:
-            configured_abbreviation = script._get_trigger_abbreviation(buffer)
-            _, triggered_abbreviation, _ = script._partition_input(buffer, configured_abbreviation)
+            triggered_abbreviation = buffer[:-len(trigger_character)]
 
             logger.debug(
                 "Triggered a Script by an abbreviation. Setting it for engine.get_triggered_abbreviation(). "
