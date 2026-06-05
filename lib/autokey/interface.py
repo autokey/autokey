@@ -982,20 +982,68 @@ class XInterfaceBase(threading.Thread):
         while True:
             try:
                 readable, w, e = select.select([self.localDisplay], [], [], 1)
-                time.sleep(1)
                 if self.localDisplay in readable:
                     createdWindows = []
                     destroyedWindows = []
                     
                     for x in range(self.localDisplay.pending_events()):
-                        event = self.localDisplay.next_event()
-                        if event.type == X.CreateNotify:
-                            createdWindows.append(event.window)
-                        if event.type == X.DestroyNotify:
-                            destroyedWindows.append(event.window)
-                        if event.type == X.MappingNotify:
+                        evt = self.localDisplay.next_event()
+                        if evt.type == X.CreateNotify:
+                            createdWindows.append(evt.window)
+                        if evt.type == X.DestroyNotify:
+                            destroyedWindows.append(evt.window)
+                        if evt.type == X.MappingNotify:
                             logger.debug("X Mapping Event Detected")
                             self.on_keys_changed()
+                        if evt.type == X.KeyPress or evt.type == X.KeyRelease:
+                            keyCode = evt.detail
+                            rawKey = self.lookup_string(keyCode, False, False, False)
+
+                            logLevel = logging.DEBUG
+                            if logger.isEnabledFor(logLevel):
+                                # Only do all this extra work when we actually need it
+                                action = evt.__class__.__name__
+                                keySym = self.localDisplay.keycode_to_keysym(keyCode, 0)
+                                shifted = bool(evt.state & self.modMasks[Key.SHIFT]) ^ bool(evt.state & self.modMasks[Key.CAPSLOCK])
+                                numlock = bool(evt.state & self.modMasks[Key.NUMLOCK])
+                                altGrid = bool(evt.state & self.modMasks[Key.ALT_GR])
+                                key = self.lookup_string(keyCode, shifted, numlock, altGrid)
+                                modifiers = [k.value for k, v in self.modMasks.items() if evt.state & v]
+                                logger.log(logLevel, "Event type: {}, keyCode: {}, keySym: {}, key: {}, rawKey: {}, modifiers: {}".format(action, keyCode, keySym, key, rawKey, modifiers))
+
+                            if evt.type == X.KeyRelease and rawKey in HELD_MODIFIERS:
+                                # If we let go of the modifier key while the hotkey is pressed,
+                                # the KeyRelease event for the modifier ends up here and is lost
+                                # to the application. This results in stuck modifier keys.
+                                # We rectify this problem by sending the KeyRelease event to the focused window.
+
+                                logger.debug("Pass modifier key {} release event through to focused window".format(rawKey))
+
+                                focus = self.localDisplay.get_input_focus().focus
+
+                                new_event = event.KeyRelease(
+                                    detail=evt.detail,
+                                    time=evt.time,
+                                    root=evt.root,
+                                    window=focus, # Note: evt.window does not work here because X redirected the event to the window passed to the grab_key call
+                                    child=evt.child,
+                                    root_x=evt.root_x,
+                                    root_y=evt.root_y,
+                                    event_x=evt.event_x,
+                                    event_y=evt.event_y,
+                                    state=evt.state,
+                                    same_screen=evt.same_screen
+                                )
+
+                                self.localDisplay.send_event(
+                                    destination=focus, # Note: evt.window does not work here (see above)
+                                    propagate=True,
+                                    event_mask=X.KeyReleaseMask,
+                                    event=new_event
+                                )
+
+                                self.localDisplay.flush()
+
                             
                     for window in createdWindows:
                         if window not in destroyedWindows:
@@ -1346,7 +1394,7 @@ class AtSpiInterface(XInterfaceBase):
         return True
 
 
-from autokey.model.key import Key, MODIFIERS
+from autokey.model.key import Key, HELD_MODIFIERS, MODIFIERS
 import autokey.configmanager.configmanager as cm
 
 XK.load_keysym_group('xkb')
