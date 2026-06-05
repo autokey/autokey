@@ -30,7 +30,9 @@ import autokey.model.phrase
 import autokey.model.script
 import autokey.model.store
 from autokey.model.key import Key, KEY_FIND_RE
+from autokey.model.helpers import TriggerMode
 from autokey.iomediator.iomediator import IoMediator
+from autokey.controller import get_controller_manager, ControllerEvent, ControllerButton
 
 from autokey.macro import MacroManager
 
@@ -86,12 +88,22 @@ class Service:
         self.lastStackState = ''
         self.lastMenu = None
         self.name = None
+        self.controller_manager = None
 
     def start(self):
         self.mediator = IoMediator(self)
         self.mediator.interface.initialise()
         self.mediator.interface.start()
         self.mediator.start()
+        
+        # Initialize controller support
+        self.controller_manager = get_controller_manager()
+        if self.controller_manager.is_available():
+            self.controller_manager.add_listener(self.handle_controller_event)
+            self.controller_manager.start_monitoring()
+        else:
+            logger.info("Controller support not available (evdev not installed)")
+        
         ConfigManager.SETTINGS[cm_constants.SERVICE_RUNNING] = True
         self.scriptRunner = ScriptRunner(self.mediator, self.app)
         self.phraseRunner = PhraseRunner(self)
@@ -112,6 +124,8 @@ class Service:
     def shutdown(self, save=True):
         logger.info("Service shutting down")
         if self.mediator is not None: self.mediator.shutdown()
+        if self.controller_manager is not None:
+            self.controller_manager.stop_monitoring()
         if save:
             save_config(self.configManager)
         logger.debug("Service shutdown completed.")
@@ -127,6 +141,67 @@ class Service:
 
         # Clear last to prevent undo of previous phrase in unexpected places
         self.phraseRunner.clear_last()
+
+    def handle_controller_event(self, event: ControllerEvent, controller_name: str):
+        """
+        Handle controller input events and trigger matching actions.
+        
+        Args:
+            event: The controller event (button press, release, or axis movement)
+            controller_name: Name of the controller that generated the event
+        """
+        if not self.is_running():
+            return
+            
+        logger.debug("Controller event: %s from %s", event, controller_name)
+        
+        # Only handle button presses for triggers (not releases or axis for now)
+        if event.event_type != 'button_press':
+            return
+            
+        # Get current window info for window filtering
+        window_info = self.get_current_window_info()
+        
+        # Check for matching controller triggers in hotKeys
+        for item in self.configManager.hotKeys:
+            if TriggerMode.CONTROLLER in item.modes:
+                if item.check_controller_trigger(
+                    event.button, 
+                    event.axis,
+                    event.value,
+                    controller_name,
+                    window_info
+                ):
+                    logger.info('Matched {} "{}" with controller trigger'.format(
+                        item.__class__.__name__, item.description
+                    ))
+                    if item.prompt:
+                        self.show_menu(([], [item]))
+                    else:
+                        self.execute_item(item)
+                    break
+
+    def get_current_window_info(self):
+        """Get the current active window info for window filtering."""
+        try:
+            if self.mediator and self.mediator.interface:
+                return self.mediator.interface.get_window_info()
+        except Exception as e:
+            logger.debug("Could not get window info: %s", e)
+        return ("", "")
+
+    def execute_item(self, item):
+        """Execute a phrase or script item."""
+        if isinstance(item, autokey.model.phrase.Phrase):
+            self.phraseRunner.execute(item)
+        elif isinstance(item, autokey.model.script.Script):
+            self.scriptRunner.execute(item)
+
+    def show_menu(self, menu_data):
+        """Show the popup menu for the given menu data."""
+        # This is a placeholder - actual menu display is handled by the UI
+        # For now, just log that we would show a menu
+        logger.debug("Would show menu with data: %s", menu_data)
 
     def handle_keypress(self, rawKey, modifiers, key, window_info):
         logger.debug("Raw key: %r, modifiers: %r, Key: %s", rawKey, modifiers, key)
