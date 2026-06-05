@@ -5,6 +5,7 @@
 
 # Copyright (C) 2011 Chris Dekter
 # Copyright (C) 2017 Thomas Hess
+# Copyright (C) 2026 Bertalan Göller <intmianol@disroot.org>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -20,6 +21,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import json
 import dbus
 import argparse
 
@@ -48,6 +50,9 @@ def generate_argument_parser():
                             help="Show a folder popup menu")
     argument_parser.add_argument("name",
                                  help="The name of the script, phrase or folder.")
+    argument_parser.add_argument("script_args",
+                                 nargs=argparse.REMAINDER,
+                                 help="Additional arguments forwarded to the script (script mode only). Use -- to end autokey-run options. key=value tokens become keyword arguments.")
     return argument_parser
 
 
@@ -65,6 +70,32 @@ if __name__ == "__main__":
         sys.exit(1)
 
     if arguments.mode == "script":
+        script_args = []
+        script_kwargs = {}
+        for raw_arg in arguments.script_args:
+            if raw_arg == "--":
+                continue
+
+            if "=" in raw_arg:
+                key, value = raw_arg.split("=", 1)
+                script_kwargs[key] = value
+            else:
+                script_args.append(raw_arg)
+
+        # Send args as a single JSON string over DBus to avoid type marshalling
+        # issues between python-dbus (GTK) and Qt DBus backends.
+        if script_args or script_kwargs:
+            args_json = json.dumps({"args": script_args, "kwargs": script_kwargs})
+            try:
+                dbus_service.run_script_with_args_json(arguments.name, args_json, dbus_interface="org.autokey.Service")
+                sys.exit(0)
+            except dbus.DBusException as e:
+                if e.get_dbus_name() == "org.freedesktop.DBus.Error.UnknownMethod":
+                    print("Connected AutoKey instance does not support script arguments; running without them.", file=sys.stderr)
+                else:
+                    print(e.get_dbus_message(), file=sys.stderr)
+                    sys.exit(1)
+
         dbus_function = dbus_service.run_script
     elif arguments.mode == "phrase":
         dbus_function = dbus_service.run_phrase

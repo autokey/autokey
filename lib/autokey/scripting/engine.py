@@ -404,6 +404,11 @@ Folders created within temporary folders must themselves be set temporary")
         @return: the arguments
         @rtype: C{list[Any]}
         """
+        thread_local = getattr(self.runner, "_thread_local", None)
+        if thread_local is not None:
+            thread_args = getattr(thread_local, "script_args", None)
+            if thread_args is not None:
+                return thread_args
         return self._script_args
 
     def get_script_keyword_arguments(self):
@@ -416,6 +421,11 @@ Folders created within temporary folders must themselves be set temporary")
         @return: the arguments
         @rtype: C{Dict[str, Any]}
         """
+        thread_local = getattr(self.runner, "_thread_local", None)
+        if thread_local is not None:
+            thread_kwargs = getattr(thread_local, "script_kwargs", None)
+            if thread_kwargs is not None:
+                return thread_kwargs
         return self._script_kwargs
 
     def get_macro_arguments(self):

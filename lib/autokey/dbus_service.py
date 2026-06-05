@@ -1,5 +1,6 @@
 # Copyright (C) 2011 Chris Dekter
 # Copyright (C) 2019 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2026 Bertalan Göller <intmianol@disroot.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -14,6 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import json
 import dbus.service
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -37,6 +39,16 @@ class AppService(dbus.service.Object):
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
     def run_script(self, name):
         self.app.service.run_script(name)
+
+    @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='ss', out_signature='')
+    def run_script_with_args_json(self, name, args_json):
+        """Run a script with arguments encoded as a JSON string.
+        The JSON should be an object with 'args' (list of strings) and 'kwargs' (dict of string to string)."""
+        logger.info("run_script_with_args_json via DBus: name=%r json=%r", name, args_json)
+        data = json.loads(args_json)
+        script_args = [str(arg) for arg in data.get("args", [])]
+        script_kwargs = {str(k): str(v) for k, v in data.get("kwargs", {}).items()}
+        self.app.service.run_script(str(name), script_args, script_kwargs)
 
     @dbus.service.method(dbus_interface='org.autokey.Service', in_signature='s', out_signature='')
     def run_phrase(self, name):

@@ -1,4 +1,5 @@
 # Copyright (C) 2019 Thomas Hess <thomas.hess@udo.edu>
+# Copyright (C) 2026 Bertalan Göller <intmianol@disroot.org>
 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,6 +16,8 @@
 
 import typing
 import pathlib
+import json
+import os
 import sys
 import os
 import string
@@ -445,3 +448,67 @@ def test_run_script():
         dummy_folder = autokey.model.folder.Folder("dummy")
         script = get_autokey_dir() + "/tests/scripting_api/set_return_kwargs.py"
         assert_that(engine.run_script(script, arg1="arg 1"), is_(equal_to("arg 1")))
+
+
+def test_execute_path_propagates_script_arguments(tmp_path, create_engine):
+    class DummyInterface:
+        def begin_send(self):
+            pass
+
+        def finish_send(self):
+            pass
+
+    class DummyMediator:
+        def __init__(self):
+            self.interface = DummyInterface()
+
+        def send_backspace(self, count):
+            self.last_backspace = count
+
+        def send_string(self, value):
+            self.last_string = value
+
+    engine, _ = create_engine
+    app_mock = MagicMock()
+    app_mock.notify_error = MagicMock()
+    app_mock.configManager = engine.configManager
+    app_mock.configManager.app = app_mock
+
+    mediator = DummyMediator()
+    with patch("autokey.scripting.Clipboard", MagicMock(return_value=MagicMock())), \
+        patch("autokey.scripting.Dialog", MagicMock(return_value=MagicMock())):
+        runner = autokey.service.ScriptRunner(mediator, app_mock)
+
+    output_path = tmp_path / "args.json"
+    script_path = tmp_path / "script.py"
+    script_path.write_text(
+        """
+import json
+import os
+
+args = engine.get_script_arguments()
+kwargs = engine.get_script_keyword_arguments()
+
+with open(os.environ["SCRIPT_ARGS_OUT"], "w", encoding="utf-8") as fh:
+    json.dump({"args": args, "kwargs": kwargs}, fh)
+"""
+    )
+
+    env_out = os.environ.get("SCRIPT_ARGS_OUT")
+    os.environ["SCRIPT_ARGS_OUT"] = str(output_path)
+    try:
+            runner.execute_path._original(
+                runner,
+                script_path,
+            script_args=["pos1", "pos2"],
+            script_kwargs={"kw": "val"}
+        )
+    finally:
+        if env_out is None:
+            os.environ.pop("SCRIPT_ARGS_OUT", None)
+        else:
+            os.environ["SCRIPT_ARGS_OUT"] = env_out
+
+    data = json.loads(output_path.read_text())
+    assert_that(data["args"], is_(equal_to(["pos1", "pos2"])))
+    assert_that(data["kwargs"], is_(equal_to({"kw": "val"})))
