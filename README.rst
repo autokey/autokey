@@ -24,13 +24,48 @@ About
 
 **Important**: This is an X11 application and, as such, will not function correctly when Wayland is in use instead of Xorg.
 
+**What is AutoKey?**
+AutoKey is a powerful Linux desktop automation tool for `X11`` that allows users to:
+- Automate repetitive text entries using abbreviations.
+- Trigger scripts and macros with hotkeys.
+- Control application windows via Python scripting.
+- Streamline workflows across multiple programs.
+
+With AutoKey, you can save time and reduce repetitive strain by automating text, keyboard, and mouse inputs across any application.
+
 .. _AutoKey: https://github.com/autokey/autokey
 .. _Google: https://code.google.com/archive/p/autokey/
+
+Features
+============
+✔️ **Text Expansion:** Use abbreviations to insert frequently used text or code snippets.  
+✔️ **Keyboard Shortcuts (Hotkeys):** Automate actions with custom key combinations.  
+✔️ **Python Scripting:** Create powerful automation scripts using Python.  
+✔️ **Application Control:** Automate interactions with running applications.  
+✔️ **Dynamic Macros:** Insert the current date, time, or custom tags dynamically.  
+✔️ **Cross-Application Support:** Works across all applications in X11 environments. 
 
 Installation
 ============
 
 **Important**: Please remove previous installations of AutoKey fully before installing!
+
+**Install via Package Manager**
+For Debian-based systems (Ubuntu, Debian, etc.):
+`sh`
+`sudo apt update && sudo apt install autokey-gtk`
+
+For Arch-based systems (Arch, Manjaro):
+`sh`
+`Copy`
+`Edit`
+`sudo pacman -S autokey-gtk`
+
+For Fedora:
+`sh`
+`Copy`
+`Edit`
+`sudo dnf install autokey-gtk`
 
 For detailed installation instructions, please visit the `Installing`_ page in our wiki.
 
