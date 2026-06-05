@@ -119,7 +119,7 @@ _ALL_MODIFIERS_ = (
 
 # Used to identify special keys in texts. Also include <codeXX> literals as defined in the _code_point_re.
 KEY_FIND_RE = re.compile("|".join(("|".join(Key), _code_point_re.pattern)), re.UNICODE)
-KEY_SPLIT_RE = re.compile("(<[^<>]+>\+?)")
+KEY_SPLIT_RE = re.compile(r"(<[^<>]+>\+?)")
 MODIFIERS = [Key.CONTROL, Key.ALT, Key.ALT_GR, Key.SHIFT, Key.SUPER, Key.HYPER, Key.META, Key.CAPSLOCK, Key.NUMLOCK]
 HELD_MODIFIERS = [Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META
 ]

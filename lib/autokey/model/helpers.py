@@ -18,7 +18,7 @@ import enum
 import os
 import re
 
-DEFAULT_WORDCHAR_REGEX = '[\w]'
+DEFAULT_WORDCHAR_REGEX = r'[\w]'
 JSON_FILE_PATTERN = "{}/{}.json"
 SPACES_RE = re.compile(r"^ | $")
 
