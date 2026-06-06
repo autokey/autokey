@@ -15,42 +15,23 @@ except Exception:
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
     logger = logging.getLogger(__name__)
 
-def waylandChecks():
+def _is_kde():
+    desktop = (
+        os.environ.get('XDG_CURRENT_DESKTOP', '')
+        + ' '
+        + os.environ.get('XDG_SESSION_DESKTOP', '')
+    ).lower()
+    return 'kde' in desktop or 'plasma' in desktop
 
-    try:
-        #  only do this stuff when running under Wayland
-        if os.environ.get('XDG_SESSION_TYPE') != "wayland":
-            return True
 
-        #  Check if running on a supported desktop environment
-        session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
-        if session_desktop.lower() == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
-            logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
-        else:
-            logger.debug(f"waylandChecks() found AutoKey running under an unsupported desktop environment, displaying popup.")
-            __show_unsupported_desktop_popup()
-            return False
-    except Exception as e:
-        logger.exception('Unexpected exception in waylandChecks() while examining environment variables')
-        return False
+def _is_gnome():
+    session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
+    return session_desktop.lower() == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ
 
-    #  show popup message?
+
+def _check_uinput_group():
+    """Check input group membership and /dev/uinput access. Returns True if popup needed."""
     show_popup = False
-
-    #  Gnome check: is the Gnome Shell extension present?
-    ext_id = 'autokey-gnome-extension@autokey'
-    try:
-        proc = subprocess.run(f'gnome-extensions info {ext_id}', shell=True, capture_output=True, check=True)
-        if 'Enabled: Yes' in proc.stdout.decode('utf-8'):
-            logger.debug('waylandChecks() found the AutoKey Gnome Shell extension')
-        else:
-            logger.debug('waylandChecks() found the AutoKey Gnome Shell extension but it is disabled.  Attempting to enable it.')
-            subprocess.run(f'gnome-extensions enable {ext_id}', shell=True, capture_output=True, check=True)
-    except Exception:
-        logger.critical('waylandChecks() did not find the AutoKey Gnome Shell extension, displaying popup')
-        show_popup = True
-
-    #  Gnome check: is the user in the input user group"
     group = 'input'
     user = getpass.getuser()
     try:
@@ -60,27 +41,89 @@ def waylandChecks():
         show_popup = True
     else:
         if user in input_group.gr_mem or os.geteuid() == 0:
-            logger.debug(f'waylandChecks() found the "{user}" userid in the "{group}" user group.')
+            logger.debug(f'waylandChecks() found "{user}" in the "{group}" group.')
         else:
-            logger.critical(f'waylandChecks() did not find the "{user}" userid in the "{group}" user group, displaying popup.')
+            logger.critical(f'waylandChecks() did not find "{user}" in the "{group}" group, displaying popup.')
             show_popup = True
-
-    #  Gnome check: have write access to the /dev/uinput device?
     if os.access('/dev/uinput', os.W_OK):
-        logger.debug(f'waylandChecks() found write access to the /dev/uinput device')
+        logger.debug('waylandChecks() found write access to /dev/uinput')
     else:
-        logger.critical(f'waylandChecks() did not find write access to the /dev/uinput device')
+        logger.critical('waylandChecks() did not find write access to /dev/uinput')
         show_popup = True
+    return show_popup
 
-    #  If there was a problem, throw up a popup box
-    if show_popup:
-        #  This is Gnome-specific, other DTEs added in the future may need 
-        #  different messages
-        title = 'AutoKey System Configuration Needed'
-        message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
-        __show_popup(title, message)
+
+def waylandChecks():
+
+    try:
+        #  only do this stuff when running under Wayland
+        if os.environ.get('XDG_SESSION_TYPE') != "wayland":
+            return True
+
+        if _is_gnome():
+            logger.debug("waylandChecks() detected GNOME — running GNOME checks")
+            return _gnome_checks()
+        elif _is_kde():
+            logger.debug("waylandChecks() detected KDE — running KDE checks")
+            return _kde_checks()
+        else:
+            logger.debug("waylandChecks() detected an unsupported desktop, displaying popup.")
+            __show_unsupported_desktop_popup()
+            return False
+    except Exception:
+        logger.exception('Unexpected exception in waylandChecks()')
         return False
 
+
+def _gnome_checks():
+    show_popup = _check_uinput_group()
+
+    ext_id = 'autokey-gnome-extension@autokey'
+    try:
+        proc = subprocess.run(f'gnome-extensions info {ext_id}', shell=True, capture_output=True, check=True)
+        if 'Enabled: Yes' in proc.stdout.decode('utf-8'):
+            logger.debug('waylandChecks() found the AutoKey GNOME Shell extension')
+        else:
+            logger.debug('AutoKey GNOME Shell extension disabled — attempting to enable it.')
+            subprocess.run(f'gnome-extensions enable {ext_id}', shell=True, capture_output=True, check=True)
+    except Exception:
+        logger.critical('waylandChecks() did not find the AutoKey GNOME Shell extension, displaying popup')
+        show_popup = True
+
+    if show_popup:
+        group = 'input'
+        user = getpass.getuser()
+        title = 'AutoKey System Configuration Needed'
+        message = (
+            f'Your user id is not configured to run AutoKey under Wayland.  '
+            f'If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> '
+            f'your system and starting AutoKey again.  Otherwise, try entering these '
+            f'two commands, then rebooting:<br /><br />'
+            f'sudo usermod -a -G "{group}" "{user}"<br /><br />'
+            f'gnome-extensions install --force '
+            f'/usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
+        )
+        __show_popup(title, message)
+        return False
+    return True
+
+
+def _kde_checks():
+    show_popup = _check_uinput_group()
+
+    if show_popup:
+        group = 'input'
+        user = getpass.getuser()
+        title = 'AutoKey System Configuration Needed'
+        message = (
+            f'Your user id is not configured to run AutoKey under KDE/Wayland.  '
+            f'If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> '
+            f'your system and starting AutoKey again.  Otherwise, run this command '
+            f'and reboot:<br /><br />'
+            f'sudo usermod -a -G "{group}" "{user}"'
+        )
+        __show_popup(title, message)
+        return False
     return True
 
 def __show_unsupported_desktop_popup():
