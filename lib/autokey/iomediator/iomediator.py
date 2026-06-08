@@ -18,7 +18,7 @@ import queue
 
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.interface import XRecordInterface, AtSpiInterface
+# Imports moved to __init__ to allow Wayland startup without X11
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
@@ -64,8 +64,15 @@ class IoMediator(threading.Thread):
         }
         
         if self.interfaceType == X_RECORD_INTERFACE:
-            self.interface = XRecordInterface(self, service.app)
+            import os
+            if os.environ.get("XDG_SESSION_TYPE", "").lower() == "wayland":
+                from autokey.sys_interface.wayland_interface import WaylandInterface
+                self.interface = WaylandInterface(self, service.app)
+            else:
+                from autokey.interface import XRecordInterface
+                self.interface = XRecordInterface(self, service.app)
         else:
+            from autokey.interface import AtSpiInterface
             self.interface = AtSpiInterface(self, service.app)
 
         global CURRENT_INTERFACE

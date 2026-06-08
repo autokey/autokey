@@ -1,0 +1,26 @@
+title:	Add Wayland support
+state:	OPEN
+author:	atlazar
+labels:	0.97.0, enhancement, wayland
+comments:	272
+assignees:	
+projects:	
+milestone:	Feature release 0.97.0
+number:	87
+--
+## Classification:
+Enhancement
+
+## Reproducibility:
+Always
+
+## Summary
+By default Gnome use Wayland, but looks like Autokey supports only x.org
+
+## Steps to Reproduce
+Run Autokey in Gnome (with Wayland as backend). Shortcuts did not work.
+
+## Version
+AutoKey-Py3 version 0.93.10-3
+Installed via: AUR.
+Distro: Arch Linux

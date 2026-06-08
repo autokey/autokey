@@ -1,0 +1,113 @@
+title:	AutoKey for Wayland needs to add support for KDE and other desktop environments
+state:	OPEN
+author:	dlk3 (David King)
+labels:	autokey-qt, help-wanted, wayland
+comments:	20
+assignees:	
+projects:	
+milestone:	
+number:	1042
+--
+### AutoKey is a Xorg application and will not function in a Wayland session. Do you use Xorg (X11) or Wayland?
+
+Wayland
+
+### Has this issue already been reported?
+
+- [x] I have searched through the existing issues.
+
+### Is this a question rather than an issue?
+
+- [x] This is not a question.
+
+### What type of issue is this?
+
+Enhancement
+
+### Choose one or more terms that describe this issue:
+
+- [ ] autokey triggers
+- [ ] autokey-gtk
+- [ ] autokey-qt
+- [ ] beta
+- [ ] bug
+- [ ] critical
+- [ ] development
+- [ ] documentation
+- [x] enhancement
+- [ ] installation/configuration
+- [ ] phrase expansion
+- [ ] scripting
+- [ ] technical debt
+- [ ] user interface
+
+### Other terms that describe this issue if not provided above:
+
+_No response_
+
+### Which Linux distribution did you use?
+
+Debian 12 with KDE Plasma 5.27.5 on my T480 (i5-8350U) with Wayland
+
+### Which AutoKey GUI did you use?
+
+Qt
+
+### Which AutoKey version did you use?
+
+newest as of the 31.7.2025 in the wayland branch
+
+### How did you install AutoKey?
+
+via the wayland install instructions
+
+### Can you briefly describe the issue?
+
+Would it be possible to add KDE Plasma (5.0) support for wayland? Or is it even possible?
+
+i found this StackExchange thread which ig would work?
+
+[Is there a way to get list of windows on KDE Wayland?](https://unix.stackexchange.com/questions/706477/is-there-a-way-to-get-list-of-windows-on-kde-wayland)
+
+### Can the issue be reproduced?
+
+Always
+
+### What are the steps to reproduce the issue?
+
+_No response_
+
+### What should have happened?
+
+_No response_
+
+### What actually happened?
+
+_No response_
+
+### Do you have screenshots?
+
+_No response_
+
+### Can you provide the output of the AutoKey command?
+
+```bash
+
+```
+
+### Anything else?
+
+@MaizeShark reported this issue over in my fork of the AutoKey repository but I believe it belongs here instead.  This is an issue I've thought about myself.  AutoKey for Wayland currently only supports the Gnome desktop.  At some point it needs to be extended to the other desktop environments, like KDE.
+
+@sebastiansam55 did refactor the AutoKey code to make this a bit easier.  The desktop-window-specific functions of AutoKey have been broken out into their own modules.  There's an abstract class definition that serves as a template for these and instances of that class exist for X11 and Gnome.  Supporting KDE, or anything else, only needs a new class to be created that interacts with the facilities of that specific desktop environment.  
+
+For future reference, here's where the code resides today:
+
+The AbstractWindowInterface class -> [lib/autokey/sys_interface/abstract_interface.py](https://github.com/dlk3/autokey/blob/main/lib/autokey/sys_interface/abstract_interface.py)
+The X11-specific instance of that abstract class -> [lib/autokey/interface.py](https://github.com/dlk3/autokey/blob/main/lib/autokey/interface.py)
+The Gnome-specific instance of that abstract class -> [lib/autokey/gnome_interface.py](https://github.com/dlk3/autokey/blob/main/lib/autokey/gnome_interface.py)
+The code that determines which desktop we're running under and which class gets used -> [lib/autokey/iomediator/iomediator.py](https://github.com/dlk3/autokey/blob/main/lib/autokey/iomediator/iomediator.py)
+<br/>
+<hr/>
+
+<details><summary>This repo is using Opire - what does it mean? 👇</summary><br/>💵 Everyone can add rewards for this issue commenting <code>/reward 100</code> (replace <code>100</code> with the amount).<br/>🕵️‍♂️ If someone starts working on this issue to earn the rewards, they can comment <code>/try</code> to let everyone know!<br/>🙌 And when they open the PR, they can comment <code>/claim #1042</code> either in the PR description or in a PR's comment.<br/><br/>🪙 Also, everyone can tip any user commenting <code>/tip 20 @dlk3</code> (replace <code>20</code> with the amount, and <code>@dlk3</code> with the user to tip).<br/><br/>📖 If you want to learn more, check out our <a href="https://docs.opire.dev">documentation</a>.</details>
