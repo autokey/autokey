@@ -33,10 +33,8 @@ One-shot query scripts (e.g. ``get_window_list``) are loaded on demand,
 executed, and immediately unloaded.
 """
 
-import dbus
-import dbus.service
-from dbus.mainloop.glib import DBusGMainLoop
 from gi.repository import GLib
+from pydbus import SessionBus
 import glob
 import json
 import os
@@ -55,30 +53,42 @@ DBUS_SERVICE_NAME = 'org.autokey.KWinListener'
 _SERVICE_PATH = '/' + DBUS_SERVICE_NAME.replace('.', '/')
 
 
-class KWinListener(dbus.service.Object):
-    """D-Bus service that receives JSON responses pushed by KWin scripts."""
+class KWinListener:
+    """D-Bus service that receives JSON responses pushed by KWin scripts.
 
-    def __init__(self, bus):
-        bus_name = dbus.service.BusName(DBUS_SERVICE_NAME, bus=bus)
-        super().__init__(bus_name, _SERVICE_PATH)
+    The ``dbus`` class attribute is the pydbus introspection XML — not a comment.
+    """
+
+    dbus = """
+        <node>
+            <interface name='org.autokey.KWinListener'>
+                <method name='Response'>
+                    <arg type='s' name='response' direction='in'/>
+                </method>
+                <method name='Signal'>
+                    <arg type='s' name='response' direction='in'/>
+                </method>
+                <method name='Shutdown'/>
+            </interface>
+        </node>
+    """
+
+    def __init__(self):
         self.response_queue = queue.Queue()
         self.signal_queue = queue.Queue()
 
-    @dbus.service.method(DBUS_SERVICE_NAME, in_signature='s', out_signature='b')
     def Response(self, message):
-        self.response_queue.put(str(message))
+        self.response_queue.put(message)
         if VERBOSE:
             logger.debug('KWinListener.Response: %s', json.loads(message))
         return True
 
-    @dbus.service.method(DBUS_SERVICE_NAME, in_signature='s', out_signature='b')
     def Signal(self, message):
-        self.signal_queue.put(str(message))
+        self.signal_queue.put(message)
         if VERBOSE:
             logger.debug('KWinListener.Signal: %s', json.loads(message))
         return True
 
-    @dbus.service.method(DBUS_SERVICE_NAME)
     def Shutdown(self):
         return True
 
@@ -101,6 +111,7 @@ class KWinInterface:
         self._service_ready = threading.Event()
         self.listener: KWinListener | None = None
         self.loop = GLib.MainLoop()
+        self._dbus_publication = None
 
         try:
             proc = subprocess.run(
@@ -129,9 +140,9 @@ class KWinInterface:
     # ── D-Bus service thread ───────────────────────────────────────────────
 
     def _run_dbus_service(self):
-        DBusGMainLoop(set_as_default=True)
-        bus = dbus.SessionBus()
-        self.listener = KWinListener(bus)
+        self.listener = KWinListener()
+        bus = SessionBus()
+        self._dbus_publication = bus.publish(DBUS_SERVICE_NAME, self.listener)
         self._service_ready.set()
         self.loop.run()
 
@@ -140,11 +151,11 @@ class KWinInterface:
         self.loop.quit()
         self.dbus_thread.join(timeout=2)
         try:
-            bus = dbus.SessionBus()
+            bus = SessionBus()
             for script_id in self.signal_scripts.values():
                 try:
-                    obj = bus.get_object('org.kde.KWin', f'/Scripting/{script_id}')
-                    dbus.Interface(obj, 'org.kde.kwin.Script').stop()
+                    obj = bus.get('org.kde.KWin', f'/Scripting/{script_id}')
+                    obj.stop()
                 except Exception:
                     pass
         except Exception:
@@ -171,9 +182,8 @@ class KWinInterface:
         return fn
 
     def _load_kwin_script(self, fn: str) -> str:
-        bus = dbus.SessionBus()
-        obj = bus.get_object('org.kde.KWin', '/Scripting')
-        scripting = dbus.Interface(obj, 'org.kde.kwin.Scripting')
+        bus = SessionBus()
+        scripting = bus.get('org.kde.KWin', '/Scripting')
         script_num = int(scripting.loadScript(fn))
         return f'Script{script_num}'
 
@@ -206,9 +216,9 @@ workspace.currentDesktopChanged.connect(_ak_send_desktop);""",
                 fn = self._write_temp_script(name, content)
                 script_id = self._load_kwin_script(fn)
                 self.signal_scripts[name] = script_id
-                bus = dbus.SessionBus()
-                obj = bus.get_object('org.kde.KWin', f'/Scripting/{script_id}')
-                dbus.Interface(obj, 'org.kde.kwin.Script').run()
+                bus = SessionBus()
+                obj = bus.get('org.kde.KWin', f'/Scripting/{script_id}')
+                obj.run()
                 logger.debug('KWin signal script loaded: %s -> %s', name, script_id)
             except Exception:
                 logger.exception('Failed to load KWin signal script: %s', name)
@@ -260,9 +270,8 @@ workspace.currentDesktopChanged.connect(_ak_send_desktop);""",
         reply = None
         script_iface = None
         try:
-            bus = dbus.SessionBus()
-            obj = bus.get_object('org.kde.KWin', f'/Scripting/{script_id}')
-            script_iface = dbus.Interface(obj, 'org.kde.kwin.Script')
+            bus = SessionBus()
+            script_iface = bus.get('org.kde.KWin', f'/Scripting/{script_id}')
             script_iface.run()
 
             if response_expected:

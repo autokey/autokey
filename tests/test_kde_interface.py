@@ -20,20 +20,14 @@ from unittest.mock import MagicMock, patch
 # ---------------------------------------------------------------------------
 import sys
 
-_dbus_stub = MagicMock()
-_dbus_stub.SessionBus = MagicMock
-_dbus_stub.service = MagicMock()
-_dbus_stub.service.BusName = MagicMock
-_dbus_stub.service.Object = object
-_dbus_stub.service.method = lambda *a, **kw: (lambda f: f)
-_dbus_stub.Interface = MagicMock
+_pydbus_stub = MagicMock()
+_pydbus_stub.SessionBus = MagicMock
 
 _glib_stub = MagicMock()
 _glib_stub.MainLoop = MagicMock
 
-# Stub D-Bus / GLib / Qt / autokey internals so tests run without a real DE
+# Stub pydbus / GLib / Qt / autokey internals so tests run without a real DE
 for _mod in [
-    'dbus', 'dbus.service', 'dbus.mainloop', 'dbus.mainloop.glib',
     'gi', 'gi.repository', 'gi.repository.GLib',
     'PyQt5', 'PyQt5.QtGui', 'PyQt5.QtCore', 'PyQt5.QtWidgets',
     'evdev', 'pyudev',
@@ -42,8 +36,7 @@ for _mod in [
 ]:
     sys.modules.setdefault(_mod, MagicMock())
 
-sys.modules['dbus'] = _dbus_stub
-sys.modules['dbus.service'] = _dbus_stub.service
+sys.modules['pydbus'] = _pydbus_stub
 sys.modules['gi.repository.GLib'] = _glib_stub
 
 # Patch abstract_interface to avoid the Clipboard import
@@ -158,8 +151,7 @@ class TestKWinInterfaceSignalCache(unittest.TestCase):
         iface.signal_scripts['get_active_window'] = 'Script1'
 
         with patch.object(iface, '_write_temp_script', return_value='/tmp/fake.js'), \
-             patch.object(iface, '_load_kwin_script', return_value='Script99'), \
-             patch('dbus.Interface', return_value=MagicMock()):
+             patch.object(iface, '_load_kwin_script', return_value='Script99'):
             result = iface.run('let result=[];', script_name='get_active_window', response_expected=True)
         self.assertIsNone(result)
 
@@ -184,8 +176,7 @@ class TestKWinInterfaceOneShot(unittest.TestCase):
         )
 
         with patch.object(iface, '_write_temp_script', return_value='/tmp/fake.js'), \
-             patch.object(iface, '_load_kwin_script', return_value='Script2'), \
-             patch('dbus.Interface', return_value=MagicMock()):
+             patch.object(iface, '_load_kwin_script', return_value='Script2'):
             result = iface.run(
                 'let result=[];',
                 script_name='get_window_list',
@@ -200,8 +191,7 @@ class TestKWinInterfaceOneShot(unittest.TestCase):
         iface.response_cache['get_window_list'] = [time.time(), [[w], desk]]
 
         with patch.object(iface, '_write_temp_script', return_value='/tmp/fake.js'), \
-             patch.object(iface, '_load_kwin_script', return_value='Script3'), \
-             patch('dbus.Interface', return_value=MagicMock()):
+             patch.object(iface, '_load_kwin_script', return_value='Script3'):
             result = iface.run(
                 'let result=[];',
                 script_name='get_window_list',
@@ -274,8 +264,7 @@ class TestKdeWindowInterface(unittest.TestCase):
         iface.kwin = kwin
 
         with patch.object(iface.kwin, '_write_temp_script', return_value='/tmp/f.js'), \
-             patch.object(iface.kwin, '_load_kwin_script', return_value='Script5'), \
-             patch('dbus.Interface', return_value=MagicMock()):
+             patch.object(iface.kwin, '_load_kwin_script', return_value='Script5'):
             result = iface.get_window_list()
 
         titles = [w['wm_title'] for w in result]
@@ -294,8 +283,7 @@ class TestKdeWindowInterface(unittest.TestCase):
         iface.kwin = kwin
 
         with patch.object(iface.kwin, '_write_temp_script', return_value='/tmp/f.js'), \
-             patch.object(iface.kwin, '_load_kwin_script', return_value='Script6'), \
-             patch('dbus.Interface', return_value=MagicMock()):
+             patch.object(iface.kwin, '_load_kwin_script', return_value='Script6'):
             result = iface.get_window_list()
         self.assertTrue(result[0]['in_current_workspace'])
 
