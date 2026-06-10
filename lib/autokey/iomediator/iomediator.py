@@ -70,12 +70,16 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            desktop = os.environ.get('XDG_CURRENT_DESKTOP', '').lower()
+            if 'kde' in desktop or 'plasma' in desktop:
+                logger.debug("Using KDE Wayland interface")
+                self.windowInterface = KDEWaylandInterface()
+            else:
+                logger.debug("Using gnome extension window interface")
+                self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
-
 
         if self.interfaceType == "uinput":
             from autokey.uinput_interface import UInputInterface
