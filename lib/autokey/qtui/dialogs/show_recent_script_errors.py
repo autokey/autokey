@@ -15,8 +15,8 @@
 
 import typing
 
-from PyQt5.QtWidgets import QApplication, QAbstractButton, QDialogButtonBox
-from PyQt5.QtCore import pyqtSlot, pyqtSignal
+from qtpy.QtWidgets import QApplication, QAbstractButton, QDialogButtonBox
+from qtpy.QtCore import Slot as pyqtSlot, Signal as pyqtSignal
 
 from autokey.model.script import ScriptErrorRecord
 

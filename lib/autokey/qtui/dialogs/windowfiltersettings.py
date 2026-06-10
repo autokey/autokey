@@ -16,7 +16,7 @@
 
 import re
 
-from PyQt5.QtWidgets import QDialog
+from qtpy.QtWidgets import QDialog
 
 import autokey.iomediator.windowgrabber
 import autokey.model.folder
@@ -74,7 +74,7 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
     def _receiveWindowInfo(self, info):
         dlg = DetectDialog(self)
         dlg.populate(info)
-        dlg.exec_()
+        dlg.exec()
 
         if dlg.result() == QDialog.Accepted:
             self.trigger_regex_line_edit.setText(dlg.get_choice())
