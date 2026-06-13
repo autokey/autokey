@@ -44,6 +44,7 @@ import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.UI_common_functions as UI_common
 from autokey.logger import get_logger
+from autokey.common import VERSION
 
 logger = get_logger(__name__)
 
@@ -66,7 +67,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         Gdk.threads_init()
         args = autokey.argument_parser.parse_args()
         super().__init__(args, UI=self)
-        logger.info("Initialising GTK application")
+        logger.info("Initialising GTK application. Version: %s", VERSION)
         try:
             self.initialise()
         except Exception as e:
