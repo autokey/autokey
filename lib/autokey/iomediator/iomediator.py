@@ -27,7 +27,7 @@ except ImportError:
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
-from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE, get_interface_type
+from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE
 from .waiter import Waiter
 
 CURRENT_INTERFACE = None
