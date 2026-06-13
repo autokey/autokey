@@ -119,7 +119,7 @@ with open(this_directory / 'README.rst', encoding='utf-8') as f:
 setup(
     name='autokey',
     version=ak_data.version,
-    description='Keyboard and GUI automation on Linux (X11)',
+    description='Keyboard and GUI automation on Linux (X11/Wayland)',
     long_description=long_description,
     long_description_content_type='text/x-rst',
     author=ak_data.author,
@@ -175,6 +175,11 @@ setup(
     # Minimal installation pre-requisite python packages.
     # Some are not included here because they should be installed
     # through the system package manager, not pip.
+    # 
+    # For Wayland support, install libei-dev via system package manager:
+    #   Ubuntu/Debian: apt install libei-dev
+    # For X11 support (also via system package manager):
+    #   Ubuntu/Debian: apt install libx11-dev libxext-dev libxrender-dev libxtst-dev
     install_requires=[
         'pyasyncore',
         'pyinotify',
