@@ -19,10 +19,15 @@ import queue
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
+try:
+    from autokey.iomediator.wayland_backend import WaylandInterface
+    HAS_WAYLAND = True
+except ImportError:
+    HAS_WAYLAND = False
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
-from .constants import X_RECORD_INTERFACE
+from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE, get_interface_type
 from .waiter import Waiter
 
 CURRENT_INTERFACE = None
@@ -65,6 +70,8 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
+        elif self.interfaceType == WAYLAND_INTERFACE and HAS_WAYLAND:
+            self.interface = WaylandInterface()
         else:
             self.interface = AtSpiInterface(self, service.app)
 

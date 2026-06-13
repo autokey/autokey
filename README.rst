@@ -20,9 +20,9 @@ AutoKey
 
 About
 =====
-`AutoKey`_, a desktop automation utility for Linux and X11, formerly hosted on `Google`_, has been updated to run on Python 3.
+`AutoKey`_, a desktop automation utility for Linux, formerly hosted on `Google`_, has been updated to run on Python 3.
 
-**Important**: This is an X11 application and, as such, will not function correctly when Wayland is in use instead of Xorg.
+**Display Server Support:** AutoKey now supports both X11 and Wayland (via libei). On Wayland, install `libei-dev` and AutoKey will automatically use the Wayland backend.
 
 .. _AutoKey: https://github.com/autokey/autokey
 .. _Google: https://code.google.com/archive/p/autokey/
