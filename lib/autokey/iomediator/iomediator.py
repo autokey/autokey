@@ -22,13 +22,20 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+from autokey.sys_interface.clipboard import Clipboard
+from autokey.interface import XRecordInterface, AtSpiInterface
+try:
+    from autokey.iomediator.wayland_backend import WaylandInterface
+    HAS_WAYLAND = True
+except ImportError:
+    HAS_WAYLAND = False
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
 from autokey.model.button import Button
-from .constants import X_RECORD_INTERFACE
+from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE
+from .waiter import Waiter
 
 CURRENT_INTERFACE = None
 
@@ -58,34 +65,19 @@ class IoMediator(threading.Thread):
         # Modifier tracking
         self.modifiers = {}
         for key in MODIFIERS:
-            self.modifiers[key]=False
-
-        # self.interfaceType="uinput"
+            self.modifiers[key] = False
+        
         session_type = common.SESSION_TYPE
-        if session_type == "wayland":
-            self.interfaceType = "uinput"
+        if session_type == "wayland" and HAS_WAYLAND:
+            self.interface = WaylandInterface()
+            try:
+                self.interface.initialise()
+            except Exception:
+                self.interface = AtSpiInterface(self, service.app)
         elif session_type == "x11":
-            pass
-        elif session_type is None:
-            pass
-
-        if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            self.interface = XRecordInterface(self, service.app)
         else:
-            from autokey.interface import XWindowInterface
-            self.windowInterface = XWindowInterface()
-
-
-        if self.interfaceType == "uinput":
-            from autokey.uinput_interface import UInputInterface
-            self.interface = UInputInterface(self, self.app)
-        elif self.interfaceType == X_RECORD_INTERFACE:
-            from autokey.interface import XRecordInterface
-            self.interface = XRecordInterface(self, self.app)
-        else:
-            from autokey.interface import AtSpiInterface
-            self.interface = AtSpiInterface(self, self.app)
+            self.interface = AtSpiInterface(self, service.app)
 
         self.clipboard = Clipboard()
 
@@ -94,8 +86,9 @@ class IoMediator(threading.Thread):
         logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
 
     def start(self):
-        self.interface.initialise()
-        self.interface.start()
+        if not isinstance(self.interface, WaylandInterface):
+            self.interface.initialise()
+            self.interface.start()
         super().start()
 
 
