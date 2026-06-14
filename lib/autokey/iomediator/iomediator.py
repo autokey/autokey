@@ -19,15 +19,11 @@ import queue
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
 from autokey.interface import XRecordInterface, AtSpiInterface
-try:
-    from autokey.iomediator.wayland_backend import WaylandInterface
-    HAS_WAYLAND = True
-except ImportError:
-    HAS_WAYLAND = False
+from autokey.iomediator.wayland_backend import WaylandInterface, detect_display_server
 from autokey.model.phrase import SendMode
 
 from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
-from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE
+from .constants import X_RECORD_INTERFACE, WAYLAND_INTERFACE, WAYLAND_LIBEI_INTERFACE, WAYLAND_ATSPI_INTERFACE
 from .waiter import Waiter
 
 CURRENT_INTERFACE = None
@@ -70,14 +66,28 @@ class IoMediator(threading.Thread):
         
         if self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
-        elif self.interfaceType == WAYLAND_INTERFACE and HAS_WAYLAND:
-            self.interface = WaylandInterface()
+        elif self.interfaceType == WAYLAND_INTERFACE:
+            self.interface = self._get_wayland_interface()
         else:
             self.interface = AtSpiInterface(self, service.app)
 
         global CURRENT_INTERFACE
         CURRENT_INTERFACE = self.interface
         logger.info("Created IoMediator instance, current interface is: {}".format(CURRENT_INTERFACE))
+
+    def _get_wayland_interface(self):
+        display = detect_display_server()
+        if display != 'wayland':
+            logger.warning("Not running Wayland, falling back to AT-SPI")
+            return AtSpiInterface(self, service.app)
+        
+        wayland = WaylandInterface()
+        if wayland.initialize():
+            logger.info("Using Wayland backend: {}".format(wayland._type))
+            return wayland
+        
+        logger.warning("Wayland initialization failed, falling back to AT-SPI")
+        return AtSpiInterface(self, service.app)
         
     def shutdown(self):
         logger.debug("IoMediator shutting down")

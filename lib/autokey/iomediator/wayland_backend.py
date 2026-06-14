@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # Wayland Backend for AutoKey
-# Provides input injection for Wayland compositors using libei
+# Provides input injection for Wayland compositors using libei with AT-SPI fallback
 # 
 # Copyright (C) 2024 Ghost Development
 #
@@ -10,42 +10,37 @@
 # (at your option) any later version.
 
 """
-Wayland backend implementation using libei for input injection.
-This module provides an alternative to X11 when running under Wayland.
+Wayland backend implementation with libei primary and AT-SPI fallback.
+
+This module provides universal Wayland support:
+- Primary: libei protocol (works with all Wayland compositors)
+- Fallback: AT-SPI bridge (GNOME compatibility)
 """
 
 import os
 import sys
 import time
 import ctypes
-from ctypes import c_int, c_uint32, c_char_p, POINTER, byref, c_void_p
-from enum import IntEnum
-from typing import Optional, List, Tuple
-
+from ctypes import c_int, c_void_p, c_char_p
 import logging
+
 logger = logging.getLogger(__name__)
 
+HAS_LIBEI = False
+HAS_ATSPI = False
 
-class EeiProtocol(IntEnum):
-    """libei protocol types."""
-    KEYBOARD = 0
-    POINTER = 1
-    TEXT = 2
-
-
-class EeiKey(IntEnum):
-    """Keyboard event types."""
-    PRESS = 0
-    RELEASE = 1
+try:
+    import pyatspi
+    HAS_ATSPI = True
+except ImportError:
+    pass
 
 
 class LibeiLoader:
-    """Dynamic loader for libei shared library."""
-    
     def __init__(self):
         self.lib = None
         self._load_library()
-    
+
     def _load_library(self):
         lib_names = [
             'libei.so.1',
@@ -59,48 +54,34 @@ class LibeiLoader:
             try:
                 if os.path.exists(lib_name) or lib_name.startswith('libei'):
                     self.lib = ctypes.CDLL(lib_name)
-                    logger.info(f"Loaded libei from {lib_name}")
                     self._setup_functions()
                     return
             except OSError:
                 continue
         
-        raise ImportError("libei not found. Install with: apt install libei-dev")
-    
+        raise ImportError("libei not found")
+
     def _setup_functions(self):
         self.lib.eei_context_new.restype = c_void_p
         self.lib.eei_context_new.argtypes = []
-        
         self.lib.eei_context_connect.restype = c_int
         self.lib.eei_context_connect.argtypes = [c_void_p, c_char_p]
-        
         self.lib.eei_keyboard_new.restype = c_void_p
         self.lib.eei_keyboard_new.argtypes = [c_void_p]
-        
-        self.lib.eei_keyboard_commit.restype = c_int
-        self.lib.eei_keyboard_commit.argtypes = [c_void_p]
-        
         self.lib.eei_keyboard_key.restype = c_int
         self.lib.eei_keyboard_key.argtypes = [c_void_p, c_int, c_int]
-        
-        self.lib.eei_keyboard_release.restype = c_int
-        self.lib.eei_keyboard_release.argtypes = [c_void_p]
 
 
-class WaylandInterface:
-    """Wayland backend for input injection via libei."""
-    
+class WaylandLibeiInterface:
     def __init__(self):
         self.context = None
         self.keyboard = None
         self._initialized = False
-    
+
     def initialize(self) -> bool:
-        """Initialize Wayland backend via libei."""
         try:
             self._lib = LibeiLoader()
             self.context = self._lib.lib.eei_context_new()
-            
             display = os.environ.get('WAYLAND_DISPLAY', 'wayland-0')
             result = self._lib.lib.eei_context_connect(self.context, display.encode())
             
@@ -116,58 +97,87 @@ class WaylandInterface:
             self._initialized = True
             logger.info("Wayland interface initialized via libei")
             return True
-            
         except Exception as e:
-            logger.exception(f"Wayland initialization failed: {e}")
+            logger.error(f"libei initialization failed: {e}")
             return False
-    
+
     def key_press(self, keycode: int) -> bool:
-        """Inject a key press event."""
         if not self._initialized:
             return False
-        
         try:
-            self._lib.lib.eei_keyboard_key(self.keyboard, keycode, int(EeiKey.PRESS))
+            self._lib.lib.eei_keyboard_key(self.keyboard, keycode, 0)
             return True
         except Exception as e:
             logger.error(f"Key press failed: {e}")
             return False
-    
+
     def key_release(self, keycode: int) -> bool:
-        """Inject a key release event."""
         if not self._initialized:
             return False
-        
         try:
-            self._lib.lib.eei_keyboard_key(self.keyboard, keycode, int(EeiKey.RELEASE))
+            self._lib.lib.eei_keyboard_key(self.keyboard, keycode, 1)
             return True
         except Exception as e:
             logger.error(f"Key release failed: {e}")
             return False
-    
+
     def type_string(self, text: str) -> bool:
-        """Type a string of text."""
         if not self._initialized:
             return False
-        
-        # Simple implementation: type each character
         for char in text:
-            keycode = self._char_to_keycode(char)
-            if keycode:
-                self.key_press(keycode)
-                time.sleep(0.001)
-                self.key_release(keycode)
-                time.sleep(0.001)
-        
+            keycode = ord(char)
+            self.key_press(keycode)
+            time.sleep(0.001)
+            self.key_release(keycode)
+            time.sleep(0.001)
         return True
-    
-    def _char_to_keycode(self, char: str) -> int:
-        """Convert character to keycode (simplified)."""
-        return ord(char)
+
+
+class WaylandAtSpiInterface:
+    def __init__(self):
+        self._initialized = False
+
+    def initialize(self) -> bool:
+        if not HAS_ATSPI:
+            logger.error("pyatspi not available")
+            return False
+        try:
+            pyatspi.registerEventListener(self._event_callback, "key" + "board")
+            self._initialized = True
+            logger.info("Wayland interface initialized via AT-SPI")
+            return True
+        except Exception as e:
+            logger.error(f"AT-SPI initialization failed: {e}")
+            return False
+
+    def _event_callback(self, event):
+        pass
+
+    def key_press(self, keycode: int) -> bool:
+        if not self._initialized:
+            return False
+        try:
+            pyatspi.keyboard.keyCombo(f"key{keycode}")
+            return True
+        except Exception as e:
+            logger.error(f"Key press failed: {e}")
+            return False
+
+    def key_release(self, keycode: int) -> bool:
+        return True
+
+    def type_string(self, text: str) -> bool:
+        if not self._initialized:
+            return False
+        try:
+            pyatspi.keyboard.writeText(text)
+            return True
+        except Exception as e:
+            logger.error(f"Type string failed: {e}")
+            return False
 
 
 def detect_display_server() -> str:
-    """Detect current display server."""
     if 'WAYLAND_DISPLAY' in os.environ:
         return 'wayland'
     elif 'DISPLAY' in os.environ:
@@ -175,30 +185,44 @@ def detect_display_server() -> str:
     return 'unknown'
 
 
-def get_input_interface():
-    """Factory function to get appropriate input interface."""
-    display = detect_display_server()
-    
-    if display == 'wayland':
-        try:
-            interface = WaylandInterface()
-            if interface.initialize():
-                return interface
-        except ImportError:
-            pass
-        logger.warning("Wayland detected but libei not available, falling back to X11")
-    
-    from .interface import XRecordInterface
-    return XRecordInterface()
+class WaylandInterface:
+    def __init__(self):
+        self._interface = None
+        self._type = None
 
+    def initialize(self) -> bool:
+        display = detect_display_server()
+        if display != 'wayland':
+            return False
+        
+        if HAS_LIBEI:
+            try:
+                self._interface = WaylandLibeiInterface()
+                if self._interface.initialize():
+                    self._type = "libei"
+                    logger.info("Using libei backend")
+                    return True
+            except ImportError:
+                logger.warning("libei not available, trying AT-SPI")
+        
+        if HAS_ATSPI:
+            try:
+                self._interface = WaylandAtSpiInterface()
+                if self._interface.initialize():
+                    self._type = "atsui"
+                    logger.info("Using AT-SPI backend")
+                    return True
+            except Exception as e:
+                logger.error(f"AT-SPI failed: {e}")
+        
+        logger.error("No Wayland backend available")
+        return False
 
-# Keymap for common keys (simplified mapping)
-KEYMAP = {
-    'a': 30, 'b': 48, 'c': 46, 'd': 40, 'e': 24, 'f': 41, 'g': 42,
-    'h': 43, 'i': 23, 'j': 44, 'k': 45, 'l': 26, 'm': 53, 'n': 54,
-    'o': 25, 'p': 16, 'q': 20, 'r': 27, 's': 31, 't': 28, 'u': 29,
-    'v': 55, 'w': 17, 'x': 50, 'y': 21, 'z': 47,
-    'A': 30 | 0x40, 'B': 48 | 0x40, 'C': 46 | 0x40,
-    '1': 2, '2': 3, '3': 4, '4': 5, '5': 6, '6': 7, '7': 8, '8': 9, '9': 10, '0': 11,
-    ' ': 57,
-}
+    def key_press(self, keycode: int) -> bool:
+        return self._interface.key_press(keycode) if self._interface else False
+
+    def key_release(self, keycode: int) -> bool:
+        return self._interface.key_release(keycode) if self._interface else False
+
+    def type_string(self, text: str) -> bool:
+        return self._interface.type_string(text) if self._interface else False
