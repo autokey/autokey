@@ -232,6 +232,7 @@ class AbbrSettingsDialog(DialogBase):
         textRenderer.set_property("editable", True)
         textRenderer.connect("edited", self.on_cell_modified)
         textRenderer.connect("editing-canceled", self.on_cell_editing_cancelled)
+        textRenderer.connect("editing-started", self.on_cell_editing_started)
         column1.pack_end(textRenderer, True)
         column1.add_attribute(textRenderer, "text", 0)
         column1.set_sizing(Gtk.TreeViewColumnSizing.FIXED)
@@ -363,10 +364,20 @@ class AbbrSettingsDialog(DialogBase):
 
     # Signal handlers
 
+    def on_cell_editing_started(self, renderer, editable, path, data=None):
+        self._current_abbr_editable = editable
+
     def on_cell_editing_cancelled(self, renderer, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
         oldText = model.get_value(curIter, 0) or ""
-        self.on_cell_modified(renderer, None, oldText)
+        newText = None
+        if hasattr(self, '_current_abbr_editable') and self._current_abbr_editable is not None:
+            newText = self._current_abbr_editable.get_text()
+            self._current_abbr_editable = None
+        if newText is not None and newText != oldText and not EMPTY_FIELD_REGEX.match(newText):
+            model.set(curIter, 0, newText)
+        elif EMPTY_FIELD_REGEX.match(newText or "") and EMPTY_FIELD_REGEX.match(oldText):
+            self.on_removeButton_clicked(renderer)
 
     def on_cell_modified(self, renderer, path, newText, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
