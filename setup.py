@@ -28,7 +28,7 @@ try:
     from setuptools import setup
 except ImportError:
     print("Autokey needs setuptools in order to build. Install it with your package"
-          "manager (python-setuptools) or via pip (pip install setuptools)")
+          "manager (python3-setuptools) or via pip (python3 -m pip install setuptools)")
     sys.exit(1)
 else:
     import setuptools.command.build_py
@@ -182,12 +182,10 @@ setup(
                 ],
     entry_points={
         'console_scripts': [
-            'autokey-gtk=autokey.gtkui.__main__:main',
-            'autokey-qt=autokey.qtui.__main__:Application',
             'autokey-headless=autokey.headless_app:main',
         ]
     },
-    scripts=['autokey-run', 'autokey-shell'],
+    scripts=['autokey-gtk', 'autokey-qt', 'autokey-run', 'autokey-shell'],
     # Minimal installation pre-requisite python packages.
     # Some are not included here because they should be installed
     # through the system package manager, not pip.
