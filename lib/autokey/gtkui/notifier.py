@@ -198,16 +198,13 @@ class UnityLauncher(IndicatorNotifier):
         
     def rebuild_menu(self):
         IndicatorNotifier.rebuild_menu(self)
-        print(threading.currentThread().name)
-        
+
         #try:
         from gi.repository import Unity, Dbusmenu
         HAVE_UNITY = True
-        print("have unity")
         #except ImportError:
         #    return
 
-        print("rebuild unity menu")
         self.launcher = Unity.LauncherEntry.get_for_desktop_id ("autokey-gtk.desktop")   
     
         # Main Menu items
