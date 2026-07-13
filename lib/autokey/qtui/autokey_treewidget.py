@@ -69,9 +69,28 @@ class HeaderClickFilter(QObject):
         self._sort_col = 0
         self._sort_order = Qt.AscendingOrder
 
+    _RESIZE_GRIP_MARGIN = 4
+
+    def _on_section_boundary(self, header: QHeaderView, pos: QPoint) -> bool:
+        """True if pos is within the grab margin of a section edge.
+
+        Clicks here need to fall through to QHeaderView's own mouse handling
+        so the user can drag-resize columns -- otherwise this filter would
+        swallow the press before the resize drag ever starts.
+        """
+        col = header.logicalIndexAt(pos)
+        if col < 0:
+            return False
+        section_start = header.sectionViewportPosition(col)
+        section_end = section_start + header.sectionSize(col)
+        x = pos.x()
+        return (x - section_start) <= self._RESIZE_GRIP_MARGIN or (section_end - x) <= self._RESIZE_GRIP_MARGIN
+
     def eventFilter(self, obj, event: QEvent) -> bool:
         if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             header = self.tree.header()
+            if self._on_section_boundary(header, event.pos()):
+                return False
             col = header.logicalIndexAt(event.pos())
             if col >= 0:
                 if col == self._sort_col:

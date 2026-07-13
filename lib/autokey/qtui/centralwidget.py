@@ -56,8 +56,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             )
 
         h_view = self.treeWidget.header()
-        h_view.setSectionResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
+        h_view.setSectionResizeMode(QHeaderView.Interactive)
         self.treeWidget.install_sort_filter()
+
+        self.filterSearch.textChanged.connect(self.apply_filter)
 
         self.logHandler = None
         self.listWidget.hide()
@@ -116,6 +118,35 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.restore_expanded_state()
         self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0))
         self.on_treeWidget_itemSelectionChanged()
+        self.apply_filter()
+
+    def apply_filter(self):
+        """Hide tree items that don't match the search box.
+
+        A case-insensitive substring match against name, abbr., or hotkey
+        (column 0, 1, or 2) counts as a match. A folder stays visible if it
+        matches itself or any descendant does, so matches stay reachable.
+        """
+        search_filter = self.filterSearch.text().strip().lower()
+
+        for i in range(self.treeWidget.topLevelItemCount()):
+            self._apply_filter_to_item(self.treeWidget.topLevelItem(i), search_filter)
+
+    def _apply_filter_to_item(self, item, search_filter) -> bool:
+        self_matches = not search_filter or any(
+            search_filter in item.text(column).lower() for column in range(3)
+        )
+
+        child_matches = False
+        for i in range(item.childCount()):
+            if self._apply_filter_to_item(item.child(i), search_filter):
+                child_matches = True
+
+        visible = self_matches or child_matches
+        item.setHidden(not visible)
+        if child_matches and not self_matches:
+            item.setExpanded(True)
+        return visible
 
     def save_expanded_state(self):
         """Walk the tree and save the index path of every expanded folder."""
