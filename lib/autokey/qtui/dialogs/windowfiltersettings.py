@@ -16,6 +16,7 @@
 
 import re
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialog
 
 import autokey.iomediator.windowgrabber
@@ -31,6 +32,15 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
+
+    """
+    Emitted once a detect-window-properties run finishes: True if the
+    DetectDialog was accepted (trigger_regex_line_edit now holds the chosen
+    text), False if the user cancelled it. Lets callers that trigger
+    detection without exec_()-ing this whole dialog (e.g. an inline
+    double-click shortcut) know when to read the result back out.
+    """
+    detection_finished = pyqtSignal(bool, name="detection_finished")
 
     def __init__(self, parent):
         super(WindowFilterSettingsDialog, self).__init__(parent)
@@ -72,14 +82,25 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
         self.parentWidget().window().app.exec_in_main(self._receiveWindowInfo, info)
 
     def _receiveWindowInfo(self, info):
-        dlg = DetectDialog(self)
+        # Normally self (this dialog) is on-screen and is the right parent.
+        # But a caller can also trigger detection while this dialog is never
+        # shown at all (e.g. the settings widget's inline double-click
+        # shortcut) -- parenting a modal DetectDialog to a hidden, never-
+        # realized top-level window confuses the window manager (it dims
+        # the real window but places DetectDialog off-screen, or moves it
+        # into an interactive placement mode). Fall back to a parent that's
+        # actually visible in that case.
+        dlg_parent = self if self.isVisible() else self.parentWidget()
+        dlg = DetectDialog(dlg_parent)
         dlg.populate(info)
         dlg.exec_()
 
-        if dlg.result() == QDialog.Accepted:
+        accepted = dlg.result() == QDialog.Accepted
+        if accepted:
             self.trigger_regex_line_edit.setText(dlg.get_choice())
 
         self.detect_window_properties_button.setEnabled(True)
+        self.detection_finished.emit(accepted)
 
     # --- Signal handlers ---
 
