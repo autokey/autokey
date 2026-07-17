@@ -55,6 +55,109 @@ class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
         self.scriptCodeEditor.setCallTipsStyle(Qsci.QsciScintilla.CallTipsNoContext)
         lex.setFont(ui_common.monospace_font())
 
+        self._apply_editor_theme(lex)
+
+    def _apply_editor_theme(self, lex: Qsci.QsciLexerPython):
+        from PyQt5.QtGui import QColor
+        from PyQt5.QtWidgets import QApplication
+
+        palette = QApplication.palette()
+        base = palette.color(palette.Base)
+        # Determine if system theme is dark by checking luminance of Base color
+        r, g, b = base.red(), base.green(), base.blue()
+        luminance = 0.299 * r + 0.587 * g + 0.114 * b
+        is_dark = luminance < 128
+
+        if is_dark:
+            # Dark theme — VS Code Dark+ inspired
+            bg          = base
+            fg          = QColor("#d4d4d4")
+            caret       = QColor("#ffffff")
+            caret_line  = QColor("#2a2a2a")
+            sel_bg      = palette.color(palette.Highlight)
+            sel_fg      = palette.color(palette.HighlightedText)
+            margin_bg   = QColor("#252526")
+            margin_fg   = QColor("#858585")
+            guide       = QColor("#404040")
+            brace_bg    = QColor("#3b3b3b")
+            brace_fg    = QColor("#ffd700")
+            brace_bad   = QColor("#f44747")
+            token_colors = {
+                Qsci.QsciLexerPython.Default:                   ("#d4d4d4", "#1e1e1e"),
+                Qsci.QsciLexerPython.Comment:                   ("#6a9955", "#1e1e1e"),
+                Qsci.QsciLexerPython.CommentBlock:              ("#6a9955", "#1e1e1e"),
+                Qsci.QsciLexerPython.Number:                    ("#b5cea8", "#1e1e1e"),
+                Qsci.QsciLexerPython.DoubleQuotedString:        ("#ce9178", "#1e1e1e"),
+                Qsci.QsciLexerPython.SingleQuotedString:        ("#ce9178", "#1e1e1e"),
+                Qsci.QsciLexerPython.TripleSingleQuotedString:  ("#ce9178", "#1e1e1e"),
+                Qsci.QsciLexerPython.TripleDoubleQuotedString:  ("#ce9178", "#1e1e1e"),
+                Qsci.QsciLexerPython.Keyword:                   ("#569cd6", "#1e1e1e"),
+                Qsci.QsciLexerPython.Operator:                  ("#d4d4d4", "#1e1e1e"),
+                Qsci.QsciLexerPython.Identifier:                ("#d4d4d4", "#1e1e1e"),
+                Qsci.QsciLexerPython.FunctionMethodName:        ("#dcdcaa", "#1e1e1e"),
+                Qsci.QsciLexerPython.ClassName:                 ("#4ec9b0", "#1e1e1e"),
+                Qsci.QsciLexerPython.Decorator:                 ("#c586c0", "#1e1e1e"),
+                Qsci.QsciLexerPython.HighlightedIdentifier:     ("#9cdcfe", "#1e1e1e"),
+                Qsci.QsciLexerPython.UnclosedString:            ("#ce9178", "#3b0000"),
+            }
+        else:
+            # Light theme — VS Code Light+ inspired
+            bg          = base
+            fg          = QColor("#000000")
+            caret       = QColor("#000000")
+            caret_line  = QColor("#e8e8e8")
+            sel_bg      = palette.color(palette.Highlight)
+            sel_fg      = palette.color(palette.HighlightedText)
+            margin_bg   = QColor("#f3f3f3")
+            margin_fg   = QColor("#6e6e6e")
+            guide       = QColor("#d0d0d0")
+            brace_bg    = QColor("#e8e8e8")
+            brace_fg    = QColor("#0000ff")
+            brace_bad   = QColor("#ff0000")
+            token_colors = {
+                Qsci.QsciLexerPython.Default:                   ("#000000", "#ffffff"),
+                Qsci.QsciLexerPython.Comment:                   ("#008000", "#ffffff"),
+                Qsci.QsciLexerPython.CommentBlock:              ("#008000", "#ffffff"),
+                Qsci.QsciLexerPython.Number:                    ("#098658", "#ffffff"),
+                Qsci.QsciLexerPython.DoubleQuotedString:        ("#a31515", "#ffffff"),
+                Qsci.QsciLexerPython.SingleQuotedString:        ("#a31515", "#ffffff"),
+                Qsci.QsciLexerPython.TripleSingleQuotedString:  ("#a31515", "#ffffff"),
+                Qsci.QsciLexerPython.TripleDoubleQuotedString:  ("#a31515", "#ffffff"),
+                Qsci.QsciLexerPython.Keyword:                   ("#0000ff", "#ffffff"),
+                Qsci.QsciLexerPython.Operator:                  ("#000000", "#ffffff"),
+                Qsci.QsciLexerPython.Identifier:                ("#000000", "#ffffff"),
+                Qsci.QsciLexerPython.FunctionMethodName:        ("#795e26", "#ffffff"),
+                Qsci.QsciLexerPython.ClassName:                 ("#267f99", "#ffffff"),
+                Qsci.QsciLexerPython.Decorator:                 ("#af00db", "#ffffff"),
+                Qsci.QsciLexerPython.HighlightedIdentifier:     ("#001080", "#ffffff"),
+                Qsci.QsciLexerPython.UnclosedString:            ("#a31515", "#fff0f0"),
+            }
+
+        # Apply editor-level colors
+        self.scriptCodeEditor.setPaper(bg)
+        self.scriptCodeEditor.setColor(fg)
+        self.scriptCodeEditor.setCaretForegroundColor(caret)
+        self.scriptCodeEditor.setCaretLineVisible(True)
+        self.scriptCodeEditor.setCaretLineBackgroundColor(caret_line)
+        self.scriptCodeEditor.setSelectionBackgroundColor(sel_bg)
+        self.scriptCodeEditor.setSelectionForegroundColor(sel_fg)
+        self.scriptCodeEditor.setMarginsBackgroundColor(margin_bg)
+        self.scriptCodeEditor.setMarginsForegroundColor(margin_fg)
+        self.scriptCodeEditor.setIndentationGuidesBackgroundColor(guide)
+        self.scriptCodeEditor.setIndentationGuidesForegroundColor(guide)
+        self.scriptCodeEditor.setMatchedBraceBackgroundColor(brace_bg)
+        self.scriptCodeEditor.setMatchedBraceForegroundColor(brace_fg)
+        self.scriptCodeEditor.setUnmatchedBraceBackgroundColor(brace_bg)
+        self.scriptCodeEditor.setUnmatchedBraceForegroundColor(brace_bad)
+
+        # Apply lexer token colors
+        lex.setDefaultPaper(bg)
+        lex.setDefaultColor(fg)
+        for style, (fg_hex, bg_hex) in token_colors.items():
+            lex.setColor(QColor(fg_hex), style)
+            lex.setPaper(QColor(bg_hex), style)
+            lex.setFont(ui_common.monospace_font(), style)
+
     def load(self, script: autokey.model.script.Script):
         self.current_script = script
         self.scriptCodeEditor.clear()
