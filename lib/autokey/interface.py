@@ -252,6 +252,35 @@ class XWindowInterface(AbstractWindowInterface):
             return None
 
 
+def query_lock_state(display, root_window):
+    """
+    Query the current lock state of CapsLock and NumLock.
+
+    The core GetKeyboardControl led_mask is unreliable under XKB,
+    which is the default on modern distributions. Query the modifier
+    mapping and the current pointer state instead.
+
+    @param display: The X display to query.
+    @param root_window: The root window of the display.
+    @return: A tuple (capslock_on, numlock_on) with the current states.
+    """
+    numlock_on = capslock_on = False
+    numlock_keycode = display.keysym_to_keycode(XK.XK_Num_Lock)
+    capslock_keycode = display.keysym_to_keycode(XK.XK_Caps_Lock)
+    if numlock_keycode or capslock_keycode:
+        modifier_keycodes = display.get_modifier_mapping()
+        try:
+            pointer_mask = root_window.query_pointer().mask
+        except error.XError:
+            pointer_mask = 0
+        for index, keycodes in enumerate(modifier_keycodes):
+            if numlock_keycode and numlock_keycode in keycodes:
+                numlock_on = bool(pointer_mask & (1 << index))
+            if capslock_keycode and capslock_keycode in keycodes:
+                capslock_on = bool(pointer_mask & (1 << index))
+    return capslock_on, numlock_on
+
+
 class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     """
     Encapsulates the common functionality for the two X interface classes.
@@ -570,9 +599,16 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.join()
 
     def __set_lock_keys_state(self):
-        ledMask = self.localDisplay.get_keyboard_control().led_mask
-        self.mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
-        self.mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
+        try:
+            capslock_on, numlock_on = query_lock_state(
+                self.localDisplay, self.rootWindow)
+        except Exception:
+            logger.exception("Failed to query lock state; falling back to LED mask")
+            ledMask = self.localDisplay.get_keyboard_control().led_mask
+            capslock_on = (ledMask & CAPSLOCK_LEDMASK) != 0
+            numlock_on = (ledMask & NUMLOCK_LEDMASK) != 0
+        self.mediator.set_modifier_state(Key.CAPSLOCK, capslock_on)
+        self.mediator.set_modifier_state(Key.NUMLOCK, numlock_on)
 
     def __eventLoop(self):
         while True:
