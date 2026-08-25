@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__all__ = ["XRecordInterface", "AtSpiInterface", "WindowInfo"]
+__all__ = ["XRecordInterface", "AtSpiInterface", "WaylandInterface", "WindowInfo"]
 
 from abc import abstractmethod
 import logging
