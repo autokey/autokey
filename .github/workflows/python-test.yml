@@ -155,6 +155,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install $(cat apt-requirements.txt)
+          sudo apt-get install -y weston xwayland
           python -m pip install --upgrade pip
           pip install dbus-python gobject pygobject PyQt5 qscintilla
 
@@ -165,3 +166,21 @@ jobs:
           # qt xcb module requires a display to connect to, so won't work.
           # export QT_DEBUG_PLUGINS=1
           # autokey-qt --help
+
+      - name: Test installation under Wayland
+        # Runs the same smoke test inside a headless Weston (Wayland) session,
+        # so Wayland-specific startup regressions (see #1076) are caught in CI
+        # rather than only under Xorg/no-display.
+        run: |
+          export XDG_RUNTIME_DIR="${RUNNER_TEMP}/xdg-runtime"
+          mkdir -p "${XDG_RUNTIME_DIR}"
+          chmod 700 "${XDG_RUNTIME_DIR}"
+          weston --backend=headless-backend.so --socket=wayland-test-0 --idle-time=0 &
+          WESTON_PID=$!
+          # Give the compositor a moment to create its socket.
+          for i in $(seq 1 10); do
+            [ -S "${XDG_RUNTIME_DIR}/wayland-test-0" ] && break
+            sleep 1
+          done
+          WAYLAND_DISPLAY=wayland-test-0 XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" GDK_BACKEND=wayland autokey-gtk --help
+          kill "${WESTON_PID}"
