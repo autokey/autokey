@@ -96,8 +96,8 @@ def __show_popup(title, message):
             subprocess.run(f"kdialog --error '{message}' --title '{title}'", shell=True, check=True)
         except Exception:
             try:
-
-                subprocess.run(f"zenity --error --title='{title}' --text='{message.replace('<br />', '\n')}'", shell=True, check=True)
+                zenity_message = message.replace('<br />', '\n')
+                subprocess.run(f"zenity --error --title='{title}' --text='{zenity_message}'", shell=True, check=True)
             except Exception:
                 logger.critical(message)
 
