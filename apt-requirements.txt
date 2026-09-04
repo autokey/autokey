@@ -12,6 +12,7 @@ libcairo2-dev
 libdbus-1-dev
 libdbus-glib-1-dev
 libgirepository1.0-dev
+libgirepository-2.0-dev
 meson
 ninja-build
 pkg-config
