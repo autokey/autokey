@@ -272,6 +272,13 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
         self.shutdown = False
+        # Guards every round-trip request/reply exchange on self.localDisplay.
+        # python-xlib's request/reply sequence-number bookkeeping is not
+        # thread-safe, and this connection is shared by eventThread
+        # (__eventLoop), listenerThread (__flush_events), and whichever
+        # thread calls public methods like mouse_location() directly (e.g.
+        # the scripting API). Must exist before either thread starts.
+        self.xlib_lock = threading.Lock()
 
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
@@ -293,7 +300,6 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
         self.eventThread.start()
         self.listenerThread.start()
-        self.xlib_lock = threading.Lock()
 
     @queue_method(queue)
     def flush(self):
@@ -588,7 +594,12 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             elif method is not None and args is None:
                 logger.debug("__eventLoop: Got method {} with None arguments!".format(method))
             try:
-                method(*args)
+                # Every queued method eventually round-trips on
+                # self.localDisplay; serialize against listenerThread and
+                # any thread calling public methods (e.g. mouse_location())
+                # directly. See the note on self.xlib_lock in __init__.
+                with self.xlib_lock:
+                    method(*args)
             except Exception as e:
                 logger.exception("Error in X event loop thread: {}".format(e))
 
@@ -1038,21 +1049,26 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         logger.debug("Left event loop.")
 
     def __flush_events(self):
+        # select() just waits on the raw socket fd; it doesn't touch
+        # python-xlib's request/reply bookkeeping, so it stays outside the
+        # lock (holding it here would block eventThread/scripting calls for
+        # up to the full 1s timeout on every idle iteration).
         readable, _, _ = select.select([self.localDisplay], [], [], 1)
         time.sleep(1)
         if self.localDisplay in readable:
             createdWindows = []
             destroyedWindows = []
 
-            for _ in range(self.localDisplay.pending_events()):
-                event = self.localDisplay.next_event()
-                if event.type == X.CreateNotify:
-                    createdWindows.append(event.window)
-                if event.type == X.DestroyNotify:
-                    destroyedWindows.append(event.window)
-                if event.type == X.MappingNotify:
-                    logger.debug("X Mapping Event Detected")
-                    self.on_keys_changed()
+            with self.xlib_lock:
+                for _ in range(self.localDisplay.pending_events()):
+                    event = self.localDisplay.next_event()
+                    if event.type == X.CreateNotify:
+                        createdWindows.append(event.window)
+                    if event.type == X.DestroyNotify:
+                        destroyedWindows.append(event.window)
+                    if event.type == X.MappingNotify:
+                        logger.debug("X Mapping Event Detected")
+                        self.on_keys_changed()
 
             for window in createdWindows:
                 if window not in destroyedWindows:
