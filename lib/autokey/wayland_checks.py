@@ -15,6 +15,18 @@ except Exception:
     logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', datefmt='%d-%b-%y %H:%M:%S', level=logging.DEBUG)
     logger = logging.getLogger(__name__)
 
+def _is_gnome():
+    session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
+    return session_desktop.lower() == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ
+
+
+def _is_kde():
+    current_desktop = os.environ.get('XDG_CURRENT_DESKTOP', '')
+    session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
+    names = current_desktop.lower().split(':') + [session_desktop.lower()]
+    return any(name in ('kde', 'plasma') for name in names)
+
+
 def waylandChecks():
 
     try:
@@ -23,8 +35,7 @@ def waylandChecks():
             return True
 
         #  Check if running on a supported desktop environment
-        session_desktop = os.environ.get('XDG_SESSION_DESKTOP', '')
-        if session_desktop.lower() == 'gnome' or 'GNOME_DESKTOP_SESSION_ID' in os.environ:
+        if _is_gnome() or _is_kde():
             logger.debug(f"waylandChecks() found AutoKey running under a supported desktop environment")
         else:
             logger.debug(f"waylandChecks() found AutoKey running under an unsupported desktop environment, displaying popup.")
@@ -38,19 +49,21 @@ def waylandChecks():
     show_popup = False
 
     #  Gnome check: is the Gnome Shell extension present?
-    ext_id = 'autokey-gnome-extension@autokey'
-    try:
-        proc = subprocess.run(f'gnome-extensions info {ext_id}', shell=True, capture_output=True, check=True)
-        if 'Enabled: Yes' in proc.stdout.decode('utf-8'):
-            logger.debug('waylandChecks() found the AutoKey Gnome Shell extension')
-        else:
-            logger.debug('waylandChecks() found the AutoKey Gnome Shell extension but it is disabled.  Attempting to enable it.')
-            subprocess.run(f'gnome-extensions enable {ext_id}', shell=True, capture_output=True, check=True)
-    except Exception:
-        logger.critical('waylandChecks() did not find the AutoKey Gnome Shell extension, displaying popup')
-        show_popup = True
+    #  (KDE's KWin-scripting bridge needs no equivalent external component.)
+    if _is_gnome():
+        ext_id = 'autokey-gnome-extension@autokey'
+        try:
+            proc = subprocess.run(f'gnome-extensions info {ext_id}', shell=True, capture_output=True, check=True)
+            if 'Enabled: Yes' in proc.stdout.decode('utf-8'):
+                logger.debug('waylandChecks() found the AutoKey Gnome Shell extension')
+            else:
+                logger.debug('waylandChecks() found the AutoKey Gnome Shell extension but it is disabled.  Attempting to enable it.')
+                subprocess.run(f'gnome-extensions enable {ext_id}', shell=True, capture_output=True, check=True)
+        except Exception:
+            logger.critical('waylandChecks() did not find the AutoKey Gnome Shell extension, displaying popup')
+            show_popup = True
 
-    #  Gnome check: is the user in the input user group"
+    #  Wayland check: is the user in the input user group"
     group = 'input'
     user = getpass.getuser()
     try:
@@ -65,7 +78,7 @@ def waylandChecks():
             logger.critical(f'waylandChecks() did not find the "{user}" userid in the "{group}" user group, displaying popup.')
             show_popup = True
 
-    #  Gnome check: have write access to the /dev/uinput device?
+    #  Wayland check: have write access to the /dev/uinput device?
     if os.access('/dev/uinput', os.W_OK):
         logger.debug(f'waylandChecks() found write access to the /dev/uinput device')
     else:
@@ -74,10 +87,13 @@ def waylandChecks():
 
     #  If there was a problem, throw up a popup box
     if show_popup:
-        #  This is Gnome-specific, other DTEs added in the future may need 
-        #  different messages
         title = 'AutoKey System Configuration Needed'
-        message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
+        if _is_kde():
+            #  KDE's KWin-scripting bridge needs no extra component installed,
+            #  unlike the Gnome Shell extension.
+            message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering this command, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"'
+        else:
+            message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
         __show_popup(title, message)
         return False
 

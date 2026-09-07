@@ -22,7 +22,10 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeWindowInterface
+else:
+    from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -70,8 +73,12 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            if common.DESKTOP == 'KDE':
+                logger.debug("Using KDE KWin window interface")
+                self.windowInterface = KdeWindowInterface()
+            else:
+                logger.debug("Using gnome extension window interface")
+                self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
