@@ -100,7 +100,7 @@ class KWinInterface():
             proc = subprocess.run(['plasmashell', '--version'], capture_output=True, check=True)
             kde_version = proc.stdout.decode('utf-8').split(' ')[1].strip()
             logger.debug(f'KDE Plasma version = {kde_version}')
-        except subprocess.CalledProcessError:
+        except Exception:
             logger.exception('KDE Plasma version check failed')
 
         #  Start the DBus service thread
