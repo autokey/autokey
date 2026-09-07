@@ -9,3 +9,5 @@ pyhamcrest
 python-magic
 pyudev
 evdev
+packaging
+pyasyncore; python_version>="3.12"
