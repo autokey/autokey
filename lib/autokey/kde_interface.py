@@ -130,7 +130,12 @@ class KWinInterface():
         self.listener = KWinListener(self.loop)
         bus = SessionBus()
         bus.publish(DBUS_SERVICE_NAME, self.listener)
-        self._service_ready.set()
+        #  bus.publish() only registers the object; incoming calls aren't
+        #  actually dispatched until the GLib main loop below is pumping.
+        #  Schedule the ready signal as an idle callback so it only fires
+        #  once the loop has genuinely started iterating, instead of racing
+        #  loop.run() on this same thread.
+        GLib.idle_add(self._service_ready.set)
         self.loop.run()
 
     def cancel(self):

@@ -675,6 +675,9 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         hotkeys = c.hotKeys + c.hotKeyFolders
 
         for item in hotkeys:
+            if item.hotKey is None:
+                logger.warning(f"{item} has the hotkey trigger enabled but no hotkey is actually configured; skipping.")
+                continue
             if "code" in item.hotKey:
                 #this implies that it is a legacy x11 keycode, should we try to remap?
                 # not sure that this would be possible/practical
