@@ -127,16 +127,22 @@ class KWinInterface():
 
     def _dbus_service(self):
         """Method that runs the DBus service in a separate thread"""
+        logger.debug('KWinInterface._dbus_service: thread started')
         self.listener = KWinListener(self.loop)
+        logger.debug('KWinInterface._dbus_service: listener created, connecting to session bus')
         bus = SessionBus()
+        logger.debug('KWinInterface._dbus_service: connected, publishing service')
         bus.publish(DBUS_SERVICE_NAME, self.listener)
+        logger.debug('KWinInterface._dbus_service: published, scheduling readiness signal')
         #  bus.publish() only registers the object; incoming calls aren't
         #  actually dispatched until the GLib main loop below is pumping.
         #  Schedule the ready signal as an idle callback so it only fires
         #  once the loop has genuinely started iterating, instead of racing
         #  loop.run() on this same thread.
         GLib.idle_add(self._service_ready.set)
+        logger.debug('KWinInterface._dbus_service: entering loop.run()')
         self.loop.run()
+        logger.debug('KWinInterface._dbus_service: loop.run() returned')
 
     def cancel(self):
         """
