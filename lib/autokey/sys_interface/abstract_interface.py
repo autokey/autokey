@@ -89,6 +89,7 @@ class AbstractSysInterface(ABC, metaclass=ABCMeta):
     @abstractmethod
     def press_key(self, key_name):
         return
+    @abstractmethod
     def release_key(self, key_name):
         return
     @abstractmethod

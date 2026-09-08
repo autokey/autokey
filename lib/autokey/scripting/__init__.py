@@ -44,7 +44,18 @@ elif autokey.common.USED_UI_TYPE == "headless":
     # Doesn't actually use anything gtk-specific.
     from .dialog_gtk import GtkDialog as Dialog
 
+# Window scripting API: compositor-aware selection.
+# create_scripting_window() is the preferred factory for runtime use;
+# the Window class imported here is the default used at module import time
+# (before a mediator is available).
 if autokey.common.SESSION_TYPE == "wayland":
-    from .window_gnome import Window
+    from autokey.wayland_compositor import detect_compositor, COMPOSITOR_GNOME
+    if detect_compositor() == COMPOSITOR_GNOME:
+        try:
+            from .window_gnome import Window
+        except Exception:
+            from .window_wayland_fallback import Window
+    else:
+        from .window_wayland_fallback import Window
 else:
     from autokey.scripting.window import Window
