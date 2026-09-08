@@ -50,7 +50,7 @@ def _make_kwin_interface(signal_data=None, response_data=None, timeout=0.05):
     """Build a KWinInterface with the D-Bus service/preload steps stubbed out
     and its listener queues pre-seeded, so run() can be exercised directly."""
     with patch.object(kde.subprocess, 'run', return_value=MagicMock(stdout=b'plasmashell 5.27.0\n')), \
-         patch.object(kde.KWinInterface, '_dbus_service', lambda self: None), \
+         patch.object(kde.KWinInterface, '_dbus_service', lambda self: self._service_ready.set()), \
          patch.object(kde.KWinInterface, '_preload_signal_scripts', lambda self: None):
         iface = kde.KWinInterface(timeout=timeout)
 

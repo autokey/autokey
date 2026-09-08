@@ -103,10 +103,19 @@ class KWinInterface():
         except Exception:
             logger.exception('KDE Plasma version check failed')
 
-        #  Start the DBus service thread
+        #  Start the DBus service thread. The KWin scripts loaded below call
+        #  back into this service immediately, so wait for it to actually be
+        #  published on the bus first -- otherwise the very first round trip
+        #  (and, worse, the persistent signal scripts' one-time initial
+        #  send) can race the thread startup and be silently dropped, which
+        #  showed up as spurious timeouts on every call until the next real
+        #  window-focus change happened to repopulate the signal cache.
         self.loop = GLib.MainLoop()
+        self._service_ready = threading.Event()
         self.dbus_thread = threading.Thread(target=self._dbus_service)
         self.dbus_thread.start()
+        if not self._service_ready.wait(timeout=5):
+            logger.error('KWinInterface: timed out waiting for the AutoKey DBus listener service to start; KWin scripts may not be able to call back into AutoKey.')
 
         #  Delete any old script files from the tmp directory
         fn_spec = os.path.join(tempfile.gettempdir(), 'autokey.kwin.script.*.js')
@@ -121,6 +130,7 @@ class KWinInterface():
         self.listener = KWinListener(self.loop)
         bus = SessionBus()
         bus.publish(DBUS_SERVICE_NAME, self.listener)
+        self._service_ready.set()
         self.loop.run()
 
     def cancel(self):
