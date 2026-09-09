@@ -63,7 +63,10 @@ class IoMediator(threading.Thread):
             Key.NUMLOCK: False
         }
         
-        if self.interfaceType == X_RECORD_INTERFACE:
+        if common.IS_WAYLAND and self.interfaceType == X_RECORD_INTERFACE:
+            logger.warning("Wayland session detected: X11 record interface cannot capture global keys, falling back to AT-SPI interface")
+            self.interface = AtSpiInterface(self, service.app)
+        elif self.interfaceType == X_RECORD_INTERFACE:
             self.interface = XRecordInterface(self, service.app)
         else:
             self.interface = AtSpiInterface(self, service.app)
