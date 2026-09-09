@@ -89,7 +89,7 @@ class KWinListener(object):
 
 class KWinInterface():
 
-    def __init__(self, timeout=1):
+    def __init__(self, timeout=10):
         self.timeout = timeout
         self.response_cache = {}
         self.signal_scripts = {}
@@ -110,11 +110,22 @@ class KWinInterface():
         #  send) can race the thread startup and be silently dropped, which
         #  showed up as spurious timeouts on every call until the next real
         #  window-focus change happened to repopulate the signal cache.
-        self.loop = GLib.MainLoop()
+        #
+        #  Note: even with this readiness gate, the first KWin round trip(s)
+        #  after startup have been observed (on a real KDE Plasma 6.6.6
+        #  machine) to take anywhere from under a second up to ~25 seconds,
+        #  for reasons not yet understood -- see the discussion on PR #1190.
+        #  Ruled out so far: a Python thread-startup race, a GLib
+        #  main-context mismatch between this loop and where callDBus
+        #  replies land, and a hard KWin-side block on callDBus reaching
+        #  third-party services. The timeouts here are widened generously
+        #  to absorb that delay rather than fail outright; this does not
+        #  fix the underlying cause.
+        self.loop = None
         self._service_ready = threading.Event()
         self.dbus_thread = threading.Thread(target=self._dbus_service)
         self.dbus_thread.start()
-        if not self._service_ready.wait(timeout=5):
+        if not self._service_ready.wait(timeout=15):
             logger.error('KWinInterface: timed out waiting for the AutoKey DBus listener service to start; KWin scripts may not be able to call back into AutoKey.')
 
         #  Delete any old script files from the tmp directory
@@ -127,22 +138,26 @@ class KWinInterface():
 
     def _dbus_service(self):
         """Method that runs the DBus service in a separate thread"""
-        logger.debug('KWinInterface._dbus_service: thread started')
-        self.listener = KWinListener(self.loop)
-        logger.debug('KWinInterface._dbus_service: listener created, connecting to session bus')
+        #  Constructing SessionBus() (pydbus/Gio) on this thread may push its
+        #  own thread-default GLib main context here. GLib.MainLoop() with no
+        #  explicit context picks up the calling thread's thread-default
+        #  context if one is active -- so build the bus connection FIRST,
+        #  then the loop, both on this same thread, so they end up sharing
+        #  the same context instead of self.loop silently iterating a
+        #  different context than the one bus.publish()/idle_add() attach
+        #  to. (This alone did not resolve the startup delay noted above,
+        #  but is more correct regardless.)
         bus = SessionBus()
-        logger.debug('KWinInterface._dbus_service: connected, publishing service')
+        self.loop = GLib.MainLoop()
+        self.listener = KWinListener(self.loop)
         bus.publish(DBUS_SERVICE_NAME, self.listener)
-        logger.debug('KWinInterface._dbus_service: published, scheduling readiness signal')
         #  bus.publish() only registers the object; incoming calls aren't
         #  actually dispatched until the GLib main loop below is pumping.
         #  Schedule the ready signal as an idle callback so it only fires
         #  once the loop has genuinely started iterating, instead of racing
         #  loop.run() on this same thread.
         GLib.idle_add(self._service_ready.set)
-        logger.debug('KWinInterface._dbus_service: entering loop.run()')
         self.loop.run()
-        logger.debug('KWinInterface._dbus_service: loop.run() returned')
 
     def cancel(self):
         """
