@@ -25,11 +25,6 @@ class QtClipboard(AbstractClipboard):
 
         :param app: refers to the application instance
         """
-        self.clipBoard = QApplication.clipboard()
-        """
-        Refers to the Qt clipboard object
-        """
-
         self.app = app
         """
         Refers to the application instance
@@ -54,6 +49,15 @@ class QtClipboard(AbstractClipboard):
         :param contents: string to be placed in the selection
         """
         self.__execAsync(self.__fillSelection, contents)
+
+    @property
+    def clipBoard(self):
+        # Fetching this once in __init__ doesn't work: IoMediator (and
+        # therefore this Clipboard) is constructed during Service.start(),
+        # which happens before QApplication is fully initialised, so
+        # QApplication.clipboard() at that point isn't a live, working
+        # reference. Fetch it fresh on every use instead.
+        return QApplication.clipboard()
 
     def __fillSelection(self, string):
         """
