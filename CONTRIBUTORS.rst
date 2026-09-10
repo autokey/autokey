@@ -26,6 +26,11 @@ automatically be built.
 
 If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
 
+See MANUAL_TESTING.rst for the manual verification checklist required for
+PRs that change AutoKey's runtime behavior. Additional test scenarios are
+welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
+case it should cover.
+
 Testing
 =======
 Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
