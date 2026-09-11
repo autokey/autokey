@@ -44,7 +44,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install $(cat apt-requirements.txt)
+          sudo apt-get install -y $(cat apt-requirements.txt)
           python -m pip install --upgrade pip
           pip install flake8 wheel
           pip install -r pip-requirements.txt
@@ -108,10 +108,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install $(cat apt-requirements.txt)
+          sudo apt-get install -y $(cat apt-requirements.txt)
           python -m pip install --upgrade pip
           pip install flake8 tox pytest pytest-cov wheel
           pip install -r pip-requirements.txt
+
+      - name: Build gnome-shell extension zip
+        run: make -C autokey-gnome-extension
 
       - name: Test with tox and pytest
         run: tox -e clean,coverage,report
@@ -154,9 +157,13 @@ jobs:
       - name: Install OS dependencies only
         run: |
           sudo apt-get update
-          sudo apt-get install $(cat apt-requirements.txt)
+          sudo apt-get install -y $(cat apt-requirements.txt)
+          sudo apt-get install -y weston xwayland
           python -m pip install --upgrade pip
           pip install dbus-python gobject pygobject PyQt5 qscintilla
+
+      - name: Build gnome-shell extension zip
+        run: make -C autokey-gnome-extension
 
       - name: Test installation
         run: |
@@ -165,3 +172,36 @@ jobs:
           # qt xcb module requires a display to connect to, so won't work.
           # export QT_DEBUG_PLUGINS=1
           # autokey-qt --help
+
+      - name: Test installation under Wayland
+        # Runs the same smoke test inside a headless Weston (Wayland) session,
+        # so Wayland-specific startup regressions (see #1076) are caught in CI
+        # rather than only under Xorg/no-display.
+        # NOTE: like the Xorg/no-display job above, this only exercises argument
+        # parsing (--help exits before GTK touches the display) - it confirms
+        # the app *starts* under Wayland but not that its GTK UI actually renders.
+        # A real window-init check would need a CLI flag that opens a window and
+        # then exits (none exists today - see argument_parser.py).
+        run: |
+          set -e
+          export XDG_RUNTIME_DIR="${RUNNER_TEMP}/xdg-runtime"
+          mkdir -p "${XDG_RUNTIME_DIR}"
+          chmod 700 "${XDG_RUNTIME_DIR}"
+
+          weston --backend=headless-backend.so --socket=wayland-test-0 --idle-time=0 &
+          WESTON_PID=$!
+          trap 'kill "${WESTON_PID}" 2>/dev/null || true' EXIT
+
+          # Wait for the compositor to create its socket, fail loudly if it never does
+          # (rather than silently running the smoke test against a dead session).
+          for i in $(seq 1 10); do
+            [ -S "${XDG_RUNTIME_DIR}/wayland-test-0" ] && break
+            sleep 1
+          done
+          if [ ! -S "${XDG_RUNTIME_DIR}/wayland-test-0" ]; then
+            echo "::error::Weston did not create its Wayland socket in time"
+            exit 1
+          fi
+
+          WAYLAND_DISPLAY=wayland-test-0 XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR}" GDK_BACKEND=wayland autokey-gtk --help
+          kill "${WESTON_PID}"
