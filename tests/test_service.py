@@ -27,6 +27,7 @@ import tests.helpers_for_tests as testhelpers
 
 import autokey.model.folder
 import autokey.model.helpers
+import autokey.model.triggermode
 import autokey.model.script
 from autokey.configmanager import configmanager
 from autokey.configmanager.configmanager import ConfigManager
@@ -66,7 +67,7 @@ def test_start(tmp_path):
 def create_script(abbreviation, trigger_immediately=False, ignore_case=False):
     script = autokey.model.script.Script("script", "")
     script.add_abbreviation(abbreviation)
-    script.set_modes([autokey.model.helpers.TriggerMode.ABBREVIATION])
+    script.set_modes([autokey.model.triggermode.TriggerMode.ABBREVIATION])
     script.immediate = trigger_immediately
     script.ignoreCase = ignore_case
     script.parent = MagicMock()
