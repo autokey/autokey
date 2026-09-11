@@ -113,6 +113,9 @@ jobs:
           pip install flake8 tox pytest pytest-cov wheel
           pip install -r pip-requirements.txt
 
+      - name: Build gnome-shell extension zip
+        run: make -C autokey-gnome-extension
+
       - name: Test with tox and pytest
         run: tox -e clean,coverage,report
 
