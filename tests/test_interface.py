@@ -139,3 +139,129 @@ class TestXrecord():
             # Need to cancel early. But cancel in tearDown as well in case this test fails.
             self.cancel()
         assert_that(self.ec.get_result(), is_(equal_to(expected)), failmsg)
+
+
+# Tests for the lock-state query helper (query_lock_state) added for #1177.
+# These use fake display objects. They do not need an X server.
+from Xlib.error import XError
+from autokey.interface import query_lock_state
+
+XK_Num_Lock = 0xff7f
+XK_Caps_Lock = 0xffe5
+
+
+class FakePointerState:
+    def __init__(self, mask):
+        self.mask = mask
+
+
+class FakeRootWindow:
+    def __init__(self, mask, error=False):
+        self._mask = mask
+        self._error = error
+
+    def query_pointer(self):
+        if self._error:
+            raise XError(None, b"\x00\x01\x00\x00" + b"\x00" * 28)
+        return FakePointerState(self._mask)
+
+
+class FakeDisplay:
+    """
+    A minimal fake of the python-xlib Display interface.
+    """
+
+    def __init__(self, keycodes, modifier_mapping):
+        # keycodes: dict keysym -> keycode
+        # modifier_mapping: list of eight lists of keycodes
+        self._keycodes = keycodes
+        self._modifier_mapping = modifier_mapping
+
+    def keysym_to_keycode(self, keysym):
+        return self._keycodes.get(keysym, 0)
+
+    def get_modifier_mapping(self):
+        return self._modifier_mapping
+
+
+def make_display(numlock_code=66, capslock_code=77, numlock_modifier=4,
+                 capslock_modifier=1):
+    # Standard layout: NumLock on Mod2 (index 4), CapsLock on Lock (index 1).
+    keycodes = {}
+    if numlock_code:
+        keycodes[XK_Num_Lock] = numlock_code
+    if capslock_code:
+        keycodes[XK_Caps_Lock] = capslock_code
+    mapping = [[] for _ in range(8)]
+    if numlock_code:
+        mapping[numlock_modifier].append(numlock_code)
+    if capslock_code:
+        mapping[capslock_modifier].append(capslock_code)
+    return FakeDisplay(keycodes, mapping)
+
+
+def test_numlock_on():
+    display = make_display()
+    root = FakeRootWindow(mask=1 << 4)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(False))
+    assert_that(numlock_on, is_(True))
+
+
+def test_numlock_off():
+    display = make_display()
+    root = FakeRootWindow(mask=0)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(False))
+    assert_that(numlock_on, is_(False))
+
+
+def test_capslock_on():
+    display = make_display()
+    root = FakeRootWindow(mask=1 << 1)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(True))
+    assert_that(numlock_on, is_(False))
+
+
+def test_both_locks_on():
+    display = make_display()
+    root = FakeRootWindow(mask=(1 << 1) | (1 << 4))
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(True))
+    assert_that(numlock_on, is_(True))
+
+
+def test_non_standard_modifier_index():
+    # NumLock bound to Mod3 (index 5) instead of the usual Mod2.
+    display = make_display(numlock_modifier=5)
+    root = FakeRootWindow(mask=1 << 5)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(numlock_on, is_(True))
+    assert_that(capslock_on, is_(False))
+
+
+def test_keycode_absent_from_mapping():
+    # NumLock keycode known but bound to no modifier: state stays off.
+    display = make_display()
+    display._modifier_mapping[4] = []
+    root = FakeRootWindow(mask=1 << 4)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(False))
+    assert_that(numlock_on, is_(False))
+
+
+def test_no_numlock_key():
+    display = make_display(numlock_code=0)
+    root = FakeRootWindow(mask=1 << 4)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(False))
+    assert_that(numlock_on, is_(False))
+
+
+def test_pointer_query_error_masks_state():
+    display = make_display()
+    root = FakeRootWindow(mask=1 << 4, error=True)
+    capslock_on, numlock_on = query_lock_state(display, root)
+    assert_that(capslock_on, is_(False))
+    assert_that(numlock_on, is_(False))
