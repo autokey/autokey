@@ -48,6 +48,51 @@ class KeyGrabber:
         self.target_parent.cancel_grab()
 
 
+class InlineKeyGrabber(KeyGrabber):
+    """
+    Like KeyGrabber, but doesn't stop capturing after the first non-modifier
+    keypress. Used for inline hotkey editing: every keypress previews the
+    combination and capture continues. Escape or Backspace ends capture and
+    closes without saving; Enter/Return ends capture, saves the currently
+    previewed combination, and closes. Tab ends capture and hands focus to
+    the next control (the Save button) without cancelling or saving the
+    preview, restoring normal keyboard-navigation behavior. A Save button is
+    also available as a mouse-driven equivalent of Enter, so stop() is
+    public for that caller.
+    """
+
+    # raw_key comes from Interface.lookup_string(), which maps special keys
+    # through XK_TO_AK_MAP to this project's own Key enum strings (e.g.
+    # Key.ESCAPE == "<escape>") -- not the generic X11/Qt key names.
+    _CANCEL_KEYS = (Key.ESCAPE, Key.BACKSPACE)
+    _CONFIRM_KEYS = (Key.ENTER,)
+    _TAB_KEYS = (Key.TAB,)
+
+    def handle_keypress(self, raw_key, modifiers, key, *args):
+        if raw_key in MODIFIERS:
+            return
+        if raw_key in self._CANCEL_KEYS:
+            self.stop()
+            self.target_parent.inline_hotkey_cancelled()
+        elif raw_key in self._CONFIRM_KEYS:
+            self.stop()
+            self.target_parent.inline_hotkey_confirmed()
+        elif raw_key in self._TAB_KEYS:
+            self.stop()
+            self.target_parent.inline_hotkey_tab_pressed()
+        else:
+            self.target_parent.inline_hotkey_preview(raw_key, modifiers)
+
+    def stop(self):
+        if self in IoMediator.listeners:
+            IoMediator.listeners.remove(self)
+        iomediator.CURRENT_INTERFACE.ungrab_keyboard()
+
+    def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
+        self.stop()
+        self.target_parent.inline_hotkey_cancelled()
+
+
 class Recorder(KeyGrabber):
     """
     Recorder used by the record macro functionality
