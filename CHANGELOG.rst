@@ -90,6 +90,7 @@ Bug fixes
 - Fix fake keyboard events not being emitted in a timely manner in some cases
 - Upgrade the **develop** branch to satisfy issue #773.
 - Fix selection when cloning a phrase or script
+- Remove leftover debug ``print()`` calls from ``UnityLauncher.rebuild_menu`` in the GTK notifier that spammed the terminal on every menu rebuild.
 
 Other changes
 -------------
@@ -700,8 +701,3 @@ Modified the launcher and other files to allow for editable installs ("pip insta
 Added an "about" dialog for the Python 3 port.
 
 Changed hyperlink for bug reports.
-
-PR #1168 Changes
-----------------
-
-- Remove leftover debug `print()` calls from `UnityLauncher.rebuild_menu` in the GTK notifier that spammed the terminal on every menu rebuild.
