@@ -1206,7 +1206,14 @@ class XRecordInterface(XInterfaceBase, AbstractSysInterface):
         # Enable the context; this only returns after a call to record_disable_context,
         # while calling the callback function in the meantime
         logger.info("XRecord interface thread starting")
-        self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
+        try:
+            self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
+        except Exception:
+            # cancel() force-closed recordDisplay because record_disable_context()
+            # didn't unblock this call in time (see #1202) -- the resulting
+            # connection error is expected in that case, not a real failure.
+            logger.debug("XRecord interface: recordDisplay closed while enabling context", exc_info=True)
+            return
         # Finally free the context
         self.recordDisplay.record_free_context(self.ctx)
         self.recordDisplay.close()
@@ -1214,6 +1221,24 @@ class XRecordInterface(XInterfaceBase, AbstractSysInterface):
 
     def cancel(self):
         self.localDisplay.record_disable_context(self.ctx)
+        self.localDisplay.flush()
+        # record_enable_context() (in run(), on this thread) only returns
+        # once the disable above is processed by the X server. This can
+        # race under Xvfb (see #1202): if the disable arrives before the
+        # enable has registered, it has no effect, and this thread blocks
+        # in record_enable_context() forever. Give it a bounded window,
+        # then force the issue by closing the dedicated record connection
+        # out from under the blocked read.
+        self.join(timeout=3)
+        if self.is_alive():
+            logger.warning(
+                "XRecordInterface: listener thread still alive 3s after "
+                "record_disable_context(); forcing recordDisplay closed "
+                "to unblock it (see #1202)")
+            try:
+                self.recordDisplay.close()
+            except Exception:
+                logger.exception("Error force-closing recordDisplay to unblock listener thread")
         XInterfaceBase.cancel(self)
 
     def __processEvent(self, reply):
