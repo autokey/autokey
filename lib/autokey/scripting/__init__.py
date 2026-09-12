@@ -45,6 +45,9 @@ elif autokey.common.USED_UI_TYPE == "headless":
     from .dialog_gtk import GtkDialog as Dialog
 
 if autokey.common.SESSION_TYPE == "wayland":
-    from .window_gnome import Window
+    if autokey.common.DESKTOP == 'KDE':
+        from .window_kde import Window
+    else:
+        from .window_gnome import Window
 else:
     from autokey.scripting.window import Window

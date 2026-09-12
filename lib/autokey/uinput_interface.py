@@ -30,7 +30,11 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 from autokey.sys_interface.abstract_interface import AbstractSysInterface, AbstractMouseInterface, queue_method
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
-from autokey.gnome_interface import GnomeMouseReadInterface
+from autokey import common
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeMouseInterface as MouseReadInterface
+else:
+    from autokey.gnome_interface import GnomeMouseReadInterface as MouseReadInterface
 
 #TODO when exiting the thread waits for one more signal and that signal repeats  for a bit during exit
 #  Put a timeout on the select in __flush_events() so that it would not
@@ -38,7 +42,7 @@ from autokey.gnome_interface import GnomeMouseReadInterface
 #  This matches how things are done in the equivalent function in the X11
 #  interface.py module.
 
-class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInterface):
+class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
     """
     god this is complicated lol
     """
@@ -219,7 +223,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
             raise Exception
             #print("Unable to create UInput device. {}".format(ex))
 
-        GnomeMouseReadInterface.__init__(self)
+        MouseReadInterface.__init__(self)
         logger.debug("Screen size: {}".format(self.mediator.windowInterface.get_screen_size()))
 
         self.inv_map = self.__reverse_mapping(e.keys)
@@ -419,7 +423,7 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         self.ui.write(e.EV_KEY, keycode, 0)
         self.syn_raw()
 
-    # implemented in GnomeMouseReadInterface
+    # implemented in MouseReadInterface (GnomeMouseReadInterface / KdeMouseInterface)
     # def mouse_location(self):
     #     raise NotImplementedError
 
@@ -671,6 +675,9 @@ class UInputInterface(threading.Thread, GnomeMouseReadInterface, AbstractSysInte
         hotkeys = c.hotKeys + c.hotKeyFolders
 
         for item in hotkeys:
+            if item.hotKey is None:
+                logger.warning(f"{item} has the hotkey trigger enabled but no hotkey is actually configured; skipping.")
+                continue
             if "code" in item.hotKey:
                 #this implies that it is a legacy x11 keycode, should we try to remap?
                 # not sure that this would be possible/practical

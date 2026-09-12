@@ -22,7 +22,10 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeWindowInterface
+else:
+    from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -70,8 +73,12 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            if common.DESKTOP == 'KDE':
+                logger.debug("Using KDE KWin window interface")
+                self.windowInterface = KdeWindowInterface()
+            else:
+                logger.debug("Using gnome extension window interface")
+                self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
@@ -358,6 +365,20 @@ class IoMediator(threading.Thread):
         if backup is None:
             logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
         self.clipboard.text = string
+        # Under Wayland, clipboard ownership has to be negotiated with the
+        # compositor (unlike X11, where a CONVERT_SELECTION request can be
+        # answered at any time) -- sending the paste keystroke immediately
+        # after setting the clipboard can race that negotiation and the
+        # target application ends up pasting nothing. Confirmed live on a
+        # KDE Plasma 6.6.6 VM. KDE's KWin-scripting round trips have shown
+        # highly variable, sometimes multi-second latency throughout this
+        # codebase (see kde_interface.py) -- scope this to KDE specifically
+        # rather than all of Wayland, since GNOME's lightweight D-Bus
+        # extension call has shown no evidence of the same magnitude of
+        # delay, and a blanket multi-second stall on every clipboard paste
+        # would be a real regression there.
+        if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
+            self._wait_responsively(0.5)
         try:
             self.send_string(paste_command.value)
         finally:
@@ -365,11 +386,50 @@ class IoMediator(threading.Thread):
         # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
         self.__restore_clipboard_text(backup)
 
+    def _wait_responsively(self, seconds):
+        """
+        Wait for the given duration without blocking the UI toolkit's event
+        loop, unlike a plain time.sleep(). This matters specifically for Qt:
+        __send_string_clipboard runs inside a callback dispatched via
+        exec_in_main, which Qt's single-threaded event loop invokes
+        synchronously -- while that callback is running (including inside a
+        time.sleep() call within it), Qt cannot process anything else,
+        including the Wayland socket traffic carrying the compositor's
+        request for AutoKey (as clipboard owner) to hand over the actual
+        clipboard data. A blocking sleep here does not just fail to help;
+        it can make AutoKey unable to answer that exact request during the
+        sleep, which is worse than not delaying at all. Pump the Qt event
+        loop instead so AutoKey stays responsive throughout the wait.
+        """
+        if common.USED_UI_TYPE == "QT":
+            from PyQt5.QtCore import QEventLoop
+            from PyQt5.QtWidgets import QApplication
+            deadline = time.time() + seconds
+            while time.time() < deadline:
+                QApplication.processEvents(QEventLoop.AllEvents, 50)
+                time.sleep(0.01)
+        else:
+            time.sleep(seconds)
+
     def __restore_clipboard_text(self, backup: str):
         """Restore the clipboard content."""
         # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
         # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-        time.sleep(0.2)
+        # send_string() only enqueues the paste keystroke on the interface's
+        # own worker thread -- it does not block until the real keypress is
+        # sent and read by the target app. 0.2s is fine on X11 (a
+        # CONVERT_SELECTION request can be answered at any time, no evidence
+        # of trouble there) but confirmed too short on a KDE Plasma 6.6.6
+        # Wayland VM, where KWin-scripting round trips have shown highly
+        # variable, sometimes multi-second latency throughout this codebase
+        # (see kde_interface.py). No evidence either way for GNOME/Wayland,
+        # so don't extrapolate the KDE-specific delay there. Use
+        # _wait_responsively(), not time.sleep(), for the same reason as
+        # above -- see that method's docstring.
+        if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
+            self._wait_responsively(0.5)
+        else:
+            self._wait_responsively(0.2)
         self.clipboard.text = backup if backup is not None else ""
 
     def _send_string_selection(self, string: str):
@@ -378,7 +438,7 @@ class IoMediator(threading.Thread):
         if backup is None:
             logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
-        pos = self.interface.get_mouse_position()
+        pos = self.interface.mouse_location()
         self.interface.send_mouse_click(pos[0], pos[1], Button.MIDDLE, False)
         self.__restore_clipboard_selection(backup)
 
