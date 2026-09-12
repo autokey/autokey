@@ -23,6 +23,7 @@ PR #1076 Changes
  
 Important misc changes
 ----------------------
+- Replace the GTK and Qt setuptools-generated launchers with explicit scripts to avoid the deprecated ``pkg_resources`` entry-point wrapper. Fixes issue `#1047 <https://github.com/autokey/autokey/issues/1047>`__.
 - Bump action versions in pages.yml to satisfy part of issue #963.
 - Bump action versions in build.yml to satisfy part of issue #963.
 - Bump action versions in python-test.yml to satisfy part of issue #963.
