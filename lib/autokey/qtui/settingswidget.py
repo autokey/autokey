@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyQt5.QtWidgets import QDialog
+from qtpy.QtWidgets import QDialog
 
 import autokey.model.helpers
 from autokey.model.triggermode import TriggerMode
@@ -170,7 +170,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
     # ---- Signal handlers
 
     def on_set_abbreviation_button_pressed(self):
-        self.abbr_settings_dialog.exec_()
+        self.abbr_settings_dialog.exec()
 
         if self.abbr_settings_dialog.result() == QDialog.Accepted:
             self.set_dirty()
@@ -186,7 +186,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.abbr_settings_dialog.reset()
 
     def on_set_hotkey_button_pressed(self):
-        self.hotkey_settings_dialog.exec_()
+        self.hotkey_settings_dialog.exec()
 
         if self.hotkey_settings_dialog.result() == QDialog.Accepted:
             self.set_dirty()
@@ -204,7 +204,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.hotkey_settings_dialog.reset()
 
     def on_set_window_filter_button_pressed(self):
-        self.window_filter_dialog.exec_()
+        self.window_filter_dialog.exec()
 
         if self.window_filter_dialog.result() == QDialog.Accepted:
             self.set_dirty()

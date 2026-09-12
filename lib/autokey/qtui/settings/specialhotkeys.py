@@ -16,7 +16,7 @@
 
 import typing
 
-from PyQt5.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
+from qtpy.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
 
 from autokey.qtui.dialogs import GlobalHotkeyDialog
 import autokey.qtui.common as ui_common
@@ -88,7 +88,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
     # ---- Signal handlers
 
     def on_set_config_button_pressed(self):
-        self.show_config_dlg.exec_()
+        self.show_config_dlg.exec()
 
         if self.show_config_dlg.result() == QDialog.Accepted:
             self.use_config_hotkey = True
@@ -104,7 +104,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
         self.show_config_dlg.reset()
 
     def on_set_monitor_button_pressed(self):
-        self.toggle_monitor_dlg.exec_()
+        self.toggle_monitor_dlg.exec()
 
         if self.toggle_monitor_dlg.result() == QDialog.Accepted:
             self.use_service_hotkey = True

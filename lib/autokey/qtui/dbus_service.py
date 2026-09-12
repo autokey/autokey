@@ -13,8 +13,13 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import Q_CLASSINFO, pyqtSlot
-from PyQt5.QtDBus import QDBusAbstractAdaptor, QDBusConnection
+from qtpy.QtCore import Slot as pyqtSlot
+from qtpy.QtDBus import QDBusAbstractAdaptor, QDBusConnection
+
+try:
+    from qtpy.QtCore import Q_CLASSINFO
+except ImportError:
+    from PyQt6.QtCore import pyqtClassInfo as Q_CLASSINFO
 
 
 class AppService(QDBusAbstractAdaptor):

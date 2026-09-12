@@ -16,9 +16,9 @@
 
 from typing import Union, List, Optional
 
-from PyQt5.QtCore import Qt, QEvent, QModelIndex
-from PyQt5.QtGui import QKeySequence, QIcon, QKeyEvent, QMouseEvent, QDragMoveEvent, QDropEvent
-from PyQt5.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView
+from qtpy.QtCore import Qt, QEvent, QModelIndex
+from qtpy.QtGui import QKeySequence, QIcon, QKeyEvent, QMouseEvent, QDragMoveEvent, QDropEvent
+from qtpy.QtWidgets import QTreeWidget, QTreeWidgetItem, QAbstractItemView
 
 import autokey.model.folder
 import autokey.model.phrase

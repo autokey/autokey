@@ -22,8 +22,8 @@ common_modules = ['argparse', 'collections', 'enum', 'faulthandler',
             'warnings', 'webbrowser', 'dbus', 'pyinotify']
 gtk_modules = ['gi', 'gi.repository.Gtk', 'gi.repository.Gdk', 'gi.repository.Pango',
             'gi.repository.Gio', 'gi.repository.GtkSource']
-qt_modules = ['PyQt5', 'PyQt5.QtGui', 'PyQt5.QtWidgets', 'PyQt5.QtCore',
-            'PyQt5.Qsci']
+qt_modules = ['qtpy', 'qtpy.QtGui', 'qtpy.QtWidgets', 'qtpy.QtCore',
+            'qtpy.Qsci']
 
 # wmctrl, xrandr are x11 specific programs.
 x11_programs = ['wmctrl', 'xrandr']

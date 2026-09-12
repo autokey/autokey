@@ -3,6 +3,7 @@ pydbus
 pyinotify
 python-xlib
 PyGObject
+qtpy
 PyQt5
 QScintilla
 pyhamcrest

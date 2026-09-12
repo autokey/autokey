@@ -14,8 +14,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import sys
 
-from PyQt5.QtWidgets import QWidget
-from PyQt5.QtCore import QSize
+from qtpy.QtWidgets import QWidget
+from qtpy.QtCore import QSize
 
 import autokey.common
 from autokey.qtui import common as ui_common

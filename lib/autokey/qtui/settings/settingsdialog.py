@@ -15,8 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from typing import TYPE_CHECKING
 
-from PyQt5.QtCore import pyqtSlot
-from PyQt5.QtWidgets import QApplication, QWidget
+from qtpy.QtCore import Slot as pyqtSlot
+from qtpy.QtWidgets import QApplication, QWidget
 
 from autokey.qtui import common
 

@@ -16,9 +16,9 @@
 
 import webbrowser
 
-from PyQt5.QtCore import pyqtSignal, QTimer
-from PyQt5.QtGui import QIcon, QKeySequence, QCloseEvent
-from PyQt5.QtWidgets import QApplication, QAction, QMenu
+from qtpy.QtCore import Signal as pyqtSignal, QTimer
+from qtpy.QtGui import QIcon, QKeySequence, QCloseEvent
+from qtpy.QtWidgets import QApplication, QAction, QMenu
 
 
 import autokey.common

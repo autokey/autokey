@@ -4,8 +4,8 @@ QtClipboard Functions
 
 import threading
 
-from PyQt5.QtGui import QClipboard, QImage
-from PyQt5.QtWidgets import QApplication
+from qtpy.QtGui import QClipboard, QImage
+from qtpy.QtWidgets import QApplication
 from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 from pathlib import Path

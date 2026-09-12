@@ -202,6 +202,7 @@ setup(
     extras_require={
             "QT": [
                 "PyQt5",
+                "qtpy",
                 "QScintilla"
                 ],
             "GTK": [

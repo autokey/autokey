@@ -16,8 +16,8 @@
 
 import typing
 
-from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QDialogButtonBox
+from qtpy.QtCore import Signal as pyqtSignal
+from qtpy.QtWidgets import QDialogButtonBox
 
 import autokey.model.folder
 import autokey.model.helpers

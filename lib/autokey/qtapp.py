@@ -21,9 +21,9 @@ import sys
 import os.path
 import queue
 
-from PyQt5.QtCore import QObject, QEvent, Qt, pyqtSignal
-from PyQt5.QtGui import QCursor, QIcon
-from PyQt5.QtWidgets import QMessageBox, QApplication
+from qtpy.QtCore import QObject, QEvent, Qt, Signal as pyqtSignal
+from qtpy.QtGui import QCursor, QIcon
+from qtpy.QtWidgets import QMessageBox, QApplication
 
 import autokey.model.script
 from autokey import common
@@ -70,7 +70,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
             self.show_error_dialog("Fatal error starting AutoKey.", str(e))
             sys.exit(1)
         else:
-            sys.exit(self.exec_())
+            sys.exit(self.exec())
 
     def initialise(self):
         self.setWindowIcon(QIcon.fromTheme(common.ICON_FILE, qtui_common.load_icon(qtui_common.AutoKeyIcon.AUTOKEY)))
@@ -157,7 +157,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         )
         if details:
             message_box.setDetailedText(details)
-        message_box.exec_()
+        message_box.exec()
 
     def show_popup_menu(self, folders: list=None, items: list=None, onDesktop=True, title=None):
         if items is None:

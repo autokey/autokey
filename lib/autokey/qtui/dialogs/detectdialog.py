@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 from typing import Tuple
 
-from PyQt5.QtWidgets import QWidget
+from qtpy.QtWidgets import QWidget
 
 from autokey.qtui import common as ui_common
 
