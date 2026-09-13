@@ -94,6 +94,23 @@ class GtkClipboard(AbstractClipboard):
         Usage: C{clipboard.fill_clipboard(contents)}
 
         :param contents: string to be placed in the selection
+
+        KNOWN LIMITATION on GNOME Wayland: this call does not reliably
+        take effect. Confirmed live via WAYLAND_DEBUG=1 tracing: GTK's
+        Wayland clipboard backend calls wl_data_device.set_selection()
+        with a serial of 0 (no real input-event serial available, since
+        AutoKey is a background daemon with no focused surface of its
+        own when a hotkey fires in some other application), and Mutter
+        immediately cancels the resulting wl_data_source. The call
+        raises no exception and logs no error -- the clipboard is
+        simply left unchanged. A phrase using SendMode.CB_CTRL_V (the
+        default paste mode) will silently paste whatever was already on
+        the clipboard from some other, legitimate source, not the
+        phrase's own content. No fix is implemented yet; a real one
+        likely requires setting the clipboard through something that
+        does have standing with the compositor, e.g. AutoKey's own GNOME
+        Shell extension (which already has privileged D-Bus access for
+        window management) rather than through this GTK API directly.
         """
         Gdk.threads_enter()
         if Gtk.get_major_version() >= 3:
