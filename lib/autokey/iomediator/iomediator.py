@@ -52,6 +52,12 @@ class IoMediator(threading.Thread):
     
     def __init__(self, service):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
+        # If shutdown() ever can't deliver its sentinel to the queue (e.g.
+        # self.interface.cancel() blocks forever on a RECORD-extension race,
+        # see XRecordInterface.cancel()), a non-daemon thread here would
+        # block the whole process from exiting. XInterfaceBase already sets
+        # this; match it here as a safety net.
+        self.daemon = True
 
         self.queue = queue.Queue()
         self.listeners.append(service)
