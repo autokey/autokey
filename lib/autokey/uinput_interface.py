@@ -777,12 +777,19 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     held = held + keyboard.active_keys(verbose=True)
 
                 if type(event_type) is evdev.KeyEvent:
-
-                    # if event_type.scancode in iter(Button): #is a mouse button
-                        # continue
-                        #logger.debug("__flush_events: Button State: {}, Button Code: {}".format(event_type.keystate, event_type.keycode))
-
-                    if event_type.keystate == 1 : #key down
+                    # Mouse buttons arrive as EV_KEY / BTN_* on the mouse device.
+                    # Forward presses to IoMediator so WindowGrabber (and related
+                    # listeners) work under Wayland/uinput — see issue #1189.
+                    mouse_button = self._button_from_keyevent(event_type)
+                    if mouse_button is not None:
+                        if event_type.keystate == 1:  # button down
+                            logger.debug(
+                                "__flush_events: Mouse button %s (keycode=%s)",
+                                mouse_button, event_type.keycode,
+                            )
+                            self.handle_mouseclick(mouse_button, None, None)
+                        # Do not treat BTN_* as keyboard keys below.
+                    elif event_type.keystate == 1 : #key down
                         logger.debug("__flush_events: Key State: {}, Key Code: {}, Scan Code: {}".format(event_type.keystate, event_type.keycode, event_type.scancode))
                         logger.debug("Held: {}".format(held))
                         #logger.debug("Key: {}".format(event_type))
@@ -912,8 +919,53 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         self.sending = False
         #self.keyboard.ungrab()
 
-    def handle_mouseclick(self, clickEvent):
-        self.mediator.handle_mouse_click(clickEvent)
+    def _button_from_keyevent(self, event_type):
+        """
+        Return an Autokey Button enum if this KeyEvent is a mouse button, else None.
+
+        evdev may report mouse buttons as a single name ('BTN_LEFT') or a list
+        such as ['BTN_LEFT', 'BTN_MOUSE'].
+        """
+        keycode = event_type.keycode
+        names = keycode if isinstance(keycode, (list, tuple)) else [keycode]
+        for name in names:
+            if name in self.inv_btn_map:
+                return self.inv_btn_map[name]
+        return None
+
+    @queue_method(queue)
+    def handle_mouseclick(self, button, x=None, y=None):
+        """
+        Forward a mouse button press to IoMediator listeners (e.g. WindowGrabber).
+
+        Mirrors XInterfaceBase.handle_mouseclick: briefly wait so focus can move
+        to the clicked window, then resolve window info via the Wayland window
+        interface (GNOME extension / KWin). On Wayland we cannot query the
+        window *under the pointer* via X11; focused-window-after-click is the
+        best-effort equivalent (see issue #1189).
+        """
+        # Sleep a bit for focus switch timing, same rationale as the X11 path.
+        time.sleep(0.05)
+        window_info = self.mediator.windowInterface.get_window_info()
+
+        if x is None or y is None:
+            try:
+                x, y = self.mouse_location()
+            except Exception:
+                logger.exception("Failed to resolve mouse location for click; using (0, 0)")
+                x, y = 0, 0
+
+        try:
+            rel_x, rel_y = self.relative_mouse_location()
+        except Exception:
+            logger.debug("relative_mouse_location unavailable; using (0, 0)", exc_info=True)
+            rel_x, rel_y = 0, 0
+
+        logger.debug(
+            "UInput mouse click button=%s at (%s, %s) rel=(%s, %s) window=%s",
+            button, x, y, rel_x, rel_y, window_info,
+        )
+        self.mediator.handle_mouse_click(x, y, rel_x, rel_y, button, window_info)
 
     def on_keys_changed(self, ):
         raise NotImplementedError

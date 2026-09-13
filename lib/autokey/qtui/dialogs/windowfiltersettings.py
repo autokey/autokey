@@ -16,7 +16,7 @@
 
 import re
 
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 
 import autokey.iomediator.windowgrabber
 import autokey.model.folder
@@ -80,6 +80,35 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
             self.trigger_regex_line_edit.setText(dlg.get_choice())
 
         self.detect_window_properties_button.setEnabled(True)
+
+    def receive_window_detect_timeout(self, timeout_seconds):
+        """Called from WindowGrabber when no click arrives (issue #1189)."""
+        try:
+            self.parentWidget().window().app.exec_in_main(
+                self._receive_window_detect_timeout, timeout_seconds
+            )
+        except Exception:
+            logger.exception("Failed to marshal window-detect timeout to UI thread")
+            # Best-effort: still try to re-enable the button from this thread.
+            self._receive_window_detect_timeout(timeout_seconds)
+
+    def _receive_window_detect_timeout(self, timeout_seconds):
+        self.detect_window_properties_button.setEnabled(True)
+        QMessageBox.warning(
+            self,
+            "Window detection timed out",
+            (
+                "No window click was detected within {:.0f} seconds.\n\n"
+                "On Wayland, AutoKey observes clicks via the uinput/evdev path and "
+                "reads the focused window afterwards (GNOME Shell extension or KWin). "
+                "If detection keeps failing:\n"
+                "• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin "
+                "scripting works (KDE)\n"
+                "• Click a normal application window (not the overview/lock screen)\n"
+                "• Check that your mouse device is listed in AutoKey's config\n\n"
+                "You can still type a window class/title regex manually."
+            ).format(timeout_seconds),
+        )
 
     # --- Signal handlers ---
 
