@@ -948,18 +948,27 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         time.sleep(0.05)
         window_info = self.mediator.windowInterface.get_window_info()
 
+        # Do not invent (0, 0) when absolute/relative coords are unavailable.
+        # WindowGrabber only needs the button event + focused-window info
+        # (Wayland cannot query the window under the pointer via X11).
         if x is None or y is None:
             try:
                 x, y = self.mouse_location()
             except Exception:
-                logger.exception("Failed to resolve mouse location for click; using (0, 0)")
-                x, y = 0, 0
+                logger.exception(
+                    "Failed to resolve mouse location for click; "
+                    "forwarding button event without invented coordinates"
+                )
+                # leave x/y as None
 
         try:
             rel_x, rel_y = self.relative_mouse_location()
         except Exception:
-            logger.debug("relative_mouse_location unavailable; using (0, 0)", exc_info=True)
-            rel_x, rel_y = 0, 0
+            logger.debug(
+                "relative_mouse_location unavailable; omitting relative coords",
+                exc_info=True,
+            )
+            rel_x, rel_y = None, None
 
         logger.debug(
             "UInput mouse click button=%s at (%s, %s) rel=(%s, %s) window=%s",

@@ -104,8 +104,7 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
                 "If detection keeps failing:\n"
                 "• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin "
                 "scripting works (KDE)\n"
-                "• Click a normal application window (not the overview/lock screen)\n"
-                "• Check that your mouse device is listed in AutoKey's config\n\n"
+                "• Click a normal application window (not the overview/lock screen)\n\n"
                 "You can still type a window class/title regex manually."
             ).format(timeout_seconds),
         )

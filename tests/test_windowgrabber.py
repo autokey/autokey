@@ -49,7 +49,7 @@ _ensure_stub(
 )
 
 from autokey.iomediator.iomediator import IoMediator
-from autokey.iomediator.windowgrabber import WindowGrabber
+from autokey.iomediator.windowgrabber import WindowGrabber, DEFAULT_DETECT_TIMEOUT_SECONDS
 from autokey.model.button import Button
 from autokey.sys_interface.abstract_interface import WindowInfo
 
@@ -169,4 +169,36 @@ def test_uinput_handle_mouseclick_forwards_to_mediator():
 
     ui.mediator.handle_mouse_click.assert_called_once_with(
         100, 200, 5, 6, Button.LEFT, info
+    )
+
+
+def test_default_detect_timeout_is_eight_seconds():
+    """Maintainer feedback on #1208: 15s felt long; keep a named 8s default."""
+    assert DEFAULT_DETECT_TIMEOUT_SECONDS == 8.0
+
+
+def test_uinput_handle_mouseclick_omits_invented_coords_when_location_missing():
+    """Do not invent (0, 0) when abs/rel coords cannot be resolved (#1208 notes)."""
+    import queue as queue_mod
+    UInputInterface = _import_uinput_interface()
+
+    ui = object.__new__(UInputInterface)
+    ui.mediator = MagicMock()
+    info = WindowInfo(wm_title="Code", wm_class="code.Code")
+    ui.mediator.windowInterface.get_window_info.return_value = info
+    ui.mouse_location = MagicMock(side_effect=RuntimeError("no abs"))
+    ui.relative_mouse_location = MagicMock(side_effect=RuntimeError("no rel"))
+
+    while True:
+        try:
+            UInputInterface.queue.get_nowait()
+        except queue_mod.Empty:
+            break
+
+    ui.handle_mouseclick(Button.LEFT, None, None)
+    method, args = UInputInterface.queue.get_nowait()
+    method(*args)
+
+    ui.mediator.handle_mouse_click.assert_called_once_with(
+        None, None, None, None, Button.LEFT, info
     )

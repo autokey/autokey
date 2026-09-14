@@ -25,7 +25,7 @@ SEND_LOCK = threading.Lock()  # TODO: This is never accessed anywhere. Does crea
 # How long to wait for a click before giving up and notifying the dialog.
 # Prevents the silent forever-wait described in issue #1189 when the session
 # cannot observe the click (or window info cannot be resolved).
-DEFAULT_DETECT_TIMEOUT_SECONDS = 15.0
+DEFAULT_DETECT_TIMEOUT_SECONDS = 8.0
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
