@@ -197,7 +197,17 @@ setup(
         'python-xlib',
         'packaging',
         'python-magic',
-        'pyasyncore; python_version>="3.12"'
+        'pyasyncore; python_version>="3.12"',
+        # Required by uinput_interface.py, which is used on Wayland
+        # (both GNOME and KDE) regardless of front end. Neither is
+        # declared here currently, so a fresh `pip install .` on a
+        # system without these already present as system packages
+        # fails at runtime with ModuleNotFoundError as soon as a
+        # Wayland session tries to start the input interface, even
+        # though the install itself appears to succeed. Confirmed live
+        # on a fresh Ubuntu 22.04.5 VM.
+        'evdev',
+        'pyudev',
     ],
     extras_require={
             "QT": [
