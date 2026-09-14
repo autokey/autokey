@@ -251,3 +251,18 @@ class Application(AutokeyApplication, AutokeyUIInterface):
 
     def hide_menu(self):
         self.menu.remove_from_desktop()
+
+    def exec_in_main(self, callback, *args):
+        """
+        Schedule callback to run on the GTK main thread.
+
+        GTK's Wayland clipboard backend hangs when its synchronous
+        clipboard calls (e.g. Gtk.Clipboard.wait_for_text()) are made
+        from a non-main thread -- unlike the Qt front end, whose
+        equivalent exec_in_main() this mirrors, GTK clipboard access
+        must happen on the thread running the GLib main loop. Callers
+        that touch the clipboard from a worker thread (e.g. IoMediator's
+        phrase-paste-via-clipboard path) must go through this method
+        instead of calling directly.
+        """
+        GLib.idle_add(callback, *args)

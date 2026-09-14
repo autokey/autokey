@@ -352,15 +352,21 @@ class IoMediator(threading.Thread):
          keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
          causing a paste operation to happen.
         """
-        if common.USED_UI_TYPE == "QT":
+        if common.USED_UI_TYPE in ("QT", "GTK"):
+            # Both Qt's and GTK's clipboard backends require clipboard
+            # access to happen on the toolkit's main thread -- GTK's
+            # Wayland backend hangs indefinitely otherwise (confirmed
+            # live on a GNOME Wayland session; see exec_in_main() in
+            # gtkapp.py). headless has no toolkit main loop to marshal
+            # onto, so it keeps calling directly below.
             self.app.exec_in_main(self.__send_string_clipboard, string, paste_command)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+        elif common.USED_UI_TYPE == "headless":
             self.__send_string_clipboard(string, paste_command)
 
     def send_string_selection(self, string: str):
-        if common.USED_UI_TYPE == "QT":
+        if common.USED_UI_TYPE in ("QT", "GTK"):
             self.app.exec_in_main(self._send_string_selection, string)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+        elif common.USED_UI_TYPE == "headless":
             self._send_string_selection(string)
 
     def __send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
@@ -382,7 +388,11 @@ class IoMediator(threading.Thread):
         # rather than all of Wayland, since GNOME's lightweight D-Bus
         # extension call has shown no evidence of the same magnitude of
         # delay, and a blanket multi-second stall on every clipboard paste
-        # would be a real regression there.
+        # would be a real regression there. (GNOME Wayland has a separate,
+        # confirmed clipboard-ownership limitation of its own -- see
+        # get_clipboard()'s docstring in clipboard_gtk.py -- but it is a
+        # hard, near-instant compositor rejection, not a timing race, so
+        # this delay would not help it and isn't applied there.)
         if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
             self._wait_responsively(0.5)
         try:
@@ -395,17 +405,20 @@ class IoMediator(threading.Thread):
     def _wait_responsively(self, seconds):
         """
         Wait for the given duration without blocking the UI toolkit's event
-        loop, unlike a plain time.sleep(). This matters specifically for Qt:
-        __send_string_clipboard runs inside a callback dispatched via
-        exec_in_main, which Qt's single-threaded event loop invokes
-        synchronously -- while that callback is running (including inside a
-        time.sleep() call within it), Qt cannot process anything else,
-        including the Wayland socket traffic carrying the compositor's
-        request for AutoKey (as clipboard owner) to hand over the actual
-        clipboard data. A blocking sleep here does not just fail to help;
-        it can make AutoKey unable to answer that exact request during the
-        sleep, which is worse than not delaying at all. Pump the Qt event
-        loop instead so AutoKey stays responsive throughout the wait.
+        loop, unlike a plain time.sleep(). This matters for both Qt and GTK:
+        __send_string_clipboard now runs inside a callback dispatched via
+        exec_in_main on both toolkits' main threads (required so GTK's
+        Wayland clipboard backend doesn't hang -- see gtkapp.py's
+        exec_in_main()), and each toolkit's single-threaded event loop
+        invokes that callback synchronously -- while it is running
+        (including inside a time.sleep() call within it), the toolkit
+        cannot process anything else, including the Wayland socket traffic
+        carrying the compositor's request for AutoKey (as clipboard owner)
+        to hand over the actual clipboard data. A blocking sleep here does
+        not just fail to help; it can make AutoKey unable to answer that
+        exact request during the sleep, which is worse than not delaying
+        at all. Pump the toolkit's event loop instead so AutoKey stays
+        responsive throughout the wait.
         """
         if common.USED_UI_TYPE == "QT":
             from PyQt5.QtCore import QEventLoop
@@ -413,6 +426,14 @@ class IoMediator(threading.Thread):
             deadline = time.time() + seconds
             while time.time() < deadline:
                 QApplication.processEvents(QEventLoop.AllEvents, 50)
+                time.sleep(0.01)
+        elif common.USED_UI_TYPE == "GTK":
+            from gi.repository import GLib
+            context = GLib.MainContext.default()
+            deadline = time.time() + seconds
+            while time.time() < deadline:
+                while context.pending():
+                    context.iteration(False)
                 time.sleep(0.01)
         else:
             time.sleep(seconds)

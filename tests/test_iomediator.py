@@ -22,6 +22,8 @@ from hamcrest import *
 import autokey.iomediator.constants as iomediator_constants
 from autokey.iomediator.iomediator import IoMediator
 import autokey.model.key
+import autokey.common
+from autokey.model.phrase import SendMode
 
 
 def generate_tests_for_key_split_re():
@@ -101,3 +103,44 @@ def test_send_string_modified(inpt: str, result: typing.List[str], mods: typing.
         is_(equal_to(mods)),
         failmsg
     )
+
+
+@pytest.mark.parametrize("ui_type", ["QT", "GTK"])
+def test_send_string_clipboard_marshals_onto_toolkit_main_thread(ui_type):
+    """
+    Regression test for a bug where GTK's clipboard-paste path was called
+    directly on a background thread instead of being marshaled onto the
+    GTK main thread via exec_in_main() -- unlike Qt, which already did
+    this correctly. On a real GNOME Wayland session this caused an
+    indefinite hang, because GTK's Wayland clipboard backend requires its
+    synchronous calls (e.g. Gtk.Clipboard.wait_for_text()) to happen on
+    the thread running the GLib main loop. Both toolkits must route
+    through exec_in_main(); only "headless" (no toolkit main loop to
+    marshal onto) may call directly.
+    """
+    original_ui_type = autokey.common.USED_UI_TYPE
+    autokey.common.USED_UI_TYPE = ui_type
+    try:
+        mediator = IoMediator.__new__(IoMediator)
+        mediator.app = unittest.mock.Mock()
+        mediator.send_string_clipboard("some text", SendMode.CB_CTRL_V)
+        mediator.app.exec_in_main.assert_called_once()
+    finally:
+        autokey.common.USED_UI_TYPE = original_ui_type
+
+
+def test_send_string_clipboard_headless_calls_directly():
+    """headless has no toolkit main loop, so it must not use exec_in_main()."""
+    original_ui_type = autokey.common.USED_UI_TYPE
+    autokey.common.USED_UI_TYPE = "headless"
+    try:
+        mediator = IoMediator.__new__(IoMediator)
+        mediator.app = unittest.mock.Mock()
+        mediator.clipboard = unittest.mock.Mock(text="")
+        mediator.interface = unittest.mock.Mock()
+        with unittest.mock.patch.object(IoMediator, "send_string"), \
+             unittest.mock.patch.object(IoMediator, "_wait_responsively"):
+            mediator.send_string_clipboard("some text", SendMode.CB_CTRL_V)
+        mediator.app.exec_in_main.assert_not_called()
+    finally:
+        autokey.common.USED_UI_TYPE = original_ui_type
