@@ -2,7 +2,12 @@ Contributing
 ============
 When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise. We suggest writing new features on top of develop.
 
-Please add a line to CHANGELOG.rst when creating PRs
+Please add a line to CHANGELOG.rst when creating PRs. Add it as a bullet
+under the "Bug fixes" (or other relevant) heading inside the current
+"Version Develop" section near the top of the file. Don't create a new
+heading for an individual PR, and don't append it to the bottom of the
+file — that's the oldest release, and an entry placed there reads as
+though it shipped over a decade ago.
 
 Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
 
@@ -25,6 +30,18 @@ Tagged releases merged into `develop`, `beta` and `master` will
 automatically be built.
 
 If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
+
+Verification Before Merging
+============================
+Before merging a PR that changes AutoKey's runtime behavior, verify it
+by actually running the affected code path — ideally comparing behavior
+across `master`, `develop`, and the PR branch — rather than relying on
+code review alone. Purely cosmetic changes (comments, dead code, debug
+output, formatting) don't need this level of verification.
+
+If a maintainer has raised an open, unresolved concern on a PR, don't
+merge over it without checking in with them first — either resolve the
+concern together or get their explicit agreement to proceed anyway.
 
 Testing
 =======
