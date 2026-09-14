@@ -26,13 +26,21 @@ class KeyGrabber:
     Keygrabber used by the hotkey settings dialog to grab the key pressed
     """
 
+    #  The mouse click used to press "Record a key combination" is observed
+    #  by AutoKey's own raw-input thread independently of (and racing
+    #  against) the GUI toolkit's click-to-slot delivery that calls start()
+    #  below. If that raw click event is still in flight when this grabber
+    #  registers itself, handle_mouseclick() would otherwise see it as a
+    #  "click elsewhere to cancel" and cancel the recording before the user
+    #  can press anything. Ignore clicks within this grace period instead.
+    CLICK_GRACE_PERIOD = 0.3
+
     def __init__(self, parent):
         self.target_parent = parent
+        self.start_time = 0.0
 
     def start(self):
-        # In QT version, sometimes the mouse click event arrives before we finish initialising
-        # sleep slightly to prevent this
-        time.sleep(0.1)
+        self.start_time = time.time()
         IoMediator.listeners.append(self)
         iomediator.CURRENT_INTERFACE.grab_keyboard()
 
@@ -43,6 +51,8 @@ class KeyGrabber:
             iomediator.CURRENT_INTERFACE.ungrab_keyboard()
 
     def handle_mouseclick(self, root_x, root_y, rel_x, rel_y, button, window_info):
+        if time.time() - self.start_time < self.CLICK_GRACE_PERIOD:
+            return
         IoMediator.listeners.remove(self)
         iomediator.CURRENT_INTERFACE.ungrab_keyboard()
         self.target_parent.cancel_grab()

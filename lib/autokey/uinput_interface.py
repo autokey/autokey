@@ -778,17 +778,30 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
                 if type(event_type) is evdev.KeyEvent:
 
-                    # if event_type.scancode in iter(Button): #is a mouse button
-                        # continue
-                        #logger.debug("__flush_events: Button State: {}, Button Code: {}".format(event_type.keystate, event_type.keycode))
+                    #  Mouse buttons (BTN_LEFT etc.) arrive as EV_KEY events
+                    #  too, but they are not keyboard keys -- route them to
+                    #  the mouse-click handler instead of the keyboard
+                    #  dispatch path. (Previously these fell through
+                    #  translate_to_evdev()'s type checks -- which assumed
+                    #  evdev always hands back a list, when multi-alias
+                    #  codes like BTN_LEFT are actually a tuple -- and
+                    #  silently became a fake keypress for evdev code 0,
+                    #  "KEY_RESERVED".)
+                    keycode = event_type.keycode
+                    keycode_name = keycode[0] if isinstance(keycode, (list, tuple)) else keycode
+                    is_mouse_button = isinstance(keycode_name, str) and keycode_name in self.inv_btn_map
 
                     if event_type.keystate == 1 : #key down
                         logger.debug("__flush_events: Key State: {}, Key Code: {}, Scan Code: {}".format(event_type.keystate, event_type.keycode, event_type.scancode))
                         logger.debug("Held: {}".format(held))
                         #logger.debug("Key: {}".format(event_type))
-                        self.handle_keypress(event)
+                        if not is_mouse_button:
+                            self.handle_keypress(event)
                     elif event_type.keystate == 0: #key up
-                        self.handle_keyrelease(event)
+                        if is_mouse_button:
+                            self.handle_mouseclick(event)
+                        else:
+                            self.handle_keyrelease(event)
                     elif event_type.keystate == 2: # hold event
                         #TODO: handle hold event
                         pass
@@ -913,7 +926,37 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #self.keyboard.ungrab()
 
     def handle_mouseclick(self, clickEvent):
-        self.mediator.handle_mouse_click(clickEvent)
+        keycode = evdev.categorize(clickEvent).keycode
+        keycode_name = keycode[0] if isinstance(keycode, (list, tuple)) else keycode
+        button = self.inv_btn_map.get(keycode_name)
+        if button is None:
+            return
+
+        window_info = self.mediator.windowInterface.get_window_info()
+
+        root_x = root_y = None
+        try:
+            location = self.mouse_location()
+            if location:
+                root_x, root_y = location
+        except Exception:
+            logger.exception("handle_mouseclick: failed to read mouse location")
+
+        #  Best-effort window-relative position. Only KdeWindowInterface
+        #  currently exposes get_active_window() with geometry; fall back to
+        #  the root (screen) coordinates when it's not available.
+        rel_x, rel_y = root_x, root_y
+        get_active_window = getattr(self.mediator.windowInterface, 'get_active_window', None)
+        if get_active_window is not None and root_x is not None:
+            try:
+                window = get_active_window()
+                if window.get('x') is not None and window.get('y') is not None:
+                    rel_x = root_x - window['x']
+                    rel_y = root_y - window['y']
+            except Exception:
+                logger.exception("handle_mouseclick: failed to compute window-relative position")
+
+        self.mediator.handle_mouse_click(root_x, root_y, rel_x, rel_y, button, window_info)
 
     def on_keys_changed(self, ):
         raise NotImplementedError
@@ -1035,16 +1078,16 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         if type(key)==str and "KEY_" in key[:4]: #if it is a "KEY_A" type value return evdev int from map
             # print("Type str")
             return self.inv_map[key], False
-        elif type(key)==list and "BTN_" in key[0][:4]:
-            return self.inv_btn_map[key[0]], False
+        elif isinstance(key, (list, tuple)) and "BTN_" in key[0][:4]:
+            return self.inv_btn_map.get(key[0], 0), False
         elif type(key)==str and "BTN_" in key[:4]:
-            return self.inv_btn_map[key], False
+            return self.inv_btn_map.get(key, 0), False
         elif type(key)==Button:
             return self.btn_map[key]
         elif type(key)==int: #if it is type int it should be a evdev raw value
             # print("Type int")
             return key, False
-        elif len(key)==1:
+        elif isinstance(key, str) and len(key)==1:
             #print("Type single char", key)
             evdev_key = "KEY_"+key.upper()
             if key in self.shifted_chars:
@@ -1079,8 +1122,8 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #TODO handle special keys like backslash etc.
         code, shifted_ = self.translate_to_evdev(keyCode[0])
         evdev_name = e.keys[code]
-        # for mouse buttons this returns a list like ['BTN_LEFT', 'BTN_MOUSE']
-        if type(evdev_name) is list:
+        # for mouse buttons this returns a tuple like ('BTN_LEFT', 'BTN_MOUSE')
+        if isinstance(evdev_name, (list, tuple)):
             evdev_name = evdev_name[0]
         # modifiers
         if evdev_name in self.uinput_modifiers_to_ak_map:
