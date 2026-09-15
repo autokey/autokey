@@ -19,52 +19,86 @@
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
      </property>
-     <widget class="AkTreeWidget" name="treeWidget">
+     <widget class="QWidget" name="treePane">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
-      <property name="contextMenuPolicy">
-       <enum>Qt::CustomContextMenu</enum>
-      </property>
-      <property name="dragEnabled">
-       <bool>true</bool>
-      </property>
-      <property name="dragDropMode">
-       <enum>QAbstractItemView::InternalMove</enum>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::ExtendedSelection</enum>
-      </property>
-      <property name="animated">
-       <bool>true</bool>
-      </property>
-      <property name="headerHidden">
-       <bool>false</bool>
-      </property>
-      <property name="columnCount">
-       <number>3</number>
-      </property>
-      <attribute name="headerVisible">
-       <bool>true</bool>
-      </attribute>
-      <column>
-       <property name="text">
-        <string>Name</string>
+      <layout class="QVBoxLayout" name="treePaneLayout">
+       <property name="leftMargin">
+        <number>0</number>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Abbr.</string>
+       <property name="topMargin">
+        <number>0</number>
        </property>
-      </column>
-      <column>
-       <property name="text">
-        <string>Hotkey</string>
+       <property name="rightMargin">
+        <number>0</number>
        </property>
-      </column>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="AkTreeWidget" name="treeWidget">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::CustomContextMenu</enum>
+         </property>
+         <property name="dragEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="dragDropMode">
+          <enum>QAbstractItemView::InternalMove</enum>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::ExtendedSelection</enum>
+         </property>
+         <property name="animated">
+          <bool>true</bool>
+         </property>
+         <property name="headerHidden">
+          <bool>false</bool>
+         </property>
+         <property name="columnCount">
+          <number>3</number>
+         </property>
+         <attribute name="headerVisible">
+          <bool>true</bool>
+         </attribute>
+         <column>
+          <property name="text">
+           <string>Name</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Abbr.</string>
+          </property>
+         </column>
+         <column>
+          <property name="text">
+           <string>Hotkey</string>
+          </property>
+         </column>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="filterSearch">
+         <property name="placeholderText">
+          <string>Search name, abbr. and hotkey…</string>
+         </property>
+         <property name="clearButtonEnabled">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QStackedWidget" name="stack">
       <property name="sizePolicy">
