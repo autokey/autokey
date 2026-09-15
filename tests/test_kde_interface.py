@@ -213,6 +213,26 @@ class TestKdeWindowInterface(unittest.TestCase):
         self.assertEqual(info.wm_title, '')
         self.assertEqual(info.wm_class, '')
 
+    def test_get_active_window_handles_empty_desktops_list(self):
+        # Regression test: KWin reports an empty 'desktops' list for a
+        # window pinned to appear on all desktops. get_active_window()
+        # used to index desktops[0] unconditionally and crash with
+        # IndexError -- confirmed live on Plasma 6.6.6, where this is
+        # called from uinput_interface.py's handle_keypress() on every
+        # keystroke, producing well over a hundred crashes within seconds
+        # of ordinary use while such a window was focused.
+        w = _fake_window(title='Plank', cls='plank', desktops=[])
+        desk = _fake_desktop()
+        kwin = _make_kwin_interface(response_data=[['get_active_window', [w, desk]]])
+        iface = _make_window_interface(kwin)
+
+        result = iface.get_active_window()
+
+        self.assertEqual(result['wm_title'], 'Plank')
+        self.assertEqual(result['workspace'], -1)
+        self.assertEqual(result['desktop'], desk['id'])
+        self.assertTrue(result['in_current_workspace'])
+
     def test_get_window_list_filters_desktop_windows(self):
         desk = _fake_desktop()
         real_win = _fake_window(title='Konsole', cls='konsole')

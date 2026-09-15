@@ -444,17 +444,32 @@ class KdeWindowInterface(AbstractWindowInterface):
         result = self.kwin.run(kwin_script, script_name='get_active_window', response_expected=True)
         if result and result[0]:
             window = result[0]
-            in_current_workspace = False
-            for desktop in window['desktops']:
-                if desktop['id'] == result[1]['id']:
-                    in_current_workspace = True
-                    break
+            # window['desktops'] can legitimately be empty -- KWin reports
+            # no assigned desktops for a window pinned to appear on all
+            # desktops. Confirmed live on Plasma 6.6.6: indexing [0]
+            # unconditionally here crashed on every keypress while such a
+            # window was focused (get_active_window() is called from
+            # uinput_interface.py's handle_keypress() on every keystroke,
+            # not just explicit window.* API calls), producing well over a
+            # hundred IndexErrors within seconds of ordinary use. Treat an
+            # empty list the same way as "on all desktops": visible in
+            # whatever the current workspace is, with no specific X11
+            # desktop number to report.
+            desktops = window['desktops']
+            in_current_workspace = any(desktop['id'] == result[1]['id'] for desktop in desktops)
+            if desktops:
+                workspace_number = desktops[0]['x11DesktopNumber'] - 1
+                desktop_id = desktops[0]['id']
+            else:
+                workspace_number = -1
+                desktop_id = result[1]['id']
+                in_current_workspace = True
             active_window = {
                 'wm_class': window['resourceClass'],
                 'wm_class_instance': window['resourceClass'],
                 'wm_title': window['caption'],
-                'workspace': window['desktops'][0]['x11DesktopNumber'] - 1,
-                'desktop': window['desktops'][0]['id'],
+                'workspace': workspace_number,
+                'desktop': desktop_id,
                 'pid': window['pid'],
                 'id': window['internalId'],
                 'frame_type': None,
