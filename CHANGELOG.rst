@@ -24,6 +24,7 @@ PR #1076 Changes
 Important misc changes
 ----------------------
 - Bump action versions in pages.yml to satisfy part of issue #963.
+- Fix KDE Wayland window property queries by keeping the KWin response payload in scope for the D-Bus callback.
 - Bump action versions in build.yml to satisfy part of issue #963.
 - Bump action versions in python-test.yml to satisfy part of issue #963.
 - Bump Python version in build.yml to satisfy part of issue #964.
