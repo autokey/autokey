@@ -20,6 +20,7 @@ from gi.repository import Gtk, Gdk
 
 from pathlib import Path
 
+import autokey.common
 from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -50,6 +51,35 @@ class GtkClipboard(AbstractClipboard):
         """
         Refers to the application instance
         """
+        self._gnome_clipboard_interface = None
+        """
+        Lazily-created connection to the AutoKey GNOME Shell extension's
+        SetClipboardText D-Bus method. Only used on GNOME Wayland -- see
+        _use_gnome_extension_for_clipboard_set().
+        """
+
+    def _use_gnome_extension_for_clipboard_set(self) -> bool:
+        """
+        On GNOME Wayland, GTK's own clipboard-set call is a normal Wayland
+        client request that Mutter rejects outright: AutoKey is a background
+        daemon with no focused surface of its own when a hotkey fires in
+        another application, so it has no input-event serial to offer, and
+        Gtk.Clipboard.set_text() silently has no effect (confirmed live via
+        WAYLAND_DEBUG=1 tracing -- wl_data_device.set_selection() called with
+        serial 0, cancelled by the compositor immediately). The AutoKey GNOME
+        Shell extension can set the clipboard on our behalf instead, because
+        the Shell is the compositor, not an ordinary client, and does not
+        need to make that same claim. KDE's Qt-based clipboard does not have
+        this problem (confirmed live on Plasma 6.6.6), so this only applies
+        to GNOME.
+        """
+        return autokey.common.SESSION_TYPE == "wayland" and autokey.common.DESKTOP != "KDE"
+
+    def _get_gnome_clipboard_interface(self):
+        if self._gnome_clipboard_interface is None:
+            from autokey.gnome_interface import GnomeClipboardInterface
+            self._gnome_clipboard_interface = GnomeClipboardInterface()
+        return self._gnome_clipboard_interface
 
     def fill_selection(self, contents):
         """
@@ -95,23 +125,26 @@ class GtkClipboard(AbstractClipboard):
 
         :param contents: string to be placed in the selection
 
-        KNOWN LIMITATION on GNOME Wayland: this call does not reliably
-        take effect. Confirmed live via WAYLAND_DEBUG=1 tracing: GTK's
-        Wayland clipboard backend calls wl_data_device.set_selection()
-        with a serial of 0 (no real input-event serial available, since
-        AutoKey is a background daemon with no focused surface of its
-        own when a hotkey fires in some other application), and Mutter
-        immediately cancels the resulting wl_data_source. The call
-        raises no exception and logs no error -- the clipboard is
-        simply left unchanged. A phrase using SendMode.CB_CTRL_V (the
-        default paste mode) will silently paste whatever was already on
-        the clipboard from some other, legitimate source, not the
-        phrase's own content. No fix is implemented yet; a real one
-        likely requires setting the clipboard through something that
-        does have standing with the compositor, e.g. AutoKey's own GNOME
-        Shell extension (which already has privileged D-Bus access for
-        window management) rather than through this GTK API directly.
+        On GNOME Wayland specifically, this is routed through the AutoKey
+        GNOME Shell extension's SetClipboardText D-Bus method instead of
+        GTK's own Gtk.Clipboard.set_text(). GTK's Wayland clipboard backend
+        calls wl_data_device.set_selection() with a serial of 0 (no real
+        input-event serial available, since AutoKey is a background daemon
+        with no focused surface of its own when a hotkey fires in some
+        other application), and Mutter immediately cancels the resulting
+        wl_data_source -- confirmed live via WAYLAND_DEBUG=1 tracing. The
+        Shell itself is not an ordinary Wayland client and does not need to
+        make that same claim, so setting the clipboard from inside the
+        extension avoids the rejection entirely. See
+        _use_gnome_extension_for_clipboard_set() and
+        GnomeClipboardInterface in gnome_interface.py. KDE's Qt-based
+        clipboard does not have this problem (confirmed live on Plasma
+        6.6.6), so this path is GNOME-only; X11 and headless are
+        unaffected either way.
         """
+        if self._use_gnome_extension_for_clipboard_set():
+            self._get_gnome_clipboard_interface().set_clipboard_text(contents)
+            return
         Gdk.threads_enter()
         if Gtk.get_major_version() >= 3:
             self._clipboard.set_text(contents, -1)

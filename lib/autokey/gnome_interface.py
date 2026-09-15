@@ -28,6 +28,22 @@ class GnomeMouseReadInterface(DBusInterface):
         [x, y] = self.dbus_interface.GetMouseLocation()
         return [int(x), int(y)]
 
+class GnomeClipboardInterface(DBusInterface):
+    """
+    Sets the clipboard through the AutoKey GNOME Shell extension instead of
+    directly through GTK/GDK. On GNOME Wayland, GTK's own clipboard-set call
+    is a normal Wayland client request that Mutter rejects outright (no
+    input-event serial to offer, since AutoKey is a background daemon with
+    no focused surface of its own when a hotkey fires in another app). The
+    Shell is the compositor itself, not an ordinary client, so setting the
+    clipboard from inside the extension does not hit that rejection.
+    """
+    def __init__(self):
+        super().__init__()
+
+    def set_clipboard_text(self, text: str):
+        self.dbus_interface.SetClipboardText(text)
+
 class GnomeExtensionWindowInterface(DBusInterface, AbstractWindowInterface):
     def __init__(self):
         super().__init__()

@@ -105,6 +105,55 @@ def  test_gtk_clipboard():
     # )
 
 
+def test_gtk_clipboard_routes_through_gnome_extension_on_gnome_wayland():
+    """
+    Regression test for a bug where GtkClipboard.fill_clipboard() always
+    called Gtk.Clipboard.set_text() directly, which GNOME's Wayland
+    compositor silently rejects for a background daemon like AutoKey (no
+    input-event serial to offer -- confirmed live via WAYLAND_DEBUG=1
+    tracing). On GNOME Wayland specifically, fill_clipboard() must instead
+    call the AutoKey GNOME Shell extension's SetClipboardText D-Bus method,
+    since the Shell itself is not an ordinary Wayland client and does not
+    hit that rejection.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "GNOME"
+        clipboard = api.clipboard_gtk.GtkClipboard.__new__(api.clipboard_gtk.GtkClipboard)
+        clipboard._gnome_clipboard_interface = unittest.mock.Mock()
+        clipboard.fill_clipboard("test contents")
+        clipboard._gnome_clipboard_interface.set_clipboard_text.assert_called_once_with("test contents")
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_gtk_clipboard_does_not_use_gnome_extension_on_kde_or_x11():
+    """
+    KDE's Qt-based clipboard does not have GNOME's rejection problem
+    (confirmed live on Plasma 6.6.6), and X11 never had it either -- only
+    GNOME Wayland should route through the Shell extension.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        for session_type, desktop in [("wayland", "KDE"), ("x11", "GNOME"), (None, "")]:
+            autokey.common.SESSION_TYPE = session_type
+            autokey.common.DESKTOP = desktop
+            clipboard = api.clipboard_gtk.GtkClipboard.__new__(api.clipboard_gtk.GtkClipboard)
+            hm.assert_that(
+                clipboard._use_gnome_extension_for_clipboard_set(),
+                hm.equal_to(False),
+                "Should not use the GNOME extension for session_type={!r}, desktop={!r}".format(
+                    session_type, desktop)
+            )
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
 def  test_qt_clipboard():
     # Without a gtkapp, this clipboard does not work.
     # This test is purely to test the code path has no syntax errors.
