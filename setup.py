@@ -111,10 +111,86 @@ class BuildWithQtResources(setuptools.command.build_py.build_py):
             shutil.copy(str(icon), str(target_directory))
 
 
+def ensure_gnome_shell_extension_zip() -> str:
+    """
+    Build the AutoKey GNOME Shell extension zip via its Makefile if it
+    doesn't already exist, and return its path if available (empty string
+    otherwise).
+
+    Previously, `data_files` referenced this zip unconditionally, which
+    meant a plain `pip install .` on a clean checkout failed outright with
+    "can't copy ...: doesn't exist or not a regular file" unless a
+    developer remembered to run `make -C autokey-gnome-extension` first --
+    confirmed live, and confirmed to affect KDE-targeted installs
+    (`pip install .[QT]`) exactly the same way, despite KDE never using
+    this extension at all. Build it automatically here instead. If that
+    fails for any reason (e.g. `zip` or `make` not installed), warn and
+    proceed without it rather than aborting the whole install -- the
+    extension is only needed for GNOME Wayland, and users on that path
+    already get a popup from wayland_checks.py at runtime if it's missing.
+    """
+    # setup() requires data_files entries to be relative to the setup.py
+    # directory, not absolute -- keep the relative form for the return
+    # value, while still using an absolute path (robust to the caller's
+    # cwd) to actually check for and build the file.
+    relative_zip_path = "autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip"
+    extension_dir = Path(__file__).parent / "autokey-gnome-extension"
+    absolute_zip_path = Path(__file__).parent / relative_zip_path
+    if not absolute_zip_path.exists():
+        try:
+            subprocess.run(["make"], cwd=str(extension_dir), check=True)
+        except Exception as e:
+            warnings.warn(
+                "Could not build the AutoKey GNOME Shell extension zip ({}). "
+                "Continuing without it -- GNOME Wayland users will need to "
+                "build and install it manually; see autokey-gnome-extension/README.md.".format(e)
+            )
+            return ""
+    return relative_zip_path if absolute_zip_path.exists() else ""
+
+
 ak_metadata = extract_autokey_metadata()
 this_directory = PurePath(__file__).parent
 with open(this_directory / 'README.rst', encoding='utf-8') as f:
     long_description = f.read()
+
+gnome_shell_extension_zip = ensure_gnome_shell_extension_zip()
+
+data_files_list = [
+    ('share/icons/hicolor/scalable/apps',
+     ['config/autokey.svg',
+      'config/autokey-status.svg',
+      'config/autokey-status-dark.svg',
+      'config/autokey-status-error.svg']),
+    ('share/icons/hicolor/96x96/apps',  # TODO: Remove later. https://github.com/autokey/autokey/issues/160
+     ['config/autokey.png']),
+    ('share/icons/Humanity/scalable/apps',
+     ['config/Humanity/autokey-status.svg',
+      'config/Humanity/autokey-status-error.svg']),
+    ('share/icons/ubuntu-mono-dark/apps/48',
+     ['config/ubuntu-mono-dark/autokey-status.svg',
+      'config/ubuntu-mono-dark/autokey-status-error.svg']),
+    ('share/icons/ubuntu-mono-light/apps/48',
+     ['config/ubuntu-mono-light/autokey-status.svg',
+      'config/ubuntu-mono-light/autokey-status-error.svg']),
+    ('share/applications',
+     ['config/autokey-qt.desktop',
+      'config/autokey-gtk.desktop']),
+    ('share/man/man1/',
+     ['doc/man/autokey-qt.1',
+      'doc/man/autokey-gtk.1',
+      'doc/man/autokey-run.1']),
+    ('share/autokey/uinput-udev-rule/',
+     ['config/10-autokey.rules']),
+]
+if gnome_shell_extension_zip:
+    # Only included if the zip could be built (or already existed) --
+    # see ensure_gnome_shell_extension_zip(). Missing it should not block
+    # installation, e.g. on KDE, which never uses it, or if `make`/`zip`
+    # aren't available.
+    data_files_list.append(
+        ('share/autokey/gnome-shell-extension/', [gnome_shell_extension_zip])
+    )
 
 setup(
     name='autokey',
@@ -152,34 +228,7 @@ setup(
             'resources/ui/*.ui'],
         'autokey.gtkui': ['data/*'],
         },
-    data_files=[('share/icons/hicolor/scalable/apps',
-                 ['config/autokey.svg',
-                  'config/autokey-status.svg',
-                  'config/autokey-status-dark.svg',
-                  'config/autokey-status-error.svg']),
-                ('share/icons/hicolor/96x96/apps',  # TODO: Remove later. https://github.com/autokey/autokey/issues/160
-                 ['config/autokey.png']),
-                ('share/icons/Humanity/scalable/apps',
-                 ['config/Humanity/autokey-status.svg',
-                  'config/Humanity/autokey-status-error.svg']),
-                ('share/icons/ubuntu-mono-dark/apps/48',
-                 ['config/ubuntu-mono-dark/autokey-status.svg',
-                  'config/ubuntu-mono-dark/autokey-status-error.svg']),
-                ('share/icons/ubuntu-mono-light/apps/48',
-                 ['config/ubuntu-mono-light/autokey-status.svg',
-                  'config/ubuntu-mono-light/autokey-status-error.svg']),
-                ('share/applications',
-                 ['config/autokey-qt.desktop',
-                  'config/autokey-gtk.desktop']),
-                ('share/man/man1/',
-                 ['doc/man/autokey-qt.1',
-                  'doc/man/autokey-gtk.1',
-                  'doc/man/autokey-run.1']),
-                ('share/autokey/gnome-shell-extension/',
-                 ['autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip']),
-                ('share/autokey/uinput-udev-rule/',
-                 ['config/10-autokey.rules'])
-                ],
+    data_files=data_files_list,
     entry_points={
         'console_scripts': [
             'autokey-gtk=autokey.gtkui.__main__:main',
