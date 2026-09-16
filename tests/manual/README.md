@@ -53,3 +53,43 @@ testing a mouse-automation script driving AutoKey:
 
 On-screen counters and a brief flash on each target also give quick
 visual confirmation during manual testing.
+
+## gopher_hunt.py / gopher.png
+
+A "whack-a-mole" style target for testing AutoKey's image-matching
+scripting API (`autokey.scripting.highlevel`: `visgrep`/`click_on_pat`,
+which wrap xautomation's `xte`/`visgrep` and imagemagick's `xwd` — X11
+only, does not work under Wayland). A gopher sprite (`gopher.png`)
+appears at a random position on a canvas; an AutoKey script is
+expected to locate it on screen by image match and click it:
+
+```
+python3 tests/manual/gopher_hunt.py [gopher.png] [logfile]
+```
+
+`gopher.png` defaults to the file next to the script; `logfile`
+defaults to `/tmp/gopher-hunt.log` (JSON lines, one per spawn/hit/miss
+event, each with a timestamp). A hit increments the score and moves
+the gopher to a new random position; a miss decrements the score and
+leaves it where it is. Press Escape while the window is focused to
+reset the score and log.
+
+Example AutoKey script exercising it (`highlevel` is injected directly
+into script scope like `mouse`/`window` — no `import` needed):
+
+```python
+import time
+
+for i in range(20):
+    try:
+        highlevel.click_on_pat("/tmp/gopher.png", mousebutton=highlevel.LEFT)
+    except highlevel.PatternNotFound:
+        pass
+    time.sleep(0.05)
+```
+
+Each logged hit's `elapsed` field (seconds since that round's gopher
+spawned) measures how fast a real find-and-click automation loop runs
+end to end, dominated by the `xwd`/`convert`/`visgrep` subprocess
+chain — useful for judging whether image-matching automation is fast
+enough for a given use case before committing a real script to it.
