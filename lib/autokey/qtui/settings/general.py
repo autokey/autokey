@@ -15,8 +15,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QComboBox
+from qtpy.QtCore import Qt
+from qtpy.QtWidgets import QWidget, QComboBox
 
 
 import autokey.configmanager.autostart

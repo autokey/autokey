@@ -16,8 +16,8 @@
 
 from typing import Optional, Callable, TYPE_CHECKING
 
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QSystemTrayIcon, QAction, QMenu
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QSystemTrayIcon, QAction, QMenu
 
 from autokey.qtui import popupmenu
 import autokey.qtui.common as ui_common

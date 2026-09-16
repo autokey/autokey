@@ -16,9 +16,9 @@
 
 from typing import List, Union
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QIcon
-from PyQt5.QtWidgets import QMenu, QAction, QWidget
+from qtpy.QtCore import Qt, Signal as pyqtSignal
+from qtpy.QtGui import QIcon
+from qtpy.QtWidgets import QMenu, QAction, QWidget
 
 
 import autokey.configmanager.configmanager as cm

@@ -12,7 +12,7 @@ import gettext
 gettext.install("autokey")
 
 if common.USED_UI_TYPE == "QT":
-    from PyQt5.QtWidgets import QAction
+    from qtpy.QtWidgets import QAction
 
     def _(text: str, args: tuple=None):
         """localisation function, currently returns the identity. If args are given, those are used to format

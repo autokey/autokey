@@ -19,11 +19,11 @@ import pathlib
 import enum
 import functools
 
-from PyQt5.QtCore import QFile, QSize
-from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor, QFontDatabase
-from PyQt5.QtWidgets import QMessageBox, QLabel
-from PyQt5 import uic
-from PyQt5.QtSvg import QSvgRenderer
+from qtpy.QtCore import QFile, QSize
+from qtpy.QtGui import QFont, QIcon, QPixmap, QPainter, QColor, QFontDatabase
+from qtpy.QtWidgets import QMessageBox, QLabel
+from qtpy import uic
+from qtpy.QtSvg import QSvgRenderer
 
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.logger import get_logger

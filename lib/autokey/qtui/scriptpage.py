@@ -17,8 +17,8 @@
 import os.path
 import subprocess
 
-from PyQt5 import Qsci
-from PyQt5.QtWidgets import QMessageBox
+from qtpy import Qsci
+from qtpy.QtWidgets import QMessageBox
 
 import autokey.model.script
 from autokey.qtui import common as ui_common

@@ -19,10 +19,13 @@ import faulthandler
 
 faulthandler.enable()
 
-from PyQt5 import QtCore
+from qtpy import QtCore
 from autokey.qtapp import Application
 
-QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+try:
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)
+except AttributeError:
+    pass  # Qt6: AA_X11InitThreads was removed; threading is always initialized
 
 # remove WINDOWID environment variable so that zenity is not tied to the window from which it was launched.
 try:

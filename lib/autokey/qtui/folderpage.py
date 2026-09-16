@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import subprocess
 
-from PyQt5.QtWidgets import QMessageBox
+from qtpy.QtWidgets import QMessageBox
 
 import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.qtui.common as ui_common

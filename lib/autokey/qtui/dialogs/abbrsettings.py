@@ -19,8 +19,8 @@ This module contains the abbreviation settings dialog and used components.
 This dialog allows the user to set and configure abbreviations to trigger scripts and phrases.
 """
 
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QListWidgetItem, QDialogButtonBox
+from qtpy import QtCore
+from qtpy.QtWidgets import QListWidgetItem, QDialogButtonBox
 
 import autokey.model.folder
 import autokey.model.helpers
