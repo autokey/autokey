@@ -388,7 +388,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
-        self.move_cursor(xCoord, yCoord, relative)
+        self._move_cursor_now(xCoord, yCoord, relative)
 
         keycode = self.btn_map[button][0]
         scancode = self.btn_map[button][1]
@@ -400,34 +400,39 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         # whose press/move/release sequence naturally has real elapsed
         # time between press and release. These delays give the input
         # stack time to process each event before the next one arrives.
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 1)
         self.syn_raw()
 
-        time.sleep(0.1)
+        time.sleep(0.2)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 0)
         self.syn_raw()
 
     @queue_method(queue)
     def mouse_press(self, xCoord, yCoord, button):
-        self.move_cursor(xCoord, yCoord)
+        self._move_cursor_now(xCoord, yCoord)
 
         keycode = self.btn_map[button][0]
         scancode = self.btn_map[button][1]
 
+        # Same settling delay as send_mouse_click(): a button-down
+        # written immediately after the cursor arrives (no elapsed time
+        # at all) can be silently dropped by the compositor.
+        time.sleep(0.2)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 1)
         self.syn_raw()
 
     @queue_method(queue)
     def mouse_release(self, xCoord, yCoord, button):
-        self.move_cursor(xCoord, yCoord)
+        self._move_cursor_now(xCoord, yCoord)
 
         keycode = self.btn_map[button][0]
         scancode = self.btn_map[button][1]
 
+        time.sleep(0.2)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 0)
         self.syn_raw()
@@ -463,6 +468,19 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
     @queue_method(queue)
     def move_cursor(self, xCoord, yCoord, relative=False, relative_self=False):
+        self._move_cursor_now(xCoord, yCoord, relative, relative_self)
+
+    def _move_cursor_now(self, xCoord, yCoord, relative=False, relative_self=False):
+        # Not queue_method-decorated: this does the actual, blocking
+        # cursor walk. move_cursor() is queued (so external/script
+        # calls don't run on the caller's thread), but callers already
+        # running as a queued method (send_mouse_click(), mouse_press(),
+        # mouse_release()) must call this directly instead of
+        # self.move_cursor() -- calling the queued version from inside
+        # an already-dequeued method doesn't block for the move, it just
+        # re-enqueues a new task and returns immediately, so the caller's
+        # own write() calls would fire using the cursor's stale, pre-move
+        # position while the real move only happens afterward, too late.
         #TODO implement relative
         if relative or relative_self:
             raise NotImplementedError
