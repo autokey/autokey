@@ -393,10 +393,19 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         keycode = self.btn_map[button][0]
         scancode = self.btn_map[button][1]
 
+        # A button-down immediately followed by button-up, with no
+        # settling time after the cursor move or between the two, was
+        # confirmed to be silently dropped (not registered as a click at
+        # all) by a real GNOME Wayland session -- unlike select_area(),
+        # whose press/move/release sequence naturally has real elapsed
+        # time between press and release. These delays give the input
+        # stack time to process each event before the next one arrives.
+        time.sleep(0.1)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 1)
         self.syn_raw()
 
+        time.sleep(0.1)
         self.ui.write(e.EV_MSC, e.MSC_SCAN, scancode)
         self.ui.write(e.EV_KEY, keycode, 0)
         self.syn_raw()
