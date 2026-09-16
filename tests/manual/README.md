@@ -5,6 +5,17 @@ Scripts here are for testing AutoKey against a real desktop session
 the pytest suite in `tests/` can't exercise, since it has no real
 compositor, clipboard owner, or input device.
 
+**Keep the target window on top and unobstructed before triggering a
+test.** These tools interact with real screen coordinates, not a
+specific window handle — if another window (AutoKey's own config
+window included) overlaps the target, a click can land on whatever is
+actually on top instead, and `gopher_hunt.py` specifically can miss
+entirely: it works by screenshotting the whole screen, so a sprite
+hidden behind another window is invisible to it and every round comes
+back not-found, not just misdirected. Bring the target window to the
+front (`wmctrl -a "<title>"` or equivalent) immediately before each
+run, not just once at the start of a session.
+
 ## paste_probe.py
 
 A small Tk window that mirrors its text content to a file on every
