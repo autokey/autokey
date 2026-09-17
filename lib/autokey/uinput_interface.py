@@ -778,17 +778,9 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
                 if type(event_type) is evdev.KeyEvent:
                     # Mouse buttons arrive as EV_KEY / BTN_* on the mouse device.
-                    # Forward presses to IoMediator so WindowGrabber (and related
-                    # listeners) work under Wayland/uinput — see issue #1189.
-                    mouse_button = self._button_from_keyevent(event_type)
-                    if mouse_button is not None:
-                        if event_type.keystate == 1:  # button down
-                            logger.debug(
-                                "__flush_events: Mouse button %s (keycode=%s)",
-                                mouse_button, event_type.keycode,
-                            )
-                            self.handle_mouseclick(mouse_button, None, None)
-                        # Do not treat BTN_* as keyboard keys below.
+                    # Forward presses; swallow releases (see _consume_mouse_button_event).
+                    if self._consume_mouse_button_event(event_type):
+                        pass  # consumed as mouse button — do not treat as keyboard
                     elif event_type.keystate == 1 : #key down
                         logger.debug("__flush_events: Key State: {}, Key Code: {}, Scan Code: {}".format(event_type.keystate, event_type.keycode, event_type.scancode))
                         logger.debug("Held: {}".format(held))
@@ -918,6 +910,30 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         pass
         self.sending = False
         #self.keyboard.ungrab()
+
+
+    def _consume_mouse_button_event(self, event_type):
+        """
+        Handle EV_KEY mouse-button events for WindowGrabber / IoMediator.
+
+        Returns True if this was a BTN_* event (consumed), else False so the
+        caller can treat it as a normal keyboard KeyEvent.
+
+        Button *down* (keystate == 1) is forwarded via handle_mouseclick.
+        Button *up* / hold are intentionally swallowed: the old fallthrough to
+        handle_keyrelease → mediator.handle_keypress produced garbage rather
+        than useful release handling (#1189 / #1208 review, option a).
+        """
+        mouse_button = self._button_from_keyevent(event_type)
+        if mouse_button is None:
+            return False
+        if event_type.keystate == 1:  # button down
+            logger.debug(
+                "__flush_events: Mouse button %s (keycode=%s)",
+                mouse_button, event_type.keycode,
+            )
+            self.handle_mouseclick(mouse_button, None, None)
+        return True
 
     def _button_from_keyevent(self, event_type):
         """

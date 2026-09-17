@@ -82,14 +82,17 @@ def test_windowgrabber_timeout_notifies_dialog():
     grabber = WindowGrabber(dialog, timeout_seconds=0.05)
     grabber.start()
 
+    # Wait on the dialog callback itself — cancel() removes the grabber from
+    # listeners *before* calling receive_window_detect_timeout, so polling
+    # list membership races the assertion (#1208 chrislee35 review).
     deadline = time.time() + 2.0
-    while grabber in IoMediator.listeners and time.time() < deadline:
+    while not dialog.receive_window_detect_timeout.called and time.time() < deadline:
         time.sleep(0.01)
 
-    assert grabber not in IoMediator.listeners
     dialog.receive_window_detect_timeout.assert_called_once()
     (timeout_arg,) = dialog.receive_window_detect_timeout.call_args[0]
     assert timeout_arg == pytest.approx(0.05)
+    assert grabber not in IoMediator.listeners
     dialog.receive_window_info.assert_not_called()
 
 
@@ -144,6 +147,73 @@ def test_uinput_button_from_keyevent_helpers():
 
     event.keycode = "KEY_A"
     assert helper._button_from_keyevent(event) is None
+
+
+def test_uinput_mouse_button_up_is_swallowed():
+    """BTN_* release must not fall through to handle_keyrelease (#1208).
+
+    Previously a button-up hit handle_keyrelease → mediator.handle_keypress
+    with garbage. Keep the intentional swallow and document it here.
+    """
+    UInputInterface = _import_uinput_interface()
+
+    ui = object.__new__(UInputInterface)
+    ui.handle_mouseclick = MagicMock()
+    ui.handle_keypress = MagicMock()
+    ui.handle_keyrelease = MagicMock()
+    ui.inv_btn_map = {
+        "BTN_LEFT": Button.LEFT,
+        "BTN_RIGHT": Button.RIGHT,
+        "BTN_MIDDLE": Button.MIDDLE,
+    }
+
+    event_type = MagicMock()
+    event_type.keycode = "BTN_LEFT"
+    event_type.keystate = 0  # button up
+
+    consumed = ui._consume_mouse_button_event(event_type)
+    assert consumed is True
+    ui.handle_mouseclick.assert_not_called()
+    ui.handle_keyrelease.assert_not_called()
+    ui.handle_keypress.assert_not_called()
+
+
+def test_uinput_mouse_button_down_forwards_via_consume_helper():
+    UInputInterface = _import_uinput_interface()
+
+    ui = object.__new__(UInputInterface)
+    ui.handle_mouseclick = MagicMock()
+    ui.inv_btn_map = {
+        "BTN_LEFT": Button.LEFT,
+        "BTN_RIGHT": Button.RIGHT,
+        "BTN_MIDDLE": Button.MIDDLE,
+    }
+
+    event_type = MagicMock()
+    event_type.keycode = "BTN_RIGHT"
+    event_type.keystate = 1  # button down
+
+    assert ui._consume_mouse_button_event(event_type) is True
+    ui.handle_mouseclick.assert_called_once_with(Button.RIGHT, None, None)
+
+
+def test_uinput_non_mouse_keyevent_not_consumed_as_button():
+    UInputInterface = _import_uinput_interface()
+
+    ui = object.__new__(UInputInterface)
+    ui.handle_mouseclick = MagicMock()
+    ui.inv_btn_map = {
+        "BTN_LEFT": Button.LEFT,
+        "BTN_RIGHT": Button.RIGHT,
+        "BTN_MIDDLE": Button.MIDDLE,
+    }
+
+    event_type = MagicMock()
+    event_type.keycode = "KEY_A"
+    event_type.keystate = 0
+
+    assert ui._consume_mouse_button_event(event_type) is False
+    ui.handle_mouseclick.assert_not_called()
 
 
 def test_uinput_handle_mouseclick_forwards_to_mediator():

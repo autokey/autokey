@@ -718,7 +718,7 @@ class WindowFilterSettingsDialog(DialogBase):
             self.detectButton.set_sensitive(True)
             md = Gtk.MessageDialog(
                 transient_for=self.ui,
-                flags=0,
+                flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
                 message_type=Gtk.MessageType.WARNING,
                 buttons=Gtk.ButtonsType.OK,
                 text="Window detection timed out",
