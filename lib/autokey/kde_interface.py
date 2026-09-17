@@ -596,11 +596,12 @@ class KdeWindowInterface(AbstractWindowInterface):
             return
         kwin_script = """
             const w = workspace.windowList().find((w) => w.internalId == '<window_id>');
+            let result;
             if (w) {
                 const s = workspace.clientArea(KWin.MaximizeArea, w);
-                let result = JSON.stringify(['get_properties', [w, s]]);
+                result = JSON.stringify(['get_properties', [w, s]]);
             } else {
-                let result = JSON.stringify(['get_properties', [null, null]]);
+                result = JSON.stringify(['get_properties', [null, null]]);
             }
         """
         kwin_script = kwin_script.replace('<window_id>', window_id)

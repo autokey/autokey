@@ -276,6 +276,25 @@ class TestKdeWindowInterface(unittest.TestCase):
         result = iface.get_window_list()
         self.assertEqual(result, [])
 
+    def test_get_properties_script_keeps_result_in_outer_scope(self):
+        kwin = MagicMock()
+        kwin.run.return_value = None
+        iface = _make_window_interface(kwin)
+
+        iface.get_properties('some-id')
+
+        kwin_script = kwin.run.call_args.args[0]
+        self.assertIn('let result;', kwin_script)
+        self.assertIn("result = JSON.stringify(['get_properties', [w, s]]);", kwin_script)
+        self.assertIn("result = JSON.stringify(['get_properties', [null, null]]);", kwin_script)
+        self.assertNotIn("let result = JSON.stringify(['get_properties', [w, s]]);", kwin_script)
+        self.assertNotIn("let result = JSON.stringify(['get_properties', [null, null]]);", kwin_script)
+        kwin.run.assert_called_once_with(
+            kwin_script,
+            script_name='get_properties',
+            response_expected=True,
+        )
+
     def test_get_properties_returns_none_when_window_not_found(self):
         # Regression check: KWin script replies [null, null] when the
         # window_id doesn't match any window; get_properties() must not
