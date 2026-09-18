@@ -21,6 +21,7 @@ import autokey.model.helpers
 from autokey.model.triggermode import TriggerMode
 import autokey.model.modelTypes
 from autokey.qtui.common import inherits_from_ui_file_with_name
+from autokey import UI_common_functions as UI_common
 from autokey.qtui.dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
 
 
@@ -69,7 +70,10 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
     def _load_window_filter_data(self, item: autokey.model.modelTypes.Item):
         self.window_filter_dialog.load(item)
         item_has_window_filter = item.has_filter() or item.inherits_filter()
-        self.window_filter_label.setText(item.get_filter_regex() if item_has_window_filter else "(None configured)")
+        self.window_filter_label.setText(
+            UI_common.format_window_filter_label(
+                item.get_filter_regex(), item.get_applicable_filter_inverted())
+            if item_has_window_filter else "(None configured)")
         self.window_filter_enabled = item_has_window_filter
         self.clear_window_filter_button.setEnabled(item_has_window_filter)
 
@@ -212,7 +216,8 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             if filter_text:
                 self.window_filter_enabled = True
                 self.clear_window_filter_button.setEnabled(True)
-                self.window_filter_label.setText(filter_text)
+                self.window_filter_label.setText(UI_common.format_window_filter_label(
+                    filter_text, self.window_filter_dialog.get_is_inverted()))
             else:
                 self.window_filter_enabled = False
                 self.clear_window_filter_button.setEnabled(False)
