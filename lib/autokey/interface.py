@@ -785,7 +785,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
+                        if item.get_applicable_regex() is not None and item._should_grab_on_window(window_info):
                             if grab:
                                 self.__grabHotkey(item.hotKey, item.modifiers, window)
                                 self.__grabRecurse(item, window, False)
@@ -876,6 +876,12 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             if self.__needsMutterWorkaround(item):
                 self.__enqueue(grab_recurse_func, item, self.rootWindow, False)
         else:
+            # Filtered items, including inverted ("all windows except...") ones, must
+            # take the per-window walk rather than a root grab. An inverted filter
+            # looks global, but grabbing on the root would consume the key in the very
+            # windows the user excluded: the grab happens, then the filter is
+            # re-checked at trigger time and declines to fire, so the keystroke is
+            # swallowed and never reaches the application.
             self.__enqueue(grab_recurse_func, item, self.rootWindow)
         return
 
@@ -890,7 +896,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
             if checkWinInfo:
                 window_info = self.mediator.windowInterface.get_window_info(window, False)
-                shouldTrigger = item._should_trigger_window_title(window_info)
+                shouldTrigger = item._should_grab_on_window(window_info)
 
             if shouldTrigger or not checkWinInfo:
                 if grab:
