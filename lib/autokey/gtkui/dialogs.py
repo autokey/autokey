@@ -711,6 +711,29 @@ class WindowFilterSettingsDialog(DialogBase):
         self.detectButton.set_sensitive(True)
         Gdk.threads_leave()
 
+    def receive_window_detect_timeout(self, timeout_seconds):
+        """Called from WindowGrabber when no click arrives (issue #1189)."""
+        Gdk.threads_enter()
+        try:
+            self.detectButton.set_sensitive(True)
+            md = Gtk.MessageDialog(
+                transient_for=self.ui,
+                flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.OK,
+                text="Window detection timed out",
+            )
+            md.format_secondary_text(
+                "No window click was detected within {:.0f} seconds. "
+                "On Wayland, clicks are observed via uinput/evdev and the focused "
+                "window is read afterwards. You can still enter a window "
+                "class/title regex manually.".format(timeout_seconds)
+            )
+            md.run()
+            md.destroy()
+        finally:
+            Gdk.threads_leave()
+
     def on_detectButton_pressed(self, widget, data=None):
         #self.__dlg =
         widget.set_sensitive(False)
