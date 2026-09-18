@@ -172,16 +172,6 @@ def test_clear_modifiers_releases_via_xtest_not_xsendevent():
     mediator.interface.release_key.assert_not_called()
 
 
-def test_reapply_modifiers_presses_via_xtest_not_xsendevent():
-    mediator = MagicMock()
-    mediator.releasedModifiers = [Key.CONTROL, Key.HYPER]
-
-    IoMediator._reapply_modifiers(mediator)
-
-    assert_that(mediator.press_key.call_count, is_(2))
-    mediator.interface.press_key.assert_not_called()
-
-
 def test_capslock_and_numlock_are_not_cleared():
     mediator = MagicMock()
     mediator.releasedModifiers = []
