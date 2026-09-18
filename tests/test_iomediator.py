@@ -24,6 +24,9 @@ from autokey.iomediator.iomediator import IoMediator
 import autokey.model.key
 import autokey.common
 from autokey.model.phrase import SendMode
+from unittest.mock import MagicMock
+
+from autokey.model.key import Key
 
 
 def generate_tests_for_key_split_re():
@@ -144,3 +147,64 @@ def test_send_string_clipboard_headless_calls_directly():
         mediator.app.exec_in_main.assert_not_called()
     finally:
         autokey.common.USED_UI_TYPE = original_ui_type
+
+
+def test_clear_modifiers_releases_via_xtest_not_xsendevent():
+    """
+    Held modifiers must be released through IoMediator.release_key(), which routes
+    to interface.fake_keyup() and XTEST.
+
+    interface.release_key() sends an XSendEvent instead. That is delivered to a
+    client but never enters the server's input pipeline, so the server's key state
+    and XKB modifier state are untouched: the modifier the user is physically
+    holding is not cleared, and every character of the expansion arrives with it
+    still applied. That was the behaviour in 0.96.0; 2ad54f5 fixed it here without
+    a test, so nothing currently stops it regressing.
+    """
+    mediator = MagicMock()
+    mediator.releasedModifiers = []
+    mediator.modifiers = {Key.CONTROL: True, Key.HYPER: True, Key.SHIFT: False}
+
+    IoMediator._clear_modifiers(mediator)
+
+    assert_that(mediator.releasedModifiers, contains_inanyorder(Key.CONTROL, Key.HYPER))
+    assert_that(mediator.release_key.call_count, is_(2))
+    mediator.interface.release_key.assert_not_called()
+
+
+def test_reapply_modifiers_presses_via_xtest_not_xsendevent():
+    mediator = MagicMock()
+    mediator.releasedModifiers = [Key.CONTROL, Key.HYPER]
+
+    IoMediator._reapply_modifiers(mediator)
+
+    assert_that(mediator.press_key.call_count, is_(2))
+    mediator.interface.press_key.assert_not_called()
+
+
+def test_capslock_and_numlock_are_not_cleared():
+    mediator = MagicMock()
+    mediator.releasedModifiers = []
+    mediator.modifiers = {Key.CAPSLOCK: True, Key.NUMLOCK: True, Key.CONTROL: True}
+
+    IoMediator._clear_modifiers(mediator)
+
+    assert_that(mediator.releasedModifiers, is_([Key.CONTROL]))
+
+
+def test_modifier_keysyms_resolve_to_the_left_hand_variant():
+    """
+    XK_TO_AK_MAP maps both variants of each modifier onto a single Key, so simply
+    inverting it keeps whichever came last -- the right-hand one. Releasing Hyper_R
+    does not clear a Hyper_L the user is holding, so the explicit overrides below
+    the inversion are load-bearing, not cosmetic.
+    """
+    from Xlib import XK
+    from autokey.interface import AK_TO_XK_MAP
+
+    assert_that(AK_TO_XK_MAP[Key.SHIFT], is_(XK.XK_Shift_L))
+    assert_that(AK_TO_XK_MAP[Key.CONTROL], is_(XK.XK_Control_L))
+    assert_that(AK_TO_XK_MAP[Key.ALT], is_(XK.XK_Alt_L))
+    assert_that(AK_TO_XK_MAP[Key.SUPER], is_(XK.XK_Super_L))
+    assert_that(AK_TO_XK_MAP[Key.HYPER], is_(XK.XK_Hyper_L))
+    assert_that(AK_TO_XK_MAP[Key.META], is_(XK.XK_Meta_L))
