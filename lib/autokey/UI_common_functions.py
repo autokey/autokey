@@ -177,6 +177,7 @@ def save_item_filter(app, item):
             "Invalid window filter regex: '{}'. Discarding without saving.".format(filter_regex)
         )
     item.set_filter_recursive(app.get_is_recursive())
+    item.set_filter_invert(app.get_is_inverted())
 
 
 def get_hotkey_text(app, key):

@@ -7,13 +7,20 @@
     <x>0</x>
     <y>0</y>
     <width>554</width>
-    <height>163</height>
+    <height>190</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Set Window Filter</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0" colspan="3">
+    <widget class="QCheckBox" name="invert_filter_check_box">
+     <property name="text">
+      <string>Invert: trigger in all windows EXCEPT those matching</string>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="0" colspan="3">
     <widget class="QCheckBox" name="apply_recursive_check_box">
      <property name="text">
@@ -88,6 +95,7 @@
  </widget>
  <tabstops>
   <tabstop>trigger_regex_line_edit</tabstop>
+  <tabstop>invert_filter_check_box</tabstop>
   <tabstop>apply_recursive_check_box</tabstop>
   <tabstop>detect_window_properties_button</tabstop>
  </tabstops>
