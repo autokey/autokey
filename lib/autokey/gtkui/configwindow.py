@@ -880,7 +880,9 @@ class ConfigWindow:
 
         rootIter = self.treeView.get_model().get_iter_first()
         if rootIter is not None:
-            self.treeView.get_selection().select_path(self.last_open)
+            path = self._resolve_tree_path(self.treeView.get_model(), self.last_open)
+            if path is not None:
+                self.treeView.get_selection().select_path(path)
 
         self.on_tree_selection_changed(self.treeView)
 
@@ -912,6 +914,28 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(dirty)
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
 
+    @staticmethod
+    def _resolve_tree_path(model, path_string):
+        """
+        Turn a remembered GtkTreePath string into a path that exists in this model,
+        or None.
+
+        expanded_rows and last_open hold positional path strings such as "3:1:2",
+        persisted across restarts. They are resolved against a model that may have
+        been rebuilt since, or loaded from a config that has changed on disk, so a
+        remembered path can easily name a row that is no longer there. Handing such
+        a path to select_path() or expand_to_path() is not safe: an empty string
+        makes Gtk.TreePath.new_from_string() raise, and a stale one has been
+        observed to crash the process outright.
+        """
+        if not path_string or model is None:
+            return None
+        try:
+            model.get_iter_from_string(path_string)   # raises if the row is gone
+            return Gtk.TreePath.new_from_string(path_string)
+        except (TypeError, ValueError):
+            return None
+
     def config_modified(self):
         logger.info("Modifications detected to open files. Reloading...")
         #save tree view selection
@@ -920,10 +944,14 @@ class ConfigWindow:
         self.rebuild_tree()
         #get selection for new treeview
         selection = self.treeView.get_selection()
-        path = Gtk.TreePath()
+        model = self.treeView.get_model()
         for row in self.expanded_rows:
-            self.treeView.expand_to_path(path.new_from_string(row))
-        selection.select_path(path.new_from_string(self.last_open))
+            path = self._resolve_tree_path(model, row)
+            if path is not None:
+                self.treeView.expand_to_path(path)
+        path = self._resolve_tree_path(model, self.last_open)
+        if path is not None:
+            selection.select_path(path)
         self.on_tree_selection_changed(self.treeView)
 
     def update_actions(self, items, changed):
@@ -1596,10 +1624,10 @@ class ConfigWindow:
         column3.set_min_width(100)
         self.treeView.append_column(column3)
 
-        path = Gtk.TreePath()
+        model = self.treeView.get_model()
         for row in self.expanded_rows:
-            p = path.new_from_string(row)
-            if not p is None:
+            p = self._resolve_tree_path(model, row)
+            if p is not None:
                 self.treeView.expand_to_path(p)
 
     def __popupMenu(self, event):
