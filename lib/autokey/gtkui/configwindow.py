@@ -202,19 +202,21 @@ class SettingsWidget:
 
     def validate(self):
         # Start by getting all applicable information
-        abbreviations, modifiers, key, filterExpression = self.get_item_details()
+        abbreviations, modifiers, key, filterExpression, filterInverted = self.get_item_details()
         # Validate
         ret = []
 
         configManager = self.parentWindow.app.configManager
 
         for abbr in abbreviations:
-            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            unique, conflicting = configManager.check_abbreviation_unique(
+                abbr, filterExpression, self.currentItem, filterInverted)
             if not unique:
                 ret.append(self.build_msg_for_item_in_use(conflicting,
                                                      "abbreviation"))
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        unique, conflicting = configManager.check_hotkey_unique(
+            modifiers, key, filterExpression, self.currentItem, filterInverted)
         if not unique:
             ret.append(self.build_msg_for_item_in_use(conflicting, "hotkey"))
 
@@ -234,13 +236,16 @@ class SettingsWidget:
             key = None
 
         filterExpression = None
+        filterInverted = False
         if self.filterEnabled:
             filterExpression = self.filterDialog.get_filter_text()
+            filterInverted = self.filterDialog.get_is_inverted()
         elif self.currentItem.parent is not None:
             r = self.currentItem.parent.get_applicable_regex(True)
             if r is not None:
                 filterExpression = r.pattern
-        return abbreviations, modifiers, key, filterExpression
+                filterInverted = self.currentItem.parent.get_applicable_filter_inverted(True)
+        return abbreviations, modifiers, key, filterExpression, filterInverted
 
     def build_msg_for_item_in_use(self, conflicting, itemtype):
         msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))

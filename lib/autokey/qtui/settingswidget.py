@@ -120,12 +120,15 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             key = None
 
         filter_expression = None
+        filter_inverted = False
         if self.window_filter_enabled:
             filter_expression = self.window_filter_dialog.get_filter_text()
+            filter_inverted = self.window_filter_dialog.get_is_inverted()
         elif self.current_item.parent is not None:
             r = self.current_item.parent.get_applicable_regex(True)
             if r is not None:
                 filter_expression = r.pattern
+                filter_inverted = self.current_item.parent.get_applicable_filter_inverted(True)
 
         # Validate
         ret = []
@@ -133,7 +136,8 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         config_manager = self.window().app.configManager
 
         for abbr in abbreviations:
-            unique, conflicting = config_manager.check_abbreviation_unique(abbr, filter_expression, self.current_item)
+            unique, conflicting = config_manager.check_abbreviation_unique(
+                abbr, filter_expression, self.current_item, filter_inverted)
             if not unique:
                 f = conflicting.get_applicable_regex()
                 # TODO: i18n
@@ -151,7 +155,8 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
                             )
                 ret.append(msg)
 
-        unique, conflicting = config_manager.check_hotkey_unique(modifiers, key, filter_expression, self.current_item)
+        unique, conflicting = config_manager.check_hotkey_unique(
+            modifiers, key, filter_expression, self.current_item, filter_inverted)
         if not unique:
             f = conflicting.get_applicable_regex()
             # TODO: i18n

@@ -632,10 +632,13 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         modifiers = self.get_active_modifiers()
         regex = self.targetItem.get_applicable_regex()
         pattern = None
+        inverted = False
         if regex is not None:
             pattern = regex.pattern
+            inverted = self.targetItem.get_applicable_filter_inverted()
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
+        unique, conflicting = configManager.check_hotkey_unique(
+            modifiers, self.key, pattern, self.targetItem, inverted)
         if not validate(unique,
                         _("The hotkey is already in use for %s.") % conflicting,
                         None,

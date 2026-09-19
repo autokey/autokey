@@ -109,10 +109,23 @@ class AbstractWindowFilter:
         else:
             return ""
 
-    def filter_matches(self, otherFilter):
+    def filter_matches(self, otherFilter, otherInverted=False):
+        """
+        Whether this item's filter is indistinguishable from the one described by
+        otherFilter/otherInverted.
+
+        Used to decide whether two items may share a trigger: AutoKey allows that
+        when their window filters differ. The same pattern with opposite polarity
+        describes two disjoint sets of windows -- "only in X" and "everywhere but
+        X" -- so those must compare as different, or the second item cannot be
+        saved.
+        """
         # XXX Should this be and?
         if otherFilter is None or self.get_applicable_regex() is None:
             return True
+
+        if self.get_applicable_filter_inverted() != bool(otherInverted):
+            return False
 
         return otherFilter == self.get_applicable_regex().pattern
 

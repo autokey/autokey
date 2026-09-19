@@ -209,3 +209,32 @@ def test_known_windows_follow_the_trigger_decision():
 
     assert_that(item._should_grab_on_window(FIREFOX), is_(True))
     assert_that(item._should_grab_on_window(TERMINAL), is_(False))
+
+
+# --- uniqueness -----------------------------------------------------------------
+
+def test_same_pattern_opposite_polarity_are_different_filters():
+    """
+    AutoKey lets two items share a trigger when their window filters differ, and
+    tests that by comparing the filters. "only in X" and "everywhere but X" are
+    disjoint, so they must compare as different -- otherwise the second item
+    cannot be saved, because the first looks like it already owns the trigger.
+    """
+    plain = FilterItem("Navigator.Firefox", inverted=False)
+    inverted = FilterItem("Navigator.Firefox", inverted=True)
+
+    assert_that(plain.filter_matches("Navigator.Firefox", False), is_(True))
+    assert_that(inverted.filter_matches("Navigator.Firefox", True), is_(True))
+
+    assert_that(plain.filter_matches("Navigator.Firefox", True), is_(False))
+    assert_that(inverted.filter_matches("Navigator.Firefox", False), is_(False))
+
+
+def test_filter_matches_keeps_its_existing_behaviour_for_plain_filters():
+    item = FilterItem("Navigator.Firefox")
+
+    assert_that(item.filter_matches("Navigator.Firefox"), is_(True))
+    assert_that(item.filter_matches("something.else"), is_(False))
+    # A caller with no filter of its own still matches anything, as before.
+    assert_that(item.filter_matches(None), is_(True))
+    assert_that(FilterItem(None).filter_matches("anything"), is_(True))
