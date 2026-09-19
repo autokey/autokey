@@ -717,7 +717,7 @@ class ConfigManager:
 
             self.config_altered(False)
 
-    def check_abbreviation_unique(self, abbreviation, filterPattern, targetItem):
+    def check_abbreviation_unique(self, abbreviation, filterPattern, targetItem, filterInverted=False):
         """
         Checks that the given abbreviation is not already in use.
 
@@ -727,7 +727,7 @@ class ConfigManager:
         """
         for item in itertools.chain(self.allFolders, self.allItems):
             if ConfigManager.item_has_abbreviation(item, abbreviation) and \
-                    item.filter_matches(filterPattern):
+                    item.filter_matches(filterPattern, filterInverted):
                     return item is targetItem, item
 
         return True, None
@@ -768,7 +768,7 @@ class ConfigManager:
         except ValueError:
             return False"""
 
-    def check_hotkey_unique(self, modifiers, hotKey, newFilterPattern, targetItem):
+    def check_hotkey_unique(self, modifiers, hotKey, newFilterPattern, targetItem, filterInverted=False):
         """
         Checks that the given hotkey is not already in use. Also checks the
         special hotkeys configured from the advanced settings dialog.
@@ -778,13 +778,13 @@ class ConfigManager:
         :param newFilterPattern:
         :param targetItem: the phrase for which the hotKey to be used
         """
-        item = self.get_item_with_hotkey(modifiers, hotKey, newFilterPattern)
+        item = self.get_item_with_hotkey(modifiers, hotKey, newFilterPattern, filterInverted)
         if item:
             return item is targetItem, item
         else:
             return True, None
 
-    def get_item_with_hotkey(self, modifiers, hotKey, newFilterPattern=None):
+    def get_item_with_hotkey(self, modifiers, hotKey, newFilterPattern=None, filterInverted=False):
         """
         Gets first item with the specified hotkey. Also checks the
         special hotkeys configured from the advanced settings dialog.
@@ -798,7 +798,8 @@ class ConfigManager:
             if item.enabled and ConfigManager.item_has_same_hotkey(item,
                                              modifiers,
                                              hotKey,
-                                             newFilterPattern):
+                                             newFilterPattern,
+                                             filterInverted):
                 return item
 
         for item in itertools.chain(self.allFolders, self.allItems):
@@ -806,13 +807,15 @@ class ConfigManager:
                     ConfigManager.item_has_same_hotkey(item,
                                               modifiers,
                                               hotKey,
-                                              newFilterPattern):
+                                              newFilterPattern,
+                                              filterInverted):
                 return item
         return None
 
     @staticmethod
-    def item_has_same_hotkey(item, modifiers, hotKey, newFilterPattern):
-        return item.modifiers == modifiers and item.hotKey == hotKey and item.filter_matches(newFilterPattern)
+    def item_has_same_hotkey(item, modifiers, hotKey, newFilterPattern, filterInverted=False):
+        return item.modifiers == modifiers and item.hotKey == hotKey \
+            and item.filter_matches(newFilterPattern, filterInverted)
 
 
     def remove_all_temporary(self, folder=None, in_temp_parent=False):

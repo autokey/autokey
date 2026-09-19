@@ -632,10 +632,13 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         modifiers = self.get_active_modifiers()
         regex = self.targetItem.get_applicable_regex()
         pattern = None
+        inverted = False
         if regex is not None:
             pattern = regex.pattern
+            inverted = self.targetItem.get_applicable_filter_inverted()
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
+        unique, conflicting = configManager.check_hotkey_unique(
+            modifiers, self.key, pattern, self.targetItem, inverted)
         if not validate(unique,
                         _("The hotkey is already in use for %s.") % conflicting,
                         None,
@@ -659,6 +662,7 @@ class WindowFilterSettingsDialog(DialogBase):
 
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
         self.recursiveButton = builder.get_object("recursiveButton")
+        self.invertButton = builder.get_object("invertButton")
         self.detectButton = builder.get_object("detectButton")
 
         DialogBase.__init__(self)
@@ -676,6 +680,7 @@ class WindowFilterSettingsDialog(DialogBase):
         else:
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
+            self.invertButton.set_active(item.isInverted)
 
     def save(self, item):
         UI_common.save_item_filter(self, item)
@@ -683,12 +688,16 @@ class WindowFilterSettingsDialog(DialogBase):
     def reset(self):
         self.triggerRegexEntry.set_text("")
         self.recursiveButton.set_active(False)
+        self.invertButton.set_active(False)
 
     def get_filter_text(self):
         return self.triggerRegexEntry.get_text()
 
     def get_is_recursive(self):
         return self.recursiveButton.get_active()
+
+    def get_is_inverted(self):
+        return self.invertButton.get_active()
 
     def valid(self):
         return True

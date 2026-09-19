@@ -51,6 +51,7 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
         else:
             self.trigger_regex_line_edit.setText(item.get_filter_regex())
             self.apply_recursive_check_box.setChecked(item.isRecursive)
+            self.invert_filter_check_box.setChecked(item.isInverted)
 
     def save(self, item):
         UI_common.save_item_filter(self, item)
@@ -58,9 +59,13 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
     def get_is_recursive(self):
         return self.apply_recursive_check_box.isChecked()
 
+    def get_is_inverted(self):
+        return self.invert_filter_check_box.isChecked()
+
     def reset(self):
         self.trigger_regex_line_edit.clear()
         self.apply_recursive_check_box.setChecked(False)
+        self.invert_filter_check_box.setChecked(False)
 
     def reset_focus(self):
         self.trigger_regex_line_edit.setFocus()

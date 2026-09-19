@@ -20,21 +20,39 @@ import typing
 
 class AbstractWindowFilter:
 
+    # Class-level default. AbstractHotkey.__init__() does not call
+    # AbstractWindowFilter.__init__(), so subclasses such as GlobalHotkey set the
+    # filter attributes by hand. The class attribute keeps this one safe for any
+    # subclass that does not, and for objects observed mid-deserialization.
+    isInverted = False
+
     def __init__(self):
         self.windowInfoRegex = None
         self.isRecursive = False
+        self.isInverted = False
 
     def get_serializable(self):
         if self.windowInfoRegex is not None:
-            return {"regex": self.windowInfoRegex.pattern, "isRecursive": self.isRecursive}
+            return {
+                "regex": self.windowInfoRegex.pattern,
+                "isRecursive": self.isRecursive,
+                "isInverted": self.isInverted,
+            }
         else:
-            return {"regex": None, "isRecursive": False}
+            # Hardcoded rather than read from self: both UIs skip the filter
+            # dialog's save() when the filter is disabled and call
+            # set_window_titles(None) instead, which leaves a stale flag behind.
+            return {"regex": None, "isRecursive": False, "isInverted": False}
 
     def load_from_serialized(self, data):
         try:
             if isinstance(data, dict): # check needed for data from versions < 0.80.4
                 self.set_window_titles(data["regex"])
                 self.isRecursive = data["isRecursive"]
+                # .get(): config files written before this option existed have no
+                # such key, and a KeyError here is swallowed by the broad handler
+                # in model/common.py, silently half-loading the item.
+                self.isInverted = bool(data.get("isInverted", False))
             else:
                 self.set_window_titles(data)
         except re.error as e:
@@ -43,6 +61,7 @@ class AbstractWindowFilter:
     def copy_window_filter(self, window_filter):
         self.windowInfoRegex = window_filter.windowInfoRegex
         self.isRecursive = window_filter.isRecursive
+        self.isInverted = window_filter.isInverted
 
     def set_window_titles(self, regex):
         if regex is not None:
@@ -55,6 +74,9 @@ class AbstractWindowFilter:
 
     def set_filter_recursive(self, recurse):
         self.isRecursive = recurse
+
+    def set_filter_invert(self, invert):
+        self.isInverted = bool(invert)
 
     def has_filter(self) -> bool:
         return self.windowInfoRegex is not None
@@ -87,10 +109,23 @@ class AbstractWindowFilter:
         else:
             return ""
 
-    def filter_matches(self, otherFilter):
+    def filter_matches(self, otherFilter, otherInverted=False):
+        """
+        Whether this item's filter is indistinguishable from the one described by
+        otherFilter/otherInverted.
+
+        Used to decide whether two items may share a trigger: AutoKey allows that
+        when their window filters differ. The same pattern with opposite polarity
+        describes two disjoint sets of windows -- "only in X" and "everywhere but
+        X" -- so those must compare as different, or the second item cannot be
+        saved.
+        """
         # XXX Should this be and?
         if otherFilter is None or self.get_applicable_regex() is None:
             return True
+
+        if self.get_applicable_filter_inverted() != bool(otherInverted):
+            return False
 
         return otherFilter == self.get_applicable_regex().pattern
 
@@ -108,9 +143,50 @@ class AbstractWindowFilter:
 
         return None
 
+    def get_applicable_filter_inverted(self, forChild=False) -> bool:
+        """
+        Return the invert flag belonging to whichever item supplies the applicable
+        regex. Deliberately mirrors get_applicable_regex() line for line, so that an
+        inherited filter carries the *parent's* invert flag rather than the child's.
+
+        Only a genuine True inverts. The supported paths all store a real bool, so
+        this is a fail-safe for anything else that reaches here -- a test double, a
+        stub parent, a partially constructed item -- which degrades to the previous
+        include-only behaviour rather than silently inverting every item that has no
+        filter of its own.
+        """
+        if self.windowInfoRegex is not None:
+            if (forChild and self.isRecursive) or not forChild:
+                return self.isInverted is True
+        elif self.parent is not None:
+            return self.parent.get_applicable_filter_inverted(True) is True
+
+        return False
+
     def _should_trigger_window_title(self, window_info):
         r = self.get_applicable_regex()  # type: typing.Pattern
-        if r is not None:
-            return bool(r.match(window_info.wm_title)) or bool(r.match(window_info.wm_class))
-        else:
+        if r is None:
             return True
+
+        matched = bool(r.match(window_info.wm_title)) or bool(r.match(window_info.wm_class))
+        if self.get_applicable_filter_inverted():
+            # not (title or class): the window is excluded if EITHER property
+            # matches. This is what a negative lookahead in the regex cannot
+            # express, because the regex is applied to each property separately.
+            return not matched
+        return matched
+
+    def _should_grab_on_window(self, window_info) -> bool:
+        """
+        Whether an X11 key grab belongs on this specific window.
+
+        Distinct from _should_trigger_window_title(): the callers in interface.py
+        obtain WindowInfo with traverse=False, so window-manager frames and other
+        intermediate windows report an empty title and class. For an include filter
+        an empty WindowInfo simply fails to match and the tree walk descends. For an
+        inverted filter it would "not match" and therefore claim the entire subtree,
+        including the application the user asked to exclude.
+        """
+        if not window_info.wm_title and not window_info.wm_class:
+            return False
+        return self._should_trigger_window_title(window_info)
