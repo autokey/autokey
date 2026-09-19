@@ -992,6 +992,14 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             mapping = [tuple(l) for l in mapping]
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
+            # Record what we just wrote, so the MappingNotify the server sends back
+            # compares equal in on_keys_changed() and does not provoke a regrab.
+            #
+            # __ignoreRemap cannot do this on its own. It is cleared once the string
+            # has finished sending, but the event arrives asynchronously and has been
+            # observed to arrive roughly half a second later, by which time the flag
+            # is already False and AutoKey treats its own remap as somebody else's.
+            self.__lastKeyboardMapping = self.__get_keyboard_mapping()
 
     def __get_usable_char_keycode_and_offset(self, char):
         keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
