@@ -317,6 +317,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             # self.keyMap.connect("keys-changed", self.on_keys_changed)
 
         self.__ignoreRemap = False
+        self.__lastKeyboardMapping = None
 
         self.eventThread.start()
         self.listenerThread.start()
@@ -333,6 +334,16 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         """
         Update interface when keyboard layout changes.
         """
+        # A MappingNotify does not mean the mapping actually differs. Other clients
+        # re-apply the same keyboard mapping wholesale, which is common, and
+        # regrabbing every hotkey in response costs thousands of XGrabKey
+        # round-trips. Compare against what we last saw before doing any of it.
+        current = self.__get_keyboard_mapping()
+        if current is not None and current == self.__lastKeyboardMapping:
+            logger.debug("Keymap change event with no actual change - not regrabbing")
+            return
+        self.__lastKeyboardMapping = current
+
         if not self.__ignoreRemap:
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
@@ -633,8 +644,22 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.__initMappings()
         self.__ignoreRemap = False
 
+    def __get_keyboard_mapping(self):
+        """
+        The current core keyboard mapping, or None if it cannot be read.
+
+        Returned as a comparable value so on_keys_changed() can tell a real
+        keymap change from a re-application of the same mapping.
+        """
+        try:
+            return self.localDisplay.get_keyboard_mapping(8, 248)
+        except Exception:
+            logger.exception("Could not read the keyboard mapping")
+            return None
+
     def __initMappings(self):
         self.localDisplay = display.Display()
+        self.__lastKeyboardMapping = self.__get_keyboard_mapping()
         self.rootWindow = self.localDisplay.screen().root
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
 
