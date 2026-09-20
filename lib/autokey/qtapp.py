@@ -42,6 +42,7 @@ from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger
 import autokey.UI_common_functions as UI_common
+from autokey.common import VERSION
 
 logger = get_logger(__name__)
 del get_logger
@@ -61,7 +62,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv, UI=self)
-        logger.info("Initialising QT application")
+        logger.info("Initialising QT application. Version: %s", VERSION)
 
         try:
             self.initialise()
