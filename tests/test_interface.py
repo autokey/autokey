@@ -265,3 +265,63 @@ def test_pointer_query_error_masks_state():
     capslock_on, numlock_on = query_lock_state(display, root)
     assert_that(capslock_on, is_(False))
     assert_that(numlock_on, is_(False))
+
+
+class TestKeymapChangeSkipping:
+    """
+    on_keys_changed() must not regrab every hotkey when the mapping is unchanged.
+
+    A MappingNotify says the mapping *may* have changed, not that it did. Other
+    clients re-apply the same mapping wholesale, and each of those events costs a
+    full ungrab/regrab of every hotkey across every window.
+    """
+
+    @staticmethod
+    def _interface(mapping, last):
+        """An XInterfaceBase stand-in with just the state on_keys_changed touches."""
+        iface = MagicMock()
+        iface.localDisplay.get_keyboard_mapping.return_value = mapping
+        iface._XInterfaceBase__lastKeyboardMapping = last
+        iface._XInterfaceBase__ignoreRemap = False
+        iface._XInterfaceBase__get_keyboard_mapping = (
+            lambda: autokey.interface.XInterfaceBase._XInterfaceBase__get_keyboard_mapping(iface)
+        )
+        return iface
+
+    @staticmethod
+    def _run(iface):
+        autokey.interface.XInterfaceBase.on_keys_changed(iface)
+
+    def test_unchanged_mapping_does_not_regrab(self):
+        mapping = [(1, 2), (3, 4)]
+        iface = self._interface(mapping, list(mapping))
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__ungrab_all_hotkeys.called, is_(False),
+                    "an unchanged mapping must not provoke an ungrab")
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(False),
+                    "an unchanged mapping must not provoke a regrab")
+
+    def test_changed_mapping_does_regrab(self):
+        iface = self._interface([(1, 2), (3, 4)], [(1, 2), (9, 9)])
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__ungrab_all_hotkeys.called, is_(True))
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+    def test_changed_mapping_is_remembered_for_next_time(self):
+        mapping = [(1, 2), (3, 4)]
+        iface = self._interface(mapping, [(1, 2), (9, 9)])
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping, equal_to(mapping))
+
+    def test_first_event_with_no_baseline_regrabs(self):
+        """None means we have never read the mapping, so we cannot rule a change out."""
+        iface = self._interface([(1, 2)], None)
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+    def test_unreadable_mapping_regrabs_rather_than_skipping(self):
+        """If the mapping cannot be read, fail towards doing the work, not skipping it."""
+        iface = self._interface([(1, 2)], [(1, 2)])
+        iface.localDisplay.get_keyboard_mapping.side_effect = Xlib.error.ConnectionClosedError("gone")
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
