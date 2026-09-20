@@ -325,3 +325,42 @@ class TestKeymapChangeSkipping:
         iface.localDisplay.get_keyboard_mapping.side_effect = Xlib.error.ConnectionClosedError("gone")
         self._run(iface)
         assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+
+class TestSelfRemapDoesNotRegrab:
+    """
+    AutoKey rewrites the keyboard mapping to borrow spare keycodes for characters
+    the layout cannot reach. That rewrite genuinely changes the mapping, so the
+    comparison in on_keys_changed() would see a real change and regrab everything.
+
+    __ignoreRemap exists to prevent exactly that, but it is cleared when sending
+    finishes rather than when the event arrives, so it loses the race.
+    """
+
+    @staticmethod
+    def _interface():
+        iface = MagicMock()
+        iface._XInterfaceBase__lastKeyboardMapping = [(1, 2), (3, 4)]
+        iface._XInterfaceBase__availableKeycodes = [8, 9]
+        iface._XInterfaceBase__get_usable_char_keycode_and_offset.return_value = (None, None)
+        iface._XInterfaceBase__get_keyboard_mapping = (
+            lambda: autokey.interface.XInterfaceBase._XInterfaceBase__get_keyboard_mapping(iface)
+        )
+        # the mapping after our own rewrite differs from the baseline above
+        iface.localDisplay.get_keyboard_mapping.return_value = [[0, 0], [0, 0], [0, 0]]
+        return iface
+
+    def test_own_remap_updates_the_remembered_mapping(self):
+        iface = self._interface()
+        autokey.interface.XInterfaceBase._XInterfaceBase__remap_characters(iface, True, "ä")
+        assert_that(iface.localDisplay.change_keyboard_mapping.called, is_(True),
+                    "the test needs the remap path to actually run")
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping,
+                    equal_to(iface.localDisplay.get_keyboard_mapping.return_value),
+                    "our own write must be recorded, or the event it provokes regrabs")
+
+    def test_no_remap_leaves_the_remembered_mapping_alone(self):
+        iface = self._interface()
+        before = iface._XInterfaceBase__lastKeyboardMapping
+        autokey.interface.XInterfaceBase._XInterfaceBase__remap_characters(iface, False, "a")
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping, equal_to(before))
