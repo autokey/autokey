@@ -144,3 +144,31 @@ def test_send_string_clipboard_headless_calls_directly():
         mediator.app.exec_in_main.assert_not_called()
     finally:
         autokey.common.USED_UI_TYPE = original_ui_type
+
+
+def test_send_string_selection_restore_uses_wait_responsively():
+    """
+    Regression test: _send_string_selection() (SendMode.SELECTION,
+    middle-click paste) runs inside a callback dispatched via
+    exec_in_main() on the toolkit's main thread, same as the clipboard
+    path above. Its restore step previously called a plain time.sleep(1)
+    instead of _wait_responsively(1), which blocks that same main loop
+    for the whole second -- including its ability to answer the X
+    SelectionRequest that the middle-click it just sent is expected to
+    trigger. That request then only gets serviced once the callback
+    returns, by which point the selection has already been restored to
+    the backup value, so the pasting application receives the backup
+    content instead of the intended string. Confirmed live on a real X11
+    session: middle-click paste always pasted empty/stale content until
+    fixed. _wait_responsively() pumps the toolkit's event loop instead of
+    blocking it, matching the fix already applied to the clipboard path's
+    __restore_clipboard_text().
+    """
+    mediator = IoMediator.__new__(IoMediator)
+    mediator.clipboard = unittest.mock.Mock(selection="backup text")
+    mediator.interface = unittest.mock.Mock(mouse_location=lambda: (1, 2))
+    with unittest.mock.patch.object(IoMediator, "_wait_responsively") as wait_responsively, \
+         unittest.mock.patch("autokey.iomediator.iomediator.time.sleep") as sleep:
+        mediator._send_string_selection("some text")
+    wait_responsively.assert_called_once_with(1)
+    sleep.assert_not_called()
