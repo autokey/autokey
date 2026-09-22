@@ -226,6 +226,49 @@ def test_macro_expansion(test_input, expected, error_msg):
     assert_that(expandMacro(engine, test_input), is_(equal_to(expected)), error_msg)
 
 
+def test_cursor_macro_before_enter_and_tab():
+    engine, folder = create_engine()
+    test = "one<cursor><enter><tab>two"
+    expected = "one<enter><tab>two" + "<left>" * 5
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "cursor macro should count <enter>/<tab> as one position each, "
+                "not their literal tag length")
+
+
+def test_cursor_macro_before_backspace():
+    engine, folder = create_engine()
+    test = "one<cursor>two<backspace>"
+    expected = "onetwo<backspace>" + "<left>" * 2
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "<backspace> after <cursor> should cancel one previously-"
+                "counted position, not add its own literal tag length")
+
+
+def test_cursor_macro_regression_1222():
+    # https://github.com/autokey/autokey/issues/1222
+    # <cursor> followed by other key macros (<backspace>, <enter>) used to
+    # count their literal tag text length (11 and 7 chars) instead of their
+    # actual single-keystroke effect, wildly overshooting the cursor position.
+    engine, folder = create_engine()
+    test = "if [[ <cursor> ]]\nthen\n  \n<backspace>fi\n<enter>"
+    expanded = expandMacro(engine, test)
+    left_count = expanded.count("<left>")
+    # ' ]]\nthen\n  \n' (12 chars) - 1 (backspace) + 'fi\n' (3 chars) + 1 (enter) = 15
+    assert_that(left_count, is_(equal_to(15)),
+                "cursor macro should not overshoot when followed by "
+                "<backspace>/<enter>")
+
+
+def test_cursor_macro_bails_out_on_unknown_key():
+    engine, folder = create_engine()
+    test = "one<cursor>two<f1>three"
+    expected = "onetwo<f1>three"
+    assert_that(expandMacro(engine, test), is_(equal_to(expected)),
+                "cursor macro should leave the cursor at the end (no <left> "
+                "presses at all) rather than guess when it can't reason "
+                "about a key's effect")
+
+
 def test_system_macro():
     engine, folder = create_engine()
     lang=os.environ['LANG']
