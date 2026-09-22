@@ -172,3 +172,23 @@ def test_send_string_selection_restore_uses_wait_responsively():
         mediator._send_string_selection("some text")
     wait_responsively.assert_called_once_with(1)
     sleep.assert_not_called()
+
+
+def test_reapply_modifiers_does_not_press_released_modifiers():
+    """
+    Regression test for #1226: _reapply_modifiers() must not press anything.
+
+    press_key() is a real XTEST press. If the user let go of the modifier while
+    the expansion was typing, re-pressing it leaves it down with no physical
+    release to follow, and the keyboard stays in shift or control until the user
+    clears it by hand.
+    """
+    mediator = unittest.mock.MagicMock()
+    mediator.releasedModifiers = [autokey.model.key.Key.CONTROL, autokey.model.key.Key.HYPER]
+
+    IoMediator._reapply_modifiers(mediator)
+
+    mediator.press_key.assert_not_called()
+    mediator.interface.press_key.assert_not_called()
+    mediator.interface.fake_keydown.assert_not_called()
+    assert_that(mediator.releasedModifiers, is_([]))
