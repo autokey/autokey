@@ -2,7 +2,10 @@
 Unit tests for uinput_interface.py's mouse click handling.
 """
 
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
+
+from evdev import AbsInfo
+from evdev import ecodes as e
 
 from autokey import uinput_interface
 from autokey.model.button import Button
@@ -107,3 +110,70 @@ def test_mouse_press_and_release_settle_before_writing(monkeypatch):
 
         assert events[0] == ("sleep", 0.2)
         assert events[-1] == ("syn_raw",)
+
+
+def _fake_device(capabilities):
+    dev = MagicMock()
+    dev.capabilities.return_value = capabilities
+    return dev
+
+
+def test_merge_uinput_capabilities_fixes_zero_abs_resolution():
+    """
+    A grabbed device (e.g. a VM's guest-integration mouse) with an
+    ABS_X/ABS_Y resolution of 0 makes libinput reject the resulting
+    combined device outright ("libinput bug: missing tablet
+    capabilities: resolution"). evdev.UInput.from_device() copies that
+    zero verbatim; the merge must not.
+    """
+    zero_res = AbsInfo(value=0, min=0, max=65535, fuzz=0, flat=0, resolution=0)
+    device = _fake_device({
+        e.EV_KEY: [e.KEY_A],
+        e.EV_ABS: [(e.ABS_X, zero_res), (e.ABS_Y, zero_res)],
+    })
+
+    with patch.object(uinput_interface.evdev, "InputDevice", return_value=device), \
+         patch.object(uinput_interface.evdev, "UInput") as mock_uinput:
+        uinput_interface._merge_uinput_capabilities(["/dev/input/eventX"], "autokey mouse and keyboard")
+
+    merged = mock_uinput.call_args.kwargs["events"]
+    for code, absinfo in merged[e.EV_ABS]:
+        assert absinfo.resolution != 0
+
+
+def test_merge_uinput_capabilities_drops_digitizer_button_codes():
+    """
+    Digitizer/stylus button codes (BTN_TOOL_PEN, BTN_STYLUS, BTN_TOUCH...)
+    combined with ABS axes make libinput classify the merged device as a
+    graphics tablet, routing its EV_KEY events through the tablet input
+    path instead of the normal keyboard path -- so real key presses never
+    reach any window even once the zero-resolution issue is fixed. AutoKey
+    has no legitimate use for these codes, so the merge must drop them.
+    """
+    device = _fake_device({
+        e.EV_KEY: [e.KEY_A, e.BTN_LEFT, e.BTN_TOOL_PEN, e.BTN_STYLUS, e.BTN_TOUCH],
+    })
+
+    with patch.object(uinput_interface.evdev, "InputDevice", return_value=device), \
+         patch.object(uinput_interface.evdev, "UInput") as mock_uinput:
+        uinput_interface._merge_uinput_capabilities(["/dev/input/eventX"], "autokey mouse and keyboard")
+
+    merged_keys = mock_uinput.call_args.kwargs["events"][e.EV_KEY]
+    assert merged_keys == {e.KEY_A, e.BTN_LEFT}
+
+
+def test_merge_uinput_capabilities_filters_syn_and_ff():
+    """evdev.UInput.from_device() also excludes EV_SYN/EV_FF; the merge must too."""
+    device = _fake_device({
+        e.EV_KEY: [e.KEY_A],
+        e.EV_SYN: [0],
+        e.EV_FF: [0],
+    })
+
+    with patch.object(uinput_interface.evdev, "InputDevice", return_value=device), \
+         patch.object(uinput_interface.evdev, "UInput") as mock_uinput:
+        uinput_interface._merge_uinput_capabilities(["/dev/input/eventX"], "autokey mouse and keyboard")
+
+    merged = mock_uinput.call_args.kwargs["events"]
+    assert e.EV_SYN not in merged
+    assert e.EV_FF not in merged
