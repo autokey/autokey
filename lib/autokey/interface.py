@@ -317,6 +317,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             # self.keyMap.connect("keys-changed", self.on_keys_changed)
 
         self.__ignoreRemap = False
+        self.__lastKeyboardMapping = None
 
         self.eventThread.start()
         self.listenerThread.start()
@@ -333,6 +334,16 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         """
         Update interface when keyboard layout changes.
         """
+        # A MappingNotify does not mean the mapping actually differs. Other clients
+        # re-apply the same keyboard mapping wholesale, which is common, and
+        # regrabbing every hotkey in response costs thousands of XGrabKey
+        # round-trips. Compare against what we last saw before doing any of it.
+        current = self.__get_keyboard_mapping()
+        if current is not None and current == self.__lastKeyboardMapping:
+            logger.debug("Keymap change event with no actual change - not regrabbing")
+            return
+        self.__lastKeyboardMapping = current
+
         if not self.__ignoreRemap:
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
@@ -633,8 +644,22 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.__initMappings()
         self.__ignoreRemap = False
 
+    def __get_keyboard_mapping(self):
+        """
+        The current core keyboard mapping, or None if it cannot be read.
+
+        Returned as a comparable value so on_keys_changed() can tell a real
+        keymap change from a re-application of the same mapping.
+        """
+        try:
+            return self.localDisplay.get_keyboard_mapping(8, 248)
+        except Exception:
+            logger.exception("Could not read the keyboard mapping")
+            return None
+
     def __initMappings(self):
         self.localDisplay = display.Display()
+        self.__lastKeyboardMapping = self.__get_keyboard_mapping()
         self.rootWindow = self.localDisplay.screen().root
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
 
@@ -652,12 +677,9 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     def __build_usable_offsets(self):
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
-        self.__usableOffsets = (0, 1)
-        for code, offset in altList:
-            if code == 108 and offset == 0:
-                self.__usableOffsets += (4, 5)
-                logger.debug("Enabling sending using Alt-Grid")
-                break
+        self.__usableOffsets = self._usable_offsets(altList)
+        if len(self.__usableOffsets) > 2:
+            logger.debug("Enabling sending using Alt-Grid")
 
     def __build_modifier_mask_mapping(self):
         self.modMasks = {}
@@ -913,6 +935,28 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
 
+    @staticmethod
+    def _usable_offsets(alt_list):
+        """
+        Which keysym offsets AutoKey can reach when sending.
+
+        Offsets 0 and 1 are always available. Offsets 4 and 5 are the AltGr
+        levels, reachable only if the keyboard actually has an AltGr key, that is
+        a keycode whose own symbol is ISO_Level3_Shift.
+
+        This used to require that key to be keycode 108 specifically, which is only
+        true of a stock layout. A keyboard that puts ISO_Level3_Shift anywhere else
+        was silently left with offsets (0, 1), so every character living on an AltGr
+        level was treated as unreachable -- and __sendString then rewrote the
+        keyboard mapping to borrow a spare keycode for it, without ever restoring it.
+        """
+        offsets = (0, 1)
+        for code, offset in alt_list:
+            if offset == 0:
+                offsets += (4, 5)
+                break
+        return offsets
+
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
             if offset in self.__usableOffsets:
@@ -967,6 +1011,14 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             mapping = [tuple(l) for l in mapping]
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
+            # Record what we just wrote, so the MappingNotify the server sends back
+            # compares equal in on_keys_changed() and does not provoke a regrab.
+            #
+            # __ignoreRemap cannot do this on its own. It is cleared once the string
+            # has finished sending, but the event arrives asynchronously and has been
+            # observed to arrive roughly half a second later, by which time the flag
+            # is already False and AutoKey treats its own remap as somebody else's.
+            self.__lastKeyboardMapping = self.__get_keyboard_mapping()
 
     def __get_usable_char_keycode_and_offset(self, char):
         keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))

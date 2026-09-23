@@ -476,5 +476,14 @@ class IoMediator(threading.Thread):
 
         # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
         # It might be a good idea to make this delay configurable. There might be systems that need even longer.
-        time.sleep(1)
+        # _send_string_selection runs inside a callback dispatched via exec_in_main on both
+        # toolkits' main threads (see gtkapp.py's exec_in_main()), so a plain time.sleep()
+        # here blocks that same main loop for the whole wait -- including its ability to
+        # service the X SelectionRequest that the middle-click we just sent is expected to
+        # trigger. That request then only gets answered once this method returns, by which
+        # point the selection has already been restored to the backup value below, so the
+        # pasting application receives the backup content instead of the intended string.
+        # Use _wait_responsively() to keep pumping the toolkit's event loop during the wait,
+        # matching the fix already applied to __restore_clipboard_text() for the same reason.
+        self._wait_responsively(1)
         self.clipboard.selection = backup if backup is not None else ""
