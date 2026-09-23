@@ -42,6 +42,61 @@ else:
 #  This matches how things are done in the equivalent function in the X11
 #  interface.py module.
 
+# Digitizer/stylus button codes (BTN_TOOL_PEN..BTN_TOOL_QUADTAP, BTN_TOUCH,
+# BTN_STYLUS, BTN_STYLUS2 -- evdev codes 320-337). AutoKey has no legitimate
+# use for these; see _merge_uinput_capabilities() for why they must be
+# filtered out.
+_DIGITIZER_BUTTON_CODES = range(320, 338)
+
+
+def _merge_uinput_capabilities(device_paths, name):
+    """
+    Like evdev.UInput.from_device(), but works around two issues that can
+    make libinput silently ignore the resulting combined device on Wayland,
+    dropping every keystroke and mouse event AutoKey generates with no
+    error from AutoKey itself (see issue #1247):
+
+    1. evdev.UInput.from_device() copies ABS axis info verbatim from each
+       source device. A device with absolute positioning but no real
+       physical DPI concept -- a VM's guest-integration mouse is a common
+       example -- often reports its ABS_X/ABS_Y resolution as 0. libinput
+       rejects a device whose ABS axes have zero resolution.
+    2. If any grabbed device also contributes digitizer/stylus button
+       codes, the combination of ABS axes + those buttons makes
+       libinput's device-type heuristic classify the merged device as a
+       graphics tablet. Fixing only the resolution still leaves the
+       device tablet-classified, so its EV_KEY events route through
+       libinput's tablet input path instead of the normal keyboard path --
+       both issues must be fixed together.
+
+    Confirmed live via `libinput list-devices`: without this, AutoKey's
+    own combined device is reported as "libinput bug: missing tablet
+    capabilities: resolution. Ignoring this device."; with it, the same
+    device correctly reports "Capabilities: keyboard pointer".
+    """
+    device_instances = [evdev.InputDevice(str(p)) for p in device_paths]
+    all_capabilities = {}
+    for dev in device_instances:
+        for ev_type, ev_codes in dev.capabilities().items():
+            all_capabilities.setdefault(ev_type, set()).update(ev_codes)
+
+    for filtered_type in (e.EV_SYN, e.EV_FF):
+        all_capabilities.pop(filtered_type, None)
+
+    if e.EV_ABS in all_capabilities:
+        all_capabilities[e.EV_ABS] = {
+            (code, absinfo._replace(resolution=1)) if absinfo.resolution == 0 else (code, absinfo)
+            for code, absinfo in all_capabilities[e.EV_ABS]
+        }
+
+    if e.EV_KEY in all_capabilities:
+        all_capabilities[e.EV_KEY] = {
+            code for code in all_capabilities[e.EV_KEY] if code not in _DIGITIZER_BUTTON_CODES
+        }
+
+    return evdev.UInput(events=all_capabilities, name=name)
+
+
 class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
     """
     god this is complicated lol
@@ -212,7 +267,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
             # keyboard = "/dev/input/event4"
             # creating a uinput device with the combined capabilities of the user's mouse and keyboard
             # this will undoubtedly cause issues if user attempts to send signals not supported by their devices
-            self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+            self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
             self.capabilities = self.ui.capabilities(verbose=True)
             logger.debug("UInput device capabilities: {}".format(self.capabilities))
             logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
@@ -247,7 +302,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
             if action == 'bind':
                 logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse to grab.")
                 self.grab_multiple_devices()
-                self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
                 logger.debug("Devices grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
 
         monitor = pyudev.Monitor.from_netlink(pyudev.Context())
@@ -794,7 +849,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 self.mice = mouse_list
 
                 self.ui.close()
-                self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
                 continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
