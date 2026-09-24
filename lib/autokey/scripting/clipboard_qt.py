@@ -71,10 +71,35 @@ class QtClipboard(AbstractClipboard):
         return autokey.common.SESSION_TYPE == "wayland" and autokey.common.DESKTOP == "KDE"
 
     def _get_klipper_interface(self):
+        """
+        Returns klipper's D-Bus interface, or None if it's not available.
+
+        klipper is KDE's *default* clipboard manager, but not the only one
+        a Plasma user can run -- klipper can be disabled, or replaced with
+        an alternative (e.g. CopyQ). Neither AutoKey nor this fix installs
+        or requires klipper the way GNOME's path requires AutoKey's own
+        Shell extension, so unlike that path, a missing klipper here isn't
+        a setup error to report loudly -- it's an expected configuration
+        for some users. connecting to a D-Bus service that isn't running
+        raises (confirmed live: pydbus/GLib raise
+        org.freedesktop.DBus.Error.ServiceUnknown), so this is cached after
+        the first attempt (both success and failure) to avoid retrying a
+        known-absent service on every single clipboard operation.
+        """
         if self._klipper_interface is None:
             from pydbus import SessionBus
-            self._klipper_interface = SessionBus().get("org.kde.klipper", "/klipper")
-        return self._klipper_interface
+            try:
+                self._klipper_interface = SessionBus().get("org.kde.klipper", "/klipper")
+            except Exception as e:
+                logger.warning(
+                    "klipper D-Bus service unavailable (%s) -- falling back to Qt's own "
+                    "clipboard API, which is known not to sync reliably with other "
+                    "applications on KDE Wayland (see _use_klipper_for_clipboard()). "
+                    "If you use an alternative clipboard manager, AutoKey does not "
+                    "currently integrate with it directly.", e
+                )
+                self._klipper_interface = False  # sentinel: don't retry every call
+        return self._klipper_interface or None
 
     def fill_selection(self, contents):
         """
@@ -133,14 +158,18 @@ class QtClipboard(AbstractClipboard):
         :param contents: string to be placed in the selection
 
         On KDE Wayland, routed through klipper's D-Bus service instead of
-        Qt's own clipboard API -- see _use_klipper_for_clipboard().
-        klipper's call is a plain synchronous D-Bus round trip, not a Qt
-        GUI operation, so it does not need __execAsync's main-thread
-        dispatch.
+        Qt's own clipboard API -- see _use_klipper_for_clipboard(). klipper's
+        call is a plain synchronous D-Bus round trip, not a Qt GUI
+        operation, so it does not need __execAsync's main-thread dispatch.
+        If klipper isn't available (not running, or replaced by another
+        clipboard manager -- see _get_klipper_interface()), falls back to
+        Qt's own clipboard API, same as pre-fix behavior.
         """
         if self._use_klipper_for_clipboard():
-            self._get_klipper_interface().setClipboardContents(contents)
-            return
+            klipper = self._get_klipper_interface()
+            if klipper is not None:
+                klipper.setClipboardContents(contents)
+                return
         self.__execAsync(self.__fillClipboard, contents)
 
     def set_clipboard_image(self, path):
@@ -184,10 +213,14 @@ class QtClipboard(AbstractClipboard):
         instead of what another client (e.g. xclip, or a real user's copy)
         actually currently holds. Confirmed live: reading immediately after
         an external xclip set returned '' here while klipper's own
-        getClipboardContents() correctly returned the just-set value.
+        getClipboardContents() correctly returned the just-set value. Falls
+        back to Qt's own clipboard API if klipper isn't available -- see
+        _get_klipper_interface().
         """
         if self._use_klipper_for_clipboard():
-            return str(self._get_klipper_interface().getClipboardContents())
+            klipper = self._get_klipper_interface()
+            if klipper is not None:
+                return str(klipper.getClipboardContents())
         self.__execAsync(self.__getClipboard)
         return str(self.text)
 
