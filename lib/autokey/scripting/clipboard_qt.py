@@ -8,6 +8,7 @@ from PyQt5.QtGui import QClipboard, QImage
 from PyQt5.QtWidgets import QApplication
 from autokey.scripting.abstract_clipboard import AbstractClipboard
 
+import autokey.common
 from pathlib import Path
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
@@ -39,6 +40,41 @@ class QtClipboard(AbstractClipboard):
         """
         Qt semaphore object used for asynchronous method execution
         """
+
+        self._klipper_interface = None
+        """
+        Lazily-created connection to KDE's klipper D-Bus service, used
+        instead of QClipboard.setText() on KDE Wayland. See
+        _use_klipper_for_clipboard().
+        """
+
+    def _use_klipper_for_clipboard(self) -> bool:
+        """
+        On KDE Wayland, QClipboard.setText(..., QClipboard.Clipboard) is a
+        normal Wayland client request that KWin silently drops: AutoKey is
+        a background daemon with no focused surface of its own when a
+        hotkey fires in another application, so it has no input-event
+        serial to offer for wl_data_device.set_selection(). Confirmed live:
+        the call returns normally and QClipboard reads its own value back
+        afterward, but an external reader (xclip, or the very application
+        the paste is meant to land in) never sees the change.
+
+        klipper (KDE's clipboard manager, a standard D-Bus service present
+        on any Plasma session, no extension install needed) can set the
+        clipboard on our behalf instead, because it is not an ordinary
+        Wayland client making that same claim. See
+        _get_klipper_interface().
+
+        This does not apply to fill_selection()/PRIMARY: klipper only
+        manages the CLIPBOARD selection.
+        """
+        return autokey.common.SESSION_TYPE == "wayland" and autokey.common.DESKTOP == "KDE"
+
+    def _get_klipper_interface(self):
+        if self._klipper_interface is None:
+            from pydbus import SessionBus
+            self._klipper_interface = SessionBus().get("org.kde.klipper", "/klipper")
+        return self._klipper_interface
 
     def fill_selection(self, contents):
         """
@@ -95,7 +131,16 @@ class QtClipboard(AbstractClipboard):
         Usage: C{clipboard.fill_clipboard(contents)}
 
         :param contents: string to be placed in the selection
+
+        On KDE Wayland, routed through klipper's D-Bus service instead of
+        Qt's own clipboard API -- see _use_klipper_for_clipboard().
+        klipper's call is a plain synchronous D-Bus round trip, not a Qt
+        GUI operation, so it does not need __execAsync's main-thread
+        dispatch.
         """
+        if self._use_klipper_for_clipboard():
+            self._get_klipper_interface().setClipboardContents(contents)
+            return
         self.__execAsync(self.__fillClipboard, contents)
 
     def set_clipboard_image(self, path):
@@ -131,7 +176,18 @@ class QtClipboard(AbstractClipboard):
 
         :return: text contents of the clipboard
         :rtype: C{str}
+
+        On KDE Wayland, routed through klipper -- see
+        _use_klipper_for_clipboard(). QClipboard.text(QClipboard.Clipboard)
+        has the same underlying problem as the write side, just less visible:
+        it returns without error but can read back stale/empty content
+        instead of what another client (e.g. xclip, or a real user's copy)
+        actually currently holds. Confirmed live: reading immediately after
+        an external xclip set returned '' here while klipper's own
+        getClipboardContents() correctly returned the just-set value.
         """
+        if self._use_klipper_for_clipboard():
+            return str(self._get_klipper_interface().getClipboardContents())
         self.__execAsync(self.__getClipboard)
         return str(self.text)
 

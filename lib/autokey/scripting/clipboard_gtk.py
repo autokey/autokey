@@ -69,9 +69,10 @@ class GtkClipboard(AbstractClipboard):
         serial 0, cancelled by the compositor immediately). The AutoKey GNOME
         Shell extension can set the clipboard on our behalf instead, because
         the Shell is the compositor, not an ordinary client, and does not
-        need to make that same claim. KDE's Qt-based clipboard does not have
-        this problem (confirmed live on Plasma 6.6.6), so this only applies
-        to GNOME.
+        need to make that same claim. This particular GTK-on-GNOME check
+        only applies here; KDE's Qt-based clipboard has the same underlying
+        problem on Wayland, but is worked around separately in
+        clipboard_qt.py (see QtClipboard._use_klipper_for_clipboard_set()).
         """
         return autokey.common.SESSION_TYPE == "wayland" and autokey.common.DESKTOP != "KDE"
 
@@ -137,10 +138,15 @@ class GtkClipboard(AbstractClipboard):
         make that same claim, so setting the clipboard from inside the
         extension avoids the rejection entirely. See
         _use_gnome_extension_for_clipboard_set() and
-        GnomeClipboardInterface in gnome_interface.py. KDE's Qt-based
-        clipboard does not have this problem (confirmed live on Plasma
-        6.6.6), so this path is GNOME-only; X11 and headless are
-        unaffected either way.
+        GnomeClipboardInterface in gnome_interface.py. This path is
+        GNOME-only; X11 and headless are unaffected either way. KDE's
+        Qt-based clipboard (clipboard_qt.py) has the same underlying
+        rejection on Wayland, worked around there via klipper's D-Bus
+        service instead -- see QtClipboard's
+        _use_klipper_for_clipboard_set(). An earlier version of this
+        comment claimed KDE's Qt clipboard did not have this problem;
+        that was never actually verified against the clipboard (as
+        opposed to selection) path and was wrong.
         """
         if self._use_gnome_extension_for_clipboard_set():
             self._get_gnome_clipboard_interface().set_clipboard_text(contents)
