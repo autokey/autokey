@@ -30,6 +30,17 @@ import autokey.scripting.clipboard_gtk
 import autokey.scripting.clipboard_qt
 import autokey.scripting.clipboard_tkinter
 import autokey.sys_interface.clipboard
+from PyQt5.QtGui import QClipboard
+from PyQt5.QtWidgets import QApplication
+
+# QtClipboard's fallback path (Qt's own clipboard API) needs a live
+# QApplication to back QApplication.clipboard() -- without one it returns
+# None and raises AttributeError on use. The pre-existing test_qt_clipboard()
+# doesn't actually exercise this (its "b.text = ..." is a plain attribute
+# assignment, not a call through fill_clipboard() -- AbstractClipboard has
+# no text property), so this was never needed until the klipper-fallback
+# tests below, which do call fill_clipboard()/get_clipboard() for real.
+_qapp = QApplication.instance() or QApplication([])
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -223,6 +234,72 @@ def test_qt_clipboard_read_routes_through_klipper_on_kde_wayland():
     finally:
         autokey.common.SESSION_TYPE = original_session_type
         autokey.common.DESKTOP = original_desktop
+
+
+def test_qt_clipboard_falls_back_when_klipper_unavailable_on_write():
+    """
+    Regression test for a real crash risk flagged in review: klipper is
+    KDE's *default* clipboard manager, not the only one -- a user can
+    disable it or run an alternative (e.g. CopyQ) instead. Connecting to a
+    D-Bus service that isn't running raises (pydbus/GLib raise
+    org.freedesktop.DBus.Error.ServiceUnknown), and prior to this fix that
+    exception was unhandled, so every clipboard-paste on KDE Wayland would
+    crash outright for any user without klipper running -- worse than the
+    original silent-non-sync bug #1250 fixed. fill_clipboard() must fall
+    back to Qt's own clipboard API (the pre-#1250 behavior) instead of
+    raising.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard.app = None
+        clipboard._klipper_interface = None
+        with patch("pydbus.SessionBus") as mock_bus:
+            mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+            clipboard.fill_clipboard("test contents")
+            hm.assert_that(clipboard.clipBoard.text(QClipboard.Clipboard), hm.equal_to("test contents"))
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_qt_clipboard_falls_back_when_klipper_unavailable_on_read():
+    """Read-side counterpart of test_qt_clipboard_falls_back_when_klipper_unavailable_on_write."""
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard.app = None
+        clipboard.text = None
+        clipboard._klipper_interface = None
+        clipboard.clipBoard.setText("already on qt clipboard", QClipboard.Clipboard)
+        with patch("pydbus.SessionBus") as mock_bus:
+            mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+            hm.assert_that(clipboard.get_clipboard(), hm.equal_to("already on qt clipboard"))
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_get_klipper_interface_caches_unavailability_and_does_not_retry():
+    """
+    A missing klipper service shouldn't be re-probed on every single
+    clipboard operation -- _get_klipper_interface() caches the failure
+    (via a False sentinel, distinct from the None-means-not-yet-tried
+    initial state) after the first attempt.
+    """
+    clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+    clipboard._klipper_interface = None
+    with patch("pydbus.SessionBus") as mock_bus:
+        mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+        hm.assert_that(clipboard._get_klipper_interface(), hm.equal_to(None))
+        hm.assert_that(clipboard._get_klipper_interface(), hm.equal_to(None))
+        hm.assert_that(mock_bus.return_value.get.call_count, hm.equal_to(1))
 
 
 def test_qt_clipboard_does_not_use_klipper_on_gnome_or_x11():
