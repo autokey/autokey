@@ -1,12 +1,14 @@
 dbus-python
 pydbus
 pyinotify
+pyasyncore; python_version>="3.12"
 python-xlib
 PyGObject
 PyQt5
 QScintilla
 pyhamcrest
 python-magic
+packaging
 pyudev
 evdev
 packaging
