@@ -244,3 +244,37 @@ def test_reapply_modifiers_does_not_press_released_modifiers():
     mediator.interface.press_key.assert_not_called()
     mediator.interface.fake_keydown.assert_not_called()
     assert_that(mediator.releasedModifiers, is_([]))
+
+
+@pytest.mark.parametrize("string, types_characters", [
+    # Special keys and explicit combinations type nothing.
+    ["<ctrl>+<np_page_up>", False],
+    ["<ctrl>+<shift>+<f5>", False],
+    ["<ctrl>+v", False],
+    ["<enter>", False],
+    ["<ctrl>+c<ctrl>+v", False],
+    # Anything with literal text does.
+    ["2026-09-18", True],
+    ["hello <ctrl>+a there", True],
+    ["<ctrl>+ab", True],
+    ["<enter>x", True],
+])
+def test_types_characters(string, types_characters):
+    assert_that(IoMediator._types_characters(string), is_(types_characters))
+
+
+@pytest.mark.parametrize("string, clears", [
+    ["<ctrl>+<np_page_up>", False],
+    ["hello", True],
+])
+def test_send_string_clears_held_modifiers_only_for_text(string, clears):
+    """
+    Regression test for #1229: releasing a modifier the user is holding just
+    before a synthetic key combination makes applications drop or delay that key,
+    and a string that types nothing has no text for the modifier to corrupt.
+    """
+    mediator = unittest.mock.MagicMock()
+
+    IoMediator.send_string(mediator, string)
+
+    assert_that(mediator._clear_modifiers.called, is_(clears))
