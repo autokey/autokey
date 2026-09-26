@@ -27,6 +27,7 @@ from autokey.model.phrase import SendMode
 from unittest.mock import MagicMock
 
 from autokey.model.key import Key
+from autokey.model.button import Button
 
 
 def generate_tests_for_key_split_re():
@@ -224,6 +225,36 @@ def test_send_string_selection_restore_uses_wait_responsively():
         mediator._send_string_selection("some text")
     wait_responsively.assert_called_once_with(1)
     sleep.assert_not_called()
+
+
+def test_send_string_selection_clicks_synchronously_not_via_the_queue():
+    """
+    Regression test: _send_string_selection() previously called the
+    queued send_mouse_click() (@queue_method-decorated on both the X11
+    and uinput interfaces). That decorator only enqueues the call and
+    returns immediately -- the click itself only runs once the CURRENT
+    __eventLoop iteration returns control to queue.get(). But
+    _send_string_selection() itself runs synchronously on that same
+    __eventLoop thread (invoked from handle_keypress()'s processing of
+    the hotkey that triggered this phrase), so the enqueued click could
+    never actually fire before this method's own call chain returned --
+    by which point __restore_clipboard_selection() below had already
+    overwritten the selection back to its backup value. Confirmed live
+    (AcreetionOS/XLibre, real X11 session): the paste always delivered
+    the backup content instead of the intended string, no matter how
+    long a delay was inserted before the restore, since the enqueued
+    task was never given a chance to run at all. Fixed by calling the
+    non-queued _send_mouse_click_now() directly instead, mirroring the
+    existing move_cursor()/_move_cursor_now() split in
+    uinput_interface.py for the identical reason.
+    """
+    mediator = IoMediator.__new__(IoMediator)
+    mediator.clipboard = unittest.mock.Mock(selection="backup text")
+    mediator.interface = unittest.mock.Mock(mouse_location=lambda: (1, 2))
+    with unittest.mock.patch.object(IoMediator, "_wait_responsively"):
+        mediator._send_string_selection("some text")
+    mediator.interface._send_mouse_click_now.assert_called_once_with(1, 2, Button.MIDDLE, False)
+    mediator.interface.send_mouse_click.assert_not_called()
 
 
 def test_reapply_modifiers_does_not_press_released_modifiers():
