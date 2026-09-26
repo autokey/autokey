@@ -474,7 +474,19 @@ class IoMediator(threading.Thread):
             logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
         pos = self.interface.mouse_location()
-        self.interface.send_mouse_click(pos[0], pos[1], Button.MIDDLE, False)
+        # _send_mouse_click_now(), not the queued send_mouse_click(): this
+        # method itself runs synchronously on the X interface's own
+        # __eventLoop consumer thread (invoked from handle_keypress()'s
+        # processing of the hotkey that triggered this phrase), so a
+        # queued click can never actually run until this whole call chain
+        # returns control to that loop -- by which point
+        # __restore_clipboard_selection() below has already overwritten
+        # the selection back to its backup value, so the paste always
+        # delivered the old content instead of the intended string.
+        # Confirmed live (AcreetionOS/XLibre): no delay before the
+        # restore fixes this, since the enqueued click is never given a
+        # chance to run at all until the wait itself returns first.
+        self.interface._send_mouse_click_now(pos[0], pos[1], Button.MIDDLE, False)
         self.__restore_clipboard_selection(backup)
 
     def __restore_clipboard_selection(self, backup: str):

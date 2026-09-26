@@ -443,6 +443,28 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
+        self._send_mouse_click_now(xCoord, yCoord, button, relative)
+
+    def _send_mouse_click_now(self, xCoord, yCoord, button: Button, relative):
+        # Not queue_method-decorated: callers that are themselves already
+        # running on this queue's own consumer thread (__eventLoop) --
+        # e.g. IoMediator._send_string_selection(), invoked synchronously
+        # from within handle_keypress()'s processing of the triggering
+        # hotkey -- must call this directly instead of send_mouse_click().
+        # The queued version only enqueues and returns immediately; the
+        # actual click can't run until the CURRENT __eventLoop iteration
+        # (the one processing the keypress that triggered the phrase)
+        # returns control to queue.get(). Confirmed live on the X11
+        # backend (interface.py's identical fix): this made
+        # _send_string_selection()'s later restore step overwrite the
+        # PRIMARY selection back to its backup value before the enqueued
+        # click ever fired, so the paste always delivered the old/backup
+        # content instead of the intended string -- no delay of any
+        # length before the restore could fix this, since the enqueued
+        # task was never given a chance to run at all until the whole
+        # call chain (including the wait) unwound first. Same class of
+        # bug this class's own move_cursor()/_move_cursor_now() split
+        # already exists to avoid.
         self._move_cursor_now(xCoord, yCoord, relative)
 
         keycode = self.btn_map[button][0]
