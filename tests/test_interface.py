@@ -385,3 +385,48 @@ class TestSelfRemapDoesNotRegrab:
         before = iface._XInterfaceBase__lastKeyboardMapping
         autokey.interface.XInterfaceBase._XInterfaceBase__remap_characters(iface, False, "a")
         assert_that(iface._XInterfaceBase__lastKeyboardMapping, equal_to(before))
+
+
+class TestGetWindowInfoWithNoRealFocus:
+    """
+    get_input_focus().focus can return the X11 protocol's special None (0)
+    or PointerRoot (1) values instead of a real window -- e.g. no window
+    currently has explicit input focus, such as during a focus-follows-
+    mouse transition. python-xlib has no window resource to wrap in that
+    case and returns the raw int as-is. Confirmed live (AcreetionOS/XLibre,
+    Cinnamon): this crashed handle_keypress() with an uncaught
+    AttributeError ('int' object has no attribute 'get_property'), silently
+    dropping that keypress instead of matching it against any hotkey.
+    """
+
+    def _interface(self):
+        iface = autokey.interface.XWindowInterface.__new__(autokey.interface.XWindowInterface)
+        iface.localDisplay = MagicMock()
+        iface._XWindowInterface__NameAtom = "_NET_WM_NAME"
+        iface._XWindowInterface__VisibleNameAtom = "_NET_WM_VISIBLE_NAME"
+        return iface
+
+    def test_none_focus_value_does_not_raise(self):
+        iface = self._interface()
+        iface.localDisplay.get_input_focus.return_value.focus = 0  # X11 "None"
+        result = iface.get_window_info()
+        assert_that(result.wm_title, equal_to(""))
+        assert_that(result.wm_class, equal_to(""))
+
+    def test_pointer_root_focus_value_does_not_raise(self):
+        iface = self._interface()
+        iface.localDisplay.get_input_focus.return_value.focus = 1  # X11 "PointerRoot"
+        result = iface.get_window_info()
+        assert_that(result.wm_title, equal_to(""))
+        assert_that(result.wm_class, equal_to(""))
+
+    def test_real_window_focus_still_works(self):
+        iface = self._interface()
+        window = MagicMock()
+        window.get_property.return_value = None
+        window.get_wm_class.return_value = None
+        window.query_tree.return_value.parent = 0  # stop traversal
+        iface.localDisplay.get_input_focus.return_value.focus = window
+        result = iface.get_window_info()
+        assert_that(window.get_property.called, is_(True),
+                    "a real Window object must still be queried normally")

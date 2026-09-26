@@ -127,6 +127,17 @@ class XWindowInterface(AbstractWindowInterface):
         try:
             if window is None:
                 window = self.localDisplay.get_input_focus().focus
+            # get_input_focus() can return the X11 protocol's special None
+            # (0) or PointerRoot (1) focus values instead of a real window
+            # -- e.g. no window currently has explicit input focus, such as
+            # during a focus-follows-mouse transition. python-xlib has no
+            # window resource to wrap in that case and returns the raw int
+            # as-is, which crashes downstream .get_property() calls with an
+            # uncaught AttributeError (confirmed live: 'int' object has no
+            # attribute 'get_property'). Treat it the same as an unknown
+            # window rather than letting it propagate.
+            if isinstance(window, int):
+                return self._create_window_info(window, "", "")
             return self._get_window_info(window, traverse)
         except error.BadWindow:
             logger.warning("Got BadWindow error while requesting window information.")
