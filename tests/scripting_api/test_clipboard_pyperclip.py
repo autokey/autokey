@@ -33,6 +33,21 @@ def get_errors_in_log(caplog):
     return [record for record in caplog.get_records('call') if record.levelno >= logging.ERROR]
 
 
+def test_module_import_eagerly_binds_pyperclip_backend():
+    """
+    Regression test: pyperclip.copy()/paste() are lazy stubs until first
+    called, and that stub's signature doesn't accept the primary= kwarg
+    fill_selection()/get_selection() pass -- confirmed live, this crashes
+    with a TypeError if a SELECTION-mode phrase is the first clipboard
+    operation a real AutoKey process ever performs, before any CB_CTRL_V
+    phrase has run plain copy()/paste() to bind the real backend first.
+    Importing this module must bind the real backend immediately so
+    fill_selection()/get_selection() are safe to call first.
+    """
+    hm.assert_that(clipboard_pyperclip.pyperclip.copy.__name__, hm.not_(hm.equal_to("lazy_load_stub_copy")))
+    hm.assert_that(clipboard_pyperclip.pyperclip.paste.__name__, hm.not_(hm.equal_to("lazy_load_stub_paste")))
+
+
 def test_fill_clipboard_calls_pyperclip_copy():
     clipboard = PyperclipClipboard()
     with patch.object(clipboard_pyperclip.pyperclip, "copy") as mock_copy:

@@ -26,6 +26,17 @@ from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
+# pyperclip normally binds copy()/paste() lazily on first use, so that
+# importing it doesn't force a clipboard mechanism to be chosen before the
+# caller has a chance to override it. That lazy stub's signature doesn't
+# accept the primary= kwarg fill_selection()/get_selection() need below, so
+# if one of those happens to be the very first pyperclip call this process
+# ever makes, it crashes with a TypeError instead of ever reaching the real
+# xclip/wl-copy backend (confirmed live: any AutoKey session where a
+# SELECTION-mode phrase fires before a CB_CTRL_V-mode one does). Binding the
+# real backend eagerly here avoids the lazy stub entirely.
+pyperclip.copy, pyperclip.paste = pyperclip.determine_clipboard()
+
 
 class PyperclipClipboard(AbstractClipboard):
     """
