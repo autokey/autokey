@@ -33,6 +33,7 @@ Important misc changes
 - Bump Python versions in setup.py to satisfy issue #970.
 - Bump to all GitHub-supported Python versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
+- Remove a leftover unconditional `pyasyncore` entry in `setup.py`'s `install_requires`, left behind when the version-gated entry was added; `pyasyncore` is now only required on Python 3.12+ as intended. Fixes `#973 <https://github.com/autokey/autokey/issues/973>`__.
 - Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
