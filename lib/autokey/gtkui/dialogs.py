@@ -232,6 +232,7 @@ class AbbrSettingsDialog(DialogBase):
         # editing is cancelled, so the model only ever holds finalized entries.
         self.set_response_sensitive(Gtk.ResponseType.OK, False)
         self._ok_button_enabled = False
+        self._current_editor = None
 
         # set up list view
         store = Gtk.ListStore(str)
@@ -240,6 +241,7 @@ class AbbrSettingsDialog(DialogBase):
         column1 = Gtk.TreeViewColumn(_("Abbreviations"))
         textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", True)
+        textRenderer.connect("editing-started", self.on_cell_editing_started)
         textRenderer.connect("edited", self.on_cell_modified)
         textRenderer.connect("editing-canceled", self.on_cell_editing_cancelled)
         column1.pack_end(textRenderer, True)
@@ -383,12 +385,24 @@ class AbbrSettingsDialog(DialogBase):
 
     # Signal handlers
 
+    def on_cell_editing_started(self, renderer, editable, path, data=None):
+        # GTK fires "editing-canceled" (not "edited") when a cell loses focus
+        # without the user pressing Enter, e.g. clicking OK directly after
+        # typing. "editing-canceled" carries no text of its own, so the live
+        # editable widget is kept here to recover whatever was actually typed
+        # instead of discarding it (see issue #1185).
+        self._current_editor = editable
+
     def on_cell_editing_cancelled(self, renderer, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
-        oldText = model.get_value(curIter, 0) or ""
-        self.on_cell_modified(renderer, None, oldText)
+        if self._current_editor is not None:
+            newText = self._current_editor.get_text()
+        else:
+            newText = model.get_value(curIter, 0) or ""
+        self.on_cell_modified(renderer, None, newText)
 
     def on_cell_modified(self, renderer, path, newText, data=None):
+        self._current_editor = None
         model, curIter = self.abbrList.get_selection().get_selected()
         oldText = model.get_value(curIter, 0) or ""
         if EMPTY_FIELD_REGEX.match(newText) and EMPTY_FIELD_REGEX.match(oldText):
