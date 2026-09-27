@@ -52,6 +52,7 @@ Important misc changes
 - Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
 - Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
 - Add instruction label and disable OK button in GTK abbreviation settings dialog until an abbreviation is finalized, to prevent silent data loss and match the Qt behavior. Fixes `#667 <https://github.com/autokey/autokey/issues/667>`__.
+- Fix silent loss of an in-progress edit to an existing abbreviation in the GTK abbreviation settings dialog when OK is clicked without pressing Enter first, by capturing the live editor text instead of discarding it. Fixes `#1185 <https://github.com/autokey/autokey/issues/1185>`__.
 - Update the GTK and Qt man pages.
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
