@@ -208,9 +208,37 @@ class IoMediator(threading.Thread):
         string = string.replace('\t', "<tab>")
         
         logger.debug("Send via event interface")
-        self._clear_modifiers()
+        # Held modifiers are cleared so they cannot corrupt typed text. A string
+        # that only sends special keys or explicit combinations, such as
+        # "<ctrl>+<page_up>", types nothing, and releasing a modifier the user is
+        # holding just before a synthetic key makes applications drop or delay
+        # that key (#1229).
+        if IoMediator._types_characters(string):
+            self._clear_modifiers()
         IoMediator._send_string(string, self.interface)
         self._reapply_modifiers()
+
+    @staticmethod
+    def _types_characters(string):
+        """
+        Whether the string types literal characters, as opposed to only sending
+        special keys and explicit modifier combinations. Parses the string the
+        same way _send_string() does.
+        """
+        modifiers = []
+        for section in KEY_SPLIT_RE.split(string):
+            if len(section) > 0:
+                if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                    modifiers.append(section[:-1])
+                elif len(modifiers) > 0:
+                    # The combination consumes one key; the rest of a text
+                    # section is sent as a string.
+                    modifiers = []
+                    if not Key.is_key(section) and len(section) > 1:
+                        return True
+                elif not Key.is_key(section):
+                    return True
+        return False
 
     # Mainly static for the purpose of testing
     @staticmethod
