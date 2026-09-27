@@ -11,6 +11,8 @@ import gettext
 # Defines "_" function for localisation
 gettext.install("autokey")
 
+logger = __import__("autokey.logger").logger.get_logger(__name__)
+
 if common.USED_UI_TYPE == "QT":
     from PyQt5.QtWidgets import QAction
 
@@ -196,7 +198,40 @@ class CursorMacro(AbstractMacro):
 
     def do_process(self, sections, i):
         try:
-            lefts = len(''.join(sections[i+1:]))
+            lefts = 0
+            for section in sections[i+1:]:
+                if not section:
+                    continue
+                if KEY_SPLIT_RE.fullmatch(section):
+                    # A <...> tag. Only <enter>/<tab> (insert exactly one
+                    # unit) and <backspace> (removes one previously-counted
+                    # unit) have a predictable, single-character effect on
+                    # the cursor position. Anything else -- navigation keys,
+                    # modifiers, function keys, or another macro's tag that
+                    # hasn't been expanded yet (e.g. <system>/<script>/
+                    # <clipboard>, which run after this one) -- can't be
+                    # reasoned about safely. Counting such a tag's own
+                    # literal text length (as this used to do) produces a
+                    # wildly wrong, inflated count, so stop instead of
+                    # guessing: leave the cursor at the end of the expansion.
+                    key = section.rstrip('+').lower()
+                    if key == Key.ENTER.value:
+                        lefts += 1
+                    elif key == Key.TAB.value:
+                        lefts += 1
+                    elif key == Key.BACKSPACE.value:
+                        lefts = max(0, lefts - 1)
+                    else:
+                        logger.warning(
+                            "<cursor> macro: cannot determine the "
+                            "cursor-position effect of %r; leaving the "
+                            "cursor at the end of the expansion instead "
+                            "of guessing.", section
+                        )
+                        lefts = 0
+                        break
+                else:
+                    lefts += len(section)
             sections.append(Key.LEFT * lefts)
             sections[i] = ''
         except IndexError:

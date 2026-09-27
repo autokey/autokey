@@ -355,3 +355,166 @@ class TestGrabWalkWindowFilter():
         item = self._item("gnome-terminal.*", inverted=True)
 
         assert_that(set(self._walk(item, grab=False)), is_(set(self._walk(item, grab=True))))
+@pytest.mark.parametrize("alt_list, expected, description", [
+    # A stock layout: AltGr is keycode 108, carrying ISO_Level3_Shift itself.
+    [[(108, 0)], (0, 1, 4, 5), "stock AltGr on 108"],
+    # AltGr elsewhere. This is the case the old check missed: it required keycode
+    # 108 specifically, so a keyboard with Control_R on 108 and AltGr on 92 lost
+    # the AltGr levels entirely.
+    [[(49, 0), (92, 0), (92, 2), (108, 2)], (0, 1, 4, 5), "AltGr on 92, Control_R on 108"],
+    [[(92, 0)], (0, 1, 4, 5), "AltGr on 92 only"],
+    # ISO_Level3_Shift appearing only as a secondary symbol is not an AltGr key.
+    [[(108, 2)], (0, 1), "only as a shifted symbol"],
+    [[(49, 1), (92, 3)], (0, 1), "only at non-zero offsets"],
+    [[], (0, 1), "absent"],
+])
+def test_usable_offsets(alt_list, expected, description):
+    """
+    Offsets 4 and 5 are the AltGr levels. Whether AutoKey can reach them decides
+    whether a character living there is considered typeable, or whether
+    __sendString rewrites the keyboard mapping to borrow a spare keycode for it.
+    """
+    assert_that(autokey.interface.XInterfaceBase._usable_offsets(alt_list),
+                is_(expected), description)
+class TestKeymapChangeSkipping:
+    """
+    on_keys_changed() must not regrab every hotkey when the mapping is unchanged.
+
+    A MappingNotify says the mapping *may* have changed, not that it did. Other
+    clients re-apply the same mapping wholesale, and each of those events costs a
+    full ungrab/regrab of every hotkey across every window.
+    """
+
+    @staticmethod
+    def _interface(mapping, last):
+        """An XInterfaceBase stand-in with just the state on_keys_changed touches."""
+        iface = MagicMock()
+        iface.localDisplay.get_keyboard_mapping.return_value = mapping
+        iface._XInterfaceBase__lastKeyboardMapping = last
+        iface._XInterfaceBase__ignoreRemap = False
+        iface._XInterfaceBase__get_keyboard_mapping = (
+            lambda: autokey.interface.XInterfaceBase._XInterfaceBase__get_keyboard_mapping(iface)
+        )
+        return iface
+
+    @staticmethod
+    def _run(iface):
+        autokey.interface.XInterfaceBase.on_keys_changed(iface)
+
+    def test_unchanged_mapping_does_not_regrab(self):
+        mapping = [(1, 2), (3, 4)]
+        iface = self._interface(mapping, list(mapping))
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__ungrab_all_hotkeys.called, is_(False),
+                    "an unchanged mapping must not provoke an ungrab")
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(False),
+                    "an unchanged mapping must not provoke a regrab")
+
+    def test_changed_mapping_does_regrab(self):
+        iface = self._interface([(1, 2), (3, 4)], [(1, 2), (9, 9)])
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__ungrab_all_hotkeys.called, is_(True))
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+    def test_changed_mapping_is_remembered_for_next_time(self):
+        mapping = [(1, 2), (3, 4)]
+        iface = self._interface(mapping, [(1, 2), (9, 9)])
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping, equal_to(mapping))
+
+    def test_first_event_with_no_baseline_regrabs(self):
+        """None means we have never read the mapping, so we cannot rule a change out."""
+        iface = self._interface([(1, 2)], None)
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+    def test_unreadable_mapping_regrabs_rather_than_skipping(self):
+        """If the mapping cannot be read, fail towards doing the work, not skipping it."""
+        iface = self._interface([(1, 2)], [(1, 2)])
+        iface.localDisplay.get_keyboard_mapping.side_effect = Xlib.error.ConnectionClosedError("gone")
+        self._run(iface)
+        assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
+
+
+class TestSelfRemapDoesNotRegrab:
+    """
+    AutoKey rewrites the keyboard mapping to borrow spare keycodes for characters
+    the layout cannot reach. That rewrite genuinely changes the mapping, so the
+    comparison in on_keys_changed() would see a real change and regrab everything.
+
+    __ignoreRemap exists to prevent exactly that, but it is cleared when sending
+    finishes rather than when the event arrives, so it loses the race.
+    """
+
+    @staticmethod
+    def _interface():
+        iface = MagicMock()
+        iface._XInterfaceBase__lastKeyboardMapping = [(1, 2), (3, 4)]
+        iface._XInterfaceBase__availableKeycodes = [8, 9]
+        iface._XInterfaceBase__get_usable_char_keycode_and_offset.return_value = (None, None)
+        iface._XInterfaceBase__get_keyboard_mapping = (
+            lambda: autokey.interface.XInterfaceBase._XInterfaceBase__get_keyboard_mapping(iface)
+        )
+        # the mapping after our own rewrite differs from the baseline above
+        iface.localDisplay.get_keyboard_mapping.return_value = [[0, 0], [0, 0], [0, 0]]
+        return iface
+
+    def test_own_remap_updates_the_remembered_mapping(self):
+        iface = self._interface()
+        autokey.interface.XInterfaceBase._XInterfaceBase__remap_characters(iface, True, "ä")
+        assert_that(iface.localDisplay.change_keyboard_mapping.called, is_(True),
+                    "the test needs the remap path to actually run")
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping,
+                    equal_to(iface.localDisplay.get_keyboard_mapping.return_value),
+                    "our own write must be recorded, or the event it provokes regrabs")
+
+    def test_no_remap_leaves_the_remembered_mapping_alone(self):
+        iface = self._interface()
+        before = iface._XInterfaceBase__lastKeyboardMapping
+        autokey.interface.XInterfaceBase._XInterfaceBase__remap_characters(iface, False, "a")
+        assert_that(iface._XInterfaceBase__lastKeyboardMapping, equal_to(before))
+
+
+class TestGetWindowInfoWithNoRealFocus:
+    """
+    get_input_focus().focus can return the X11 protocol's special None (0)
+    or PointerRoot (1) values instead of a real window -- e.g. no window
+    currently has explicit input focus, such as during a focus-follows-
+    mouse transition. python-xlib has no window resource to wrap in that
+    case and returns the raw int as-is. Confirmed live (AcreetionOS/XLibre,
+    Cinnamon): this crashed handle_keypress() with an uncaught
+    AttributeError ('int' object has no attribute 'get_property'), silently
+    dropping that keypress instead of matching it against any hotkey.
+    """
+
+    def _interface(self):
+        iface = autokey.interface.XWindowInterface.__new__(autokey.interface.XWindowInterface)
+        iface.localDisplay = MagicMock()
+        iface._XWindowInterface__NameAtom = "_NET_WM_NAME"
+        iface._XWindowInterface__VisibleNameAtom = "_NET_WM_VISIBLE_NAME"
+        return iface
+
+    def test_none_focus_value_does_not_raise(self):
+        iface = self._interface()
+        iface.localDisplay.get_input_focus.return_value.focus = 0  # X11 "None"
+        result = iface.get_window_info()
+        assert_that(result.wm_title, equal_to(""))
+        assert_that(result.wm_class, equal_to(""))
+
+    def test_pointer_root_focus_value_does_not_raise(self):
+        iface = self._interface()
+        iface.localDisplay.get_input_focus.return_value.focus = 1  # X11 "PointerRoot"
+        result = iface.get_window_info()
+        assert_that(result.wm_title, equal_to(""))
+        assert_that(result.wm_class, equal_to(""))
+
+    def test_real_window_focus_still_works(self):
+        iface = self._interface()
+        window = MagicMock()
+        window.get_property.return_value = None
+        window.get_wm_class.return_value = None
+        window.query_tree.return_value.parent = 0  # stop traversal
+        iface.localDisplay.get_input_focus.return_value.focus = window
+        result = iface.get_window_info()
+        assert_that(window.get_property.called, is_(True),
+                    "a real Window object must still be queried normally")

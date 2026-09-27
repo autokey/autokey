@@ -42,6 +42,61 @@ else:
 #  This matches how things are done in the equivalent function in the X11
 #  interface.py module.
 
+# Digitizer/stylus button codes (BTN_TOOL_PEN..BTN_TOOL_QUADTAP, BTN_TOUCH,
+# BTN_STYLUS, BTN_STYLUS2 -- evdev codes 320-337). AutoKey has no legitimate
+# use for these; see _merge_uinput_capabilities() for why they must be
+# filtered out.
+_DIGITIZER_BUTTON_CODES = range(320, 338)
+
+
+def _merge_uinput_capabilities(device_paths, name):
+    """
+    Like evdev.UInput.from_device(), but works around two issues that can
+    make libinput silently ignore the resulting combined device on Wayland,
+    dropping every keystroke and mouse event AutoKey generates with no
+    error from AutoKey itself (see issue #1247):
+
+    1. evdev.UInput.from_device() copies ABS axis info verbatim from each
+       source device. A device with absolute positioning but no real
+       physical DPI concept -- a VM's guest-integration mouse is a common
+       example -- often reports its ABS_X/ABS_Y resolution as 0. libinput
+       rejects a device whose ABS axes have zero resolution.
+    2. If any grabbed device also contributes digitizer/stylus button
+       codes, the combination of ABS axes + those buttons makes
+       libinput's device-type heuristic classify the merged device as a
+       graphics tablet. Fixing only the resolution still leaves the
+       device tablet-classified, so its EV_KEY events route through
+       libinput's tablet input path instead of the normal keyboard path --
+       both issues must be fixed together.
+
+    Confirmed live via `libinput list-devices`: without this, AutoKey's
+    own combined device is reported as "libinput bug: missing tablet
+    capabilities: resolution. Ignoring this device."; with it, the same
+    device correctly reports "Capabilities: keyboard pointer".
+    """
+    device_instances = [evdev.InputDevice(str(p)) for p in device_paths]
+    all_capabilities = {}
+    for dev in device_instances:
+        for ev_type, ev_codes in dev.capabilities().items():
+            all_capabilities.setdefault(ev_type, set()).update(ev_codes)
+
+    for filtered_type in (e.EV_SYN, e.EV_FF):
+        all_capabilities.pop(filtered_type, None)
+
+    if e.EV_ABS in all_capabilities:
+        all_capabilities[e.EV_ABS] = {
+            (code, absinfo._replace(resolution=1)) if absinfo.resolution == 0 else (code, absinfo)
+            for code, absinfo in all_capabilities[e.EV_ABS]
+        }
+
+    if e.EV_KEY in all_capabilities:
+        all_capabilities[e.EV_KEY] = {
+            code for code in all_capabilities[e.EV_KEY] if code not in _DIGITIZER_BUTTON_CODES
+        }
+
+    return evdev.UInput(events=all_capabilities, name=name)
+
+
 class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
     """
     god this is complicated lol
@@ -212,7 +267,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
             # keyboard = "/dev/input/event4"
             # creating a uinput device with the combined capabilities of the user's mouse and keyboard
             # this will undoubtedly cause issues if user attempts to send signals not supported by their devices
-            self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+            self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
             self.capabilities = self.ui.capabilities(verbose=True)
             logger.debug("UInput device capabilities: {}".format(self.capabilities))
             logger.info("Supports ABS Movement: {}".format(self.supports_abs()))
@@ -247,7 +302,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
             if action == 'bind':
                 logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse to grab.")
                 self.grab_multiple_devices()
-                self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
                 logger.debug("Devices grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
 
         monitor = pyudev.Monitor.from_netlink(pyudev.Context())
@@ -794,7 +849,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 self.mice = mouse_list
 
                 self.ui.close()
-                self.ui = evdev.UInput.from_device(*self.device_paths, name="autokey mouse and keyboard")
+                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
                 continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
@@ -804,12 +859,11 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     held = held + keyboard.active_keys(verbose=True)
 
                 if type(event_type) is evdev.KeyEvent:
-
-                    # if event_type.scancode in iter(Button): #is a mouse button
-                        # continue
-                        #logger.debug("__flush_events: Button State: {}, Button Code: {}".format(event_type.keystate, event_type.keycode))
-
-                    if event_type.keystate == 1 : #key down
+                    # Mouse buttons arrive as EV_KEY / BTN_* on the mouse device.
+                    # Forward presses; swallow releases (see _consume_mouse_button_event).
+                    if self._consume_mouse_button_event(event_type):
+                        pass  # consumed as mouse button — do not treat as keyboard
+                    elif event_type.keystate == 1 : #key down
                         logger.debug("__flush_events: Key State: {}, Key Code: {}, Scan Code: {}".format(event_type.keystate, event_type.keycode, event_type.scancode))
                         logger.debug("Held: {}".format(held))
                         #logger.debug("Key: {}".format(event_type))
@@ -939,8 +993,86 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         self.sending = False
         #self.keyboard.ungrab()
 
-    def handle_mouseclick(self, clickEvent):
-        self.mediator.handle_mouse_click(clickEvent)
+
+    def _consume_mouse_button_event(self, event_type):
+        """
+        Handle EV_KEY mouse-button events for WindowGrabber / IoMediator.
+
+        Returns True if this was a BTN_* event (consumed), else False so the
+        caller can treat it as a normal keyboard KeyEvent.
+
+        Button *down* (keystate == 1) is forwarded via handle_mouseclick.
+        Button *up* / hold are intentionally swallowed: the old fallthrough to
+        handle_keyrelease → mediator.handle_keypress produced garbage rather
+        than useful release handling (#1189 / #1208 review, option a).
+        """
+        mouse_button = self._button_from_keyevent(event_type)
+        if mouse_button is None:
+            return False
+        if event_type.keystate == 1:  # button down
+            logger.debug(
+                "__flush_events: Mouse button %s (keycode=%s)",
+                mouse_button, event_type.keycode,
+            )
+            self.handle_mouseclick(mouse_button, None, None)
+        return True
+
+    def _button_from_keyevent(self, event_type):
+        """
+        Return an Autokey Button enum if this KeyEvent is a mouse button, else None.
+
+        evdev may report mouse buttons as a single name ('BTN_LEFT') or a list
+        such as ['BTN_LEFT', 'BTN_MOUSE'].
+        """
+        keycode = event_type.keycode
+        names = keycode if isinstance(keycode, (list, tuple)) else [keycode]
+        for name in names:
+            if name in self.inv_btn_map:
+                return self.inv_btn_map[name]
+        return None
+
+    @queue_method(queue)
+    def handle_mouseclick(self, button, x=None, y=None):
+        """
+        Forward a mouse button press to IoMediator listeners (e.g. WindowGrabber).
+
+        Mirrors XInterfaceBase.handle_mouseclick: briefly wait so focus can move
+        to the clicked window, then resolve window info via the Wayland window
+        interface (GNOME extension / KWin). On Wayland we cannot query the
+        window *under the pointer* via X11; focused-window-after-click is the
+        best-effort equivalent (see issue #1189).
+        """
+        # Sleep a bit for focus switch timing, same rationale as the X11 path.
+        time.sleep(0.05)
+        window_info = self.mediator.windowInterface.get_window_info()
+
+        # Do not invent (0, 0) when absolute/relative coords are unavailable.
+        # WindowGrabber only needs the button event + focused-window info
+        # (Wayland cannot query the window under the pointer via X11).
+        if x is None or y is None:
+            try:
+                x, y = self.mouse_location()
+            except Exception:
+                logger.exception(
+                    "Failed to resolve mouse location for click; "
+                    "forwarding button event without invented coordinates"
+                )
+                # leave x/y as None
+
+        try:
+            rel_x, rel_y = self.relative_mouse_location()
+        except Exception:
+            logger.debug(
+                "relative_mouse_location unavailable; omitting relative coords",
+                exc_info=True,
+            )
+            rel_x, rel_y = None, None
+
+        logger.debug(
+            "UInput mouse click button=%s at (%s, %s) rel=(%s, %s) window=%s",
+            button, x, y, rel_x, rel_y, window_info,
+        )
+        self.mediator.handle_mouse_click(x, y, rel_x, rel_y, button, window_info)
 
     def on_keys_changed(self, ):
         raise NotImplementedError

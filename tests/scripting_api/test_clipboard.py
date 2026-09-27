@@ -30,6 +30,17 @@ import autokey.scripting.clipboard_gtk
 import autokey.scripting.clipboard_qt
 import autokey.scripting.clipboard_tkinter
 import autokey.sys_interface.clipboard
+from PyQt5.QtGui import QClipboard
+from PyQt5.QtWidgets import QApplication
+
+# QtClipboard's fallback path (Qt's own clipboard API) needs a live
+# QApplication to back QApplication.clipboard() -- without one it returns
+# None and raises AttributeError on use. The pre-existing test_qt_clipboard()
+# doesn't actually exercise this (its "b.text = ..." is a plain attribute
+# assignment, not a call through fill_clipboard() -- AbstractClipboard has
+# no text property), so this was never needed until the klipper-fallback
+# tests below, which do call fill_clipboard()/get_clipboard() for real.
+_qapp = QApplication.instance() or QApplication([])
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -132,9 +143,11 @@ def test_gtk_clipboard_routes_through_gnome_extension_on_gnome_wayland():
 
 def test_gtk_clipboard_does_not_use_gnome_extension_on_kde_or_x11():
     """
-    KDE's Qt-based clipboard does not have GNOME's rejection problem
-    (confirmed live on Plasma 6.6.6), and X11 never had it either -- only
-    GNOME Wayland should route through the Shell extension.
+    This specific GTK-on-GNOME-Wayland check must not fire elsewhere: X11
+    never had the rejection problem, and KDE's Qt-based clipboard has its
+    own separate rejection problem worked around separately in
+    clipboard_qt.py's _use_klipper_for_clipboard() -- not via the GNOME
+    Shell extension, which doesn't exist under KDE.
     """
     original_session_type = autokey.common.SESSION_TYPE
     original_desktop = autokey.common.DESKTOP
@@ -168,3 +181,146 @@ def  test_qt_clipboard():
     #     hm.equal_to(test_string),
     #     "Clipboard is not the same as what it was filled with!"
     # )
+
+
+def test_qt_clipboard_write_routes_through_klipper_on_kde_wayland():
+    """
+    Regression test for a bug where QtClipboard.fill_clipboard() always
+    called QClipboard.setText(..., QClipboard.Clipboard) directly, which
+    KDE's Wayland compositor silently drops for a background daemon like
+    AutoKey (no input-event serial to offer for
+    wl_data_device.set_selection()). The call returns without error and
+    QClipboard reads its own value back afterward, but no other client
+    (xclip, or the application the paste is meant to land in) ever sees
+    the change. On KDE Wayland specifically, fill_clipboard() must instead
+    call klipper's setClipboardContents D-Bus method, since klipper is not
+    an ordinary Wayland client and does not hit that rejection.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard._klipper_interface = unittest.mock.Mock()
+        clipboard.fill_clipboard("test contents")
+        clipboard._klipper_interface.setClipboardContents.assert_called_once_with("test contents")
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_qt_clipboard_read_routes_through_klipper_on_kde_wayland():
+    """
+    Regression test for the read-side half of the same bug:
+    QClipboard.text(QClipboard.Clipboard) has the same underlying problem
+    as the write side, just less visible -- it returns without error but
+    can read back stale/empty content instead of what another client
+    actually currently holds (confirmed live: reading immediately after an
+    external xclip set returned '' via QClipboard while klipper's own
+    getClipboardContents() correctly returned the just-set value). Without
+    this, AutoKey's own clipboard-restore-after-paste backup step captures
+    the wrong (empty) value to restore.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard._klipper_interface = unittest.mock.Mock()
+        clipboard._klipper_interface.getClipboardContents.return_value = "klipper contents"
+        hm.assert_that(clipboard.get_clipboard(), hm.equal_to("klipper contents"))
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_qt_clipboard_falls_back_when_klipper_unavailable_on_write():
+    """
+    Regression test for a real crash risk flagged in review: klipper is
+    KDE's *default* clipboard manager, not the only one -- a user can
+    disable it or run an alternative (e.g. CopyQ) instead. Connecting to a
+    D-Bus service that isn't running raises (pydbus/GLib raise
+    org.freedesktop.DBus.Error.ServiceUnknown), and prior to this fix that
+    exception was unhandled, so every clipboard-paste on KDE Wayland would
+    crash outright for any user without klipper running -- worse than the
+    original silent-non-sync bug #1250 fixed. fill_clipboard() must fall
+    back to Qt's own clipboard API (the pre-#1250 behavior) instead of
+    raising.
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard.app = None
+        clipboard._klipper_interface = None
+        with patch("pydbus.SessionBus") as mock_bus:
+            mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+            clipboard.fill_clipboard("test contents")
+            hm.assert_that(clipboard.clipBoard.text(QClipboard.Clipboard), hm.equal_to("test contents"))
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_qt_clipboard_falls_back_when_klipper_unavailable_on_read():
+    """Read-side counterpart of test_qt_clipboard_falls_back_when_klipper_unavailable_on_write."""
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        autokey.common.SESSION_TYPE = "wayland"
+        autokey.common.DESKTOP = "KDE"
+        clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+        clipboard.app = None
+        clipboard.text = None
+        clipboard._klipper_interface = None
+        clipboard.clipBoard.setText("already on qt clipboard", QClipboard.Clipboard)
+        with patch("pydbus.SessionBus") as mock_bus:
+            mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+            hm.assert_that(clipboard.get_clipboard(), hm.equal_to("already on qt clipboard"))
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop
+
+
+def test_get_klipper_interface_caches_unavailability_and_does_not_retry():
+    """
+    A missing klipper service shouldn't be re-probed on every single
+    clipboard operation -- _get_klipper_interface() caches the failure
+    (via a False sentinel, distinct from the None-means-not-yet-tried
+    initial state) after the first attempt.
+    """
+    clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+    clipboard._klipper_interface = None
+    with patch("pydbus.SessionBus") as mock_bus:
+        mock_bus.return_value.get.side_effect = Exception("ServiceUnknown")
+        hm.assert_that(clipboard._get_klipper_interface(), hm.equal_to(None))
+        hm.assert_that(clipboard._get_klipper_interface(), hm.equal_to(None))
+        hm.assert_that(mock_bus.return_value.get.call_count, hm.equal_to(1))
+
+
+def test_qt_clipboard_does_not_use_klipper_on_gnome_or_x11():
+    """
+    This is a KDE Wayland-specific rejection; GNOME and X11 must not route
+    through klipper (which is a KDE-specific service that may not even be
+    running there).
+    """
+    original_session_type = autokey.common.SESSION_TYPE
+    original_desktop = autokey.common.DESKTOP
+    try:
+        for session_type, desktop in [("wayland", "GNOME"), ("x11", "KDE"), (None, "")]:
+            autokey.common.SESSION_TYPE = session_type
+            autokey.common.DESKTOP = desktop
+            clipboard = api.clipboard_qt.QtClipboard.__new__(api.clipboard_qt.QtClipboard)
+            hm.assert_that(
+                clipboard._use_klipper_for_clipboard(),
+                hm.equal_to(False),
+                "Should not use klipper for session_type={!r}, desktop={!r}".format(
+                    session_type, desktop)
+            )
+    finally:
+        autokey.common.SESSION_TYPE = original_session_type
+        autokey.common.DESKTOP = original_desktop

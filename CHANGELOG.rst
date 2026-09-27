@@ -61,6 +61,33 @@ Important misc changes
 - Fix typos in mouse documentation (**window** --> **screen**).
 - Bump AutoKey version to **0.97.0~beta0** in `debian/changelog`, `fedora/autokey.spec`, and `lib/autokey/common.py`.
 - Bump the VERSION to **0.97.0-beta.0** in `lib/autokey/common.py` for compliance with `PEP 440`_.
+- Wayland fixes: clipboard-paste hangs and GNOME clipboard-ownership rejection, a KDE ``get_active_window()`` crash on empty desktops, KDE window-property response scope, uinput mouse clicks not registering, and window-detection silent failures; added missing evdev/pyudev runtime deps and made the GNOME extension build degrade gracefully when unavailable. (`#1208`_, `#1209`_, `#1211`_, `#1212`_, `#1213`_, `#1214`_, `#1215`_, `#1219`_)
+- Packaging: fixed the Python-version check blocking Ubuntu 22.04's stock Python, and added missing PyQt5/pydbus packages to apt-requirements.txt. (`#1210`_, `#1216`_)
+- Manual test tools: added Tk-based paste and mouse probes and a whack-a-mole style image-matching target for manual/VM testing. (`#1217`_, `#1218`_, `#1220`_)
+- Keyboard/hotkey fixes: ``<cursor>`` macro overshoot, hotkey regrab storms, regrabbing in response to AutoKey's own remapping, and AltGr detection being limited to keycode 108; added regression tests for modifier release during expansion. (`#1225`_, `#1228`_, `#1231`_, `#1235`_, `#1236`_)
+- GTK front-end fixes: a stale-tree-path segfault, ``unpause_service()`` re-pausing instead of resuming, and mouse-selection paste always pasting stale content. (`#1237`_, `#1238`_, `#1239`_)
+
+.. _`#1208`: https://github.com/autokey/autokey/pull/1208
+.. _`#1209`: https://github.com/autokey/autokey/pull/1209
+.. _`#1210`: https://github.com/autokey/autokey/pull/1210
+.. _`#1211`: https://github.com/autokey/autokey/pull/1211
+.. _`#1212`: https://github.com/autokey/autokey/pull/1212
+.. _`#1213`: https://github.com/autokey/autokey/pull/1213
+.. _`#1214`: https://github.com/autokey/autokey/pull/1214
+.. _`#1215`: https://github.com/autokey/autokey/pull/1215
+.. _`#1216`: https://github.com/autokey/autokey/pull/1216
+.. _`#1217`: https://github.com/autokey/autokey/pull/1217
+.. _`#1218`: https://github.com/autokey/autokey/pull/1218
+.. _`#1219`: https://github.com/autokey/autokey/pull/1219
+.. _`#1220`: https://github.com/autokey/autokey/pull/1220
+.. _`#1225`: https://github.com/autokey/autokey/pull/1225
+.. _`#1228`: https://github.com/autokey/autokey/pull/1228
+.. _`#1231`: https://github.com/autokey/autokey/pull/1231
+.. _`#1235`: https://github.com/autokey/autokey/pull/1235
+.. _`#1236`: https://github.com/autokey/autokey/pull/1236
+.. _`#1237`: https://github.com/autokey/autokey/pull/1237
+.. _`#1238`: https://github.com/autokey/autokey/pull/1238
+.. _`#1239`: https://github.com/autokey/autokey/pull/1239
 
 
 Features

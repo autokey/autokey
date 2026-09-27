@@ -99,7 +99,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         """
         Unpause the expansion service (start responding to keyboard and mouse events).
         """
-        super().pause_service()
+        super().unpause_service()
         self.notifier.update_tool_tip()
 
     def pause_service(self):

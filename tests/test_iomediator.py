@@ -24,6 +24,9 @@ from autokey.iomediator.iomediator import IoMediator
 import autokey.model.key
 import autokey.common
 from autokey.model.phrase import SendMode
+from unittest.mock import MagicMock
+
+from autokey.model.key import Key
 
 
 def generate_tests_for_key_split_re():
@@ -144,3 +147,134 @@ def test_send_string_clipboard_headless_calls_directly():
         mediator.app.exec_in_main.assert_not_called()
     finally:
         autokey.common.USED_UI_TYPE = original_ui_type
+
+
+def test_clear_modifiers_releases_via_xtest_not_xsendevent():
+    """
+    Held modifiers must be released through IoMediator.release_key(), which routes
+    to interface.fake_keyup() and XTEST.
+
+    interface.release_key() sends an XSendEvent instead. That is delivered to a
+    client but never enters the server's input pipeline, so the server's key state
+    and XKB modifier state are untouched: the modifier the user is physically
+    holding is not cleared, and every character of the expansion arrives with it
+    still applied. That was the behaviour in 0.96.0; 2ad54f5 fixed it here without
+    a test, so nothing currently stops it regressing.
+    """
+    mediator = MagicMock()
+    mediator.releasedModifiers = []
+    mediator.modifiers = {Key.CONTROL: True, Key.HYPER: True, Key.SHIFT: False}
+
+    IoMediator._clear_modifiers(mediator)
+
+    assert_that(mediator.releasedModifiers, contains_inanyorder(Key.CONTROL, Key.HYPER))
+    assert_that(mediator.release_key.call_count, is_(2))
+    mediator.interface.release_key.assert_not_called()
+
+
+def test_capslock_and_numlock_are_not_cleared():
+    mediator = MagicMock()
+    mediator.releasedModifiers = []
+    mediator.modifiers = {Key.CAPSLOCK: True, Key.NUMLOCK: True, Key.CONTROL: True}
+
+    IoMediator._clear_modifiers(mediator)
+
+    assert_that(mediator.releasedModifiers, is_([Key.CONTROL]))
+
+
+def test_modifier_keysyms_resolve_to_the_left_hand_variant():
+    """
+    XK_TO_AK_MAP maps both variants of each modifier onto a single Key, so simply
+    inverting it keeps whichever came last -- the right-hand one. Releasing Hyper_R
+    does not clear a Hyper_L the user is holding, so the explicit overrides below
+    the inversion are load-bearing, not cosmetic.
+    """
+    from Xlib import XK
+    from autokey.interface import AK_TO_XK_MAP
+
+    assert_that(AK_TO_XK_MAP[Key.SHIFT], is_(XK.XK_Shift_L))
+    assert_that(AK_TO_XK_MAP[Key.CONTROL], is_(XK.XK_Control_L))
+    assert_that(AK_TO_XK_MAP[Key.ALT], is_(XK.XK_Alt_L))
+    assert_that(AK_TO_XK_MAP[Key.SUPER], is_(XK.XK_Super_L))
+    assert_that(AK_TO_XK_MAP[Key.HYPER], is_(XK.XK_Hyper_L))
+    assert_that(AK_TO_XK_MAP[Key.META], is_(XK.XK_Meta_L))
+def test_send_string_selection_restore_uses_wait_responsively():
+    """
+    Regression test: _send_string_selection() (SendMode.SELECTION,
+    middle-click paste) runs inside a callback dispatched via
+    exec_in_main() on the toolkit's main thread, same as the clipboard
+    path above. Its restore step previously called a plain time.sleep(1)
+    instead of _wait_responsively(1), which blocks that same main loop
+    for the whole second -- including its ability to answer the X
+    SelectionRequest that the middle-click it just sent is expected to
+    trigger. That request then only gets serviced once the callback
+    returns, by which point the selection has already been restored to
+    the backup value, so the pasting application receives the backup
+    content instead of the intended string. Confirmed live on a real X11
+    session: middle-click paste always pasted empty/stale content until
+    fixed. _wait_responsively() pumps the toolkit's event loop instead of
+    blocking it, matching the fix already applied to the clipboard path's
+    __restore_clipboard_text().
+    """
+    mediator = IoMediator.__new__(IoMediator)
+    mediator.clipboard = unittest.mock.Mock(selection="backup text")
+    mediator.interface = unittest.mock.Mock(mouse_location=lambda: (1, 2))
+    with unittest.mock.patch.object(IoMediator, "_wait_responsively") as wait_responsively, \
+         unittest.mock.patch("autokey.iomediator.iomediator.time.sleep") as sleep:
+        mediator._send_string_selection("some text")
+    wait_responsively.assert_called_once_with(1)
+    sleep.assert_not_called()
+
+
+def test_reapply_modifiers_does_not_press_released_modifiers():
+    """
+    Regression test for #1226: _reapply_modifiers() must not press anything.
+
+    press_key() is a real XTEST press. If the user let go of the modifier while
+    the expansion was typing, re-pressing it leaves it down with no physical
+    release to follow, and the keyboard stays in shift or control until the user
+    clears it by hand.
+    """
+    mediator = unittest.mock.MagicMock()
+    mediator.releasedModifiers = [autokey.model.key.Key.CONTROL, autokey.model.key.Key.HYPER]
+
+    IoMediator._reapply_modifiers(mediator)
+
+    mediator.press_key.assert_not_called()
+    mediator.interface.press_key.assert_not_called()
+    mediator.interface.fake_keydown.assert_not_called()
+    assert_that(mediator.releasedModifiers, is_([]))
+
+
+@pytest.mark.parametrize("string, types_characters", [
+    # Special keys and explicit combinations type nothing.
+    ["<ctrl>+<np_page_up>", False],
+    ["<ctrl>+<shift>+<f5>", False],
+    ["<ctrl>+v", False],
+    ["<enter>", False],
+    ["<ctrl>+c<ctrl>+v", False],
+    # Anything with literal text does.
+    ["2026-09-18", True],
+    ["hello <ctrl>+a there", True],
+    ["<ctrl>+ab", True],
+    ["<enter>x", True],
+])
+def test_types_characters(string, types_characters):
+    assert_that(IoMediator._types_characters(string), is_(types_characters))
+
+
+@pytest.mark.parametrize("string, clears", [
+    ["<ctrl>+<np_page_up>", False],
+    ["hello", True],
+])
+def test_send_string_clears_held_modifiers_only_for_text(string, clears):
+    """
+    Regression test for #1229: releasing a modifier the user is holding just
+    before a synthetic key combination makes applications drop or delay that key,
+    and a string that types nothing has no text for the modifier to corrupt.
+    """
+    mediator = unittest.mock.MagicMock()
+
+    IoMediator.send_string(mediator, string)
+
+    assert_that(mediator._clear_modifiers.called, is_(clears))

@@ -208,9 +208,37 @@ class IoMediator(threading.Thread):
         string = string.replace('\t', "<tab>")
         
         logger.debug("Send via event interface")
-        self._clear_modifiers()
+        # Held modifiers are cleared so they cannot corrupt typed text. A string
+        # that only sends special keys or explicit combinations, such as
+        # "<ctrl>+<page_up>", types nothing, and releasing a modifier the user is
+        # holding just before a synthetic key makes applications drop or delay
+        # that key (#1229).
+        if IoMediator._types_characters(string):
+            self._clear_modifiers()
         IoMediator._send_string(string, self.interface)
         self._reapply_modifiers()
+
+    @staticmethod
+    def _types_characters(string):
+        """
+        Whether the string types literal characters, as opposed to only sending
+        special keys and explicit modifier combinations. Parses the string the
+        same way _send_string() does.
+        """
+        modifiers = []
+        for section in KEY_SPLIT_RE.split(string):
+            if len(section) > 0:
+                if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                    modifiers.append(section[:-1])
+                elif len(modifiers) > 0:
+                    # The combination consumes one key; the rest of a text
+                    # section is sent as a string.
+                    modifiers = []
+                    if not Key.is_key(section) and len(section) > 1:
+                        return True
+                elif not Key.is_key(section):
+                    return True
+        return False
 
     # Mainly static for the purpose of testing
     @staticmethod
@@ -330,8 +358,16 @@ class IoMediator(threading.Thread):
                 self.release_key(modifier)
 
     def _reapply_modifiers(self):
-        for modifier in self.releasedModifiers:
-            self.press_key(modifier)
+        # Deliberately does not press anything (#1226).
+        #
+        # press_key() is a real XTEST press. If the user let go of the modifier
+        # while the expansion was typing, re-pressing it leaves it down with no
+        # physical release to follow, and it sticks until the user presses and
+        # releases it by hand. Before 2ad54f5 this re-press was an XSendEvent,
+        # which never reached the server, so not restoring is what every released
+        # version has in effect done. The cost is that a modifier the user is
+        # still holding stays logically up until they press it again.
+        self.releasedModifiers = []
 
     def _get_modifiers_on(self):
         modifiers = []
@@ -476,5 +512,14 @@ class IoMediator(threading.Thread):
 
         # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
         # It might be a good idea to make this delay configurable. There might be systems that need even longer.
-        time.sleep(1)
+        # _send_string_selection runs inside a callback dispatched via exec_in_main on both
+        # toolkits' main threads (see gtkapp.py's exec_in_main()), so a plain time.sleep()
+        # here blocks that same main loop for the whole wait -- including its ability to
+        # service the X SelectionRequest that the middle-click we just sent is expected to
+        # trigger. That request then only gets answered once this method returns, by which
+        # point the selection has already been restored to the backup value below, so the
+        # pasting application receives the backup content instead of the intended string.
+        # Use _wait_responsively() to keep pumping the toolkit's event loop during the wait,
+        # matching the fix already applied to __restore_clipboard_text() for the same reason.
+        self._wait_responsively(1)
         self.clipboard.selection = backup if backup is not None else ""
