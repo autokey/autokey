@@ -241,11 +241,12 @@ setup(
     # Some are not included here because they should be installed
     # through the system package manager, not pip.
     install_requires=[
-        'pyasyncore',
         'pyinotify',
         'python-xlib',
         'packaging',
         'python-magic',
+        # asyncore was removed from the stdlib in Python 3.12; only pull in
+        # the backport there, not on every version.
         'pyasyncore; python_version>="3.12"',
         # Required by uinput_interface.py, which is used on Wayland
         # (both GNOME and KDE) regardless of front end. Neither is
