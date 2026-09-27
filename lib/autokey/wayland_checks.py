@@ -5,6 +5,7 @@
 import getpass
 import grp
 import os
+import shutil
 import subprocess
 
 try:
@@ -84,6 +85,18 @@ def waylandChecks():
     else:
         logger.critical(f'waylandChecks() did not find write access to the /dev/uinput device')
         show_popup = True
+
+    #  Soft check: is a clipboard helper pyperclip can use present? This is
+    #  a warning only, not a show_popup blocker -- xclip works via the
+    #  XWayland fallback on both GNOME and KDE Wayland, so wl-clipboard is
+    #  not a hard requirement, and this check exists purely to surface a
+    #  clear diagnostic if neither is installed rather than a confusing
+    #  failure the first time a script touches the clipboard.
+    if not any(shutil.which(p) for p in ('xclip', 'wl-copy', 'wl-paste')):
+        logger.warning(
+            'waylandChecks() did not find xclip or wl-clipboard (wl-copy/wl-paste) -- '
+            'AutoKey clipboard operations will fail until one of these is installed.'
+        )
 
     #  If there was a problem, throw up a popup box
     if show_popup:

@@ -7,6 +7,7 @@ PyQt5
 QScintilla
 pyhamcrest
 python-magic
+pyperclip
 pyudev
 evdev
 packaging
