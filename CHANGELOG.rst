@@ -66,6 +66,7 @@ Important misc changes
 - Manual test tools: added Tk-based paste and mouse probes and a whack-a-mole style image-matching target for manual/VM testing. (`#1217`_, `#1218`_, `#1220`_)
 - Keyboard/hotkey fixes: ``<cursor>`` macro overshoot, hotkey regrab storms, regrabbing in response to AutoKey's own remapping, and AltGr detection being limited to keycode 108; added regression tests for modifier release during expansion. (`#1225`_, `#1228`_, `#1231`_, `#1235`_, `#1236`_)
 - GTK front-end fixes: a stale-tree-path segfault, ``unpause_service()`` re-pausing instead of resuming, and mouse-selection paste always pasting stale content. (`#1237`_, `#1238`_, `#1239`_)
+- Add a capability-based fallback for detecting external keyboard/mouse devices under Wayland whose evdev name doesn't contain "keyboard"/"mouse" (e.g. "Logitech G915"), so AutoKey no longer exits outright when such a device isn't already listed in the config file. Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
 
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209

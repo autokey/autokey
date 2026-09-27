@@ -177,3 +177,72 @@ def test_merge_uinput_capabilities_filters_syn_and_ff():
     merged = mock_uinput.call_args.kwargs["events"]
     assert e.EV_SYN not in merged
     assert e.EV_FF not in merged
+
+
+def _letter_keycodes(count):
+    """The first `count` letter keycodes, in a-z order, for boundary tests."""
+    import string
+    return [getattr(e, "KEY_" + ch) for ch in string.ascii_uppercase[:count]]
+
+
+def test_is_keyboard_by_capabilities_detects_full_letter_set():
+    """A real keyboard reporting all 26 letters must be detected (issue #1003)."""
+    device = _fake_device({e.EV_KEY: _letter_keycodes(26)})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is True
+
+
+def test_is_keyboard_by_capabilities_at_threshold_boundary():
+    """
+    Exactly the threshold count of letters must pass, one fewer must not --
+    pins the boundary so a future edit to the threshold is a visible,
+    deliberate change rather than an accidental off-by-one.
+    """
+    at_threshold = _fake_device({e.EV_KEY: _letter_keycodes(uinput_interface._KEYBOARD_LETTER_THRESHOLD)})
+    below_threshold = _fake_device({e.EV_KEY: _letter_keycodes(uinput_interface._KEYBOARD_LETTER_THRESHOLD - 1)})
+
+    assert uinput_interface._is_keyboard_by_capabilities(at_threshold) is True
+    assert uinput_interface._is_keyboard_by_capabilities(below_threshold) is False
+
+
+def test_is_keyboard_by_capabilities_rejects_media_remote():
+    """
+    A device with only a handful of buttons (e.g. a media remote or a
+    volume-knob accessory) must not be misclassified as a full keyboard.
+    """
+    device = _fake_device({e.EV_KEY: [e.KEY_VOLUMEUP, e.KEY_VOLUMEDOWN, e.KEY_MUTE, e.KEY_PLAYPAUSE]})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is False
+
+
+def test_is_keyboard_by_capabilities_handles_device_with_no_ev_key():
+    """A device that reports no EV_KEY capability at all (e.g. a pure pointer) must not match."""
+    device = _fake_device({e.EV_REL: [e.REL_X, e.REL_Y]})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is False
+
+
+def test_is_mouse_by_capabilities_detects_real_mouse():
+    """A real mouse reporting BTN_LEFT plus relative X/Y motion must be detected (issue #1003)."""
+    device = _fake_device({
+        e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
+        e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
+    })
+    assert uinput_interface._is_mouse_by_capabilities(device) is True
+
+
+def test_is_mouse_by_capabilities_rejects_touchpad():
+    """
+    A touchpad reports absolute positioning (EV_ABS), not relative motion --
+    this must stay unmatched, the same scope as the existing name-based
+    mouse check (which also never matched touchpads).
+    """
+    abs_info = AbsInfo(value=0, min=0, max=1000, fuzz=0, flat=0, resolution=1)
+    device = _fake_device({
+        e.EV_KEY: [e.BTN_LEFT, e.BTN_TOOL_FINGER],
+        e.EV_ABS: [(e.ABS_X, abs_info), (e.ABS_Y, abs_info)],
+    })
+    assert uinput_interface._is_mouse_by_capabilities(device) is False
+
+
+def test_is_mouse_by_capabilities_rejects_relative_device_without_click_button():
+    """A relative-motion device with no left-click button (e.g. a scroll-only widget) must not match."""
+    device = _fake_device({e.EV_REL: [e.REL_X, e.REL_Y]})
+    assert uinput_interface._is_mouse_by_capabilities(device) is False
