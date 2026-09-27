@@ -21,8 +21,6 @@ This file centralises the public API classes for easier importing.
 
 import autokey.common
 
-from . import highlevel
-
 from .common import ColourData, DialogData
 
 from .engine import Engine
@@ -51,3 +49,10 @@ if autokey.common.SESSION_TYPE == "wayland":
         from .window_gnome import Window
 else:
     from autokey.scripting.window import Window
+
+if autokey.common.SESSION_TYPE == "wayland":
+    # See highlevel_disabled.py: highlevel's image-matching functions need
+    # X11 and cannot work under Wayland (issue #1001).
+    from . import highlevel_disabled as highlevel
+else:
+    from . import highlevel

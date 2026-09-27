@@ -99,14 +99,10 @@ def checkProgramImports(programs, optional=False):
 def checkOptionalPrograms():
     if os.environ.get("XDG_SESSION_TYPE") == "x11":
         checkProgramImports(x11_optional_programs, optional=True)
-
-    if common.USED_UI_TYPE == "QT":
-        checkProgramImports(optional_programs, optional=True)
-    elif common.USED_UI_TYPE == "GTK":
-        checkProgramImports(optional_programs, optional=True)
-    elif common.USED_UI_TYPE == "headless":
-        checkProgramImports(optional_programs, optional=True)
-    else:
+        # visgrep/import/png2pat back the `highlevel` scripting API, which
+        # is X11-only and disabled entirely under Wayland (see
+        # scripting/__init__.py and issue #1001) -- so there's nothing
+        # useful to warn about on Wayland.
         checkProgramImports(optional_programs, optional=True)
 
 def getErrorMessage(item_type, missing_items):
