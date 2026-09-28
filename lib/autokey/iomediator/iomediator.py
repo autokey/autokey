@@ -22,7 +22,10 @@ import autokey
 from autokey import common
 from autokey.configmanager.configmanager import ConfigManager
 from autokey.configmanager.configmanager_constants import INTERFACE_TYPE
-from autokey.gnome_interface import GnomeExtensionWindowInterface
+if common.DESKTOP == 'KDE':
+    from autokey.kde_interface import KdeWindowInterface
+else:
+    from autokey.gnome_interface import GnomeExtensionWindowInterface
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
@@ -49,6 +52,12 @@ class IoMediator(threading.Thread):
     
     def __init__(self, service):
         threading.Thread.__init__(self, name="KeypressHandler-thread")
+        # If shutdown() ever can't deliver its sentinel to the queue (e.g.
+        # self.interface.cancel() blocks forever on a RECORD-extension race,
+        # see XRecordInterface.cancel()), a non-daemon thread here would
+        # block the whole process from exiting. XInterfaceBase already sets
+        # this; match it here as a safety net.
+        self.daemon = True
 
         self.queue = queue.Queue()
         self.listeners.append(service)
@@ -70,8 +79,12 @@ class IoMediator(threading.Thread):
             pass
 
         if self.interfaceType == "uinput":
-            logger.debug("Using gnome extension window interface")
-            self.windowInterface = GnomeExtensionWindowInterface()
+            if common.DESKTOP == 'KDE':
+                logger.debug("Using KDE KWin window interface")
+                self.windowInterface = KdeWindowInterface()
+            else:
+                logger.debug("Using gnome extension window interface")
+                self.windowInterface = GnomeExtensionWindowInterface()
         else:
             from autokey.interface import XWindowInterface
             self.windowInterface = XWindowInterface()
@@ -195,9 +208,37 @@ class IoMediator(threading.Thread):
         string = string.replace('\t', "<tab>")
         
         logger.debug("Send via event interface")
-        self._clear_modifiers()
+        # Held modifiers are cleared so they cannot corrupt typed text. A string
+        # that only sends special keys or explicit combinations, such as
+        # "<ctrl>+<page_up>", types nothing, and releasing a modifier the user is
+        # holding just before a synthetic key makes applications drop or delay
+        # that key (#1229).
+        if IoMediator._types_characters(string):
+            self._clear_modifiers()
         IoMediator._send_string(string, self.interface)
         self._reapply_modifiers()
+
+    @staticmethod
+    def _types_characters(string):
+        """
+        Whether the string types literal characters, as opposed to only sending
+        special keys and explicit modifier combinations. Parses the string the
+        same way _send_string() does.
+        """
+        modifiers = []
+        for section in KEY_SPLIT_RE.split(string):
+            if len(section) > 0:
+                if Key.is_key(section[:-1]) and section[-1] == '+' and section[:-1] in MODIFIERS:
+                    modifiers.append(section[:-1])
+                elif len(modifiers) > 0:
+                    # The combination consumes one key; the rest of a text
+                    # section is sent as a string.
+                    modifiers = []
+                    if not Key.is_key(section) and len(section) > 1:
+                        return True
+                elif not Key.is_key(section):
+                    return True
+        return False
 
     # Mainly static for the purpose of testing
     @staticmethod
@@ -317,8 +358,16 @@ class IoMediator(threading.Thread):
                 self.release_key(modifier)
 
     def _reapply_modifiers(self):
-        for modifier in self.releasedModifiers:
-            self.press_key(modifier)
+        # Deliberately does not press anything (#1226).
+        #
+        # press_key() is a real XTEST press. If the user let go of the modifier
+        # while the expansion was typing, re-pressing it leaves it down with no
+        # physical release to follow, and it sticks until the user presses and
+        # releases it by hand. Before 2ad54f5 this re-press was an XSendEvent,
+        # which never reached the server, so not restoring is what every released
+        # version has in effect done. The cost is that a modifier the user is
+        # still holding stays logically up until they press it again.
+        self.releasedModifiers = []
 
     def _get_modifiers_on(self):
         modifiers = []
@@ -339,15 +388,21 @@ class IoMediator(threading.Thread):
          keyboard combination string, like '<ctrl>+v', or '<shift>+<insert>' that is sent to the target application,
          causing a paste operation to happen.
         """
-        if common.USED_UI_TYPE == "QT":
+        if common.USED_UI_TYPE in ("QT", "GTK"):
+            # Both Qt's and GTK's clipboard backends require clipboard
+            # access to happen on the toolkit's main thread -- GTK's
+            # Wayland backend hangs indefinitely otherwise (confirmed
+            # live on a GNOME Wayland session; see exec_in_main() in
+            # gtkapp.py). headless has no toolkit main loop to marshal
+            # onto, so it keeps calling directly below.
             self.app.exec_in_main(self.__send_string_clipboard, string, paste_command)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+        elif common.USED_UI_TYPE == "headless":
             self.__send_string_clipboard(string, paste_command)
 
     def send_string_selection(self, string: str):
-        if common.USED_UI_TYPE == "QT":
+        if common.USED_UI_TYPE in ("QT", "GTK"):
             self.app.exec_in_main(self._send_string_selection, string)
-        elif common.USED_UI_TYPE in ["GTK", "headless"]:
+        elif common.USED_UI_TYPE == "headless":
             self._send_string_selection(string)
 
     def __send_string_clipboard(self, string: str, paste_command: autokey.model.phrase.SendMode):
@@ -358,6 +413,24 @@ class IoMediator(threading.Thread):
         if backup is None:
             logger.warning("Tried to backup the X clipboard content, but got None instead of a string.")
         self.clipboard.text = string
+        # Under Wayland, clipboard ownership has to be negotiated with the
+        # compositor (unlike X11, where a CONVERT_SELECTION request can be
+        # answered at any time) -- sending the paste keystroke immediately
+        # after setting the clipboard can race that negotiation and the
+        # target application ends up pasting nothing. Confirmed live on a
+        # KDE Plasma 6.6.6 VM. KDE's KWin-scripting round trips have shown
+        # highly variable, sometimes multi-second latency throughout this
+        # codebase (see kde_interface.py) -- scope this to KDE specifically
+        # rather than all of Wayland, since GNOME's lightweight D-Bus
+        # extension call has shown no evidence of the same magnitude of
+        # delay, and a blanket multi-second stall on every clipboard paste
+        # would be a real regression there. (GNOME Wayland has a separate,
+        # confirmed clipboard-ownership limitation of its own -- see
+        # get_clipboard()'s docstring in clipboard_gtk.py -- but it is a
+        # hard, near-instant compositor rejection, not a timing race, so
+        # this delay would not help it and isn't applied there.)
+        if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
+            self._wait_responsively(0.5)
         try:
             self.send_string(paste_command.value)
         finally:
@@ -365,11 +438,61 @@ class IoMediator(threading.Thread):
         # Because send_string is queued, also enqueue the clipboard restore, to keep the proper action ordering.
         self.__restore_clipboard_text(backup)
 
+    def _wait_responsively(self, seconds):
+        """
+        Wait for the given duration without blocking the UI toolkit's event
+        loop, unlike a plain time.sleep(). This matters for both Qt and GTK:
+        __send_string_clipboard now runs inside a callback dispatched via
+        exec_in_main on both toolkits' main threads (required so GTK's
+        Wayland clipboard backend doesn't hang -- see gtkapp.py's
+        exec_in_main()), and each toolkit's single-threaded event loop
+        invokes that callback synchronously -- while it is running
+        (including inside a time.sleep() call within it), the toolkit
+        cannot process anything else, including the Wayland socket traffic
+        carrying the compositor's request for AutoKey (as clipboard owner)
+        to hand over the actual clipboard data. A blocking sleep here does
+        not just fail to help; it can make AutoKey unable to answer that
+        exact request during the sleep, which is worse than not delaying
+        at all. Pump the toolkit's event loop instead so AutoKey stays
+        responsive throughout the wait.
+        """
+        if common.USED_UI_TYPE == "QT":
+            from PyQt5.QtCore import QEventLoop
+            from PyQt5.QtWidgets import QApplication
+            deadline = time.time() + seconds
+            while time.time() < deadline:
+                QApplication.processEvents(QEventLoop.AllEvents, 50)
+                time.sleep(0.01)
+        elif common.USED_UI_TYPE == "GTK":
+            from gi.repository import GLib
+            context = GLib.MainContext.default()
+            deadline = time.time() + seconds
+            while time.time() < deadline:
+                while context.pending():
+                    context.iteration(False)
+                time.sleep(0.01)
+        else:
+            time.sleep(seconds)
+
     def __restore_clipboard_text(self, backup: str):
         """Restore the clipboard content."""
         # Pasting takes some time, so wait a bit before restoring the content. Otherwise the restore is done before
         # the pasting happens, causing the backup to be pasted instead of the desired clipboard content.
-        time.sleep(0.2)
+        # send_string() only enqueues the paste keystroke on the interface's
+        # own worker thread -- it does not block until the real keypress is
+        # sent and read by the target app. 0.2s is fine on X11 (a
+        # CONVERT_SELECTION request can be answered at any time, no evidence
+        # of trouble there) but confirmed too short on a KDE Plasma 6.6.6
+        # Wayland VM, where KWin-scripting round trips have shown highly
+        # variable, sometimes multi-second latency throughout this codebase
+        # (see kde_interface.py). No evidence either way for GNOME/Wayland,
+        # so don't extrapolate the KDE-specific delay there. Use
+        # _wait_responsively(), not time.sleep(), for the same reason as
+        # above -- see that method's docstring.
+        if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
+            self._wait_responsively(0.5)
+        else:
+            self._wait_responsively(0.2)
         self.clipboard.text = backup if backup is not None else ""
 
     def _send_string_selection(self, string: str):
@@ -378,8 +501,20 @@ class IoMediator(threading.Thread):
         if backup is None:
             logger.warning("Tried to backup the X PRIMARY selection content, but got None instead of a string.")
         self.clipboard.selection = string
-        pos = self.interface.get_mouse_position()
-        self.interface.send_mouse_click(pos[0], pos[1], Button.MIDDLE, False)
+        pos = self.interface.mouse_location()
+        # _send_mouse_click_now(), not the queued send_mouse_click(): this
+        # method itself runs synchronously on the X interface's own
+        # __eventLoop consumer thread (invoked from handle_keypress()'s
+        # processing of the hotkey that triggered this phrase), so a
+        # queued click can never actually run until this whole call chain
+        # returns control to that loop -- by which point
+        # __restore_clipboard_selection() below has already overwritten
+        # the selection back to its backup value, so the paste always
+        # delivered the old content instead of the intended string.
+        # Confirmed live (AcreetionOS/XLibre): no delay before the
+        # restore fixes this, since the enqueued click is never given a
+        # chance to run at all until the wait itself returns first.
+        self.interface._send_mouse_click_now(pos[0], pos[1], Button.MIDDLE, False)
         self.__restore_clipboard_selection(backup)
 
     def __restore_clipboard_selection(self, backup: str):
@@ -389,5 +524,14 @@ class IoMediator(threading.Thread):
 
         # Programmatically pressing the middle mouse button seems VERY slow, so wait rather long.
         # It might be a good idea to make this delay configurable. There might be systems that need even longer.
-        time.sleep(1)
+        # _send_string_selection runs inside a callback dispatched via exec_in_main on both
+        # toolkits' main threads (see gtkapp.py's exec_in_main()), so a plain time.sleep()
+        # here blocks that same main loop for the whole wait -- including its ability to
+        # service the X SelectionRequest that the middle-click we just sent is expected to
+        # trigger. That request then only gets answered once this method returns, by which
+        # point the selection has already been restored to the backup value below, so the
+        # pasting application receives the backup content instead of the intended string.
+        # Use _wait_responsively() to keep pumping the toolkit's event loop during the wait,
+        # matching the fix already applied to __restore_clipboard_text() for the same reason.
+        self._wait_responsively(1)
         self.clipboard.selection = backup if backup is not None else ""
