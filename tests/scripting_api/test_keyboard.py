@@ -111,12 +111,12 @@ def test_send_keys_send_mode_keyboard_index(cause_error: bool):
     mock_mediator.finish_send.assert_called_once()
 
 
-@pytest.mark.parametrize("send_mode, cause_error", itertools.product(
+@pytest.mark.parametrize("send_mode, cause_error", list(itertools.product(
                          itertools.chain(
                              Keyboard.SendMode,
                              range(len(Keyboard.SendMode)),
                              (mode.value for mode in Keyboard.SendMode)),
-                         [False, True]))
+                         [False, True])))
 def test_send_keys_send_mode_clipboard(send_mode: Union[Keyboard.SendMode, int], cause_error: bool):
     kb_mode = Keyboard.SendMode.KEYBOARD
     mode_list = list(Keyboard.SendMode)

@@ -12,6 +12,8 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
+import functools
+
 import Xlib
 
 import pytest
@@ -21,6 +23,7 @@ from unittest.mock import Mock, MagicMock, patch
 
 from autokey.model.key import Key
 import autokey.interface
+import autokey.model.abstract_window_filter
 
 class EventCapturer():
     def __init__(self):
@@ -267,6 +270,91 @@ def test_pointer_query_error_masks_state():
     assert_that(numlock_on, is_(False))
 
 
+class TestGrabWalkWindowFilter():
+    """
+    Regression tests for which windows an X11 key grab is placed on.
+
+    __grab_ungrab_recurse() obtains WindowInfo with traverse=False, so window-manager
+    frames and other intermediate windows report an empty title and class (see
+    _get_window_info()). An include filter simply fails to match those and the walk
+    descends. An inverted filter would "not match" them and therefore claim the whole
+    subtree -- including the application the user asked to exclude -- grabbing the key
+    there and then declining to fire, which swallows the keystroke.
+
+    The walk is exercised as an unbound function against a stub self, so that the test
+    does not construct XInterfaceBase (whose __init__ starts long-lived threads).
+    """
+
+    TERMINAL = autokey.interface.WindowInfo("bjohas@host: ~", "gnome-terminal-server.Gnome-terminal")
+    FIREFOX = autokey.interface.WindowInfo("Mozilla Firefox", "Navigator.Firefox")
+    UNKNOWN = autokey.interface.WindowInfo("", "")
+
+    def setup_method(self):
+        self.info = {}
+
+        def window(info, children):
+            w = MagicMock()
+            w.query_tree.return_value.children = children
+            self.info[w] = info
+            return w
+
+        # root -> frame -> client -> widget, per application. Only the client window
+        # carries a real title and class, exactly as traverse=False reports them.
+        self.term_widget = window(self.UNKNOWN, [])
+        self.term_client = window(self.TERMINAL, [self.term_widget])
+        self.term_frame = window(self.UNKNOWN, [self.term_client])
+
+        self.ff_widget = window(self.UNKNOWN, [])
+        self.ff_client = window(self.FIREFOX, [self.ff_widget])
+        self.ff_frame = window(self.UNKNOWN, [self.ff_client])
+
+        self.root = window(self.UNKNOWN, [self.term_frame, self.ff_frame])
+
+    def _item(self, regex, inverted):
+        item = autokey.model.abstract_window_filter.AbstractWindowFilter()
+        item.parent = None
+        item.set_window_titles(regex)
+        item.isInverted = inverted
+        item.hotKey = "a"
+        item.modifiers = ["<hyper>"]
+        return item
+
+    def _walk(self, item, grab=True):
+        # Resolved here, not as a class attribute: a plain function assigned to a
+        # class attribute becomes a method of that class, which would silently shift
+        # every argument by one.
+        walk = autokey.interface.XInterfaceBase._XInterfaceBase__grab_ungrab_recurse
+
+        stub = MagicMock()
+        stub.mediator.windowInterface.get_window_info = \
+            lambda window, traverse=True: self.info[window]
+        # The walk recurses through self; bind it so recursion reaches the real code.
+        stub._XInterfaceBase__grab_ungrab_recurse = functools.partial(walk, stub)
+
+        walk(stub, item, self.root, grab=grab)
+
+        recorder = stub._XInterfaceBase__grabHotkey if grab \
+            else stub._XInterfaceBase__ungrabHotkey
+        return [call.args[2] for call in recorder.call_args_list]
+
+    def test_inverted_filter_does_not_grab_in_the_excluded_application(self):
+        grabbed = self._walk(self._item("gnome-terminal.*", inverted=True))
+
+        assert_that(grabbed, has_item(self.ff_client))
+        for window in (self.term_frame, self.term_client, self.term_widget):
+            assert_that(grabbed, is_not(has_item(window)))
+
+    def test_include_filter_grabs_only_the_matching_application(self):
+        grabbed = self._walk(self._item("Navigator.Firefox", inverted=False))
+
+        assert_that(grabbed, has_item(self.ff_client))
+        for window in (self.term_frame, self.term_client, self.term_widget):
+            assert_that(grabbed, is_not(has_item(window)))
+
+    def test_ungrab_covers_exactly_the_same_windows_as_grab(self):
+        item = self._item("gnome-terminal.*", inverted=True)
+
+        assert_that(set(self._walk(item, grab=False)), is_(set(self._walk(item, grab=True))))
 @pytest.mark.parametrize("alt_list, expected, description", [
     # A stock layout: AltGr is keycode 108, carrying ISO_Level3_Shift itself.
     [[(108, 0)], (0, 1, 4, 5), "stock AltGr on 108"],
