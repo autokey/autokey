@@ -17,6 +17,9 @@ Moves mouse pointer to the bottom center of the screen and clicks on it.
 
 Click on or move pointer to an area that can be identified with an image
 ========================================================================
+
+**Note**: this API is X11-only (it shells out to xautomation and ImageMagick) and does not work under Wayland; see `#1001 <https://github.com/autokey/autokey/issues/1001>`__. A cross-platform replacement is planned; this section will be rewritten once that lands.
+
 Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 .. _xautomation: http://hoopajoo.net/projects/xautomation.html
@@ -24,7 +27,7 @@ Requires `xautomation`_ and `ImageMagick®`_ to be installed.
 
 `Source code`_.
 
-.. _Source code: https://github.com/autokey/autokey/blob/master/src/lib/scripting_highlevel.py
+.. _Source code: https://github.com/autokey/autokey/blob/develop/lib/autokey/scripting/highlevel.py
 
 .. code:: python
 
