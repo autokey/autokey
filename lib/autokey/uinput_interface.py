@@ -14,6 +14,7 @@ import select
 import random
 import re
 import pathlib
+import string
 import subprocess
 
 from autokey.model.button import Button
@@ -95,6 +96,43 @@ def _merge_uinput_capabilities(device_paths, name):
         }
 
     return evdev.UInput(events=all_capabilities, name=name)
+
+
+# Letter-key codes (e.KEY_A..e.KEY_Z, not contiguous -- built from the names
+# since QWERTY keycodes aren't numbered alphabetically) used by
+# _is_keyboard_by_capabilities() below.
+_LETTER_KEYCODES = frozenset(getattr(e, "KEY_" + ch) for ch in string.ascii_uppercase)
+# Real keyboards report essentially all 26 letters; requiring most of them
+# avoids misclassifying a remote control or a device with a handful of
+# media-key buttons as a full keyboard.
+_KEYBOARD_LETTER_THRESHOLD = 20
+
+
+def _is_keyboard_by_capabilities(dev) -> bool:
+    """
+    Fallback keyboard detection for a device whose evdev name doesn't
+    contain "keyboard" (e.g. "Logitech G915", "Razer BlackWidow") and
+    isn't listed in the user's config file -- see issue #1003. Without
+    this, grab_multiple_devices() finds no keyboard for such a device and
+    AutoKey exits outright rather than just missing one device.
+    """
+    key_codes = set(dev.capabilities().get(e.EV_KEY, ()))
+    return len(_LETTER_KEYCODES & key_codes) >= _KEYBOARD_LETTER_THRESHOLD
+
+
+def _is_mouse_by_capabilities(dev) -> bool:
+    """
+    Fallback mouse detection for a device whose evdev name doesn't contain
+    "mouse" and isn't listed in the user's config file -- see issue #1003.
+    Requires a left-click button plus relative X/Y motion, matching a
+    real mouse; this deliberately does not match touchpads or other
+    absolute pointing devices, the same scope as the existing name-based
+    check.
+    """
+    capabilities = dev.capabilities()
+    key_codes = set(capabilities.get(e.EV_KEY, ()))
+    rel_codes = set(capabilities.get(e.EV_REL, ()))
+    return e.BTN_LEFT in key_codes and e.REL_X in rel_codes and e.REL_Y in rel_codes
 
 
 class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
@@ -351,6 +389,25 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
                 except Exception as error:
                     logger.error(f"Could not grab mouse device  \"{dev.name}\" from list of devices found on system: {error}")
+            elif _is_keyboard_by_capabilities(dev):
+                try:
+                    #logger.debug("Device's capabilities look like a keyboard, grabbing it.")
+                    keyboard = self.grab_device(devices, dev.name)
+                    keyboard.grab()
+                    self.keyboards.append(keyboard)
+                    self.device_paths.append(keyboard.path)
+                    #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
+                except Exception as error:
+                    logger.error(f"Could not grab keyboard device \"{dev.name}\" detected by capabilities: {error}")
+            elif _is_mouse_by_capabilities(dev):
+                try:
+                    #logger.debug("Device's capabilities look like a mouse, grabbing it.")
+                    mouse = self.grab_device(devices, dev.name)
+                    self.mice.append(mouse)
+                    self.device_paths.append(mouse.path)
+                    #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
+                except Exception as error:
+                    logger.error(f"Could not grab mouse device \"{dev.name}\" detected by capabilities: {error}")
             elif dev.name in cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]:
                 try:
                     #logger.debug("Device name matches a keyboard listed in the config file, grabbing it.")

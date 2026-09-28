@@ -168,6 +168,21 @@ def path_removed(configManager, configWindow, path):
         configWindow.config_modified()
 
 
+def format_window_filter_label(filter_text, inverted):
+    """
+    Decorate the window filter summary shown on an item's page.
+
+    An inverted filter means the exact opposite of the same regex uninverted, so
+    without a marker the two are indistinguishable at a glance and the summary
+    actively misleads. Applied only to the label: get_filter_regex() feeds the
+    regex entry box in the filter dialog, and decorating that would corrupt the
+    round-trip and eventually save the decoration as part of the pattern.
+    """
+    if inverted:
+        return "\u2298 EXCEPT  " + filter_text
+    return filter_text
+
+
 def save_item_filter(app, item):
     filter_regex = app.get_filter_text()
     try:
@@ -177,6 +192,7 @@ def save_item_filter(app, item):
             "Invalid window filter regex: '{}'. Discarding without saving.".format(filter_regex)
         )
     item.set_filter_recursive(app.get_is_recursive())
+    item.set_filter_invert(app.get_is_inverted())
 
 
 def get_hotkey_text(app, key):
