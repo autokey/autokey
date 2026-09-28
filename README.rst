@@ -37,11 +37,12 @@ For detailed installation instructions, please visit the `Installing`_ page in t
 
 Documentation
 =============
-AutoKey documentation is available `here <https://autokey.github.io/index.html>`__ and, for versions prior to 0.96.0, `here <https://autokey.github.io/autokey/index.html>`__. Example code and explanations for how AutoKey works can be found in the `wiki`_ and, in particular, on the `Features`_ and `Example Scripts`_ pages. Additional information can be found by searching `Stack Overflow`_ and `GitHub`_.
+AutoKey documentation is available `here <https://autokey.github.io/index.html>`__ and, for versions prior to 0.96.0, `here <https://autokey.github.io/autokey/index.html>`__. Example code and explanations for how AutoKey works can be found in the `wiki`_ and, in particular, on the `Features`_ and `Example Scripts`_ pages. Scripting API additions not yet covered by the wiki are documented in `new_features.rst`_. Additional information can be found by searching `Stack Overflow`_ and `GitHub`_.
 
 .. _wiki: https://github.com/autokey/autokey/wiki
 .. _Features: https://github.com/autokey/autokey/wiki/Features
 .. _Example Scripts: https://github.com/autokey/autokey/wiki/Example-Scripts
+.. _new_features.rst: https://github.com/autokey/autokey/blob/develop/new_features.rst
 .. _Stack Overflow: https://stackoverflow.com/questions/tagged/autokey
 .. _GitHub: https://github.com/search?l=Python&q=autokey&ref=cmdform&type=Repositories
 

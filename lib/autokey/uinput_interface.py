@@ -14,6 +14,7 @@ import select
 import random
 import re
 import pathlib
+import string
 import subprocess
 
 from autokey.model.button import Button
@@ -95,6 +96,43 @@ def _merge_uinput_capabilities(device_paths, name):
         }
 
     return evdev.UInput(events=all_capabilities, name=name)
+
+
+# Letter-key codes (e.KEY_A..e.KEY_Z, not contiguous -- built from the names
+# since QWERTY keycodes aren't numbered alphabetically) used by
+# _is_keyboard_by_capabilities() below.
+_LETTER_KEYCODES = frozenset(getattr(e, "KEY_" + ch) for ch in string.ascii_uppercase)
+# Real keyboards report essentially all 26 letters; requiring most of them
+# avoids misclassifying a remote control or a device with a handful of
+# media-key buttons as a full keyboard.
+_KEYBOARD_LETTER_THRESHOLD = 20
+
+
+def _is_keyboard_by_capabilities(dev) -> bool:
+    """
+    Fallback keyboard detection for a device whose evdev name doesn't
+    contain "keyboard" (e.g. "Logitech G915", "Razer BlackWidow") and
+    isn't listed in the user's config file -- see issue #1003. Without
+    this, grab_multiple_devices() finds no keyboard for such a device and
+    AutoKey exits outright rather than just missing one device.
+    """
+    key_codes = set(dev.capabilities().get(e.EV_KEY, ()))
+    return len(_LETTER_KEYCODES & key_codes) >= _KEYBOARD_LETTER_THRESHOLD
+
+
+def _is_mouse_by_capabilities(dev) -> bool:
+    """
+    Fallback mouse detection for a device whose evdev name doesn't contain
+    "mouse" and isn't listed in the user's config file -- see issue #1003.
+    Requires a left-click button plus relative X/Y motion, matching a
+    real mouse; this deliberately does not match touchpads or other
+    absolute pointing devices, the same scope as the existing name-based
+    check.
+    """
+    capabilities = dev.capabilities()
+    key_codes = set(capabilities.get(e.EV_KEY, ()))
+    rel_codes = set(capabilities.get(e.EV_REL, ()))
+    return e.BTN_LEFT in key_codes and e.REL_X in rel_codes and e.REL_Y in rel_codes
 
 
 class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface):
@@ -351,6 +389,25 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
                 except Exception as error:
                     logger.error(f"Could not grab mouse device  \"{dev.name}\" from list of devices found on system: {error}")
+            elif _is_keyboard_by_capabilities(dev):
+                try:
+                    #logger.debug("Device's capabilities look like a keyboard, grabbing it.")
+                    keyboard = self.grab_device(devices, dev.name)
+                    keyboard.grab()
+                    self.keyboards.append(keyboard)
+                    self.device_paths.append(keyboard.path)
+                    #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
+                except Exception as error:
+                    logger.error(f"Could not grab keyboard device \"{dev.name}\" detected by capabilities: {error}")
+            elif _is_mouse_by_capabilities(dev):
+                try:
+                    #logger.debug("Device's capabilities look like a mouse, grabbing it.")
+                    mouse = self.grab_device(devices, dev.name)
+                    self.mice.append(mouse)
+                    self.device_paths.append(mouse.path)
+                    #logger.debug("Mouse: {}, Path: {}".format(mouse.name, mouse.path))
+                except Exception as error:
+                    logger.error(f"Could not grab mouse device \"{dev.name}\" detected by capabilities: {error}")
             elif dev.name in cm.ConfigManager.SETTINGS[cm_constants.KEYBOARD]:
                 try:
                     #logger.debug("Device name matches a keyboard listed in the config file, grabbing it.")
@@ -443,6 +500,28 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
+        self._send_mouse_click_now(xCoord, yCoord, button, relative)
+
+    def _send_mouse_click_now(self, xCoord, yCoord, button: Button, relative):
+        # Not queue_method-decorated: callers that are themselves already
+        # running on this queue's own consumer thread (__eventLoop) --
+        # e.g. IoMediator._send_string_selection(), invoked synchronously
+        # from within handle_keypress()'s processing of the triggering
+        # hotkey -- must call this directly instead of send_mouse_click().
+        # The queued version only enqueues and returns immediately; the
+        # actual click can't run until the CURRENT __eventLoop iteration
+        # (the one processing the keypress that triggered the phrase)
+        # returns control to queue.get(). Confirmed live on the X11
+        # backend (interface.py's identical fix): this made
+        # _send_string_selection()'s later restore step overwrite the
+        # PRIMARY selection back to its backup value before the enqueued
+        # click ever fired, so the paste always delivered the old/backup
+        # content instead of the intended string -- no delay of any
+        # length before the restore could fix this, since the enqueued
+        # task was never given a chance to run at all until the whole
+        # call chain (including the wait) unwound first. Same class of
+        # bug this class's own move_cursor()/_move_cursor_now() split
+        # already exists to avoid.
         self._move_cursor_now(xCoord, yCoord, relative)
 
         keycode = self.btn_map[button][0]
@@ -914,11 +993,18 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #  Check each AutoKey hotkey contained in the configuration
         for item in self.app.configManager.hotKeys + self.app.configManager.globalHotkeys:
 
-            #  If this hotkey has a window filter which doesn't match the active
-            #  window it can't be a match, iterate the loop.
+            #  If this hotkey has a window filter that doesn't apply to the
+            #  active window it can't be a match, iterate the loop. An
+            #  inverted filter applies everywhere except a regex match, so
+            #  the two must be combined (not just the raw regex result) or
+            #  an inverted item is treated as if it were still upright here:
+            #  its keystroke gets blocked in the very window it was meant to
+            #  exclude, with nothing left to take its place (issue found
+            #  live-testing #1223).
             if item.windowInfoRegex != None:
                 window_info = self.mediator.windowInterface.get_window_info()
-                if not item.windowInfoRegex.match(window_info.wm_title):
+                matches = bool(item.windowInfoRegex.match(window_info.wm_title))
+                if matches == item.isInverted:
                     continue
 
             #  Convert this hotkey from a list of tuples to a simple list of

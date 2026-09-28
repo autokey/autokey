@@ -136,6 +136,22 @@
               </packing>
             </child>
             <child>
+              <object class="GtkCheckButton" id="invertButton">
+                <property name="label" translatable="yes">Invert: trigger in all windows EXCEPT those matching</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="xalign">0</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkCheckButton" id="recursiveButton">
                 <property name="label" translatable="yes">Apply recursively to subfolders and items</property>
                 <property name="use_action_appearance">False</property>
@@ -149,7 +165,7 @@
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
           </object>

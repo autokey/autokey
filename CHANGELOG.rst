@@ -33,6 +33,8 @@ Important misc changes
 - Bump Python versions in setup.py to satisfy issue #970.
 - Bump to all GitHub-supported Python versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
+- Remove a leftover unconditional `pyasyncore` entry in `setup.py`'s `install_requires`, left behind when the version-gated entry was added; `pyasyncore` is now only required on Python 3.12+ as intended. Fixes `#973 <https://github.com/autokey/autokey/issues/973>`__.
+- Disable the `highlevel` scripting API (visgrep/click_on_pat/move_to_pat) under Wayland with a clear error message instead of letting scripts call into it and fail deep inside a missing X11-only tool; also stop warning about its optional dependencies (visgrep/import/png2pat) on Wayland, where they can never be useful. A Wayland-compatible replacement is planned for a future release. Fixes `#1001 <https://github.com/autokey/autokey/issues/1001>`__.
 - Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
@@ -52,6 +54,7 @@ Important misc changes
 - Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
 - Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
 - Add instruction label and disable OK button in GTK abbreviation settings dialog until an abbreviation is finalized, to prevent silent data loss and match the Qt behavior. Fixes `#667 <https://github.com/autokey/autokey/issues/667>`__.
+- Fix silent loss of an in-progress edit to an existing abbreviation in the GTK abbreviation settings dialog when OK is clicked without pressing Enter first, by capturing the live editor text instead of discarding it. Fixes `#1185 <https://github.com/autokey/autokey/issues/1185>`__.
 - Update the GTK and Qt man pages.
 - Update date, formatting, and NAME section in the GTK and Qt man pages.
 - Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
@@ -66,6 +69,11 @@ Important misc changes
 - Manual test tools: added Tk-based paste and mouse probes and a whack-a-mole style image-matching target for manual/VM testing. (`#1217`_, `#1218`_, `#1220`_)
 - Keyboard/hotkey fixes: ``<cursor>`` macro overshoot, hotkey regrab storms, regrabbing in response to AutoKey's own remapping, and AltGr detection being limited to keycode 108; added regression tests for modifier release during expansion. (`#1225`_, `#1228`_, `#1231`_, `#1235`_, `#1236`_)
 - GTK front-end fixes: a stale-tree-path segfault, ``unpause_service()`` re-pausing instead of resuming, and mouse-selection paste always pasting stale content. (`#1237`_, `#1238`_, `#1239`_)
+- Fix the broken source-code link in ``new_features.rst``, link it from the README so it's actually discoverable, and flag its X11-only ``click_on_pat``/``visgrep`` section as pending a cross-platform rewrite. Fixes `#680 <https://github.com/autokey/autokey/issues/680>`__.
+- Wrap generator/``itertools.product`` arguments passed to ``@pytest.mark.parametrize`` in ``list(...)`` across 10 tests, fixing ``PytestRemovedIn10Warning: Passing a non-Collection iterable to parametrize is deprecated``. Fixes `#1262 <https://github.com/autokey/autokey/issues/1262>`__.
+- Remove 13 permanently-xfailed tests in ``test_phrase.py`` that asserted ``Phrase.build_phrase()`` resolves the ``<cursor>`` macro, which isn't its job; macro resolution happens separately and already has thorough passing coverage in ``test_macro.py``, including a dedicated regression test for `#1222 <https://github.com/autokey/autokey/issues/1222>`__. Fixes `#334 <https://github.com/autokey/autokey/issues/334>`__.
+- Add a capability-based fallback for detecting external keyboard/mouse devices under Wayland whose evdev name doesn't contain "keyboard"/"mouse" (e.g. "Logitech G915"), so AutoKey no longer exits outright when such a device isn't already listed in the config file. Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
+- Make the uinput hotkey block layer invert-aware, so an inverted window filter's excluded window no longer silently swallows the keystroke with no phrase firing to replace it (confirmed live on KDE Wayland). Builds on the window filter invert option added in #1223.
 
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209

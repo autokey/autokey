@@ -503,6 +503,27 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button, relative):
+        self._send_mouse_click_now(xCoord, yCoord, button, relative)
+
+    def _send_mouse_click_now(self, xCoord, yCoord, button, relative):
+        # Not queue_method-decorated: callers that are themselves already
+        # running on this queue's own consumer thread (__eventLoop) --
+        # e.g. IoMediator._send_string_selection(), invoked synchronously
+        # from within handle_keypress()'s processing of the triggering
+        # hotkey -- must call this directly instead of send_mouse_click().
+        # The queued version only enqueues and returns immediately; the
+        # actual click can't run until the CURRENT __eventLoop iteration
+        # (the one processing the keypress that triggered the phrase)
+        # returns control to queue.get(). Confirmed live: this made
+        # _send_string_selection()'s later restore step overwrite the
+        # PRIMARY selection back to its backup value before the enqueued
+        # click ever fired, so the paste always delivered the old/backup
+        # content instead of the intended string -- no delay of any
+        # length before the restore could fix this, since the enqueued
+        # task was never given a chance to run at all until the whole
+        # call chain (including the wait) unwound first. Same class of
+        # bug as uinput_interface.py's move_cursor()/_move_cursor_now().
+        #
         # Get current pointer position so we can return it there
         pos = self.rootWindow.query_pointer()
 
@@ -818,7 +839,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
+                        if item.get_applicable_regex() is not None and item._should_grab_on_window(window_info):
                             if grab:
                                 self.__grabHotkey(item.hotKey, item.modifiers, window)
                                 self.__grabRecurse(item, window, False)
@@ -909,6 +930,12 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             if self.__needsMutterWorkaround(item):
                 self.__enqueue(grab_recurse_func, item, self.rootWindow, False)
         else:
+            # Filtered items, including inverted ("all windows except...") ones, must
+            # take the per-window walk rather than a root grab. An inverted filter
+            # looks global, but grabbing on the root would consume the key in the very
+            # windows the user excluded: the grab happens, then the filter is
+            # re-checked at trigger time and declines to fire, so the keystroke is
+            # swallowed and never reaches the application.
             self.__enqueue(grab_recurse_func, item, self.rootWindow)
         return
 
@@ -923,7 +950,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
             if checkWinInfo:
                 window_info = self.mediator.windowInterface.get_window_info(window, False)
-                shouldTrigger = item._should_trigger_window_title(window_info)
+                shouldTrigger = item._should_grab_on_window(window_info)
 
             if shouldTrigger or not checkWinInfo:
                 if grab:

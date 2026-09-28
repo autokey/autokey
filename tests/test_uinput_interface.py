@@ -2,6 +2,7 @@
 Unit tests for uinput_interface.py's mouse click handling.
 """
 
+import re
 from unittest.mock import MagicMock, patch
 
 from evdev import AbsInfo
@@ -177,3 +178,148 @@ def test_merge_uinput_capabilities_filters_syn_and_ff():
     merged = mock_uinput.call_args.kwargs["events"]
     assert e.EV_SYN not in merged
     assert e.EV_FF not in merged
+
+
+def _letter_keycodes(count):
+    """The first `count` letter keycodes, in a-z order, for boundary tests."""
+    import string
+    return [getattr(e, "KEY_" + ch) for ch in string.ascii_uppercase[:count]]
+
+
+def test_is_keyboard_by_capabilities_detects_full_letter_set():
+    """A real keyboard reporting all 26 letters must be detected (issue #1003)."""
+    device = _fake_device({e.EV_KEY: _letter_keycodes(26)})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is True
+
+
+def test_is_keyboard_by_capabilities_at_threshold_boundary():
+    """
+    Exactly the threshold count of letters must pass, one fewer must not --
+    pins the boundary so a future edit to the threshold is a visible,
+    deliberate change rather than an accidental off-by-one.
+    """
+    at_threshold = _fake_device({e.EV_KEY: _letter_keycodes(uinput_interface._KEYBOARD_LETTER_THRESHOLD)})
+    below_threshold = _fake_device({e.EV_KEY: _letter_keycodes(uinput_interface._KEYBOARD_LETTER_THRESHOLD - 1)})
+
+    assert uinput_interface._is_keyboard_by_capabilities(at_threshold) is True
+    assert uinput_interface._is_keyboard_by_capabilities(below_threshold) is False
+
+
+def test_is_keyboard_by_capabilities_rejects_media_remote():
+    """
+    A device with only a handful of buttons (e.g. a media remote or a
+    volume-knob accessory) must not be misclassified as a full keyboard.
+    """
+    device = _fake_device({e.EV_KEY: [e.KEY_VOLUMEUP, e.KEY_VOLUMEDOWN, e.KEY_MUTE, e.KEY_PLAYPAUSE]})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is False
+
+
+def test_is_keyboard_by_capabilities_handles_device_with_no_ev_key():
+    """A device that reports no EV_KEY capability at all (e.g. a pure pointer) must not match."""
+    device = _fake_device({e.EV_REL: [e.REL_X, e.REL_Y]})
+    assert uinput_interface._is_keyboard_by_capabilities(device) is False
+
+
+def test_is_mouse_by_capabilities_detects_real_mouse():
+    """A real mouse reporting BTN_LEFT plus relative X/Y motion must be detected (issue #1003)."""
+    device = _fake_device({
+        e.EV_KEY: [e.BTN_LEFT, e.BTN_RIGHT, e.BTN_MIDDLE],
+        e.EV_REL: [e.REL_X, e.REL_Y, e.REL_WHEEL],
+    })
+    assert uinput_interface._is_mouse_by_capabilities(device) is True
+
+
+def test_is_mouse_by_capabilities_rejects_touchpad():
+    """
+    A touchpad reports absolute positioning (EV_ABS), not relative motion --
+    this must stay unmatched, the same scope as the existing name-based
+    mouse check (which also never matched touchpads).
+    """
+    abs_info = AbsInfo(value=0, min=0, max=1000, fuzz=0, flat=0, resolution=1)
+    device = _fake_device({
+        e.EV_KEY: [e.BTN_LEFT, e.BTN_TOOL_FINGER],
+        e.EV_ABS: [(e.ABS_X, abs_info), (e.ABS_Y, abs_info)],
+    })
+    assert uinput_interface._is_mouse_by_capabilities(device) is False
+
+
+def test_is_mouse_by_capabilities_rejects_relative_device_without_click_button():
+    """A relative-motion device with no left-click button (e.g. a scroll-only widget) must not match."""
+    device = _fake_device({e.EV_REL: [e.REL_X, e.REL_Y]})
+    assert uinput_interface._is_mouse_by_capabilities(device) is False
+
+
+class _StubItem:
+    """A hotkey-bearing item as __isAutoKeyHotkey() actually reads it."""
+
+    def __init__(self, hot_key, modifiers, regex=None, is_inverted=False):
+        self.hotKey = hot_key
+        self.modifiers = modifiers
+        self.windowInfoRegex = re.compile(regex) if regex is not None else None
+        self.isInverted = is_inverted
+
+
+def _make_hotkey_interface(hot_keys, window_title):
+    """
+    An interface with just enough real state for __isAutoKeyHotkey() to run
+    its actual key-translation and window-filter logic unmocked.
+    """
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    interface.inv_map = interface._UInputInterface__reverse_mapping(e.keys)
+    interface.app = MagicMock()
+    interface.app.configManager.hotKeys = hot_keys
+    interface.app.configManager.globalHotkeys = []
+    interface.mediator = MagicMock()
+    interface.mediator.windowInterface.get_window_info.return_value = MagicMock(wm_title=window_title)
+    return interface
+
+
+def _held(*evdev_key_names):
+    """A `held` list shaped like __flush_events() builds it: [(anything, code), ...]."""
+    return [(None, e.ecodes[name]) for name in evdev_key_names]
+
+
+class TestIsAutoKeyHotkeyWindowFilter:
+    """
+    Regression tests for the invert-unaware window-filter check found live-
+    testing PR #1223 on Wayland/uinput: an inverted filter's whole point is
+    to apply everywhere *except* a regex match, but this check only ever
+    asked "does the regex match", so an inverted item was still treated as
+    applying in the one window it was meant to exclude. The keystroke got
+    blocked there -- with no phrase firing to replace it, since the model's
+    own trigger-matching logic (elsewhere) correctly declines to fire --
+    while every other, non-excluded window worked fine. Confirmed live via
+    the manual VM test in this PR's discussion, on both synthetic and real
+    physical keyboard input.
+    """
+
+    def test_uninverted_filter_blocks_only_in_the_matching_window(self):
+        item = _StubItem("z", ["<ctrl>"], regex="Excluded", is_inverted=False)
+
+        matching = _make_hotkey_interface([item], "Excluded")
+        other = _make_hotkey_interface([item], "Other")
+
+        assert matching._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is True
+        assert other._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is False
+
+    def test_inverted_filter_does_not_block_in_the_excluded_window(self):
+        """The exact scenario from #1223: this must NOT block here anymore."""
+        item = _StubItem("z", ["<ctrl>"], regex="Excluded", is_inverted=True)
+
+        excluded = _make_hotkey_interface([item], "Excluded")
+
+        assert excluded._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is False
+
+    def test_inverted_filter_still_blocks_everywhere_else(self):
+        item = _StubItem("z", ["<ctrl>"], regex="Excluded", is_inverted=True)
+
+        elsewhere = _make_hotkey_interface([item], "Some Other Window")
+
+        assert elsewhere._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is True
+
+    def test_no_window_filter_is_unaffected(self):
+        item = _StubItem("z", ["<ctrl>"], regex=None, is_inverted=False)
+
+        interface = _make_hotkey_interface([item], "Anything")
+
+        assert interface._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is True
