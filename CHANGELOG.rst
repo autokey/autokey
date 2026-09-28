@@ -68,6 +68,7 @@ Important misc changes
 - Manual test tools: added Tk-based paste and mouse probes and a whack-a-mole style image-matching target for manual/VM testing. (`#1217`_, `#1218`_, `#1220`_)
 - Keyboard/hotkey fixes: ``<cursor>`` macro overshoot, hotkey regrab storms, regrabbing in response to AutoKey's own remapping, and AltGr detection being limited to keycode 108; added regression tests for modifier release during expansion. (`#1225`_, `#1228`_, `#1231`_, `#1235`_, `#1236`_)
 - GTK front-end fixes: a stale-tree-path segfault, ``unpause_service()`` re-pausing instead of resuming, and mouse-selection paste always pasting stale content. (`#1237`_, `#1238`_, `#1239`_)
+- Wrap generator/``itertools.product`` arguments passed to ``@pytest.mark.parametrize`` in ``list(...)`` across 10 tests, fixing ``PytestRemovedIn10Warning: Passing a non-Collection iterable to parametrize is deprecated``. Fixes `#1262 <https://github.com/autokey/autokey/issues/1262>`__.
 
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209
