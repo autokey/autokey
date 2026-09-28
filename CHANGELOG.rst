@@ -34,6 +34,7 @@ Important misc changes
 - Bump to all GitHub-supported Python versions to satisfy issue #986.
 - Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
 - Remove a leftover unconditional `pyasyncore` entry in `setup.py`'s `install_requires`, left behind when the version-gated entry was added; `pyasyncore` is now only required on Python 3.12+ as intended. Fixes `#973 <https://github.com/autokey/autokey/issues/973>`__.
+- Disable the `highlevel` scripting API (visgrep/click_on_pat/move_to_pat) under Wayland with a clear error message instead of letting scripts call into it and fail deep inside a missing X11-only tool; also stop warning about its optional dependencies (visgrep/import/png2pat) on Wayland, where they can never be useful. A Wayland-compatible replacement is planned for a future release. Fixes `#1001 <https://github.com/autokey/autokey/issues/1001>`__.
 - Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
 - Change all instances of **sudo apt** to **sudo apt-get**.
 - Update badges, formatting, wording, links, and information in the **README.rst** file.
