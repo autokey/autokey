@@ -20,12 +20,11 @@ AutoKey
 
 About
 =====
-`AutoKey`_, a desktop automation utility for Linux, formerly hosted on `Google`_, has been updated to run on Python 3.
+`AutoKey`_, a desktop automation utility for Linux, has been updated to run on Python 3.
 
 AutoKey supports both X11 and Wayland (GNOME and KDE Plasma). Other desktop environments running under Wayland are not currently supported; X11 remains required for those.
 
 .. _AutoKey: https://github.com/autokey/autokey
-.. _Google: https://code.google.com/archive/p/autokey/
 
 Installation
 ============
@@ -86,13 +85,6 @@ Pull requests are welcome from anyone who would like to modify or contribute to 
 
 .. _CodeTriage: https://www.codetriage.com/autokey/autokey
 .. _CONTRIBUTORS.rst: https://github.com/autokey/autokey/blob/master/CONTRIBUTORS.rst
-
-Donations
-=========
-
-AutoKey doesn't have its own platform for accepting donations, but the `Opire`_ platform can be used to put bounties on AutoKey issues. See the `Donations section <https://github.com/autokey/autokey/wiki/Contributing#donations>`__ of the wiki's `Contributing <https://github.com/autokey/autokey/wiki/Contributing>`__ page for details.
-
-.. _Opire: https://opire.dev/home
 
 Changelog
 =========
