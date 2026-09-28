@@ -41,7 +41,7 @@ def generate_tests_for_key_split_re():
     yield "Test<tab>More text", ["Test", "<tab>", "More text"]
 
 
-@pytest.mark.parametrize("input_string, expected_split", generate_tests_for_key_split_re())
+@pytest.mark.parametrize("input_string, expected_split", list(generate_tests_for_key_split_re()))
 def test_key_split_re(input_string: str, expected_split: typing.List[str]):
     assert_that(
         autokey.model.key.KEY_SPLIT_RE.split(input_string),

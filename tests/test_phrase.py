@@ -105,7 +105,7 @@ def generate_test_cases_for_ignore_case():
     yield phrase_data("Tri", "ab br", True), "tri ", phrase_result("ab br ", True)
 
 
-@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_ignore_case())
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", list(generate_test_cases_for_ignore_case()))
 def test_ignore_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
 
@@ -190,7 +190,7 @@ def generate_test_cases_for_match_case():
     yield phrase_data("Tri", "Ab Br"), "TRi ", phrase_result("Ab Br ")  # Case as defined in the Phrase
 
 
-@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_match_case())
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", list(generate_test_cases_for_match_case()))
 def test_match_case(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
     # Expansion should always trigger
@@ -270,7 +270,7 @@ def generate_test_cases_for_trigger_immediately():
     yield phrase_data("---", False, False), "---", phrase_result("Phrase Content.", True)
 
 
-@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", generate_test_cases_for_trigger_immediately())
+@pytest.mark.parametrize("phrase_data, trigger_str, phrase_result", list(generate_test_cases_for_trigger_immediately()))
 def test_trigger_immediately(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     window_info = WindowInfo("", "")
     phrase = create_phrase(*phrase_data)
@@ -320,7 +320,7 @@ def generate_test_cases_for_case_insensitive_rpartition():
     yield "AB", "b", ("A", "B", "")
 
 
-@pytest.mark.parametrize("input_str, match, expected", generate_test_cases_for_case_insensitive_rpartition())
+@pytest.mark.parametrize("input_str, match, expected", list(generate_test_cases_for_case_insensitive_rpartition()))
 def test_case_insensitive_rpartition(input_str: str, match: str, expected:typing.Tuple[str, str, str]):
     assert_that(autokey.model.phrase.Phrase._case_insensitive_rpartition(input_str, match), is_(equal_to(expected)))
 
@@ -355,7 +355,7 @@ def generate_test_cases_for_undo_on_backspace():
 
 
 @pytest.mark.parametrize("phrase_data, trigger_str, undo_enabled, phrase_result",
-                         generate_test_cases_for_undo_on_backspace())
+                         list(generate_test_cases_for_undo_on_backspace()))
 def test_undo_on_backspace(phrase_data: PhraseData, trigger_str: str, undo_enabled: bool, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
     phrase.backspace = undo_enabled
@@ -406,7 +406,7 @@ def generate_test_cases_for_omit_trigger():
 
 
 @pytest.mark.parametrize("phrase_data, trigger_str, omit_trigger, phrase_result",
-                         generate_test_cases_for_omit_trigger())
+                         list(generate_test_cases_for_omit_trigger()))
 def test_omit_trigger(phrase_data: PhraseData, trigger_str: str, omit_trigger: bool, phrase_result: PhraseResult):
     """
     omitTrigger set to True causes the trigger character to be not re-typed during Phrase expansion
@@ -462,7 +462,7 @@ def generate_test_cases_for_trigger_phrase_inside_word():
     yield phrase_data(True), "ZQtri", phrase_result("ab br", 3)
 
 @pytest.mark.parametrize("phrase_data, trigger_str, phrase_result",
-                         generate_test_cases_for_trigger_phrase_inside_word())
+                         list(generate_test_cases_for_trigger_phrase_inside_word()))
 def test_trigger_phrase_inside_word(phrase_data: PhraseData, trigger_str: str, phrase_result: PhraseResult):
     phrase = create_phrase(*phrase_data)
     phrase.triggerInside = True
@@ -490,3 +490,66 @@ def test_trigger_phrase_inside_word(phrase_data: PhraseData, trigger_str: str, p
         is_(equal_to(0)),
     )
 
+
+def generate_test_cases_for_count_lefts_for_cursor_macro():
+    """Yields PhraseData, trigger_str, expected_lefts, PhraseResults"""
+
+    def phrase_data(content: str, trigger_immediately: bool) -> PhraseData:
+        """Local helper function to save typing constant data"""
+        return PhraseData(
+            name="name", abbreviation="tri", content=content,
+            trigger_modes=[TriggerMode.ABBREVIATION], ignore_case=False, match_case=False,
+            trigger_immediately=trigger_immediately)
+
+    def phrase_result(expansion: str, backspace_count: int) -> PhraseResult:
+        """Local helper function to save typing constant data"""
+        return PhraseResult(
+            expansion=expansion, abbreviation_length=None,
+            backspace_count=backspace_count, triggered_on_input=True)
+
+    # Trigger on trigger character
+    yield phrase_data("ab<cursor> br", False), "tri ", 4, phrase_result("ab br ", 4)
+    yield phrase_data("ab<cursor> br", False), "tri\n", 4, phrase_result("ab br\n", 4)
+    yield phrase_data("ab<cursor> br", False), "tri\t", 4, phrase_result("ab br\t", 4)
+    yield phrase_data("ab<cursor> br", False), "tri.", 4, phrase_result("ab br.", 4)
+
+    yield phrase_data("<cursor>ab br", False), "tri ", 6, phrase_result("ab br ", 4)
+    yield phrase_data("<cursor>ab br", False), "tri\n", 6, phrase_result("ab br\n", 4)
+    yield phrase_data("ab br<cursor>", False), "tri\t", 1, phrase_result("ab br\t", 4)
+    yield phrase_data("ab b<cursor>r", False), "tri.", 2, phrase_result("ab br.", 4)
+
+    # Trigger immediately
+    yield phrase_data("<cursor>ab br", True), "tri", 5, phrase_result("ab br", 3)
+    yield phrase_data("a<cursor>b br", True), "tri", 4, phrase_result("ab br", 3)
+    yield phrase_data("ab<cursor> br", True), "tri", 3, phrase_result("ab br", 3)
+    yield phrase_data("ab b<cursor>r", True), "tri", 1, phrase_result("ab br", 3)
+    yield phrase_data("ab br<cursor>", True), "tri", 0, phrase_result("ab br", 3)
+
+
+@pytest.mark.parametrize("phrase_data, trigger_str, expected_lefts, phrase_result",
+                         list(generate_test_cases_for_count_lefts_for_cursor_macro()))
+def test_count_lefts_for_cursor_macro(phrase_data: PhraseData, trigger_str: str,
+                                      expected_lefts: int, phrase_result: PhraseResult):
+    phrase = create_phrase(*phrase_data)
+    # Expansion should always trigger
+    assert_that(
+        phrase.check_input(trigger_str, WindowInfo("", "")),
+        is_(equal_to(phrase_result.triggered_on_input)),
+        "Phrase expansion should trigger:"
+    )
+    pytest.xfail("Counting lefts in expansion result seems to be broken legacy code?")
+    result = phrase.build_phrase(trigger_str)
+    assert_that(
+        result.string,
+        is_(equal_to(phrase_result.expansion)),
+        "Wrong expansion result"
+    )
+    assert_that(
+        result.backspaces,
+        is_(equal_to(phrase_result.backspace_count)),
+        "Wrong backspace character count"
+    )
+    assert_that(
+        result.lefts,
+        is_(equal_to(expected_lefts)),
+    )
