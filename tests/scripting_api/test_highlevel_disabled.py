@@ -15,6 +15,7 @@ import autokey.scripting.highlevel_disabled as highlevel_disabled
 
 @pytest.mark.parametrize("name, args", [
     ("visgrep", ("scr.png", "pat.png")),
+    ("get_png_dim", ("scr.png",)),
     ("mouse_move", (1, 2)),
     ("mouse_rmove", (1, 2)),
     ("mouse_click", (1,)),
@@ -35,21 +36,10 @@ def test_disabled_functions_error_names_the_call():
 
 
 def test_constants_match_the_real_module():
-    """Harmless, don't-depend-on-X11 values -- no reason to disable these."""
+    """Plain int/exception-type values, kept so `except PatternNotFound` and
+    button-constant references in existing scripts still import cleanly --
+    not calls, so there's nothing to disable."""
     assert highlevel_disabled.LEFT == highlevel.LEFT
     assert highlevel_disabled.MIDDLE == highlevel.MIDDLE
     assert highlevel_disabled.RIGHT == highlevel.RIGHT
     assert highlevel_disabled.PatternNotFound is highlevel.PatternNotFound
-
-
-def test_get_png_dim_still_works(tmp_path):
-    """Pure file-reading helper, no X11 dependency -- stays functional."""
-    import struct
-    png_path = tmp_path / "test.png"
-    # Minimal valid PNG header: signature + IHDR chunk with width=10, height=20.
-    signature = b"\x89PNG\r\n\x1a\n"
-    ihdr_data = struct.pack("!II", 10, 20) + b"\x08\x02\x00\x00\x00"
-    chunk = struct.pack("!I", len(ihdr_data)) + b"IHDR" + ihdr_data + b"\x00\x00\x00\x00"
-    png_path.write_bytes(signature + chunk)
-
-    assert highlevel_disabled.get_png_dim(str(png_path)) == (10, 20)
