@@ -993,11 +993,18 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #  Check each AutoKey hotkey contained in the configuration
         for item in self.app.configManager.hotKeys + self.app.configManager.globalHotkeys:
 
-            #  If this hotkey has a window filter which doesn't match the active
-            #  window it can't be a match, iterate the loop.
+            #  If this hotkey has a window filter that doesn't apply to the
+            #  active window it can't be a match, iterate the loop. An
+            #  inverted filter applies everywhere except a regex match, so
+            #  the two must be combined (not just the raw regex result) or
+            #  an inverted item is treated as if it were still upright here:
+            #  its keystroke gets blocked in the very window it was meant to
+            #  exclude, with nothing left to take its place (issue found
+            #  live-testing #1223).
             if item.windowInfoRegex != None:
                 window_info = self.mediator.windowInterface.get_window_info()
-                if not item.windowInfoRegex.match(window_info.wm_title):
+                matches = bool(item.windowInfoRegex.match(window_info.wm_title))
+                if matches == item.isInverted:
                     continue
 
             #  Convert this hotkey from a list of tuples to a simple list of

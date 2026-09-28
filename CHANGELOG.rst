@@ -72,6 +72,7 @@ Important misc changes
 - Wrap generator/``itertools.product`` arguments passed to ``@pytest.mark.parametrize`` in ``list(...)`` across 10 tests, fixing ``PytestRemovedIn10Warning: Passing a non-Collection iterable to parametrize is deprecated``. Fixes `#1262 <https://github.com/autokey/autokey/issues/1262>`__.
 - Remove 13 permanently-xfailed tests in ``test_phrase.py`` that asserted ``Phrase.build_phrase()`` resolves the ``<cursor>`` macro, which isn't its job; macro resolution happens separately and already has thorough passing coverage in ``test_macro.py``, including a dedicated regression test for `#1222 <https://github.com/autokey/autokey/issues/1222>`__. Fixes `#334 <https://github.com/autokey/autokey/issues/334>`__.
 - Add a capability-based fallback for detecting external keyboard/mouse devices under Wayland whose evdev name doesn't contain "keyboard"/"mouse" (e.g. "Logitech G915"), so AutoKey no longer exits outright when such a device isn't already listed in the config file. Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
+- Make the uinput hotkey block layer invert-aware, so an inverted window filter's excluded window no longer silently swallows the keystroke with no phrase firing to replace it (confirmed live on KDE Wayland). Builds on the window filter invert option added in #1223.
 
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209
