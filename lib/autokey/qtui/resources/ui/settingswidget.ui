@@ -36,10 +36,48 @@
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLabel" name="hotkey_label">
-     <property name="text">
-      <string>$hotkey</string>
+    <widget class="QStackedWidget" name="hotkey_value_stack">
+     <property name="currentIndex">
+      <number>0</number>
      </property>
+     <widget class="QLabel" name="hotkey_label">
+      <property name="text">
+       <string>$hotkey</string>
+      </property>
+     </widget>
+     <widget class="QWidget" name="hotkey_edit_page">
+      <layout class="QHBoxLayout" name="hotkey_edit_page_layout">
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLineEdit" name="hotkey_edit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="hotkey_save_button">
+         <property name="toolTip">
+          <string>Save the previewed hotkey</string>
+         </property>
+         <property name="text">
+          <string>Save</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
    <item row="2" column="0">
