@@ -65,6 +65,31 @@ testing a mouse-automation script driving AutoKey:
 On-screen counters and a brief flash on each target also give quick
 visual confirmation during manual testing.
 
+## paste_probe_gtk.py
+
+Same purpose as `paste_probe.py` (a window whose text content is
+mirrored to a file on every change), but backed by a GTK `TextView`
+instead of a Tk `Text` widget:
+
+```
+python3 tests/manual/paste_probe_gtk.py [outfile]
+```
+
+Needed specifically for verifying `SendMode.SELECTION` (mouse
+middle-click paste): GTK's own PRIMARY-selection clipboard
+implementation (used by AutoKey's GTK front end) does not correctly
+answer a Tk widget's selection request, even though the click event
+itself reaches the Tk widget fine. That is a Tk-vs-GTK3 toolkit
+mismatch below AutoKey entirely, not something a real user hits, since
+real paste targets are overwhelmingly GTK, Qt, or other modern
+toolkits rather than Tk -- use this probe instead of `paste_probe.py`
+when testing mouse-selection paste specifically.
+
+On a Wayland session, launch it with `GDK_BACKEND=x11` so its window
+is visible to X11-based window tools (`xdotool`, `wmctrl`) via
+XWayland; GTK3 otherwise defaults to a native Wayland surface that
+those tools cannot see at all.
+
 ## gopher_hunt.py / gopher.png
 
 A "whack-a-mole" style target for testing AutoKey's image-matching
