@@ -23,6 +23,7 @@ PR #1076 Changes
  
 Important misc changes
 ----------------------
+- Remove a dead, overridden line in ``SettingsWidget.validate()`` (``lib/autokey/qtui/settingswidget.py``) left over from a botched merge conflict resolution during #1184's rebase: ``filter_expression`` was assigned from ``_current_filter_expression()`` and then immediately overwritten by the following line, so the call never had any effect. No behavior change.
 - Replace the GTK and Qt setuptools-generated launchers with explicit scripts to avoid the deprecated ``pkg_resources`` entry-point wrapper. Fixes issue `#1047 <https://github.com/autokey/autokey/issues/1047>`__.
 - Bump action versions in pages.yml to satisfy part of issue #963.
 - Fix KDE Wayland window property queries by keeping the KWin response payload in scope for the D-Bus callback.
