@@ -249,22 +249,19 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         "backslash": "\\", "equal": "=", "minus": "-", "grave": "`",
     }
 
-    #TODO complete this
     btn_map = {
         Button.LEFT: [e.BTN_LEFT, 0x90001],
         Button.RIGHT: [e.BTN_RIGHT, 0x90002],
         Button.MIDDLE: [e.BTN_MIDDLE, 0x90003],
-        #4: [e.BTN_SIDE, 0x90004],
-        #5: [e.BTN_EXTRA, 0x90005],
-        #6: [],
-        #7: [],
-        #8: [e.BTN_BACK, ]
-
+        Button.BACKWARD: [e.BTN_SIDE, 0x90004],
+        Button.FORWARD: [e.BTN_EXTRA, 0x90005],
     }
     inv_btn_map = {
         "BTN_LEFT": Button.LEFT,
         "BTN_RIGHT": Button.RIGHT,
-        "BTN_MIDDLE": Button.MIDDLE
+        "BTN_MIDDLE": Button.MIDDLE,
+        "BTN_SIDE": Button.BACKWARD,
+        "BTN_EXTRA": Button.FORWARD,
     }
 
     queue = queue.Queue()
