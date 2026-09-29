@@ -23,6 +23,7 @@ PR #1076 Changes
  
 Important misc changes
 ----------------------
+- Fix the uinput mouse interface not recognizing the Side/Extra mouse buttons: they were missing from ``inv_btn_map``, causing an uncaught ``KeyError`` on every press/release and preventing ``WindowGrabber``/hotkey-recording from seeing clicks on those buttons. Normal mouse use was unaffected, since AutoKey never exclusively grabs the mouse device. Fixes issue `#1269 <https://github.com/autokey/autokey/issues/1269>`__.
 - Replace the GTK and Qt setuptools-generated launchers with explicit scripts to avoid the deprecated ``pkg_resources`` entry-point wrapper. Fixes issue `#1047 <https://github.com/autokey/autokey/issues/1047>`__.
 - Bump action versions in pages.yml to satisfy part of issue #963.
 - Fix KDE Wayland window property queries by keeping the KWin response payload in scope for the D-Bus callback.

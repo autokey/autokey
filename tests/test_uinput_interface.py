@@ -113,6 +113,28 @@ def test_mouse_press_and_release_settle_before_writing(monkeypatch):
         assert events[-1] == ("syn_raw",)
 
 
+def test_translate_to_evdev_maps_side_and_extra_buttons():
+    """
+    BTN_SIDE/BTN_EXTRA were missing from inv_btn_map (only LEFT/RIGHT/MIDDLE
+    were present), so a Side or Extra mouse button release fell through to
+    the keyboard key-release path and raised an uncaught KeyError inside
+    translate_to_evdev(), logged (and swallowed) on every press -- confirmed
+    live on a real KDE Wayland session with a physical 5-button mouse.
+    """
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    interface.inv_btn_map = uinput_interface.UInputInterface.inv_btn_map
+
+    assert interface.translate_to_evdev("BTN_SIDE") == (Button.BACKWARD, False)
+    assert interface.translate_to_evdev("BTN_EXTRA") == (Button.FORWARD, False)
+
+
+def test_btn_map_and_inv_btn_map_cover_the_same_buttons():
+    """inv_btn_map (evdev name -> Button) and btn_map (Button -> evdev code) must agree on which buttons are supported, or one direction silently drops a button the other claims to handle."""
+    assert set(uinput_interface.UInputInterface.inv_btn_map.values()) == set(
+        uinput_interface.UInputInterface.btn_map.keys()
+    )
+
+
 def _fake_device(capabilities):
     dev = MagicMock()
     dev.capabilities.return_value = capabilities
