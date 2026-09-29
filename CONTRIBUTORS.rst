@@ -26,6 +26,10 @@ automatically be built.
 
 If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
 
+See VM_TESTING.md for how to set up virtual machines covering AutoKey's
+X11, GNOME/Wayland, and KDE Plasma/Wayland targets, and how to run both
+the automated (`tests/vm_checklist/checklist.py`) and manual
+(`tests/manual/`) checks against them.
 See MANUAL_TESTING.rst for the manual verification checklist required for
 PRs that change AutoKey's runtime behavior. Additional test scenarios are
 welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
