@@ -139,7 +139,6 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             modifiers = []
             key = None
 
-        filter_expression = self._current_filter_expression()
         filter_expression = None
         filter_inverted = False
         if self.window_filter_enabled:
