@@ -690,11 +690,21 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             return None
 
     def __initMappings(self):
-        self.localDisplay = display.Display()
-        self.__lastKeyboardMapping = self.__get_keyboard_mapping()
-        self.rootWindow = self.localDisplay.screen().root
-        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
+        # Only open the X connection once. This is also called on every
+        # keymap-change event (via __delayedInitMappings()), and used to
+        # unconditionally call display.Display() here, opening a brand new
+        # connection each time and leaking the previous one -- nothing ever
+        # closed it, and nothing needed a new connection in the first place,
+        # since re-querying the keymap/grabbing hotkeys works fine on the
+        # existing one. Over enough keymap-change events (which can fire
+        # from something as ordinary as another client re-applying the same
+        # mapping) this exhausted the X server's client limit. See #1088.
+        if getattr(self, "localDisplay", None) is None:
+            self.localDisplay = display.Display()
+            self.rootWindow = self.localDisplay.screen().root
+            self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
 
+        self.__lastKeyboardMapping = self.__get_keyboard_mapping()
         self.__build_usable_offsets()
         self.__build_modifier_mask_mapping()
 

@@ -436,6 +436,50 @@ class TestKeymapChangeSkipping:
         assert_that(iface._XInterfaceBase__delayedInitMappings.called, is_(True))
 
 
+class TestInitMappingsReusesExistingConnection:
+    """
+    __initMappings() runs both at startup and again on every keymap-change
+    event (via __delayedInitMappings()). It used to unconditionally open a
+    brand new display.Display() connection every time it ran and never
+    closed the previous one, leaking one X11 client connection per keymap
+    event -- over enough events (which can fire from another client simply
+    re-applying the same mapping) this exhausted the X server's client
+    limit. See #1088.
+    """
+
+    @staticmethod
+    def _interface():
+        iface = MagicMock()
+        iface.localDisplay = None  # matches a freshly constructed instance
+        return iface
+
+    def test_first_call_opens_one_connection(self):
+        iface = self._interface()
+        with patch("autokey.interface.display.Display") as mock_display_cls:
+            autokey.interface.XInterfaceBase._XInterfaceBase__initMappings(iface)
+            assert_that(mock_display_cls.call_count, equal_to(1))
+
+    def test_second_call_does_not_open_a_new_connection(self):
+        """Simulates __initMappings() running again for a keymap-change event."""
+        iface = self._interface()
+        with patch("autokey.interface.display.Display") as mock_display_cls:
+            autokey.interface.XInterfaceBase._XInterfaceBase__initMappings(iface)
+            autokey.interface.XInterfaceBase._XInterfaceBase__initMappings(iface)
+            assert_that(mock_display_cls.call_count, equal_to(1),
+                        "a second __initMappings() call must reuse the existing "
+                        "connection, not leak a new one (#1088)")
+
+    def test_second_call_still_refreshes_and_regrabs(self):
+        """The whole point of calling this again is to pick up the new keymap."""
+        iface = self._interface()
+        with patch("autokey.interface.display.Display"):
+            autokey.interface.XInterfaceBase._XInterfaceBase__initMappings(iface)
+            iface._XInterfaceBase__grab_ungrab_all_hotkeys.reset_mock()
+            autokey.interface.XInterfaceBase._XInterfaceBase__initMappings(iface)
+            assert_that(iface._XInterfaceBase__grab_ungrab_all_hotkeys.called, is_(True),
+                        "must still re-grab hotkeys against the (possibly new) keymap")
+
+
 class TestSelfRemapDoesNotRegrab:
     """
     AutoKey rewrites the keyboard mapping to borrow spare keycodes for characters
