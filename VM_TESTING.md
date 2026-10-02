@@ -192,6 +192,26 @@ The script writes a JSON report and, on any failure, a screenshot under
 `tests/vm_checklist/README.md` for the full option list and how to add
 a new VM to its registry.
 
+### Fresh-install .deb packaging check
+
+Items 1-10 above assume AutoKey is already installed (from source/pip),
+so they never exercise the actual `.deb` packaging
+(`debian/build.sh`/`debian/rules`, or `autokey-common`'s `postinst`/
+`prerm` scripts) -- a packaging-only bug like #1277 is invisible to
+them. `checklist.py --fresh-install` tests that path instead: it
+reverts a VM to its clean `installed` snapshot, clones and builds the
+`.deb` packages, installs them, and removes them again.
+
+```
+python3 tests/vm_checklist/checklist.py --vm u24 --fresh-install
+```
+
+This is destructive to whatever is currently running on the VM (it
+prompts for confirmation unless `--yes` is given), and does not revert
+back afterward -- revert to a snapshot by hand before reusing that VM
+for the items 1-10 checks above. See `tests/vm_checklist/README.md` for
+details.
+
 ## Running Manual Tests
 
 For anything the checklist script doesn't cover, or when you want to see

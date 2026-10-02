@@ -15,9 +15,16 @@ Usage:
     python3 checklist.py --vm m22 --items 1,3,4
     python3 checklist.py --vm m22 --list
     python3 checklist.py --vm m22 --repo-path ~/autokey --keep-phrases
+    python3 checklist.py --vm u24 --fresh-install --git-ref my-pr-branch
 
 Each check function returns a CheckResult. Screenshots are still taken on
 failure (and optionally always) for a human to look at afterward.
+
+--fresh-install is a separate mode, not one of items 1-10: it reverts the
+VM to the clean 'installed' snapshot and tests the actual Debian/Ubuntu
+packaging (debian/build.sh, debian/rules, the autokey-common postinst/
+prerm scripts) rather than AutoKey's runtime behavior. See
+run_fresh_install_check()'s docstring.
 
 Items 6-8 (record a key combination via keyboard/mouse, window-detection
 crosshair click-to-select) are NOT automated here and are not planned --
@@ -883,6 +890,208 @@ def check_config_gui_sanity(vm: VM) -> CheckResult:
 
 
 # --------------------------------------------------------------------------
+# Fresh-install .deb packaging check (not one of items 1-10 -- see
+# run_fresh_install_check()'s docstring for why it's a separate mode)
+# --------------------------------------------------------------------------
+
+# Snapshot name from VM_TESTING.md step 14: base OS, SSH and sudoers set up,
+# nothing AutoKey-related installed yet. The only snapshot it's meaningful to
+# revert to for a *fresh*-install test.
+INSTALLED_SNAPSHOT = "installed"
+
+
+@dataclasses.dataclass
+class DpkgInstallResult:
+    phase: str
+    passed: bool
+    detail: str
+
+
+def vbox(args: list, timeout: int = 180) -> subprocess.CompletedProcess:
+    return subprocess.run(["VBoxManage", *args], capture_output=True, text=True, timeout=timeout)
+
+
+def wait_for_ssh(alias: str, attempts: int = 30, delay: int = 10) -> None:
+    for _ in range(attempts):
+        try:
+            if ssh(alias, "true", timeout=10).returncode == 0:
+                return
+        except subprocess.TimeoutExpired:
+            # Expected while the VM is still mid-boot: the port isn't
+            # listening yet, so the SSH client hangs until its own
+            # connection timeout rather than failing fast with a
+            # connection-refused. Confirmed live: a bare `ssh u24 echo ok`
+            # immediately after startvm hit this before the guest finished
+            # booting, succeeding moments later with no other change.
+            pass
+        time.sleep(delay)
+    raise RuntimeError(f"{alias} did not come up over SSH after {attempts * delay}s")
+
+
+def revert_to_installed_snapshot(alias: str, vbox_name: str, skip_confirm: bool) -> None:
+    if not skip_confirm:
+        answer = input(
+            f"This will revert '{alias}' (VirtualBox VM '{vbox_name}') to its "
+            f"{INSTALLED_SNAPSHOT!r} snapshot, discarding whatever is running on "
+            f"it now. Continue? [y/N] "
+        )
+        if answer.strip().lower() != "y":
+            raise SystemExit("Aborted.")
+    # A snapshot can't be restored while its VM is running (VBoxManage:
+    # "Cannot delete the current state of the running machine") -- confirmed
+    # live: a VM left running from a prior invocation of this check (e.g. a
+    # retry after a transient failure) made the restore below fail outright.
+    running = vbox(["list", "runningvms"]).stdout
+    if f'"{vbox_name}"' in running:
+        print(f"[{alias}] VM is still running, powering off first ...")
+        vbox(["controlvm", vbox_name, "poweroff"])
+        time.sleep(3)
+    print(f"[{alias}] reverting to snapshot {INSTALLED_SNAPSHOT!r} ...")
+    result = vbox(["snapshot", vbox_name, "restore", INSTALLED_SNAPSHOT])
+    if result.returncode != 0:
+        raise RuntimeError(f"snapshot restore failed: {result.stderr}")
+    print(f"[{alias}] starting VM ...")
+    result = vbox(["startvm", vbox_name, "--type", "headless"])
+    if result.returncode != 0:
+        raise RuntimeError(f"startvm failed: {result.stderr}")
+    print(f"[{alias}] waiting for SSH ...")
+    wait_for_ssh(alias)
+    # Settle time for the desktop session to finish autologin/start up, same
+    # margin automated-testing/automate_testing_01.sh used after SSH came up.
+    time.sleep(20)
+
+
+def run_fresh_install_check(
+    alias: str, git_ref: str, skip_confirm: bool,
+) -> list[DpkgInstallResult]:
+    """
+    True fresh-install test of the Debian/Ubuntu packaging, not of AutoKey's
+    behavior. Every check above (items 1-10) assumes AutoKey is already
+    installed from source/pip per VM_TESTING.md -- none of them ever build or
+    install the actual .deb packages, so a bug confined to debian/build.sh,
+    debian/rules, or the autokey-common postinst/prerm scripts (e.g. #1277)
+    would never surface in that flow.
+
+    This reverts the VM to the clean 'installed' snapshot (base OS, nothing
+    AutoKey-related -- see VM_TESTING.md step 14), clones the repo fresh,
+    builds the .deb packages with debian/build.sh exactly as a packager
+    would, installs them with apt (exercising postinst), and then removes
+    them (exercising prerm). It does WITHOUT reverting back to the
+    'installed' snapshot afterward -- the VM is left in its post-install (or
+    post-removal) state for inspection; revert manually before reusing this
+    VM alias for the item 1-10 behavioral checks, which expect their own
+    separate "AutoKey runs cleanly" snapshot, not this one.
+    """
+    if VMS[alias]["vbox_name"] is None:
+        raise RuntimeError(f"{alias} has no VirtualBox snapshot support (vbox_name=None)")
+    vbox_name = VMS[alias]["vbox_name"]
+
+    results: list[DpkgInstallResult] = []
+    revert_to_installed_snapshot(alias, vbox_name, skip_confirm)
+
+    def step(phase: str, cmd: str, timeout: int = 600) -> subprocess.CompletedProcess:
+        print(f"[{alias}] {phase} ...")
+        result = ssh(alias, cmd, timeout=timeout)
+        passed = result.returncode == 0
+        tail = result.stdout if passed else (result.stdout + result.stderr)
+        results.append(DpkgInstallResult(phase, passed, tail[-4000:]))
+        print(f"[{alias}] {phase}: {'PASS' if passed else 'FAIL'}")
+        if not passed:
+            print(tail[-2000:])
+        return result
+
+    # The VM's clock drifts while stopped (VM_TESTING.md step 10), which
+    # makes apt-get update reject every repo's Release file as
+    # "not valid yet" -- confirmed live immediately after a snapshot
+    # restore/startvm. Resync before any apt command, using the resync
+    # script VM_TESTING.md has the operator set up on each VM for this.
+    step("resync clock", "~/timesync.sh", timeout=60)
+
+    # The 'installed' snapshot is bare -- only openssh-server and the
+    # sudoers tweak from VM_TESTING.md's VM-creation steps, confirmed live
+    # to not even have git. Nothing else in this check can run without it.
+    git_setup = step("install git", "sudo apt-get update && sudo apt-get install -y git", timeout=300)
+    if git_setup.returncode != 0:
+        return results
+
+    clone = step(
+        "clone repo",
+        f"git clone -b {shlex.quote(git_ref)} https://github.com/autokey/autokey.git autokey",
+    )
+    if clone.returncode != 0:
+        return results
+
+    deps = step(
+        "install build dependencies",
+        "cd autokey && sudo apt-get update && "
+        "sudo apt-get install -y $(cat debian/build_requirements.txt) $(cat apt-requirements.txt)",
+        timeout=900,
+    )
+    if deps.returncode != 0:
+        return results
+
+    build = step("build .deb packages (debian/build.sh)", "cd autokey && sh debian/build.sh", timeout=900)
+    if build.returncode != 0:
+        return results
+
+    # debian/build.sh's dpkg-buildpackage drops the built .deb files one
+    # directory above the checkout (../*.deb from inside autokey/), i.e.
+    # next to it, not inside it.
+    debs = ssh_ok(alias, "ls *.deb 2>/dev/null || true").split()
+    results.append(DpkgInstallResult("locate built .deb files", bool(debs), f"found: {debs}"))
+    if not debs:
+        return results
+
+    install = step(
+        "install built .deb packages (runs autokey-common's postinst)",
+        "sudo apt-get install -y " + " ".join(f"./{d}" for d in debs),
+        timeout=300,
+    )
+
+    for binary in ("autokey-gtk", "autokey-qt"):
+        found = ssh(alias, f"command -v {binary}")
+        results.append(DpkgInstallResult(
+            f"{binary} binary present after install", found.returncode == 0, found.stdout.strip(),
+        ))
+
+    udev_present = ssh(alias, "test -f /etc/udev/rules.d/10-autokey.rules")
+    results.append(DpkgInstallResult(
+        "udev rule installed by postinst", udev_present.returncode == 0, "",
+    ))
+
+    if VMS[alias].get("session_proc_pattern") == "gnome-shell":
+        # Not `gnome-extensions list` -- confirmed live that a freshly
+        # unpacked extension doesn't show up there until gnome-shell
+        # restarts/relogs (no live-reload under Wayland), even though
+        # postinst's `gnome-extensions install` already did its job. Check
+        # the directory postinst actually controls instead.
+        ext_dir = ssh_ok(
+            alias,
+            "ls ~/.local/share/gnome-shell/extensions/ 2>/dev/null || true",
+        )
+        results.append(DpkgInstallResult(
+            "GNOME Shell extension installed by postinst",
+            "autokey-gnome-extension@autokey" in ext_dir,
+            ext_dir,
+        ))
+
+    if not install.returncode == 0:
+        # Installation itself failed -- nothing to remove, skip the prerm phase.
+        return results
+
+    step(
+        "remove installed packages (runs autokey-common's prerm)",
+        "sudo apt-get remove -y autokey-common autokey-gtk autokey-qt",
+        timeout=300,
+    )
+
+    udev_removed = ssh(alias, "test ! -f /etc/udev/rules.d/10-autokey.rules")
+    results.append(DpkgInstallResult("udev rule removed by prerm", udev_removed.returncode == 0, ""))
+
+    return results
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 
@@ -898,10 +1107,35 @@ def main():
                          help="Don't delete the Checklist test phrases afterward")
     parser.add_argument("--log-path", default="/tmp/autokey_integration.log",
                          help="Path to AutoKey's own log file on the VM (for item 10's traceback check)")
+    parser.add_argument("--fresh-install", action="store_true",
+                         help="Run the .deb packaging check instead of items 1-10: revert --vm to "
+                              "the 'installed' snapshot, build and install the .deb packages fresh, "
+                              "then remove them. See run_fresh_install_check()'s docstring.")
+    parser.add_argument("--git-ref", default="develop",
+                         help="Branch/ref to clone and build for --fresh-install (default: develop)")
+    parser.add_argument("--yes", action="store_true",
+                         help="Skip the confirmation prompt before reverting --vm's snapshot "
+                              "for --fresh-install")
     args = parser.parse_args()
     global LOG_PATH, REPO_PATH
     LOG_PATH = args.log_path
     REPO_PATH = args.repo_path
+
+    if args.fresh_install:
+        if not args.vm:
+            parser.error("--vm is required with --fresh-install")
+        results = run_fresh_install_check(args.vm, args.git_ref, args.yes)
+        SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
+        report_path = SCRATCH_DIR / f"{args.vm}_fresh_install_report_{int(time.time())}.json"
+        with open(report_path, "w") as f:
+            json.dump([dataclasses.asdict(r) for r in results], f, indent=2)
+        print(f"[{args.vm}] report written to {report_path}")
+        failed = [r for r in results if not r.passed]
+        passed_count = len(results) - len(failed)
+        print(f"[{args.vm}] {passed_count}/{len(results)} phases passed")
+        print(f"[{args.vm}] NOTE: VM left in its post-install/post-removal state -- revert to a "
+              f"snapshot before reusing this alias for the item 1-10 behavioral checks.")
+        return 1 if failed else 0
 
     if args.list:
         for item, fn in sorted(CHECKS.items(), key=lambda kv: kv[0]):
