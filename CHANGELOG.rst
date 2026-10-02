@@ -2,12 +2,12 @@
 Changelog
 =========
 
-Version 0.97.0-beta.1
+Version 0.97.0-beta.0
 ============================
 
 This section covers everything accumulated on ``develop`` since 0.96.0,
-including the earlier internal ``0.97.0~beta0`` version bump. First beta
-built directly from this changelog section.
+including the internal ``0.97.0~beta0`` version bump recorded below. First
+beta built directly from this changelog section.
 
 Wayland support
 ----------------
@@ -33,10 +33,15 @@ Wayland support
   about its optional dependencies (visgrep/import/png2pat) on Wayland,
   where they can never be useful. A Wayland-compatible replacement is
   planned for a future release. Fixes `#1001 <https://github.com/autokey/autokey/issues/1001>`__.
-- Add a capability-based fallback for detecting external keyboard/mouse
-  devices under Wayland whose evdev name doesn't contain "keyboard"/"mouse"
-  (e.g. "Logitech G915"), so AutoKey no longer exits outright when such a
-  device isn't already listed in the config file. Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
+- Previously, a device whose evdev name didn't contain "keyboard"/"mouse"
+  (e.g. "Logitech G915") would only be recognized if the user manually
+  listed it in the config file; otherwise AutoKey exited outright at
+  startup. Add a capability-based fallback, checked before falling back
+  to that manual config-file entry: a device reporting most of the 26
+  letter keys is treated as a keyboard, and one reporting a left mouse
+  button plus relative motion is treated as a mouse, so most such
+  devices now work with no config-file edit needed.
+  Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
 - Add an invert option to the window filter (`#1223`_), and make the
   uinput hotkey block layer invert-aware so an inverted filter's excluded
   window no longer silently swallows the keystroke with no phrase firing
@@ -82,7 +87,11 @@ Packaging and installation
 GTK and Qt front-ends
 ------------------------
 - Qt UI improvements: sortable/resizable columns, a dark-theme-aware
-  editor, search, inline editing, and persisted window state. Rebase of
+  script code editor, search, inline editing, and persisted window
+  state. The phrase content editor is unchanged and `#168
+  <https://github.com/autokey/autokey/issues/168>`__ (invisible
+  caret/text in the phrase editor under a dark theme) remains open.
+  Rebase of
   Bill Morris (theRoadLessOrdinary)'s original #1175 onto ``develop``; all
   credit for the feature work goes to the original author. (`#1184`_)
 - GTK autocomplete for both scripts and phrases; a GUI-free headless
@@ -150,10 +159,12 @@ Mouse
 Scripting API and documentation
 ------------------------------------
 - Sync ``develop``'s README.rst with master's more recently reviewed
-  version: add a Donations section noting the Opire bounty platform,
-  replace first-person pronouns with generic references, and update the
-  stale "X11 application, won't function under Wayland" claim to reflect
-  GNOME/KDE Plasma Wayland support. (`#1259`_)
+  version: replace first-person pronouns with generic references, and
+  update the stale "X11 application, won't function under Wayland"
+  claim to reflect GNOME/KDE Plasma Wayland support. A Donations
+  section pointing to the Opire bounty platform was added and then
+  removed in review (Opire appeared possibly inactive); the README
+  carries no Donations section. (`#1259`_)
 - Fix the same stale Wayland-unsupported wording in the bug report
   template's "Xorg or Wayland?" question, flagged in review on #1259.
   (`#1267`_)
