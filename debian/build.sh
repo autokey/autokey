@@ -17,7 +17,7 @@ export DEBEMAIL='guociz@gmail.com'
 uscan -dd
 # Create fake changelog entry just to get the correct version number on the deb
 #dch --newversion "$DEBVERSION" ""
-dpkg-buildpackage -i --build=binary --unsigned-source
+dpkg-buildpackage -i --build=binary --no-sign
 
 # # Update PPA. Requires more in-depth packaging.
 # debuild -i -S
