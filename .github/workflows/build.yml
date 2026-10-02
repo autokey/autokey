@@ -9,10 +9,24 @@ on:
       - 'v*.*.*'
     # Always manually run on CI
     branches: [ CI ]
+  # Actually exercise the .deb build/release pipeline on PRs that touch it,
+  # instead of only finding out it's broken when cutting a real release.
+  # build_deb/build_pypi_wheel/release stay gated to `push` below (an `if:`
+  # on each) -- this must never trigger a real PyPI publish/GitHub release
+  # from a PR. Only test_deb_install runs here.
+  pull_request:
+    paths:
+      - 'debian/**'
+      - 'apt-requirements.txt'
+      - 'pip-requirements.txt'
+      - 'setup.py'
+      - 'setup.cfg'
+      - '.github/workflows/build.yml'
 
 jobs:
 
   build_deb:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -39,7 +53,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install $(cat apt-requirements.txt)
+        sudo apt-get install -y $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
         pip install flake8 pytest pytest-cov wheel
         pip install -r pip-requirements.txt
@@ -61,6 +75,7 @@ jobs:
 
 
   build_pypi_wheel:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -86,7 +101,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install $(cat apt-requirements.txt)
+        sudo apt-get install -y $(cat apt-requirements.txt)
         python -m pip install --upgrade pip
         pip install build
 
@@ -107,6 +122,12 @@ jobs:
 
 
   release:
+    # Belt and suspenders: needs: [build_pypi_wheel, build_deb] already
+    # keeps this from running unless both succeeded, and neither runs on
+    # `pull_request` (see their own `if:`) -- but this job publishes to
+    # PyPI and creates a GitHub release, so it must never fire from a PR
+    # even indirectly.
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -164,4 +185,60 @@ jobs:
     # ../autokey-common_${{ github.ref }}_all.deb
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+
+
+  test_deb_install:
+    # Runs on both push (tags/CI branch) and the pull_request trigger
+    # above -- unlike build_deb/build_pypi_wheel/release, this job does
+    # nothing but build, install, and remove packages locally, so it's
+    # safe to run from a PR.
+    #
+    # build_deb above only ever builds the .deb and uploads it as an
+    # artifact; nothing in this workflow ever installed one, so a broken
+    # autokey-common postinst/prerm (e.g. #1277) was invisible here even
+    # when the build itself succeeded. This also runs across both the
+    # current and next Ubuntu LTS, since dpkg-dev's strictness and
+    # package availability both vary by version -- confirmed live while
+    # testing #1277/#1281/#1282 on the VM fleet: a malformed
+    # debian/control Maintainer field and a renamed apt package
+    # (graphicsmagick-imagemagick-compat) only broke the build on Ubuntu
+    # 26.04, not 24.04. ubuntu-latest itself is migrating to 26.04, so
+    # without this matrix those bugs would otherwise surface with no
+    # warning whenever that migration lands.
+    name: Test .deb build and install (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-26.04]
+    env:
+      DEBIAN_FRONTEND: noninteractive
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        fetch-depth: 0
+
+    - name: Install build and runtime dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y $(cat debian/build_requirements.txt) $(cat apt-requirements.txt)
+
+    - name: Build .deb packages
+      run: debian/build.sh
+
+    - name: Install built .deb packages (exercises autokey-common's postinst)
+      run: sudo apt-get install -y ../autokey-common_*.deb ../autokey-gtk_*.deb ../autokey-qt_*.deb
+
+    - name: Verify install
+      run: |
+        command -v autokey-gtk
+        command -v autokey-qt
+        test -f /etc/udev/rules.d/10-autokey.rules
+
+    - name: Remove installed packages (exercises autokey-common's prerm)
+      run: sudo apt-get remove -y autokey-common autokey-gtk autokey-qt
+
+    - name: Verify removal
+      run: test ! -f /etc/udev/rules.d/10-autokey.rules
 
