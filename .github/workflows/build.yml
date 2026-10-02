@@ -139,7 +139,8 @@ jobs:
         path: ../debs
 
 
-    - name: Publish a Python distribution to PyPI
+    - continue-on-error: true
+      name: Publish a Python distribution to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         user: __token__
@@ -164,4 +165,3 @@ jobs:
     # ../autokey-common_${{ github.ref }}_all.deb
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-
