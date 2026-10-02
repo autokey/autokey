@@ -963,6 +963,7 @@ def revert_to_installed_snapshot(alias: str, vbox_name: str, skip_confirm: bool)
 
 def run_fresh_install_check(
     alias: str, git_ref: str, skip_confirm: bool,
+    git_repo: str = "https://github.com/autokey/autokey.git",
 ) -> list[DpkgInstallResult]:
     """
     True fresh-install test of the Debian/Ubuntu packaging, not of AutoKey's
@@ -1016,7 +1017,7 @@ def run_fresh_install_check(
 
     clone = step(
         "clone repo",
-        f"git clone -b {shlex.quote(git_ref)} https://github.com/autokey/autokey.git autokey",
+        f"git clone -b {shlex.quote(git_ref)} {shlex.quote(git_repo)} autokey",
     )
     if clone.returncode != 0:
         return results
@@ -1113,6 +1114,9 @@ def main():
                               "then remove them. See run_fresh_install_check()'s docstring.")
     parser.add_argument("--git-ref", default="develop",
                          help="Branch/ref to clone and build for --fresh-install (default: develop)")
+    parser.add_argument("--git-repo", default="https://github.com/autokey/autokey.git",
+                         help="Repo URL to clone for --fresh-install (default: autokey/autokey) -- "
+                              "point at a fork to test a PR branch before it's merged")
     parser.add_argument("--yes", action="store_true",
                          help="Skip the confirmation prompt before reverting --vm's snapshot "
                               "for --fresh-install")
@@ -1124,7 +1128,7 @@ def main():
     if args.fresh_install:
         if not args.vm:
             parser.error("--vm is required with --fresh-install")
-        results = run_fresh_install_check(args.vm, args.git_ref, args.yes)
+        results = run_fresh_install_check(args.vm, args.git_ref, args.yes, args.git_repo)
         SCRATCH_DIR.mkdir(parents=True, exist_ok=True)
         report_path = SCRATCH_DIR / f"{args.vm}_fresh_install_report_{int(time.time())}.json"
         with open(report_path, "w") as f:
