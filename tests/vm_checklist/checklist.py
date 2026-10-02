@@ -1001,18 +1001,54 @@ def run_fresh_install_check(
             print(tail[-2000:])
         return result
 
+    # A freshly-booted VM's own background apt-daily/unattended-upgrades
+    # timers can grab the apt or dpkg lock at any point and fail whichever
+    # of our own apt-get/dpkg-using steps happens to be running at the time
+    # -- confirmed live on k26 ("Could not get lock /var/lib/dpkg/
+    # lock-frontend ... held by process <pid> (unattended-upgr)"). Disable
+    # them once, up front, rather than retry-wrapping every apt call below.
+    step(
+        "disable background apt timers",
+        "sudo systemctl stop apt-daily.timer apt-daily-upgrade.timer "
+        "apt-daily.service apt-daily-upgrade.service unattended-upgrades.service "
+        "2>/dev/null; sudo killall -q unattended-upgrade 2>/dev/null; true",
+        timeout=30,
+    )
+
     # The VM's clock drifts while stopped (VM_TESTING.md step 10), which
     # makes apt-get update reject every repo's Release file as
     # "not valid yet" -- confirmed live immediately after a snapshot
     # restore/startvm. Resync before any apt command, using the resync
     # script VM_TESTING.md has the operator set up on each VM for this.
-    step("resync clock", "~/timesync.sh", timeout=60)
+    # bash, not a bare `~/timesync.sh` -- confirmed live on k26 that the
+    # script's exec bit doesn't necessarily survive every VM's history
+    # (VM_TESTING.md step 10's chmod 700 isn't always there), and this
+    # doesn't depend on it.
+    step("resync clock", "bash ~/timesync.sh", timeout=60)
 
-    # The 'installed' snapshot is bare -- only openssh-server and the
-    # sudoers tweak from VM_TESTING.md's VM-creation steps, confirmed live
-    # to not even have git. Nothing else in this check can run without it.
-    git_setup = step("install git", "sudo apt-get update && sudo apt-get install -y git", timeout=300)
-    if git_setup.returncode != 0:
+    # Two races confirmed live on k26, both transient and both resolved by
+    # retrying rather than fixing in place:
+    # 1. Restarting the time-sync service returns before the actual clock
+    #    correction has propagated -- a restart that reports success can
+    #    still leave apt-get update seeing the pre-correction clock and
+    #    failing with "not valid yet" afterward, sometimes needing more
+    #    than one retry to fully settle.
+    # 2. A freshly-booted VM's own apt-daily timer can grab the apt lock
+    #    concurrently with this check's own apt-get call ("Could not get
+    #    lock ... held by process <pid> (apt-get)").
+    RETRYABLE_APT_ERRORS = ("is not valid yet", "Could not get lock")
+    for attempt in range(10):
+        git_setup = step(
+            "install git" if attempt == 0 else f"install git (retry {attempt})",
+            "sudo apt-get update && sudo apt-get install -y git", timeout=300,
+        )
+        if git_setup.returncode == 0:
+            break
+        output = git_setup.stdout + git_setup.stderr
+        if not any(err in output for err in RETRYABLE_APT_ERRORS):
+            return results
+        time.sleep(15)
+    else:
         return results
 
     clone = step(
