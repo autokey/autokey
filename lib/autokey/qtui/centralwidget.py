@@ -56,7 +56,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             )
 
         h_view = self.treeWidget.header()
-        h_view.setSectionResizeMode(QHeaderView.ResizeMode(QHeaderView.Interactive | QHeaderView.ResizeToContents))
+        h_view.setSectionResizeMode(QHeaderView.Interactive)
+        self.treeWidget.install_sort_filter()
+
+        self.filterSearch.textChanged.connect(self.apply_filter)
 
         self.logHandler = None
         self.listWidget.hide()
@@ -97,6 +100,14 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         context_menu.addAction(main_window.action_run_script)
         return context_menu
 
+    def _resort(self, tree_widget=None):
+        """Re-sort using the current sort indicator, preserving the user's chosen column and order."""
+        widget = tree_widget if tree_widget is not None else self.treeWidget
+        header = widget.header()
+        col = header.sortIndicatorSection()
+        order = header.sortIndicatorOrder()
+        widget.sortItems(col, order)
+
     def populate_tree(self, config):
         self.factory = ak_tree.WidgetItemFactory(config.folders)
         root_folders = self.factory.get_root_folder_list()
@@ -104,8 +115,72 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             self.treeWidget.addTopLevelItem(item)
 
         self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self.restore_expanded_state()
         self.treeWidget.setCurrentItem(self.treeWidget.topLevelItem(0))
         self.on_treeWidget_itemSelectionChanged()
+        self.apply_filter()
+
+    def apply_filter(self):
+        """Hide tree items that don't match the search box.
+
+        A case-insensitive substring match against name, abbr., or hotkey
+        (column 0, 1, or 2) counts as a match. A folder stays visible if it
+        matches itself or any descendant does, so matches stay reachable.
+        """
+        search_filter = self.filterSearch.text().strip().lower()
+
+        for i in range(self.treeWidget.topLevelItemCount()):
+            self._apply_filter_to_item(self.treeWidget.topLevelItem(i), search_filter)
+
+    def _apply_filter_to_item(self, item, search_filter) -> bool:
+        self_matches = not search_filter or any(
+            search_filter in item.text(column).lower() for column in range(3)
+        )
+
+        child_matches = False
+        for i in range(item.childCount()):
+            if self._apply_filter_to_item(item.child(i), search_filter):
+                child_matches = True
+
+        visible = self_matches or child_matches
+        item.setHidden(not visible)
+        if child_matches and not self_matches:
+            item.setExpanded(True)
+        return visible
+
+    def save_expanded_state(self):
+        """Walk the tree and save the index path of every expanded folder."""
+        expanded = []
+
+        def walk(item, path_parts):
+            if item.isExpanded():
+                expanded.append(":".join(str(p) for p in path_parts))
+            for i in range(item.childCount()):
+                walk(item.child(i), path_parts + [i])
+
+        for i in range(self.treeWidget.topLevelItemCount()):
+            walk(self.treeWidget.topLevelItem(i), [i])
+
+        cm.ConfigManager.SETTINGS[cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS] = expanded
+
+    def restore_expanded_state(self):
+        """Expand folders that were expanded in the previous session."""
+        expanded = cm.ConfigManager.SETTINGS.get(cm_constants.GTK_TREE_VIEW_EXPANDED_ROWS, [])
+        if not expanded:
+            return
+
+        for path_str in expanded:
+            try:
+                indices = [int(p) for p in path_str.split(":")]
+                item = self.treeWidget.topLevelItem(indices[0])
+                for idx in indices[1:]:
+                    if item is None:
+                        break
+                    item = item.child(idx)
+                if item is not None:
+                    item.setExpanded(True)
+            except (ValueError, IndexError):
+                pass
 
     def set_splitter(self, window_size):
         pos = cm.ConfigManager.SETTINGS[cm_constants.HPANE_POSITION]
@@ -152,7 +227,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                 self.window().app.monitor.unsuspend()
                 self.window().app.config_altered(persistGlobal)
 
-                self.treeWidget.sortItems(0, Qt.AscendingOrder)
+                self._resort()
             else:
                 item.update()
 
@@ -255,7 +330,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         folder.persist()
         self.window().app.monitor.unsuspend()
 
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self._resort()
         self.treeWidget.setCurrentItem(new_item)
         self.on_treeWidget_itemSelectionChanged()
         self.on_rename()
@@ -273,7 +348,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         self.window().app.monitor.unsuspend()
 
-        tree_widget.sortItems(0, Qt.AscendingOrder)
+        self._resort(tree_widget)
         tree_widget.setCurrentItem(new_item)
         parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
@@ -291,7 +366,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         script.persist()
 
         self.window().app.monitor.unsuspend()
-        tree_widget.sortItems(0, Qt.AscendingOrder)
+        self._resort(tree_widget)
         tree_widget.setCurrentItem(new_item)
         parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
@@ -334,7 +409,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         new_obj.persist()
 
         self.window().app.monitor.unsuspend()
-        tree_widget.sortItems(0, Qt.AscendingOrder)
+        self._resort(tree_widget)
         tree_widget.setCurrentItem(new_item)
         parent_item.setSelected(False)
         self.on_treeWidget_itemSelectionChanged()
@@ -374,7 +449,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
             new_items.append(new_item)
 
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self._resort()
         self.treeWidget.setCurrentItem(new_items[-1])
         self.on_treeWidget_itemSelectionChanged()
         self.cutCopiedItems = []
@@ -427,7 +502,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             item = self._get_current_treewidget_item()
             item.update()
             self.treeWidget.update()
-            self.treeWidget.sortItems(0, Qt.AscendingOrder)
+            self._resort()
             self.window().app.monitor.unsuspend()
             return False
 
@@ -484,7 +559,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             target.addChild(source)
 
         self.window().app.monitor.unsuspend()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self._resort()
         self.window().app.config_altered(True)
 
     def __moveRecurseUpdate(self, folder):
@@ -568,7 +643,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
                 item.parent.remove_item(item)
 
         item.remove_data()
-        self.treeWidget.sortItems(0, Qt.AscendingOrder)
+        self._resort()
 
         if parent is not None:
             if parent.childCount() > 0:

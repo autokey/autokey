@@ -254,6 +254,35 @@ class XWindowInterface(AbstractWindowInterface):
             return None
 
 
+def query_lock_state(display, root_window):
+    """
+    Query the current lock state of CapsLock and NumLock.
+
+    The core GetKeyboardControl led_mask is unreliable under XKB,
+    which is the default on modern distributions. Query the modifier
+    mapping and the current pointer state instead.
+
+    @param display: The X display to query.
+    @param root_window: The root window of the display.
+    @return: A tuple (capslock_on, numlock_on) with the current states.
+    """
+    numlock_on = capslock_on = False
+    numlock_keycode = display.keysym_to_keycode(XK.XK_Num_Lock)
+    capslock_keycode = display.keysym_to_keycode(XK.XK_Caps_Lock)
+    if numlock_keycode or capslock_keycode:
+        modifier_keycodes = display.get_modifier_mapping()
+        try:
+            pointer_mask = root_window.query_pointer().mask
+        except error.XError:
+            pointer_mask = 0
+        for index, keycodes in enumerate(modifier_keycodes):
+            if numlock_keycode and numlock_keycode in keycodes:
+                numlock_on = bool(pointer_mask & (1 << index))
+            if capslock_keycode and capslock_keycode in keycodes:
+                capslock_on = bool(pointer_mask & (1 << index))
+    return capslock_on, numlock_on
+
+
 class XInterfaceBase(threading.Thread, AbstractMouseInterface):
     """
     Encapsulates the common functionality for the two X interface classes.
@@ -297,6 +326,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             # self.keyMap.connect("keys-changed", self.on_keys_changed)
 
         self.__ignoreRemap = False
+        self.__lastKeyboardMapping = None
 
         self.eventThread.start()
         self.listenerThread.start()
@@ -313,6 +343,16 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         """
         Update interface when keyboard layout changes.
         """
+        # A MappingNotify does not mean the mapping actually differs. Other clients
+        # re-apply the same keyboard mapping wholesale, which is common, and
+        # regrabbing every hotkey in response costs thousands of XGrabKey
+        # round-trips. Compare against what we last saw before doing any of it.
+        current = self.__get_keyboard_mapping()
+        if current is not None and current == self.__lastKeyboardMapping:
+            logger.debug("Keymap change event with no actual change - not regrabbing")
+            return
+        self.__lastKeyboardMapping = current
+
         if not self.__ignoreRemap:
             logger.debug("Recorded keymap change event")
             self.__ignoreRemap = True
@@ -461,6 +501,27 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button, relative):
+        self._send_mouse_click_now(xCoord, yCoord, button, relative)
+
+    def _send_mouse_click_now(self, xCoord, yCoord, button, relative):
+        # Not queue_method-decorated: callers that are themselves already
+        # running on this queue's own consumer thread (__eventLoop) --
+        # e.g. IoMediator._send_string_selection(), invoked synchronously
+        # from within handle_keypress()'s processing of the triggering
+        # hotkey -- must call this directly instead of send_mouse_click().
+        # The queued version only enqueues and returns immediately; the
+        # actual click can't run until the CURRENT __eventLoop iteration
+        # (the one processing the keypress that triggered the phrase)
+        # returns control to queue.get(). Confirmed live: this made
+        # _send_string_selection()'s later restore step overwrite the
+        # PRIMARY selection back to its backup value before the enqueued
+        # click ever fired, so the paste always delivered the old/backup
+        # content instead of the intended string -- no delay of any
+        # length before the restore could fix this, since the enqueued
+        # task was never given a chance to run at all until the whole
+        # call chain (including the wait) unwound first. Same class of
+        # bug as uinput_interface.py's move_cursor()/_move_cursor_now().
+        #
         # Get current pointer position so we can return it there
         pos = self.rootWindow.query_pointer()
 
@@ -581,9 +642,16 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.join()
 
     def __set_lock_keys_state(self):
-        ledMask = self.localDisplay.get_keyboard_control().led_mask
-        self.mediator.set_modifier_state(Key.CAPSLOCK, (ledMask & CAPSLOCK_LEDMASK) != 0)
-        self.mediator.set_modifier_state(Key.NUMLOCK, (ledMask & NUMLOCK_LEDMASK) != 0)
+        try:
+            capslock_on, numlock_on = query_lock_state(
+                self.localDisplay, self.rootWindow)
+        except Exception:
+            logger.exception("Failed to query lock state; falling back to LED mask")
+            ledMask = self.localDisplay.get_keyboard_control().led_mask
+            capslock_on = (ledMask & CAPSLOCK_LEDMASK) != 0
+            numlock_on = (ledMask & NUMLOCK_LEDMASK) != 0
+        self.mediator.set_modifier_state(Key.CAPSLOCK, capslock_on)
+        self.mediator.set_modifier_state(Key.NUMLOCK, numlock_on)
 
     def __eventLoop(self):
         while True:
@@ -613,11 +681,35 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.__initMappings()
         self.__ignoreRemap = False
 
-    def __initMappings(self):
-        self.localDisplay = display.Display()
-        self.rootWindow = self.localDisplay.screen().root
-        self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
+    def __get_keyboard_mapping(self):
+        """
+        The current core keyboard mapping, or None if it cannot be read.
 
+        Returned as a comparable value so on_keys_changed() can tell a real
+        keymap change from a re-application of the same mapping.
+        """
+        try:
+            return self.localDisplay.get_keyboard_mapping(8, 248)
+        except Exception:
+            logger.exception("Could not read the keyboard mapping")
+            return None
+
+    def __initMappings(self):
+        # Only open the X connection once. This is also called on every
+        # keymap-change event (via __delayedInitMappings()), and used to
+        # unconditionally call display.Display() here, opening a brand new
+        # connection each time and leaking the previous one -- nothing ever
+        # closed it, and nothing needed a new connection in the first place,
+        # since re-querying the keymap/grabbing hotkeys works fine on the
+        # existing one. Over enough keymap-change events (which can fire
+        # from something as ordinary as another client re-applying the same
+        # mapping) this exhausted the X server's client limit. See #1088.
+        if getattr(self, "localDisplay", None) is None:
+            self.localDisplay = display.Display()
+            self.rootWindow = self.localDisplay.screen().root
+            self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
+
+        self.__lastKeyboardMapping = self.__get_keyboard_mapping()
         self.__build_usable_offsets()
         self.__build_modifier_mask_mapping()
 
@@ -632,12 +724,9 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
     def __build_usable_offsets(self):
         altList = self.localDisplay.keysym_to_keycodes(XK.XK_ISO_Level3_Shift)
-        self.__usableOffsets = (0, 1)
-        for code, offset in altList:
-            if code == 108 and offset == 0:
-                self.__usableOffsets += (4, 5)
-                logger.debug("Enabling sending using Alt-Grid")
-                break
+        self.__usableOffsets = self._usable_offsets(altList)
+        if len(self.__usableOffsets) > 2:
+            logger.debug("Enabling sending using Alt-Grid")
 
     def __build_modifier_mask_mapping(self):
         self.modMasks = {}
@@ -765,7 +854,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
                 if window_info.wm_title or window_info.wm_class:
                     for item in hotkeys:
-                        if item.get_applicable_regex() is not None and item._should_trigger_window_title(window_info):
+                        if item.get_applicable_regex() is not None and item._should_grab_on_window(window_info):
                             if grab:
                                 self.__grabHotkey(item.hotKey, item.modifiers, window)
                                 self.__grabRecurse(item, window, False)
@@ -856,6 +945,12 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             if self.__needsMutterWorkaround(item):
                 self.__enqueue(grab_recurse_func, item, self.rootWindow, False)
         else:
+            # Filtered items, including inverted ("all windows except...") ones, must
+            # take the per-window walk rather than a root grab. An inverted filter
+            # looks global, but grabbing on the root would consume the key in the very
+            # windows the user excluded: the grab happens, then the filter is
+            # re-checked at trigger time and declines to fire, so the keystroke is
+            # swallowed and never reaches the application.
             self.__enqueue(grab_recurse_func, item, self.rootWindow)
         return
 
@@ -870,7 +965,7 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
 
             if checkWinInfo:
                 window_info = self.mediator.windowInterface.get_window_info(window, False)
-                shouldTrigger = item._should_trigger_window_title(window_info)
+                shouldTrigger = item._should_grab_on_window(window_info)
 
             if shouldTrigger or not checkWinInfo:
                 if grab:
@@ -892,6 +987,28 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         Ungrab a specific hotkey in the given window
         """
         self.__grab_ungrab_hotkey(key, modifiers, window, grab=False)
+
+    @staticmethod
+    def _usable_offsets(alt_list):
+        """
+        Which keysym offsets AutoKey can reach when sending.
+
+        Offsets 0 and 1 are always available. Offsets 4 and 5 are the AltGr
+        levels, reachable only if the keyboard actually has an AltGr key, that is
+        a keycode whose own symbol is ISO_Level3_Shift.
+
+        This used to require that key to be keycode 108 specifically, which is only
+        true of a stock layout. A keyboard that puts ISO_Level3_Shift anywhere else
+        was silently left with offsets (0, 1), so every character living on an AltGr
+        level was treated as unreachable -- and __sendString then rewrote the
+        keyboard mapping to borrow a spare keycode for it, without ever restoring it.
+        """
+        offsets = (0, 1)
+        for code, offset in alt_list:
+            if offset == 0:
+                offsets += (4, 5)
+                break
+        return offsets
 
     def __findUsableKeycode(self, codeList):
         for code, offset in codeList:
@@ -947,6 +1064,14 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             mapping = [tuple(l) for l in mapping]
             self.localDisplay.change_keyboard_mapping(firstCode, mapping)
             self.localDisplay.flush()
+            # Record what we just wrote, so the MappingNotify the server sends back
+            # compares equal in on_keys_changed() and does not provoke a regrab.
+            #
+            # __ignoreRemap cannot do this on its own. It is cleared once the string
+            # has finished sending, but the event arrives asynchronously and has been
+            # observed to arrive roughly half a second later, by which time the flag
+            # is already False and AutoKey treats its own remap as somebody else's.
+            self.__lastKeyboardMapping = self.__get_keyboard_mapping()
 
     def __get_usable_char_keycode_and_offset(self, char):
         keyCodeList = self.localDisplay.keysym_to_keycodes(ord(char))
@@ -1191,7 +1316,14 @@ class XRecordInterface(XInterfaceBase, AbstractSysInterface):
         # Enable the context; this only returns after a call to record_disable_context,
         # while calling the callback function in the meantime
         logger.info("XRecord interface thread starting")
-        self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
+        try:
+            self.recordDisplay.record_enable_context(self.ctx, self.__processEvent)
+        except Exception:
+            # cancel() force-closed recordDisplay because record_disable_context()
+            # didn't unblock this call in time (see #1202) -- the resulting
+            # connection error is expected in that case, not a real failure.
+            logger.debug("XRecord interface: recordDisplay closed while enabling context", exc_info=True)
+            return
         # Finally free the context
         self.recordDisplay.record_free_context(self.ctx)
         self.recordDisplay.close()
@@ -1199,6 +1331,24 @@ class XRecordInterface(XInterfaceBase, AbstractSysInterface):
 
     def cancel(self):
         self.localDisplay.record_disable_context(self.ctx)
+        self.localDisplay.flush()
+        # record_enable_context() (in run(), on this thread) only returns
+        # once the disable above is processed by the X server. This can
+        # race under Xvfb (see #1202): if the disable arrives before the
+        # enable has registered, it has no effect, and this thread blocks
+        # in record_enable_context() forever. Give it a bounded window,
+        # then force the issue by closing the dedicated record connection
+        # out from under the blocked read.
+        self.join(timeout=3)
+        if self.is_alive():
+            logger.warning(
+                "XRecordInterface: listener thread still alive 3s after "
+                "record_disable_context(); forcing recordDisplay closed "
+                "to unblock it (see #1202)")
+            try:
+                self.recordDisplay.close()
+            except Exception:
+                logger.exception("Error force-closing recordDisplay to unblock listener thread")
         XInterfaceBase.cancel(self)
 
     def __processEvent(self, reply):

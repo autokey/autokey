@@ -50,6 +50,7 @@ import autokey.configmanager.configmanager_constants as cm_constants
 
 import autokey.iomediator.keygrabber
 from autokey import common
+from autokey import UI_common_functions as UI_common
 
 CONFIG_WINDOW_TITLE = "AutoKey"
 
@@ -166,7 +167,8 @@ class SettingsWidget:
         self.filterEnabled = False
         self.clearFilterButton.set_sensitive(False)
         if item.has_filter() or item.inherits_filter():
-            self.windowFilterLabel.set_text(item.get_filter_regex())
+            self.windowFilterLabel.set_text(UI_common.format_window_filter_label(
+                item.get_filter_regex(), item.get_applicable_filter_inverted()))
 
             if not item.inherits_filter():
                 self.clearFilterButton.set_sensitive(True)
@@ -200,19 +202,21 @@ class SettingsWidget:
 
     def validate(self):
         # Start by getting all applicable information
-        abbreviations, modifiers, key, filterExpression = self.get_item_details()
+        abbreviations, modifiers, key, filterExpression, filterInverted = self.get_item_details()
         # Validate
         ret = []
 
         configManager = self.parentWindow.app.configManager
 
         for abbr in abbreviations:
-            unique, conflicting = configManager.check_abbreviation_unique(abbr, filterExpression, self.currentItem)
+            unique, conflicting = configManager.check_abbreviation_unique(
+                abbr, filterExpression, self.currentItem, filterInverted)
             if not unique:
                 ret.append(self.build_msg_for_item_in_use(conflicting,
                                                      "abbreviation"))
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, key, filterExpression, self.currentItem)
+        unique, conflicting = configManager.check_hotkey_unique(
+            modifiers, key, filterExpression, self.currentItem, filterInverted)
         if not unique:
             ret.append(self.build_msg_for_item_in_use(conflicting, "hotkey"))
 
@@ -232,13 +236,16 @@ class SettingsWidget:
             key = None
 
         filterExpression = None
+        filterInverted = False
         if self.filterEnabled:
             filterExpression = self.filterDialog.get_filter_text()
+            filterInverted = self.filterDialog.get_is_inverted()
         elif self.currentItem.parent is not None:
             r = self.currentItem.parent.get_applicable_regex(True)
             if r is not None:
                 filterExpression = r.pattern
-        return abbreviations, modifiers, key, filterExpression
+                filterInverted = self.currentItem.parent.get_applicable_filter_inverted(True)
+        return abbreviations, modifiers, key, filterExpression, filterInverted
 
     def build_msg_for_item_in_use(self, conflicting, itemtype):
         msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))
@@ -309,7 +316,8 @@ class SettingsWidget:
             if filterText != "":
                 self.filterEnabled = True
                 self.clearFilterButton.set_sensitive(True)
-                self.windowFilterLabel.set_text(filterText)
+                self.windowFilterLabel.set_text(UI_common.format_window_filter_label(
+                    filterText, self.filterDialog.get_is_inverted()))
             else:
                 self.filterEnabled = False
                 self.clearFilterButton.set_sensitive(False)
@@ -880,7 +888,9 @@ class ConfigWindow:
 
         rootIter = self.treeView.get_model().get_iter_first()
         if rootIter is not None:
-            self.treeView.get_selection().select_path(self.last_open)
+            path = self._resolve_tree_path(self.treeView.get_model(), self.last_open)
+            if path is not None:
+                self.treeView.get_selection().select_path(path)
 
         self.on_tree_selection_changed(self.treeView)
 
@@ -912,6 +922,28 @@ class ConfigWindow:
         self.uiManager.get_action("/MenuBar/File/save").set_sensitive(dirty)
         self.uiManager.get_action("/MenuBar/File/revert").set_sensitive(dirty)
 
+    @staticmethod
+    def _resolve_tree_path(model, path_string):
+        """
+        Turn a remembered GtkTreePath string into a path that exists in this model,
+        or None.
+
+        expanded_rows and last_open hold positional path strings such as "3:1:2",
+        persisted across restarts. They are resolved against a model that may have
+        been rebuilt since, or loaded from a config that has changed on disk, so a
+        remembered path can easily name a row that is no longer there. Handing such
+        a path to select_path() or expand_to_path() is not safe: an empty string
+        makes Gtk.TreePath.new_from_string() raise, and a stale one has been
+        observed to crash the process outright.
+        """
+        if not path_string or model is None:
+            return None
+        try:
+            model.get_iter_from_string(path_string)   # raises if the row is gone
+            return Gtk.TreePath.new_from_string(path_string)
+        except (TypeError, ValueError):
+            return None
+
     def config_modified(self):
         logger.info("Modifications detected to open files. Reloading...")
         #save tree view selection
@@ -920,10 +952,14 @@ class ConfigWindow:
         self.rebuild_tree()
         #get selection for new treeview
         selection = self.treeView.get_selection()
-        path = Gtk.TreePath()
+        model = self.treeView.get_model()
         for row in self.expanded_rows:
-            self.treeView.expand_to_path(path.new_from_string(row))
-        selection.select_path(path.new_from_string(self.last_open))
+            path = self._resolve_tree_path(model, row)
+            if path is not None:
+                self.treeView.expand_to_path(path)
+        path = self._resolve_tree_path(model, self.last_open)
+        if path is not None:
+            selection.select_path(path)
         self.on_tree_selection_changed(self.treeView)
 
     def update_actions(self, items, changed):
@@ -1596,10 +1632,10 @@ class ConfigWindow:
         column3.set_min_width(100)
         self.treeView.append_column(column3)
 
-        path = Gtk.TreePath()
+        model = self.treeView.get_model()
         for row in self.expanded_rows:
-            p = path.new_from_string(row)
-            if not p is None:
+            p = self._resolve_tree_path(model, row)
+            if p is not None:
                 self.treeView.expand_to_path(p)
 
     def __popupMenu(self, event):

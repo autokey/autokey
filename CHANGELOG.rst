@@ -2,125 +2,261 @@
 Changelog
 =========
 
-Version Develop
+Version 0.97.0-beta.0
 ============================
 
-PR #1076 Changes
+This section covers everything accumulated on ``develop`` since 0.96.0,
+including the internal ``0.97.0~beta0`` version bump recorded below. First
+beta built directly from this changelog section.
+
+Wayland support
 ----------------
+- Initial GNOME/KDE Plasma Wayland support: a GNOME Window Extension for
+  interacting with windows on X11/Wayland, support for more than one
+  keyboard/mouse device at a time, "hot-plugging" of USB/Bluetooth
+  keyboard/mouse devices, clearer error messages when no device can be
+  found, and a module that validates the run-time environment at startup.
+  Also fixes issues `#961 <https://github.com/autokey/autokey/issues/961>`__,
+  `#1000 <https://github.com/autokey/autokey/issues/1000>`__,
+  `#1052 <https://github.com/autokey/autokey/issues/1052>`__ and
+  `#1066 <https://github.com/autokey/autokey/issues/1066>`__. (`#1076`_)
+- Wayland fixes: clipboard-paste hangs and GNOME clipboard-ownership
+  rejection, a KDE ``get_active_window()`` crash on empty desktops, a KDE
+  window-property D-Bus callback losing its response payload out of scope,
+  uinput mouse clicks not registering, and window-detection silent
+  failures; added missing evdev/pyudev runtime deps and made the GNOME
+  extension build degrade gracefully when unavailable.
+  (`#1208`_, `#1209`_, `#1211`_, `#1212`_, `#1213`_, `#1214`_, `#1215`_, `#1219`_)
+- Disable the ``highlevel`` scripting API (``visgrep``/``click_on_pat``/``move_to_pat``)
+  under Wayland with a clear error message instead of letting scripts call
+  into it and fail deep inside a missing X11-only tool; also stop warning
+  about its optional dependencies (visgrep/import/png2pat) on Wayland,
+  where they can never be useful. A Wayland-compatible replacement is
+  planned for a future release. Fixes `#1001 <https://github.com/autokey/autokey/issues/1001>`__.
+- Previously, a device whose evdev name didn't contain "keyboard"/"mouse"
+  (e.g. "Logitech G915") would only be recognized if the user manually
+  listed it in the config file; otherwise AutoKey exited outright at
+  startup. Add a capability-based fallback, checked before falling back
+  to that manual config-file entry: a device reporting most of the 26
+  letter keys is treated as a keyboard, and one reporting a left mouse
+  button plus relative motion is treated as a mouse, so most such
+  devices now work with no config-file edit needed.
+  Fixes `#1003 <https://github.com/autokey/autokey/issues/1003>`__.
+- Add an invert option to the window filter (`#1223`_), and make the
+  uinput hotkey block layer invert-aware so an inverted filter's excluded
+  window no longer silently swallows the keystroke with no phrase firing
+  to replace it (confirmed live on KDE Wayland).
+- Fix #1088: stop leaking an X11 connection on every keymap-change event.
+  ``XInterfaceBase.__initMappings()`` unconditionally opened a new
+  connection each time it ran -- both at startup and again on every
+  keymap-change event -- without ever closing the previous one; over
+  enough events this exhausted the X server's client limit. Now reuses
+  the existing connection. (`#1274`_)
 
-- Fixed the Python syntax errors that threw the exceptions that prevented the develop branch from running.  This includes fixing the three regex syntax errors mentioned in `#1075 <https://github.com/autokey/autokey/pull/1075>`__.
-- Modified the error messages that display when AutoKey under Wayland cannot find a keyboard/mouse device to monitor.
-- Modified AutoKey under Wayland to support more than one keyboard and one mouse at a time.
-- Modified AutoKey under Wayland to support the "hot-plugging" of USB and Bluetooth keyboard/mouse devices.
-- Modified debug logging and error messages to provide additional useful information when problems occur.
-- Added a module that validates the run-time environment as AutoKey is starting up on a Wayland system.
-- Created the postinstall and preremove scripts that are needed for the Debian/Ubuntu and Fedora installation packages, DEBs and RPMs.
-- Adjusted the ``pip-requirements.txt`` file to account for missing dependencies.
-- Created a ``rpm-requirements.txt`` file for use on Fedora, which has different pre-install dependencies and package names from Debian/Ubuntu systems.  This is equivalent to the ``apt-requirements.txt`` file already in place for Debian/Ubuntu installs.
-- Implemented fixes for issues `#961 <https://github.com/autokey/autokey/issues/961>`__, `#1000 <https://github.com/autokey/autokey/issues/1000>`__, `#1052 <https://github.com/autokey/autokey/issues/1052>`__ and `#1066 <https://github.com/autokey/autokey/issues/1066>`__.
-- Added a new option to AutoKey that controls the "grabkey" messages that are sent to the log when debugging is enabled on an X11 system, i.e., when the ``-v`` or ``-l`` options are used.
-- Updated Debian build scripts.
- 
-Important misc changes
-----------------------
-- Bump action versions in pages.yml to satisfy part of issue #963.
-- Bump action versions in build.yml to satisfy part of issue #963.
-- Bump action versions in python-test.yml to satisfy part of issue #963.
-- Bump Python version in build.yml to satisfy part of issue #964.
-- Bump Python versions in python-test.yml to satisfy part of issue #964.
-- Bump Python versions in setup.cfg to satisfy issue #969.
-- Bump Python versions in setup.py to satisfy issue #970.
-- Bump to all GitHub-supported Python versions to satisfy issue #986.
-- Add `pyasyncore` dependency to `setup.py` for use in Python 3.12 to satisfy issues #946 and #964.
-- Add `libcairo2` dependency to apt-requirements.txt to satisfy runtime requirement.
-- Change all instances of **sudo apt** to **sudo apt-get**.
-- Update badges, formatting, wording, links, and information in the **README.rst** file.
-- Various updates to the **README.rst** file to satisfy issue #681.
-- Various updates to the **README.rst** file to satisfy #pullrequestreview-1336342159.
-- Update action versions in build.yaml to latest.
-- Update Qt/GTK "Run" button in interface to run on F5
-- Update two links in the **README.rst** file.
-- Updated `extractDoc.py`
-- Updated Qt autocomplete api.txt file (last updated in 2019)
-- Fix, update, and add content to the man pages.
-- Fix Qt reference and update the wording in reference to KDE and Qt in the **autokey-qt.1** man page.
-- Update the date and remove excess wording in the **autokey-gtk.1** and **autokey-qt.1** man pages.
-- Update the date in the **autokey-run.1** man page.
-- Add the "Environment" section to the .gitignore file.
-- Update the help menu, deprecating one entry, adding several entries, updating existing wording, and sorting the entries.
-- Update the logger by removing an unneeded space and making the **cutelog** reference match the new command-line switch for it in the help menu.
-- Remove special handling of ignoreCase and matchCase options in abbreviation settings dialogs, allowing phrases to trigger on any input case while matching input case in the output (see #588).
-- Add instruction label and disable OK button in GTK abbreviation settings dialog until an abbreviation is finalized, to prevent silent data loss and match the Qt behavior. Fixes `#667 <https://github.com/autokey/autokey/issues/667>`__.
-- Update the GTK and Qt man pages.
-- Update date, formatting, and NAME section in the GTK and Qt man pages.
-- Fix typo: Replace all occurrences of "they key" with "the key" in the AutoKey documentation.
-- Bump the AutoKey version to 0.96.1 in the **autokey.spec** file to satisfy part of issue #227.
-- Fix erroneous `window.close` in place of `window.resize_move` in documentation
-- Adds GNOME Window Extension for interacting with Windows on x11/wayland
-- Fix typos in mouse documentation (**window** --> **screen**).
-- Bump AutoKey version to **0.97.0~beta0** in `debian/changelog`, `fedora/autokey.spec`, and `lib/autokey/common.py`.
-- Bump the VERSION to **0.97.0-beta.0** in `lib/autokey/common.py` for compliance with `PEP 440`_.
+Packaging and installation
+-----------------------------
+- Created the postinstall and preremove scripts needed for the
+  Debian/Ubuntu and Fedora installation packages, DEBs and RPMs; created
+  ``rpm-requirements.txt`` for Fedora's different pre-install dependencies
+  and package names; adjusted ``pip-requirements.txt`` for missing
+  dependencies; updated Debian build scripts. (`#1076`_)
+- Add ``libcairo2`` to ``apt-requirements.txt`` to satisfy a runtime
+  requirement, and change all instances of **sudo apt** to **sudo apt-get**.
+- Bump Python version requirements across ``build.yml``, ``python-test.yml``,
+  ``setup.cfg`` and ``setup.py`` to satisfy issues #963, #964, #969, #970
+  and #986; add/fix the ``pyasyncore`` dependency for Python 3.12 (issues
+  #946, #964, fixed properly in `#973 <https://github.com/autokey/autokey/issues/973>`__
+  after a leftover unconditional entry caused it to be required on all
+  versions).
+- Packaging: fixed the Python-version check blocking Ubuntu 22.04's stock
+  Python, and added missing PyQt5/pydbus packages to
+  ``apt-requirements.txt``. (`#1210`_, `#1216`_)
+- Replace the GTK and Qt setuptools-generated launchers with explicit
+  scripts to avoid the deprecated ``pkg_resources`` entry-point wrapper.
+  Fixes issue `#1047 <https://github.com/autokey/autokey/issues/1047>`__,
+  with a follow-up fix for the same warning on a different entry point.
+  (`#1166`_, `#1268`_)
+- Added a new option to AutoKey that controls the "grabkey" messages sent
+  to the log when debugging is enabled on an X11 system (``-v``/``-l``).
+  (`#1076`_)
+- Bump the AutoKey version to 0.96.1 in ``autokey.spec`` (issue #227),
+  then to ``0.97.0~beta0`` in ``debian/changelog``, ``fedora/autokey.spec``
+  and ``lib/autokey/common.py``, and the internal ``VERSION`` to
+  ``0.97.0-beta.0`` for `PEP 440`_ compliance.
 
+GTK and Qt front-ends
+------------------------
+- Qt UI improvements: sortable/resizable columns, a dark-theme-aware
+  script code editor, search, inline editing, and persisted window
+  state. The phrase content editor is unchanged and `#168
+  <https://github.com/autokey/autokey/issues/168>`__ (invisible
+  caret/text in the phrase editor under a dark theme) remains open.
+  Rebase of
+  Bill Morris (theRoadLessOrdinary)'s original #1175 onto ``develop``; all
+  credit for the feature work goes to the original author. (`#1184`_)
+- GTK autocomplete for both scripts and phrases; a GUI-free headless
+  entrypoint controllable purely via the scripting API; update the
+  Qt/GTK "Run" button to run on F5.
+- Fix crash in the Qt macro recording window; fix fake keyboard events not
+  being emitted in a timely manner in some cases; fix selection when
+  cloning a phrase or script.
+- Remove special handling of ``ignoreCase``/``matchCase`` options in
+  abbreviation settings dialogs, allowing phrases to trigger on any input
+  case while matching input case in the output (see #588). Add an
+  instruction label and disable the OK button in the GTK abbreviation
+  dialog until an abbreviation is finalized, preventing silent data loss
+  and matching Qt behavior (fixes `#667 <https://github.com/autokey/autokey/issues/667>`__).
+  Fix a related silent loss of an in-progress edit to an *existing*
+  abbreviation when OK is clicked without pressing Enter first (fixes
+  `#1185 <https://github.com/autokey/autokey/issues/1185>`__).
+- GTK front-end fixes: a stale-tree-path segfault, ``unpause_service()``
+  re-pausing instead of resuming, and mouse-selection paste always pasting
+  stale content. (`#1237`_, `#1238`_, `#1239`_)
+- Remove a dead, overridden line in ``SettingsWidget.validate()`` left
+  over from a botched merge conflict resolution during #1184's rebase; no
+  behavior change. (`#1272`_)
 
-Features
----------
-Create a GUI-free headless entrypoint to autokey, which can be run without GUI libraries and controlled purely via scripting API
-Added Gtk autocomplete for both scripts and phrases
+Keyboard, hotkeys, and input handling
+------------------------------------------
+- Allow distinguishing left and right modifier keys for ``Key.CONTROL``,
+  ``Key.ALT``, ``Key.SUPER``, ``Key.SHIFT``, ``Key.HYPER`` and ``Key.META``.
+  This is a breaking change: previously a plain ``Key.CONTROL``+``Key.ALT``
+  hotkey matched either side; now left/right combinations must match
+  exactly on the side configured. Currently only accessible via the GTK
+  interface, but config files honoring it are respected regardless of
+  front end.
+- Keyboard/hotkey fixes: ``<cursor>`` macro overshoot, hotkey regrab
+  storms, regrabbing in response to AutoKey's own remapping, and AltGr
+  detection being limited to keycode 108; added regression tests for
+  modifier release during expansion.
+  (`#1225`_, `#1228`_, `#1231`_, `#1235`_, `#1236`_)
+- Fix hotkey resurrection on items with the hotkey trigger disabled.
+  (`#1221`_)
+- Stop re-pressing modifiers after an expansion finishes: if the user let
+  go of a modifier while the expansion was still typing (easy when a
+  script sleeps), the re-press had no physical release to follow and the
+  modifier stuck down until pressed and released by hand. Not restoring
+  is the safe direction, matching every released version's effective
+  behavior. (`#1249`_)
+- Only clear held modifiers when the string being sent actually types
+  literal characters. A string that sends only special keys and explicit
+  modifier combinations types nothing, so there was nothing for the
+  clear to protect -- and releasing a modifier the user is holding right
+  before a synthetic key made Chromium-based applications drop or delay
+  that key (measured: 3 of 10 rapid presses lost, 300ms-1s latency
+  instead of 110-190ms). (`#1253`_)
 
+Mouse
+------
+- Fix the uinput mouse interface not recognizing the Side/Extra mouse
+  buttons: they were missing from ``inv_btn_map``, causing an uncaught
+  ``KeyError`` on every press/release and preventing
+  ``WindowGrabber``/hotkey-recording from seeing clicks on those buttons.
+  Fixes issue `#1269 <https://github.com/autokey/autokey/issues/1269>`__.
+- Mouse-selection paste always pasting stale/empty content, part of the
+  GTK front-end fixes above. (`#1239`_)
 
-Allows the distinction between left and right modifier keys for ``[Key.CONTROL, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META]``.
+Scripting API and documentation
+------------------------------------
+- Sync ``develop``'s README.rst with master's more recently reviewed
+  version: replace first-person pronouns with generic references, and
+  update the stale "X11 application, won't function under Wayland"
+  claim to reflect GNOME/KDE Plasma Wayland support. A Donations
+  section pointing to the Opire bounty platform was added and then
+  removed in review (Opire appeared possibly inactive); the README
+  carries no Donations section. (`#1259`_)
+- Fix the same stale Wayland-unsupported wording in the bug report
+  template's "Xorg or Wayland?" question, flagged in review on #1259.
+  (`#1267`_)
+- Fix the broken source-code link in ``new_features.rst``, link it from
+  the README so it's discoverable, and flag its X11-only
+  ``click_on_pat``/``visgrep`` section as pending a cross-platform
+  rewrite. Fixes `#680 <https://github.com/autokey/autokey/issues/680>`__.
+- Update ``extractDoc.py`` and the Qt autocomplete ``api.txt`` file (last
+  updated in 2019); fix, update, and add content to the GTK/Qt/autokey-run
+  man pages; update the help menu (deprecating one entry, adding several,
+  updating wording, sorting entries); fix typos across documentation
+  ("they key" -> "the key", ``window.close`` -> ``window.resize_move``,
+  **window** -> **screen** in mouse docs).
 
-At this time you cannot "mix and match", IE if you have a ``Key.CONTROL`` and ``Key.ALT`` as the hotkeys it will check for;
-``Key.LEFTCONTROL, Key.LEFTALT``
-and
-``Key.RIGHTCONTROL, Key.RIGHTALT``
-
-But not for;
-``Key.LEFTCONTROL, Key.RIGHTALT``
-``Key.RIGHTCONTROL, Key.RIGHTALT``
-
-This is considered a breaking change, prior it would, in effect, check for all of those scenarios. 
-
-Currently the left/right modifiers GUI option is only accessible via the GTK interface, but they should be respected if you manually update your config files.
-
-Bug fixes
----------
-
-- Fix crash in qt macro recording window.
-- Fix fake keyboard events not being emitted in a timely manner in some cases
-- Upgrade the **develop** branch to satisfy issue #773.
-- Fix selection when cloning a phrase or script
-- Fixed intermittent python-xlib RuntimeError caused by concurrent thread access to the X11 display.
+Testing and tooling
+-----------------------
+- Manual test tools: Tk- and GTK-based paste probes, a mouse probe, and a
+  whack-a-mole style image-matching target for manual/VM testing.
+  (`#1217`_, `#1218`_, `#1220`_, `#1197`_)
+- Add VM-driven checklist automation (``tests/vm_checklist/checklist.py``)
+  and ``VM_TESTING.md`` documenting how to build and test against a
+  three-VM fleet (X11, GNOME/Wayland, KDE Plasma/Wayland) covering most of
+  the manual checklist's core items. (`#1273`_)
+- Wrap generator/``itertools.product`` arguments passed to
+  ``@pytest.mark.parametrize`` in ``list(...)`` across 10 tests, fixing
+  ``PytestRemovedIn10Warning``. Fixes `#1262 <https://github.com/autokey/autokey/issues/1262>`__.
+- Remove 13 permanently-xfailed tests in ``test_phrase.py`` asserting that
+  ``Phrase.build_phrase()`` resolves the ``<cursor>`` macro, which isn't
+  its job -- equivalent coverage already exists in ``test_macro.py``,
+  including a dedicated regression test for
+  `#1222 <https://github.com/autokey/autokey/issues/1222>`__. Fixes
+  `#334 <https://github.com/autokey/autokey/issues/334>`__. A later merge
+  conflict resolution reintroduced the same block; removed again.
+  (`#1271`_)
 
 Other changes
--------------
-- Rename the bug.yaml file to bug.yml.
-- Update the contents of the `bug.yml` file to make it identical with its counterpart on the **master** branch.
-- Add the `config.yml` file to the `/.github/ISSUE_TEMPLATE` directory to match `its counterpart`_ on the **master** branch.
-- Use raw-string format in `window.py` to handle invalid escape sequences.
-- Bump GitHub Action and Python versions.
-- Update white-space in `setup.cfg` for readability and consistency with other lines.
-- Update indentation in the **pytest** section of `setup.cfg` for readability and syntax-correctness.
-- Remove white-space from **addopts** lines in `setup.cfg` for readability.
-- Use distinct comment types in `setup.cfg` for maintainability.
-- Adjust blank lines in `tests/test_interface.py` for readability.
-- Mark the **test_application_runs_without_errors** function as being expected to fail under Wayland.
-- Sort some of the `setup.cfg` sections for readability and maintainability.
-- Clean up local test-build version and entries.
-- Update `setup.cfg` comments (fix typo, succinctness, punctuation).
-- Add Wayland-related test-handling to `test_interface.py`.
-- Handle Window import error on scripting tests in `lib/autokey/scripting/__init__.py`.
-- Clean up and expand test and IDE exclusions in the `.gitignore` file.
-- Enable **coverage** tests.
-- Add measurement and timeout and blame settings to `setup.cfg` for more robust testing.
-- Sort the packages in `apt-requirements.txt` alphabetically for easier comparison on changes.
-- Pin **PyGObject** version in `setup.cfg` to ensure cross-version harmony.
-- Update the dependencies in the `apt-requirements.txt` file.
-- Fix typos and formatting and wording in the ``_README.txt` file.
-- Cherry-pick the the `bug.yml` file from **master** to get the update that added a referral question to the issue-report form.
+----------------
+- Rename ``bug.yaml`` to ``bug.yml`` and sync its contents with the
+  **master** branch's version; add ``config.yml`` to
+  ``/.github/ISSUE_TEMPLATE`` to match `its counterpart`_ on **master**;
+  later cherry-pick a **master** update adding a referral question to the
+  issue-report form.
+- Use raw-string format in ``window.py`` to handle invalid escape
+  sequences.
+- General ``setup.cfg``/``.gitignore``/test-suite housekeeping: bump
+  GitHub Action and Python versions, clean up whitespace/indentation/
+  comments, sort sections, pin the PyGObject version, enable coverage
+  tests with measurement/timeout/blame settings, expand test and IDE
+  exclusions, mark ``test_application_runs_without_errors`` as
+  expected-to-fail under Wayland, and handle a ``Window`` import error on
+  scripting tests.
+
+.. _`#1076`: https://github.com/autokey/autokey/pull/1076
+.. _`#1166`: https://github.com/autokey/autokey/pull/1166
+.. _`#1184`: https://github.com/autokey/autokey/pull/1184
+.. _`#1197`: https://github.com/autokey/autokey/pull/1197
+.. _`#1208`: https://github.com/autokey/autokey/pull/1208
+.. _`#1209`: https://github.com/autokey/autokey/pull/1209
+.. _`#1210`: https://github.com/autokey/autokey/pull/1210
+.. _`#1211`: https://github.com/autokey/autokey/pull/1211
+.. _`#1212`: https://github.com/autokey/autokey/pull/1212
+.. _`#1213`: https://github.com/autokey/autokey/pull/1213
+.. _`#1214`: https://github.com/autokey/autokey/pull/1214
+.. _`#1215`: https://github.com/autokey/autokey/pull/1215
+.. _`#1216`: https://github.com/autokey/autokey/pull/1216
+.. _`#1217`: https://github.com/autokey/autokey/pull/1217
+.. _`#1218`: https://github.com/autokey/autokey/pull/1218
+.. _`#1219`: https://github.com/autokey/autokey/pull/1219
+.. _`#1220`: https://github.com/autokey/autokey/pull/1220
+.. _`#1221`: https://github.com/autokey/autokey/pull/1221
+.. _`#1223`: https://github.com/autokey/autokey/pull/1223
+.. _`#1225`: https://github.com/autokey/autokey/pull/1225
+.. _`#1228`: https://github.com/autokey/autokey/pull/1228
+.. _`#1231`: https://github.com/autokey/autokey/pull/1231
+.. _`#1235`: https://github.com/autokey/autokey/pull/1235
+.. _`#1236`: https://github.com/autokey/autokey/pull/1236
+.. _`#1237`: https://github.com/autokey/autokey/pull/1237
+.. _`#1238`: https://github.com/autokey/autokey/pull/1238
+.. _`#1239`: https://github.com/autokey/autokey/pull/1239
+.. _`#1249`: https://github.com/autokey/autokey/pull/1249
+.. _`#1253`: https://github.com/autokey/autokey/pull/1253
+.. _`#1259`: https://github.com/autokey/autokey/pull/1259
+.. _`#1267`: https://github.com/autokey/autokey/pull/1267
+.. _`#1268`: https://github.com/autokey/autokey/pull/1268
+.. _`#1271`: https://github.com/autokey/autokey/pull/1271
+.. _`#1272`: https://github.com/autokey/autokey/pull/1272
+.. _`#1273`: https://github.com/autokey/autokey/pull/1273
+.. _`#1274`: https://github.com/autokey/autokey/pull/1274
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 .. _PEP 440: https://peps.python.org/pep-0440/
+
 
 Version 0.96.0-beta.9
 ============================

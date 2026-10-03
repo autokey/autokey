@@ -16,7 +16,9 @@
 
 import re
 
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QMessageBox
 
 import autokey.iomediator.windowgrabber
 import autokey.model.folder
@@ -31,6 +33,15 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 
 class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("window_filter_settings_dialog")):
+
+    """
+    Emitted once a detect-window-properties run finishes: True if the
+    DetectDialog was accepted (trigger_regex_line_edit now holds the chosen
+    text), False if the user cancelled it. Lets callers that trigger
+    detection without exec_()-ing this whole dialog (e.g. an inline
+    double-click shortcut) know when to read the result back out.
+    """
+    detection_finished = pyqtSignal(bool, name="detection_finished")
 
     def __init__(self, parent):
         super(WindowFilterSettingsDialog, self).__init__(parent)
@@ -51,6 +62,7 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
         else:
             self.trigger_regex_line_edit.setText(item.get_filter_regex())
             self.apply_recursive_check_box.setChecked(item.isRecursive)
+            self.invert_filter_check_box.setChecked(item.isInverted)
 
     def save(self, item):
         UI_common.save_item_filter(self, item)
@@ -58,9 +70,13 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
     def get_is_recursive(self):
         return self.apply_recursive_check_box.isChecked()
 
+    def get_is_inverted(self):
+        return self.invert_filter_check_box.isChecked()
+
     def reset(self):
         self.trigger_regex_line_edit.clear()
         self.apply_recursive_check_box.setChecked(False)
+        self.invert_filter_check_box.setChecked(False)
 
     def reset_focus(self):
         self.trigger_regex_line_edit.setFocus()
@@ -72,14 +88,53 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
         self.parentWidget().window().app.exec_in_main(self._receiveWindowInfo, info)
 
     def _receiveWindowInfo(self, info):
-        dlg = DetectDialog(self)
+        # Normally self (this dialog) is on-screen and is the right parent.
+        # But a caller can also trigger detection while this dialog is never
+        # shown at all (e.g. the settings widget's inline double-click
+        # shortcut) -- parenting a modal DetectDialog to a hidden, never-
+        # realized top-level window confuses the window manager (it dims
+        # the real window but places DetectDialog off-screen, or moves it
+        # into an interactive placement mode). Fall back to a parent that's
+        # actually visible in that case.
+        dlg_parent = self if self.isVisible() else self.parentWidget()
+        dlg = DetectDialog(dlg_parent)
         dlg.populate(info)
         dlg.exec_()
 
-        if dlg.result() == QDialog.Accepted:
+        accepted = dlg.result() == QDialog.Accepted
+        if accepted:
             self.trigger_regex_line_edit.setText(dlg.get_choice())
 
         self.detect_window_properties_button.setEnabled(True)
+        self.detection_finished.emit(accepted)
+
+    def receive_window_detect_timeout(self, timeout_seconds):
+        """Called from WindowGrabber when no click arrives (issue #1189)."""
+        try:
+            self.parentWidget().window().app.exec_in_main(
+                self._receive_window_detect_timeout, timeout_seconds
+            )
+        except Exception:
+            logger.exception("Failed to marshal window-detect timeout to UI thread")
+            # Best-effort: still try to re-enable the button from this thread.
+            self._receive_window_detect_timeout(timeout_seconds)
+
+    def _receive_window_detect_timeout(self, timeout_seconds):
+        self.detect_window_properties_button.setEnabled(True)
+        QMessageBox.warning(
+            self,
+            "Window detection timed out",
+            (
+                "No window click was detected within {:.0f} seconds.\n\n"
+                "On Wayland, AutoKey observes clicks via the uinput/evdev path and "
+                "reads the focused window afterwards (GNOME Shell extension or KWin). "
+                "If detection keeps failing:\n"
+                "• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin "
+                "scripting works (KDE)\n"
+                "• Click a normal application window (not the overview/lock screen)\n\n"
+                "You can still type a window class/title regex manually."
+            ).format(timeout_seconds),
+        )
 
     # --- Signal handlers ---
 

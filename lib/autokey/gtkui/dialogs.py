@@ -232,6 +232,7 @@ class AbbrSettingsDialog(DialogBase):
         # editing is cancelled, so the model only ever holds finalized entries.
         self.set_response_sensitive(Gtk.ResponseType.OK, False)
         self._ok_button_enabled = False
+        self._current_editor = None
 
         # set up list view
         store = Gtk.ListStore(str)
@@ -240,6 +241,7 @@ class AbbrSettingsDialog(DialogBase):
         column1 = Gtk.TreeViewColumn(_("Abbreviations"))
         textRenderer = Gtk.CellRendererText()
         textRenderer.set_property("editable", True)
+        textRenderer.connect("editing-started", self.on_cell_editing_started)
         textRenderer.connect("edited", self.on_cell_modified)
         textRenderer.connect("editing-canceled", self.on_cell_editing_cancelled)
         column1.pack_end(textRenderer, True)
@@ -383,12 +385,24 @@ class AbbrSettingsDialog(DialogBase):
 
     # Signal handlers
 
+    def on_cell_editing_started(self, renderer, editable, path, data=None):
+        # GTK fires "editing-canceled" (not "edited") when a cell loses focus
+        # without the user pressing Enter, e.g. clicking OK directly after
+        # typing. "editing-canceled" carries no text of its own, so the live
+        # editable widget is kept here to recover whatever was actually typed
+        # instead of discarding it (see issue #1185).
+        self._current_editor = editable
+
     def on_cell_editing_cancelled(self, renderer, data=None):
         model, curIter = self.abbrList.get_selection().get_selected()
-        oldText = model.get_value(curIter, 0) or ""
-        self.on_cell_modified(renderer, None, oldText)
+        if self._current_editor is not None:
+            newText = self._current_editor.get_text()
+        else:
+            newText = model.get_value(curIter, 0) or ""
+        self.on_cell_modified(renderer, None, newText)
 
     def on_cell_modified(self, renderer, path, newText, data=None):
+        self._current_editor = None
         model, curIter = self.abbrList.get_selection().get_selected()
         oldText = model.get_value(curIter, 0) or ""
         if EMPTY_FIELD_REGEX.match(newText) and EMPTY_FIELD_REGEX.match(oldText):
@@ -632,10 +646,13 @@ class GlobalHotkeyDialog(HotkeySettingsDialog):
         modifiers = self.get_active_modifiers()
         regex = self.targetItem.get_applicable_regex()
         pattern = None
+        inverted = False
         if regex is not None:
             pattern = regex.pattern
+            inverted = self.targetItem.get_applicable_filter_inverted()
 
-        unique, conflicting = configManager.check_hotkey_unique(modifiers, self.key, pattern, self.targetItem)
+        unique, conflicting = configManager.check_hotkey_unique(
+            modifiers, self.key, pattern, self.targetItem, inverted)
         if not validate(unique,
                         _("The hotkey is already in use for %s.") % conflicting,
                         None,
@@ -659,6 +676,7 @@ class WindowFilterSettingsDialog(DialogBase):
 
         self.triggerRegexEntry = builder.get_object("triggerRegexEntry")
         self.recursiveButton = builder.get_object("recursiveButton")
+        self.invertButton = builder.get_object("invertButton")
         self.detectButton = builder.get_object("detectButton")
 
         DialogBase.__init__(self)
@@ -676,6 +694,7 @@ class WindowFilterSettingsDialog(DialogBase):
         else:
             self.triggerRegexEntry.set_text(item.get_filter_regex())
             self.recursiveButton.set_active(item.isRecursive)
+            self.invertButton.set_active(item.isInverted)
 
     def save(self, item):
         UI_common.save_item_filter(self, item)
@@ -683,12 +702,16 @@ class WindowFilterSettingsDialog(DialogBase):
     def reset(self):
         self.triggerRegexEntry.set_text("")
         self.recursiveButton.set_active(False)
+        self.invertButton.set_active(False)
 
     def get_filter_text(self):
         return self.triggerRegexEntry.get_text()
 
     def get_is_recursive(self):
         return self.recursiveButton.get_active()
+
+    def get_is_inverted(self):
+        return self.invertButton.get_active()
 
     def valid(self):
         return True
@@ -710,6 +733,29 @@ class WindowFilterSettingsDialog(DialogBase):
 
         self.detectButton.set_sensitive(True)
         Gdk.threads_leave()
+
+    def receive_window_detect_timeout(self, timeout_seconds):
+        """Called from WindowGrabber when no click arrives (issue #1189)."""
+        Gdk.threads_enter()
+        try:
+            self.detectButton.set_sensitive(True)
+            md = Gtk.MessageDialog(
+                transient_for=self.ui,
+                flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
+                message_type=Gtk.MessageType.WARNING,
+                buttons=Gtk.ButtonsType.OK,
+                text="Window detection timed out",
+            )
+            md.format_secondary_text(
+                "No window click was detected within {:.0f} seconds. "
+                "On Wayland, clicks are observed via uinput/evdev and the focused "
+                "window is read afterwards. You can still enter a window "
+                "class/title regex manually.".format(timeout_seconds)
+            )
+            md.run()
+            md.destroy()
+        finally:
+            Gdk.threads_leave()
 
     def on_detectButton_pressed(self, widget, data=None):
         #self.__dlg =
