@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -e 
+set -e
 
 #  Change group ownership on /dev/uinput to permit non-root write access
 if [ -e /dev/uinput ]; then
@@ -9,15 +9,14 @@ if [ -e /dev/uinput ]; then
     /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
 fi
 
-if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
+if [ "$USER" = "root" ] && [ "${SUDO_USER:-$(logname)}" != "root" ]; then
     #  Add the user to the "input" group
     if [ -e /dev/uinput ]; then
-        usermod -a -G "input" "$(logname)"
+        usermod -a -G "input" "${SUDO_USER:-$(logname)}"
     fi
     #  If Gnome is present, install the Gnome Shell extension
-    gnome-extensions &>/dev/null
-    if [ $? -ne 127 ]; then 
-        su -c 'gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip' $(logname)
+    if command -v gnome-extensions >/dev/null 2>&1; then
+        su -c 'gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip' "${SUDO_USER:-$(logname)}"
     fi
 else
     echo "*******************************************************************************"
