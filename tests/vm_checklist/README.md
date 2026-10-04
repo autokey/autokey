@@ -45,6 +45,33 @@ inspecting them after a failure. `--repo-path` points at the AutoKey
 checkout on the VM (default `~/autokey`), used to locate
 `tests/manual/paste_probe_gtk.py` there.
 
+## Fresh-install .deb packaging check
+
+```
+python3 checklist.py --vm u24 --fresh-install
+python3 checklist.py --vm u24 --fresh-install --git-ref my-pr-branch --yes
+```
+
+This is a different kind of check from items 1-10 above: instead of
+assuming AutoKey is already installed (from source/pip, per
+`VM_TESTING.md`) and testing its runtime behavior, it tests the
+packaging itself. It reverts `--vm` to the clean `installed` snapshot
+(base OS, nothing AutoKey-related -- see `VM_TESTING.md`'s VM-creation
+steps), clones the repo (`--git-ref`, default `develop`), builds the
+`.deb` packages with `debian/build.sh`, installs them with `apt`
+(exercising `autokey-common`'s `postinst`), and then removes them
+(exercising its `prerm`). None of items 1-10 ever build or install a
+`.deb`, so a bug confined to `debian/build.sh`, `debian/rules`, or the
+packaging scripts (e.g. #1277) is invisible to the rest of this suite.
+
+The snapshot revert is destructive (it discards whatever is currently
+running on the VM) and prompts for confirmation unless `--yes` is
+given. The script does **not** revert back afterward -- it leaves the
+VM in its post-install/post-removal state for inspection. Revert to a
+snapshot by hand before reusing that VM alias for the item 1-10 checks,
+which expect their own separate "AutoKey runs cleanly" snapshot, not
+`installed`.
+
 ## What isn't automated
 
 Checklist items 6-8 (recording a key combination via keyboard or mouse,
