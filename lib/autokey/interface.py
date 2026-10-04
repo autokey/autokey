@@ -119,30 +119,26 @@ class XWindowInterface(AbstractWindowInterface):
 
     def __init__(self):
         self.localDisplay = display.Display()
+        self.xlib_lock = threading.Lock()
         # Window name atoms
         self.__NameAtom = self.localDisplay.intern_atom("_NET_WM_NAME", True)
         self.__VisibleNameAtom = self.localDisplay.intern_atom("_NET_WM_VISIBLE_NAME", True)
 
     def get_window_info(self, window=None, traverse: bool=True) -> WindowInfo:
-        try:
-            if window is None:
-                window = self.localDisplay.get_input_focus().focus
-            # get_input_focus() can return the X11 protocol's special None
-            # (0) or PointerRoot (1) focus values instead of a real window
-            # -- e.g. no window currently has explicit input focus, such as
-            # during a focus-follows-mouse transition. python-xlib has no
-            # window resource to wrap in that case and returns the raw int
-            # as-is, which crashes downstream .get_property() calls with an
-            # uncaught AttributeError (confirmed live: 'int' object has no
-            # attribute 'get_property'). Treat it the same as an unknown
-            # window rather than letting it propagate.
-            if isinstance(window, int):
+        with self.xlib_lock:
+            try:
+                if window is None:
+                    window = self.localDisplay.get_input_focus().focus
+                if isinstance(window, int):
+                    # X11's special None (0) or PointerRoot (1) focus sentinels have no
+                    # window resource to query, e.g. during a focus-follows-mouse
+                    # transition. There is no window to report, so return empty info.
+                    return self._create_window_info(window, "", "")
+                return self._get_window_info(window, traverse)
+            except error.BadWindow:
+                logger.warning("Got BadWindow error while requesting window information.")
                 return self._create_window_info(window, "", "")
-            return self._get_window_info(window, traverse)
-        except error.BadWindow:
-            logger.warning("Got BadWindow error while requesting window information.")
-            return self._create_window_info(window, "", "")
-            
+
     #  Add missing get_window_list() method required by AbstractWindowInterface
     #
     #  Not sure if this ever gets called but this is a best guess, based off
@@ -177,7 +173,7 @@ class XWindowInterface(AbstractWindowInterface):
             })
         logger.debug('autokey.interface.get_window_list(filter_desktop={}) returned {}'.format(filter_desktop, json.dumps(winjsonarr, indent=4)))
         return winjsonarr
-		
+
     def get_window_title(self, window=None, traverse=True) -> str:
         return self.get_window_info(window, traverse).wm_title
 
@@ -310,6 +306,13 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         self.lastChars = [] # QT4 Workaround
         self.__enableQT4Workaround = False # QT4 Workaround
         self.shutdown = False
+        # Guards every round-trip request/reply exchange on self.localDisplay.
+        # python-xlib's request/reply sequence-number bookkeeping is not
+        # thread-safe, and this connection is shared by eventThread
+        # (__eventLoop), listenerThread (__flush_events), and whichever
+        # thread calls public methods like mouse_location() directly (e.g.
+        # the scripting API). Must exist before either thread starts.
+        self.xlib_lock = threading.Lock()
 
         # Event loop
         self.eventThread = threading.Thread(target=self.__eventLoop)
@@ -559,15 +562,17 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         :return: Tuple of the Mouse Location(x,y)
         :rtype: tuple
         """
-        pos = self.rootWindow.query_pointer()
-        return (pos.root_x, pos.root_y)
+        with self.xlib_lock:
+            pos = self.rootWindow.query_pointer()
+            return (pos.root_x, pos.root_y)
 
     def relative_mouse_location(self, window=None):
         #return relative mouse location within given window
-        if window==None:
-            window = self.localDisplay.get_input_focus().focus
-        pos = window.query_pointer()
-        return (pos.win_x, pos.win_y)
+        with self.xlib_lock:
+            if window==None:
+                window = self.localDisplay.get_input_focus().focus
+            pos = window.query_pointer()
+            return (pos.win_x, pos.win_y)
 
     def scroll_down(self, number):
         for i in range(0, number):
@@ -662,7 +667,12 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
             elif method is not None and args is None:
                 logger.debug("__eventLoop: Got method {} with None arguments!".format(method))
             try:
-                method(*args)
+                # Every queued method eventually round-trips on
+                # self.localDisplay; serialize against listenerThread and
+                # any thread calling public methods (e.g. mouse_location())
+                # directly. See the note on self.xlib_lock in __init__.
+                with self.xlib_lock:
+                    method(*args)
             except Exception as e:
                 logger.exception("Error in X event loop thread: {}".format(e))
 
@@ -1169,21 +1179,26 @@ class XInterfaceBase(threading.Thread, AbstractMouseInterface):
         logger.debug("Left event loop.")
 
     def __flush_events(self):
+        # select() just waits on the raw socket fd; it doesn't touch
+        # python-xlib's request/reply bookkeeping, so it stays outside the
+        # lock (holding it here would block eventThread/scripting calls for
+        # up to the full 1s timeout on every idle iteration).
         readable, _, _ = select.select([self.localDisplay], [], [], 1)
         time.sleep(1)
         if self.localDisplay in readable:
             createdWindows = []
             destroyedWindows = []
 
-            for _ in range(self.localDisplay.pending_events()):
-                event = self.localDisplay.next_event()
-                if event.type == X.CreateNotify:
-                    createdWindows.append(event.window)
-                if event.type == X.DestroyNotify:
-                    destroyedWindows.append(event.window)
-                if event.type == X.MappingNotify:
-                    logger.debug("X Mapping Event Detected")
-                    self.on_keys_changed()
+            with self.xlib_lock:
+                for _ in range(self.localDisplay.pending_events()):
+                    event = self.localDisplay.next_event()
+                    if event.type == X.CreateNotify:
+                        createdWindows.append(event.window)
+                    if event.type == X.DestroyNotify:
+                        destroyedWindows.append(event.window)
+                    if event.type == X.MappingNotify:
+                        logger.debug("X Mapping Event Detected")
+                        self.on_keys_changed()
 
             for window in createdWindows:
                 if window not in destroyedWindows:
