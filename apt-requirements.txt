@@ -6,7 +6,7 @@ gir1.2-gtk-3.0
 gir1.2-gtksource-3.0
 gir1.2-notify-0.7
 gobject-introspection
-graphicsmagick-imagemagick-compat
+imagemagick
 kdialog
 libcairo2-dev
 libdbus-1-dev
