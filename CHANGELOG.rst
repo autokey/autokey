@@ -158,6 +158,10 @@ Mouse
 
 Scripting API and documentation
 ------------------------------------
+- Fix ``system.exec_command()`` and the ``<system>`` phrase macro naming
+  a failed command's output as the command in the error message (often
+  ``Command '' returned non-zero exit status 2.``). The output is now in
+  the exception's ``output`` attribute.
 - Sync ``develop``'s README.rst with master's more recently reviewed
   version: replace first-person pronouns with generic references, and
   update the stale "X11 application, won't function under Wayland"
