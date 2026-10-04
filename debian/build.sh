@@ -22,5 +22,3 @@ dpkg-buildpackage -i --build=binary --no-sign
 # # Update PPA. Requires more in-depth packaging.
 # debuild -i -S
 # dput "$PPA_Identifier" ../autokey_${VERSION}-1_source.changes
-
-
