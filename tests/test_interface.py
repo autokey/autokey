@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 import functools
+import threading
 
 import Xlib
 
@@ -534,6 +535,7 @@ class TestGetWindowInfoWithNoRealFocus:
     def _interface(self):
         iface = autokey.interface.XWindowInterface.__new__(autokey.interface.XWindowInterface)
         iface.localDisplay = MagicMock()
+        iface.xlib_lock = threading.Lock()
         iface._XWindowInterface__NameAtom = "_NET_WM_NAME"
         iface._XWindowInterface__VisibleNameAtom = "_NET_WM_VISIBLE_NAME"
         return iface

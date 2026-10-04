@@ -129,6 +129,11 @@ class XWindowInterface(AbstractWindowInterface):
             try:
                 if window is None:
                     window = self.localDisplay.get_input_focus().focus
+                if isinstance(window, int):
+                    # X11's special None (0) or PointerRoot (1) focus sentinels have no
+                    # window resource to query, e.g. during a focus-follows-mouse
+                    # transition. There is no window to report, so return empty info.
+                    return self._create_window_info(window, "", "")
                 return self._get_window_info(window, traverse)
             except error.BadWindow:
                 logger.warning("Got BadWindow error while requesting window information.")
