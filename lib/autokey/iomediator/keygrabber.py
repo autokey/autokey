@@ -35,6 +35,11 @@ class KeyGrabber:
     #  can press anything. Ignore clicks within this grace period instead.
     CLICK_GRACE_PERIOD = 0.3
 
+    #  While this listener is registered it receives keypresses exclusively
+    #  (see IoMediator._keypress_targets()), so capturing a combination that
+    #  is already bound does not also fire that binding.
+    SUPPRESSES_HOTKEYS = True
+
     def __init__(self, parent):
         self.target_parent = parent
         self.start_time = 0.0
@@ -109,6 +114,9 @@ class Recorder(KeyGrabber):
     """
     Recorder used by the record macro functionality
     """
+
+    # Recording a macro must not change how hotkeys behave.
+    SUPPRESSES_HOTKEYS = False
 
     def __init__(self, parent):
         KeyGrabber.__init__(self, parent)
