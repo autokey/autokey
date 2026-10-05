@@ -181,14 +181,30 @@ class IoMediator(threading.Thread):
             key = self.interface.lookup_string(key_code, shifted, num_lock, self.modifiers[Key.ALT_GR])
             raw_key = self.interface.lookup_string(key_code, False, False, False)
 
-            # We make a copy here because the wait_for... functions modify the listeners,
-            # and we want this processing cycle to complete before changing what happens
             logger.debug("Raw Key: {} | Modifiers: {} | Key: {} | Window Info: {}".format(raw_key, modifiers, key, window_info))
-            for target in self.listeners.copy():
+            for target in self._keypress_targets():
                 target.handle_keypress(raw_key, modifiers, key, window_info)
 
             self.queue.task_done()
             
+    def _keypress_targets(self):
+        """
+        Return the listeners that should receive the next keypress.
+
+        We make a copy here because the wait_for... functions modify the listeners,
+        and we want this processing cycle to complete before changing what happens.
+
+        While a hotkey-capture dialog is waiting for a key combination (a listener
+        with SUPPRESSES_HOTKEYS set, such as KeyGrabber), it owns the keyboard: the
+        keypress goes only to the capturing listeners, so a combination that is
+        already bound to something does not run that binding (#1188). The snapshot
+        is taken before delivery, so it does not matter that a grabber removes
+        itself from the list while handling the key.
+        """
+        listeners = self.listeners.copy()
+        capturing = [target for target in listeners if getattr(target, "SUPPRESSES_HOTKEYS", False)]
+        return capturing or listeners
+
     def handle_mouse_click(self, root_x, root_y, rel_x, rel_y, button, window_info):
         # We make a copy here because the wait_for... functions modify the listeners,
         # and we want this processing cycle to complete before changing what happens
