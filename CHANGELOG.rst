@@ -79,6 +79,12 @@ Packaging and installation
 - Added a new option to AutoKey that controls the "grabkey" messages sent
   to the log when debugging is enabled on an X11 system (``-v``/``-l``).
   (`#1076`_)
+- Fix building the DEB package on ``develop``: ``dpkg-buildpackage`` no
+  longer fails trying to sign the ``.buildinfo``/``.changes`` files, the
+  malformed ``Maintainer`` field in ``debian/control`` is corrected, and
+  ``graphicsmagick-imagemagick-compat`` is no longer required on newer
+  Ubuntu releases where it no longer exists. (`#1277`_, `#1281`_,
+  `#1282`_, `#1284`_)
 - Bump the AutoKey version to 0.96.1 in ``autokey.spec`` (issue #227),
   then to ``0.97.0~beta0`` in ``debian/changelog``, ``fedora/autokey.spec``
   and ``lib/autokey/common.py``, and the internal ``VERSION`` to
@@ -145,6 +151,17 @@ Keyboard, hotkeys, and input handling
   before a synthetic key made Chromium-based applications drop or delay
   that key (measured: 3 of 10 rapid presses lost, 300ms-1s latency
   instead of 110-190ms). (`#1253`_)
+- Stop hotkey capture from running an already-bound hotkey: while a
+  hotkey is being recorded, keypresses now go only to the recorder, so
+  capturing a combination that is already assigned no longer executes its
+  action. Fixes `#1188 <https://github.com/autokey/autokey/issues/1188>`__.
+  (`#1287`_)
+- Fix the mouse click that opens "Record a key combination" racing the
+  recorder's own registration and immediately canceling the recording
+  under uinput/Wayland. (`#1191`_)
+- Fix an intermittent ``RuntimeError`` caused by concurrent access to the
+  shared X11 display connection; the lock now covers all three threads
+  that use it. (`#1186`_)
 
 Mouse
 ------
@@ -192,6 +209,9 @@ Testing and tooling
   and ``VM_TESTING.md`` documenting how to build and test against a
   three-VM fleet (X11, GNOME/Wayland, KDE Plasma/Wayland) covering most of
   the manual checklist's core items. (`#1273`_)
+- Add a ``.deb`` fresh-install check to the VM checklist, and verify the
+  built ``.deb`` installs in CI across a multi-OS matrix.
+  (`#1280`_, `#1283`_)
 - Wrap generator/``itertools.product`` arguments passed to
   ``@pytest.mark.parametrize`` in ``list(...)`` across 10 tests, fixing
   ``PytestRemovedIn10Warning``. Fixes `#1262 <https://github.com/autokey/autokey/issues/1262>`__.
@@ -213,6 +233,7 @@ Other changes
   issue-report form.
 - Use raw-string format in ``window.py`` to handle invalid escape
   sequences.
+- Remove dead ``UnityLauncher`` code from ``notifier.py``. (`#1279`_)
 - General ``setup.cfg``/``.gitignore``/test-suite housekeeping: bump
   GitHub Action and Python versions, clean up whitespace/indentation/
   comments, sort sections, pin the PyGObject version, enable coverage
@@ -224,6 +245,8 @@ Other changes
 .. _`#1076`: https://github.com/autokey/autokey/pull/1076
 .. _`#1166`: https://github.com/autokey/autokey/pull/1166
 .. _`#1184`: https://github.com/autokey/autokey/pull/1184
+.. _`#1186`: https://github.com/autokey/autokey/pull/1186
+.. _`#1191`: https://github.com/autokey/autokey/pull/1191
 .. _`#1197`: https://github.com/autokey/autokey/pull/1197
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209
@@ -257,6 +280,14 @@ Other changes
 .. _`#1272`: https://github.com/autokey/autokey/pull/1272
 .. _`#1273`: https://github.com/autokey/autokey/pull/1273
 .. _`#1274`: https://github.com/autokey/autokey/pull/1274
+.. _`#1277`: https://github.com/autokey/autokey/pull/1277
+.. _`#1279`: https://github.com/autokey/autokey/pull/1279
+.. _`#1280`: https://github.com/autokey/autokey/pull/1280
+.. _`#1281`: https://github.com/autokey/autokey/pull/1281
+.. _`#1282`: https://github.com/autokey/autokey/pull/1282
+.. _`#1283`: https://github.com/autokey/autokey/pull/1283
+.. _`#1284`: https://github.com/autokey/autokey/pull/1284
+.. _`#1287`: https://github.com/autokey/autokey/pull/1287
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 .. _PEP 440: https://peps.python.org/pep-0440/
