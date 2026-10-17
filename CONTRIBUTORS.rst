@@ -2,7 +2,10 @@ Contributing
 ============
 When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise. We suggest writing new features on top of develop.
 
-Please add a line to CHANGELOG.rst when creating PRs
+Please don't edit CHANGELOG.rst in your PR. The maintainers update it in
+batches, in separate changelog PRs, from the PRs that have been merged. Put a
+clear title and description on your PR, and the maintainers will use them to
+write the entry.
 
 Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
 
