@@ -1372,7 +1372,8 @@ class ConfigWindow:
         dlg.set_website(common.HOMEPAGE)
         dlg.set_authors(["GuoCi (Python 3 port maintainer) <guociz@gmail.com>",
                          "Chris Dekter (Developer) <cdekter@gmail.com>",
-                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>"])
+                         "Sam Peterson (Original developer) <peabodyenator@gmail.com>",
+                         "chrislee35 (Wayland support, testing and maintenance)"])
         dlg.set_transient_for(self.ui)
         dlg.run()
         dlg.destroy()
