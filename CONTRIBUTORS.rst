@@ -38,6 +38,12 @@ PRs that change AutoKey's runtime behavior. Additional test scenarios are
 welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
 case it should cover.
 
+Reviewing and merging
+---------------------
+Don't merge a PR while another maintainer has an open, unresolved concern
+on it without checking with them first. Either resolve the concern
+together, or get their explicit agreement to proceed anyway.
+
 Testing
 =======
 Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
