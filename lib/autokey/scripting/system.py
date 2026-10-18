@@ -48,7 +48,7 @@ class System:
                 # Most shell output has a new line at the end, which we don't want.
                 output = output.rstrip("\n")
                 if p.returncode:
-                    raise subprocess.CalledProcessError(p.returncode, output)
+                    raise subprocess.CalledProcessError(p.returncode, command, output)
                 return output
         else:
             subprocess.Popen(command, shell=True, bufsize=-1)

@@ -19,6 +19,7 @@
 
 
 import Gio from 'gi://Gio';
+import St from 'gi://St';
 
 const MR_DBUS_IFACE = `
 <node>
@@ -83,6 +84,9 @@ const MR_DBUS_IFACE = `
       </method>
       <method name="CheckVersion">
             <arg type="s" direction="out" name="version" />
+      </method>
+      <method name="SetClipboardText">
+            <arg type="s" direction="in" name="text" />
       </method>
    </interface>
 </node>`;
@@ -289,6 +293,17 @@ export default class Extension {
 
     CheckVersion() {
         return '0.1';
+    }
+
+    // Set the clipboard through the Shell itself (St.Clipboard) rather than
+    // through GTK/GDK's own Wayland clipboard client code. The Shell is the
+    // compositor, not an ordinary Wayland client, so this does not hit the
+    // "no input-event serial to offer" clipboard-ownership rejection that a
+    // background daemon like AutoKey runs into calling wl_data_device
+    // directly (confirmed live: AutoKey's own clipboard.set() was cancelled
+    // by Mutter with serial 0 on every attempt).
+    SetClipboardText(text) {
+        St.Clipboard.get_default().set_text(St.ClipboardType.CLIPBOARD, text);
     }
 }
 

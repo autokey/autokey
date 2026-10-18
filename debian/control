@@ -1,5 +1,5 @@
 Source: autokey
-Maintainer: guociz@gmail.com
+Maintainer: josephj11 <josephj111111@gmail.com>
 Section: utils
 Priority: optional
 Build-Depends: debhelper-compat (= 12),

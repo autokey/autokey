@@ -186,7 +186,7 @@ class Notifier(QSystemTrayIcon):
     def notify_error(self, message: str):
         self.setIcon(self._load_error_state_icon())
         self.action_view_script_error.setEnabled(True)
-        self.showMessage("AutoKey Error", message)
+        self.app.configWindow.show_script_errors_dialog.update_and_show()
 
     def reset_tray_icon(self):
         """

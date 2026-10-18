@@ -11,7 +11,7 @@ body:
   - type: dropdown
     id: display-server-technology
     attributes:
-      label: AutoKey is a Xorg application and will not function in a Wayland session. Do you use Xorg (X11) or Wayland?
+      label: AutoKey supports Wayland only on GNOME and KDE Plasma sessions; other Wayland desktop environments require Xorg (X11). Do you use Xorg (X11) or Wayland?
       description: >
         To find out your session type, you can type
         ```echo $XDG_SESSION_TYPE``` into a terminal

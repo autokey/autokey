@@ -32,3 +32,4 @@ htmlcov/
 *.lcov
 .pytest_cache/
 .tox/
+tests/vm_checklist/checklist-results/

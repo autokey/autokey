@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
+import subprocess
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -29,3 +30,12 @@ from autokey.scripting import System
 ])
 def test_system_exec_command(command, expected, errormsg):
     assert_that(System.exec_command(command, getOutput=True), is_(expected), errormsg)
+
+
+def test_system_exec_command_failure():
+    command = "printf 'out'; exit 3"
+    with pytest.raises(subprocess.CalledProcessError) as error:
+        System.exec_command(command, getOutput=True)
+    assert_that(error.value.returncode, is_(3))
+    assert_that(error.value.cmd, is_(command))
+    assert_that(error.value.output, is_("out"))

@@ -34,6 +34,8 @@ from autokey.autokey_app import AutokeyApplication
 from autokey.abstract_ui import AutokeyUIInterface
 
 import autokey.argument_parser
+import autokey.configmanager.configmanager as cm
+import autokey.configmanager.configmanager_constants as cm_constants
 
 from autokey.qtui import common as qtui_common
 from autokey.qtui.notifier import Notifier
@@ -61,6 +63,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv, UI=self)
+        self.setQuitOnLastWindowClosed(False)
         logger.info("Initialising QT application")
 
         try:
@@ -117,7 +120,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         self.closeAllWindows()
         self.notifier.hide()
         logger.debug("All shutdown tasks complete... quitting")
-        self.quit()
+        sys.exit(0)
 
     def notify_error(self, error: autokey.model.script.ScriptErrorRecord):
         """
@@ -137,6 +140,15 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         Show the configuration window, or deiconify (un-minimise) it if it's already open.
         """
         logger.info("Displaying configuration window")
+        if not self.configWindow.isVisible():
+            geometry = cm.ConfigManager.SETTINGS.get(cm_constants.WINDOW_GEOMETRY)
+            if geometry:
+                from PyQt5.QtCore import QByteArray
+                self.configWindow.restoreGeometry(QByteArray.fromBase64(geometry.encode("ascii")))
+            else:
+                size = cm.ConfigManager.SETTINGS[cm_constants.WINDOW_DEFAULT_SIZE]
+                self.configWindow.resize(size[0], size[1])
+            self.configWindow.central_widget.set_splitter(self.configWindow.size())
         self.configWindow.show()
         self.configWindow.showNormal()
         self.configWindow.activateWindow()

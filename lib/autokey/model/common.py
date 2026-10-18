@@ -66,12 +66,16 @@ def inject_json_data_scriptphrase(item, data: dict):
 
 
 def inject_json_data_base(item, data: dict):
-    item.modes = [TriggerMode(mode) for mode in data["modes"]]
     item.usageCount = data["usageCount"]
     item.show_in_tray_menu = data["showInTrayMenu"]
     AbstractAbbreviation.load_from_serialized(item, data["abbreviation"])
     AbstractHotkey.load_from_serialized(item, data["hotkey"])
     AbstractWindowFilter.load_from_serialized(item, data["filter"])
+
+    # Restore trigger modes LAST. AbstractHotkey.set_hotkey() force-adds
+    # TriggerMode.HOTKEY whenever a hotkey is recorded, so assigning modes
+    # before it resurrects hotkeys on items the user disabled (modes: []).
+    item.modes = [TriggerMode(mode) for mode in data["modes"]]
 
 def load(item, parent):
     item.parent = parent

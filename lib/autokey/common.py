@@ -24,6 +24,12 @@ XDG_CONFIG_HOME = os.environ.get('XDG_CONFIG_HOME', os.path.expanduser('~/.confi
 XDG_CACHE_HOME = os.environ.get('XDG_CACHE_HOME', os.path.expanduser('~/.cache'))
 XDG_DATA_HOME = os.environ.get('XDG_DATA_HOME', os.path.expanduser("~/.local/share"))
 SESSION_TYPE = os.environ.get("XDG_SESSION_TYPE")
+# Normalized desktop environment name, used to pick the right Wayland
+# per-DTE interface module (see iomediator.py, scripting/__init__.py).
+# XDG_CURRENT_DESKTOP may be a colon-separated list of names.
+DESKTOP = os.environ.get('XDG_CURRENT_DESKTOP', '')
+if any(name in ('kde', 'plasma') for name in DESKTOP.lower().split(':')):
+    DESKTOP = 'KDE'
 
 CONFIG_DIR = os.path.join(XDG_CONFIG_HOME, "autokey")
 RUN_DIR = os.path.join(os.environ.get('XDG_RUNTIME_DIR', XDG_CACHE_HOME), "autokey")

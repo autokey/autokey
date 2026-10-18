@@ -67,7 +67,7 @@ def generate_test_cases_for_test_can_undo_expansion():
         yield key, False
 
 
-@pytest.mark.parametrize("content, expected", generate_test_cases_for_test_can_undo_expansion())
+@pytest.mark.parametrize("content, expected", list(generate_test_cases_for_test_can_undo_expansion()))
 def test_can_undo_expansion(content: str, expected: bool):
     # Setup
     runner = _create_phrase_runner(content)
