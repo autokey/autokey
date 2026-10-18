@@ -1,0 +1,1675 @@
+# AutoKey translation template.
+msgid ""
+msgstr ""
+"Project-Id-Version: AutoKey 0.97.0-beta.0\n"
+"Report-Msgid-Bugs-To: https://github.com/autokey/autokey/issues\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+msgid " / "
+msgstr ""
+
+msgid "# Enter script code"
+msgstr ""
+
+msgid "#Enter script code"
+msgstr ""
+
+msgid "$abbr"
+msgstr ""
+
+msgid "$filter"
+msgstr ""
+
+msgid "$hotkey"
+msgstr ""
+
+msgid ""
+"%1\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+
+msgid "&Enable Monitoring"
+msgstr ""
+
+msgid "&Show Main Window"
+msgstr ""
+
+msgid "&View script error"
+msgstr ""
+
+msgid "(Default folder)"
+msgstr ""
+
+msgid "(None configured)"
+msgstr ""
+
+msgid "(None)"
+msgstr ""
+
+msgid "(Unsaved)"
+msgstr ""
+
+msgid "(c) 2008-2011 Chris Dekter"
+msgstr ""
+
+msgid "<b>Application</b>"
+msgstr ""
+
+msgid "<b>Expansions</b>"
+msgstr ""
+
+msgid "<b>Folder Settings</b>"
+msgstr ""
+
+msgid "<b>Phrase Settings</b>"
+msgstr ""
+
+msgid "<b>Popup Menu</b>"
+msgstr ""
+
+msgid "<b>Properties of selected window</b>"
+msgstr ""
+
+msgid "<b>Property to use</b>"
+msgstr ""
+
+msgid "<b>Record a keyboard/mouse script</b>"
+msgstr ""
+
+msgid "<b>Script Settings</b>"
+msgstr ""
+
+msgid "<b>Show configuration window using a hotkey</b>"
+msgstr ""
+
+msgid "<b>Toggle monitoring using a hotkey</b>"
+msgstr ""
+
+msgid "<b>UInput Devices</b>"
+msgstr ""
+
+msgid "<b>User Module Folder</b>"
+msgstr ""
+
+msgid "A desktop automation utility for Linux and X11."
+msgstr ""
+
+msgid "Abbr."
+msgstr ""
+
+msgid "Abbreviations"
+msgstr ""
+
+msgid "Abbreviations:"
+msgstr ""
+
+msgid "About AutoKey"
+msgstr ""
+
+msgid "Accept any typed abbreviation case"
+msgstr ""
+
+msgid "Additional options"
+msgstr ""
+
+msgid "All non-word"
+msgstr ""
+
+msgid "Allow keyboard navigation of popup menu"
+msgstr ""
+
+msgid "Alt GR"
+msgstr ""
+
+msgid "Always prompt before executing this script"
+msgstr ""
+
+msgid "Always prompt before pasting this phrase"
+msgstr ""
+
+msgid ""
+"Any Python modules placed in this folder will be available for\n"
+"import by scripts."
+msgstr ""
+
+msgid "Apply recursively to subfolders and items"
+msgstr ""
+
+#, python-brace-format
+msgid "Are you sure you want to delete '{element}'?"
+msgstr ""
+
+#, python-format
+msgid "Are you sure you want to delete the %d selected items?"
+msgstr ""
+
+#, python-format
+msgid "Are you sure you want to delete the %s and all the items in it?"
+msgstr ""
+
+#, python-format
+msgid "Are you sure you want to delete the %s?"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the '{deleted_folder}' folder and all the "
+"items in it?"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the {item_count} selected folders/items?"
+msgstr ""
+
+msgid "Arguments (comma separated)"
+msgstr ""
+
+msgid "AutoKey"
+msgstr ""
+
+msgid "AutoKey - Configuration"
+msgstr ""
+
+msgid "AutoKey - Preferences"
+msgstr ""
+
+msgid "AutoKey - paused"
+msgstr ""
+
+msgid "AutoKey - running"
+msgstr ""
+
+msgid ""
+"AutoKey Requires the following programs or python modules to be installed to "
+"function properly\n"
+"\n"
+msgstr ""
+
+msgid "AutoKey System Configuration Needed"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"AutoKey does not support the \"{dte}\" desktop environment on a system that "
+"uses the Wayland window manager like this one. The \"{dte}\" desktop "
+"environment is supported under X11, but not here under Wayland.  Future "
+"development may remove this restriction, please stay tuned."
+msgstr ""
+
+msgid "AutoKey is already running as pid {} but is not responding"
+msgstr ""
+
+msgid ""
+"AutoKey will now take exclusive use of the keyboard.\n"
+"\n"
+"Click the mouse anywhere to release the keyboard when you are done."
+msgstr ""
+
+msgid ""
+"AutoKey will take the full ownership of the directory you are about to "
+"select or create. It is advisable to only choose empty directories or "
+"directories that contain data created by AutoKey previously.\n"
+"\n"
+"If you delete or move the directory from within AutoKey (for example by "
+"using drag and drop), all files unknown to AutoKey will be deleted."
+msgstr ""
+
+msgid "Automatically save changes without confirmation"
+msgstr ""
+
+msgid "Automatically start AutoKey at login"
+msgstr ""
+
+msgid "Beware"
+msgstr ""
+
+msgid "C_lone Item"
+msgstr ""
+
+msgid "Choose a directory containing Python modules"
+msgstr ""
+
+msgid "Clear Log"
+msgstr ""
+
+msgid "Clear the whole error list and close this window"
+msgstr ""
+
+msgid "Clipboard (Ctrl+Shift+V)"
+msgstr ""
+
+msgid "Clipboard (Ctrl+V)"
+msgstr ""
+
+msgid "Clipboard (Shift+Insert)"
+msgstr ""
+
+msgid "Clone the selected item"
+msgstr ""
+
+msgid "Close the configuration window"
+msgstr ""
+
+msgid "Close this window, keeping all error records."
+msgstr ""
+
+msgid "Command to be executed (including any arguments) - e.g. 'ls -l'"
+msgstr ""
+
+msgid "Completely exit AutoKey"
+msgstr ""
+
+msgid "Copy the selected item"
+msgstr ""
+
+msgid "Crashed Script name:"
+msgstr ""
+
+msgid "Create Folder"
+msgstr ""
+
+msgid "Create New Folder"
+msgstr ""
+
+msgid "Create New Phrase"
+msgstr ""
+
+msgid "Create New Script"
+msgstr ""
+
+msgid "Create a new folder in the current folder"
+msgstr ""
+
+msgid "Create a new phrase in the current folder"
+msgstr ""
+
+msgid "Create a new script in the current folder"
+msgstr ""
+
+msgid "Create a new top-level folder"
+msgstr ""
+
+msgid "Create elsewhere"
+msgstr ""
+
+msgid "Create folder in the default location?"
+msgstr ""
+
+msgid "Cu_t Item"
+msgstr ""
+
+msgid "Currently showing error: "
+msgstr ""
+
+msgid "Cut the selected item"
+msgstr ""
+
+msgid "Dark"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete Folder?"
+msgstr ""
+
+msgid "Delete Phrase?"
+msgstr ""
+
+msgid "Delete Script?"
+msgstr ""
+
+msgid "Delete the currently shown error record"
+msgstr ""
+
+msgid "Delete the selected item"
+msgstr ""
+
+#, python-brace-format
+msgid "Delete {item_count} selected items?"
+msgstr ""
+
+msgid "Desktop automation utility"
+msgstr ""
+
+msgid "Detect Window Properties"
+msgstr ""
+
+msgid "Disable handling of the Capslock key"
+msgstr ""
+
+msgid "Display Frequently Asked Questions"
+msgstr ""
+
+msgid "Display Online Help"
+msgstr ""
+
+msgid "Display Scripting API"
+msgstr ""
+
+msgid "Drop all unsaved changes to current item"
+msgstr ""
+
+msgid "Enable Expansions"
+msgstr ""
+
+msgid "Enable undo by pressing backspace"
+msgstr ""
+
+msgid "Enter a new name:"
+msgstr ""
+
+msgid "Enter phrase contents"
+msgstr ""
+
+msgid "Error"
+msgstr ""
+
+msgid "Error occured at:"
+msgstr ""
+
+msgid "Exit AutoKey"
+msgstr ""
+
+msgid "Fatal error starting AutoKey."
+msgstr ""
+
+msgid "Fatal error starting AutoKey.\n"
+msgstr ""
+
+msgid "File name"
+msgstr ""
+
+msgid "First"
+msgstr ""
+
+msgid "Format"
+msgstr ""
+
+msgid "GTKSource Theme (requires restart):"
+msgstr ""
+
+msgid "General"
+msgstr ""
+
+msgid "Hotkey"
+msgstr ""
+
+msgid "Hotkey conflict"
+msgstr ""
+
+msgid "Hotkey:"
+msgstr ""
+
+msgid "Insert Macro"
+msgstr ""
+
+msgid "Insert a phrase macro"
+msgstr ""
+
+msgid "Insert clipboard contents"
+msgstr ""
+
+msgid "Insert date"
+msgstr ""
+
+msgid "Insert file contents"
+msgstr ""
+
+msgid "Invert: trigger in all windows EXCEPT those matching"
+msgstr ""
+
+msgid "Key: "
+msgstr ""
+
+msgid "Key: %s"
+msgstr ""
+
+msgid "Key: {}"
+msgstr ""
+
+msgid "Keyboard"
+msgstr ""
+
+msgid "Keyboard:"
+msgstr ""
+
+msgid "Last"
+msgstr ""
+
+msgid "Left Alt"
+msgstr ""
+
+msgid "Left Control"
+msgstr ""
+
+msgid "Left Hyper"
+msgstr ""
+
+msgid "Left Meta"
+msgstr ""
+
+msgid "Left Shift"
+msgstr ""
+
+msgid "Left Super"
+msgstr ""
+
+msgid "Light"
+msgstr ""
+
+msgid "Match output case to typed abbreviation case"
+msgstr ""
+
+msgid "Mouse Selection"
+msgstr ""
+
+msgid "Mouse:"
+msgstr ""
+
+msgid "Name"
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "New Folder"
+msgstr ""
+
+msgid "New Phrase"
+msgstr ""
+
+msgid "New Script"
+msgstr ""
+
+msgid "New…"
+msgstr ""
+
+msgid "Next"
+msgstr ""
+
+msgid "No error information available"
+msgstr ""
+
+msgid ""
+"No window click was detected within {:.0f} seconds.\n"
+"\n"
+"On Wayland, AutoKey observes clicks via the uinput/evdev path and reads the "
+"focused window afterwards (GNOME Shell extension or KWin). If detection "
+"keeps failing:\n"
+"• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin scripting "
+"works (KDE)\n"
+"• Click a normal application window (not the overview/lock screen)\n"
+"\n"
+"You can still type a window class/title regex manually."
+msgstr ""
+
+msgid ""
+"No window click was detected within {:.0f} seconds. On Wayland, clicks are "
+"observed via uinput/evdev and the focused window is read afterwards. You can "
+"still enter a window class/title regex manually."
+msgstr ""
+
+msgid "Notification icon style (requires restart):"
+msgstr ""
+
+msgid "Omit trigger character"
+msgstr ""
+
+msgid "Online _Help"
+msgstr ""
+
+msgid "Open"
+msgstr ""
+
+msgid "Paste the last cut/copied item"
+msgstr ""
+
+msgid "Paste using"
+msgstr ""
+
+msgid ""
+"Pause the phrase expansion and script execution, both by abbreviations and "
+"hotkeys.\n"
+"The global hotkeys to show the main window and to toggle this setting, as "
+"defined in the AutoKey settings, are not affected and will work regardless."
+msgstr ""
+
+msgid "Position cursor"
+msgstr ""
+
+msgid "Press a key or combination..."
+msgstr ""
+
+msgid "Press a key or combination…"
+msgstr ""
+
+msgid "Press a key..."
+msgstr ""
+
+msgid "Press to Set"
+msgstr ""
+
+msgid "Previous"
+msgstr ""
+
+msgid "Programs"
+msgstr ""
+
+msgid "Python Modules"
+msgstr ""
+
+msgid "R_ecord keyboard/mouse"
+msgstr ""
+
+msgid "Record Keystrokes"
+msgstr ""
+
+msgid "Record Script"
+msgstr ""
+
+msgid "Record keyboard events"
+msgstr ""
+
+msgid "Record keyboard/mouse actions"
+msgstr ""
+
+msgid "Record mouse events (experimental)"
+msgstr ""
+
+msgid "Redo the last undone edit"
+msgstr ""
+
+msgid "Regular expression to match the title or class of windows"
+msgstr ""
+
+msgid "Regular expression to match:"
+msgstr ""
+
+msgid "Remove icon"
+msgstr ""
+
+msgid "Remove typed abbreviation"
+msgstr ""
+
+#, python-format
+msgid "Rename '%s'"
+msgstr ""
+
+msgid "Rename the selected item"
+msgstr ""
+
+msgid "Report a Bug"
+msgstr ""
+
+msgid "Right Alt"
+msgstr ""
+
+msgid "Right Control"
+msgstr ""
+
+msgid "Right Hyper"
+msgstr ""
+
+msgid "Right Meta"
+msgstr ""
+
+msgid "Right Shift"
+msgstr ""
+
+msgid "Right Super"
+msgstr ""
+
+msgid "Run script"
+msgstr ""
+
+msgid "Run system command"
+msgstr ""
+
+msgid "Run the currently selected script"
+msgstr ""
+
+msgid "Save Log As…"
+msgstr ""
+
+msgid "Save changes to current item"
+msgstr ""
+
+msgid "Save changes?"
+msgstr ""
+
+msgid "Save log file"
+msgstr ""
+
+msgid "Scrip_t"
+msgstr ""
+
+msgid "Script Engine"
+msgstr ""
+
+msgid "Script start time:"
+msgstr ""
+
+msgid "Script was triggered by:"
+msgstr ""
+
+msgid "Select A Folder"
+msgstr ""
+
+msgid "Set"
+msgstr ""
+
+msgid "Set Abbreviations"
+msgstr ""
+
+msgid "Set Hotkey"
+msgstr ""
+
+msgid "Set Window Filter"
+msgstr ""
+
+msgid "Show Main Window"
+msgstr ""
+
+msgid "Show a notification icon"
+msgstr ""
+
+msgid "Show in notification icon menu"
+msgstr ""
+
+msgid "Show program information"
+msgstr ""
+
+msgid "Show recorded errors from Scripts"
+msgstr ""
+
+msgid ""
+"Show the main AutoKey window. This does the same as left clicking the tray "
+"icon."
+msgstr ""
+
+msgid "Show the newest recorded script error"
+msgstr ""
+
+msgid "Show the next recorded script error"
+msgstr ""
+
+msgid "Show the oldest recorded script error"
+msgstr ""
+
+msgid "Show the previous recorded script error"
+msgstr ""
+
+msgid "Show/hide the toolbar"
+msgstr ""
+
+msgid ""
+"Shown below are the recorded errors that occurred in Scripts run by AutoKey "
+"during this session."
+msgstr ""
+
+msgid "Some problems were found"
+msgstr ""
+
+msgid "Sort menu items with most frequently used first"
+msgstr ""
+
+msgid "Space and Enter"
+msgstr ""
+
+msgid "Special Hotkeys"
+msgstr ""
+
+msgid "Start recording after"
+msgstr ""
+
+msgid "Subf_older"
+msgstr ""
+
+msgid "Tab"
+msgstr ""
+
+msgid "Temporarily &Hide Icon"
+msgstr ""
+
+msgid ""
+"Temporarily hide the system tray icon.\n"
+"Use the settings to hide it permanently."
+msgstr ""
+
+msgid "The Python Stacktrace:"
+msgstr ""
+
+#, python-format
+msgid "The abbreviation '%s' is already in use by the %s"
+msgstr ""
+
+#, python-format
+msgid ""
+"The abbreviation '%s' is already in use by the %s for windows matching '%s'."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item} "
+"for windows matching '{matching_pattern}'."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item}."
+msgstr ""
+
+msgid "The chosen directory already contains files"
+msgstr ""
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s"
+msgstr ""
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s for windows matching '%s'."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by the {conflicting_item} for "
+"windows matching '{matching_pattern}'."
+msgstr ""
+
+#, python-brace-format
+msgid "The hotkey '{hotkey}' is already in use by the {conflicting_item}."
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item} for windows "
+"matching '{matching_pattern}'.\n"
+"\n"
+"Assign it anyway?"
+msgstr ""
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item}.\n"
+"\n"
+"Assign it anyway?"
+msgstr ""
+
+#, python-format
+msgid "The hotkey is already in use for %s."
+msgstr ""
+
+msgid "The name can't be empty"
+msgstr ""
+
+msgid "The name can't be empty."
+msgstr ""
+
+msgid "The name of the failed Script."
+msgstr ""
+
+msgid "The phrase content can't be empty"
+msgstr ""
+
+msgid "The script '{}' encountered an error"
+msgstr ""
+
+msgid "The script code can't be empty"
+msgstr ""
+
+msgid ""
+"The selected directory already contains files. If you continue, AutoKey will "
+"take the ownership.\n"
+"\n"
+"You may lose all files in '{}' that are not related to AutoKey if you select "
+"this directory.\n"
+"Continue?"
+msgstr ""
+
+msgid "There are unsaved changes. Would you like to save them?"
+msgstr ""
+
+msgid "Timestamp at which the Script execution started"
+msgstr ""
+
+msgid "Timestamp at which the error occured"
+msgstr ""
+
+msgid "Trigger immediately (don't require a trigger character)"
+msgstr ""
+
+msgid "Trigger menu item by first initial"
+msgstr ""
+
+msgid "Trigger on:"
+msgstr ""
+
+msgid "Trigger when typed as part of a word"
+msgstr ""
+
+msgid ""
+"Type a new abbreviation in the entry and press Enter to add it to the list. "
+"Then click OK."
+msgstr ""
+
+msgid "UInput Keystroke Delay (ms):"
+msgstr ""
+
+msgid "Undo the last edit"
+msgstr ""
+
+msgid "Universal:"
+msgstr ""
+
+msgid "Unsupported Desktop Environment"
+msgstr ""
+
+msgid "Update name on file system"
+msgstr ""
+
+msgid "Use Default"
+msgstr ""
+
+msgid "Vie_w script error"
+msgstr ""
+
+msgid "View script error"
+msgstr ""
+
+msgid "View script error information"
+msgstr ""
+
+msgid "View the last script error."
+msgstr ""
+
+msgid "Where should the folder be created?"
+msgstr ""
+
+msgid "Window Filter:"
+msgstr ""
+
+msgid "Window class (entire application)"
+msgstr ""
+
+#, python-format
+msgid "Window class: %s"
+msgstr ""
+
+msgid "Window detection timed out"
+msgstr ""
+
+msgid "Window title"
+msgstr ""
+
+#, python-format
+msgid "Window title: %s"
+msgstr ""
+
+msgid "You must specify a key for the hotkey."
+msgstr ""
+
+msgid "You must specify at least one abbreviation"
+msgstr ""
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering these two commands, then "
+"rebooting:"
+msgstr ""
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering this command, then "
+"rebooting:"
+msgstr ""
+
+msgid "_Add"
+msgstr ""
+
+msgid "_Cancel"
+msgstr ""
+
+msgid "_Clear"
+msgstr ""
+
+msgid "_Close"
+msgstr ""
+
+msgid "_Close window"
+msgstr ""
+
+msgid "_Copy Item"
+msgstr ""
+
+msgid "_Delete"
+msgstr ""
+
+msgid "_Delete Item"
+msgstr ""
+
+msgid "_Edit"
+msgstr ""
+
+msgid "_F.A.Q."
+msgstr ""
+
+msgid "_File"
+msgstr ""
+
+msgid "_Folder"
+msgstr ""
+
+msgid "_Help"
+msgstr ""
+
+msgid "_Insert Macro"
+msgstr ""
+
+msgid "_OK"
+msgstr ""
+
+msgid "_Paste Item"
+msgstr ""
+
+msgid "_Phrase"
+msgstr ""
+
+msgid "_Preferences"
+msgstr ""
+
+msgid "_Quit"
+msgstr ""
+
+msgid "_Redo"
+msgstr ""
+
+msgid "_Remove"
+msgstr ""
+
+msgid "_Rename"
+msgstr ""
+
+msgid "_Revert"
+msgstr ""
+
+msgid "_Run current script"
+msgstr ""
+
+msgid "_Save"
+msgstr ""
+
+msgid "_Scripting Help"
+msgstr ""
+
+msgid "_Show Toolbar"
+msgstr ""
+
+msgid "_Tools"
+msgstr ""
+
+msgid "_Undo"
+msgstr ""
+
+msgid "label"
+msgstr ""
+
+msgid "seconds"
+msgstr ""
+
+msgid "{}"
+msgstr ""
+
+msgid ""
+"{}\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Add a new abbreviation."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"Add, delete or edit abbreviations. Existing abbreviations in the list on the "
+"left can be edited.\n"
+"After typing a new abbreviation or editing an existing one, press <Enter> "
+"or\n"
+"click somewhere in the left list to submit it."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Delete the selected abbreviation."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"If checked, the typed abbreviation text is deleted before phrase expansion "
+"or script execution.\n"
+"If unchecked, the abbreviation text is kept."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"These abbreviations are already assigned. After editing, press <Enter> or "
+"select another element to save."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;"
+"\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p>AutoKey is a desktop automation utility for Linux and "
+"X11.</p><p>Website: <a href=\"https://github.com/autokey/autokey\"><span "
+"style=\" text-decoration: underline; color:#2980b9;\">AutoKey on GitHub</"
+"span></a></p></body></html>"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "About"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "License"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Python Version:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "TextLabel"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Version:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Form"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+msgid "Search name, abbr. and hotkey…"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &class (entire application)"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &title"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window Information"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window class:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window information of selected window"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window property selection"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window title: "
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-style:italic;\">Technical "
+"information</span>: This places the selected directory on the Python module "
+"search path.</p></body></html>"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"Any Python modules and packages placed in this folder will be available for "
+"import by scripts."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Browse"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Clear selection"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Currently selected:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "None selected"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "User Module Folder"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Folder Settings"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "FolderPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Open the folder in the default file manager"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"<html><head/><body><p>Enabling this option places a <span style=\" font-"
+"weight:600;\">autokey.desktop</span> file into the autostart folder inside "
+"the user folder. It can be found in  <a href=\"file://$XDG_CONFIG_HOME/"
+"autostart\"><span style=\" text-decoration: underline; color:#2980b9;"
+"\">$XDG_CONFIG_HOME/autostart</span></a>. </p></body></html>"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "A&utomatically start AutoKey after login"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Application"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Choose between a light and a dark icon theme."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Choose which GUI should be starting. Only available if both the Qt and GTK+ "
+"GUIs are installed."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Disable handling of the Capslock key."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable this, if you remapped the Capslock key to be something else, like "
+"Ctrl.\n"
+"This will prevent any special handling for this key."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Enable to automatically start AutoKey after logging in."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable undoing Phrase expansions using the backspace key\n"
+"\n"
+"Undo only works if the Phrase does not contain any special keys.\n"
+"AutoKey will refuse to perform an undo of a Phrase containing any such "
+"keys,\n"
+"regardless of this setting."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enabling this places an icon in the desktop system tray or notification "
+"area.\n"
+"The icon can be used to show the main window.\n"
+"It also provides access to scripts and phrases marked for display in the "
+"tray icon context menu."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, automatically save changes to the current Script or Phrase "
+"without asking for confirmation.\n"
+"If unchecked, ask if changes should be saved or not."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, start in the foreground by showing the main window.\n"
+"If unchecked, start in the background."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Modifier Keys"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Phrase expansions"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Popup Menu"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show a notification icon in the system tray or notification area"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show main window when starting"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Start using this interface:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "System tray icon"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Used system tray icon theme:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Key: (None)"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Modifiers:"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Record a key combination"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&About AutoKey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Close Window"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Configure Shortcuts…"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Cut Item"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Delete"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&F. A. Q."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Folder"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Insert Macro"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&New"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Online Manual"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Paste Item"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Phrase"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Quit"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Record Script"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Redo"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Report a Bug"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Save"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Scripting Help"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show Toolbar"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show recorded errors from Scripts"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Sub-folder"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Undo"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "About &Qt"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&lone Item"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&onfigure Toolbars…"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Close the AutoKey window"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Configure &AutoKey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy &Item"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy the selected item(s)."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Phrase in the currently selected folder."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Script in the currently selected folder."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new sub-folder in the currently selected folder."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new top level Folder anywhere in the file system."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Cut the selected item(s)."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Delete the selected items. Deleting folders also deletes the content."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Duplicate the selected item(s)."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Edi&t"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Fi&le"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Hel&p"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Paste items from the clipboard into the currently selected folder."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Quit AutoKey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&ename"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&un Script"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Redo the last undone change."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Rename the first selected item."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Report a Bug on the GitHub issue tracker."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid ""
+"Run the currently opened Script. Execution start is delayed by two seconds."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "S&cript"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Save changes."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Setti&ngs"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show &log view"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show recorded errors that occurred in recently-run Scripts."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online FAQ."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online scripting Help and API documentation."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "T&ools"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Undo the last change."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "toolBar"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Open the phrase in the default text editor."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Phrase Settings"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/record_dialog.ui
+msgid "Record a keyboard/mouse macro"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Always prompt before running this script"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Open the script in the default text editor"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Script Settings"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "ScriptPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingsdialog.ui
+msgid "Settings"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Add abbreviations and edit already assigned abbreviations"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Assign a new hotkey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear all assigned abbreviations"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the assigned hotkey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the current window filter"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear&"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save the previewed hotkey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid ""
+"Set a regular expression based window filter.\n"
+"If set, this item will only trigger, if the currently active window matches "
+"this filter."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Set&"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid " / {}"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Currently showing error"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the newest recorded script error."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the next recorded script error."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the oldest recorded script error."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the previous recorded script error."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The error message, as returned by Python."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The failing Script’s name is shown here."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The name of the failed Script"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Clear"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Hotkey: "
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Show configuration window using a hotkey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Toggle monitoring using a hotkey"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid ""
+"Enter a regular expression that matches the title of windows or the window "
+"class (WM_CLASS attribute) in which you want this item to trigger."
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid "Window title or class"
+msgstr ""

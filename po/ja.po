@@ -1,0 +1,1817 @@
+# Japanese translation of AutoKey.
+msgid ""
+msgstr ""
+"Project-Id-Version: AutoKey 0.97.0-beta.0\n"
+"Report-Msgid-Bugs-To: https://github.com/autokey/autokey/issues\n"
+"PO-Revision-Date: 2026-10-18 00:00+0000\n"
+"Last-Translator: AutoKey contributors\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid " / "
+msgstr ""
+
+msgid "# Enter script code"
+msgstr "# スクリプトのコードを入力してください"
+
+msgid "#Enter script code"
+msgstr "#スクリプトのコードを入力してください"
+
+msgid "$abbr"
+msgstr ""
+
+msgid "$filter"
+msgstr ""
+
+msgid "$hotkey"
+msgstr ""
+
+msgid ""
+"%1\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+"%1\n"
+"\n"
+"変更は保存されていません。"
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+"%s\n"
+"\n"
+"変更は保存されていません。"
+
+msgid "&Enable Monitoring"
+msgstr "監視を有効にする(&E)"
+
+msgid "&Show Main Window"
+msgstr "メインウィンドウを表示(&S)"
+
+msgid "&View script error"
+msgstr "スクリプトのエラーを表示(&V)"
+
+msgid "(Default folder)"
+msgstr "(既定のフォルダー)"
+
+msgid "(None configured)"
+msgstr "(未設定)"
+
+msgid "(None)"
+msgstr "(なし)"
+
+msgid "(Unsaved)"
+msgstr "(未保存)"
+
+msgid "(c) 2008-2011 Chris Dekter"
+msgstr ""
+
+msgid "<b>Application</b>"
+msgstr "<b>アプリケーション</b>"
+
+msgid "<b>Expansions</b>"
+msgstr "<b>展開</b>"
+
+msgid "<b>Folder Settings</b>"
+msgstr "<b>フォルダーの設定</b>"
+
+msgid "<b>Phrase Settings</b>"
+msgstr "<b>フレーズの設定</b>"
+
+msgid "<b>Popup Menu</b>"
+msgstr "<b>ポップアップメニュー</b>"
+
+msgid "<b>Properties of selected window</b>"
+msgstr "<b>選択したウィンドウのプロパティ</b>"
+
+msgid "<b>Property to use</b>"
+msgstr "<b>使用するプロパティ</b>"
+
+msgid "<b>Record a keyboard/mouse script</b>"
+msgstr "<b>キーボードとマウスのスクリプトを記録</b>"
+
+msgid "<b>Script Settings</b>"
+msgstr "<b>スクリプトの設定</b>"
+
+msgid "<b>Show configuration window using a hotkey</b>"
+msgstr "<b>ホットキーで設定ウィンドウを表示</b>"
+
+msgid "<b>Toggle monitoring using a hotkey</b>"
+msgstr "<b>ホットキーで監視を切り替え</b>"
+
+msgid "<b>UInput Devices</b>"
+msgstr "<b>UInput デバイス</b>"
+
+msgid "<b>User Module Folder</b>"
+msgstr "<b>ユーザーモジュールフォルダー</b>"
+
+msgid "A desktop automation utility for Linux and X11."
+msgstr "Linux と X11 向けのデスクトップ自動化ユーティリティです。"
+
+msgid "Abbr."
+msgstr "略語"
+
+msgid "Abbreviations"
+msgstr "略語"
+
+msgid "Abbreviations:"
+msgstr "略語:"
+
+msgid "About AutoKey"
+msgstr "AutoKey について"
+
+msgid "Accept any typed abbreviation case"
+msgstr "入力した略語の大文字・小文字を区別しない"
+
+msgid "Additional options"
+msgstr "追加のオプション"
+
+msgid "All non-word"
+msgstr "単語以外すべて"
+
+msgid "Allow keyboard navigation of popup menu"
+msgstr "ポップアップメニューのキーボード操作を許可する"
+
+msgid "Alt GR"
+msgstr "Alt GR"
+
+msgid "Always prompt before executing this script"
+msgstr "このスクリプトを実行する前に毎回確認する"
+
+msgid "Always prompt before pasting this phrase"
+msgstr "このフレーズを貼り付ける前に毎回確認する"
+
+msgid ""
+"Any Python modules placed in this folder will be available for\n"
+"import by scripts."
+msgstr ""
+"このフォルダーに置いた Python モジュールは、\n"
+"スクリプトからインポートできます。"
+
+msgid "Apply recursively to subfolders and items"
+msgstr "サブフォルダーとアイテムにも再帰的に適用する"
+
+#, python-brace-format
+msgid "Are you sure you want to delete '{element}'?"
+msgstr "「{element}」を削除してもよろしいですか?"
+
+#, python-format
+msgid "Are you sure you want to delete the %d selected items?"
+msgstr "選択した %d 個のアイテムを削除してもよろしいですか?"
+
+#, python-format
+msgid "Are you sure you want to delete the %s and all the items in it?"
+msgstr "%s とその中のすべてのアイテムを削除してもよろしいですか?"
+
+#, python-format
+msgid "Are you sure you want to delete the %s?"
+msgstr "%s を削除してもよろしいですか?"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the '{deleted_folder}' folder and all the "
+"items in it?"
+msgstr ""
+"フォルダー「{deleted_folder}」とその中のすべてのアイテムを削除してもよろしい"
+"ですか?"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the {item_count} selected folders/items?"
+msgstr ""
+"選択した {item_count} 個のフォルダーまたはアイテムを削除してもよろしいですか?"
+
+msgid "Arguments (comma separated)"
+msgstr "引数(コンマ区切り)"
+
+msgid "AutoKey"
+msgstr ""
+
+msgid "AutoKey - Configuration"
+msgstr "AutoKey - 設定"
+
+msgid "AutoKey - Preferences"
+msgstr "AutoKey - 環境設定"
+
+msgid "AutoKey - paused"
+msgstr "AutoKey - 一時停止中"
+
+msgid "AutoKey - running"
+msgstr "AutoKey - 実行中"
+
+msgid ""
+"AutoKey Requires the following programs or python modules to be installed to "
+"function properly\n"
+"\n"
+msgstr ""
+"AutoKey が正しく動作するには、次のプログラムまたは Python モジュールをインス"
+"トールする必要があります\n"
+"\n"
+
+msgid "AutoKey System Configuration Needed"
+msgstr "AutoKey のためにシステムの設定が必要です"
+
+#, python-brace-format
+msgid ""
+"AutoKey does not support the \"{dte}\" desktop environment on a system that "
+"uses the Wayland window manager like this one. The \"{dte}\" desktop "
+"environment is supported under X11, but not here under Wayland.  Future "
+"development may remove this restriction, please stay tuned."
+msgstr ""
+"AutoKey は、このような Wayland ウィンドウマネージャーを使用するシステムでは、"
+"デスクトップ環境「{dte}」をサポートしていません。デスクトップ環境「{dte}」は "
+"X11 ではサポートされていますが、Wayland ではサポートされていません。今後の開"
+"発でこの制限がなくなる可能性があります。続報をお待ちください。"
+
+msgid "AutoKey is already running as pid {} but is not responding"
+msgstr "AutoKey はすでに pid {} で実行されていますが、応答がありません"
+
+msgid ""
+"AutoKey will now take exclusive use of the keyboard.\n"
+"\n"
+"Click the mouse anywhere to release the keyboard when you are done."
+msgstr ""
+"AutoKey がキーボードを占有します。\n"
+"\n"
+"終わったら、マウスで任意の場所をクリックするとキーボードが解放されます。"
+
+msgid ""
+"AutoKey will take the full ownership of the directory you are about to "
+"select or create. It is advisable to only choose empty directories or "
+"directories that contain data created by AutoKey previously.\n"
+"\n"
+"If you delete or move the directory from within AutoKey (for example by "
+"using drag and drop), all files unknown to AutoKey will be deleted."
+msgstr ""
+"AutoKey は、これから選択または作成するディレクトリを完全に管理下に置きます。"
+"空のディレクトリか、以前に AutoKey が作成したデータを含むディレクトリだけを選"
+"ぶことをお勧めします。\n"
+"\n"
+"AutoKey 内でそのディレクトリを削除または移動すると(たとえばドラッグ&ドロップ"
+"で)、AutoKey が認識しないファイルはすべて削除されます。"
+
+msgid "Automatically save changes without confirmation"
+msgstr "確認せずに変更を自動的に保存する"
+
+msgid "Automatically start AutoKey at login"
+msgstr "ログイン時に AutoKey を自動的に起動する"
+
+msgid "Beware"
+msgstr "ご注意ください"
+
+msgid "C_lone Item"
+msgstr "アイテムを複製(_L)"
+
+msgid "Choose a directory containing Python modules"
+msgstr "Python モジュールを含むディレクトリを選択してください"
+
+msgid "Clear Log"
+msgstr "ログを消去"
+
+msgid "Clear the whole error list and close this window"
+msgstr "エラー一覧をすべて消去して、このウィンドウを閉じます"
+
+msgid "Clipboard (Ctrl+Shift+V)"
+msgstr "クリップボード (Ctrl+Shift+V)"
+
+msgid "Clipboard (Ctrl+V)"
+msgstr "クリップボード (Ctrl+V)"
+
+msgid "Clipboard (Shift+Insert)"
+msgstr "クリップボード (Shift+Insert)"
+
+msgid "Clone the selected item"
+msgstr "選択したアイテムを複製します"
+
+msgid "Close the configuration window"
+msgstr "設定ウィンドウを閉じます"
+
+msgid "Close this window, keeping all error records."
+msgstr "エラーの記録をすべて残したまま、このウィンドウを閉じます。"
+
+msgid "Command to be executed (including any arguments) - e.g. 'ls -l'"
+msgstr "実行するコマンド(引数を含む)- 例:「ls -l」"
+
+msgid "Completely exit AutoKey"
+msgstr "AutoKey を完全に終了します"
+
+msgid "Copy the selected item"
+msgstr "選択したアイテムをコピーします"
+
+msgid "Crashed Script name:"
+msgstr "異常終了したスクリプト名:"
+
+msgid "Create Folder"
+msgstr "フォルダーを作成"
+
+msgid "Create New Folder"
+msgstr "新しいフォルダーを作成"
+
+msgid "Create New Phrase"
+msgstr "新しいフレーズを作成"
+
+msgid "Create New Script"
+msgstr "新しいスクリプトを作成"
+
+msgid "Create a new folder in the current folder"
+msgstr "現在のフォルダー内に新しいフォルダーを作成します"
+
+msgid "Create a new phrase in the current folder"
+msgstr "現在のフォルダー内に新しいフレーズを作成します"
+
+msgid "Create a new script in the current folder"
+msgstr "現在のフォルダー内に新しいスクリプトを作成します"
+
+msgid "Create a new top-level folder"
+msgstr "最上位に新しいフォルダーを作成します"
+
+msgid "Create elsewhere"
+msgstr "別の場所に作成"
+
+msgid "Create folder in the default location?"
+msgstr "既定の場所にフォルダーを作成しますか?"
+
+msgid "Cu_t Item"
+msgstr "アイテムを切り取り(_T)"
+
+msgid "Currently showing error: "
+msgstr "表示中のエラー: "
+
+msgid "Cut the selected item"
+msgstr "選択したアイテムを切り取ります"
+
+msgid "Dark"
+msgstr "ダーク"
+
+msgid "Delete"
+msgstr "削除"
+
+msgid "Delete Folder?"
+msgstr "フォルダーを削除しますか?"
+
+msgid "Delete Phrase?"
+msgstr "フレーズを削除しますか?"
+
+msgid "Delete Script?"
+msgstr "スクリプトを削除しますか?"
+
+msgid "Delete the currently shown error record"
+msgstr "表示中のエラー記録を削除します"
+
+msgid "Delete the selected item"
+msgstr "選択したアイテムを削除します"
+
+#, python-brace-format
+msgid "Delete {item_count} selected items?"
+msgstr "選択した {item_count} 個のアイテムを削除しますか?"
+
+msgid "Desktop automation utility"
+msgstr "デスクトップ自動化ユーティリティ"
+
+msgid "Detect Window Properties"
+msgstr "ウィンドウのプロパティを検出"
+
+msgid "Disable handling of the Capslock key"
+msgstr "Caps Lock キーの特別な処理を無効にする"
+
+msgid "Display Frequently Asked Questions"
+msgstr "よくある質問を表示します"
+
+msgid "Display Online Help"
+msgstr "オンラインヘルプを表示します"
+
+msgid "Display Scripting API"
+msgstr "スクリプト API を表示します"
+
+msgid "Drop all unsaved changes to current item"
+msgstr "現在のアイテムの未保存の変更をすべて破棄します"
+
+msgid "Enable Expansions"
+msgstr "展開を有効にする"
+
+msgid "Enable undo by pressing backspace"
+msgstr "Backspace キーで元に戻せるようにする"
+
+msgid "Enter a new name:"
+msgstr "新しい名前を入力してください:"
+
+msgid "Enter phrase contents"
+msgstr "フレーズの内容を入力してください"
+
+msgid "Error"
+msgstr "エラー"
+
+msgid "Error occured at:"
+msgstr "エラー発生時刻:"
+
+msgid "Exit AutoKey"
+msgstr "AutoKey を終了"
+
+msgid "Fatal error starting AutoKey."
+msgstr "AutoKey の起動中に致命的なエラーが発生しました。"
+
+msgid "Fatal error starting AutoKey.\n"
+msgstr "AutoKey の起動中に致命的なエラーが発生しました。\n"
+
+msgid "File name"
+msgstr "ファイル名"
+
+msgid "First"
+msgstr "最初"
+
+msgid "Format"
+msgstr "書式"
+
+msgid "GTKSource Theme (requires restart):"
+msgstr "GTKSource テーマ(再起動が必要):"
+
+msgid "General"
+msgstr "全般"
+
+msgid "Hotkey"
+msgstr "ホットキー"
+
+msgid "Hotkey conflict"
+msgstr "ホットキーの競合"
+
+msgid "Hotkey:"
+msgstr "ホットキー:"
+
+msgid "Insert Macro"
+msgstr "マクロを挿入"
+
+msgid "Insert a phrase macro"
+msgstr "フレーズのマクロを挿入します"
+
+msgid "Insert clipboard contents"
+msgstr "クリップボードの内容を挿入"
+
+msgid "Insert date"
+msgstr "日付を挿入"
+
+msgid "Insert file contents"
+msgstr "ファイルの内容を挿入"
+
+msgid "Invert: trigger in all windows EXCEPT those matching"
+msgstr "反転: 一致するウィンドウ「以外」のすべてのウィンドウで動作する"
+
+msgid "Key: "
+msgstr "キー: "
+
+msgid "Key: %s"
+msgstr "キー: %s"
+
+msgid "Key: {}"
+msgstr "キー: {}"
+
+msgid "Keyboard"
+msgstr "キーボード"
+
+msgid "Keyboard:"
+msgstr "キーボード:"
+
+msgid "Last"
+msgstr "最後"
+
+msgid "Left Alt"
+msgstr "左 Alt"
+
+msgid "Left Control"
+msgstr "左 Control"
+
+msgid "Left Hyper"
+msgstr "左 Hyper"
+
+msgid "Left Meta"
+msgstr "左 Meta"
+
+msgid "Left Shift"
+msgstr "左 Shift"
+
+msgid "Left Super"
+msgstr "左 Super"
+
+msgid "Light"
+msgstr "ライト"
+
+msgid "Match output case to typed abbreviation case"
+msgstr "出力の大文字・小文字を入力した略語に合わせる"
+
+msgid "Mouse Selection"
+msgstr "マウス選択"
+
+msgid "Mouse:"
+msgstr "マウス:"
+
+msgid "Name"
+msgstr "名前"
+
+msgid "New"
+msgstr "新規"
+
+msgid "New Folder"
+msgstr "新しいフォルダー"
+
+msgid "New Phrase"
+msgstr "新しいフレーズ"
+
+msgid "New Script"
+msgstr "新しいスクリプト"
+
+msgid "New…"
+msgstr "新規…"
+
+msgid "Next"
+msgstr "次へ"
+
+msgid "No error information available"
+msgstr "エラー情報はありません"
+
+msgid ""
+"No window click was detected within {:.0f} seconds.\n"
+"\n"
+"On Wayland, AutoKey observes clicks via the uinput/evdev path and reads the "
+"focused window afterwards (GNOME Shell extension or KWin). If detection "
+"keeps failing:\n"
+"• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin scripting "
+"works (KDE)\n"
+"• Click a normal application window (not the overview/lock screen)\n"
+"\n"
+"You can still type a window class/title regex manually."
+msgstr ""
+"{:.0f} 秒以内にウィンドウのクリックが検出されませんでした。\n"
+"\n"
+"Wayland では、AutoKey は uinput/evdev 経由でクリックを監視し、その後フォーカ"
+"スのあるウィンドウを読み取ります(GNOME Shell 拡張機能または KWin)。検出に失敗"
+"し続ける場合は、次を確認してください:\n"
+"• AutoKey の GNOME 拡張機能が有効になっていること(GNOME)、または KWin のスク"
+"リプトが動作していること(KDE)\n"
+"• 通常のアプリケーションウィンドウをクリックすること(アクティビティの概要や"
+"ロック画面ではなく)\n"
+"\n"
+"ウィンドウクラスやタイトルの正規表現は手動で入力することもできます。"
+
+msgid ""
+"No window click was detected within {:.0f} seconds. On Wayland, clicks are "
+"observed via uinput/evdev and the focused window is read afterwards. You can "
+"still enter a window class/title regex manually."
+msgstr ""
+"{:.0f} 秒以内にウィンドウのクリックが検出されませんでした。Wayland では、ク"
+"リックは uinput/evdev 経由で監視され、その後フォーカスのあるウィンドウが読み"
+"取られます。ウィンドウクラスやタイトルの正規表現は手動で入力することもできま"
+"す。"
+
+msgid "Notification icon style (requires restart):"
+msgstr "通知アイコンのスタイル(再起動が必要):"
+
+msgid "Omit trigger character"
+msgstr "トリガー文字を出力しない"
+
+msgid "Online _Help"
+msgstr "オンラインヘルプ(_H)"
+
+msgid "Open"
+msgstr "開く"
+
+msgid "Paste the last cut/copied item"
+msgstr "最後に切り取りまたはコピーしたアイテムを貼り付けます"
+
+msgid "Paste using"
+msgstr "貼り付け方法"
+
+msgid ""
+"Pause the phrase expansion and script execution, both by abbreviations and "
+"hotkeys.\n"
+"The global hotkeys to show the main window and to toggle this setting, as "
+"defined in the AutoKey settings, are not affected and will work regardless."
+msgstr ""
+"略語とホットキーの両方による、フレーズの展開とスクリプトの実行を一時停止しま"
+"す。\n"
+"AutoKey の設定で定義した、メインウィンドウを表示するためと、この設定を切り替"
+"えるためのグローバルホットキーは影響を受けず、そのまま動作します。"
+
+msgid "Position cursor"
+msgstr "カーソル位置を指定"
+
+msgid "Press a key or combination..."
+msgstr "キーまたはキーの組み合わせを押してください..."
+
+msgid "Press a key or combination…"
+msgstr "キーまたはキーの組み合わせを押してください…"
+
+msgid "Press a key..."
+msgstr "キーを押してください..."
+
+msgid "Press to Set"
+msgstr "押して設定"
+
+msgid "Previous"
+msgstr "前へ"
+
+msgid "Programs"
+msgstr "プログラム"
+
+msgid "Python Modules"
+msgstr "Python モジュール"
+
+msgid "R_ecord keyboard/mouse"
+msgstr "キーボード/マウスを記録(_E)"
+
+msgid "Record Keystrokes"
+msgstr "キー入力を記録"
+
+msgid "Record Script"
+msgstr "スクリプトを記録"
+
+msgid "Record keyboard events"
+msgstr "キーボードイベントを記録する"
+
+msgid "Record keyboard/mouse actions"
+msgstr "キーボードとマウスの操作を記録"
+
+msgid "Record mouse events (experimental)"
+msgstr "マウスイベントを記録する(実験的)"
+
+msgid "Redo the last undone edit"
+msgstr "最後に取り消した編集をやり直します"
+
+msgid "Regular expression to match the title or class of windows"
+msgstr "ウィンドウのタイトルまたはクラスに一致させる正規表現"
+
+msgid "Regular expression to match:"
+msgstr "一致させる正規表現:"
+
+msgid "Remove icon"
+msgstr "アイコンを削除"
+
+msgid "Remove typed abbreviation"
+msgstr "入力した略語を削除する"
+
+#, python-format
+msgid "Rename '%s'"
+msgstr "「%s」の名前を変更"
+
+msgid "Rename the selected item"
+msgstr "選択したアイテムの名前を変更します"
+
+msgid "Report a Bug"
+msgstr "バグを報告"
+
+msgid "Right Alt"
+msgstr "右 Alt"
+
+msgid "Right Control"
+msgstr "右 Control"
+
+msgid "Right Hyper"
+msgstr "右 Hyper"
+
+msgid "Right Meta"
+msgstr "右 Meta"
+
+msgid "Right Shift"
+msgstr "右 Shift"
+
+msgid "Right Super"
+msgstr "右 Super"
+
+msgid "Run script"
+msgstr "スクリプトを実行"
+
+msgid "Run system command"
+msgstr "システムコマンドを実行"
+
+msgid "Run the currently selected script"
+msgstr "選択中のスクリプトを実行します"
+
+msgid "Save Log As…"
+msgstr "ログに名前を付けて保存…"
+
+msgid "Save changes to current item"
+msgstr "現在のアイテムへの変更を保存します"
+
+msgid "Save changes?"
+msgstr "変更を保存しますか?"
+
+msgid "Save log file"
+msgstr "ログファイルを保存"
+
+msgid "Scrip_t"
+msgstr "スクリプト(_T)"
+
+msgid "Script Engine"
+msgstr "スクリプトエンジン"
+
+msgid "Script start time:"
+msgstr "スクリプトの開始時刻:"
+
+msgid "Script was triggered by:"
+msgstr "スクリプトの起動元:"
+
+msgid "Select A Folder"
+msgstr "フォルダーを選択"
+
+msgid "Set"
+msgstr "設定"
+
+msgid "Set Abbreviations"
+msgstr "略語を設定"
+
+msgid "Set Hotkey"
+msgstr "ホットキーを設定"
+
+msgid "Set Window Filter"
+msgstr "ウィンドウフィルターを設定"
+
+msgid "Show Main Window"
+msgstr "メインウィンドウを表示"
+
+msgid "Show a notification icon"
+msgstr "通知アイコンを表示する"
+
+msgid "Show in notification icon menu"
+msgstr "通知アイコンのメニューに表示する"
+
+msgid "Show program information"
+msgstr "プログラムの情報を表示します"
+
+msgid "Show recorded errors from Scripts"
+msgstr "スクリプトの記録されたエラーを表示"
+
+msgid ""
+"Show the main AutoKey window. This does the same as left clicking the tray "
+"icon."
+msgstr ""
+"AutoKey のメインウィンドウを表示します。トレイアイコンを左クリックするのと同"
+"じ動作です。"
+
+msgid "Show the newest recorded script error"
+msgstr "記録された最新のスクリプトエラーを表示します"
+
+msgid "Show the next recorded script error"
+msgstr "記録された次のスクリプトエラーを表示します"
+
+msgid "Show the oldest recorded script error"
+msgstr "記録された最も古いスクリプトエラーを表示します"
+
+msgid "Show the previous recorded script error"
+msgstr "記録された前のスクリプトエラーを表示します"
+
+msgid "Show/hide the toolbar"
+msgstr "ツールバーの表示/非表示を切り替えます"
+
+msgid ""
+"Shown below are the recorded errors that occurred in Scripts run by AutoKey "
+"during this session."
+msgstr ""
+"以下は、このセッション中に AutoKey が実行したスクリプトで発生し、記録されたエ"
+"ラーです。"
+
+msgid "Some problems were found"
+msgstr "問題が見つかりました"
+
+msgid "Sort menu items with most frequently used first"
+msgstr "よく使うメニュー項目を先頭に並べる"
+
+msgid "Space and Enter"
+msgstr "スペースと Enter"
+
+msgid "Special Hotkeys"
+msgstr "特別なホットキー"
+
+msgid "Start recording after"
+msgstr "記録を開始するまでの時間"
+
+msgid "Subf_older"
+msgstr "サブフォルダー(_O)"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Temporarily &Hide Icon"
+msgstr "アイコンを一時的に隠す(&H)"
+
+msgid ""
+"Temporarily hide the system tray icon.\n"
+"Use the settings to hide it permanently."
+msgstr ""
+"システムトレイのアイコンを一時的に隠します。\n"
+"恒久的に隠すには設定を使用してください。"
+
+msgid "The Python Stacktrace:"
+msgstr "Python のスタックトレース:"
+
+#, python-format
+msgid "The abbreviation '%s' is already in use by the %s"
+msgstr "略語「%s」はすでに %s で使われています"
+
+#, python-format
+msgid ""
+"The abbreviation '%s' is already in use by the %s for windows matching '%s'."
+msgstr ""
+"略語「%s」は、「%s」に一致するウィンドウ向けにすでに %s で使われています。"
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item} "
+"for windows matching '{matching_pattern}'."
+msgstr ""
+"略語 {abbreviation} は、「{matching_pattern}」に一致するウィンドウ向けにすで"
+"に {conflicting_item} で使われています。"
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item}."
+msgstr "略語 {abbreviation} はすでに {conflicting_item} で使われています。"
+
+msgid "The chosen directory already contains files"
+msgstr "選択したディレクトリにはすでにファイルがあります"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s"
+msgstr "ホットキー「%s」はすでに %s で使われています"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s for windows matching '%s'."
+msgstr ""
+"ホットキー「%s」は、「%s」に一致するウィンドウ向けにすでに %s で使われていま"
+"す。"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by the {conflicting_item} for "
+"windows matching '{matching_pattern}'."
+msgstr ""
+"ホットキー「{hotkey}」は、「{matching_pattern}」に一致するウィンドウ向けにす"
+"でに {conflicting_item} で使われています。"
+
+#, python-brace-format
+msgid "The hotkey '{hotkey}' is already in use by the {conflicting_item}."
+msgstr "ホットキー「{hotkey}」はすでに {conflicting_item} で使われています。"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item} for windows "
+"matching '{matching_pattern}'.\n"
+"\n"
+"Assign it anyway?"
+msgstr ""
+"ホットキー「{hotkey}」は、「{matching_pattern}」に一致するウィンドウ向けにす"
+"でに {conflicting_item} で使われています。\n"
+"\n"
+"それでも割り当てますか?"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item}.\n"
+"\n"
+"Assign it anyway?"
+msgstr ""
+"ホットキー「{hotkey}」はすでに {conflicting_item} で使われています。\n"
+"\n"
+"それでも割り当てますか?"
+
+#, python-format
+msgid "The hotkey is already in use for %s."
+msgstr "このホットキーはすでに %s で使われています。"
+
+msgid "The name can't be empty"
+msgstr "名前を空にすることはできません"
+
+msgid "The name can't be empty."
+msgstr "名前を空にすることはできません。"
+
+msgid "The name of the failed Script."
+msgstr "失敗したスクリプトの名前です。"
+
+msgid "The phrase content can't be empty"
+msgstr "フレーズの内容を空にすることはできません"
+
+msgid "The script '{}' encountered an error"
+msgstr "スクリプト「{}」でエラーが発生しました"
+
+msgid "The script code can't be empty"
+msgstr "スクリプトのコードを空にすることはできません"
+
+msgid ""
+"The selected directory already contains files. If you continue, AutoKey will "
+"take the ownership.\n"
+"\n"
+"You may lose all files in '{}' that are not related to AutoKey if you select "
+"this directory.\n"
+"Continue?"
+msgstr ""
+"選択したディレクトリにはすでにファイルがあります。続行すると、AutoKey がその"
+"ディレクトリを管理下に置きます。\n"
+"\n"
+"このディレクトリを選択すると、「{}」内の AutoKey に関係のないファイルがすべて"
+"失われる可能性があります。\n"
+"続行しますか?"
+
+msgid "There are unsaved changes. Would you like to save them?"
+msgstr "未保存の変更があります。保存しますか?"
+
+msgid "Timestamp at which the Script execution started"
+msgstr "スクリプトの実行を開始した時刻"
+
+msgid "Timestamp at which the error occured"
+msgstr "エラーが発生した時刻"
+
+msgid "Trigger immediately (don't require a trigger character)"
+msgstr "すぐに動作させる(トリガー文字を必要としない)"
+
+msgid "Trigger menu item by first initial"
+msgstr "頭文字でメニュー項目を実行する"
+
+msgid "Trigger on:"
+msgstr "動作条件:"
+
+msgid "Trigger when typed as part of a word"
+msgstr "単語の一部として入力されたときも動作させる"
+
+msgid ""
+"Type a new abbreviation in the entry and press Enter to add it to the list. "
+"Then click OK."
+msgstr ""
+"入力欄に新しい略語を入力し、Enter キーを押して一覧に追加します。その後、OK を"
+"クリックしてください。"
+
+msgid "UInput Keystroke Delay (ms):"
+msgstr "UInput のキー入力の遅延(ミリ秒):"
+
+msgid "Undo the last edit"
+msgstr "最後の編集を取り消します"
+
+msgid "Universal:"
+msgstr "共通:"
+
+msgid "Unsupported Desktop Environment"
+msgstr "サポートされていないデスクトップ環境"
+
+msgid "Update name on file system"
+msgstr "ファイルシステム上の名前も更新する"
+
+msgid "Use Default"
+msgstr "既定値を使用"
+
+msgid "Vie_w script error"
+msgstr "スクリプトのエラーを表示(_W)"
+
+msgid "View script error"
+msgstr "スクリプトのエラーを表示"
+
+msgid "View script error information"
+msgstr "スクリプトのエラー情報を表示します"
+
+msgid "View the last script error."
+msgstr "最後のスクリプトエラーを表示します。"
+
+msgid "Where should the folder be created?"
+msgstr "フォルダーをどこに作成しますか?"
+
+msgid "Window Filter:"
+msgstr "ウィンドウフィルター:"
+
+msgid "Window class (entire application)"
+msgstr "ウィンドウクラス(アプリケーション全体)"
+
+#, python-format
+msgid "Window class: %s"
+msgstr "ウィンドウクラス: %s"
+
+msgid "Window detection timed out"
+msgstr "ウィンドウの検出がタイムアウトしました"
+
+msgid "Window title"
+msgstr "ウィンドウタイトル"
+
+#, python-format
+msgid "Window title: %s"
+msgstr "ウィンドウタイトル: %s"
+
+msgid "You must specify a key for the hotkey."
+msgstr "ホットキーのキーを指定してください。"
+
+msgid "You must specify at least one abbreviation"
+msgstr "略語を 1 つ以上指定してください"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering these two commands, then "
+"rebooting:"
+msgstr ""
+"お使いのユーザー ID は、Wayland で AutoKey を実行するように設定されていませ"
+"ん。AutoKey を<b>初めて</b>実行する場合は、システムを<b>再起動</b>してから、"
+"もう一度 AutoKey を起動してみてください。それでも解決しない場合は、次の 2 つ"
+"のコマンドを入力してから再起動してください:"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering this command, then "
+"rebooting:"
+msgstr ""
+"お使いのユーザー ID は、Wayland で AutoKey を実行するように設定されていませ"
+"ん。AutoKey を<b>初めて</b>実行する場合は、システムを<b>再起動</b>してから、"
+"もう一度 AutoKey を起動してみてください。それでも解決しない場合は、次のコマン"
+"ドを入力してから再起動してください:"
+
+msgid "_Add"
+msgstr "追加(_A)"
+
+msgid "_Cancel"
+msgstr "キャンセル(_C)"
+
+msgid "_Clear"
+msgstr "クリア(_C)"
+
+msgid "_Close"
+msgstr "閉じる(_C)"
+
+msgid "_Close window"
+msgstr "ウィンドウを閉じる(_C)"
+
+msgid "_Copy Item"
+msgstr "アイテムをコピー(_C)"
+
+msgid "_Delete"
+msgstr "削除(_D)"
+
+msgid "_Delete Item"
+msgstr "アイテムを削除(_D)"
+
+msgid "_Edit"
+msgstr "編集(_E)"
+
+msgid "_F.A.Q."
+msgstr "よくある質問(_F)"
+
+msgid "_File"
+msgstr "ファイル(_F)"
+
+msgid "_Folder"
+msgstr "フォルダー(_F)"
+
+msgid "_Help"
+msgstr "ヘルプ(_H)"
+
+msgid "_Insert Macro"
+msgstr "マクロを挿入(_I)"
+
+msgid "_OK"
+msgstr "OK(_O)"
+
+msgid "_Paste Item"
+msgstr "アイテムを貼り付け(_P)"
+
+msgid "_Phrase"
+msgstr "フレーズ(_P)"
+
+msgid "_Preferences"
+msgstr "環境設定(_P)"
+
+msgid "_Quit"
+msgstr "終了(_Q)"
+
+msgid "_Redo"
+msgstr "やり直し(_R)"
+
+msgid "_Remove"
+msgstr "削除(_R)"
+
+msgid "_Rename"
+msgstr "名前の変更(_R)"
+
+msgid "_Revert"
+msgstr "元に戻す(_R)"
+
+msgid "_Run current script"
+msgstr "現在のスクリプトを実行(_R)"
+
+msgid "_Save"
+msgstr "保存(_S)"
+
+msgid "_Scripting Help"
+msgstr "スクリプトのヘルプ(_S)"
+
+msgid "_Show Toolbar"
+msgstr "ツールバーを表示(_S)"
+
+msgid "_Tools"
+msgstr "ツール(_T)"
+
+msgid "_Undo"
+msgstr "元に戻す(_U)"
+
+msgid "label"
+msgstr ""
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "{}"
+msgstr ""
+
+msgid ""
+"{}\n"
+"\n"
+"Your changes have not been saved."
+msgstr ""
+"{}\n"
+"\n"
+"変更は保存されていません。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Add a new abbreviation."
+msgstr "新しい略語を追加します。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"Add, delete or edit abbreviations. Existing abbreviations in the list on the "
+"left can be edited.\n"
+"After typing a new abbreviation or editing an existing one, press <Enter> "
+"or\n"
+"click somewhere in the left list to submit it."
+msgstr ""
+"略語を追加、削除、編集します。左の一覧にある既存の略語は編集できます。\n"
+"新しい略語を入力するか既存の略語を編集したあと、<Enter> キーを押すか、\n"
+"左の一覧のどこかをクリックして確定してください。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Delete the selected abbreviation."
+msgstr "選択した略語を削除します。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"If checked, the typed abbreviation text is deleted before phrase expansion "
+"or script execution.\n"
+"If unchecked, the abbreviation text is kept."
+msgstr ""
+"オンにすると、フレーズの展開やスクリプトの実行の前に、入力した略語のテキスト"
+"が削除されます。\n"
+"オフにすると、略語のテキストはそのまま残ります。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"These abbreviations are already assigned. After editing, press <Enter> or "
+"select another element to save."
+msgstr ""
+"これらの略語はすでに割り当てられています。編集後、<Enter> キーを押すか別の要"
+"素を選択すると保存されます。"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;"
+"\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+msgstr ""
+"<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;"
+"\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p>AutoKey is a desktop automation utility for Linux and "
+"X11.</p><p>Website: <a href=\"https://github.com/autokey/autokey\"><span "
+"style=\" text-decoration: underline; color:#2980b9;\">AutoKey on GitHub</"
+"span></a></p></body></html>"
+msgstr ""
+"<html><head/><body><p>AutoKey は Linux と X11 向けのデスクトップ自動化ユー"
+"ティリティです。</p><p>ウェブサイト: <a href=\"https://github.com/autokey/"
+"autokey\"><span style=\" text-decoration: underline; color:#2980b9;\">GitHub "
+"の AutoKey</span></a></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "About"
+msgstr "概要"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "License"
+msgstr "ライセンス"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Python Version:"
+msgstr "Python のバージョン:"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "TextLabel"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Version:"
+msgstr "バージョン:"
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Form"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+msgid "Search name, abbr. and hotkey…"
+msgstr "名前、略語、ホットキーを検索…"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &class (entire application)"
+msgstr "ウィンドウクラス(アプリケーション全体)(&C)"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &title"
+msgstr "ウィンドウタイトル(&T)"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window Information"
+msgstr "ウィンドウ情報"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window class:"
+msgstr "ウィンドウクラス:"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window information of selected window"
+msgstr "選択したウィンドウの情報"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window property selection"
+msgstr "ウィンドウのプロパティの選択"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window title: "
+msgstr "ウィンドウタイトル: "
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-style:italic;\">Technical "
+"information</span>: This places the selected directory on the Python module "
+"search path.</p></body></html>"
+msgstr ""
+"<html><head/><body><p><span style=\" font-style:italic;\">技術情報</span>: 選"
+"択したディレクトリが Python のモジュール検索パスに追加されます。</p></body></"
+"html>"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"Any Python modules and packages placed in this folder will be available for "
+"import by scripts."
+msgstr ""
+"このフォルダーに置いた Python モジュールとパッケージは、スクリプトからイン"
+"ポートできます。"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Browse"
+msgstr "参照"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Clear selection"
+msgstr "選択を解除"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Currently selected:"
+msgstr "現在の選択:"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "None selected"
+msgstr "選択されていません"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "User Module Folder"
+msgstr "ユーザーモジュールフォルダー"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Folder Settings"
+msgstr "フォルダーの設定"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "FolderPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Open the folder in the default file manager"
+msgstr "既定のファイルマネージャーでフォルダーを開きます"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"<html><head/><body><p>Enabling this option places a <span style=\" font-"
+"weight:600;\">autokey.desktop</span> file into the autostart folder inside "
+"the user folder. It can be found in  <a href=\"file://$XDG_CONFIG_HOME/"
+"autostart\"><span style=\" text-decoration: underline; color:#2980b9;"
+"\">$XDG_CONFIG_HOME/autostart</span></a>. </p></body></html>"
+msgstr ""
+"<html><head/><body><p>このオプションを有効にすると、ユーザーフォルダー内の自"
+"動起動フォルダーに <span style=\" font-weight:600;\">autokey.desktop</span> "
+"ファイルが置かれます。場所は  <a href=\"file://$XDG_CONFIG_HOME/"
+"autostart\"><span style=\" text-decoration: underline; color:#2980b9;"
+"\">$XDG_CONFIG_HOME/autostart</span></a> です。 </p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "A&utomatically start AutoKey after login"
+msgstr "ログイン後に AutoKey を自動的に起動する(&U)"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Application"
+msgstr "アプリケーション"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Choose between a light and a dark icon theme."
+msgstr "ライトとダークのアイコンテーマから選択します。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Choose which GUI should be starting. Only available if both the Qt and GTK+ "
+"GUIs are installed."
+msgstr ""
+"起動する GUI を選択します。Qt と GTK+ の両方の GUI がインストールされている場"
+"合のみ選択できます。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Disable handling of the Capslock key."
+msgstr "Caps Lock キーの特別な処理を無効にします。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable this, if you remapped the Capslock key to be something else, like "
+"Ctrl.\n"
+"This will prevent any special handling for this key."
+msgstr ""
+"Caps Lock キーを Ctrl など別のキーに割り当て直している場合に有効にしてくださ"
+"い。\n"
+"このキーに対する特別な処理が行われなくなります。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Enable to automatically start AutoKey after logging in."
+msgstr "ログイン後に AutoKey を自動的に起動するには、有効にしてください。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable undoing Phrase expansions using the backspace key\n"
+"\n"
+"Undo only works if the Phrase does not contain any special keys.\n"
+"AutoKey will refuse to perform an undo of a Phrase containing any such "
+"keys,\n"
+"regardless of this setting."
+msgstr ""
+"Backspace キーでフレーズの展開を元に戻せるようにします\n"
+"\n"
+"元に戻せるのは、フレーズに特殊キーが含まれていない場合だけです。\n"
+"特殊キーを含むフレーズは、この設定にかかわらず、\n"
+"AutoKey は元に戻す操作を行いません。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enabling this places an icon in the desktop system tray or notification "
+"area.\n"
+"The icon can be used to show the main window.\n"
+"It also provides access to scripts and phrases marked for display in the "
+"tray icon context menu."
+msgstr ""
+"有効にすると、デスクトップのシステムトレイまたは通知領域にアイコンが表示され"
+"ます。\n"
+"このアイコンからメインウィンドウを表示できます。\n"
+"また、トレイアイコンのコンテキストメニューに表示するよう設定したスクリプトや"
+"フレーズも利用できます。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, automatically save changes to the current Script or Phrase "
+"without asking for confirmation.\n"
+"If unchecked, ask if changes should be saved or not."
+msgstr ""
+"オンにすると、現在のスクリプトまたはフレーズへの変更を、確認せずに自動的に保"
+"存します。\n"
+"オフにすると、変更を保存するかどうかを確認します。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, start in the foreground by showing the main window.\n"
+"If unchecked, start in the background."
+msgstr ""
+"オンにすると、メインウィンドウを表示してフォアグラウンドで起動します。\n"
+"オフにすると、バックグラウンドで起動します。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Modifier Keys"
+msgstr "修飾キー"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Phrase expansions"
+msgstr "フレーズの展開"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Popup Menu"
+msgstr "ポップアップメニュー"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show a notification icon in the system tray or notification area"
+msgstr "システムトレイまたは通知領域に通知アイコンを表示する"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show main window when starting"
+msgstr "起動時にメインウィンドウを表示する"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Start using this interface:"
+msgstr "起動するインターフェース:"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "System tray icon"
+msgstr "システムトレイアイコン"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Used system tray icon theme:"
+msgstr "使用するシステムトレイアイコンのテーマ:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Key: (None)"
+msgstr "キー: (なし)"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Modifiers:"
+msgstr "修飾キー:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Record a key combination"
+msgstr "キーの組み合わせを記録"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&About AutoKey"
+msgstr "AutoKey について(&A)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Close Window"
+msgstr "ウィンドウを閉じる(&C)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Configure Shortcuts…"
+msgstr "ショートカットを設定(&C)…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Cut Item"
+msgstr "アイテムを切り取り(&T)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Delete"
+msgstr "削除(&D)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&F. A. Q."
+msgstr "よくある質問(&F)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Folder"
+msgstr "フォルダー(&F)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Insert Macro"
+msgstr "マクロを挿入(&I)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&New"
+msgstr "新規(&N)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Online Manual"
+msgstr "オンラインマニュアル(&O)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Paste Item"
+msgstr "アイテムを貼り付け(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Phrase"
+msgstr "フレーズ(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Quit"
+msgstr "終了(&Q)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Record Script"
+msgstr "スクリプトを記録(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Redo"
+msgstr "やり直し(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Report a Bug"
+msgstr "バグを報告(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Save"
+msgstr "保存(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Scripting Help"
+msgstr "スクリプトのヘルプ(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show Toolbar"
+msgstr "ツールバーを表示(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show recorded errors from Scripts"
+msgstr "スクリプトの記録されたエラーを表示(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Sub-folder"
+msgstr "サブフォルダー(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Undo"
+msgstr "元に戻す(&U)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "About &Qt"
+msgstr "Qt について(&Q)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&lone Item"
+msgstr "アイテムを複製(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&onfigure Toolbars…"
+msgstr "ツールバーを設定(&O)…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Close the AutoKey window"
+msgstr "AutoKey のウィンドウを閉じます"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Configure &AutoKey"
+msgstr "AutoKey を設定(&A)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy &Item"
+msgstr "アイテムをコピー(&I)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy the selected item(s)."
+msgstr "選択したアイテムをコピーします。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Phrase in the currently selected folder."
+msgstr "選択中のフォルダー内に新しいフレーズを作成します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Script in the currently selected folder."
+msgstr "選択中のフォルダー内に新しいスクリプトを作成します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new sub-folder in the currently selected folder."
+msgstr "選択中のフォルダー内に新しいサブフォルダーを作成します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new top level Folder anywhere in the file system."
+msgstr ""
+"ファイルシステム上の任意の場所に、新しい最上位のフォルダーを作成します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Cut the selected item(s)."
+msgstr "選択したアイテムを切り取ります。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Delete the selected items. Deleting folders also deletes the content."
+msgstr ""
+"選択したアイテムを削除します。フォルダーを削除すると、その中身も削除されま"
+"す。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Duplicate the selected item(s)."
+msgstr "選択したアイテムを複製します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Edi&t"
+msgstr "編集(&T)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Fi&le"
+msgstr "ファイル(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Hel&p"
+msgstr "ヘルプ(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Paste items from the clipboard into the currently selected folder."
+msgstr "クリップボードのアイテムを、選択中のフォルダーに貼り付けます。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Quit AutoKey"
+msgstr "AutoKey を終了します"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&ename"
+msgstr "名前の変更(&E)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&un Script"
+msgstr "スクリプトを実行(&U)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Redo the last undone change."
+msgstr "最後に取り消した変更をやり直します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Rename the first selected item."
+msgstr "選択した最初のアイテムの名前を変更します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Report a Bug on the GitHub issue tracker."
+msgstr "GitHub の issue トラッカーでバグを報告します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid ""
+"Run the currently opened Script. Execution start is delayed by two seconds."
+msgstr "現在開いているスクリプトを実行します。実行の開始は 2 秒遅れます。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "S&cript"
+msgstr "スクリプト(&C)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Save changes."
+msgstr "変更を保存します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Setti&ngs"
+msgstr "設定(&N)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show &log view"
+msgstr "ログビューを表示(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show recorded errors that occurred in recently-run Scripts."
+msgstr "最近実行したスクリプトで発生し、記録されたエラーを表示します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online FAQ."
+msgstr "オンラインの FAQ を表示します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online scripting Help and API documentation."
+msgstr "オンラインのスクリプトヘルプと API ドキュメントを表示します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "T&ools"
+msgstr "ツール(&O)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Undo the last change."
+msgstr "最後の変更を取り消します。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "toolBar"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Open the phrase in the default text editor."
+msgstr "既定のテキストエディターでフレーズを開きます。"
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Phrase Settings"
+msgstr "フレーズの設定"
+
+#: lib/autokey/qtui/resources/ui/record_dialog.ui
+msgid "Record a keyboard/mouse macro"
+msgstr "キーボードとマウスのマクロを記録"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Always prompt before running this script"
+msgstr "このスクリプトを実行する前に毎回確認する"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Open the script in the default text editor"
+msgstr "既定のテキストエディターでスクリプトを開きます"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Script Settings"
+msgstr "スクリプトの設定"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "ScriptPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingsdialog.ui
+msgid "Settings"
+msgstr "設定"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Add abbreviations and edit already assigned abbreviations"
+msgstr "略語を追加したり、割り当て済みの略語を編集したりします"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Assign a new hotkey"
+msgstr "新しいホットキーを割り当てます"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear all assigned abbreviations"
+msgstr "割り当てたすべての略語をクリアします"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the assigned hotkey"
+msgstr "割り当てたホットキーをクリアします"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the current window filter"
+msgstr "現在のウィンドウフィルターをクリアします"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear&"
+msgstr "クリア"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save"
+msgstr "保存"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save the previewed hotkey"
+msgstr "プレビュー中のホットキーを保存します"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid ""
+"Set a regular expression based window filter.\n"
+"If set, this item will only trigger, if the currently active window matches "
+"this filter."
+msgstr ""
+"正規表現によるウィンドウフィルターを設定します。\n"
+"設定すると、このアイテムは、アクティブなウィンドウがこのフィルターに一致する"
+"場合にのみ動作します。"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Set&"
+msgstr "設定"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid " / {}"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Currently showing error"
+msgstr "表示中のエラー"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the newest recorded script error."
+msgstr "記録された最新のスクリプトエラーを表示します。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the next recorded script error."
+msgstr "記録された次のスクリプトエラーを表示します。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the oldest recorded script error."
+msgstr "記録された最も古いスクリプトエラーを表示します。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the previous recorded script error."
+msgstr "記録された前のスクリプトエラーを表示します。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The error message, as returned by Python."
+msgstr "Python が返したエラーメッセージです。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The failing Script’s name is shown here."
+msgstr "失敗したスクリプトの名前がここに表示されます。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The name of the failed Script"
+msgstr "失敗したスクリプトの名前"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Clear"
+msgstr "クリア"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Hotkey: "
+msgstr "ホットキー: "
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Show configuration window using a hotkey"
+msgstr "ホットキーで設定ウィンドウを表示"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Toggle monitoring using a hotkey"
+msgstr "ホットキーで監視を切り替え"
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid ""
+"Enter a regular expression that matches the title of windows or the window "
+"class (WM_CLASS attribute) in which you want this item to trigger."
+msgstr ""
+"このアイテムを動作させたいウィンドウのタイトル、またはウィンドウクラス"
+"(WM_CLASS 属性)に一致する正規表現を入力してください。"
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid "Window title or class"
+msgstr "ウィンドウのタイトルまたはクラス"

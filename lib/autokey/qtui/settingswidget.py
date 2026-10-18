@@ -24,6 +24,7 @@ import autokey.model.helpers
 from autokey.model.triggermode import TriggerMode
 import autokey.model.modelTypes
 from autokey.iomediator.keygrabber import InlineKeyGrabber
+from autokey.i18n import _
 from autokey.qtui.common import inherits_from_ui_file_with_name
 from autokey import UI_common_functions as UI_common
 from autokey.qtui.dialogs import HotkeySettingsDialog, AbbrSettingsDialog, WindowFilterSettingsDialog
@@ -76,14 +77,14 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
     def _load_abbreviation_data(self, item: autokey.model.modelTypes.Item):
         self.abbr_settings_dialog.load(item)
         item_has_abbreviation = TriggerMode.ABBREVIATION in item.modes
-        self.abbreviation_label.setText(item.get_abbreviations() if item_has_abbreviation else "(None configured)")
+        self.abbreviation_label.setText(item.get_abbreviations() if item_has_abbreviation else _("(None configured)"))
         self.clear_abbreviation_button.setEnabled(item_has_abbreviation)
         self.abbreviation_enabled = item_has_abbreviation
 
     def _load_hotkey_data(self, item: autokey.model.modelTypes.Item):
         self.hotkey_settings_dialog.load(item)
         item_has_hotkey = TriggerMode.HOTKEY in item.modes
-        self.hotkey_label.setText(item.get_hotkey_string() if item_has_hotkey else "(None configured)")
+        self.hotkey_label.setText(item.get_hotkey_string() if item_has_hotkey else _("(None configured)"))
         self.clear_hotkey_button.setEnabled(item_has_hotkey)
         self.hotkey_enabled = item_has_hotkey
 
@@ -93,7 +94,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.window_filter_label.setText(
             UI_common.format_window_filter_label(
                 item.get_filter_regex(), item.get_applicable_filter_inverted())
-            if item_has_window_filter else "(None configured)")
+            if item_has_window_filter else _("(None configured)"))
         self.window_filter_enabled = item_has_window_filter
         self.clear_window_filter_button.setEnabled(item_has_window_filter)
 
@@ -160,15 +161,14 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
                 abbr, filter_expression, self.current_item, filter_inverted)
             if not unique:
                 f = conflicting.get_applicable_regex()
-                # TODO: i18n
                 if f is None:
-                    msg = "The abbreviation {abbreviation} is already in use by the {conflicting_item}.".format(
+                    msg = _("The abbreviation {abbreviation} is already in use by the {conflicting_item}.").format(
                             abbreviation=abbr,
                             conflicting_item=str(conflicting)
                             )
                 else:
-                    msg = "The abbreviation {abbreviation} is already in use by the {conflicting_item} " \
-                          "for windows matching '{matching_pattern}'.".format(
+                    msg = _("The abbreviation {abbreviation} is already in use by the {conflicting_item} "
+                            "for windows matching '{matching_pattern}'.").format(
                             abbreviation=abbr,
                             conflicting_item=str(conflicting),
                             matching_pattern=f.pattern
@@ -179,15 +179,14 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
             modifiers, key, filter_expression, self.current_item, filter_inverted)
         if not unique:
             f = conflicting.get_applicable_regex()
-            # TODO: i18n
             if f is None:
-                msg = "The hotkey '{hotkey}' is already in use by the {conflicting_item}.".format(
+                msg = _("The hotkey '{hotkey}' is already in use by the {conflicting_item}.").format(
                         hotkey=conflicting.get_hotkey_string(),
                         conflicting_item=str(conflicting)
                         )
             else:
-                msg = "The hotkey '{hotkey}' is already in use by the {conflicting_item} " \
-                      "for windows matching '{matching_pattern}.".format(
+                msg = _("The hotkey '{hotkey}' is already in use by the {conflicting_item} "
+                        "for windows matching '{matching_pattern}'.").format(
                         hotkey=conflicting.get_hotkey_string(),
                         conflicting_item=str(conflicting),
                         matching_pattern=f.pattern
@@ -220,7 +219,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.set_dirty()
         self.abbreviation_enabled = False
         self.clear_abbreviation_button.setEnabled(False)
-        self.abbreviation_label.setText("(None configured)")  # TODO: i18n
+        self.abbreviation_label.setText(_("(None configured)"))  # TODO: i18n
         self.abbr_settings_dialog.reset()
 
     def on_set_hotkey_button_pressed(self):
@@ -238,7 +237,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         self.set_dirty()
         self.hotkey_enabled = False
         self.clear_hotkey_button.setEnabled(False)
-        self.hotkey_label.setText("(None configured)")  # TODO: i18n
+        self.hotkey_label.setText(_("(None configured)"))  # TODO: i18n
         self.hotkey_settings_dialog.reset()
 
     def on_set_window_filter_button_pressed(self):
@@ -258,7 +257,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
                 if self.current_item.inherits_filter():
                     text = self.current_item.parent.get_child_filter()
                 else:
-                    text = "(None configured)"  # TODO: i18n
+                    text = _("(None configured)")
                 self.window_filter_label.setText(text)
 
     def on_clear_window_filter_button_pressed(self):
@@ -268,7 +267,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         if self.current_item.inherits_filter():
             text = self.current_item.parent.get_child_filter()
         else:
-            text = "(None configured)"  # TODO: i18n
+            text = _("(None configured)")
         self.window_filter_label.setText(text)
         self.window_filter_dialog.reset()
 
@@ -286,7 +285,7 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
 
     def _start_inline_hotkey_edit(self):
         self._inline_hotkey_preview = None
-        self.hotkey_edit.setText("Press a key or combination…")  # TODO: i18n
+        self.hotkey_edit.setText(_("Press a key or combination…"))
         # Left enabled even with nothing previewed yet: _save_inline_hotkey()
         # no-ops without a preview, and a disabled button can't take Qt focus
         # -- which Tab needs to be able to hand focus to it.
@@ -361,14 +360,14 @@ class SettingsWidget(*inherits_from_ui_file_with_name("settingswidget")):
         hotkey_string = self.current_item.get_hotkey_string(key, modifiers)
         f = conflicting.get_applicable_regex()
         if f is None:
-            msg = "The hotkey '{hotkey}' is already in use by {conflicting_item}.\n\nAssign it anyway?".format(
+            msg = _("The hotkey '{hotkey}' is already in use by {conflicting_item}.\n\nAssign it anyway?").format(
                 hotkey=hotkey_string, conflicting_item=str(conflicting))
         else:
-            msg = "The hotkey '{hotkey}' is already in use by {conflicting_item} " \
-                  "for windows matching '{matching_pattern}'.\n\nAssign it anyway?".format(
+            msg = _("The hotkey '{hotkey}' is already in use by {conflicting_item} "
+                    "for windows matching '{matching_pattern}'.\n\nAssign it anyway?").format(
                 hotkey=hotkey_string, conflicting_item=str(conflicting), matching_pattern=f.pattern)
         result = QMessageBox.question(
-            self.window(), "Hotkey conflict", msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)  # TODO: i18n
+            self.window(), _("Hotkey conflict"), msg, QMessageBox.Yes | QMessageBox.No, QMessageBox.No)
         return result == QMessageBox.Yes
 
     def _start_inline_window_filter_detect(self):

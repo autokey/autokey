@@ -7,21 +7,12 @@ from autokey import common
 
 import autokey.scripting
 
-import gettext
-# Defines "_" function for localisation
-gettext.install("autokey")
+from autokey.i18n import _
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 if common.USED_UI_TYPE == "QT":
     from PyQt5.QtWidgets import QAction
-
-    def _(text: str, args: tuple=None):
-        """localisation function, currently returns the identity. If args are given, those are used to format
-        text using the old-style % formatting."""
-        if args:
-            text = text % args
-        return text
 
     class MacroAction(QAction):
 

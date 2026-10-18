@@ -117,14 +117,14 @@
         </child>
         <child>
           <object class="GtkButton" id="clearAbbrButton">
-            <property name="label">gtk-clear</property>
+            <property name="label" translatable="yes">_Clear</property>
             <property name="use_action_appearance">False</property>
             <property name="width_request">80</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_action_appearance">False</property>
-            <property name="use_stock">True</property>
+            <property name="use_underline">True</property>
             <signal name="clicked" handler="on_clearAbbrButton_clicked" swapped="no"/>
           </object>
           <packing>
@@ -174,13 +174,13 @@
         </child>
         <child>
           <object class="GtkButton" id="clearHotkeyButton">
-            <property name="label">gtk-clear</property>
+            <property name="label" translatable="yes">_Clear</property>
             <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_action_appearance">False</property>
-            <property name="use_stock">True</property>
+            <property name="use_underline">True</property>
             <signal name="clicked" handler="on_clearHotkeyButton_clicked" swapped="no"/>
           </object>
           <packing>
@@ -194,13 +194,13 @@
         </child>
         <child>
           <object class="GtkButton" id="clearFilterButton">
-            <property name="label">gtk-clear</property>
+            <property name="label" translatable="yes">_Clear</property>
             <property name="use_action_appearance">False</property>
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="use_action_appearance">False</property>
-            <property name="use_stock">True</property>
+            <property name="use_underline">True</property>
             <signal name="clicked" handler="on_clearFilterButton_clicked" swapped="no"/>
           </object>
           <packing>

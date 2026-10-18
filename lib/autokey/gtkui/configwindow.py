@@ -51,6 +51,7 @@ import autokey.configmanager.configmanager_constants as cm_constants
 import autokey.iomediator.keygrabber
 from autokey import common
 from autokey import UI_common_functions as UI_common
+from autokey.i18n import _
 
 CONFIG_WINDOW_TITLE = "AutoKey"
 
@@ -212,8 +213,7 @@ class SettingsWidget:
             unique, conflicting = configManager.check_abbreviation_unique(
                 abbr, filterExpression, self.currentItem, filterInverted)
             if not unique:
-                ret.append(self.build_msg_for_item_in_use(conflicting,
-                                                     "abbreviation"))
+                ret.append(self.build_msg_for_item_in_use(conflicting, "abbreviation"))
 
         unique, conflicting = configManager.check_hotkey_unique(
             modifiers, key, filterExpression, self.currentItem, filterInverted)
@@ -248,11 +248,18 @@ class SettingsWidget:
         return abbreviations, modifiers, key, filterExpression, filterInverted
 
     def build_msg_for_item_in_use(self, conflicting, itemtype):
-        msg = _("The %s '%s' is already in use by the %s") % (itemtype, conflicting.get_hotkey_string(), str(conflicting))
         f = conflicting.get_applicable_regex()
-        if f is not None:
-            msg += _(" for windows matching '%s'.") % f.pattern
-        return msg
+        if itemtype == "abbreviation":
+            if f is None:
+                return _("The abbreviation '%s' is already in use by the %s") % (
+                    conflicting.get_hotkey_string(), str(conflicting))
+            return _("The abbreviation '%s' is already in use by the %s for windows matching '%s'.") % (
+                conflicting.get_hotkey_string(), str(conflicting), f.pattern)
+        if f is None:
+            return _("The hotkey '%s' is already in use by the %s") % (
+                conflicting.get_hotkey_string(), str(conflicting))
+        return _("The hotkey '%s' is already in use by the %s for windows matching '%s'.") % (
+            conflicting.get_hotkey_string(), str(conflicting), f.pattern)
 
 
     # ---- Signal handlers
@@ -664,7 +671,7 @@ class PhrasePage(ScriptPage):
         l = list(autokey.model.phrase.SEND_MODES.keys())
         l.sort()
         for val in l:
-            self.sendModeCombo.append_text(val)
+            self.sendModeCombo.append_text(_(val))
 
         # Configure script editor
         #self.__m = GtkSource.LanguageManager()
@@ -719,7 +726,8 @@ class PhrasePage(ScriptPage):
 
         self.currentItem.prompt = self.promptCheckbox.get_active()
         self.currentItem.show_in_tray_menu = self.showInTrayCheckbox.get_active()
-        self.currentItem.sendMode = autokey.model.phrase.SEND_MODES[self.sendModeCombo.get_active_text()]
+        self.currentItem.sendMode = autokey.model.phrase.SEND_MODES[
+            sorted(autokey.model.phrase.SEND_MODES.keys())[self.sendModeCombo.get_active()]]
 
         self.settingsWidget.save()
         self.currentItem.persist()
@@ -859,7 +867,8 @@ class ConfigWindow:
         self.uiManager.get_widget("/MenuBar/Edit/insert-macro").set_submenu(menu)
 
         # Toolbar 'create' button 
-        create = Gtk.MenuToolButton.new_from_stock(Gtk.STOCK_NEW)
+        create = Gtk.MenuToolButton.new(None, _("New"))
+        create.set_icon_name("document-new")
         create.show()
         create.set_is_important(True)
         create.connect("clicked", self.on_new_clicked)
@@ -1087,7 +1096,7 @@ class ConfigWindow:
             self.app.config_altered(True)
         elif response == Gtk.ResponseType.NONE:
             dlg.destroy()
-            name = self.__getNewItemName("Folder")
+            name = self.__getNewItemName(_("New Folder"), _("Create New Folder"))
             self.__createFolder(name, None)
             self.app.config_altered(True)
         else:
@@ -1102,7 +1111,7 @@ class ConfigWindow:
         return parentIter
 
     def on_new_folder(self, widget, data=None):
-        name = self.__getNewItemName("Folder")
+        name = self.__getNewItemName(_("New Folder"), _("Create New Folder"))
         if name is not None:
             theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
             parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
@@ -1127,8 +1136,8 @@ class ConfigWindow:
         self.treeView.get_selection().select_iter(item)
         self.on_tree_selection_changed(self.treeView)
 
-    def __getNewItemName(self, itemType):
-        dlg = RenameDialog(self.ui, "New %s" % itemType, True, _("Create New %s") % itemType)
+    def __getNewItemName(self, defaultName, title):
+        dlg = RenameDialog(self.ui, defaultName, True, title)
         dlg.set_image(Gtk.STOCK_NEW)
 
         if dlg.run() == 1:
@@ -1145,13 +1154,13 @@ class ConfigWindow:
         return None
 
     def on_new_phrase(self, widget, data=None):
-        name = self.__getNewItemName("Phrase")
+        name = self.__getNewItemName(_("New Phrase"), _("Create New Phrase"))
         if name is not None:
             newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=False)
             self.__expand_and_select_new_iter(newIter)
 
     def on_new_script(self, widget, data=None):
-        name = self.__getNewItemName("Script")
+        name = self.__getNewItemName(_("New Script"), _("Create New Script"))
         if name is not None:
             newIter = self.__add_new_scriptphrase(name, isScriptNotPhrase=True)
             self.__expand_and_select_new_iter(newIter)
@@ -1159,9 +1168,9 @@ class ConfigWindow:
     def __add_new_scriptphrase(self, name, isScriptNotPhrase=True):
         self.app.monitor.suspend()
         if isScriptNotPhrase:
-            scriptphrase = autokey.model.script.Script(name, "# Enter script code")
+            scriptphrase = autokey.model.script.Script(name, _("# Enter script code"))
         else:
-            scriptphrase = autokey.model.phrase.Phrase(name, "Enter phrase contents")
+            scriptphrase = autokey.model.phrase.Phrase(name, _("Enter phrase contents"))
         theModel, selectedPaths = self.treeView.get_selection().get_selected_rows()
         parentIter = self.__getRealParent(theModel[selectedPaths[0]].iter)
         newIter = theModel.append_item(scriptphrase, parentIter)

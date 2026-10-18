@@ -1,0 +1,1680 @@
+# Chinese (Simplified) translation of AutoKey.
+msgid ""
+msgstr ""
+"Project-Id-Version: AutoKey 0.97.0-beta.0\n"
+"Report-Msgid-Bugs-To: https://github.com/autokey/autokey/issues\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-10-18 00:00+0000\n"
+"Last-Translator: AutoKey contributors\n"
+"Language-Team: Chinese (Simplified)\n"
+"Language: zh_CN\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid " / "
+msgstr ""
+
+msgid "# Enter script code"
+msgstr "# 请输入脚本代码"
+
+msgid "#Enter script code"
+msgstr "#请输入脚本代码"
+
+msgid "$abbr"
+msgstr ""
+
+msgid "$filter"
+msgstr ""
+
+msgid "$hotkey"
+msgstr ""
+
+msgid ""
+"%1\n"
+"\n"
+"Your changes have not been saved."
+msgstr "%1\n\n您的更改尚未保存。"
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"Your changes have not been saved."
+msgstr "%s\n\n您的更改尚未保存。"
+
+msgid "&Enable Monitoring"
+msgstr "启用监控(&E)"
+
+msgid "&Show Main Window"
+msgstr "显示主窗口(&S)"
+
+msgid "&View script error"
+msgstr "查看脚本错误(&V)"
+
+msgid "(Default folder)"
+msgstr "(默认文件夹)"
+
+msgid "(None configured)"
+msgstr "(未设置)"
+
+msgid "(None)"
+msgstr "(无)"
+
+msgid "(Unsaved)"
+msgstr "(未保存)"
+
+msgid "(c) 2008-2011 Chris Dekter"
+msgstr ""
+
+msgid "<b>Application</b>"
+msgstr "<b>应用程序</b>"
+
+msgid "<b>Expansions</b>"
+msgstr "<b>展开</b>"
+
+msgid "<b>Folder Settings</b>"
+msgstr "<b>文件夹设置</b>"
+
+msgid "<b>Phrase Settings</b>"
+msgstr "<b>短语设置</b>"
+
+msgid "<b>Popup Menu</b>"
+msgstr "<b>弹出菜单</b>"
+
+msgid "<b>Properties of selected window</b>"
+msgstr "<b>所选窗口的属性</b>"
+
+msgid "<b>Property to use</b>"
+msgstr "<b>要使用的属性</b>"
+
+msgid "<b>Record a keyboard/mouse script</b>"
+msgstr "<b>录制键盘/鼠标脚本</b>"
+
+msgid "<b>Script Settings</b>"
+msgstr "<b>脚本设置</b>"
+
+msgid "<b>Show configuration window using a hotkey</b>"
+msgstr "<b>使用热键显示配置窗口</b>"
+
+msgid "<b>Toggle monitoring using a hotkey</b>"
+msgstr "<b>使用热键切换监控</b>"
+
+msgid "<b>UInput Devices</b>"
+msgstr "<b>UInput 设备</b>"
+
+msgid "<b>User Module Folder</b>"
+msgstr "<b>用户模块文件夹</b>"
+
+msgid "A desktop automation utility for Linux and X11."
+msgstr "适用于 Linux 和 X11 的桌面自动化工具。"
+
+msgid "Abbr."
+msgstr "缩写"
+
+msgid "Abbreviations"
+msgstr "缩写"
+
+msgid "Abbreviations:"
+msgstr "缩写:"
+
+msgid "About AutoKey"
+msgstr "关于 AutoKey"
+
+msgid "Accept any typed abbreviation case"
+msgstr "接受任意大小写的缩写输入"
+
+msgid "Additional options"
+msgstr "其他选项"
+
+msgid "All non-word"
+msgstr "所有非单词字符"
+
+msgid "Allow keyboard navigation of popup menu"
+msgstr "允许使用键盘操作弹出菜单"
+
+msgid "Alt GR"
+msgstr "Alt GR"
+
+msgid "Always prompt before executing this script"
+msgstr "执行此脚本前始终提示"
+
+msgid "Always prompt before pasting this phrase"
+msgstr "粘贴此短语前始终提示"
+
+msgid ""
+"Any Python modules placed in this folder will be available for\n"
+"import by scripts."
+msgstr "放在此文件夹中的 Python 模块\n可供脚本导入。"
+
+msgid "Apply recursively to subfolders and items"
+msgstr "递归应用到子文件夹和项目"
+
+#, python-brace-format
+msgid "Are you sure you want to delete '{element}'?"
+msgstr "确定要删除“{element}”吗?"
+
+#, python-format
+msgid "Are you sure you want to delete the %d selected items?"
+msgstr "确定要删除所选的 %d 个项目吗?"
+
+#, python-format
+msgid "Are you sure you want to delete the %s and all the items in it?"
+msgstr "确定要删除 %s 及其中的所有项目吗?"
+
+#, python-format
+msgid "Are you sure you want to delete the %s?"
+msgstr "确定要删除 %s 吗?"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the '{deleted_folder}' folder and all the "
+"items in it?"
+msgstr "确定要删除文件夹“{deleted_folder}”及其中的所有项目吗?"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the {item_count} selected folders/items?"
+msgstr "确定要删除所选的 {item_count} 个文件夹或项目吗?"
+
+msgid "Arguments (comma separated)"
+msgstr "参数(以逗号分隔)"
+
+msgid "AutoKey"
+msgstr ""
+
+msgid "AutoKey - Configuration"
+msgstr "AutoKey - 配置"
+
+msgid "AutoKey - Preferences"
+msgstr "AutoKey - 首选项"
+
+msgid "AutoKey - paused"
+msgstr "AutoKey - 已暂停"
+
+msgid "AutoKey - running"
+msgstr "AutoKey - 运行中"
+
+msgid ""
+"AutoKey Requires the following programs or python modules to be installed to "
+"function properly\n"
+"\n"
+msgstr "AutoKey 需要安装以下程序或 Python 模块才能正常运行\n\n"
+
+msgid "AutoKey System Configuration Needed"
+msgstr "需要为 AutoKey 配置系统"
+
+#, python-brace-format
+msgid ""
+"AutoKey does not support the \"{dte}\" desktop environment on a system that "
+"uses the Wayland window manager like this one. The \"{dte}\" desktop "
+"environment is supported under X11, but not here under Wayland.  Future "
+"development may remove this restriction, please stay tuned."
+msgstr "在使用 Wayland 窗口管理器的系统(如当前系统)上,AutoKey 不支持“{dte}”桌面环境。“{dte}”桌面环境在 X11 下受支持,但在 Wayland 下不受支持。今后的开发可能会取消这一限制,敬请关注。"
+
+msgid "AutoKey is already running as pid {} but is not responding"
+msgstr "AutoKey 已在以 pid {} 运行,但没有响应"
+
+msgid ""
+"AutoKey will now take exclusive use of the keyboard.\n"
+"\n"
+"Click the mouse anywhere to release the keyboard when you are done."
+msgstr "AutoKey 现在将独占键盘。\n\n完成后,在任意位置单击鼠标即可释放键盘。"
+
+msgid ""
+"AutoKey will take the full ownership of the directory you are about to "
+"select or create. It is advisable to only choose empty directories or "
+"directories that contain data created by AutoKey previously.\n"
+"\n"
+"If you delete or move the directory from within AutoKey (for example by "
+"using drag and drop), all files unknown to AutoKey will be deleted."
+msgstr "AutoKey 将完全接管您即将选择或创建的目录。建议只选择空目录,或之前由 AutoKey 创建过数据的目录。\n\n如果在 AutoKey 中删除或移动该目录(例如通过拖放),所有 AutoKey 不认识的文件都将被删除。"
+
+msgid "Automatically save changes without confirmation"
+msgstr "无需确认,自动保存更改"
+
+msgid "Automatically start AutoKey at login"
+msgstr "登录时自动启动 AutoKey"
+
+msgid "Beware"
+msgstr "注意"
+
+msgid "C_lone Item"
+msgstr "克隆项目(_L)"
+
+msgid "Choose a directory containing Python modules"
+msgstr "选择包含 Python 模块的目录"
+
+msgid "Clear Log"
+msgstr "清除日志"
+
+msgid "Clear the whole error list and close this window"
+msgstr "清空整个错误列表并关闭此窗口"
+
+msgid "Clipboard (Ctrl+Shift+V)"
+msgstr "剪贴板 (Ctrl+Shift+V)"
+
+msgid "Clipboard (Ctrl+V)"
+msgstr "剪贴板 (Ctrl+V)"
+
+msgid "Clipboard (Shift+Insert)"
+msgstr "剪贴板 (Shift+Insert)"
+
+msgid "Clone the selected item"
+msgstr "克隆所选项目"
+
+msgid "Close the configuration window"
+msgstr "关闭配置窗口"
+
+msgid "Close this window, keeping all error records."
+msgstr "关闭此窗口,保留所有错误记录。"
+
+msgid "Command to be executed (including any arguments) - e.g. 'ls -l'"
+msgstr "要执行的命令(包括所有参数)- 例如“ls -l”"
+
+msgid "Completely exit AutoKey"
+msgstr "完全退出 AutoKey"
+
+msgid "Copy the selected item"
+msgstr "复制所选项目"
+
+msgid "Crashed Script name:"
+msgstr "崩溃的脚本名称:"
+
+msgid "Create Folder"
+msgstr "创建文件夹"
+
+msgid "Create New Folder"
+msgstr "创建新文件夹"
+
+msgid "Create New Phrase"
+msgstr "创建新短语"
+
+msgid "Create New Script"
+msgstr "创建新脚本"
+
+msgid "Create a new folder in the current folder"
+msgstr "在当前文件夹中创建新文件夹"
+
+msgid "Create a new phrase in the current folder"
+msgstr "在当前文件夹中创建新短语"
+
+msgid "Create a new script in the current folder"
+msgstr "在当前文件夹中创建新脚本"
+
+msgid "Create a new top-level folder"
+msgstr "创建新的顶级文件夹"
+
+msgid "Create elsewhere"
+msgstr "在其他位置创建"
+
+msgid "Create folder in the default location?"
+msgstr "在默认位置创建文件夹吗?"
+
+msgid "Cu_t Item"
+msgstr "剪切项目(_T)"
+
+msgid "Currently showing error: "
+msgstr "当前显示的错误: "
+
+msgid "Cut the selected item"
+msgstr "剪切所选项目"
+
+msgid "Dark"
+msgstr "深色"
+
+msgid "Delete"
+msgstr "删除"
+
+msgid "Delete Folder?"
+msgstr "删除文件夹?"
+
+msgid "Delete Phrase?"
+msgstr "删除短语?"
+
+msgid "Delete Script?"
+msgstr "删除脚本?"
+
+msgid "Delete the currently shown error record"
+msgstr "删除当前显示的错误记录"
+
+msgid "Delete the selected item"
+msgstr "删除所选项目"
+
+#, python-brace-format
+msgid "Delete {item_count} selected items?"
+msgstr "删除所选的 {item_count} 个项目吗?"
+
+msgid "Desktop automation utility"
+msgstr "桌面自动化工具"
+
+msgid "Detect Window Properties"
+msgstr "检测窗口属性"
+
+msgid "Disable handling of the Capslock key"
+msgstr "禁用对大写锁定键的处理"
+
+msgid "Display Frequently Asked Questions"
+msgstr "显示常见问题"
+
+msgid "Display Online Help"
+msgstr "显示在线帮助"
+
+msgid "Display Scripting API"
+msgstr "显示脚本 API"
+
+msgid "Drop all unsaved changes to current item"
+msgstr "放弃当前项目的所有未保存更改"
+
+msgid "Enable Expansions"
+msgstr "启用展开"
+
+msgid "Enable undo by pressing backspace"
+msgstr "允许按退格键撤销"
+
+msgid "Enter a new name:"
+msgstr "输入新名称:"
+
+msgid "Enter phrase contents"
+msgstr "请输入短语内容"
+
+msgid "Error"
+msgstr "错误"
+
+msgid "Error occured at:"
+msgstr "错误发生时间:"
+
+msgid "Exit AutoKey"
+msgstr "退出 AutoKey"
+
+msgid "Fatal error starting AutoKey."
+msgstr "启动 AutoKey 时发生严重错误。"
+
+msgid "Fatal error starting AutoKey.\n"
+msgstr "启动 AutoKey 时发生严重错误。\n"
+
+msgid "File name"
+msgstr "文件名"
+
+msgid "First"
+msgstr "第一个"
+
+msgid "Format"
+msgstr "格式"
+
+msgid "GTKSource Theme (requires restart):"
+msgstr "GTKSource 主题(需要重启):"
+
+msgid "General"
+msgstr "常规"
+
+msgid "Hotkey"
+msgstr "热键"
+
+msgid "Hotkey conflict"
+msgstr "热键冲突"
+
+msgid "Hotkey:"
+msgstr "热键:"
+
+msgid "Insert Macro"
+msgstr "插入宏"
+
+msgid "Insert a phrase macro"
+msgstr "插入短语宏"
+
+msgid "Insert clipboard contents"
+msgstr "插入剪贴板内容"
+
+msgid "Insert date"
+msgstr "插入日期"
+
+msgid "Insert file contents"
+msgstr "插入文件内容"
+
+msgid "Invert: trigger in all windows EXCEPT those matching"
+msgstr "反向:在所有不匹配的窗口中触发"
+
+msgid "Key: "
+msgstr "按键: "
+
+msgid "Key: %s"
+msgstr "按键: %s"
+
+msgid "Key: {}"
+msgstr "按键: {}"
+
+msgid "Keyboard"
+msgstr "键盘"
+
+msgid "Keyboard:"
+msgstr "键盘:"
+
+msgid "Last"
+msgstr "最后一个"
+
+msgid "Left Alt"
+msgstr "左 Alt"
+
+msgid "Left Control"
+msgstr "左 Control"
+
+msgid "Left Hyper"
+msgstr "左 Hyper"
+
+msgid "Left Meta"
+msgstr "左 Meta"
+
+msgid "Left Shift"
+msgstr "左 Shift"
+
+msgid "Left Super"
+msgstr "左 Super"
+
+msgid "Light"
+msgstr "浅色"
+
+msgid "Match output case to typed abbreviation case"
+msgstr "使输出的大小写与输入的缩写一致"
+
+msgid "Mouse Selection"
+msgstr "鼠标选择"
+
+msgid "Mouse:"
+msgstr "鼠标:"
+
+msgid "Name"
+msgstr "名称"
+
+msgid "New"
+msgstr "新建"
+
+msgid "New Folder"
+msgstr "新建文件夹"
+
+msgid "New Phrase"
+msgstr "新建短语"
+
+msgid "New Script"
+msgstr "新建脚本"
+
+msgid "New…"
+msgstr "新建…"
+
+msgid "Next"
+msgstr "下一个"
+
+msgid "No error information available"
+msgstr "没有可用的错误信息"
+
+msgid ""
+"No window click was detected within {:.0f} seconds.\n"
+"\n"
+"On Wayland, AutoKey observes clicks via the uinput/evdev path and reads the "
+"focused window afterwards (GNOME Shell extension or KWin). If detection "
+"keeps failing:\n"
+"• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin scripting "
+"works (KDE)\n"
+"• Click a normal application window (not the overview/lock screen)\n"
+"\n"
+"You can still type a window class/title regex manually."
+msgstr "在 {:.0f} 秒内未检测到窗口点击。\n\n在 Wayland 下,AutoKey 通过 uinput/evdev 路径观察点击,随后读取获得焦点的窗口(GNOME Shell 扩展或 KWin)。如果持续检测失败:\n• 请确认已启用 AutoKey 的 GNOME 扩展(GNOME),或 KWin 脚本可以正常工作(KDE)\n• 请点击普通的应用程序窗口(不要点击活动概览或锁屏界面)\n\n您仍然可以手动输入窗口类或标题的正则表达式。"
+
+msgid ""
+"No window click was detected within {:.0f} seconds. On Wayland, clicks are "
+"observed via uinput/evdev and the focused window is read afterwards. You can "
+"still enter a window class/title regex manually."
+msgstr "在 {:.0f} 秒内未检测到窗口点击。在 Wayland 下,点击通过 uinput/evdev 观察,随后读取获得焦点的窗口。您仍然可以手动输入窗口类或标题的正则表达式。"
+
+msgid "Notification icon style (requires restart):"
+msgstr "通知图标样式(需要重启):"
+
+msgid "Omit trigger character"
+msgstr "省略触发字符"
+
+msgid "Online _Help"
+msgstr "在线帮助(_H)"
+
+msgid "Open"
+msgstr "打开"
+
+msgid "Paste the last cut/copied item"
+msgstr "粘贴最近剪切或复制的项目"
+
+msgid "Paste using"
+msgstr "粘贴方式"
+
+msgid ""
+"Pause the phrase expansion and script execution, both by abbreviations and "
+"hotkeys.\n"
+"The global hotkeys to show the main window and to toggle this setting, as "
+"defined in the AutoKey settings, are not affected and will work regardless."
+msgstr "暂停通过缩写和热键触发的短语展开与脚本执行。\n在 AutoKey 设置中定义的用于显示主窗口和切换此设置的全局热键不受影响,仍可正常使用。"
+
+msgid "Position cursor"
+msgstr "定位光标"
+
+msgid "Press a key or combination..."
+msgstr "请按下一个键或组合键..."
+
+msgid "Press a key or combination…"
+msgstr "请按下一个键或组合键…"
+
+msgid "Press a key..."
+msgstr "请按下一个键..."
+
+msgid "Press to Set"
+msgstr "按下以设置"
+
+msgid "Previous"
+msgstr "上一个"
+
+msgid "Programs"
+msgstr "程序"
+
+msgid "Python Modules"
+msgstr "Python 模块"
+
+msgid "R_ecord keyboard/mouse"
+msgstr "录制键盘/鼠标(_E)"
+
+msgid "Record Keystrokes"
+msgstr "录制按键"
+
+msgid "Record Script"
+msgstr "录制脚本"
+
+msgid "Record keyboard events"
+msgstr "录制键盘事件"
+
+msgid "Record keyboard/mouse actions"
+msgstr "录制键盘和鼠标操作"
+
+msgid "Record mouse events (experimental)"
+msgstr "录制鼠标事件(实验性)"
+
+msgid "Redo the last undone edit"
+msgstr "重做上一次撤销的编辑"
+
+msgid "Regular expression to match the title or class of windows"
+msgstr "用于匹配窗口标题或类的正则表达式"
+
+msgid "Regular expression to match:"
+msgstr "要匹配的正则表达式:"
+
+msgid "Remove icon"
+msgstr "移除图标"
+
+msgid "Remove typed abbreviation"
+msgstr "删除已输入的缩写"
+
+#, python-format
+msgid "Rename '%s'"
+msgstr "重命名“%s”"
+
+msgid "Rename the selected item"
+msgstr "重命名所选项目"
+
+msgid "Report a Bug"
+msgstr "报告错误"
+
+msgid "Right Alt"
+msgstr "右 Alt"
+
+msgid "Right Control"
+msgstr "右 Control"
+
+msgid "Right Hyper"
+msgstr "右 Hyper"
+
+msgid "Right Meta"
+msgstr "右 Meta"
+
+msgid "Right Shift"
+msgstr "右 Shift"
+
+msgid "Right Super"
+msgstr "右 Super"
+
+msgid "Run script"
+msgstr "运行脚本"
+
+msgid "Run system command"
+msgstr "运行系统命令"
+
+msgid "Run the currently selected script"
+msgstr "运行当前所选脚本"
+
+msgid "Save Log As…"
+msgstr "日志另存为…"
+
+msgid "Save changes to current item"
+msgstr "保存对当前项目的更改"
+
+msgid "Save changes?"
+msgstr "保存更改吗?"
+
+msgid "Save log file"
+msgstr "保存日志文件"
+
+msgid "Scrip_t"
+msgstr "脚本(_T)"
+
+msgid "Script Engine"
+msgstr "脚本引擎"
+
+msgid "Script start time:"
+msgstr "脚本开始时间:"
+
+msgid "Script was triggered by:"
+msgstr "脚本的触发方式:"
+
+msgid "Select A Folder"
+msgstr "选择文件夹"
+
+msgid "Set"
+msgstr "设置"
+
+msgid "Set Abbreviations"
+msgstr "设置缩写"
+
+msgid "Set Hotkey"
+msgstr "设置热键"
+
+msgid "Set Window Filter"
+msgstr "设置窗口过滤器"
+
+msgid "Show Main Window"
+msgstr "显示主窗口"
+
+msgid "Show a notification icon"
+msgstr "显示通知图标"
+
+msgid "Show in notification icon menu"
+msgstr "在通知图标菜单中显示"
+
+msgid "Show program information"
+msgstr "显示程序信息"
+
+msgid "Show recorded errors from Scripts"
+msgstr "显示脚本记录的错误"
+
+msgid ""
+"Show the main AutoKey window. This does the same as left clicking the tray "
+"icon."
+msgstr "显示 AutoKey 主窗口。效果与左键单击托盘图标相同。"
+
+msgid "Show the newest recorded script error"
+msgstr "显示最新记录的脚本错误"
+
+msgid "Show the next recorded script error"
+msgstr "显示下一个记录的脚本错误"
+
+msgid "Show the oldest recorded script error"
+msgstr "显示最早记录的脚本错误"
+
+msgid "Show the previous recorded script error"
+msgstr "显示上一个记录的脚本错误"
+
+msgid "Show/hide the toolbar"
+msgstr "显示/隐藏工具栏"
+
+msgid ""
+"Shown below are the recorded errors that occurred in Scripts run by AutoKey "
+"during this session."
+msgstr "下面列出了本次会话中 AutoKey 运行的脚本所记录的错误。"
+
+msgid "Some problems were found"
+msgstr "发现了一些问题"
+
+msgid "Sort menu items with most frequently used first"
+msgstr "将最常用的菜单项排在前面"
+
+msgid "Space and Enter"
+msgstr "空格和回车"
+
+msgid "Special Hotkeys"
+msgstr "特殊热键"
+
+msgid "Start recording after"
+msgstr "开始录制前等待"
+
+msgid "Subf_older"
+msgstr "子文件夹(_O)"
+
+msgid "Tab"
+msgstr "Tab 键"
+
+msgid "Temporarily &Hide Icon"
+msgstr "暂时隐藏图标(&H)"
+
+msgid ""
+"Temporarily hide the system tray icon.\n"
+"Use the settings to hide it permanently."
+msgstr "暂时隐藏系统托盘图标。\n如需永久隐藏,请在设置中更改。"
+
+msgid "The Python Stacktrace:"
+msgstr "Python 堆栈跟踪:"
+
+#, python-format
+msgid "The abbreviation '%s' is already in use by the %s"
+msgstr "缩写“%s”已被 %s 使用"
+
+#, python-format
+msgid ""
+"The abbreviation '%s' is already in use by the %s for windows matching '%s'."
+msgstr "缩写“%s”已被 %s 用于匹配“%s”的窗口。"
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item} "
+"for windows matching '{matching_pattern}'."
+msgstr "缩写 {abbreviation} 已被 {conflicting_item} 用于匹配“{matching_pattern}”的窗口。"
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item}."
+msgstr "缩写 {abbreviation} 已被 {conflicting_item} 使用。"
+
+msgid "The chosen directory already contains files"
+msgstr "所选目录中已有文件"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s"
+msgstr "热键“%s”已被 %s 使用"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s for windows matching '%s'."
+msgstr "热键“%s”已被 %s 用于匹配“%s”的窗口。"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by the {conflicting_item} for "
+"windows matching '{matching_pattern}'."
+msgstr "热键“{hotkey}”已被 {conflicting_item} 用于匹配“{matching_pattern}”的窗口。"
+
+#, python-brace-format
+msgid "The hotkey '{hotkey}' is already in use by the {conflicting_item}."
+msgstr "热键“{hotkey}”已被 {conflicting_item} 使用。"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item} for windows "
+"matching '{matching_pattern}'.\n"
+"\n"
+"Assign it anyway?"
+msgstr "热键“{hotkey}”已被 {conflicting_item} 用于匹配“{matching_pattern}”的窗口。\n\n仍要分配吗?"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item}.\n"
+"\n"
+"Assign it anyway?"
+msgstr "热键“{hotkey}”已被 {conflicting_item} 使用。\n\n仍要分配吗?"
+
+#, python-format
+msgid "The hotkey is already in use for %s."
+msgstr "该热键已被用于 %s。"
+
+msgid "The name can't be empty"
+msgstr "名称不能为空"
+
+msgid "The name can't be empty."
+msgstr "名称不能为空。"
+
+msgid "The name of the failed Script."
+msgstr "失败脚本的名称。"
+
+msgid "The phrase content can't be empty"
+msgstr "短语内容不能为空"
+
+msgid "The script '{}' encountered an error"
+msgstr "脚本“{}”遇到错误"
+
+msgid "The script code can't be empty"
+msgstr "脚本代码不能为空"
+
+msgid ""
+"The selected directory already contains files. If you continue, AutoKey will "
+"take the ownership.\n"
+"\n"
+"You may lose all files in '{}' that are not related to AutoKey if you select "
+"this directory.\n"
+"Continue?"
+msgstr "所选目录中已有文件。如果继续,AutoKey 将接管该目录。\n\n如果选择此目录,“{}”中所有与 AutoKey 无关的文件可能会丢失。\n要继续吗?"
+
+msgid "There are unsaved changes. Would you like to save them?"
+msgstr "有未保存的更改。要保存吗?"
+
+msgid "Timestamp at which the Script execution started"
+msgstr "脚本开始执行的时间"
+
+msgid "Timestamp at which the error occured"
+msgstr "错误发生的时间"
+
+msgid "Trigger immediately (don't require a trigger character)"
+msgstr "立即触发(无需触发字符)"
+
+msgid "Trigger menu item by first initial"
+msgstr "按首字母触发菜单项"
+
+msgid "Trigger on:"
+msgstr "触发条件:"
+
+msgid "Trigger when typed as part of a word"
+msgstr "作为单词的一部分输入时也触发"
+
+msgid ""
+"Type a new abbreviation in the entry and press Enter to add it to the list. "
+"Then click OK."
+msgstr "在输入框中输入新的缩写,然后按回车将其添加到列表中。最后单击“确定”。"
+
+msgid "UInput Keystroke Delay (ms):"
+msgstr "UInput 按键延迟(毫秒):"
+
+msgid "Undo the last edit"
+msgstr "撤销上一次编辑"
+
+msgid "Universal:"
+msgstr "通用:"
+
+msgid "Unsupported Desktop Environment"
+msgstr "不支持的桌面环境"
+
+msgid "Update name on file system"
+msgstr "同时更新文件系统中的名称"
+
+msgid "Use Default"
+msgstr "使用默认值"
+
+msgid "Vie_w script error"
+msgstr "查看脚本错误(_W)"
+
+msgid "View script error"
+msgstr "查看脚本错误"
+
+msgid "View script error information"
+msgstr "查看脚本错误信息"
+
+msgid "View the last script error."
+msgstr "查看最近一次脚本错误。"
+
+msgid "Where should the folder be created?"
+msgstr "要在哪里创建该文件夹?"
+
+msgid "Window Filter:"
+msgstr "窗口过滤器:"
+
+msgid "Window class (entire application)"
+msgstr "窗口类(整个应用程序)"
+
+#, python-format
+msgid "Window class: %s"
+msgstr "窗口类: %s"
+
+msgid "Window detection timed out"
+msgstr "窗口检测超时"
+
+msgid "Window title"
+msgstr "窗口标题"
+
+#, python-format
+msgid "Window title: %s"
+msgstr "窗口标题: %s"
+
+msgid "You must specify a key for the hotkey."
+msgstr "必须为热键指定一个按键。"
+
+msgid "You must specify at least one abbreviation"
+msgstr "必须至少指定一个缩写"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering these two commands, then "
+"rebooting:"
+msgstr "您的用户 ID 尚未配置为可在 Wayland 下运行 AutoKey。如果这是您<b>第一次</b>运行 AutoKey,请尝试<b>重启</b>系统,然后再次启动 AutoKey。否则,请尝试输入以下两条命令,然后重启:"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering this command, then "
+"rebooting:"
+msgstr "您的用户 ID 尚未配置为可在 Wayland 下运行 AutoKey。如果这是您<b>第一次</b>运行 AutoKey,请尝试<b>重启</b>系统,然后再次启动 AutoKey。否则,请尝试输入以下命令,然后重启:"
+
+msgid "_Add"
+msgstr "添加(_A)"
+
+msgid "_Cancel"
+msgstr "取消(_C)"
+
+msgid "_Clear"
+msgstr "清除(_C)"
+
+msgid "_Close"
+msgstr "关闭(_C)"
+
+msgid "_Close window"
+msgstr "关闭窗口(_C)"
+
+msgid "_Copy Item"
+msgstr "复制项目(_C)"
+
+msgid "_Delete"
+msgstr "删除(_D)"
+
+msgid "_Delete Item"
+msgstr "删除项目(_D)"
+
+msgid "_Edit"
+msgstr "编辑(_E)"
+
+msgid "_F.A.Q."
+msgstr "常见问题(_F)"
+
+msgid "_File"
+msgstr "文件(_F)"
+
+msgid "_Folder"
+msgstr "文件夹(_F)"
+
+msgid "_Help"
+msgstr "帮助(_H)"
+
+msgid "_Insert Macro"
+msgstr "插入宏(_I)"
+
+msgid "_OK"
+msgstr "确定(_O)"
+
+msgid "_Paste Item"
+msgstr "粘贴项目(_P)"
+
+msgid "_Phrase"
+msgstr "短语(_P)"
+
+msgid "_Preferences"
+msgstr "首选项(_P)"
+
+msgid "_Quit"
+msgstr "退出(_Q)"
+
+msgid "_Redo"
+msgstr "重做(_R)"
+
+msgid "_Remove"
+msgstr "移除(_R)"
+
+msgid "_Rename"
+msgstr "重命名(_R)"
+
+msgid "_Revert"
+msgstr "还原(_R)"
+
+msgid "_Run current script"
+msgstr "运行当前脚本(_R)"
+
+msgid "_Save"
+msgstr "保存(_S)"
+
+msgid "_Scripting Help"
+msgstr "脚本帮助(_S)"
+
+msgid "_Show Toolbar"
+msgstr "显示工具栏(_S)"
+
+msgid "_Tools"
+msgstr "工具(_T)"
+
+msgid "_Undo"
+msgstr "撤销(_U)"
+
+msgid "label"
+msgstr ""
+
+msgid "seconds"
+msgstr "秒"
+
+msgid "{}"
+msgstr ""
+
+msgid ""
+"{}\n"
+"\n"
+"Your changes have not been saved."
+msgstr "{}\n\n您的更改尚未保存。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Add a new abbreviation."
+msgstr "添加新的缩写。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"Add, delete or edit abbreviations. Existing abbreviations in the list on the "
+"left can be edited.\n"
+"After typing a new abbreviation or editing an existing one, press <Enter> "
+"or\n"
+"click somewhere in the left list to submit it."
+msgstr "添加、删除或编辑缩写。左侧列表中的现有缩写可以直接编辑。\n输入新缩写或编辑现有缩写后,按 <Enter> 键,\n或在左侧列表中单击其他位置以确认。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Delete the selected abbreviation."
+msgstr "删除所选缩写。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"If checked, the typed abbreviation text is deleted before phrase expansion "
+"or script execution.\n"
+"If unchecked, the abbreviation text is kept."
+msgstr "选中后,在展开短语或执行脚本之前会删除已输入的缩写文本。\n未选中时,缩写文本将保留。"
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"These abbreviations are already assigned. After editing, press <Enter> or "
+"select another element to save."
+msgstr "这些缩写已被分配。编辑后,按 <Enter> 键或选择其他元素即可保存。"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;"
+"\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p>AutoKey is a desktop automation utility for Linux and "
+"X11.</p><p>Website: <a href=\"https://github.com/autokey/autokey\"><span "
+"style=\" text-decoration: underline; color:#2980b9;\">AutoKey on GitHub</"
+"span></a></p></body></html>"
+msgstr "<html><head/><body><p>AutoKey 是适用于 Linux 和 X11 的桌面自动化工具。</p><p>网站: <a href=\"https://github.com/autokey/autokey\"><span style=\" text-decoration: underline; color:#2980b9;\">GitHub 上的 AutoKey</span></a></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "About"
+msgstr "关于"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "License"
+msgstr "许可证"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Python Version:"
+msgstr "Python 版本:"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "TextLabel"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Version:"
+msgstr "版本:"
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Form"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+msgid "Search name, abbr. and hotkey…"
+msgstr "搜索名称、缩写和热键…"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &class (entire application)"
+msgstr "窗口类(整个应用程序)(&C)"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &title"
+msgstr "窗口标题(&T)"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window Information"
+msgstr "窗口信息"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window class:"
+msgstr "窗口类:"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window information of selected window"
+msgstr "所选窗口的信息"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window property selection"
+msgstr "窗口属性选择"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window title: "
+msgstr "窗口标题: "
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-style:italic;\">Technical "
+"information</span>: This places the selected directory on the Python module "
+"search path.</p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-style:italic;\">技术信息</span>: 这会将所选目录加入 Python 模块搜索路径。</p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"Any Python modules and packages placed in this folder will be available for "
+"import by scripts."
+msgstr "放在此文件夹中的 Python 模块和包可供脚本导入。"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Browse"
+msgstr "浏览"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Clear selection"
+msgstr "清除选择"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Currently selected:"
+msgstr "当前所选:"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "None selected"
+msgstr "未选择"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "User Module Folder"
+msgstr "用户模块文件夹"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Folder Settings"
+msgstr "文件夹设置"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "FolderPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Open the folder in the default file manager"
+msgstr "在默认文件管理器中打开该文件夹"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"<html><head/><body><p>Enabling this option places a <span style=\" font-"
+"weight:600;\">autokey.desktop</span> file into the autostart folder inside "
+"the user folder. It can be found in  <a href=\"file://$XDG_CONFIG_HOME/"
+"autostart\"><span style=\" text-decoration: underline; color:#2980b9;"
+"\">$XDG_CONFIG_HOME/autostart</span></a>. </p></body></html>"
+msgstr "<html><head/><body><p>启用此选项会在用户文件夹内的自动启动文件夹中放置一个 <span style=\" font-weight:600;\">autokey.desktop</span> 文件。该文件位于  <a href=\"file://$XDG_CONFIG_HOME/autostart\"><span style=\" text-decoration: underline; color:#2980b9;\">$XDG_CONFIG_HOME/autostart</span></a>。 </p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "A&utomatically start AutoKey after login"
+msgstr "登录后自动启动 AutoKey(&U)"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Application"
+msgstr "应用程序"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Choose between a light and a dark icon theme."
+msgstr "在浅色和深色图标主题之间选择。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Choose which GUI should be starting. Only available if both the Qt and GTK+ "
+"GUIs are installed."
+msgstr "选择要启动的图形界面。仅当同时安装了 Qt 和 GTK+ 界面时可用。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Disable handling of the Capslock key."
+msgstr "禁用对大写锁定键的处理。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable this, if you remapped the Capslock key to be something else, like "
+"Ctrl.\n"
+"This will prevent any special handling for this key."
+msgstr "如果您已将大写锁定键重新映射为其他按键(如 Ctrl),请启用此项。\n这样将不再对该键做任何特殊处理。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Enable to automatically start AutoKey after logging in."
+msgstr "启用后,登录后会自动启动 AutoKey。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable undoing Phrase expansions using the backspace key\n"
+"\n"
+"Undo only works if the Phrase does not contain any special keys.\n"
+"AutoKey will refuse to perform an undo of a Phrase containing any such "
+"keys,\n"
+"regardless of this setting."
+msgstr "允许使用退格键撤销短语展开\n\n仅当短语不包含任何特殊按键时,撤销才有效。\n无论此设置如何,AutoKey 都不会撤销包含特殊按键的短语。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enabling this places an icon in the desktop system tray or notification "
+"area.\n"
+"The icon can be used to show the main window.\n"
+"It also provides access to scripts and phrases marked for display in the "
+"tray icon context menu."
+msgstr "启用后,会在桌面系统托盘或通知区域显示一个图标。\n可通过该图标显示主窗口。\n还可以访问标记为显示在托盘图标右键菜单中的脚本和短语。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, automatically save changes to the current Script or Phrase "
+"without asking for confirmation.\n"
+"If unchecked, ask if changes should be saved or not."
+msgstr "选中后,会自动保存对当前脚本或短语的更改,不再询问确认。\n未选中时,会询问是否保存更改。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, start in the foreground by showing the main window.\n"
+"If unchecked, start in the background."
+msgstr "选中后,启动时显示主窗口并在前台运行。\n未选中时,在后台启动。"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Modifier Keys"
+msgstr "修饰键"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Phrase expansions"
+msgstr "短语展开"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Popup Menu"
+msgstr "弹出菜单"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show a notification icon in the system tray or notification area"
+msgstr "在系统托盘或通知区域显示通知图标"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show main window when starting"
+msgstr "启动时显示主窗口"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Start using this interface:"
+msgstr "启动时使用此界面:"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "System tray icon"
+msgstr "系统托盘图标"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Used system tray icon theme:"
+msgstr "使用的系统托盘图标主题:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Key: (None)"
+msgstr "按键: (无)"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Modifiers:"
+msgstr "修饰键:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Record a key combination"
+msgstr "录制组合键"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&About AutoKey"
+msgstr "关于 AutoKey(&A)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Close Window"
+msgstr "关闭窗口(&C)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Configure Shortcuts…"
+msgstr "配置快捷键(&C)…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Cut Item"
+msgstr "剪切项目(&T)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Delete"
+msgstr "删除(&D)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&F. A. Q."
+msgstr "常见问题(&F)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Folder"
+msgstr "文件夹(&F)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Insert Macro"
+msgstr "插入宏(&I)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&New"
+msgstr "新建(&N)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Online Manual"
+msgstr "在线手册(&O)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Paste Item"
+msgstr "粘贴项目(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Phrase"
+msgstr "短语(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Quit"
+msgstr "退出(&Q)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Record Script"
+msgstr "录制脚本(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Redo"
+msgstr "重做(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Report a Bug"
+msgstr "报告错误(&R)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Save"
+msgstr "保存(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Scripting Help"
+msgstr "脚本帮助(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show Toolbar"
+msgstr "显示工具栏(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show recorded errors from Scripts"
+msgstr "显示脚本记录的错误(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Sub-folder"
+msgstr "子文件夹(&S)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Undo"
+msgstr "撤销(&U)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "About &Qt"
+msgstr "关于 Qt(&Q)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&lone Item"
+msgstr "克隆项目(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&onfigure Toolbars…"
+msgstr "配置工具栏(&O)…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Close the AutoKey window"
+msgstr "关闭 AutoKey 窗口"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Configure &AutoKey"
+msgstr "配置 AutoKey(&A)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy &Item"
+msgstr "复制项目(&I)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy the selected item(s)."
+msgstr "复制所选项目。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Phrase in the currently selected folder."
+msgstr "在当前所选文件夹中创建新短语。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Script in the currently selected folder."
+msgstr "在当前所选文件夹中创建新脚本。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new sub-folder in the currently selected folder."
+msgstr "在当前所选文件夹中创建新子文件夹。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new top level Folder anywhere in the file system."
+msgstr "在文件系统的任意位置创建新的顶级文件夹。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Cut the selected item(s)."
+msgstr "剪切所选项目。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Delete the selected items. Deleting folders also deletes the content."
+msgstr "删除所选项目。删除文件夹时也会删除其中的内容。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Duplicate the selected item(s)."
+msgstr "复制所选项目的副本。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Edi&t"
+msgstr "编辑(&T)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Fi&le"
+msgstr "文件(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Hel&p"
+msgstr "帮助(&P)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Paste items from the clipboard into the currently selected folder."
+msgstr "将剪贴板中的项目粘贴到当前所选文件夹。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Quit AutoKey"
+msgstr "退出 AutoKey"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&ename"
+msgstr "重命名(&E)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&un Script"
+msgstr "运行脚本(&U)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Redo the last undone change."
+msgstr "重做上一次撤销的更改。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Rename the first selected item."
+msgstr "重命名所选的第一个项目。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Report a Bug on the GitHub issue tracker."
+msgstr "在 GitHub 问题跟踪器上报告错误。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid ""
+"Run the currently opened Script. Execution start is delayed by two seconds."
+msgstr "运行当前打开的脚本。开始执行会延迟两秒。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "S&cript"
+msgstr "脚本(&C)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Save changes."
+msgstr "保存更改。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Setti&ngs"
+msgstr "设置(&N)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show &log view"
+msgstr "显示日志视图(&L)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show recorded errors that occurred in recently-run Scripts."
+msgstr "显示最近运行的脚本所记录的错误。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online FAQ."
+msgstr "显示在线常见问题。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online scripting Help and API documentation."
+msgstr "显示在线脚本帮助和 API 文档。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "T&ools"
+msgstr "工具(&O)"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Undo the last change."
+msgstr "撤销上一次更改。"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "toolBar"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Open the phrase in the default text editor."
+msgstr "在默认文本编辑器中打开该短语。"
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Phrase Settings"
+msgstr "短语设置"
+
+#: lib/autokey/qtui/resources/ui/record_dialog.ui
+msgid "Record a keyboard/mouse macro"
+msgstr "录制键盘/鼠标宏"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Always prompt before running this script"
+msgstr "运行此脚本前始终提示"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Open the script in the default text editor"
+msgstr "在默认文本编辑器中打开该脚本"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Script Settings"
+msgstr "脚本设置"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "ScriptPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingsdialog.ui
+msgid "Settings"
+msgstr "设置"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Add abbreviations and edit already assigned abbreviations"
+msgstr "添加缩写并编辑已分配的缩写"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Assign a new hotkey"
+msgstr "分配新的热键"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear all assigned abbreviations"
+msgstr "清除所有已分配的缩写"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the assigned hotkey"
+msgstr "清除已分配的热键"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the current window filter"
+msgstr "清除当前的窗口过滤器"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear&"
+msgstr "清除"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save"
+msgstr "保存"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save the previewed hotkey"
+msgstr "保存预览的热键"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid ""
+"Set a regular expression based window filter.\n"
+"If set, this item will only trigger, if the currently active window matches "
+"this filter."
+msgstr "设置基于正则表达式的窗口过滤器。\n设置后,仅当当前活动窗口匹配该过滤器时,此项目才会触发。"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Set&"
+msgstr "设置"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid " / {}"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Currently showing error"
+msgstr "当前显示的错误"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the newest recorded script error."
+msgstr "显示最新记录的脚本错误。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the next recorded script error."
+msgstr "显示下一个记录的脚本错误。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the oldest recorded script error."
+msgstr "显示最早记录的脚本错误。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the previous recorded script error."
+msgstr "显示上一个记录的脚本错误。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The error message, as returned by Python."
+msgstr "Python 返回的错误消息。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The failing Script’s name is shown here."
+msgstr "此处显示失败脚本的名称。"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The name of the failed Script"
+msgstr "失败脚本的名称"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Clear"
+msgstr "清除"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Hotkey: "
+msgstr "热键: "
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Show configuration window using a hotkey"
+msgstr "使用热键显示配置窗口"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Toggle monitoring using a hotkey"
+msgstr "使用热键切换监控"
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid ""
+"Enter a regular expression that matches the title of windows or the window "
+"class (WM_CLASS attribute) in which you want this item to trigger."
+msgstr "请输入一个正则表达式,用于匹配希望此项目触发的窗口的标题或窗口类(WM_CLASS 属性)。"
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid "Window title or class"
+msgstr "窗口标题或类"

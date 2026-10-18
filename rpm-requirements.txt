@@ -1,6 +1,7 @@
 dbus
 dbus-devel
 dbus-glib
+gettext
 gnome-extensions-app
 gobject-introspection
 gtksourceview3

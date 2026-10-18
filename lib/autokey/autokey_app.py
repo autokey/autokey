@@ -41,6 +41,7 @@ import autokey.dbus_service
 
 from autokey.logger import get_logger, configure_root_logger
 import autokey.UI_common_functions as UI_common
+from autokey.i18n import _
 
 import autokey.wayland_checks as awc
 
@@ -67,7 +68,7 @@ class AutokeyApplication:
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
             if self.UI is not None:
-                self.UI.show_error_dialog("Fatal error starting AutoKey.", str(e))
+                self.UI.show_error_dialog(_("Fatal error starting AutoKey."), str(e))
             sys.exit(1)
 
     def __initialise(self):
@@ -166,7 +167,9 @@ class AutokeyApplication:
         UI_common.checkOptionalPrograms()
         missing_reqs = UI_common.checkRequirements()
         if len(missing_reqs)>0:
-            self.UI.show_error_dialog("AutoKey Requires the following programs or python modules to be installed to function properly\n\n"+missing_reqs)
+            self.UI.show_error_dialog(
+                _("AutoKey Requires the following programs or python modules to be installed to function properly\n\n")
+                + missing_reqs)
             sys.exit("Missing required programs and/or python modules, exiting")
 
     def __try_start_service(self):
@@ -205,7 +208,7 @@ class AutokeyApplication:
             sys.exit(0)
         except dbus.DBusException as e:
             pid = AutokeyApplication.read_pid_from_lock_file()
-            message="AutoKey is already running as pid {} but is not responding".format(pid)
+            message = _("AutoKey is already running as pid {} but is not responding").format(pid)
             logger.exception(
                 "Error communicating with Dbus service. {}".format(message))
             self.UI.show_error_dialog(

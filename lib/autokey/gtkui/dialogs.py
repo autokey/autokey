@@ -42,15 +42,17 @@ from autokey import model
 from autokey import UI_common_functions as UI_common
 from autokey.model.key import Key
 from .shared import get_ui
+from autokey.i18n import _, N_
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
+# The keys are English identifiers. The combo box shows their translations, so map the selection back by position.
 WORD_CHAR_OPTIONS = {
-                     "All non-word": autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
-                     "Space and Enter": r"[^ \n]",
-                     "Tab": r"[^\t]"
+                     N_("All non-word"): autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
+                     N_("Space and Enter"): r"[^ \n]",
+                     N_("Tab"): r"[^\t]"
                      }
-WORD_CHAR_OPTIONS_ORDERED = ["All non-word", "Space and Enter", "Tab"]
+WORD_CHAR_OPTIONS_ORDERED = [N_("All non-word"), N_("Space and Enter"), N_("Tab")]
 
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
@@ -250,7 +252,7 @@ class AbbrSettingsDialog(DialogBase):
         self.abbrList.append_column(column1)
 
         for item in WORD_CHAR_OPTIONS_ORDERED:
-            self.wordCharCombo.append_text(item)
+            self.wordCharCombo.append_text(_(item))
 
     def load(self, item):
         self.targetItem = item
@@ -304,11 +306,11 @@ class AbbrSettingsDialog(DialogBase):
 
         item.backspace = self.removeTypedCheckbox.get_active()
 
-        option = self.wordCharCombo.get_active_text()
-        if option in WORD_CHAR_OPTIONS:
-            item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        selected_index = self.wordCharCombo.get_active()
+        if 0 <= selected_index < len(WORD_CHAR_OPTIONS_ORDERED):
+            item.set_word_chars(WORD_CHAR_OPTIONS[WORD_CHAR_OPTIONS_ORDERED[selected_index]])
         else:
-            item.set_word_chars(autokey.model.helpers.make_wordchar_re(option))
+            item.set_word_chars(autokey.model.helpers.make_wordchar_re(self.wordCharCombo.get_active_text()))
 
         if not isinstance(item, autokey.model.folder.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.get_active()
@@ -335,7 +337,7 @@ class AbbrSettingsDialog(DialogBase):
     def __resetWordCharCombo(self):
         self.wordCharCombo.remove_all()
         for item in WORD_CHAR_OPTIONS_ORDERED:
-            self.wordCharCombo.append_text(item)
+            self.wordCharCombo.append_text(_(item))
         self.wordCharCombo.set_active(0)
 
     def get_abbrs(self):
@@ -744,13 +746,13 @@ class WindowFilterSettingsDialog(DialogBase):
                 flags=Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
                 message_type=Gtk.MessageType.WARNING,
                 buttons=Gtk.ButtonsType.OK,
-                text="Window detection timed out",
+                text=_("Window detection timed out"),
             )
             md.format_secondary_text(
-                "No window click was detected within {:.0f} seconds. "
-                "On Wayland, clicks are observed via uinput/evdev and the focused "
-                "window is read afterwards. You can still enter a window "
-                "class/title regex manually.".format(timeout_seconds)
+                _("No window click was detected within {:.0f} seconds. "
+                  "On Wayland, clicks are observed via uinput/evdev and the focused "
+                  "window is read afterwards. You can still enter a window "
+                  "class/title regex manually.").format(timeout_seconds)
             )
             md.run()
             md.destroy()

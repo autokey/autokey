@@ -20,6 +20,7 @@ import os
 import typing
 
 import autokey.model.helpers as helpers
+from autokey.i18n import N_
 import autokey.model.common as model_common
 from autokey.model.key import NAVIGATION_KEYS, Key, KEY_SPLIT_RE
 from autokey.model.triggermode import TriggerMode
@@ -274,10 +275,12 @@ class SendMode(enum.Enum):
     SELECTION = None
 
 
+# The keys are English identifiers. The user interfaces show the translated text (the N_ markers make the strings
+# available for translation) and must map back to the key by position, never by comparing the displayed text.
 SEND_MODES = {
-    "Keyboard": SendMode.KEYBOARD,
-    "Clipboard (Ctrl+V)": SendMode.CB_CTRL_V,
-    "Clipboard (Ctrl+Shift+V)": SendMode.CB_CTRL_SHIFT_V,
-    "Clipboard (Shift+Insert)": SendMode.CB_SHIFT_INSERT,
-    "Mouse Selection": SendMode.SELECTION
+    N_("Keyboard"): SendMode.KEYBOARD,
+    N_("Clipboard (Ctrl+V)"): SendMode.CB_CTRL_V,
+    N_("Clipboard (Ctrl+Shift+V)"): SendMode.CB_CTRL_SHIFT_V,
+    N_("Clipboard (Shift+Insert)"): SendMode.CB_SHIFT_INSERT,
+    N_("Mouse Selection"): SendMode.SELECTION
 }  # type: typing.Dict[str, SendMode]

@@ -27,14 +27,16 @@ import autokey.model.helpers
 import autokey.model.constants
 import autokey.model.triggermode
 import autokey.model.phrase
+from autokey.i18n import _, N_
 from autokey.qtui import common as ui_common
 
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
+# The keys are English identifiers. The combo box shows their translations, so map the selection back by position.
 WORD_CHAR_OPTIONS = {
-                     "All non-word": autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
-                     "Space and Enter": r"[^ \n]",
-                     "Tab": r"[^\t]"
+                     N_("All non-word"): autokey.model.constants.DEFAULT_WORDCHAR_REGEX,
+                     N_("Space and Enter"): r"[^ \n]",
+                     N_("Tab"): r"[^\t]"
                      }
 WORD_CHAR_OPTIONS_ORDERED = tuple(sorted(WORD_CHAR_OPTIONS.keys()))
 
@@ -167,11 +169,11 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
 
         item.backspace = self.removeTypedCheckbox.isChecked()
 
-        option = str(self.wordCharCombo.currentText())
-        if option in WORD_CHAR_OPTIONS:
-            item.set_word_chars(WORD_CHAR_OPTIONS[option])
+        selected_index = self.wordCharCombo.currentIndex()
+        if 0 <= selected_index < len(WORD_CHAR_OPTIONS_ORDERED):
+            item.set_word_chars(WORD_CHAR_OPTIONS[WORD_CHAR_OPTIONS_ORDERED[selected_index]])
         else:
-            item.set_word_chars(autokey.model.helpers.make_wordchar_re(option))
+            item.set_word_chars(autokey.model.helpers.make_wordchar_re(str(self.wordCharCombo.currentText())))
 
         if not isinstance(item, autokey.model.folder.Folder):
             item.omitTrigger = self.omitTriggerCheckbox.isChecked()
@@ -197,7 +199,7 @@ class AbbrSettingsDialog(*ui_common.inherits_from_ui_file_with_name("abbrsetting
     def _reset_word_char_combobox(self):
         self.wordCharCombo.clear()
         for item in WORD_CHAR_OPTIONS_ORDERED:
-            self.wordCharCombo.addItem(item)
+            self.wordCharCombo.addItem(_(item))
         self.wordCharCombo.setCurrentIndex(0)
 
     def get_abbrs(self):

@@ -23,6 +23,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 import autokey.iomediator.windowgrabber
 import autokey.model.folder
 import autokey.model.modelTypes
+from autokey.i18n import _
 from autokey.qtui import common as qtui_common
 from autokey import UI_common_functions as UI_common
 from .detectdialog import DetectDialog
@@ -123,8 +124,8 @@ class WindowFilterSettingsDialog(*qtui_common.inherits_from_ui_file_with_name("w
         self.detect_window_properties_button.setEnabled(True)
         QMessageBox.warning(
             self,
-            "Window detection timed out",
-            (
+            _("Window detection timed out"),
+            _(
                 "No window click was detected within {:.0f} seconds.\n\n"
                 "On Wayland, AutoKey observes clicks via the uinput/evdev path and "
                 "reads the focused window afterwards (GNOME Shell extension or KWin). "
