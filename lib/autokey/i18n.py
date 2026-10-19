@@ -30,6 +30,7 @@ LANGUAGE_NAMES = {
     "ar": "العربية",
     "es": "Español",
     "ja": "日本語",
+    "qgz": "Gen Z English",
     "zh_CN": "简体中文",
     "zh_TW": "繁體中文",
 }

@@ -35,6 +35,7 @@ es_ES.po   Spanish (Spain)       Left to right
 ja_JP.po   Japanese (Japan)      Left to right
 zh_CN.po   Chinese (Simplified)  Left to right
 ar_SA.po   Arabic (Saudi Arabia) Right to left
+qgz_US.po  Gen Z English (joke)  Left to right
 ========== ===================== ==============
 
 File names
