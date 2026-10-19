@@ -9,7 +9,7 @@ msgstr ""
 "PO-Revision-Date: 2026-10-18 00:00+0000\n"
 "Last-Translator: AutoKey contributors\n"
 "Language-Team: Arabic\n"
-"Language: ar\n"
+"Language: ar_SA\n"
 "Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
 
 msgid " / "

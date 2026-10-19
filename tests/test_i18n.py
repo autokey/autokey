@@ -13,12 +13,12 @@ needs_msgfmt = pytest.mark.skipif(shutil.which("msgfmt") is None, reason="GNU ge
 
 @pytest.fixture
 def spanish(tmp_path, monkeypatch):
-    """Compile po/es.po into a temporary locale directory and switch AutoKey to Spanish."""
-    target = tmp_path / "es" / "LC_MESSAGES"
+    """Compile po/es_ES.po into a temporary locale directory and switch AutoKey to Spanish."""
+    target = tmp_path / "es_ES" / "LC_MESSAGES"
     target.mkdir(parents=True)
-    subprocess.run(["msgfmt", "--check", "-o", str(target / "autokey.mo"), str(PO_DIR / "es.po")], check=True)
+    subprocess.run(["msgfmt", "--check", "-o", str(target / "autokey.mo"), str(PO_DIR / "es_ES.po")], check=True)
     monkeypatch.setenv("AUTOKEY_LOCALEDIR", str(tmp_path))
-    i18n.set_language(["es"])
+    i18n.set_language(["es_ES"])
     yield
     monkeypatch.undo()
     i18n.set_language()
@@ -38,6 +38,27 @@ def test_spanish_catalog_translates_known_strings(spanish):
     assert i18n._("Save changes?") == "¿Guardar los cambios?"
     assert i18n._("Some text that is not in the catalog") == "Some text that is not in the catalog"
     assert i18n._("") == ""
+
+
+@needs_msgfmt
+def test_other_region_falls_back_to_the_catalog_of_the_same_language(spanish):
+    i18n.set_language(["es_MX.UTF-8"])
+    assert i18n.get_language() == "es_ES"
+    assert i18n._("Save changes?") == "¿Guardar los cambios?"
+
+
+@needs_msgfmt
+def test_region_fallback_does_not_cross_languages(spanish):
+    i18n.set_language(["pt_BR"])
+    assert i18n.get_language() == ""
+    assert i18n._("Save changes?") == "Save changes?"
+
+
+@needs_msgfmt
+def test_region_fallback_reads_the_environment(spanish, monkeypatch):
+    monkeypatch.setenv("LANGUAGE", "es_AR:en")
+    i18n.set_language()
+    assert i18n.get_language() == "es_ES"
 
 
 @needs_msgfmt
@@ -72,10 +93,10 @@ def test_word_char_option_keys_stay_english_identifiers():
 @needs_msgfmt
 def test_right_to_left_languages_are_detected(spanish, tmp_path, monkeypatch):
     assert not i18n.is_rtl()
-    assert i18n.get_language() == "es"
-    target = tmp_path / "ar" / "LC_MESSAGES"
+    assert i18n.get_language() == "es_ES"
+    target = tmp_path / "ar_SA" / "LC_MESSAGES"
     target.mkdir(parents=True)
-    subprocess.run(["msgfmt", "-o", str(target / "autokey.mo"), str(PO_DIR / "ar.po")], check=True)
-    i18n.set_language(["ar"])
-    assert i18n.get_language() == "ar"
+    subprocess.run(["msgfmt", "-o", str(target / "autokey.mo"), str(PO_DIR / "ar_SA.po")], check=True)
+    i18n.set_language(["ar_SA"])
+    assert i18n.get_language() == "ar_SA"
     assert i18n.is_rtl()
