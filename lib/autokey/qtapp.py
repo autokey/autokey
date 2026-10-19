@@ -44,6 +44,7 @@ from autokey.qtui.configwindow import ConfigWindow
 from autokey.qtui.dbus_service import AppService
 from autokey.logger import get_logger
 import autokey.UI_common_functions as UI_common
+from autokey.i18n import _, is_rtl
 
 logger = get_logger(__name__)
 del get_logger
@@ -63,6 +64,9 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
 
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv, UI=self)
+        self._translators = qtui_common.install_gettext_translator(self)
+        if is_rtl():
+            self.setLayoutDirection(Qt.RightToLeft)
         self.setQuitOnLastWindowClosed(False)
         logger.info("Initialising QT application")
 
@@ -70,7 +74,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
             self.initialise()
         except Exception as e:
             logger.exception("Fatal error starting AutoKey: " + str(e))
-            self.show_error_dialog("Fatal error starting AutoKey.", str(e))
+            self.show_error_dialog(_("Fatal error starting AutoKey."), str(e))
             sys.exit(1)
         else:
             sys.exit(self.exec_())
@@ -128,7 +132,7 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
 
         :param error: The error that occurred in a Script
         """
-        message = "The script '{}' encountered an error".format(error.script_name)
+        message = _("The script '{}' encountered an error").format(error.script_name)
         self.exec_in_main(self.notifier.notify_error, message)
         self.configWindow.script_errors_available.emit(True)
 
@@ -158,11 +162,10 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
         """
         Convenience method for showing an error dialog.
         """
-        # TODO: i18n
         logger.debug("Displaying Error Dialog")
         message_box = QMessageBox(
             QMessageBox.Critical,
-            "Error",
+            _("Error"),
             message,
             QMessageBox.Ok,
             None

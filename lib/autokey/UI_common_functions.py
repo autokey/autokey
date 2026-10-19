@@ -11,6 +11,7 @@ import os
 from . import common
 import autokey.model.helpers
 import autokey.configmanager.configmanager as cm
+from autokey.i18n import _
 import autokey.configmanager.configmanager_constants as cm_constants
 from autokey.model.triggermode import TriggerMode
 
@@ -126,8 +127,8 @@ def checkRequirements():
     elif common.USED_UI_TYPE == "headless":
         missing_programs = checkProgramImports(common_programs)
         missing_modules = checkModuleImports(common_modules)
-    errorMessage += getErrorMessage("Python Modules",missing_modules)
-    errorMessage += getErrorMessage("Programs",missing_programs)
+    errorMessage += getErrorMessage(_("Python Modules"), missing_modules)
+    errorMessage += getErrorMessage(_("Programs"), missing_programs)
     return errorMessage
 
 

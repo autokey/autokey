@@ -32,9 +32,11 @@ import autokey.configmanager.configmanager_constants as cm_constants
 from .settings import SettingsDialog
 from . import dialogs
 
+from autokey.i18n import _
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-PROBLEM_MSG_PRIMARY = "Some problems were found"
-PROBLEM_MSG_SECONDARY = "%1\n\nYour changes have not been saved."
+PROBLEM_MSG_PRIMARY = _("Some problems were found")
+PROBLEM_MSG_SECONDARY = _("%1\n\nYour changes have not been saved.")
 
 
 class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwindow")):
@@ -66,7 +68,7 @@ class ConfigWindow(*autokey.qtui.common.inherits_from_ui_file_with_name("mainwin
         QtCreator currently does not support defining such actions that open a menu with choices, so do it in code.
         """
         icon = QIcon.fromTheme("document-new")
-        action_create = QAction(icon, "New…", self)
+        action_create = QAction(icon, _("New…"), self)
         create_menu = QMenu(self)
         create_menu.insertActions(None, (  # "Insert before None", so append all items to the (empty) action list
             self.action_new_top_folder,

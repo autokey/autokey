@@ -25,13 +25,11 @@ import time
 import threading
 import subprocess
 
-import gettext
-
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, Gdk, GObject, GLib
 
-gettext.install("autokey")
+from autokey.i18n import _, is_rtl
 
 from autokey.autokey_app import AutokeyApplication
 from autokey.abstract_ui import AutokeyUIInterface
@@ -47,9 +45,10 @@ from autokey.logger import get_logger
 
 logger = get_logger(__name__)
 
-# TODO: this _ named function is initialised by gettext.install(), which is for
-# localisation. It marks the string as a candidate for translation, but I don't
-# know what else.
+if is_rtl():
+    # GTK takes its default text direction from its own translation, which AutoKey does not control.
+    Gtk.Widget.set_default_direction(Gtk.TextDirection.RTL)
+
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")
@@ -144,7 +143,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
 
         :param error: The error that occurred in a Script
         """
-        message = "The script '{}' encountered an error".format(error.script_name)
+        message = _("The script '{}' encountered an error").format(error.script_name)
         self.notifier.notify_error(message)
         if self.configWindow is not None:
             self.configWindow.set_has_errors(True)
@@ -206,7 +205,7 @@ class Application(AutokeyApplication, AutokeyUIInterface):
         dialog = Gtk.MessageDialog(type=dialog_type, buttons=Gtk.ButtonsType.NONE, message_format=message)
         if details is not None:
             dialog.format_secondary_text(details)
-        open_button = dialog.add_button("Open", Gtk.ResponseType.YES)
+        open_button = dialog.add_button(_("Open"), Gtk.ResponseType.YES)
 
         dialog.get_message_area().add(label)
 

@@ -28,6 +28,8 @@ from autokey.model.key import Key
 
 from .dialogs import GlobalHotkeyDialog
 from .shared import get_ui
+from autokey import i18n
+from autokey.i18n import _
 
 
 ICON_NAME_MAP = {
@@ -73,6 +75,8 @@ class SettingsDialog:
         self.gtkThemeCombo.set_sensitive(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME])
         self.gtkThemeCombo.set_active(self.themeList.index(cm.ConfigManager.SETTINGS[cm_constants.GTK_THEME]))
         
+        self._add_language_selection()
+
         self.iconStyleCombo = Gtk.ComboBoxText.new()
         hbox = builder.get_object("hbox4")
         hbox.pack_start(self.iconStyleCombo, False, True, 0)
@@ -150,6 +154,7 @@ class SettingsDialog:
         cm.ConfigManager.SETTINGS[cm_constants.TRIGGER_BY_INITIAL] = self.triggerItemByInitial.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE] = self.enableUndoCheckbox.get_active()
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = ICON_NAME_MAP[self.iconStyleCombo.get_active_text()]
+        cm.ConfigManager.SETTINGS[cm_constants.LANGUAGE] = self.language_values[self.languageCombo.get_active()]
 
         # UInput Settings
         # dlk - keyboard might be a list
@@ -184,6 +189,27 @@ class SettingsDialog:
         
         self.hide()
         self.destroy()
+
+    def _add_language_selection(self):
+        """Add the user interface language choice below the autosave checkbox. The language applies after a restart."""
+        self.languageCombo = Gtk.ComboBoxText.new()
+        self.language_values = [""]
+        self.languageCombo.append_text(_("System default"))
+        for locale_name, display_name in i18n.available_languages():
+            self.language_values.append(locale_name)
+            self.languageCombo.append_text(display_name)
+        current = cm.ConfigManager.SETTINGS[cm_constants.LANGUAGE]
+        self.languageCombo.set_active(self.language_values.index(current) if current in self.language_values else 0)
+        self.languageCombo.set_tooltip_text(
+            _("The language of the AutoKey windows. The change applies after AutoKey restarts."))
+        label = Gtk.Label(label=_("Language:"))
+        row = Gtk.Box(orientation=Gtk.Orientation.HORIZONTAL, spacing=6)
+        row.pack_start(label, False, False, 0)
+        row.pack_start(self.languageCombo, False, True, 0)
+        container = self.autosaveCheckbox.get_parent()
+        container.pack_start(row, False, False, 0)
+        container.reorder_child(row, 2)
+        row.show_all()
 
     def _save_disable_capslock_setting(self):
         # Only update the modifier key handling if the value changed.

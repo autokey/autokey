@@ -149,12 +149,33 @@ def ensure_gnome_shell_extension_zip() -> str:
     return relative_zip_path if absolute_zip_path.exists() else ""
 
 
+def compile_message_catalogs() -> None:
+    """
+    Compile the translations (po/*.po) into binary gettext catalogs inside the autokey package, as
+    lib/autokey/locale/<language>/LC_MESSAGES/autokey.mo. They are shipped as package data, and autokey.i18n also finds
+    them when running from the source tree. Requires msgfmt from GNU gettext. If it is missing, warn and continue:
+    AutoKey then simply stays in English.
+    """
+    root = Path(__file__).parent
+    for po_file in sorted((root / "po").glob("*.po")):
+        target_dir = root / "lib" / "autokey" / "locale" / po_file.stem / "LC_MESSAGES"
+        target_dir.mkdir(parents=True, exist_ok=True)
+        try:
+            subprocess.run(["msgfmt", "--output-file", str(target_dir / "autokey.mo"), str(po_file)], check=True)
+        except Exception as e:
+            warnings.warn(
+                "Could not compile the {} translation ({}). AutoKey will not be translated into that language. "
+                "Install the GNU gettext tools (the gettext package) to build the translations.".format(po_file.stem, e)
+            )
+
+
 ak_metadata = extract_autokey_metadata()
 this_directory = PurePath(__file__).parent
 with open(this_directory / 'README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
 gnome_shell_extension_zip = ensure_gnome_shell_extension_zip()
+compile_message_catalogs()
 
 data_files_list = [
     ('share/icons/hicolor/scalable/apps',
@@ -222,7 +243,8 @@ setup(
     packages=setuptools.find_packages('lib'),
     package_dir={'': 'lib'},
     include_package_data=True,
-    package_data={'autokey': ["configmanager/predefined_user_scripts/*"],
+    package_data={'autokey': ["configmanager/predefined_user_scripts/*",
+                              "locale/*/LC_MESSAGES/*.mo"],
         'autokey.qtui': ['data/*',
             'resources/icons/*',
             'resources/ui/*.ui'],

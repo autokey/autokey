@@ -22,9 +22,11 @@ import autokey.qtui.common as ui_common
 
 from autokey.model.folder import Folder
 
+from autokey.i18n import _
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-PROBLEM_MSG_PRIMARY = "Some problems were found"
-PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
+PROBLEM_MSG_PRIMARY = _("Some problems were found")
+PROBLEM_MSG_SECONDARY = _("{}\n\nYour changes have not been saved.")
 
 
 class FolderPage(*ui_common.inherits_from_ui_file_with_name("folderpage")):

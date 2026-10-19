@@ -5,6 +5,8 @@ __pycache__
 *.egg-info
 *.pyc
 lib/autokey/qtui/resources/icons/
+# Compiled gettext catalogs, built from po/*.po by setup.py
+lib/autokey/locale/
 
 # Build artifacts
 autokey-gnome-extension/autokey-gnome-extension@autokey.shell-extension.zip

@@ -1,0 +1,1691 @@
+# Arabic translation of AutoKey.
+msgid ""
+msgstr ""
+"Project-Id-Version: AutoKey 0.97.0-beta.0\n"
+"Report-Msgid-Bugs-To: https://github.com/autokey/autokey/issues\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2026-10-18 00:00+0000\n"
+"Last-Translator: AutoKey contributors\n"
+"Language-Team: Arabic\n"
+"Language: ar_SA\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+msgid " / "
+msgstr ""
+
+msgid "# Enter script code"
+msgstr "# أدخل شيفرة السكربت"
+
+msgid "#Enter script code"
+msgstr "#أدخل شيفرة السكربت"
+
+msgid "$abbr"
+msgstr ""
+
+msgid "$filter"
+msgstr ""
+
+msgid "$hotkey"
+msgstr ""
+
+msgid ""
+"%1\n"
+"\n"
+"Your changes have not been saved."
+msgstr "%1\n\nلم يتم حفظ تغييراتك."
+
+#, python-format
+msgid ""
+"%s\n"
+"\n"
+"Your changes have not been saved."
+msgstr "%s\n\nلم يتم حفظ تغييراتك."
+
+msgid "&Enable Monitoring"
+msgstr "ت&فعيل المراقبة"
+
+msgid "&Show Main Window"
+msgstr "إ&ظهار النافذة الرئيسية"
+
+msgid "&View script error"
+msgstr "ع&رض خطأ السكربت"
+
+msgid "(Default folder)"
+msgstr "(المجلد الافتراضي)"
+
+msgid "(None configured)"
+msgstr "(غير مضبوط)"
+
+msgid "(None)"
+msgstr "(لا شيء)"
+
+msgid "(Unsaved)"
+msgstr "(غير محفوظ)"
+
+msgid "(c) 2008-2011 Chris Dekter"
+msgstr ""
+
+msgid "<b>Application</b>"
+msgstr "<b>التطبيق</b>"
+
+msgid "<b>Expansions</b>"
+msgstr "<b>التوسيعات</b>"
+
+msgid "<b>Folder Settings</b>"
+msgstr "<b>إعدادات المجلد</b>"
+
+msgid "<b>Phrase Settings</b>"
+msgstr "<b>إعدادات العبارة</b>"
+
+msgid "<b>Popup Menu</b>"
+msgstr "<b>القائمة المنبثقة</b>"
+
+msgid "<b>Properties of selected window</b>"
+msgstr "<b>خصائص النافذة المحددة</b>"
+
+msgid "<b>Property to use</b>"
+msgstr "<b>الخاصية المراد استخدامها</b>"
+
+msgid "<b>Record a keyboard/mouse script</b>"
+msgstr "<b>تسجيل سكربت للوحة المفاتيح/الفأرة</b>"
+
+msgid "<b>Script Settings</b>"
+msgstr "<b>إعدادات السكربت</b>"
+
+msgid "<b>Show configuration window using a hotkey</b>"
+msgstr "<b>إظهار نافذة الإعدادات بمفتاح اختصار</b>"
+
+msgid "<b>Toggle monitoring using a hotkey</b>"
+msgstr "<b>تبديل المراقبة بمفتاح اختصار</b>"
+
+msgid "<b>UInput Devices</b>"
+msgstr "<b>أجهزة UInput</b>"
+
+msgid "<b>User Module Folder</b>"
+msgstr "<b>مجلد وحدات المستخدم</b>"
+
+msgid "A desktop automation utility for Linux and X11."
+msgstr "أداة لأتمتة سطح المكتب على لينكس وX11."
+
+msgid "Abbr."
+msgstr "اختصار"
+
+msgid "Abbreviations"
+msgstr "الاختصارات النصية"
+
+msgid "Abbreviations:"
+msgstr "الاختصارات النصية:"
+
+msgid "About AutoKey"
+msgstr "حول AutoKey"
+
+msgid "Accept any typed abbreviation case"
+msgstr "قبول أي حالة أحرف للاختصار المكتوب"
+
+msgid "Additional options"
+msgstr "خيارات إضافية"
+
+msgid "All non-word"
+msgstr "كل ما ليس كلمة"
+
+msgid "Allow keyboard navigation of popup menu"
+msgstr "السماح بالتنقل في القائمة المنبثقة بلوحة المفاتيح"
+
+msgid "Alt GR"
+msgstr "Alt GR"
+
+msgid "Always prompt before executing this script"
+msgstr "اسأل دائمًا قبل تنفيذ هذا السكربت"
+
+msgid "Always prompt before pasting this phrase"
+msgstr "اسأل دائمًا قبل لصق هذه العبارة"
+
+msgid ""
+"Any Python modules placed in this folder will be available for\n"
+"import by scripts."
+msgstr "أي وحدات بايثون توضع في هذا المجلد ستكون متاحة\nللاستيراد من السكربتات."
+
+msgid "Apply recursively to subfolders and items"
+msgstr "التطبيق تكراريًا على المجلدات الفرعية والعناصر"
+
+#, python-brace-format
+msgid "Are you sure you want to delete '{element}'?"
+msgstr "هل أنت متأكد من حذف '{element}'؟"
+
+#, python-format
+msgid "Are you sure you want to delete the %d selected items?"
+msgstr "هل أنت متأكد من حذف العناصر المحددة (%d)؟"
+
+#, python-format
+msgid "Are you sure you want to delete the %s and all the items in it?"
+msgstr "هل أنت متأكد من حذف %s وجميع العناصر الموجودة فيه؟"
+
+#, python-format
+msgid "Are you sure you want to delete the %s?"
+msgstr "هل أنت متأكد من حذف %s؟"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the '{deleted_folder}' folder and all the "
+"items in it?"
+msgstr "هل أنت متأكد من حذف المجلد '{deleted_folder}' وجميع العناصر الموجودة فيه؟"
+
+#, python-brace-format
+msgid ""
+"Are you sure you want to delete the {item_count} selected folders/items?"
+msgstr "هل أنت متأكد من حذف المجلدات/العناصر المحددة ({item_count})؟"
+
+msgid "Arguments (comma separated)"
+msgstr "المعاملات (مفصولة بفواصل)"
+
+msgid "AutoKey"
+msgstr ""
+
+msgid "AutoKey - Configuration"
+msgstr "AutoKey - الإعدادات"
+
+msgid "AutoKey - Preferences"
+msgstr "AutoKey - التفضيلات"
+
+msgid "AutoKey - paused"
+msgstr "AutoKey - متوقف مؤقتًا"
+
+msgid "AutoKey - running"
+msgstr "AutoKey - قيد التشغيل"
+
+msgid ""
+"AutoKey Requires the following programs or python modules to be installed to "
+"function properly\n"
+"\n"
+msgstr "يتطلب AutoKey تثبيت البرامج أو وحدات بايثون التالية ليعمل بشكل صحيح\n\n"
+
+msgid "AutoKey System Configuration Needed"
+msgstr "يلزم ضبط النظام لتشغيل AutoKey"
+
+#, python-brace-format
+msgid ""
+"AutoKey does not support the \"{dte}\" desktop environment on a system that "
+"uses the Wayland window manager like this one. The \"{dte}\" desktop "
+"environment is supported under X11, but not here under Wayland.  Future "
+"development may remove this restriction, please stay tuned."
+msgstr "لا يدعم AutoKey بيئة سطح المكتب \"{dte}\" على نظام يستخدم مدير النوافذ Wayland مثل هذا النظام. بيئة سطح المكتب \"{dte}\" مدعومة على X11 ولكن ليس على Wayland. قد يزيل التطوير المستقبلي هذا القيد، فترقبوا ذلك."
+
+msgid "AutoKey is already running as pid {} but is not responding"
+msgstr "AutoKey يعمل بالفعل بمعرّف العملية {} لكنه لا يستجيب"
+
+msgid ""
+"AutoKey will now take exclusive use of the keyboard.\n"
+"\n"
+"Click the mouse anywhere to release the keyboard when you are done."
+msgstr "سيستحوذ AutoKey الآن على لوحة المفاتيح بشكل حصري.\n\nانقر بالفأرة في أي مكان لتحرير لوحة المفاتيح عند الانتهاء."
+
+msgid ""
+"AutoKey will take the full ownership of the directory you are about to "
+"select or create. It is advisable to only choose empty directories or "
+"directories that contain data created by AutoKey previously.\n"
+"\n"
+"If you delete or move the directory from within AutoKey (for example by "
+"using drag and drop), all files unknown to AutoKey will be deleted."
+msgstr "سيتولى AutoKey الملكية الكاملة للدليل الذي توشك على تحديده أو إنشائه. يُنصح باختيار أدلة فارغة فقط أو أدلة تحتوي على بيانات أنشأها AutoKey سابقًا.\n\nإذا حذفت الدليل أو نقلته من داخل AutoKey (مثلًا بالسحب والإفلات)، فسيتم حذف جميع الملفات التي لا يعرفها AutoKey."
+
+msgid "Automatically save changes without confirmation"
+msgstr "حفظ التغييرات تلقائيًا دون تأكيد"
+
+msgid "Automatically start AutoKey at login"
+msgstr "تشغيل AutoKey تلقائيًا عند تسجيل الدخول"
+
+msgid "Beware"
+msgstr "تنبيه"
+
+msgid "C_lone Item"
+msgstr "است_نساخ العنصر"
+
+msgid "Choose a directory containing Python modules"
+msgstr "اختر دليلًا يحتوي على وحدات بايثون"
+
+msgid "Clear Log"
+msgstr "مسح السجل"
+
+msgid "Clear the whole error list and close this window"
+msgstr "مسح قائمة الأخطاء بالكامل وإغلاق هذه النافذة"
+
+msgid "Clipboard (Ctrl+Shift+V)"
+msgstr "الحافظة (Ctrl+Shift+V)"
+
+msgid "Clipboard (Ctrl+V)"
+msgstr "الحافظة (Ctrl+V)"
+
+msgid "Clipboard (Shift+Insert)"
+msgstr "الحافظة (Shift+Insert)"
+
+msgid "Clone the selected item"
+msgstr "استنساخ العنصر المحدد"
+
+msgid "Close the configuration window"
+msgstr "إغلاق نافذة الإعدادات"
+
+msgid "Close this window, keeping all error records."
+msgstr "إغلاق هذه النافذة مع الاحتفاظ بجميع سجلات الأخطاء."
+
+msgid "Command to be executed (including any arguments) - e.g. 'ls -l'"
+msgstr "الأمر المراد تنفيذه (مع أي معاملات) - مثل 'ls -l'"
+
+msgid "Completely exit AutoKey"
+msgstr "الخروج من AutoKey بالكامل"
+
+msgid "Copy the selected item"
+msgstr "نسخ العنصر المحدد"
+
+msgid "Crashed Script name:"
+msgstr "اسم السكربت الذي تعطل:"
+
+msgid "Create Folder"
+msgstr "إنشاء مجلد"
+
+msgid "Create New Folder"
+msgstr "إنشاء مجلد جديد"
+
+msgid "Create New Phrase"
+msgstr "إنشاء عبارة جديدة"
+
+msgid "Create New Script"
+msgstr "إنشاء سكربت جديد"
+
+msgid "Create a new folder in the current folder"
+msgstr "إنشاء مجلد جديد في المجلد الحالي"
+
+msgid "Create a new phrase in the current folder"
+msgstr "إنشاء عبارة جديدة في المجلد الحالي"
+
+msgid "Create a new script in the current folder"
+msgstr "إنشاء سكربت جديد في المجلد الحالي"
+
+msgid "Create a new top-level folder"
+msgstr "إنشاء مجلد جديد في المستوى الأعلى"
+
+msgid "Create elsewhere"
+msgstr "إنشاء في مكان آخر"
+
+msgid "Create folder in the default location?"
+msgstr "هل تريد إنشاء المجلد في الموقع الافتراضي؟"
+
+msgid "Cu_t Item"
+msgstr "_قص العنصر"
+
+msgid "Currently showing error: "
+msgstr "الخطأ المعروض حاليًا: "
+
+msgid "Cut the selected item"
+msgstr "قص العنصر المحدد"
+
+msgid "Dark"
+msgstr "داكن"
+
+msgid "Delete"
+msgstr "حذف"
+
+msgid "Delete Folder?"
+msgstr "حذف المجلد؟"
+
+msgid "Delete Phrase?"
+msgstr "حذف العبارة؟"
+
+msgid "Delete Script?"
+msgstr "حذف السكربت؟"
+
+msgid "Delete the currently shown error record"
+msgstr "حذف سجل الخطأ المعروض حاليًا"
+
+msgid "Delete the selected item"
+msgstr "حذف العنصر المحدد"
+
+#, python-brace-format
+msgid "Delete {item_count} selected items?"
+msgstr "حذف العناصر المحددة ({item_count})؟"
+
+msgid "Desktop automation utility"
+msgstr "أداة أتمتة سطح المكتب"
+
+msgid "Detect Window Properties"
+msgstr "اكتشاف خصائص النافذة"
+
+msgid "Disable handling of the Capslock key"
+msgstr "تعطيل معالجة مفتاح Caps Lock"
+
+msgid "Display Frequently Asked Questions"
+msgstr "عرض الأسئلة الشائعة"
+
+msgid "Display Online Help"
+msgstr "عرض المساعدة على الإنترنت"
+
+msgid "Display Scripting API"
+msgstr "عرض واجهة برمجة السكربتات"
+
+msgid "Drop all unsaved changes to current item"
+msgstr "تجاهل جميع التغييرات غير المحفوظة في العنصر الحالي"
+
+msgid "Enable Expansions"
+msgstr "تفعيل التوسيعات"
+
+msgid "Enable undo by pressing backspace"
+msgstr "تفعيل التراجع بالضغط على مفتاح المسح الخلفي"
+
+msgid "Enter a new name:"
+msgstr "أدخل اسمًا جديدًا:"
+
+msgid "Enter phrase contents"
+msgstr "أدخل محتوى العبارة"
+
+msgid "Error"
+msgstr "خطأ"
+
+msgid "Error occured at:"
+msgstr "وقت حدوث الخطأ:"
+
+msgid "Exit AutoKey"
+msgstr "الخروج من AutoKey"
+
+msgid "Fatal error starting AutoKey."
+msgstr "حدث خطأ فادح أثناء بدء AutoKey."
+
+msgid "Fatal error starting AutoKey.\n"
+msgstr "حدث خطأ فادح أثناء بدء AutoKey.\n"
+
+msgid "File name"
+msgstr "اسم الملف"
+
+msgid "First"
+msgstr "الأول"
+
+msgid "Format"
+msgstr "التنسيق"
+
+msgid "GTKSource Theme (requires restart):"
+msgstr "سمة GTKSource (تتطلب إعادة التشغيل):"
+
+msgid "General"
+msgstr "عام"
+
+msgid "Hotkey"
+msgstr "مفتاح الاختصار"
+
+msgid "Hotkey conflict"
+msgstr "تعارض في مفتاح الاختصار"
+
+msgid "Hotkey:"
+msgstr "مفتاح الاختصار:"
+
+msgid "Insert Macro"
+msgstr "إدراج ماكرو"
+
+msgid "Insert a phrase macro"
+msgstr "إدراج ماكرو للعبارة"
+
+msgid "Insert clipboard contents"
+msgstr "إدراج محتويات الحافظة"
+
+msgid "Insert date"
+msgstr "إدراج التاريخ"
+
+msgid "Insert file contents"
+msgstr "إدراج محتويات ملف"
+
+msgid "Invert: trigger in all windows EXCEPT those matching"
+msgstr "عكس: التفعيل في جميع النوافذ باستثناء المطابقة منها"
+
+msgid "Key: "
+msgstr "المفتاح: "
+
+msgid "Key: %s"
+msgstr "المفتاح: %s"
+
+msgid "Key: {}"
+msgstr "المفتاح: {}"
+
+msgid "Keyboard"
+msgstr "لوحة المفاتيح"
+
+msgid "Keyboard:"
+msgstr "لوحة المفاتيح:"
+
+msgid "Last"
+msgstr "الأخير"
+
+msgid "Left Alt"
+msgstr "Alt الأيسر"
+
+msgid "Left Control"
+msgstr "Control الأيسر"
+
+msgid "Left Hyper"
+msgstr "Hyper الأيسر"
+
+msgid "Left Meta"
+msgstr "Meta الأيسر"
+
+msgid "Left Shift"
+msgstr "Shift الأيسر"
+
+msgid "Left Super"
+msgstr "Super الأيسر"
+
+msgid "Light"
+msgstr "فاتح"
+
+msgid "Match output case to typed abbreviation case"
+msgstr "مطابقة حالة أحرف الناتج لحالة أحرف الاختصار المكتوب"
+
+msgid "Mouse Selection"
+msgstr "تحديد الفأرة"
+
+msgid "Mouse:"
+msgstr "الفأرة:"
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "New"
+msgstr "جديد"
+
+msgid "New Folder"
+msgstr "مجلد جديد"
+
+msgid "New Phrase"
+msgstr "عبارة جديدة"
+
+msgid "New Script"
+msgstr "سكربت جديد"
+
+msgid "New…"
+msgstr "جديد…"
+
+msgid "Next"
+msgstr "التالي"
+
+msgid "No error information available"
+msgstr "لا توجد معلومات عن الخطأ"
+
+msgid ""
+"No window click was detected within {:.0f} seconds.\n"
+"\n"
+"On Wayland, AutoKey observes clicks via the uinput/evdev path and reads the "
+"focused window afterwards (GNOME Shell extension or KWin). If detection "
+"keeps failing:\n"
+"• Confirm the AutoKey GNOME extension is enabled (GNOME), or KWin scripting "
+"works (KDE)\n"
+"• Click a normal application window (not the overview/lock screen)\n"
+"\n"
+"You can still type a window class/title regex manually."
+msgstr "لم يتم اكتشاف أي نقرة على نافذة خلال {:.0f} ثانية.\n\nعلى Wayland، يراقب AutoKey النقرات عبر مسار uinput/evdev ثم يقرأ النافذة ذات التركيز (إضافة GNOME Shell أو KWin). إذا استمر فشل الاكتشاف:\n• تأكد من تفعيل إضافة AutoKey لـ GNOME (في GNOME)، أو من عمل سكربتات KWin (في KDE)\n• انقر على نافذة تطبيق عادية (وليس نظرة الأنشطة العامة أو شاشة القفل)\n\nلا يزال بإمكانك كتابة تعبير نمطي لفئة النافذة أو عنوانها يدويًا."
+
+msgid ""
+"No window click was detected within {:.0f} seconds. On Wayland, clicks are "
+"observed via uinput/evdev and the focused window is read afterwards. You can "
+"still enter a window class/title regex manually."
+msgstr "لم يتم اكتشاف أي نقرة على نافذة خلال {:.0f} ثانية. على Wayland تُراقب النقرات عبر uinput/evdev ثم تُقرأ النافذة ذات التركيز. لا يزال بإمكانك إدخال تعبير نمطي لفئة النافذة أو عنوانها يدويًا."
+
+msgid "Notification icon style (requires restart):"
+msgstr "نمط أيقونة الإشعارات (يتطلب إعادة التشغيل):"
+
+msgid "Omit trigger character"
+msgstr "حذف حرف التفعيل"
+
+msgid "Online _Help"
+msgstr "المساعدة على الإ_نترنت"
+
+msgid "Open"
+msgstr "فتح"
+
+msgid "Paste the last cut/copied item"
+msgstr "لصق آخر عنصر تم قصه أو نسخه"
+
+msgid "Paste using"
+msgstr "اللصق باستخدام"
+
+msgid ""
+"Pause the phrase expansion and script execution, both by abbreviations and "
+"hotkeys.\n"
+"The global hotkeys to show the main window and to toggle this setting, as "
+"defined in the AutoKey settings, are not affected and will work regardless."
+msgstr "إيقاف توسيع العبارات وتنفيذ السكربتات مؤقتًا، سواء بالاختصارات النصية أو بمفاتيح الاختصار.\nلا تتأثر مفاتيح الاختصار العامة لإظهار النافذة الرئيسية وتبديل هذا الإعداد، كما هي معرّفة في إعدادات AutoKey، وستعمل في جميع الأحوال."
+
+msgid "Position cursor"
+msgstr "تحديد موضع المؤشر"
+
+msgid "Press a key or combination..."
+msgstr "اضغط على مفتاح أو مجموعة مفاتيح..."
+
+msgid "Press a key or combination…"
+msgstr "اضغط على مفتاح أو مجموعة مفاتيح…"
+
+msgid "Press a key..."
+msgstr "اضغط على مفتاح..."
+
+msgid "Press to Set"
+msgstr "اضغط للتعيين"
+
+msgid "Previous"
+msgstr "السابق"
+
+msgid "Programs"
+msgstr "البرامج"
+
+msgid "Python Modules"
+msgstr "وحدات بايثون"
+
+msgid "R_ecord keyboard/mouse"
+msgstr "ت_سجيل لوحة المفاتيح/الفأرة"
+
+msgid "Record Keystrokes"
+msgstr "تسجيل ضغطات المفاتيح"
+
+msgid "Record Script"
+msgstr "تسجيل سكربت"
+
+msgid "Record keyboard events"
+msgstr "تسجيل أحداث لوحة المفاتيح"
+
+msgid "Record keyboard/mouse actions"
+msgstr "تسجيل إجراءات لوحة المفاتيح والفأرة"
+
+msgid "Record mouse events (experimental)"
+msgstr "تسجيل أحداث الفأرة (تجريبي)"
+
+msgid "Redo the last undone edit"
+msgstr "إعادة آخر تعديل تم التراجع عنه"
+
+msgid "Regular expression to match the title or class of windows"
+msgstr "تعبير نمطي لمطابقة عنوان النوافذ أو فئتها"
+
+msgid "Regular expression to match:"
+msgstr "التعبير النمطي المراد مطابقته:"
+
+msgid "Remove icon"
+msgstr "إزالة الأيقونة"
+
+msgid "Remove typed abbreviation"
+msgstr "حذف الاختصار المكتوب"
+
+#, python-format
+msgid "Rename '%s'"
+msgstr "إعادة تسمية '%s'"
+
+msgid "Rename the selected item"
+msgstr "إعادة تسمية العنصر المحدد"
+
+msgid "Report a Bug"
+msgstr "الإبلاغ عن خطأ"
+
+msgid "Right Alt"
+msgstr "Alt الأيمن"
+
+msgid "Right Control"
+msgstr "Control الأيمن"
+
+msgid "Right Hyper"
+msgstr "Hyper الأيمن"
+
+msgid "Right Meta"
+msgstr "Meta الأيمن"
+
+msgid "Right Shift"
+msgstr "Shift الأيمن"
+
+msgid "Right Super"
+msgstr "Super الأيمن"
+
+msgid "Run script"
+msgstr "تشغيل سكربت"
+
+msgid "Run system command"
+msgstr "تشغيل أمر نظام"
+
+msgid "Run the currently selected script"
+msgstr "تشغيل السكربت المحدد حاليًا"
+
+msgid "Save Log As…"
+msgstr "حفظ السجل باسم…"
+
+msgid "Save changes to current item"
+msgstr "حفظ التغييرات في العنصر الحالي"
+
+msgid "Save changes?"
+msgstr "هل تريد حفظ التغييرات؟"
+
+msgid "Save log file"
+msgstr "حفظ ملف السجل"
+
+msgid "Scrip_t"
+msgstr "سكر_بت"
+
+msgid "Script Engine"
+msgstr "محرك السكربتات"
+
+msgid "Script start time:"
+msgstr "وقت بدء السكربت:"
+
+msgid "Script was triggered by:"
+msgstr "تم تفعيل السكربت بواسطة:"
+
+msgid "Select A Folder"
+msgstr "اختر مجلدًا"
+
+msgid "Set"
+msgstr "تعيين"
+
+msgid "Set Abbreviations"
+msgstr "تعيين الاختصارات النصية"
+
+msgid "Set Hotkey"
+msgstr "تعيين مفتاح الاختصار"
+
+msgid "Set Window Filter"
+msgstr "تعيين مرشّح النوافذ"
+
+msgid "Show Main Window"
+msgstr "إظهار النافذة الرئيسية"
+
+msgid "Show a notification icon"
+msgstr "إظهار أيقونة الإشعارات"
+
+msgid "Show in notification icon menu"
+msgstr "إظهار في قائمة أيقونة الإشعارات"
+
+msgid "Show program information"
+msgstr "عرض معلومات البرنامج"
+
+msgid "Show recorded errors from Scripts"
+msgstr "عرض الأخطاء المسجلة من السكربتات"
+
+msgid ""
+"Show the main AutoKey window. This does the same as left clicking the tray "
+"icon."
+msgstr "إظهار نافذة AutoKey الرئيسية. يؤدي ذلك ما يؤديه النقر الأيسر على أيقونة علبة النظام."
+
+msgid "Show the newest recorded script error"
+msgstr "عرض أحدث خطأ مسجل للسكربت"
+
+msgid "Show the next recorded script error"
+msgstr "عرض خطأ السكربت المسجل التالي"
+
+msgid "Show the oldest recorded script error"
+msgstr "عرض أقدم خطأ مسجل للسكربت"
+
+msgid "Show the previous recorded script error"
+msgstr "عرض خطأ السكربت المسجل السابق"
+
+msgid "Show/hide the toolbar"
+msgstr "إظهار/إخفاء شريط الأدوات"
+
+msgid ""
+"Shown below are the recorded errors that occurred in Scripts run by AutoKey "
+"during this session."
+msgstr "فيما يلي الأخطاء المسجلة التي حدثت في السكربتات التي شغّلها AutoKey خلال هذه الجلسة."
+
+msgid "Some problems were found"
+msgstr "تم العثور على بعض المشكلات"
+
+msgid "Sort menu items with most frequently used first"
+msgstr "ترتيب عناصر القائمة بحيث تظهر الأكثر استخدامًا أولًا"
+
+msgid "Space and Enter"
+msgstr "المسافة وEnter"
+
+msgid "Special Hotkeys"
+msgstr "مفاتيح اختصار خاصة"
+
+msgid "Start recording after"
+msgstr "بدء التسجيل بعد"
+
+msgid "Subf_older"
+msgstr "مجلد _فرعي"
+
+msgid "Tab"
+msgstr "Tab"
+
+msgid "Temporarily &Hide Icon"
+msgstr "إ&خفاء الأيقونة مؤقتًا"
+
+msgid ""
+"Temporarily hide the system tray icon.\n"
+"Use the settings to hide it permanently."
+msgstr "إخفاء أيقونة علبة النظام مؤقتًا.\nاستخدم الإعدادات لإخفائها بشكل دائم."
+
+msgid "The Python Stacktrace:"
+msgstr "تتبّع المكدس في بايثون:"
+
+#, python-format
+msgid "The abbreviation '%s' is already in use by the %s"
+msgstr "الاختصار '%s' مستخدم بالفعل من قبل %s"
+
+#, python-format
+msgid ""
+"The abbreviation '%s' is already in use by the %s for windows matching '%s'."
+msgstr "الاختصار '%s' مستخدم بالفعل من قبل %s للنوافذ المطابقة لـ '%s'."
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item} "
+"for windows matching '{matching_pattern}'."
+msgstr "الاختصار {abbreviation} مستخدم بالفعل من قبل {conflicting_item} للنوافذ المطابقة لـ '{matching_pattern}'."
+
+#, python-brace-format
+msgid ""
+"The abbreviation {abbreviation} is already in use by the {conflicting_item}."
+msgstr "الاختصار {abbreviation} مستخدم بالفعل من قبل {conflicting_item}."
+
+msgid "The chosen directory already contains files"
+msgstr "الدليل المختار يحتوي بالفعل على ملفات"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s"
+msgstr "مفتاح الاختصار '%s' مستخدم بالفعل من قبل %s"
+
+#, python-format
+msgid "The hotkey '%s' is already in use by the %s for windows matching '%s'."
+msgstr "مفتاح الاختصار '%s' مستخدم بالفعل من قبل %s للنوافذ المطابقة لـ '%s'."
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by the {conflicting_item} for "
+"windows matching '{matching_pattern}'."
+msgstr "مفتاح الاختصار '{hotkey}' مستخدم بالفعل من قبل {conflicting_item} للنوافذ المطابقة لـ '{matching_pattern}'."
+
+#, python-brace-format
+msgid "The hotkey '{hotkey}' is already in use by the {conflicting_item}."
+msgstr "مفتاح الاختصار '{hotkey}' مستخدم بالفعل من قبل {conflicting_item}."
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item} for windows "
+"matching '{matching_pattern}'.\n"
+"\n"
+"Assign it anyway?"
+msgstr "مفتاح الاختصار '{hotkey}' مستخدم بالفعل من قبل {conflicting_item} للنوافذ المطابقة لـ '{matching_pattern}'.\n\nهل تريد تعيينه رغم ذلك؟"
+
+#, python-brace-format
+msgid ""
+"The hotkey '{hotkey}' is already in use by {conflicting_item}.\n"
+"\n"
+"Assign it anyway?"
+msgstr "مفتاح الاختصار '{hotkey}' مستخدم بالفعل من قبل {conflicting_item}.\n\nهل تريد تعيينه رغم ذلك؟"
+
+#, python-format
+msgid "The hotkey is already in use for %s."
+msgstr "مفتاح الاختصار مستخدم بالفعل في %s."
+
+msgid "The name can't be empty"
+msgstr "لا يمكن أن يكون الاسم فارغًا"
+
+msgid "The name can't be empty."
+msgstr "لا يمكن أن يكون الاسم فارغًا."
+
+msgid "The name of the failed Script."
+msgstr "اسم السكربت الذي فشل."
+
+msgid "The phrase content can't be empty"
+msgstr "لا يمكن أن يكون محتوى العبارة فارغًا"
+
+msgid "The script '{}' encountered an error"
+msgstr "واجه السكربت '{}' خطأً"
+
+msgid "The script code can't be empty"
+msgstr "لا يمكن أن تكون شيفرة السكربت فارغة"
+
+msgid ""
+"The selected directory already contains files. If you continue, AutoKey will "
+"take the ownership.\n"
+"\n"
+"You may lose all files in '{}' that are not related to AutoKey if you select "
+"this directory.\n"
+"Continue?"
+msgstr "الدليل المحدد يحتوي بالفعل على ملفات. إذا تابعت، فسيتولى AutoKey ملكيته.\n\nقد تفقد جميع الملفات في '{}' غير المتعلقة بـ AutoKey إذا حددت هذا الدليل.\nهل تريد المتابعة؟"
+
+msgid "There are unsaved changes. Would you like to save them?"
+msgstr "توجد تغييرات غير محفوظة. هل تريد حفظها؟"
+
+msgid "Timestamp at which the Script execution started"
+msgstr "وقت بدء تنفيذ السكربت"
+
+msgid "Timestamp at which the error occured"
+msgstr "وقت حدوث الخطأ"
+
+msgid "Trigger immediately (don't require a trigger character)"
+msgstr "التفعيل فورًا (دون اشتراط حرف تفعيل)"
+
+msgid "Trigger menu item by first initial"
+msgstr "تفعيل عنصر القائمة بحرفه الأول"
+
+msgid "Trigger on:"
+msgstr "التفعيل عند:"
+
+msgid "Trigger when typed as part of a word"
+msgstr "التفعيل عند كتابته كجزء من كلمة"
+
+msgid ""
+"Type a new abbreviation in the entry and press Enter to add it to the list. "
+"Then click OK."
+msgstr "اكتب اختصارًا جديدًا في الحقل واضغط Enter لإضافته إلى القائمة. ثم انقر على موافق."
+
+msgid "UInput Keystroke Delay (ms):"
+msgstr "تأخير ضغطات المفاتيح في UInput (مللي ثانية):"
+
+msgid "Undo the last edit"
+msgstr "التراجع عن آخر تعديل"
+
+msgid "Universal:"
+msgstr "عام:"
+
+msgid "Unsupported Desktop Environment"
+msgstr "بيئة سطح مكتب غير مدعومة"
+
+msgid "Update name on file system"
+msgstr "تحديث الاسم في نظام الملفات"
+
+msgid "Use Default"
+msgstr "استخدام الافتراضي"
+
+msgid "Vie_w script error"
+msgstr "ع_رض خطأ السكربت"
+
+msgid "View script error"
+msgstr "عرض خطأ السكربت"
+
+msgid "View script error information"
+msgstr "عرض معلومات خطأ السكربت"
+
+msgid "View the last script error."
+msgstr "عرض آخر خطأ في السكربت."
+
+msgid "Where should the folder be created?"
+msgstr "أين يجب إنشاء المجلد؟"
+
+msgid "Window Filter:"
+msgstr "مرشّح النوافذ:"
+
+msgid "Window class (entire application)"
+msgstr "فئة النافذة (التطبيق بأكمله)"
+
+#, python-format
+msgid "Window class: %s"
+msgstr "فئة النافذة: %s"
+
+msgid "Window detection timed out"
+msgstr "انتهت مهلة اكتشاف النافذة"
+
+msgid "Window title"
+msgstr "عنوان النافذة"
+
+#, python-format
+msgid "Window title: %s"
+msgstr "عنوان النافذة: %s"
+
+msgid "You must specify a key for the hotkey."
+msgstr "يجب تحديد مفتاح لمفتاح الاختصار."
+
+msgid "You must specify at least one abbreviation"
+msgstr "يجب تحديد اختصار نصي واحد على الأقل"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering these two commands, then "
+"rebooting:"
+msgstr "معرّف المستخدم الخاص بك غير مضبوط لتشغيل AutoKey على Wayland. إذا كانت هذه <b>أول مرة</b> تشغّل فيها AutoKey، فجرّب <b>إعادة تشغيل</b> النظام ثم تشغيل AutoKey مرة أخرى. وإلا فجرّب إدخال هذين الأمرين ثم إعادة التشغيل:"
+
+msgid ""
+"Your user id is not configured to run AutoKey under Wayland.  If this is "
+"your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and "
+"starting AutoKey again.  Otherwise, try entering this command, then "
+"rebooting:"
+msgstr "معرّف المستخدم الخاص بك غير مضبوط لتشغيل AutoKey على Wayland. إذا كانت هذه <b>أول مرة</b> تشغّل فيها AutoKey، فجرّب <b>إعادة تشغيل</b> النظام ثم تشغيل AutoKey مرة أخرى. وإلا فجرّب إدخال هذا الأمر ثم إعادة التشغيل:"
+
+msgid "_Add"
+msgstr "_إضافة"
+
+msgid "_Cancel"
+msgstr "_إلغاء"
+
+msgid "_Clear"
+msgstr "_مسح"
+
+msgid "_Close"
+msgstr "إ_غلاق"
+
+msgid "_Close window"
+msgstr "إ_غلاق النافذة"
+
+msgid "_Copy Item"
+msgstr "_نسخ العنصر"
+
+msgid "_Delete"
+msgstr "_حذف"
+
+msgid "_Delete Item"
+msgstr "_حذف العنصر"
+
+msgid "_Edit"
+msgstr "ت_حرير"
+
+msgid "_F.A.Q."
+msgstr "الأسئلة ال_شائعة"
+
+msgid "_File"
+msgstr "_ملف"
+
+msgid "_Folder"
+msgstr "_مجلد"
+
+msgid "_Help"
+msgstr "_مساعدة"
+
+msgid "_Insert Macro"
+msgstr "_إدراج ماكرو"
+
+msgid "_OK"
+msgstr "_موافق"
+
+msgid "_Paste Item"
+msgstr "_لصق العنصر"
+
+msgid "_Phrase"
+msgstr "_عبارة"
+
+msgid "_Preferences"
+msgstr "_تفضيلات"
+
+msgid "_Quit"
+msgstr "_خروج"
+
+msgid "_Redo"
+msgstr "_إعادة"
+
+msgid "_Remove"
+msgstr "إ_زالة"
+
+msgid "_Rename"
+msgstr "إعادة ت_سمية"
+
+msgid "_Revert"
+msgstr "ا_سترجاع"
+
+msgid "_Run current script"
+msgstr "ت_شغيل السكربت الحالي"
+
+msgid "_Save"
+msgstr "_حفظ"
+
+msgid "_Scripting Help"
+msgstr "مساعدة ال_سكربتات"
+
+msgid "_Show Toolbar"
+msgstr "إ_ظهار شريط الأدوات"
+
+msgid "_Tools"
+msgstr "_أدوات"
+
+msgid "_Undo"
+msgstr "_تراجع"
+
+msgid "label"
+msgstr ""
+
+msgid "seconds"
+msgstr "ثانية"
+
+msgid "{}"
+msgstr ""
+
+msgid ""
+"{}\n"
+"\n"
+"Your changes have not been saved."
+msgstr "{}\n\nلم يتم حفظ تغييراتك."
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Add a new abbreviation."
+msgstr "إضافة اختصار نصي جديد."
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"Add, delete or edit abbreviations. Existing abbreviations in the list on the "
+"left can be edited.\n"
+"After typing a new abbreviation or editing an existing one, press <Enter> "
+"or\n"
+"click somewhere in the left list to submit it."
+msgstr "أضف الاختصارات النصية أو احذفها أو عدّلها. يمكن تعديل الاختصارات الموجودة في القائمة على اليسار.\nبعد كتابة اختصار جديد أو تعديل اختصار موجود، اضغط <Enter> أو\nانقر في مكان ما من القائمة اليسرى لتأكيده."
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid "Delete the selected abbreviation."
+msgstr "حذف الاختصار النصي المحدد."
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"If checked, the typed abbreviation text is deleted before phrase expansion "
+"or script execution.\n"
+"If unchecked, the abbreviation text is kept."
+msgstr "إذا كان الخيار محددًا، يُحذف نص الاختصار المكتوب قبل توسيع العبارة أو تنفيذ السكربت.\nوإذا لم يكن محددًا، يبقى نص الاختصار."
+
+#: lib/autokey/qtui/resources/ui/abbrsettings.ui
+msgid ""
+"These abbreviations are already assigned. After editing, press <Enter> or "
+"select another element to save."
+msgstr "هذه الاختصارات معيّنة بالفعل. بعد التعديل اضغط <Enter> أو حدّد عنصرًا آخر للحفظ."
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;"
+"\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-size:xx-large; font-weight:600;\">AutoKey (Qt)</span></p><p><br/></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid ""
+"<html><head/><body><p>AutoKey is a desktop automation utility for Linux and "
+"X11.</p><p>Website: <a href=\"https://github.com/autokey/autokey\"><span "
+"style=\" text-decoration: underline; color:#2980b9;\">AutoKey on GitHub</"
+"span></a></p></body></html>"
+msgstr "<html><head/><body><p>AutoKey أداة لأتمتة سطح المكتب على لينكس وX11.</p><p>الموقع: <a href=\"https://github.com/autokey/autokey\"><span style=\" text-decoration: underline; color:#2980b9;\">AutoKey على GitHub</span></a></p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "About"
+msgstr "حول"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "License"
+msgstr "الترخيص"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Python Version:"
+msgstr "إصدار بايثون:"
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "TextLabel"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/about_autokey_dialog.ui
+msgid "Version:"
+msgstr "الإصدار:"
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Form"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/centralwidget.ui
+msgid "Search name, abbr. and hotkey…"
+msgstr "البحث في الاسم والاختصار ومفتاح الاختصار…"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &class (entire application)"
+msgstr "&فئة النافذة (التطبيق بأكمله)"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window &title"
+msgstr "&عنوان النافذة"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window Information"
+msgstr "معلومات النافذة"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window class:"
+msgstr "فئة النافذة:"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window information of selected window"
+msgstr "معلومات النافذة المحددة"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window property selection"
+msgstr "اختيار خاصية النافذة"
+
+#: lib/autokey/qtui/resources/ui/detectdialog.ui
+msgid "Window title: "
+msgstr "عنوان النافذة: "
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"<html><head/><body><p><span style=\" font-style:italic;\">Technical "
+"information</span>: This places the selected directory on the Python module "
+"search path.</p></body></html>"
+msgstr "<html><head/><body><p><span style=\" font-style:italic;\">معلومات تقنية</span>: يضع هذا الدليل المحدد في مسار البحث عن وحدات بايثون.</p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid ""
+"Any Python modules and packages placed in this folder will be available for "
+"import by scripts."
+msgstr "أي وحدات وحزم بايثون توضع في هذا المجلد ستكون متاحة للاستيراد من السكربتات."
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Browse"
+msgstr "استعراض"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Clear selection"
+msgstr "مسح التحديد"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "Currently selected:"
+msgstr "المحدد حاليًا:"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "None selected"
+msgstr "لا يوجد تحديد"
+
+#: lib/autokey/qtui/resources/ui/enginesettings.ui
+msgid "User Module Folder"
+msgstr "مجلد وحدات المستخدم"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Folder Settings"
+msgstr "إعدادات المجلد"
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "FolderPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/folderpage.ui
+msgid "Open the folder in the default file manager"
+msgstr "فتح المجلد في مدير الملفات الافتراضي"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"<html><head/><body><p>Enabling this option places a <span style=\" font-"
+"weight:600;\">autokey.desktop</span> file into the autostart folder inside "
+"the user folder. It can be found in  <a href=\"file://$XDG_CONFIG_HOME/"
+"autostart\"><span style=\" text-decoration: underline; color:#2980b9;"
+"\">$XDG_CONFIG_HOME/autostart</span></a>. </p></body></html>"
+msgstr "<html><head/><body><p>يؤدي تفعيل هذا الخيار إلى وضع ملف <span style=\" font-weight:600;\">autokey.desktop</span> في مجلد التشغيل التلقائي داخل مجلد المستخدم. يمكن العثور عليه في  <a href=\"file://$XDG_CONFIG_HOME/autostart\"><span style=\" text-decoration: underline; color:#2980b9;\">$XDG_CONFIG_HOME/autostart</span></a>. </p></body></html>"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "A&utomatically start AutoKey after login"
+msgstr "تشغيل AutoKey &تلقائيًا بعد تسجيل الدخول"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Application"
+msgstr "التطبيق"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Choose between a light and a dark icon theme."
+msgstr "اختر بين سمة أيقونات فاتحة وسمة داكنة."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Choose which GUI should be starting. Only available if both the Qt and GTK+ "
+"GUIs are installed."
+msgstr "اختر الواجهة الرسومية التي ستبدأ. متاح فقط إذا كانت واجهتا Qt وGTK+ مثبّتتين معًا."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Disable handling of the Capslock key."
+msgstr "تعطيل معالجة مفتاح Caps Lock."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable this, if you remapped the Capslock key to be something else, like "
+"Ctrl.\n"
+"This will prevent any special handling for this key."
+msgstr "فعّل هذا الخيار إذا أعدت تعيين مفتاح Caps Lock ليكون شيئًا آخر مثل Ctrl.\nسيمنع ذلك أي معالجة خاصة لهذا المفتاح."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Enable to automatically start AutoKey after logging in."
+msgstr "فعّله لتشغيل AutoKey تلقائيًا بعد تسجيل الدخول."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enable undoing Phrase expansions using the backspace key\n"
+"\n"
+"Undo only works if the Phrase does not contain any special keys.\n"
+"AutoKey will refuse to perform an undo of a Phrase containing any such "
+"keys,\n"
+"regardless of this setting."
+msgstr "تفعيل التراجع عن توسيعات العبارات بمفتاح المسح الخلفي\n\nيعمل التراجع فقط إذا كانت العبارة لا تحتوي على مفاتيح خاصة.\nسيرفض AutoKey التراجع عن عبارة تحتوي على أي من هذه المفاتيح،\nبغض النظر عن هذا الإعداد."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"Enabling this places an icon in the desktop system tray or notification "
+"area.\n"
+"The icon can be used to show the main window.\n"
+"It also provides access to scripts and phrases marked for display in the "
+"tray icon context menu."
+msgstr "يؤدي تفعيل هذا الخيار إلى وضع أيقونة في علبة نظام سطح المكتب أو منطقة الإشعارات.\nيمكن استخدام الأيقونة لإظهار النافذة الرئيسية.\nكما تتيح الوصول إلى السكربتات والعبارات المحددة للعرض في القائمة السياقية للأيقونة."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, automatically save changes to the current Script or Phrase "
+"without asking for confirmation.\n"
+"If unchecked, ask if changes should be saved or not."
+msgstr "إذا كان الخيار محددًا، تُحفظ تغييرات السكربت أو العبارة الحالية تلقائيًا دون طلب تأكيد.\nوإذا لم يكن محددًا، يُسأل عما إذا كان يجب حفظ التغييرات."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid ""
+"If checked, start in the foreground by showing the main window.\n"
+"If unchecked, start in the background."
+msgstr "إذا كان الخيار محددًا، يبدأ البرنامج في المقدمة بإظهار النافذة الرئيسية.\nوإذا لم يكن محددًا، يبدأ في الخلفية."
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Modifier Keys"
+msgstr "مفاتيح التعديل"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Phrase expansions"
+msgstr "توسيعات العبارات"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Popup Menu"
+msgstr "القائمة المنبثقة"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show a notification icon in the system tray or notification area"
+msgstr "إظهار أيقونة إشعارات في علبة النظام أو منطقة الإشعارات"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Show main window when starting"
+msgstr "إظهار النافذة الرئيسية عند البدء"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Start using this interface:"
+msgstr "البدء باستخدام هذه الواجهة:"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "System tray icon"
+msgstr "أيقونة علبة النظام"
+
+#: lib/autokey/qtui/resources/ui/generalsettings.ui
+msgid "Used system tray icon theme:"
+msgstr "سمة أيقونة علبة النظام المستخدمة:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Key: (None)"
+msgstr "المفتاح: (لا شيء)"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Modifiers:"
+msgstr "مفاتيح التعديل:"
+
+#: lib/autokey/qtui/resources/ui/hotkeysettings.ui
+msgid "Record a key combination"
+msgstr "تسجيل مجموعة مفاتيح"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&About AutoKey"
+msgstr "&حول AutoKey"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Close Window"
+msgstr "إ&غلاق النافذة"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Configure Shortcuts…"
+msgstr "&ضبط الاختصارات…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Cut Item"
+msgstr "&قص العنصر"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Delete"
+msgstr "&حذف"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&F. A. Q."
+msgstr "الأسئلة ال&شائعة"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Folder"
+msgstr "&مجلد"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Insert Macro"
+msgstr "&إدراج ماكرو"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&New"
+msgstr "&جديد"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Online Manual"
+msgstr "الدليل على الإ&نترنت"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Paste Item"
+msgstr "&لصق العنصر"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Phrase"
+msgstr "&عبارة"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Quit"
+msgstr "&خروج"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Record Script"
+msgstr "&تسجيل سكربت"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Redo"
+msgstr "&إعادة"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Report a Bug"
+msgstr "&الإبلاغ عن خطأ"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Save"
+msgstr "&حفظ"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Scripting Help"
+msgstr "مساعدة ال&سكربتات"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show Toolbar"
+msgstr "إ&ظهار شريط الأدوات"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Show recorded errors from Scripts"
+msgstr "إ&ظهار الأخطاء المسجلة من السكربتات"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Sub-folder"
+msgstr "مجلد &فرعي"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "&Undo"
+msgstr "&تراجع"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "About &Qt"
+msgstr "حول &Qt"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&lone Item"
+msgstr "اس&تنساخ العنصر"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "C&onfigure Toolbars…"
+msgstr "ضبط أشرطة الأ&دوات…"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Close the AutoKey window"
+msgstr "إغلاق نافذة AutoKey"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Configure &AutoKey"
+msgstr "ضبط &AutoKey"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy &Item"
+msgstr "نسخ ال&عنصر"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Copy the selected item(s)."
+msgstr "نسخ العناصر المحددة."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Phrase in the currently selected folder."
+msgstr "إنشاء عبارة جديدة في المجلد المحدد حاليًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new Script in the currently selected folder."
+msgstr "إنشاء سكربت جديد في المجلد المحدد حاليًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new sub-folder in the currently selected folder."
+msgstr "إنشاء مجلد فرعي جديد في المجلد المحدد حاليًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Create a new top level Folder anywhere in the file system."
+msgstr "إنشاء مجلد جديد في المستوى الأعلى في أي مكان من نظام الملفات."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Cut the selected item(s)."
+msgstr "قص العناصر المحددة."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Delete the selected items. Deleting folders also deletes the content."
+msgstr "حذف العناصر المحددة. حذف المجلدات يحذف محتوياتها أيضًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Duplicate the selected item(s)."
+msgstr "تكرار العناصر المحددة."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Edi&t"
+msgstr "ت&حرير"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Fi&le"
+msgstr "&ملف"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Hel&p"
+msgstr "م&ساعدة"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Paste items from the clipboard into the currently selected folder."
+msgstr "لصق العناصر من الحافظة في المجلد المحدد حاليًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Quit AutoKey"
+msgstr "الخروج من AutoKey"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&ename"
+msgstr "إعادة ت&سمية"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "R&un Script"
+msgstr "ت&شغيل السكربت"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Redo the last undone change."
+msgstr "إعادة آخر تغيير تم التراجع عنه."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Rename the first selected item."
+msgstr "إعادة تسمية أول عنصر محدد."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Report a Bug on the GitHub issue tracker."
+msgstr "الإبلاغ عن خطأ في متتبع المشكلات على GitHub."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid ""
+"Run the currently opened Script. Execution start is delayed by two seconds."
+msgstr "تشغيل السكربت المفتوح حاليًا. يتأخر بدء التنفيذ ثانيتين."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "S&cript"
+msgstr "&سكربت"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Save changes."
+msgstr "حفظ التغييرات."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Setti&ngs"
+msgstr "إ&عدادات"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show &log view"
+msgstr "إظهار عرض ال&سجل"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show recorded errors that occurred in recently-run Scripts."
+msgstr "عرض الأخطاء المسجلة التي حدثت في السكربتات التي شُغّلت مؤخرًا."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online FAQ."
+msgstr "عرض الأسئلة الشائعة على الإنترنت."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Show the online scripting Help and API documentation."
+msgstr "عرض مساعدة السكربتات ووثائق واجهة البرمجة على الإنترنت."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "T&ools"
+msgstr "&أدوات"
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "Undo the last change."
+msgstr "التراجع عن آخر تغيير."
+
+#: lib/autokey/qtui/resources/ui/mainwindow.ui
+msgid "toolBar"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Open the phrase in the default text editor."
+msgstr "فتح العبارة في محرر النصوص الافتراضي."
+
+#: lib/autokey/qtui/resources/ui/phrasepage.ui
+msgid "Phrase Settings"
+msgstr "إعدادات العبارة"
+
+#: lib/autokey/qtui/resources/ui/record_dialog.ui
+msgid "Record a keyboard/mouse macro"
+msgstr "تسجيل ماكرو للوحة المفاتيح/الفأرة"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Always prompt before running this script"
+msgstr "اسأل دائمًا قبل تشغيل هذا السكربت"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Open the script in the default text editor"
+msgstr "فتح السكربت في محرر النصوص الافتراضي"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "Script Settings"
+msgstr "إعدادات السكربت"
+
+#: lib/autokey/qtui/resources/ui/scriptpage.ui
+msgid "ScriptPage"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/settingsdialog.ui
+msgid "Settings"
+msgstr "الإعدادات"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Add abbreviations and edit already assigned abbreviations"
+msgstr "إضافة اختصارات نصية وتعديل المعيّن منها"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Assign a new hotkey"
+msgstr "تعيين مفتاح اختصار جديد"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear all assigned abbreviations"
+msgstr "مسح جميع الاختصارات النصية المعيّنة"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the assigned hotkey"
+msgstr "مسح مفتاح الاختصار المعيّن"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear the current window filter"
+msgstr "مسح مرشّح النوافذ الحالي"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Clear&"
+msgstr "مسح"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save"
+msgstr "حفظ"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Save the previewed hotkey"
+msgstr "حفظ مفتاح الاختصار المعروض للمعاينة"
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid ""
+"Set a regular expression based window filter.\n"
+"If set, this item will only trigger, if the currently active window matches "
+"this filter."
+msgstr "تعيين مرشّح نوافذ قائم على تعبير نمطي.\nعند تعيينه، لن يُفعَّل هذا العنصر إلا إذا طابقت النافذة النشطة حاليًا هذا المرشّح."
+
+#: lib/autokey/qtui/resources/ui/settingswidget.ui
+msgid "Set&"
+msgstr "تعيين"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid " / {}"
+msgstr ""
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Currently showing error"
+msgstr "الخطأ المعروض حاليًا"
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the newest recorded script error."
+msgstr "عرض أحدث خطأ مسجل للسكربت."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the next recorded script error."
+msgstr "عرض خطأ السكربت المسجل التالي."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the oldest recorded script error."
+msgstr "عرض أقدم خطأ مسجل للسكربت."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "Show the previous recorded script error."
+msgstr "عرض خطأ السكربت المسجل السابق."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The error message, as returned by Python."
+msgstr "رسالة الخطأ كما أعادتها بايثون."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The failing Script’s name is shown here."
+msgstr "يظهر هنا اسم السكربت الذي فشل."
+
+#: lib/autokey/qtui/resources/ui/show_recent_script_errors_dialog.ui
+msgid "The name of the failed Script"
+msgstr "اسم السكربت الذي فشل"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Clear"
+msgstr "مسح"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Hotkey: "
+msgstr "مفتاح الاختصار: "
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Show configuration window using a hotkey"
+msgstr "إظهار نافذة الإعدادات بمفتاح اختصار"
+
+#: lib/autokey/qtui/resources/ui/specialhotkeysettings.ui
+msgid "Toggle monitoring using a hotkey"
+msgstr "تبديل المراقبة بمفتاح اختصار"
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid ""
+"Enter a regular expression that matches the title of windows or the window "
+"class (WM_CLASS attribute) in which you want this item to trigger."
+msgstr "أدخل تعبيرًا نمطيًا يطابق عنوان النوافذ أو فئة النافذة (الخاصية WM_CLASS) التي تريد أن يُفعَّل فيها هذا العنصر."
+
+#: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
+msgid "Window title or class"
+msgstr "عنوان النافذة أو فئتها"
+
+msgid "Language:"
+msgstr "اللغة:"
+
+msgid "System default"
+msgstr "افتراضي النظام"
+
+msgid ""
+"The language of the AutoKey windows. The change applies after AutoKey "
+"restarts."
+msgstr "لغة نوافذ AutoKey. يسري التغيير بعد إعادة تشغيل AutoKey."
