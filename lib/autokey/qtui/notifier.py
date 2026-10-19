@@ -27,9 +27,11 @@ import autokey.configmanager.configmanager_constants as cm_constants
 if TYPE_CHECKING:
     from autokey.qtapp import Application
 
+from autokey.i18n import _
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
-TOOLTIP_RUNNING = "AutoKey - running"
-TOOLTIP_PAUSED = "AutoKey - paused"
+TOOLTIP_RUNNING = _("AutoKey - running")
+TOOLTIP_PAUSED = _("AutoKey - paused")
 
 
 class Notifier(QSystemTrayIcon):
@@ -111,27 +113,27 @@ class Notifier(QSystemTrayIcon):
         """
         logger.info("Creating static context menu actions.")
         self.action_view_script_error = self._create_action(
-            None, "&View script error", self.reset_tray_icon,
-            "View the last script error."
+            None, _("&View script error"), self.reset_tray_icon,
+            _("View the last script error.")
         )
         # The action should disable itself
         self.action_view_script_error.setDisabled(True)
         self.action_view_script_error.triggered.connect(self.action_view_script_error.setEnabled)
         self.action_hide_icon = self._create_action(
-            "edit-clear", "Temporarily &Hide Icon", self.hide,
-            "Temporarily hide the system tray icon.\nUse the settings to hide it permanently."
+            "edit-clear", _("Temporarily &Hide Icon"), self.hide,
+            _("Temporarily hide the system tray icon.\nUse the settings to hide it permanently.")
         )
         self.action_show_config_window = self._create_action(
-            "configure", "&Show Main Window", self.app.show_configure,
-            "Show the main AutoKey window. This does the same as left clicking the tray icon."
+            "configure", _("&Show Main Window"), self.app.show_configure,
+            _("Show the main AutoKey window. This does the same as left clicking the tray icon.")
         )
-        self.action_quit = self._create_action("application-exit", "Exit AutoKey", self.app.shutdown)
+        self.action_quit = self._create_action("application-exit", _("Exit AutoKey"), self.app.shutdown)
         # TODO: maybe import this from configwindow.py ? The exact same Action is defined in the main window.
         self.action_enable_monitoring = self._create_action(
-            None, "&Enable Monitoring", self.app.toggle_service,
-            "Pause the phrase expansion and script execution, both by abbreviations and hotkeys.\n"
-            "The global hotkeys to show the main window and to toggle this setting, as defined in the AutoKey "
-            "settings, are not affected and will work regardless."
+            None, _("&Enable Monitoring"), self.app.toggle_service,
+            _("Pause the phrase expansion and script execution, both by abbreviations and hotkeys.\n"
+              "The global hotkeys to show the main window and to toggle this setting, as defined in the AutoKey "
+              "settings, are not affected and will work regardless.")
         )
         self.action_enable_monitoring.setCheckable(True)
         self.action_enable_monitoring.setChecked(self.app.service.is_running())

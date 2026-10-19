@@ -18,6 +18,7 @@ import typing
 
 from PyQt5.QtWidgets import QDialog, QWidget, QApplication, QLabel, QPushButton
 
+from autokey.i18n import _
 from autokey.qtui.dialogs import GlobalHotkeyDialog
 import autokey.qtui.common as ui_common
 if typing.TYPE_CHECKING:
@@ -63,7 +64,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
             clear_button.setEnabled(True)
             return True
         else:
-            label.setText("(None configured)")
+            label.setText(_("(None configured)"))
             clear_button.setEnabled(False)
             return False
 
@@ -100,7 +101,7 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
     def on_clear_config_button_pressed(self):
         self.use_config_hotkey = False
         self.clear_config_button.setEnabled(False)
-        self.config_key_label.setText("(None configured)")
+        self.config_key_label.setText(_("(None configured)"))
         self.show_config_dlg.reset()
 
     def on_set_monitor_button_pressed(self):
@@ -116,5 +117,5 @@ class SpecialHotkeySettings(*ui_common.inherits_from_ui_file_with_name("specialh
     def on_clear_monitor_button_pressed(self):
         self.use_service_hotkey = False
         self.clear_monitor_button.setEnabled(False)
-        self.monitor_key_label.setText("(None configured)")
+        self.monitor_key_label.setText(_("(None configured)"))
         self.toggle_monitor_dlg.reset()

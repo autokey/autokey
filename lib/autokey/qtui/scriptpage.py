@@ -21,12 +21,13 @@ from PyQt5 import Qsci
 from PyQt5.QtWidgets import QMessageBox
 
 import autokey.model.script
+from autokey.i18n import _
 from autokey.qtui import common as ui_common
 
 API_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data/api.txt")
 
-PROBLEM_MSG_PRIMARY = "Some problems were found"
-PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
+PROBLEM_MSG_PRIMARY = _("Some problems were found")
+PROBLEM_MSG_SECONDARY = _("{}\n\nYour changes have not been saved.")
 
 
 class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
@@ -237,7 +238,7 @@ class ScriptPage(*ui_common.inherits_from_ui_file_with_name("scriptpage")):
         # Check script code
         code = str(self.scriptCodeEditor.text())
         if ui_common.EMPTY_FIELD_REGEX.match(code):
-            errors.append("The script code can't be empty")  # TODO: i18n
+            errors.append(_("The script code can't be empty"))
 
         # Check settings
         errors += self.settingsWidget.validate()

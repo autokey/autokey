@@ -12,7 +12,7 @@ Source1:	10-autokey.rules
 Source2:	autokey-gnome-extension@autokey.shell-extension.zip
 
 BuildArch:	noarch
-BuildRequires:	python3-devel,python3-xlib,python3-inotify,python3-dbus,python3-qt5-devel,python3-pip,python3-setuptools
+BuildRequires:	gettext,python3-devel,python3-xlib,python3-inotify,python3-dbus,python3-qt5-devel,python3-pip,python3-setuptools
 
 
 %description

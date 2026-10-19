@@ -1,5 +1,6 @@
 debhelper-compat
 dh-python
+gettext
 pyqt5-dev-tools
 python3-all
 gir1.2-gtk-3.0

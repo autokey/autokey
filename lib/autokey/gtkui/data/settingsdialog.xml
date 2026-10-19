@@ -22,7 +22,7 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="button1">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -38,7 +38,7 @@
             </child>
             <child>
               <object class="GtkButton" id="button2">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -621,7 +621,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="clearMonitorButton">
-                                    <property name="label">gtk-clear</property>
+                                    <property name="label" translatable="yes">_Clear</property>
                                     <property name="use-action-appearance">False</property>
                                     <property name="width-request">80</property>
                                     <property name="visible">True</property>
@@ -715,7 +715,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="clearConfigButton">
-                                    <property name="label">gtk-clear</property>
+                                    <property name="label" translatable="yes">_Clear</property>
                                     <property name="use-action-appearance">False</property>
                                     <property name="width-request">80</property>
                                     <property name="visible">True</property>

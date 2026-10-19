@@ -23,6 +23,7 @@ import autokey.model.folder
 import autokey.model.helpers
 import autokey.model.phrase
 import autokey.model.script
+from autokey.i18n import _, N_
 from autokey.qtui import common as qtui_common
 from autokey import UI_common_functions as UI_common
 
@@ -41,7 +42,7 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
     }
 
     REVERSE_KEY_MAP = {value: key for key, value in KEY_MAP.items()}
-    DEFAULT_RECORDED_KEY_LABEL_CONTENT = "(None)"
+    DEFAULT_RECORDED_KEY_LABEL_CONTENT = N_("(None)")
 
     """
     This signal is emitted whenever the key is assigned/deleted. This happens when the user records a key or cancels
@@ -83,10 +84,10 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
     def _update_key(self, key):
         self.key = key
         if key is None:
-            self.recorded_key_label.setText("Key: {}".format(self.DEFAULT_RECORDED_KEY_LABEL_CONTENT))  # TODO: i18n
+            self.recorded_key_label.setText(_("Key: {}").format(_(self.DEFAULT_RECORDED_KEY_LABEL_CONTENT)))
             self.key_assigned.emit(False)
         else:
-            self.recorded_key_label.setText("Key: {}".format(key))  # TODO: i18n
+            self.recorded_key_label.setText(_("Key: {}").format(key))
             self.key_assigned.emit(True)
 
     def on_record_combination_button_pressed(self):
@@ -94,7 +95,7 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         Start recording a key combination when the user clicks on the record_combination_button.
         The button itself is automatically disabled during the recording process.
         """
-        self.recorded_key_label.setText("Press a key or combination...")  # TODO: i18n
+        self.recorded_key_label.setText(_("Press a key or combination..."))
         logger.debug("User starts to record a key combination.")
         self.grabber = iomediator.keygrabber.KeyGrabber(self)
         self.grabber.start()

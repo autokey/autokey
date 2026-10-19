@@ -35,7 +35,6 @@ try:
     from gi.repository import AyatanaAppIndicator3 as AppIndicator
 except ImportError:
     from gi.repository import AppIndicator3 as AppIndicator
-import gettext
 
 from . import popupmenu
 
@@ -45,7 +44,7 @@ import autokey.configmanager.configmanager_constants as cm_constants
 from .. import common
 
 
-gettext.install("autokey")
+from autokey.i18n import _
 
 TOOLTIP_RUNNING = _("AutoKey - running")
 TOOLTIP_PAUSED = _("AutoKey - paused")

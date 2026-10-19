@@ -7,6 +7,8 @@ import grp
 import os
 import subprocess
 
+from autokey.i18n import _
+
 try:
     logger = __import__("autokey.logger").logger.get_logger(__name__)
 except Exception:
@@ -87,13 +89,13 @@ def waylandChecks():
 
     #  If there was a problem, throw up a popup box
     if show_popup:
-        title = 'AutoKey System Configuration Needed'
+        title = _('AutoKey System Configuration Needed')
         if _is_kde():
             #  KDE's KWin-scripting bridge needs no extra component installed,
             #  unlike the Gnome Shell extension.
-            message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering this command, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"'
+            message = _('Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering this command, then rebooting:') + f'<br /><br />sudo usermod -a -G "{group}" "{user}"'
         else:
-            message = f'Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
+            message = _('Your user id is not configured to run AutoKey under Wayland.  If this is your <b>first time</b> running AutoKey, try <b>rebooting</b> your system and starting AutoKey again.  Otherwise, try entering these two commands, then rebooting:') + f'<br /><br />sudo usermod -a -G "{group}" "{user}"<br /><br />gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip'
         __show_popup(title, message)
         return False
 
@@ -101,19 +103,19 @@ def waylandChecks():
 
 def __show_unsupported_desktop_popup():
         dte = os.environ.get('XDG_SESSION_DESKTOP') or os.environ.get('DESKTOP_SESSION') or 'unknown'
-        title = 'Unsupported Desktop Environment'
-        message = f'AutoKey does not support the "{dte}" desktop environment on a system that uses the Wayland window manager like this one. The "{dte}" desktop environment is supported under X11, but not here under Wayland.  Future development may remove this restriction, please stay tuned.'
+        title = _('Unsupported Desktop Environment')
+        message = _('AutoKey does not support the "{dte}" desktop environment on a system that uses the Wayland window manager like this one. The "{dte}" desktop environment is supported under X11, but not here under Wayland.  Future development may remove this restriction, please stay tuned.').format(dte=dte)
         __show_popup(title, message)
 
 #  Show popup using kdialog, if it's installed, or zenity, otherwise write the
 #  message to autokey.log
 def __show_popup(title, message):
         try:
-            subprocess.run(f"kdialog --error '{message}' --title '{title}'", shell=True, check=True)
+            subprocess.run(["kdialog", "--error", message, "--title", title], check=True)
         except Exception:
             try:
                 zenity_message = message.replace('<br />', '\n')
-                subprocess.run(f"zenity --error --title='{title}' --text='{zenity_message}'", shell=True, check=True)
+                subprocess.run(["zenity", "--error", "--title=" + title, "--text=" + zenity_message], check=True)
             except Exception:
                 logger.critical(message)
 

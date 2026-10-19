@@ -18,14 +18,16 @@ import os.path
 import pathlib
 import enum
 import functools
+import typing
 
-from PyQt5.QtCore import QFile, QSize
+from PyQt5.QtCore import QFile, QSize, QTranslator, QLocale, QLibraryInfo
 from PyQt5.QtGui import QFont, QIcon, QPixmap, QPainter, QColor, QFontDatabase
 from PyQt5.QtWidgets import QMessageBox, QLabel
 from PyQt5 import uic
 from PyQt5.QtSvg import QSvgRenderer
 
 import autokey.configmanager.configmanager_constants as cm_constants
+from autokey.i18n import _
 from autokey.logger import get_logger
 
 try:
@@ -57,6 +59,34 @@ del get_logger
 EMPTY_FIELD_REGEX = re.compile(r"^ *$", re.UNICODE)
 
 
+class GettextTranslator(QTranslator):
+    """
+    Look up the strings of the Qt Designer .ui files in the same gettext catalog used by the rest of AutoKey, so
+    translators only have to maintain a single set of .po files. The English text of a widget is the lookup key.
+    """
+
+    def translate(self, context, source_text, disambiguation=None, n=-1):
+        return _(source_text) if source_text else source_text
+
+
+def install_gettext_translator(app) -> typing.List[QTranslator]:
+    """
+    Install the translators into the given QCoreApplication. Must be called before any .ui file is loaded.
+    This is the GettextTranslator for AutoKey's own strings, plus Qt's own translation of its standard buttons and
+    dialogs (OK, Cancel, Yes, No, file dialogs, ...), if the Qt translations are installed.
+    The caller has to keep references to the returned translators for as long as the application runs.
+    """
+    translators = []
+    qt_translator = QTranslator(app)
+    if qt_translator.load(QLocale(), "qtbase", "_", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
+        app.installTranslator(qt_translator)
+        translators.append(qt_translator)
+    gettext_translator = GettextTranslator(app)
+    app.installTranslator(gettext_translator)
+    translators.append(gettext_translator)
+    return translators
+
+
 def monospace_font() -> QFont:
     """
     Returns a monospace font used in the code editor widgets.
@@ -72,7 +102,7 @@ def set_url_label(label: QLabel, path: str):
 
     # In both cases, only replace the first occurrence.
     if path.startswith(cm_constants.CONFIG_DEFAULT_FOLDER):
-        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, "(Default folder)", 1)
+        text = path.replace(cm_constants.CONFIG_DEFAULT_FOLDER, _("(Default folder)"), 1)
     else:
         # if bob has added a path '/home/bob/some/folder/home/bobbie/foo/' to autokey, the desired replacement text
         # is '~/some/folder/home/bobbie/foo/' and NOT '~/some/folder~bie/foo/'
