@@ -137,6 +137,12 @@ def set_language(languages: Optional[List[str]] = None) -> None:
     _locale_dir = find_locale_dir(languages)
     _language = ""
     if _locale_dir:
+        # GtkBuilder translates Glade strings through the C library, which only reads the environment. Export the
+        # languages that were chosen here, otherwise it ignores the setting and the regional fallbacks.
+        os.environ["LANGUAGE"] = ":".join(languages)
+    elif languages == [ENGLISH]:
+        os.environ["LANGUAGE"] = ENGLISH
+    if _locale_dir:
         _translation = gettext.translation(DOMAIN, _locale_dir, languages, fallback=True)
         _language = _translation.info().get("language", "")
         # GtkBuilder translates Glade strings through the C library, so bind the domain there as well.

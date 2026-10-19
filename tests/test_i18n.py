@@ -17,6 +17,7 @@ needs_msgfmt = pytest.mark.skipif(shutil.which("msgfmt") is None, reason="GNU ge
 def isolated_config_home(tmp_path_factory, monkeypatch):
     """Keep the tests independent of the language chosen in the real AutoKey configuration."""
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path_factory.mktemp("config")))
+    monkeypatch.setenv("LANGUAGE", "")  # set_language() exports LANGUAGE; this restores it after each test
 
 
 def write_language_setting(config_home, value):
@@ -151,3 +152,13 @@ def test_unavailable_language_setting_falls_back_to_the_environment(spanish, mon
     write_language_setting(os.environ["XDG_CONFIG_HOME"], "de_DE")
     i18n.set_language()
     assert i18n.get_language() == "es_ES"
+
+
+@needs_msgfmt
+def test_chosen_language_is_exported_for_the_c_library(spanish, monkeypatch):
+    write_language_setting(os.environ["XDG_CONFIG_HOME"], "es_ES")
+    i18n.set_language()
+    assert os.environ["LANGUAGE"].split(":")[0] == "es_ES"
+    write_language_setting(os.environ["XDG_CONFIG_HOME"], "en")
+    i18n.set_language()
+    assert os.environ["LANGUAGE"] == "en"
