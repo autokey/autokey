@@ -16,7 +16,7 @@
 
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QWidget, QComboBox
+from PyQt5.QtWidgets import QWidget, QComboBox, QHBoxLayout, QLabel
 
 
 import autokey.configmanager.autostart
@@ -28,6 +28,8 @@ from autokey.model.key import Key
 
 import autokey.qtui.common as ui_common
 import autokey.common as common
+from autokey import i18n
+from autokey.i18n import _
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -57,6 +59,7 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         self.enable_undo_checkbox.setChecked(cm.ConfigManager.SETTINGS[cm_constants.UNDO_USING_BACKSPACE])
         self.disable_capslock_checkbox.setChecked(cm.ConfigManager.is_modifier_disabled(Key.CAPSLOCK))
 
+        self._add_language_selection()
         self._fill_notification_icon_combobox_user_data()
         self._load_system_tray_icon_theme()
         self._fill_autostart_gui_selection_combobox()
@@ -77,9 +80,26 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
         cm.ConfigManager.SETTINGS[cm_constants.NOTIFICATION_ICON] = \
             self.system_tray_icon_theme_combobox.currentData(Qt.UserRole)
         self._save_disable_capslock_setting()
+        cm.ConfigManager.SETTINGS[cm_constants.LANGUAGE] = self.language_combobox.currentData(Qt.UserRole)
 
         self._save_autostart_settings()
         # TODO: After saving the notification icon, apply it to the currently running instance.
+
+    def _add_language_selection(self):
+        """Add the user interface language choice to the application group. The language applies after a restart."""
+        self.language_label = QLabel(_("Language:"), self)
+        self.language_combobox = QComboBox(self)
+        self.language_combobox.setToolTip(_("The language of the AutoKey windows. The change applies after AutoKey "
+                                            "restarts."))
+        self.language_combobox.addItem(_("System default"), "")
+        for locale_name, display_name in i18n.available_languages():
+            self.language_combobox.addItem(display_name, locale_name)
+        index = self.language_combobox.findData(cm.ConfigManager.SETTINGS[cm_constants.LANGUAGE], Qt.UserRole)
+        self.language_combobox.setCurrentIndex(max(index, 0))
+        row = QHBoxLayout()
+        row.addWidget(self.language_label)
+        row.addWidget(self.language_combobox, 1)
+        self.application_groupbox.layout().addLayout(row)
 
     def _save_disable_capslock_setting(self):
         # Only update the modifier key handling if the value changed.
@@ -96,14 +116,16 @@ class GeneralSettings(*ui_common.inherits_from_ui_file_with_name("generalsetting
             "Sort by usage count: {}, " \
             "Enable undo using backspace: {}, " \
             "Tray icon theme: {}, " \
-            "Disable Capslock: {}".format(
+            "Disable Capslock: {}, " \
+            "Language: {}".format(
                self.autosave_checkbox.isChecked(),
                self.show_tray_checkbox.isChecked(),
                self.allow_kb_nav_checkbox.isChecked(),
                self.sort_by_usage_checkbox.isChecked(),
                self.enable_undo_checkbox.isChecked(),
                self.system_tray_icon_theme_combobox.currentData(Qt.UserRole),
-               self.disable_capslock_checkbox.isChecked()
+               self.disable_capslock_checkbox.isChecked(),
+               self.language_combobox.currentData(Qt.UserRole)
             )
         return settings
 

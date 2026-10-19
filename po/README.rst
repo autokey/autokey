@@ -48,10 +48,34 @@ rename the folder by hand.
 
 The ``Language:`` line in the header of the catalog source must be the same as the locale name.
 
+Choosing the language in AutoKey
+--------------------------------
+
+Do these steps to choose the language of the AutoKey windows.
+
+1. Open the settings dialog: **Edit** > **Preferences** (GTK) or **Settings** > **Configure AutoKey** (Qt).
+2. On the general settings page, open the **Language** list.
+3. Select a language. The list shows the name of each language in that language.
+4. Click **OK** or **Save**.
+5. Restart AutoKey. The new language applies after the restart.
+
+The list has these choices:
+
+* **System default**: AutoKey uses the language of the system. This is the default choice.
+* **English**: AutoKey shows English. It ignores the language of the system.
+* One choice for each compiled catalog in the package.
+
+AutoKey saves the choice in the ``language`` setting in ``~/.config/autokey/autokey.json``. The value is a locale name,
+for example ``ja_JP``. The value ``en`` is English. An empty value is "System default".
+
+If the saved language has no catalog, AutoKey uses the language of the system. This can occur after you remove a
+catalog.
+
 How AutoKey selects a language
 ------------------------------
 
-AutoKey reads these environment variables. It uses the first one that has a value:
+AutoKey first uses the language that you chose in the settings dialog. If you did not choose one, or if you chose
+"System default", AutoKey reads these environment variables. It uses the first one that has a value:
 
 1. ``LANGUAGE``
 2. ``LC_ALL``
@@ -163,7 +187,9 @@ Adding a language
 
 7. Test the catalog. Use the steps in "Using a translation from a source checkout".
 8. Add a row for the new language to the table "Current catalogs" in this file.
-9. If the language is written from right to left, make sure that its language code is in ``RTL_LANGUAGES`` in
+9. Add the name of the language, written in that language, to ``LANGUAGE_NAMES`` in ``lib/autokey/i18n.py``. The
+   language list in the settings dialog shows this name. Without it, the list shows the locale name.
+10. If the language is written from right to left, make sure that its language code is in ``RTL_LANGUAGES`` in
    ``lib/autokey/i18n.py``.
 
 The build finds the new file by itself. Do not change ``setup.py``.

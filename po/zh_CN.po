@@ -1678,3 +1678,14 @@ msgstr "请输入一个正则表达式,用于匹配希望此项目触发的窗�
 #: lib/autokey/qtui/resources/ui/window_filter_settings_dialog.ui
 msgid "Window title or class"
 msgstr "窗口标题或类"
+
+msgid "Language:"
+msgstr "语言:"
+
+msgid "System default"
+msgstr "系统默认"
+
+msgid ""
+"The language of the AutoKey windows. The change applies after AutoKey "
+"restarts."
+msgstr "AutoKey 窗口的语言。更改将在 AutoKey 重启后生效。"

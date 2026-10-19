@@ -56,3 +56,4 @@ KEYBOARD= "keyboard"
 MOUSE = "mouse"
 DEVICES = "devices"
 DELAY = "uinputDelay"
+LANGUAGE = "language"  # Locale name of the user interface language. Empty: use the system language.

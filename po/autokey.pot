@@ -445,6 +445,9 @@ msgstr ""
 msgid "Keyboard:"
 msgstr ""
 
+msgid "Language:"
+msgstr ""
+
 msgid "Last"
 msgstr ""
 
@@ -737,6 +740,9 @@ msgstr ""
 msgid "Subf_older"
 msgstr ""
 
+msgid "System default"
+msgstr ""
+
 msgid "Tab"
 msgstr ""
 
@@ -809,6 +815,11 @@ msgstr ""
 
 #, python-format
 msgid "The hotkey is already in use for %s."
+msgstr ""
+
+msgid ""
+"The language of the AutoKey windows. The change applies after AutoKey "
+"restarts."
 msgstr ""
 
 msgid "The name can't be empty"

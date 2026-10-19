@@ -1,3 +1,5 @@
+import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -9,6 +11,18 @@ import autokey.model.phrase
 
 PO_DIR = Path(__file__).resolve().parent.parent / "po"
 needs_msgfmt = pytest.mark.skipif(shutil.which("msgfmt") is None, reason="GNU gettext (msgfmt) is not installed")
+
+
+@pytest.fixture(autouse=True)
+def isolated_config_home(tmp_path_factory, monkeypatch):
+    """Keep the tests independent of the language chosen in the real AutoKey configuration."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path_factory.mktemp("config")))
+
+
+def write_language_setting(config_home, value):
+    config_dir = Path(config_home) / "autokey"
+    config_dir.mkdir(parents=True, exist_ok=True)
+    (config_dir / "autokey.json").write_text(json.dumps({"settings": {"language": value}}))
 
 
 @pytest.fixture
@@ -100,3 +114,40 @@ def test_right_to_left_languages_are_detected(spanish, tmp_path, monkeypatch):
     i18n.set_language(["ar_SA"])
     assert i18n.get_language() == "ar_SA"
     assert i18n.is_rtl()
+
+
+def test_setting_key_matches_the_configuration_constant():
+    import autokey.configmanager.configmanager_constants as cm_constants
+    assert i18n.CONFIG_KEY == cm_constants.LANGUAGE
+
+
+@needs_msgfmt
+def test_available_languages_lists_english_and_the_installed_catalogs(spanish):
+    choices = i18n.available_languages()
+    assert choices[0] == ("en", "English")
+    assert ("es_ES", "Español (es_ES)") in choices
+
+
+@needs_msgfmt
+def test_language_setting_overrides_the_environment(spanish, monkeypatch):
+    monkeypatch.setenv("LANGUAGE", "fr")
+    write_language_setting(os.environ["XDG_CONFIG_HOME"], "es_ES")
+    i18n.set_language()
+    assert i18n.get_language() == "es_ES"
+
+
+@needs_msgfmt
+def test_english_setting_ignores_the_environment(spanish, monkeypatch):
+    monkeypatch.setenv("LANGUAGE", "es_ES")
+    write_language_setting(os.environ["XDG_CONFIG_HOME"], "en")
+    i18n.set_language()
+    assert i18n.get_language() == ""
+    assert i18n._("Save changes?") == "Save changes?"
+
+
+@needs_msgfmt
+def test_unavailable_language_setting_falls_back_to_the_environment(spanish, monkeypatch):
+    monkeypatch.setenv("LANGUAGE", "es_ES")
+    write_language_setting(os.environ["XDG_CONFIG_HOME"], "de_DE")
+    i18n.set_language()
+    assert i18n.get_language() == "es_ES"

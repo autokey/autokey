@@ -480,6 +480,9 @@ msgstr "Teclado"
 msgid "Keyboard:"
 msgstr "Teclado:"
 
+msgid "Language:"
+msgstr "Idioma:"
+
 msgid "Last"
 msgstr "Último"
 
@@ -798,6 +801,9 @@ msgstr "Empezar a grabar después de"
 msgid "Subf_older"
 msgstr "Sub_carpeta"
 
+msgid "System default"
+msgstr "Predeterminado del sistema"
+
 msgid "Tab"
 msgstr "Tabulador"
 
@@ -888,6 +894,11 @@ msgstr ""
 #, python-format
 msgid "The hotkey is already in use for %s."
 msgstr "El atajo de teclado ya está en uso para %s."
+
+msgid ""
+"The language of the AutoKey windows. The change applies after AutoKey "
+"restarts."
+msgstr "El idioma de las ventanas de AutoKey. El cambio se aplica cuando AutoKey se reinicia."
 
 msgid "The name can't be empty"
 msgstr "El nombre no puede estar vacío"

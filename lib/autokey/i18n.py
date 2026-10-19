@@ -11,17 +11,33 @@ The environment variable AUTOKEY_LOCALEDIR can point at an alternative catalog d
 """
 
 import gettext
+import json
 import locale
 import os
 import re
 import sys
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 DOMAIN = "autokey"
 
 # Languages written right to left. The user interfaces mirror their layout when one of these is active.
 RTL_LANGUAGES = frozenset({"ar", "fa", "he", "ur"})
+
+# The names of the languages in their own language, for the language choice in the settings dialogs. Add an entry here
+# when adding a catalog, otherwise the locale name is shown. Keys are locale names or language codes.
+LANGUAGE_NAMES = {
+    "ar": "العربية",
+    "es": "Español",
+    "ja": "日本語",
+    "zh_CN": "简体中文",
+    "zh_TW": "繁體中文",
+}
+
+# The language chosen in the settings dialog is stored in the AutoKey configuration file under this key.
+CONFIG_KEY = "language"
+# The setting value for English, the source language. It has no catalog.
+ENGLISH = "en"
 
 _translation = gettext.NullTranslations()
 _locale_dir = None  # type: Optional[str]
@@ -39,8 +55,34 @@ def _candidate_locale_dirs() -> List[Path]:
     return candidates
 
 
+def _configured_language() -> str:
+    """
+    The language chosen in the settings dialog, or an empty string for "use the system language". The configuration
+    file is read directly because this module is imported before the configuration manager is created.
+    """
+    config_home = os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config")
+    try:
+        with open(os.path.join(config_home, "autokey", "autokey.json"), "r", encoding="utf-8") as config_file:
+            value = json.load(config_file)["settings"].get(CONFIG_KEY, "")
+    except (OSError, ValueError, KeyError, AttributeError):
+        return ""
+    return value if isinstance(value, str) else ""
+
+
 def _requested_languages() -> List[str]:
-    """The language list gettext would take from the environment (LANGUAGE, LC_ALL, LC_MESSAGES, LANG)."""
+    """
+    The language list to use when none is given: the language chosen in the settings dialog if there is one, otherwise
+    the list gettext would take from the environment (LANGUAGE, LC_ALL, LC_MESSAGES, LANG).
+    """
+    configured = _configured_language()
+    if configured == ENGLISH:
+        return [ENGLISH]
+    environment = _environment_languages()
+    return [configured] + environment if configured else environment
+
+
+def _environment_languages() -> List[str]:
+    """The list gettext would take from the environment (LANGUAGE, LC_ALL, LC_MESSAGES, LANG)."""
     for variable in ("LANGUAGE", "LC_ALL", "LC_MESSAGES", "LANG"):
         value = os.environ.get(variable)
         if value:
@@ -105,6 +147,18 @@ def set_language(languages: Optional[List[str]] = None) -> None:
             pass
     else:
         _translation = gettext.NullTranslations()
+
+
+def available_languages() -> List[Tuple[str, str]]:
+    """
+    The languages that can be chosen as (setting value, display name) pairs, in the order they should be listed:
+    English first, then the installed catalogs sorted by locale name. The display name is in the language itself.
+    """
+    choices = [(ENGLISH, "English")]
+    for name in sorted(set(_installed_locales())):
+        native = LANGUAGE_NAMES.get(name) or LANGUAGE_NAMES.get(name.split("_")[0])
+        choices.append((name, "{} ({})".format(native, name) if native else name))
+    return choices
 
 
 def get_locale_dir() -> Optional[str]:

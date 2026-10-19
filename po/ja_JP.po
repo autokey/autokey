@@ -477,6 +477,9 @@ msgstr "キーボード"
 msgid "Keyboard:"
 msgstr "キーボード:"
 
+msgid "Language:"
+msgstr "言語:"
+
 msgid "Last"
 msgstr "最後"
 
@@ -792,6 +795,9 @@ msgstr "記録を開始するまでの時間"
 msgid "Subf_older"
 msgstr "サブフォルダー(_O)"
 
+msgid "System default"
+msgstr "システムのデフォルト"
+
 msgid "Tab"
 msgstr "Tab"
 
@@ -881,6 +887,11 @@ msgstr ""
 #, python-format
 msgid "The hotkey is already in use for %s."
 msgstr "このホットキーはすでに %s で使われています。"
+
+msgid ""
+"The language of the AutoKey windows. The change applies after AutoKey "
+"restarts."
+msgstr "AutoKeyのウィンドウの言語です。変更はAutoKeyの再起動後に反映されます。"
 
 msgid "The name can't be empty"
 msgstr "名前を空にすることはできません"
