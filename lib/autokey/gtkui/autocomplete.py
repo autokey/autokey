@@ -25,6 +25,8 @@ require_version('GtkSource', '3.0')
 
 from gi.repository import Gtk, GtkSource, GObject
 
+from autokey.i18n import _
+
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
 class FileCompletionProvider(GObject.GObject, GtkSource.CompletionProvider):
@@ -52,7 +54,7 @@ class FileCompletionProvider(GObject.GObject, GtkSource.CompletionProvider):
 
         end_iter = context.get_iter()
         if not isinstance(end_iter, Gtk.TextIter):
-            _, end_iter = context.get_iter()
+            _unused, end_iter = context.get_iter()
 
         if end_iter:
             buffer = end_iter.get_buffer()
@@ -85,7 +87,7 @@ class FileCompletionProvider(GObject.GObject, GtkSource.CompletionProvider):
                     proposals.append({"func_name": func_name, "completion": item})
 
                     if self.trigger=="<":
-                        self.name = "Insert Macro"
+                        self.name = _("Insert Macro")
                     else:
                         self.name = row[0].split(".")[0]
 

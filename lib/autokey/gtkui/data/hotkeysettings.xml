@@ -24,7 +24,7 @@
             <property name="layout-style">end</property>
             <child>
               <object class="GtkButton" id="cancelButton">
-                <property name="label">gtk-cancel</property>
+                <property name="label" translatable="yes">_Cancel</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
@@ -40,7 +40,7 @@
             </child>
             <child>
               <object class="GtkButton" id="okButton">
-                <property name="label">gtk-ok</property>
+                <property name="label" translatable="yes">_OK</property>
                 <property name="use-action-appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>

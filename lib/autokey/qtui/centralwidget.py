@@ -31,6 +31,7 @@ import autokey.iomediator.keygrabber
 import autokey.configmanager.configmanager as cm
 import autokey.configmanager.configmanager_constants as cm_constants
 
+from autokey.i18n import _
 from autokey.qtui import common as ui_common
 from autokey.qtui import autokey_treewidget as ak_tree
 from autokey.logger import get_logger, root_logger
@@ -66,9 +67,9 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
         self.factory = None  # type: ak_tree.WidgetItemFactory
         self.context_menu = None  # type: QMenu
-        self.action_clear_log = self._create_action("edit-clear-history", "Clear Log", None, self.on_clear_log)
+        self.action_clear_log = self._create_action("edit-clear-history", _("Clear Log"), None, self.on_clear_log)
         self.listWidget.addAction(self.action_clear_log)
-        self.action_save_log = self._create_action("edit-clear-history", "Save Log As…", None, self.on_save_log)
+        self.action_save_log = self._create_action("edit-clear-history", _("Save Log As…"), None, self.on_save_log)
         self.listWidget.addAction(self.action_save_log)
 
     @staticmethod
@@ -191,11 +192,10 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
 
     def promptToSave(self):
         if cm.ConfigManager.SETTINGS[cm_constants.PROMPT_TO_SAVE]:
-            # TODO: i18n
             result = QMessageBox.question(
                 self.window(),
-                "Save changes?",
-                "There are unsaved changes. Would you like to save them?",
+                _("Save changes?"),
+                _("There are unsaved changes. Would you like to save them?"),
                 QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel
             )
 
@@ -216,7 +216,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             newText = str(item.text(0))
             if ui_common.validate(
                     not ui_common.EMPTY_FIELD_REGEX.match(newText),
-                    "The name can't be empty.",
+                    _("The name can't be empty."),
                     None,
                     self.window()):
                 self.window().app.monitor.suspend()
@@ -259,13 +259,13 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         logger.info("User initiates top-level folder creation")
         message_box = QMessageBox(
             QMessageBox.Question,
-            "Create Folder",
-            "Create folder in the default location?",
+            _("Create Folder"),
+            _("Create folder in the default location?"),
             QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel,
             self.window()
 
         )
-        message_box.button(QMessageBox.No).setText("Create elsewhere")  # TODO: i18n
+        message_box.button(QMessageBox.No).setText(_("Create elsewhere"))
         result = message_box.exec_()
 
         self.window().app.monitor.suspend()
@@ -277,25 +277,25 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         elif result == QMessageBox.No:
             logger.debug("User creates a new folder and chose to create it elsewhere")
             QMessageBox.warning(
-                self.window(), "Beware",
-                "AutoKey will take the full ownership of the directory you are about to select or create. "
-                "It is advisable to only choose empty directories or directories that contain data created by AutoKey "
-                "previously.\n\nIf you delete or move the directory from within AutoKey "
-                "(for example by using drag and drop), all files unknown to AutoKey will be deleted.",
+                self.window(), _("Beware"),
+                _("AutoKey will take the full ownership of the directory you are about to select or create. "
+                  "It is advisable to only choose empty directories or directories that contain data created by "
+                  "AutoKey previously.\n\nIf you delete or move the directory from within AutoKey "
+                  "(for example by using drag and drop), all files unknown to AutoKey will be deleted."),
                 QMessageBox.Ok)
             path = QFileDialog.getExistingDirectory(
                 self.window(),
-                "Where should the folder be created?"
+                _("Where should the folder be created?")
             )
             if path != "":
                 path = pathlib.Path(path)
                 if list(path.glob("*")):
                     result = QMessageBox.warning(
-                        self.window(), "The chosen directory already contains files",
-                        "The selected directory already contains files. "
-                        "If you continue, AutoKey will take the ownership.\n\n"
-                        "You may lose all files in '{}' that are not related to AutoKey if you select this directory.\n"
-                        "Continue?".format(path),
+                        self.window(), _("The chosen directory already contains files"),
+                        _("The selected directory already contains files. "
+                          "If you continue, AutoKey will take the ownership.\n\n"
+                          "You may lose all files in '{}' that are not related to AutoKey if you select this "
+                          "directory.\nContinue?").format(path),
                         QMessageBox.Yes|QMessageBox.No) == QMessageBox.Yes
                 else:
                     result = True
@@ -316,7 +316,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.__createFolder(parent_item)
 
     def __createFolder(self, parent_item):
-        folder = autokey.model.folder.Folder("New Folder")
+        folder = autokey.model.folder.Folder(_("New Folder"))
         new_item = ak_tree.FolderWidgetItem(parent_item, folder)
         self.window().app.monitor.suspend()
 
@@ -341,7 +341,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
-        phrase = autokey.model.phrase.Phrase("New Phrase", "Enter phrase contents")
+        phrase = autokey.model.phrase.Phrase(_("New Phrase"), _("Enter phrase contents"))
         new_item = ak_tree.PhraseWidgetItem(parent_item, phrase)
         parent.add_item(phrase)
         phrase.persist()
@@ -360,7 +360,7 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         parent_item = tree_widget.selectedItems()[0]  # type: ak_tree.ItemWidgetType
         parent = self.__extractData(parent_item)
 
-        script = autokey.model.script.Script("New Script", "#Enter script code")
+        script = autokey.model.script.Script(_("New Script"), _("#Enter script code"))
         new_item = ak_tree.ScriptWidgetItem(parent_item, script)
         parent.add_item(script)
         script.persist()
@@ -466,17 +466,19 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
             widget_item = widget_items[0]
             data = self.__extractData(widget_item)
             if isinstance(data, autokey.model.folder.Folder):
-                header = "Delete Folder?"
-                msg = "Are you sure you want to delete the '{deleted_folder}' folder and all the items in it?".format(
-                    deleted_folder=data.title)
+                header = _("Delete Folder?")
+                msg = _("Are you sure you want to delete the '{deleted_folder}' folder and all the items in it?"
+                        ).format(deleted_folder=data.title)
             else:
-                entity_type = "Script" if isinstance(data, autokey.model.script.Script) else "Phrase"
-                header = "Delete {}?".format(entity_type)
-                msg = "Are you sure you want to delete '{element}'?".format(element=data.description)
+                if isinstance(data, autokey.model.script.Script):
+                    header = _("Delete Script?")
+                else:
+                    header = _("Delete Phrase?")
+                msg = _("Are you sure you want to delete '{element}'?").format(element=data.description)
         else:
             item_count = len(widget_items)
-            header = "Delete {item_count} selected items?".format(item_count=item_count)
-            msg = "Are you sure you want to delete the {item_count} selected folders/items?".format(
+            header = _("Delete {item_count} selected items?").format(item_count=item_count)
+            msg = _("Are you sure you want to delete the {item_count} selected folders/items?").format(
                 item_count=item_count)
         result = QMessageBox.question(self.window(), header, msg, QMessageBox.Yes | QMessageBox.No)
 
@@ -514,13 +516,13 @@ class CentralWidget(*ui_common.inherits_from_ui_file_with_name("centralwidget"))
         self.window().cancel_record()
 
     def on_save_log(self):
-        file_name, _ = QFileDialog.getSaveFileName(  # second return value contains the used file type filter.
+        file_name, selected_filter = QFileDialog.getSaveFileName(  # second return value is the used file type filter.
             self.window(),
-            "Save log file",
+            _("Save log file"),
             "",
             ""  # TODO: File type filter. Maybe "*.log"?
         )
-        del _  # We are only interested in the selected file name
+        del selected_filter  # We are only interested in the selected file name
         if file_name:
             list_widget = self.listWidget  # type: QListWidget
             item_texts = (list_widget.item(row).text() for row in range(list_widget.count()))

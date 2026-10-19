@@ -19,11 +19,12 @@ import subprocess
 from PyQt5.QtWidgets import QMessageBox
 
 import autokey.model.phrase
+from autokey.i18n import _
 from autokey.qtui import common as ui_common
 
 
-PROBLEM_MSG_PRIMARY = "Some problems were found"
-PROBLEM_MSG_SECONDARY = "{}\n\nYour changes have not been saved."
+PROBLEM_MSG_PRIMARY = _("Some problems were found")
+PROBLEM_MSG_SECONDARY = _("{}\n\nYour changes have not been saved.")
 
 
 # TODO: Once the port to Qt5 is done, set the editor placeholder text in the UI file to "Enter your phrase here."
@@ -37,8 +38,9 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         self.initialising = True
         self.current_phrase = None  # type: autokey.model.phrase.Phrase
 
-        for val in sorted(autokey.model.phrase.SEND_MODES.keys()):
-            self.sendModeCombo.addItem(val)
+        self._send_mode_keys = sorted(autokey.model.phrase.SEND_MODES.keys())
+        for val in self._send_mode_keys:
+            self.sendModeCombo.addItem(_(val))
         self.initialising = False
 
     def load(self, phrase: autokey.model.phrase.Phrase):
@@ -48,12 +50,12 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
 
         for k, v in autokey.model.phrase.SEND_MODES.items():
             if v == phrase.sendMode:
-                self.sendModeCombo.setCurrentIndex(self.sendModeCombo.findText(k))
+                self.sendModeCombo.setCurrentIndex(self._send_mode_keys.index(k))
                 break
 
         if self.is_new_item():
             self.urlLabel.setEnabled(False)
-            self.urlLabel.setText("(Unsaved)")  # TODO: i18n
+            self.urlLabel.setText(_("(Unsaved)"))
         else:
             ui_common.set_url_label(self.urlLabel, self.current_phrase.path)
 
@@ -68,7 +70,7 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         self.current_phrase.phrase = str(self.phraseText.toPlainText())
         self.current_phrase.show_in_tray_menu = self.showInTrayCheckbox.isChecked()
 
-        self.current_phrase.sendMode = autokey.model.phrase.SEND_MODES[str(self.sendModeCombo.currentText())]
+        self.current_phrase.sendMode = autokey.model.phrase.SEND_MODES[self._send_mode_keys[self.sendModeCombo.currentIndex()]]
 
         # TODO - re-enable me if restoring predictive functionality
         #if self.predictCheckbox.isChecked():
@@ -102,7 +104,7 @@ class PhrasePage(*ui_common.inherits_from_ui_file_with_name("phrasepage")):
         # Check phrase content
         phrase = str(self.phraseText.toPlainText())
         if ui_common.EMPTY_FIELD_REGEX.match(phrase):
-            errors.append("The phrase content can't be empty")  # TODO: i18n
+            errors.append(_("The phrase content can't be empty"))
 
         # Check settings
         errors += self.settingsWidget.validate()

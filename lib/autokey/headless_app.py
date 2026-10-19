@@ -15,11 +15,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gettext
-# Must be done before any autokey imports, to localise any module setup strings.
-gettext.install("autokey")
-
 import sys
+
+from autokey.i18n import _
 
 from autokey.autokey_app import AutokeyApplication
 from autokey.abstract_ui import AutokeyUIInterface
@@ -29,9 +27,6 @@ from . import common
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
-# TODO: this _ named function is initialised by gettext.install(), which is for
-# localisation. It marks the string as a candidate for translation, but I don't
-# know what else.
 PROGRAM_NAME = _("AutoKey")
 DESCRIPTION = _("Desktop automation utility")
 COPYRIGHT = _("(c) 2008-2011 Chris Dekter")

@@ -19,6 +19,7 @@ import sys
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QFileDialog, QWidget, QApplication
 
+from autokey.i18n import _
 from autokey.qtui import common
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
@@ -67,7 +68,7 @@ class EngineSettings(*common.inherits_from_ui_file_with_name("enginesettings")):
         PyQt slot called when the user hits the "Browse" button.
         Display a directory selection dialog and store the returned path.
         """
-        path = QFileDialog.getExistingDirectory(self.parentWidget(), "Choose a directory containing Python modules")
+        path = QFileDialog.getExistingDirectory(self.parentWidget(), _("Choose a directory containing Python modules"))
 
         if path:  # Non-empty means the user chose a path and clicked on OK
             self.path = path

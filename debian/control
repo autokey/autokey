@@ -4,6 +4,7 @@ Section: utils
 Priority: optional
 Build-Depends: debhelper-compat (= 12),
                dh-python,
+               gettext,
                gir1.2-gtk-3.0,
                pyqt5-dev-tools,
                python3-all,
