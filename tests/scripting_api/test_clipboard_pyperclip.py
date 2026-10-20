@@ -47,6 +47,42 @@ def test_module_import_eagerly_binds_pyperclip_backend():
     hm.assert_that(clipboard_pyperclip.pyperclip.copy.__name__, hm.not_(hm.equal_to("lazy_load_stub_copy")))
     hm.assert_that(clipboard_pyperclip.pyperclip.paste.__name__, hm.not_(hm.equal_to("lazy_load_stub_paste")))
 
+@pytest.mark.parametrize("wayland, tools, expected", [
+    ("wayland-0", {"wl-copy", "wl-paste", "xclip"}, "init_wl_clipboard"),
+    ("wayland-0", {"xclip", "xsel"}, "init_xclip_clipboard"),
+    ("wayland-0", {"wl-copy", "xclip"}, "init_xclip_clipboard"),
+    (None, {"wl-copy", "wl-paste", "xclip", "xsel"}, "init_xclip_clipboard"),
+    (None, {"xsel"}, "init_xsel_clipboard"),
+])
+def test_select_backend_prefers_command_line_helpers(monkeypatch, wayland, tools, expected):
+    """
+    Regression test: pyperclip < 1.9 picks its gi (in-process GTK) backend ahead of xclip/wl-copy whenever
+    "import gi" works, which hangs AutoKey on GNOME Wayland. _select_backend() must never return it while a
+    command-line helper is available.
+    """
+    monkeypatch.setenv("DISPLAY", ":0")
+    if wayland:
+        monkeypatch.setenv("WAYLAND_DISPLAY", wayland)
+    else:
+        monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    monkeypatch.setattr(clipboard_pyperclip.shutil, "which", lambda name: "/usr/bin/" + name if name in tools else None)
+    chosen = {}
+    for name in ("init_wl_clipboard", "init_xclip_clipboard", "init_xsel_clipboard"):
+        monkeypatch.setattr(clipboard_pyperclip.pyperclip, name, lambda n=name: chosen.setdefault("name", n))
+    monkeypatch.setattr(clipboard_pyperclip.pyperclip, "determine_clipboard",
+                        lambda: pytest.fail("fell back to determine_clipboard()"))
+    clipboard_pyperclip._select_backend()
+    hm.assert_that(chosen["name"], hm.equal_to(expected))
+
+
+def test_select_backend_defers_to_pyperclip_when_no_helper(monkeypatch):
+    monkeypatch.setenv("DISPLAY", ":0")
+    monkeypatch.delenv("WAYLAND_DISPLAY", raising=False)
+    monkeypatch.setattr(clipboard_pyperclip.shutil, "which", lambda name: None)
+    sentinel = (lambda *a, **k: None, lambda *a, **k: "")
+    monkeypatch.setattr(clipboard_pyperclip.pyperclip, "determine_clipboard", lambda: sentinel)
+    hm.assert_that(clipboard_pyperclip._select_backend(), hm.is_(sentinel))
+
 
 def test_fill_clipboard_calls_pyperclip_copy():
     clipboard = PyperclipClipboard()

@@ -16,6 +16,8 @@
 PyperclipClipboard Functions
 """
 
+import os
+import shutil
 import threading
 from pathlib import Path
 
@@ -26,6 +28,30 @@ from autokey.scripting.abstract_clipboard import AbstractClipboard
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 
+
+def _select_backend():
+    """
+    Choose the pyperclip backend explicitly instead of via determine_clipboard().
+
+    pyperclip releases before 1.9 (1.8.2 is what Debian/Ubuntu/Mint ship) try
+    "import gi" first, and that import always succeeds inside the GTK front
+    end. Pyperclip then reads and writes through the in-process GTK clipboard
+    from AutoKey's worker thread, which is exactly the path this module exists
+    to avoid: on GNOME Wayland the write is rejected, and the unsynchronised
+    GTK calls from outside the main thread wedge the main loop (every D-Bus
+    call then times out). Newer pyperclip prefers wl-copy/xclip, so mirror that
+    order here and only defer to pyperclip's own detection if neither exists.
+    """
+    if os.environ.get("WAYLAND_DISPLAY") and shutil.which("wl-copy") and shutil.which("wl-paste"):
+        return pyperclip.init_wl_clipboard()
+    if os.environ.get("DISPLAY"):
+        if shutil.which("xclip"):
+            return pyperclip.init_xclip_clipboard()
+        if shutil.which("xsel"):
+            return pyperclip.init_xsel_clipboard()
+    return pyperclip.determine_clipboard()
+
+
 # pyperclip normally binds copy()/paste() lazily on first use, so that
 # importing it doesn't force a clipboard mechanism to be chosen before the
 # caller has a chance to override it. That lazy stub's signature doesn't
@@ -35,7 +61,7 @@ logger = __import__("autokey.logger").logger.get_logger(__name__)
 # xclip/wl-copy backend (confirmed live: any AutoKey session where a
 # SELECTION-mode phrase fires before a CB_CTRL_V-mode one does). Binding the
 # real backend eagerly here avoids the lazy stub entirely.
-pyperclip.copy, pyperclip.paste = pyperclip.determine_clipboard()
+pyperclip.copy, pyperclip.paste = _select_backend()
 
 
 class PyperclipClipboard(AbstractClipboard):
