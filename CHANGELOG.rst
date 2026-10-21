@@ -89,8 +89,6 @@ Packaging and installation
   then to ``0.97.0~beta0`` in ``debian/changelog``, ``fedora/autokey.spec``
   and ``lib/autokey/common.py``, and the internal ``VERSION`` to
   ``0.97.0-beta.0`` for `PEP 440`_ compliance.
-- Removed gir1.2-appindicator3-0.1 from the apt-requirements.txt as its
-  functionality was replaced by gir1.2-ayatanaappindicator3-0.1 (`#1295`_)
 
 GTK and Qt front-ends
 ------------------------
