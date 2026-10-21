@@ -50,6 +50,9 @@ def test_monitor_thread_survives_a_listener_exception(monitor, tmp_path):
 
 def test_qt_application_has_a_config_window_placeholder_before_initialise():
     """The monitor thread calls path_created_or_modified() with self.configWindow during first-run setup."""
-    qtapp = pytest.importorskip("autokey.qtapp")
+    try:
+        from autokey import qtapp
+    except ImportError as error:  # PyQt5 or its Qsci module is not installed
+        pytest.skip("Qt front end not importable: {}".format(error))
 
     assert qtapp.Application.configWindow is None
