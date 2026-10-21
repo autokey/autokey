@@ -72,7 +72,8 @@ author_data = (
     AuthorData("GuoCi", "Python 3 port maintainer", "guociz@gmail.com"),
     AuthorData("Chris Dekter", "Developer", "cdekter@gmail.com"),
     AuthorData("Sam Peterson", "Original developer", "peabodyenator@gmail.com"),
-    AuthorData("Sam Sebastian", "Wayland port", "sebastiansam55@gmail.com")
+    AuthorData("Sam Sebastian", "Wayland port", "sebastiansam55@gmail.com"),
+    AuthorData("chrislee35", "Wayland support, testing and maintenance", "")
 )
 about_data = AboutData(
    program_name="AutoKey",

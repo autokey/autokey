@@ -72,6 +72,7 @@ class AutokeyApplication:
 
     def __initialise(self):
         configure_root_logger(self.args)
+        logger.info("AutoKey version %s starting", common.VERSION)
         if awc.waylandChecks() :
             logger.debug('autokey.waylandChecks() succeeded')
         else:
@@ -309,3 +310,4 @@ class AutokeyApplication:
         self.service.shutdown()
         self.dbusService.unregister()
         logger.debug("Finished shutting down service and file monitor...")
+        logger.info("AutoKey version %s shut down", common.VERSION)
