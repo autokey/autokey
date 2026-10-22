@@ -29,6 +29,15 @@ automatically be built.
 
 If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
 
+Before merging a PR that changes AutoKey's runtime behavior, verify it
+by actually running the affected code path — ideally comparing behavior
+across `master`, `develop`, and the PR branch — rather than relying on
+code review alone. Purely cosmetic changes (comments, dead code, debug
+output, formatting) don't need this level of verification.
+
+If a maintainer has raised an open, unresolved concern on a PR, don't
+merge over it without checking in with them first — either resolve the
+concern together or get their explicit agreement to proceed anyway.
 See VM_TESTING.md for how to set up virtual machines covering AutoKey's
 X11, GNOME/Wayland, and KDE Plasma/Wayland targets, and how to run both
 the automated (`tests/vm_checklist/checklist.py`) and manual
