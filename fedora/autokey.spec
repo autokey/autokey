@@ -27,10 +27,12 @@ Summary:	Desktop automation utility - common data
 Requires:	gnome-extensions-app
 Requires:	python3-dbus
 Requires:	python3-evdev
+Requires:	python3-pyperclip
 Requires:	python3-pyudev
 Requires:	wmctrl
 Requires:	ImageMagick
 Requires:	xautomation
+Requires:	xclip
 Provides:	autokey = %{version}-%{release}
 %description common
 This package contains the common data shared between the various front ends.

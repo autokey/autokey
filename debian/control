@@ -25,10 +25,12 @@ Depends: imagemagick,
          python3-dbus,
          python3-evdev,
          python3-pyinotify,
+         python3-pyperclip,
          python3-pyudev,
          python3-xlib,
          wmctrl,
          xautomation,
+         xclip,
          ${misc:Depends},
          ${python3:Depends}
 Description: desktop automation utility - common data

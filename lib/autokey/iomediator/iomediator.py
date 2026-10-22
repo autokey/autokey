@@ -441,10 +441,11 @@ class IoMediator(threading.Thread):
         # extension call has shown no evidence of the same magnitude of
         # delay, and a blanket multi-second stall on every clipboard paste
         # would be a real regression there. (GNOME Wayland has a separate,
-        # confirmed clipboard-ownership limitation of its own -- see
-        # get_clipboard()'s docstring in clipboard_gtk.py -- but it is a
-        # hard, near-instant compositor rejection, not a timing race, so
-        # this delay would not help it and isn't applied there.)
+        # clipboard-ownership limitation of its own -- see
+        # clipboard_pyperclip.py's module docstring -- but it is a hard,
+        # near-instant compositor rejection that pyperclip's xclip/wl-copy
+        # backends route around entirely, not a timing race, so this delay
+        # would not help it and isn't applied there.)
         if common.SESSION_TYPE == "wayland" and common.DESKTOP == "KDE":
             self._wait_responsively(0.5)
         try:
