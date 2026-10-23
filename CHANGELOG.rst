@@ -2,6 +2,54 @@
 Changelog
 =========
 
+Version 0.97.0-beta.1
+============================
+
+Changes merged into ``develop`` since 0.97.0-beta.0.
+
+Packaging and installation
+-----------------------------
+- Remove the unavailable ``gir1.2-appindicator3-0.1`` from
+  ``apt-requirements.txt`` so the dependency install works on Debian;
+  stop installing ``PKG-INFO`` from ``debian/docs``, which broke the
+  ``.deb`` build; and remove personal email addresses from the package
+  metadata, which now lists "AutoKey maintainers" and a bug tracker URL.
+  (`#1296`_, `#1300`_, `#1303`_)
+
+Scripting API and documentation
+------------------------------------
+- Replace the GTK, Qt and Tk clipboard classes, and the GNOME Shell
+  extension and klipper workarounds, with a single ``pyperclip``-based
+  clipboard that runs ``xclip`` or ``wl-copy`` as a detached background
+  process, which GNOME and KDE Wayland don't reject. This is the root-cause
+  fix for the GNOME and KDE Wayland clipboard problems worked around in
+  `#1213`_, #1250 and #1251; image clipboard support is unchanged.
+  Two things users will notice: reading an empty clipboard or selection
+  no longer raises an exception, it logs a message and returns ``None``,
+  so scripts can drop their ``try:`` block and should test for ``None``;
+  and ``xclip`` (X11 and Wayland) or ``wl-clipboard`` (Wayland) must now
+  be installed, with a startup warning on Wayland if neither is.
+  (`#1306`_)
+
+Other changes
+----------------
+- Log AutoKey's own version at startup and shutdown. (`#1298`_)
+- Add ``SECURITY.md`` pointing to private vulnerability reporting, and
+  update ``CONTRIBUTORS.rst``: contributors are asked not to edit
+  ``CHANGELOG.rst``, maintainers should verify behavior-changing PRs by
+  running them and not merge over another maintainer's open concern, and
+  credit was added for chrislee35. (`#1196`_, `#1297`_, `#1299`_, `#1301`_)
+
+.. _`#1196`: https://github.com/autokey/autokey/pull/1196
+.. _`#1296`: https://github.com/autokey/autokey/pull/1296
+.. _`#1297`: https://github.com/autokey/autokey/pull/1297
+.. _`#1298`: https://github.com/autokey/autokey/pull/1298
+.. _`#1299`: https://github.com/autokey/autokey/pull/1299
+.. _`#1300`: https://github.com/autokey/autokey/pull/1300
+.. _`#1301`: https://github.com/autokey/autokey/pull/1301
+.. _`#1303`: https://github.com/autokey/autokey/pull/1303
+.. _`#1306`: https://github.com/autokey/autokey/pull/1306
+
 Version 0.97.0-beta.0
 ============================
 
