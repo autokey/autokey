@@ -72,6 +72,7 @@ Depends: autokey-common (= ${binary:Version}),
          python3-pyqt5,
          python3-pyqt5.qsci,
          python3-pyqt5.qtsvg,
+         kdialog,
          ${misc:Depends},
          ${python3:Depends}
 Description: desktop automation utility - Qt version
