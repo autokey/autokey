@@ -10,6 +10,7 @@ usr/lib/python*/*-packages/autokey/dbus_service.py
 usr/lib/python*/*-packages/autokey/gnome_interface.py
 usr/lib/python*/*-packages/autokey/headless_app.py
 usr/lib/python*/*-packages/autokey/interface.py
+usr/lib/python*/*-packages/autokey/kde_interface.py
 usr/lib/python*/*-packages/autokey/logger.py
 usr/lib/python*/*-packages/autokey/macro.py
 usr/lib/python*/*-packages/autokey/monitor.py
