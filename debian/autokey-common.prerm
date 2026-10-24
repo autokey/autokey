@@ -11,7 +11,9 @@ case "$1" in
         fi
         #  If Gnome is present, remove the Gnome Shell extension
         if command -v gnome-extensions >/dev/null 2>&1; then
-            su -c 'gnome-extensions uninstall "autokey-gnome-extension@autokey"' "${SUDO_USER:-$(logname)}"
+            #  Under sudo the user's D-Bus session is not available, so this can
+            #  fail; the directory is removed below either way.
+            su -c 'gnome-extensions uninstall "autokey-gnome-extension@autokey"' "${SUDO_USER:-$(logname)}" || true
             rm -fr "/home/${SUDO_USER:-$(logname)}/.local/share/gnome-shell/extensions/autokey-gnome-extension@autokey"
         fi
     fi
