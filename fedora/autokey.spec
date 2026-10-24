@@ -42,7 +42,7 @@ This package contains the common data shared between the various front ends.
 if [ -e /dev/uinput ]; then
     cp /usr/share/autokey/uinput-udev-rule/* '/etc/udev/rules.d/'
     /usr/bin/udevadm control --reload
-    /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+    /usr/bin/udevadm trigger --sysname-match=uinput
 fi
 
 if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
@@ -84,7 +84,7 @@ case "$1" in
         if [ -e /dev/uinput ]; then
             rm -f '/etc/udev/rules.d/10-autokey.rules'
             /usr/bin/udevadm control --reload
-            /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+            /usr/bin/udevadm trigger --sysname-match=uinput
         fi
     ;;
 esac
