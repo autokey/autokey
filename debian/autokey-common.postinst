@@ -6,7 +6,7 @@ set -e
 if [ -e /dev/uinput ]; then
     cp /usr/share/autokey/uinput-udev-rule/* '/etc/udev/rules.d/'
     /usr/bin/udevadm control --reload
-    /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+    /usr/bin/udevadm trigger --sysname-match=uinput
 fi
 
 if [ "$USER" = "root" ] && [ "${SUDO_USER:-$(logname)}" != "root" ]; then
