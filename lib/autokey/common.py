@@ -44,9 +44,9 @@ CATALOG = ""
 VERSION = "0.97.0-beta.0"
 HOMEPAGE = "https://github.com/autokey/autokey"
 AUTHOR = 'Chris Dekter'
-AUTHOR_EMAIL = 'cdekter@gmail.com'
-MAINTAINER = 'sebastiansam55'
-MAINTAINER_EMAIL = 'sebastiansam55@gmail.com'
+AUTHOR_EMAIL = ''
+MAINTAINER = 'AutoKey maintainers'
+MAINTAINER_EMAIL = ''
 BUG_EMAIL = ""
 COPYRIGHT = """
 (c) 2009-2012 Chris Dekter

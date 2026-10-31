@@ -74,6 +74,23 @@ Tagged releases merged into `develop`, `beta` and `master` will automatically be
 Optional: Install your modified version
 ---------------------------------------
 It may be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
+Before merging a PR that changes AutoKey's runtime behavior, verify it
+by actually running the affected code path — ideally comparing behavior
+across `master`, `develop`, and the PR branch — rather than relying on
+code review alone. Purely cosmetic changes (comments, dead code, debug
+output, formatting) don't need this level of verification.
+
+If a maintainer has raised an open, unresolved concern on a PR, don't
+merge over it without checking in with them first — either resolve the
+concern together or get their explicit agreement to proceed anyway.
+See VM_TESTING.md for how to set up virtual machines covering AutoKey's
+X11, GNOME/Wayland, and KDE Plasma/Wayland targets, and how to run both
+the automated (`tests/vm_checklist/checklist.py`) and manual
+(`tests/manual/`) checks against them.
+See MANUAL_TESTING.rst for the manual verification checklist required for
+PRs that change AutoKey's runtime behavior. Additional test scenarios are
+welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
+case it should cover.
 
 Reviewing and merging
 ---------------------

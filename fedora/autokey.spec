@@ -27,10 +27,12 @@ Summary:	Desktop automation utility - common data
 Requires:	gnome-extensions-app
 Requires:	python3-dbus
 Requires:	python3-evdev
+Requires:	python3-pyperclip
 Requires:	python3-pyudev
 Requires:	wmctrl
 Requires:	ImageMagick
 Requires:	xautomation
+Requires:	xclip
 Provides:	autokey = %{version}-%{release}
 %description common
 This package contains the common data shared between the various front ends.
@@ -40,7 +42,7 @@ This package contains the common data shared between the various front ends.
 if [ -e /dev/uinput ]; then
     cp /usr/share/autokey/uinput-udev-rule/* '/etc/udev/rules.d/'
     /usr/bin/udevadm control --reload
-    /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+    /usr/bin/udevadm trigger --sysname-match=uinput
 fi
 
 if [ "$USER" = "root" ] && [ "$(logname)" != "root" ]; then
@@ -82,7 +84,7 @@ case "$1" in
         if [ -e /dev/uinput ]; then
             rm -f '/etc/udev/rules.d/10-autokey.rules'
             /usr/bin/udevadm control --reload
-            /usr/bin/udevadm trigger --sysname-match='/devices/virtual/misc/uinput'
+            /usr/bin/udevadm trigger --sysname-match=uinput
         fi
     ;;
 esac

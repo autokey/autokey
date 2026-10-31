@@ -29,5 +29,6 @@ python3-tk
 wmctrl
 x11-xserver-utils
 xautomation
+xclip
 xvfb
 zenity

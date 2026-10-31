@@ -203,6 +203,7 @@ setup(
     maintainer=ak_metadata.maintainer,
     maintainer_email=ak_metadata.maintainer_email,
     url='https://github.com/autokey/autokey',
+    project_urls={'Bug Tracker': 'https://github.com/autokey/autokey/issues'},
     cmdclass={'build_py': BuildWithQtResources},
     license='GPLv3',
     # setuptools_scm removes need for MANIFEST.in. Allows setuptools to get which files to
@@ -246,6 +247,7 @@ setup(
         # asyncore was removed from the stdlib in Python 3.12; only pull in
         # the backport there, not on every version.
         'pyasyncore; python_version>="3.12"',
+        'pyperclip',
         # Required by uinput_interface.py, which is used on Wayland
         # (both GNOME and KDE) regardless of front end. Neither is
         # declared here currently, so a fresh `pip install .` on a
