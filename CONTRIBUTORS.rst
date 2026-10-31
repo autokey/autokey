@@ -1,13 +1,49 @@
 Contributing
 ============
-When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise. We suggest writing new features on top of develop.
+When you want to contribute new features or fix things, you are free to take virtually any task you wish. Just open a PR for discussion and maintainers will try to answer any questions that arise.
 
-Please don't edit CHANGELOG.rst in your PR. The maintainers update it in
-batches, in separate changelog PRs, from the PRs that have been merged. Put a
-clear title and description on your PR, and the maintainers will use them to
-write the entry.
+Setting up the development environment
+--------------------------------------
+First create a personal fork of the repository, and create a new branch (it is recommended that it is based off the `develop` branch) to make your changes in.
 
-Please make sure tests pass before you submit PRs. To ensure this happens automatically, I recommend adding the following lines to the file `.git/hooks/pre-push`:
+You will then need to follow the Zero-installation instructions `here <https://github.com/autokey/autokey/wiki/Installing#zero-installation-method>`_, but cloning your new branch instead. Note particularly the required installation of dependencies.
+
+Making your changes
+-------------------
+After step 5 of the Zero-installation instructions make any desired changes to your local copy. Then continue with steps 6 onwards for running the project with your changes, looping around as necessary until you are satisfied with your update.
+
+Please don't edit CHANGELOG.rst in your branch. The maintainers update it in
+batches, in separate changelog PRs, from the titles and contents of the PRs that have been merged.
+
+If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
+
+Once you are done, push the changes back into your github personal fork.
+
+Performing tests
+----------------
+Please make sure tests pass before you submit PRs. At a minimum this involves running the automated tests in the local copy.
+
+Testing requires tox, pytest and PyHamcrest as new test-time only
+dependencies. Tox will install pytest and pyhamcrest in its virtualenv when
+run, so you do not need to worry about it.  Tox itself does need manual
+installation.  Install `tox` through `pip` or `python-tox` through your
+package manager.
+
+Running the tests is simple: Run `tox`.
+Running individual test files or folders, or using pytest arguments, can be
+done with `tox -- tests/[test file] [--opt]`.
+
+Lint the project (using flake8) with `tox -e lint`
+
+Test coverage reports can be generated with
+`tox -e clean,coverage,report`
+
+The current (0.95.x) `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
+The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
+
+The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
+
+To ensure the automated tests are performed automatically, we recommend adding the following lines to the file `.git/hooks/pre-push`:
 
 .. code:: sh
 
@@ -17,18 +53,27 @@ Please make sure tests pass before you submit PRs. To ensure this happens automa
   tox
   exit $?
 
-This will abort the push if any tests fail.
+This will abort a push to your fork if any tests fail.
 
-It may also be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
+Automated and manual tests can be run locally but should also be run on fresh VMs as described in VM_TESTING.md at the root of this repository, to check that local environmental quirks don't obscure build issues.
+
+See MANUAL_TESTING.rst for the manual verification checklist (which are additional to the manual tests described in VM_TESTING.md) required for
+PRs that change AutoKey's runtime behavior. Additional test scenarios are
+welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
+case it should cover.
+
+Make a pull request
+-------------------
+Once you are done with testing, and your changes are in your fork, you can make a pull request to merge changes in your new branch back into the target branch of autokey (usually `develop`)
 
 GitHub Actions are used to run tests on pull requests to `master` and
 `develop` branches.
 
-Tagged releases merged into `develop`, `beta` and `master` will
-automatically be built.
+Tagged releases merged into `develop`, `beta` and `master` will automatically be built.
 
-If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
-
+Optional: Install your modified version
+---------------------------------------
+It may be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
 Before merging a PR that changes AutoKey's runtime behavior, verify it
 by actually running the affected code path — ideally comparing behavior
 across `master`, `develop`, and the PR branch — rather than relying on
@@ -53,31 +98,6 @@ Don't merge a PR while another maintainer has an open, unresolved concern
 on it without checking with them first. Either resolve the concern
 together, or get their explicit agreement to proceed anyway.
 
-Testing
-=======
-Running the tests is simple: Checkout `develop` (or v>0.96.0) and run `tox`
-(`tox` must be installed).
-Running individual test files or folders, or using pytest arguments, can be
-done with `tox -- tests/[test file] [--opt]`.
-
-Lint the project (using flake8) with `tox -e lint`
-
-
-Test coverage reports can be generated with
-`tox -e clean,coverage,report`
-
-
-Testing requires tox, pytest and PyHamcrest as new test-time only
-dependencies. Tox will install pytest and pyhamcrest in its virtualenv when
-run, so you do not need to worry about it.  Tox itself does need manual
-installation.  Install `tox` through `pip` or `python-tox` through your
-package manager.
-
-The current (0.95.x) `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
-The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
-
-The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
-
 Program Structure
 =================
 
@@ -99,7 +119,7 @@ https://github.com/autokey/autokey/issues/255 contains a good explanation of how
 
 Creating and modifying phrases and hotkeys is done through the ConfigManager.
 
-For a detailed walkthrough of how phrases work, see [this comment](https://github.com/autokey/autokey/issues/334#issuecomment-564203873)
+For a detailed walkthrough of how phrases work, see `this comment <https://github.com/autokey/autokey/issues/334#issuecomment-564203873>`_
 
 
 Autocomplete in the text Editors
