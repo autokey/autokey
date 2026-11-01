@@ -4,30 +4,29 @@ When you want to contribute new features or fix things, you are free to take vir
 
 Setting up the development environment
 --------------------------------------
-First create a personal fork of the repository, and create a new branch (it is recommended that it is based off the `develop` branch) to make your changes in.
+First create a personal fork of the repository, and create a new branch based off the `develop` branch to make your changes in. Base it on `master` only if there is a compelling reason to change `master` between releases.
 
 You will then need to follow the Zero-installation instructions `here <https://github.com/autokey/autokey/wiki/Installing#zero-installation-method>`_, but cloning your new branch instead. Note particularly the required installation of dependencies.
 
 Making your changes
 -------------------
-After step 5 of the Zero-installation instructions make any desired changes to your local copy. Then continue with steps 6 onwards for running the project with your changes, looping around as necessary until you are satisfied with your update.
+After step 5 of the Zero-installation instructions make any desired changes to your local copy. Then continue with steps 6 onwards for running the project with your changes, repeating as necessary until you are satisfied with your update.
 
 Please don't edit CHANGELOG.rst in your branch. The maintainers update it in
 batches, in separate changelog PRs, from the titles and contents of the PRs that have been merged.
 
-If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK. (and add the changes to your commit!)
+If you make any scripting API changes please be sure to run `python3 extractDoc.py` to regenerate the autocompletion text files used by both Qt and GTK (and add the changes to your commit!). This script only produces the editor autocompletion files. It does not generate the published documentation.
+
+The published user and API documentation lives in the separate `autokey.github.io <https://github.com/autokey/autokey.github.io>`_ repository and is rebuilt by the maintainers, so please don't edit it as part of a code PR. If you have ideas for the documentation, open an issue or discussion thread, or add tips to the wiki.
 
 Once you are done, push the changes back into your github personal fork.
 
 Performing tests
 ----------------
-Please make sure tests pass before you submit PRs. At a minimum this involves running the automated tests in the local copy.
+Tests must pass before you submit a PR. At a minimum this means running the automated tests in your local copy.
 
-Testing requires tox, pytest and PyHamcrest as new test-time only
-dependencies. Tox will install pytest and pyhamcrest in its virtualenv when
-run, so you do not need to worry about it.  Tox itself does need manual
-installation.  Install `tox` through `pip` or `python-tox` through your
-package manager.
+Install `tox` through `pip` or `python-tox` through your package manager.
+Tox will install pytest and PyHamcrest in its virtualenv when run, so you do not need to install them yourself.
 
 Running the tests is simple: Run `tox`.
 Running individual test files or folders, or using pytest arguments, can be
@@ -38,29 +37,28 @@ Lint the project (using flake8) with `tox -e lint`
 Test coverage reports can be generated with
 `tox -e clean,coverage,report`
 
-The current (0.95.x) `master` tests are deprecated and won’t work. They are still on Python 2 and nobody cared to update them throughout the years, not even the original developer. They test things long gone in the project code…
-The old tests are scheduled to be replaced by a new suite in the `develop` branch, which will be merged as 0.96.0.
+The `tests` directory on `master` belongs to the old 0.96.x code and is deprecated, so run the tests from the `develop` branch.
 
-The current situation is a bit unfortunate: The new suite lives in the develop branch, which accumulates new features, but which can't be backported to master without introducing merge conflicts later on. So until develop gets merged in, you’d have to switch to develop to run the tests.
-
-To ensure the automated tests are performed automatically, we recommend adding the following lines to the file `.git/hooks/pre-push`:
+To run the automated tests before every push, you can optionally add the following lines to the file `.git/hooks/pre-push`:
 
 .. code:: sh
 
-    remote="$1"
-    url="$2"
-
-  tox
-  exit $?
+    #!/bin/sh
+    tox
+    exit $?
 
 This will abort a push to your fork if any tests fail.
 
-Automated and manual tests can be run locally but should also be run on fresh VMs as described in VM_TESTING.md at the root of this repository, to check that local environmental quirks don't obscure build issues.
+Automated and manual tests can be run locally, but they should also be run on fresh VMs, as described in VM_TESTING.md at the root of this repository, to check that local environmental quirks don't obscure build issues.
+VM_TESTING.md also explains how to set up virtual machines covering AutoKey's
+X11, GNOME/Wayland, and KDE Plasma/Wayland targets, and how to run both
+the automated (`tests/vm_checklist/checklist.py`) and manual
+(`tests/manual/`) checks against them.
 
-See MANUAL_TESTING.rst for the manual verification checklist (which are additional to the manual tests described in VM_TESTING.md) required for
-PRs that change AutoKey's runtime behavior. Additional test scenarios are
-welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
-case it should cover.
+See MANUAL_TESTING.rst for the manual verification checklist (in addition to the manual tests described in VM_TESTING.md) required for
+PRs that change AutoKey's runtime behavior.
+
+Additional test scenarios are welcome. Please contribute a PR to MANUAL_TESTING.rst if you know of a case it should cover.
 
 Make a pull request
 -------------------
@@ -73,27 +71,16 @@ Tagged releases merged into `develop`, `beta` and `master` will automatically be
 
 Optional: Install your modified version
 ---------------------------------------
-It may be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autookey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
-Before merging a PR that changes AutoKey's runtime behavior, verify it
-by actually running the affected code path — ideally comparing behavior
-across `master`, `develop`, and the PR branch — rather than relying on
-code review alone. Purely cosmetic changes (comments, dead code, debug
-output, formatting) don't need this level of verification.
-
-If a maintainer has raised an open, unresolved concern on a PR, don't
-merge over it without checking in with them first — either resolve the
-concern together or get their explicit agreement to proceed anyway.
-See VM_TESTING.md for how to set up virtual machines covering AutoKey's
-X11, GNOME/Wayland, and KDE Plasma/Wayland targets, and how to run both
-the automated (`tests/vm_checklist/checklist.py`) and manual
-(`tests/manual/`) checks against them.
-See MANUAL_TESTING.rst for the manual verification checklist required for
-PRs that change AutoKey's runtime behavior. Additional test scenarios are
-welcome -- please contribute a PR to MANUAL_TESTING.rst if you know of a
-case it should cover.
+It may be convenient to change your `pip` installation of autokey to use the source folder. `cd` to your `autokey` source folder and install with `pip3 install -e .`. This means the pip scripts installed in your `PATH` will run any changes you make to the source.
 
 Reviewing and merging
 ---------------------
+Before merging a PR that changes AutoKey's runtime behavior, verify it
+by actually running the affected code path, ideally comparing behavior
+across `master`, `develop`, and the PR branch, rather than relying on
+code review alone. Purely cosmetic changes (comments, dead code, debug
+output, formatting) don't need this level of verification.
+
 Don't merge a PR while another maintainer has an open, unresolved concern
 on it without checking with them first. Either resolve the concern
 together, or get their explicit agreement to proceed anyway.
