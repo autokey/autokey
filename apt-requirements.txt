@@ -20,6 +20,8 @@ python3-dbus
 python3-dev
 python3-evdev
 python3-gi
+python3-inotify
+python3-magic
 python3-pydbus
 python3-pyqt5
 python3-pyqt5.qsci
