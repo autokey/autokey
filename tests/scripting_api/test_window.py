@@ -41,6 +41,28 @@ def create_window():
     win = Window(MagicMock())
     return win
 
+
+def test_window_get_session_type(monkeypatch):
+    import autokey.common
+
+    win = create_window()
+    monkeypatch.setattr(autokey.common, "SESSION_TYPE", "x11")
+    assert win.get_session_type() == "x11"
+    monkeypatch.setattr(autokey.common, "SESSION_TYPE", "wayland")
+    assert win.get_session_type() == "wayland"
+    monkeypatch.setattr(autokey.common, "SESSION_TYPE", None)
+    assert win.get_session_type() is None
+
+
+def test_wayland_windows_get_session_type(monkeypatch):
+    import autokey.common
+    from autokey.scripting.window_gnome import Window as GnomeWindow
+    from autokey.scripting.window_kde import Window as KdeWindow
+
+    monkeypatch.setattr(autokey.common, "SESSION_TYPE", "wayland")
+    assert GnomeWindow(MagicMock()).get_session_type() == "wayland"
+    assert KdeWindow(MagicMock()).get_session_type() == "wayland"
+
 def test_window_wait_for_focus() -> Window:
     #TODO tests
     pass
