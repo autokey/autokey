@@ -19,6 +19,7 @@ mouse.get_location() Returns the current location of the mouse.
 mouse.get_relative_location() Returns the relative location of the mouse in the window that has input focus
 mouse.scroll_down(number) Fires the mouse button 5 signal the specified number of times.
 mouse.scroll_up(number) Fires the mouse button 4 signal the specified number of times.
+window.get_session_type() Get the display-server session type AutoKey is running under.
 window.wait_for_focus(title, timeOut) Wait for window with the given title to have focus
 window.wait_for_exist(title, timeOut, by_hex) Wait for window with the given title to be created
 window.activate(title, switchDesktop, matchClass, by_hex) Activate the specified window, giving it input focus
