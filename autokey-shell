@@ -2,7 +2,7 @@
 
 # -*- coding: utf-8 -*-
 # -*- mode: python -*-
-import distutils.spawn
+import shutil
 import subprocess
 import sys
 
@@ -21,12 +21,12 @@ print(system.exec_command('ls'))
 """)
 '''
 
-ipython3_cmd = distutils.spawn.find_executable('ipython3')
+ipython3_cmd = shutil.which('ipython3')
 if ipython3_cmd is not None:
     retcode = subprocess.call([ipython3_cmd, '-ic', start_script])
     raise SystemExit(retcode)
 
-python3_path = distutils.spawn.find_executable('python3')
+python3_path = sys.executable or shutil.which('python3')
 if python3_path is not None:
     retcode = subprocess.call([python3_path, '-ic', start_script])
     raise SystemExit(retcode)

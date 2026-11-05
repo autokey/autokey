@@ -281,6 +281,10 @@ Other changes
   issue-report form.
 - Use raw-string format in ``window.py`` to handle invalid escape
   sequences.
+- ``autokey-shell``: use ``shutil.which()`` instead of
+  ``distutils.spawn.find_executable()`` (``distutils`` was removed in
+  Python 3.12), and fall back to the interpreter running the script when
+  ``ipython3`` is not installed.
 - Remove dead ``UnityLauncher`` code from ``notifier.py``. (`#1279`_)
 - General ``setup.cfg``/``.gitignore``/test-suite housekeeping: bump
   GitHub Action and Python versions, clean up whitespace/indentation/
