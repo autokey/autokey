@@ -173,6 +173,84 @@
      </property>
     </widget>
    </item>
+   <item row="3" column="0">
+    <widget class="QPushButton" name="mod_universal_control_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Control key</string>
+     </property>
+     <property name="text">
+      <string>Any Control</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="QPushButton" name="mod_universal_alt_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Alt key</string>
+     </property>
+     <property name="text">
+      <string>Any Alt</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="2">
+    <widget class="QPushButton" name="mod_universal_shift_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Shift key</string>
+     </property>
+     <property name="text">
+      <string>Any Shift</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="3">
+    <widget class="QPushButton" name="mod_universal_super_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Super key</string>
+     </property>
+     <property name="text">
+      <string>Any Super</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="4">
+    <widget class="QPushButton" name="mod_universal_hyper_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Hyper key</string>
+     </property>
+     <property name="text">
+      <string>Any Hyper</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QPushButton" name="mod_universal_meta_button">
+     <property name="toolTip">
+      <string>Match either the left or the right Meta key</string>
+     </property>
+     <property name="text">
+      <string>Any Meta</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
    <item row="4" column="0" colspan="6">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>

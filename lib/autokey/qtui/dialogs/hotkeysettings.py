@@ -28,7 +28,7 @@ from autokey import UI_common_functions as UI_common
 
 from autokey import iomediator
 import autokey.configmanager.configmanager as cm
-from autokey.model.key import Key
+from autokey.model.key import Key, MAPPED_UNIVERSAL_MODIFIERS
 
 logger = __import__("autokey.logger").logger.get_logger(__name__)
 Item = typing.Union[autokey.model.folder.Folder, autokey.model.script.Script, autokey.model.phrase.Phrase]
@@ -79,6 +79,27 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
             self.mod_left_hyper_button: Key.LEFTHYPER,
             self.mod_left_meta_button: Key.LEFTMETA,
         }
+        # "Any" buttons stand for the generic modifiers (<ctrl>, <shift>, ...), which match either the left or the
+        # right key. Same idea as the universal switches in the GTK dialog.
+        self.MODIFIER_SWITCHES = {
+            self.mod_universal_control_button: Key.CONTROL,
+            self.mod_universal_alt_button: Key.ALT,
+            self.mod_universal_shift_button: Key.SHIFT,
+            self.mod_universal_super_button: Key.SUPER,
+            self.mod_universal_hyper_button: Key.HYPER,
+            self.mod_universal_meta_button: Key.META,
+        }
+        for switch, key in self.MODIFIER_SWITCHES.items():
+            switch.toggled.connect(lambda checked, key=key: self._on_universal_toggled(key, checked))
+
+    def _on_universal_toggled(self, universal_key, checked):
+        """Selecting a generic modifier clears its left/right versions, as they would be redundant."""
+        if not checked:
+            return
+        for side_key in MAPPED_UNIVERSAL_MODIFIERS[universal_key]:
+            for button, key in self.MODIFIER_BUTTONS.items():
+                if key == side_key:
+                    button.setChecked(False)
 
     def _update_key(self, key):
         self.key = key
@@ -114,12 +135,16 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
     def activate_modifier_buttons(self, modifiers):
         for button, key in self.MODIFIER_BUTTONS.items():
             button.setChecked(key in modifiers)
+        for button, key in self.MODIFIER_SWITCHES.items():
+            button.setChecked(key in modifiers)
 
     def save(self, item):
         UI_common.save_hotkey_settings_dialog(self, item)
 
     def reset(self):
         for button in self.MODIFIER_BUTTONS:
+            button.setChecked(False)
+        for button in self.MODIFIER_SWITCHES:
             button.setChecked(False)
 
         self._update_key(None)
@@ -146,6 +171,11 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         modifiers = []
         for button, key in self.MODIFIER_BUTTONS.items():
             if button.isChecked():
+                modifiers.append(key)
+        for button, key in self.MODIFIER_SWITCHES.items():
+            if button.isChecked():
+                # A generic modifier makes the left/right versions redundant.
+                modifiers = [m for m in modifiers if m not in MAPPED_UNIVERSAL_MODIFIERS[key]]
                 modifiers.append(key)
         modifiers.sort()
         return modifiers
