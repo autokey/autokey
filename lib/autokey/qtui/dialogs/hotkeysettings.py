@@ -65,7 +65,6 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
         self.MODIFIER_BUTTONS = {
             self.mod_right_control_button: Key.RIGHTCONTROL,
             self.mod_right_alt_button: Key.RIGHTALT,
-            # self.mod_right_altgr_button: Key.ALT_GR,
             self.mod_right_shift_button: Key.RIGHTSHIFT,
             self.mod_right_super_button: Key.RIGHTSUPER,
             self.mod_right_hyper_button: Key.RIGHTHYPER,
@@ -73,11 +72,12 @@ class HotkeySettingsDialog(*qtui_common.inherits_from_ui_file_with_name("hotkeys
 
             self.mod_left_control_button: Key.LEFTCONTROL,
             self.mod_left_alt_button: Key.LEFTALT,
-            # self.mod_left_altgr_button: Key.ALT_GR,
             self.mod_left_shift_button: Key.LEFTSHIFT,
             self.mod_left_super_button: Key.LEFTSUPER,
             self.mod_left_hyper_button: Key.LEFTHYPER,
             self.mod_left_meta_button: Key.LEFTMETA,
+
+            self.mod_altgr_button: Key.ALT_GR,
         }
         # "Any" buttons stand for the generic modifiers (<ctrl>, <shift>, ...), which match either the left or the
         # right key. Same idea as the universal switches in the GTK dialog.
