@@ -474,10 +474,19 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
     def __reverse_mapping(self, dictionary):
         map = {}
         for item in dictionary.items():
-            if type(item[1]) == list:
+            names = item[1]
+            if type(names) in (list, tuple) and names[0].startswith("KEY_"):
+                # evdev gives some codes several names (KEY_MUTE is also KEY_MIN_INTERESTING), as a list or a tuple
+                # depending on its version. Add each single name. A tuple is also kept whole as a key, since the
+                # send paths look up e.keys[code] with it.
+                for name in names:
+                    map[name] = item[0]
+                if type(names) == tuple:
+                    map[names] = item[0]
+            elif type(names) == list:
                 continue
             else:
-                map[item[1]] = item[0]
+                map[names] = item[0]
         return map
 
     def validate(self):
@@ -1281,6 +1290,9 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
             return self.inv_btn_map[key[0]], False
         elif type(key)==str and "BTN_" in key[:4]:
             return self.inv_btn_map[key], False
+        elif type(key) in (list, tuple) and "KEY_" in key[0][:4]:
+            # evdev.categorize() reports codes with several names (KEY_MUTE, KEY_SCREENLOCK, KEY_HANGEUL) as a tuple
+            return self.inv_map[key[0]], False
         elif type(key)==Button:
             return self.btn_map[key]
         elif type(key)==int: #if it is type int it should be a evdev raw value
@@ -1311,6 +1323,13 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
     def __processEvent(self):
         pass
 
+    def __primary_key_name(self, names):
+        """Pick one name for a code that has several: a name AutoKey knows how to map, else the last (KEY_MUTE)."""
+        for name in names:
+            if name in self.uinput_modifiers_to_ak_map or name in self.uinput_keys_to_ak_map:
+                return name
+        return names[-1]
+
     def lookup_string(self, keyCode, shifted, num_lock, altGrid):
         """
 
@@ -1322,8 +1341,8 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         code, shifted_ = self.translate_to_evdev(keyCode[0])
         evdev_name = e.keys[code]
         # for mouse buttons this returns a list like ['BTN_LEFT', 'BTN_MOUSE']
-        if type(evdev_name) is list:
-            evdev_name = evdev_name[0]
+        if type(evdev_name) in (list, tuple):
+            evdev_name = self.__primary_key_name(evdev_name)
         # modifiers
         if evdev_name in self.uinput_modifiers_to_ak_map:
             logger.debug("Modifier: {}".format(evdev_name))
