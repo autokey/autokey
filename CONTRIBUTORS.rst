@@ -140,3 +140,9 @@ GTK Autocomplete
 API Autocomplete reads in the content of the `lib/autokey/gtkui/data/api.csv`, where column 0 is the API call and column 1 is the description. 
 
 Uses the same class for Macro autocomplete, makes the logic a bit tricky, may be worth separating them to be simpler to read. PRs welcome.
+
+
+A maintainers advice on contributing to open source
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+I came across Martin Šošić's piece on `contributing to open source in 2026 <https://dev.to/wasp/a-maintainers-advice-on-contributing-to-open-source-in-2026-4ea1>`_, and I agree with nearly all of it, so I'm passing it along. He's a maintainer on the Wasp project, and what he says matches my experience here. The best contributors are people who use AutoKey and want to make it better, and I've had a few stick around for years. For every one of those there are plenty of drive-by PRs written for a résumé line or a contest. AI has made it easy to produce a polished, complicated PR from someone who doesn't understand it, so a big, shiny PR no longer tells me anyone put in effort. What I need now is to trust the person behind it. You can help me with that by being an honest human. Tell me why you care about AutoKey and how you use it. Write your PR description in your own words, even if it's a bit rough, because I'd rather read a typo than wonder if anyone is there. Own every line, which means you've run it and can explain and defend each decision as if no AI had been involved. Start small with something easy to review, and tell me which issue you want to take before you start on it. I review these changes on my own time, so help me out. Do that and I'll gladly work with you. Read the full article at https://dev.to/wasp/a-maintainers-advice-on-contributing-to-open-source-in-2026-4ea1
