@@ -5,6 +5,7 @@ Unit tests for uinput_interface.py's mouse click handling.
 import re
 from unittest.mock import MagicMock, patch
 
+import pytest
 from evdev import AbsInfo
 from evdev import ecodes as e
 
@@ -345,3 +346,53 @@ class TestIsAutoKeyHotkeyWindowFilter:
         interface = _make_hotkey_interface([item], "Anything")
 
         assert interface._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is True
+
+
+def _make_keyboard_interface(as_list=False):
+    """as_list mimics older evdev releases (1.7.0 on Ubuntu 24.04), which give multi-name codes as lists."""
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    keys = {code: list(name) if as_list and type(name) == tuple and name[0].startswith("KEY_") else name
+            for code, name in e.keys.items()}
+    interface.inv_map = interface._UInputInterface__reverse_mapping(keys)
+    return interface
+
+
+@pytest.mark.parametrize("as_list", [False, True])
+@pytest.mark.parametrize("code", [e.KEY_MUTE, e.KEY_SCREENLOCK, e.KEY_HANGEUL, e.KEY_ROTATE_DISPLAY,
+                                  e.KEY_DASHBOARD, e.KEY_BRIGHTNESS_ZERO, e.KEY_WWAN])
+def test_translate_to_evdev_resolves_keys_with_several_names(code, as_list):
+    """
+    evdev.categorize() reports a code with several names as a tuple (113 is ('KEY_MIN_INTERESTING', 'KEY_MUTE')).
+    translate_to_evdev() had no branch for tuples and returned (0, False), KEY_RESERVED, so the release of such
+    a key reached IoMediator.handle_keypress() as the wrong key.
+    """
+    interface = _make_keyboard_interface(as_list)
+    keycode = list(e.keys[code]) if as_list else e.keys[code]  # what categorize(...).keycode holds
+
+    assert interface.translate_to_evdev(keycode) == (code, False)
+
+
+def test_translate_to_evdev_resolves_each_single_name_of_a_multi_name_key():
+    interface = _make_keyboard_interface()
+
+    assert interface.translate_to_evdev("KEY_MUTE") == (e.KEY_MUTE, False)
+    assert interface.translate_to_evdev("KEY_MIN_INTERESTING") == (e.KEY_MUTE, False)
+
+
+def test_translate_to_evdev_still_resolves_single_name_keys():
+    interface = _make_keyboard_interface()
+
+    assert interface.translate_to_evdev("KEY_A") == (e.KEY_A, False)
+
+
+def test_reverse_mapping_keeps_whole_tuple_keys_for_the_send_paths():
+    """__send_key() and friends index inv_map with e.keys[code], which is the whole tuple for these keys."""
+    interface = _make_keyboard_interface()
+
+    assert interface.inv_map[e.keys[e.KEY_MUTE]] == e.KEY_MUTE
+
+
+def test_lookup_string_handles_keys_with_several_names():
+    interface = _make_keyboard_interface()
+
+    assert interface.lookup_string(["KEY_MUTE"], False, False, False) == "mute"
