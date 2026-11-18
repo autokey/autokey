@@ -267,6 +267,11 @@ class XInterfaceBase(threading.Thread):
         self.__ignoreRemap = False
 
     def __initMappings(self):
+        # Close the previous connection, if any: this method re-runs on every
+        # keyboard mapping change, and dropping the old Display without closing
+        # it leaks one X client connection each time (#1326).
+        if getattr(self, "localDisplay", None) is not None:
+            self.localDisplay.close()
         self.localDisplay = display.Display()
         self.rootWindow = self.localDisplay.screen().root
         self.rootWindow.change_attributes(event_mask=X.SubstructureNotifyMask|X.StructureNotifyMask)
