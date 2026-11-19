@@ -121,9 +121,15 @@ class FileMonitor(threading.Thread):
 
     def run(self):
         while not self.event.is_set():
-            self.notifier.process_events()
-            if self.notifier.check_events(1000):
-                self.notifier.read_events()
+            try:
+                self.notifier.process_events()
+                if self.notifier.check_events(1000):
+                    self.notifier.read_events()
+            except Exception:
+                # An uncaught exception (say, from the listener) would end this thread, and no later file change
+                # would ever be noticed again. pyinotify has already dequeued the failing event, so go on to the next.
+                logger.exception("Error while handling a file system event, continuing to monitor")
+                self.event.wait(0.1)
 
         logger.info("Shutting down file monitor")
         self.notifier.stop()
