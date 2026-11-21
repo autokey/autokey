@@ -2,54 +2,6 @@
 Changelog
 =========
 
-Version 0.97.0-beta.1
-============================
-
-Changes merged into ``develop`` since 0.97.0-beta.0.
-
-Packaging and installation
------------------------------
-- Remove the unavailable ``gir1.2-appindicator3-0.1`` from
-  ``apt-requirements.txt`` so the dependency install works on Debian;
-  stop installing ``PKG-INFO`` from ``debian/docs``, which broke the
-  ``.deb`` build; and remove personal email addresses from the package
-  metadata, which now lists "AutoKey maintainers" and a bug tracker URL.
-  (`#1296`_, `#1300`_, `#1303`_)
-
-Scripting API and documentation
-------------------------------------
-- Replace the GTK, Qt and Tk clipboard classes, and the GNOME Shell
-  extension and klipper workarounds, with a single ``pyperclip``-based
-  clipboard that runs ``xclip`` or ``wl-copy`` as a detached background
-  process, which GNOME and KDE Wayland don't reject. This is the root-cause
-  fix for the GNOME and KDE Wayland clipboard problems worked around in
-  `#1213`_, #1250 and #1251; image clipboard support is unchanged.
-  Two things users will notice: reading an empty clipboard or selection
-  no longer raises an exception, it logs a message and returns ``None``,
-  so scripts can drop their ``try:`` block and should test for ``None``;
-  and ``xclip`` (X11 and Wayland) or ``wl-clipboard`` (Wayland) must now
-  be installed, with a startup warning on Wayland if neither is.
-  (`#1306`_)
-
-Other changes
-----------------
-- Log AutoKey's own version at startup and shutdown. (`#1298`_)
-- Add ``SECURITY.md`` pointing to private vulnerability reporting, and
-  update ``CONTRIBUTORS.rst``: contributors are asked not to edit
-  ``CHANGELOG.rst``, maintainers should verify behavior-changing PRs by
-  running them and not merge over another maintainer's open concern, and
-  credit was added for chrislee35. (`#1196`_, `#1297`_, `#1299`_, `#1301`_)
-
-.. _`#1196`: https://github.com/autokey/autokey/pull/1196
-.. _`#1296`: https://github.com/autokey/autokey/pull/1296
-.. _`#1297`: https://github.com/autokey/autokey/pull/1297
-.. _`#1298`: https://github.com/autokey/autokey/pull/1298
-.. _`#1299`: https://github.com/autokey/autokey/pull/1299
-.. _`#1300`: https://github.com/autokey/autokey/pull/1300
-.. _`#1301`: https://github.com/autokey/autokey/pull/1301
-.. _`#1303`: https://github.com/autokey/autokey/pull/1303
-.. _`#1306`: https://github.com/autokey/autokey/pull/1306
-
 Version 0.97.0-beta.0
 ============================
 
@@ -137,6 +89,21 @@ Packaging and installation
   then to ``0.97.0~beta0`` in ``debian/changelog``, ``fedora/autokey.spec``
   and ``lib/autokey/common.py``, and the internal ``VERSION`` to
   ``0.97.0-beta.0`` for `PEP 440`_ compliance.
+- Remove the unavailable ``gir1.2-appindicator3-0.1`` from
+  ``apt-requirements.txt`` so the dependency install works on Debian;
+  stop installing ``PKG-INFO`` from ``debian/docs``, which broke the
+  ``.deb`` build; and remove personal email addresses from the package
+  metadata, which now lists "AutoKey maintainers" and a bug tracker URL.
+  (`#1296`_, `#1300`_, `#1303`_)
+- Package ``kde_interface.py`` in ``autokey-common``; without it the
+  installed ``.deb`` failed at startup on KDE with ``ModuleNotFoundError``.
+  Fix the ``udevadm trigger`` pattern in the package scripts and Fedora
+  spec (``--sysname-match=uinput``) so the udev rule takes effect without
+  a reboot. Don't abort package removal on GNOME when uninstalling the
+  extension fails under ``sudo``, which left the package half-removed.
+  Make ``autokey-qt`` depend on ``kdialog``. Add ``python3-magic`` and
+  ``python3-inotify`` to ``apt-requirements.txt``.
+  (`#1311`_, `#1312`_, `#1313`_, `#1314`_, `#1317`_)
 
 GTK and Qt front-ends
 ------------------------
@@ -169,6 +136,12 @@ GTK and Qt front-ends
 - Remove a dead, overridden line in ``SettingsWidget.validate()`` left
   over from a botched merge conflict resolution during #1184's rebase; no
   behavior change. (`#1272`_)
+- Qt hotkey dialog: add "Any" buttons for the generic modifiers
+  (``<ctrl>``, ``<alt>``, ``<shift>``, ``<super>``, ``<hyper>``,
+  ``<meta>``), which previously couldn't be displayed and were silently
+  dropped on save, and add the missing AltGr button, matching the GTK
+  dialog. Fixes `#1319 <https://github.com/autokey/autokey/issues/1319>`__.
+  (`#1322`_, `#1323`_)
 
 Keyboard, hotkeys, and input handling
 ------------------------------------------
@@ -247,6 +220,21 @@ Scripting API and documentation
   updating wording, sorting entries); fix typos across documentation
   ("they key" -> "the key", ``window.close`` -> ``window.resize_move``,
   **window** -> **screen** in mouse docs).
+- Replace the GTK, Qt and Tk clipboard classes, and the GNOME Shell
+  extension and klipper workarounds, with a single ``pyperclip``-based
+  clipboard that runs ``xclip`` or ``wl-copy`` as a detached background
+  process, which GNOME and KDE Wayland don't reject. This is the root-cause
+  fix for the GNOME and KDE Wayland clipboard problems worked around in
+  `#1213`_, #1250 and #1251; image clipboard support is unchanged.
+  Two things users will notice: reading an empty clipboard or selection
+  no longer raises an exception, it logs a message and returns ``None``,
+  so scripts can drop their ``try:`` block and should test for ``None``;
+  and ``xclip`` (X11 and Wayland) or ``wl-clipboard`` (Wayland) must now
+  be installed, with a startup warning on Wayland if neither is.
+  (`#1306`_)
+- Add ``window.get_session_type()``, returning ``"x11"`` or ``"wayland"``
+  (or ``None`` if ``XDG_SESSION_TYPE`` is unset), so scripts can branch on
+  the display server. (`#1321`_)
 
 Testing and tooling
 -----------------------
@@ -289,12 +277,23 @@ Other changes
   exclusions, mark ``test_application_runs_without_errors`` as
   expected-to-fail under Wayland, and handle a ``Window`` import error on
   scripting tests.
+- Log AutoKey's own version at startup and shutdown. (`#1298`_)
+- Add ``SECURITY.md`` pointing to private vulnerability reporting, and
+  update ``CONTRIBUTORS.rst``: contributors are asked not to edit
+  ``CHANGELOG.rst``, maintainers should verify behavior-changing PRs by
+  running them and not merge over another maintainer's open concern, and
+  credit was added for chrislee35. (`#1196`_, `#1297`_, `#1299`_, `#1301`_)
+- ``CONTRIBUTORS.rst`` improvements: clearer contributor flow and
+  dependency-install step, base branches on ``develop``, passing tests
+  required, stale test notes removed, and a maintainer-advice section on
+  contributing to open source. (`#1309`_, `#1320`_, `#1324`_)
 
 .. _`#1076`: https://github.com/autokey/autokey/pull/1076
 .. _`#1166`: https://github.com/autokey/autokey/pull/1166
 .. _`#1184`: https://github.com/autokey/autokey/pull/1184
 .. _`#1186`: https://github.com/autokey/autokey/pull/1186
 .. _`#1191`: https://github.com/autokey/autokey/pull/1191
+.. _`#1196`: https://github.com/autokey/autokey/pull/1196
 .. _`#1197`: https://github.com/autokey/autokey/pull/1197
 .. _`#1208`: https://github.com/autokey/autokey/pull/1208
 .. _`#1209`: https://github.com/autokey/autokey/pull/1209
@@ -336,6 +335,25 @@ Other changes
 .. _`#1283`: https://github.com/autokey/autokey/pull/1283
 .. _`#1284`: https://github.com/autokey/autokey/pull/1284
 .. _`#1287`: https://github.com/autokey/autokey/pull/1287
+.. _`#1296`: https://github.com/autokey/autokey/pull/1296
+.. _`#1297`: https://github.com/autokey/autokey/pull/1297
+.. _`#1298`: https://github.com/autokey/autokey/pull/1298
+.. _`#1299`: https://github.com/autokey/autokey/pull/1299
+.. _`#1300`: https://github.com/autokey/autokey/pull/1300
+.. _`#1301`: https://github.com/autokey/autokey/pull/1301
+.. _`#1303`: https://github.com/autokey/autokey/pull/1303
+.. _`#1306`: https://github.com/autokey/autokey/pull/1306
+.. _`#1309`: https://github.com/autokey/autokey/pull/1309
+.. _`#1311`: https://github.com/autokey/autokey/pull/1311
+.. _`#1312`: https://github.com/autokey/autokey/pull/1312
+.. _`#1313`: https://github.com/autokey/autokey/pull/1313
+.. _`#1314`: https://github.com/autokey/autokey/pull/1314
+.. _`#1317`: https://github.com/autokey/autokey/pull/1317
+.. _`#1320`: https://github.com/autokey/autokey/pull/1320
+.. _`#1321`: https://github.com/autokey/autokey/pull/1321
+.. _`#1322`: https://github.com/autokey/autokey/pull/1322
+.. _`#1323`: https://github.com/autokey/autokey/pull/1323
+.. _`#1324`: https://github.com/autokey/autokey/pull/1324
 
 .. _its counterpart: https://github.com/autokey/autokey/blob/master/.github/ISSUE_TEMPLATE/config.yml
 .. _PEP 440: https://peps.python.org/pep-0440/
