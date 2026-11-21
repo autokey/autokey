@@ -1,6 +1,6 @@
 %{?python_enable_dependency_generator}
 Name:		autokey
-Version:	0.97.0~beta0
+Version:	0.97.0~beta.0
 Release:	1%{?dist}
 Summary:	Desktop automation utility
 
@@ -194,8 +194,8 @@ install -m 644 -D --target-dir=%{buildroot}%{_datadir}/autokey/gnome-shell-exten
 %{_mandir}/man1/autokey-qt.1*
 
 %changelog
-* Sun May 03 2026 Elliria <Elliria@users.noreply.github.com> - 0.97.0~beta0-1
-- Update to 0.97.0~beta0
+* Sun May 03 2026 Elliria <Elliria@users.noreply.github.com> - 0.97.0~beta.0-1
+- Update to 0.97.0~beta.0
 
 * Mon Jan 22 2024 Fedora Release Engineering <releng@fedoraproject.org> - 0.96.0-5
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
