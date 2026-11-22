@@ -28,35 +28,23 @@ jobs:
   build_deb:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: [3.14]
+    env:
+      DEBIAN_FRONTEND: noninteractive
     steps:
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
 
-    - name: Cache pip
-      uses: actions/cache@v5
-      with:
-        # This path is specific to Ubuntu
-        path: ~/.cache/pip
-        # Look to see if there is a cache hit for the corresponding requirements file
-        key: ${{ runner.os }}-pip-${{ hashFiles('pip-requirements.txt') }}
-        restore-keys: |
-          ${{ runner.os }}-pip-
-          ${{ runner.os }}-
-    - name: Install dependencies
+    # Deliberately no actions/setup-python here. setup-python puts its own
+    # toolcache CPython first on PATH, and debian/rules (pybuild) then runs
+    # `python3.14 setup.py clean` with that interpreter, which has no
+    # setuptools ("Autokey needs setuptools in order to build"). The .deb
+    # must be built with the distribution's python3, the same way the
+    # test_deb_install job below builds it.
+    - name: Install build and runtime dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y $(cat apt-requirements.txt)
-        python -m pip install --upgrade pip
-        pip install flake8 pytest pytest-cov wheel
-        pip install -r pip-requirements.txt
+        sudo apt-get install -y $(cat debian/build_requirements.txt) $(cat apt-requirements.txt)
 
     - name: Build .deb
       # Developed from instructions on the wiki
