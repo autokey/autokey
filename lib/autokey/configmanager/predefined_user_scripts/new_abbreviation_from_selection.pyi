@@ -1,6 +1,5 @@
 # Create a new Phrase from the current text selection. Ask for an abbreviation and then create a new Phrase having
 # this abbreviation assigned.
-import time
 time.sleep(0.25)
 contents = clipboard.get_selection()
 return_code, abbreviation = dialog.input_dialog("New Abbreviation", "Choose an abbreviation for the new phrase")
