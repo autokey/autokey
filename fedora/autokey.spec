@@ -59,7 +59,7 @@ else
     echo "*  following commands to configure your userid to run AutoKey:                *"
     echo "*                                                                             *"
     echo "sudo usermod -a -G input \$(id -u -n)"
-    echo "gnome-extension install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip"
+    echo "gnome-extensions install --force /usr/share/autokey/gnome-shell-extension/autokey-gnome-extension@autokey.shell-extension.zip"
     echo "*                                                                             *"
     echo "*  You will need to log off and log back on so that these changes take        *"
     echo "*  effect before trying to run AutoKey.                                       *"
