@@ -163,6 +163,9 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         "\"":"KEY_APOSTROPHE", ">": "KEY_DOT", "<": "KEY_COMMA", ":":"KEY_SEMICOLON", "{": "KEY_LEFTBRACE", "}": "KEY_RIGHTBRACE",
         "?": "KEY_SLASH", "+": "KEY_EQUAL", "_":"KEY_MINUS", "~":"KEY_GRAVE", "|":"KEY_BACKSLASH"
     }
+    #  The reverse of shifted_chars: the symbol a key types while Shift is held.  Like shifted_chars, this
+    #  assumes a US keyboard layout, since evdev key codes are physical keys with no layout information.
+    shifted_symbol_for_key = {key_name: symbol for symbol, key_name in shifted_chars.items()}
 
     """
     str(AutoKey): str(evdev KEY_XXXX)
@@ -248,6 +251,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         "slash": "/", "apostrophe": "'", "comma": ",", "dot": ".", "semicolon": ";",
         "space": " ", "tab": "\t", "enter": "\n",
         "backslash": "\\", "equal": "=", "minus": "-", "grave": "`",
+        "leftbrace": "[", "rightbrace": "]",
     }
 
     btn_map = {
@@ -1414,6 +1418,8 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         if evdev_name in self.uinput_keys_to_ak_map:
             logger.debug("Key: {}".format(evdev_name))
             return self.uinput_keys_to_ak_map[evdev_name]
+        if shifted and evdev_name in self.shifted_symbol_for_key:
+            return self.shifted_symbol_for_key[evdev_name]
         character = evdev_name.replace("KEY_", "")
         if character.lower() in self.translation_map:
             character = self.translation_map[character.lower()]
