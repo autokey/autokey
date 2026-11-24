@@ -29,7 +29,7 @@ else:
 from autokey.sys_interface.clipboard import Clipboard
 from autokey.model.phrase import SendMode
 
-from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS
+from autokey.model.key import Key, KEY_SPLIT_RE, MODIFIERS, HELD_MODIFIERS, SHIFT_MODIFIERS
 from autokey.model.button import Button
 from .constants import X_RECORD_INTERFACE
 
@@ -177,7 +177,7 @@ class IoMediator(threading.Thread):
             
             num_lock = self.modifiers[Key.NUMLOCK]
             modifiers = self._get_modifiers_on()
-            shifted = self.modifiers[Key.CAPSLOCK] ^ self.modifiers[Key.SHIFT]
+            shifted = self.modifiers[Key.CAPSLOCK] ^ any(self.modifiers[shift] for shift in SHIFT_MODIFIERS)
             key = self.interface.lookup_string(key_code, shifted, num_lock, self.modifiers[Key.ALT_GR])
             raw_key = self.interface.lookup_string(key_code, False, False, False)
 

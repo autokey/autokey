@@ -26,7 +26,7 @@ import autokey.common
 from autokey.model.phrase import SendMode
 from unittest.mock import MagicMock
 
-from autokey.model.key import Key
+from autokey.model.key import Key, MODIFIERS
 from autokey.model.button import Button
 
 
@@ -309,3 +309,46 @@ def test_send_string_clears_held_modifiers_only_for_text(string, clears):
     IoMediator.send_string(mediator, string)
 
     assert_that(mediator._clear_modifiers.called, is_(clears))
+
+
+# ---------------------------------------------------------------------------
+# Issue #1334: the interfaces report Key.LEFTSHIFT / Key.RIGHTSHIFT, never the
+# universal Key.SHIFT, so shifted characters (e.g. the "!" in "cl!") were
+# looked up unshifted and abbreviations containing them never matched.
+# ---------------------------------------------------------------------------
+
+import queue as _queue
+
+
+def _run_one_keypress(modifier_state):
+    """Feed one key code through IoMediator.run() and return the 'shifted' flag passed to lookup_string()."""
+    mediator = MagicMock()
+    mediator.queue = _queue.Queue()
+    mediator.modifiers = {key: False for key in MODIFIERS}
+    mediator.modifiers.update(modifier_state)
+    mediator._get_modifiers_on.return_value = []
+    mediator._keypress_targets.return_value = []
+    mediator.queue.put((10, "window"))
+    mediator.queue.put((None, None))
+
+    IoMediator.run(mediator)
+
+    # First lookup_string() call is the shifted one; the second is the "raw key" lookup.
+    return mediator.interface.lookup_string.call_args_list[0][0][1]
+
+
+@pytest.mark.parametrize("shift_key", [Key.LEFTSHIFT, Key.RIGHTSHIFT, Key.SHIFT])
+def test_either_shift_key_shifts_the_looked_up_character(shift_key):
+    assert_that(_run_one_keypress({shift_key: True}), is_(True))
+
+
+def test_no_shift_key_leaves_the_character_unshifted():
+    assert_that(_run_one_keypress({}), is_(False))
+
+
+def test_capslock_and_shift_cancel_out():
+    assert_that(_run_one_keypress({Key.CAPSLOCK: True, Key.LEFTSHIFT: True}), is_(False))
+
+
+def test_capslock_alone_shifts():
+    assert_that(_run_one_keypress({Key.CAPSLOCK: True}), is_(True))
