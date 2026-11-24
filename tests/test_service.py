@@ -34,6 +34,7 @@ from autokey.service import Service
 from autokey.service import PhraseRunner
 from autokey.service import ScriptRunner
 import autokey.service
+from autokey.model.key import Key
 from autokey.scripting import Engine
 
 confman_module_path = "autokey.configmanager.configmanager"
@@ -88,3 +89,35 @@ def test_set_triggered_abbreviation_uses_typed_abbreviation(
     ScriptRunner._set_triggered_abbreviation({"engine": engine}, script, buffer, trigger_character)
 
     engine._set_triggered_abbreviation.assert_called_once_with(*expected)
+
+
+# ---------------------------------------------------------------------------
+# Issue #1334: a held Shift key arrives as Key.LEFTSHIFT / Key.RIGHTSHIFT, and
+# must not stop the typed character from reaching the abbreviation buffer.
+# ---------------------------------------------------------------------------
+
+def _handle_keypress_with_modifiers(modifiers):
+    service = MagicMock()
+    service._Service__updateStack.return_value = False
+    Service.handle_keypress(service, "1", modifiers, "!", ("title", "class"))
+    return service
+
+
+@pytest.mark.parametrize("modifiers", [[Key.LEFTSHIFT], [Key.RIGHTSHIFT], [Key.SHIFT]])
+def test_shift_alone_still_feeds_the_input_stack(modifiers):
+    service = _handle_keypress_with_modifiers(modifiers)
+    service._Service__updateStack.assert_called_once_with("!")
+    service.inputStack.clear.assert_not_called()
+
+
+@pytest.mark.parametrize("modifiers", [
+    [Key.LEFTCONTROL],
+    [Key.LEFTALT],
+    [Key.LEFTSUPER],
+    [Key.ALT_GR],
+    [Key.LEFTSHIFT, Key.LEFTCONTROL],
+])
+def test_other_modifiers_make_the_keypress_a_hotkey_not_typed_text(modifiers):
+    service = _handle_keypress_with_modifiers(modifiers)
+    service._Service__updateStack.assert_not_called()
+    service.inputStack.clear.assert_called_once()

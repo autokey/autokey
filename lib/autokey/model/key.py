@@ -158,6 +158,9 @@ MODIFIERS = [
     Key.LEFTCONTROL,Key.LEFTALT,Key.LEFTSHIFT,Key.LEFTSUPER,Key.LEFTHYPER,Key.LEFTMETA,
     Key.RIGHTCONTROL,Key.RIGHTALT,Key.RIGHTSHIFT,Key.RIGHTSUPER,Key.RIGHTHYPER,Key.RIGHTMETA
     ]
+# Every Key that means "a Shift key is down": the XRecord and uinput interfaces report the left/right variants,
+# never the universal Key.SHIFT.
+SHIFT_MODIFIERS = (Key.SHIFT, Key.LEFTSHIFT, Key.RIGHTSHIFT)
 HELD_MODIFIERS = [
     Key.CONTROL, Key.ALT_GR, Key.ALT, Key.SUPER, Key.SHIFT, Key.HYPER, Key.META,
     Key.LEFTCONTROL,Key.LEFTALT,Key.LEFTSHIFT,Key.LEFTSUPER,Key.LEFTHYPER,Key.LEFTMETA,

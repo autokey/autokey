@@ -29,7 +29,7 @@ import autokey.model
 import autokey.model.phrase
 import autokey.model.script
 import autokey.model.store
-from autokey.model.key import Key, KEY_FIND_RE
+from autokey.model.key import Key, KEY_FIND_RE, SHIFT_MODIFIERS
 from autokey.iomediator.iomediator import IoMediator
 
 from autokey.macro import MacroManager
@@ -192,9 +192,9 @@ class Service:
         if self.__shouldProcess(window_info):
             self.__process_hotkey(modifiers, rawKey, window_info)
 
-            modifierCount = len(modifiers)
-            hotkey_uses_nonprinting_modifiers = modifierCount > 1 or \
-                (modifierCount == 1 and Key.SHIFT not in modifiers)
+            # Shift alone is a printing modifier (it only selects the shifted character); anything else held
+            # means this keypress is a hotkey, not typed text.
+            hotkey_uses_nonprinting_modifiers = any(modifier not in SHIFT_MODIFIERS for modifier in modifiers)
             if hotkey_uses_nonprinting_modifiers:
                 self.inputStack.clear()
                 self.__tryReleaseLock()

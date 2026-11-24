@@ -18,7 +18,7 @@ from unittest.mock import MagicMock
 from autokey.iomediator.keygrabber import InlineKeyGrabber, KeyGrabber, Recorder
 from autokey.iomediator.iomediator import IoMediator
 from autokey.iomediator import iomediator as iomediator_module
-from autokey.model.key import Key
+from autokey.model.key import Key, MODIFIERS
 
 
 class TestKeyGrabberMouseClickGracePeriod(unittest.TestCase):
@@ -150,8 +150,8 @@ class TestHotkeyCaptureOwnsTheKeyboard(unittest.TestCase):
     def _run_mediator_on(self, keys):
         """Drive the real IoMediator.run() loop with the given raw keys."""
         self.mediator.queue = queue.Queue()
-        self.mediator.modifiers = {Key.NUMLOCK: False, Key.CAPSLOCK: False,
-                                   Key.SHIFT: False, Key.ALT_GR: False}
+        # IoMediator.__init__ starts every known modifier released.
+        self.mediator.modifiers = {key: False for key in MODIFIERS}
         self.mediator._get_modifiers_on = lambda: []
         self.mediator.interface = MagicMock()
         self.mediator.interface.lookup_string.side_effect = lambda code, *args: code
