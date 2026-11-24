@@ -345,3 +345,191 @@ class TestIsAutoKeyHotkeyWindowFilter:
         interface = _make_hotkey_interface([item], "Anything")
 
         assert interface._UInputInterface__isAutoKeyHotkey(_held("KEY_LEFTCTRL", "KEY_Z")) is True
+
+
+# ---------------------------------------------------------------------------
+# Issue #1333: hotplug handling must never leave AutoKey with a closed output
+# device, and a dead output device must not leave the keyboards grabbed.
+# ---------------------------------------------------------------------------
+
+import threading
+
+
+class _FakeUI:
+    """Stands in for evdev.UInput: writing after close() fails like the real thing (fd == -1)."""
+
+    def __init__(self):
+        self.closed = False
+        self.written = []
+
+    def write(self, type_, code, value):
+        if self.closed:
+            raise ValueError("file descriptor cannot be a negative integer (-1)")
+        self.written.append((type_, code, value))
+
+    def close(self):
+        self.closed = True
+
+
+def _make_hotplug_interface():
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    interface._ui_lock = threading.RLock()
+    interface._ui_write_failures = 0
+    interface.ui = _FakeUI()
+    interface.device_paths = []
+    interface.keyboards = []
+    interface.mice = []
+    interface.shutdown = False
+    interface.app = MagicMock()
+    return interface
+
+
+def _event():
+    return MagicMock(type=e.EV_KEY, code=30, value=1)
+
+
+def test_replace_ui_creates_new_device_before_closing_old(monkeypatch):
+    interface = _make_hotplug_interface()
+    old_ui = interface.ui
+    new_ui = _FakeUI()
+
+    def merge(paths, name):
+        assert not old_ui.closed, "the old device must stay open until the new one exists"
+        return new_ui
+
+    monkeypatch.setattr(uinput_interface, "_merge_uinput_capabilities", merge)
+    interface._UInputInterface__replace_ui()
+
+    assert interface.ui is new_ui
+    assert old_ui.closed
+    assert not new_ui.closed
+
+
+def test_replace_ui_keeps_old_device_when_creation_fails(monkeypatch):
+    interface = _make_hotplug_interface()
+    old_ui = interface.ui
+
+    def merge(paths, name):
+        raise OSError("boom")
+
+    monkeypatch.setattr(uinput_interface, "_merge_uinput_capabilities", merge)
+    try:
+        interface._UInputInterface__replace_ui()
+    except OSError:
+        pass
+
+    assert interface.ui is old_ui
+    assert not old_ui.closed
+
+
+def test_grab_multiple_devices_does_not_close_the_live_output_device():
+    interface = _make_hotplug_interface()
+    own = MagicMock()
+    own.name = "autokey mouse and keyboard"
+    own.path = "/dev/input/event99"
+    keyboard = MagicMock(fd=5)
+    mouse = MagicMock(fd=6)
+    interface.keyboards = [keyboard]
+    interface.mice = [mouse]
+    interface.get_devices = MagicMock(return_value=[own])
+
+    interface.grab_multiple_devices()
+
+    assert not interface.ui.closed
+
+
+def test_pass_through_retries_once_after_the_device_is_replaced():
+    interface = _make_hotplug_interface()
+    interface.ui.close()  # the stale reference a racing writer would hit first
+    replacement = _FakeUI()
+
+    class _SwapOnFirstFailure(_FakeUI):
+        pass
+
+    # Simulate the swap happening between the two attempts.
+    original_write = interface.ui.write
+
+    def write_then_swap(*args):
+        try:
+            original_write(*args)
+        except ValueError:
+            interface.ui = replacement
+            raise
+
+    interface.ui.write = write_then_swap
+    interface._UInputInterface__pass_through_event(_event())
+
+    assert replacement.written == [(e.EV_KEY, 30, 1)]
+    assert interface._ui_write_failures == 0
+    interface.app.show_error_dialog.assert_not_called()
+
+
+def test_pass_through_releases_keyboards_after_repeated_failures():
+    interface = _make_hotplug_interface()
+    interface.ui.close()
+    keyboard = MagicMock()
+    interface.keyboards = [keyboard]
+
+    for _ in range(uinput_interface.UInputInterface.MAX_PASS_THROUGH_FAILURES - 1):
+        interface._UInputInterface__pass_through_event(_event())
+    keyboard.ungrab.assert_not_called()
+    assert not interface.shutdown
+
+    interface._UInputInterface__pass_through_event(_event())
+
+    keyboard.ungrab.assert_called_once()
+    assert interface.shutdown
+    interface.app.show_error_dialog.assert_called_once()
+
+
+def test_pass_through_success_resets_the_failure_count():
+    interface = _make_hotplug_interface()
+    interface._ui_write_failures = 3
+    interface._UInputInterface__pass_through_event(_event())
+    assert interface._ui_write_failures == 0
+
+
+def test_replacing_the_device_while_typing_never_fails(monkeypatch):
+    """Regression test for #1333: keystrokes racing hotplug-driven device swaps must all get through."""
+    interface = _make_hotplug_interface()
+    monkeypatch.setattr(uinput_interface, "_merge_uinput_capabilities", lambda paths, name: _FakeUI())
+    all_uis = [interface.ui]
+    stop = threading.Event()
+
+    def hotplug():
+        while not stop.is_set():
+            interface._UInputInterface__replace_ui()
+            all_uis.append(interface.ui)
+
+    thread = threading.Thread(target=hotplug)
+    thread.start()
+    try:
+        for _ in range(2000):
+            interface._UInputInterface__pass_through_event(_event())
+    finally:
+        stop.set()
+        thread.join()
+
+    assert interface._ui_write_failures == 0
+    interface.app.show_error_dialog.assert_not_called()
+    assert sum(len(ui.written) for ui in all_uis) == 2000
+
+
+def test_validate_raises_with_instructions_when_uinput_is_not_writable(monkeypatch):
+    interface = _make_hotplug_interface()
+    monkeypatch.setattr(uinput_interface.os, "geteuid", lambda: 1000)
+    monkeypatch.setattr(uinput_interface.os, "access", lambda path, mode: False)
+    try:
+        interface.validate()
+    except Exception as ex:
+        assert "/dev/uinput" in str(ex)
+        assert "wayland-setup" in str(ex)
+    else:
+        raise AssertionError("validate() should have raised")
+
+
+def test_validate_passes_when_uinput_is_writable_even_if_not_in_input_group(monkeypatch):
+    interface = _make_hotplug_interface()
+    monkeypatch.setattr(uinput_interface.os, "geteuid", lambda: 1000)
+    monkeypatch.setattr(uinput_interface.os, "access", lambda path, mode: True)
+    interface.validate()

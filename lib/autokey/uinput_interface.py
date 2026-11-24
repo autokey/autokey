@@ -7,6 +7,7 @@ import threading
 import queue
 import os
 import grp
+import pwd
 import evdev
 import pyudev
 import time
@@ -281,6 +282,10 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #self.keyboard = None
         #self.mouse = None
         self.capabilities = None
+        #  Guards replacing self.ui, which the hotplug (udev) thread does while other threads write to it.
+        self._ui_lock = threading.RLock()
+        #  Consecutive failures to pass a keystroke through self.ui; see __pass_through_event().
+        self._ui_write_failures = 0
         time.sleep(1)
 
         # Event loop
@@ -328,6 +333,24 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         self.eventThread.start()
         self.listenerThread.start()
 
+    def __replace_ui(self):
+        """
+        Replace the fake uinput device with one matching the current set of grabbed devices.
+
+        The new device is created before the old one is closed, and the swap happens under a lock,
+        so self.ui is never a closed device.  If creating the new device fails, the old one stays
+        in place and the exception propagates.
+        """
+        new_ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
+        with self._ui_lock:
+            old_ui = getattr(self, "ui", None)
+            self.ui = new_ui
+        if old_ui is not None:
+            try:
+                old_ui.close()
+            except Exception as ex:
+                logger.warning("Unable to close the previous uinput device: {}".format(ex))
+
     #  support multiple keyboards/mice
     #  Watch for new USB or Bluetooth devices to be added to the system and rerun
     #  grab_multiple_devices() and reset the fake uinput device when they are
@@ -336,8 +359,13 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         def event_handler(action, device):
             if action == 'bind':
                 logger.info("UDEV reports that a new device was added to the system, checking to see if it is a keyboard or mouse to grab.")
-                self.grab_multiple_devices()
-                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
+                try:
+                    self.grab_multiple_devices()
+                    self.__replace_ui()
+                except Exception:
+                    #  Keep running with the existing, still-open, self.ui rather than killing this thread.
+                    logger.exception("Unable to adapt to the newly added device; keeping the current input devices.")
+                    return
                 logger.debug("Devices grabbed: \"{}\"".format('\", \"'.join([ dev.name for dev in self.keyboards + self.mice ])))
 
         monitor = pyudev.Monitor.from_netlink(pyudev.Context())
@@ -357,10 +385,10 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
         for dev in devices:
             #logger.debug(f"Found device: {dev.name}")
-            #  Close any existing fake uinput devices, which would likely
-            #  be the result of some sort of crash during a prior run.
+            #  Never grab AutoKey's own fake uinput device.  It must not be closed here: it is the live
+            #  output device that every keystroke is passed through, and closing it makes all
+            #  writes fail until it is recreated (issue #1333).
             if dev.name == 'autokey mouse and keyboard':
-                self.ui.close()
                 continue
             #  Ignore devices already grabbed during prior calls to this method
             if dev.path in self.device_paths:
@@ -484,16 +512,24 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         """
         Checks that UInput will work correctly
 
-        Prints out error message currently if that fails.
+        Raises an Exception with instructions if /dev/uinput cannot be written to.  Membership in the
+        "input" group is only reported: it neither guarantees nor is required for access, since access
+        can also come from a udev rule or an ACL.
         """
-        user = os.getlogin()
-        input_group = grp.getgrnam("input")
-        if user in input_group.gr_mem or os.geteuid()==0:
-            logger.info(f"{user} is a member of the \"input\" user group")
-        else:
-            msg = f"{user} is not in the \"input\" user group."
-            logger.error(msg + f"  Add yourself:\nsudo usermod -a -G input {user}")
+        if os.geteuid() != 0 and not os.access("/dev/uinput", os.W_OK):
+            msg = ("Cannot write to /dev/uinput, which AutoKey needs under Wayland.  Follow the Wayland setup steps at "
+                   "{}install.html#wayland-setup (add yourself to the \"input\" group, install the udev rule, "
+                   "then log out and back in or reboot).".format(common.API_URL))
+            logger.error(msg)
             raise Exception(msg)
+        try:
+            user = pwd.getpwuid(os.geteuid()).pw_name
+            if user in grp.getgrnam("input").gr_mem or os.geteuid() == 0:
+                logger.info(f"{user} is a member of the \"input\" user group")
+            else:
+                logger.warning(f"{user} is not listed in the \"input\" user group, relying on other access to /dev/uinput.")
+        except KeyError:
+            logger.debug("No \"input\" user group on this system.")
 
     @queue_method(queue)
     def send_mouse_click(self, xCoord, yCoord, button: Button, relative):
@@ -896,6 +932,45 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     "Some exception occurred in the flush events loop: {}".format(e))
         logger.debug("Left event loop.")
 
+    #  Number of consecutive keystrokes that may fail to be passed through before giving the keyboards back.
+    MAX_PASS_THROUGH_FAILURES = 5
+
+    def __pass_through_event(self, event):
+        """
+        Re-inject a grabbed keyboard event through the fake uinput device.
+
+        The physical keyboards are grabbed exclusively, so if this keeps failing nothing the user types
+        reaches the system.  A single failure is retried once (self.ui may have just been replaced); if
+        failures persist, the keyboards are released so the machine remains usable, and the user is told.
+        """
+        for attempt in (1, 2):
+            try:
+                with self._ui_lock:
+                    self.ui.write(event.type, event.code, event.value)
+                self._ui_write_failures = 0
+                return
+            except (ValueError, OSError) as ex:
+                if attempt == 2:
+                    self._ui_write_failures += 1
+                    logger.error("Unable to pass a keystroke through the uinput device ({}); failure {} of {}".format(
+                        ex, self._ui_write_failures, self.MAX_PASS_THROUGH_FAILURES))
+        if self._ui_write_failures >= self.MAX_PASS_THROUGH_FAILURES:
+            self.__release_keyboards_and_stop()
+
+    def __release_keyboards_and_stop(self):
+        logger.critical("The uinput output device is not working; releasing the keyboards so typing works again.")
+        for keyboard in self.keyboards:
+            try:
+                keyboard.ungrab()
+            except Exception as ex:
+                logger.warning("Unable to release \"{}\": {}".format(keyboard.name, ex))
+        self.shutdown = True
+        self.app.show_error_dialog(
+            "AutoKey cannot send keystrokes",
+            "AutoKey could not write to the uinput device and has released your keyboard.  Hotkeys and "
+            "abbreviations will not work until AutoKey is restarted.  If this keeps happening, check the Wayland "
+            "setup steps at {}install.html#wayland-setup".format(common.API_URL))
+
     def __flush_events(self):
         #  select needs a timeout or it hangs when a new input device is added to self.devices
         r,w,x = select.select(self.devices, [], [], 1)
@@ -924,8 +999,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                         mouse_list.append(mouse)
                 self.mice = mouse_list
 
-                self.ui.close()
-                self.ui = _merge_uinput_capabilities(self.device_paths, "autokey mouse and keyboard")
+                self.__replace_ui()
                 continue
             for event in self.devices[fd].read(): # type: ignore
                 event_type = evdev.categorize(event)
@@ -974,7 +1048,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 # pass through to autokey uinput device
                 for keyboard in self.keyboards:
                     if not self.sending and fd == keyboard.fd:
-                        self.ui.write(event.type, event.code, event.value)
+                        self.__pass_through_event(event)
 
     #  Does the list of keys from __flush_events() match an AutoKey hotkey?
     def __isAutoKeyHotkey(self, key_list):
