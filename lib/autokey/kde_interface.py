@@ -123,7 +123,8 @@ class KWinInterface():
         #  fix the underlying cause.
         self.loop = None
         self._service_ready = threading.Event()
-        self.dbus_thread = threading.Thread(target=self._dbus_service)
+        #  daemon, so a shutdown that skips cancel() can never keep the process (and its grabbed keyboards) alive.
+        self.dbus_thread = threading.Thread(target=self._dbus_service, daemon=True)
         self.dbus_thread.start()
         if not self._service_ready.wait(timeout=15):
             logger.error('KWinInterface: timed out waiting for the AutoKey DBus listener service to start; KWin scripts may not be able to call back into AutoKey.')
@@ -164,7 +165,8 @@ class KWinInterface():
         Method to shut down the DBus service thread and clean up KWin
         scripts and their temp files
         """
-        self.loop.quit()
+        if self.loop is not None:
+            self.loop.quit()
         self.dbus_thread.join()
 
         #  Shut down the signal scripts
