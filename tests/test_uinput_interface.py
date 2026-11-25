@@ -569,3 +569,43 @@ def test_cancel_ungrabs_remaining_keyboards_when_one_fails():
     interface.cancel()
 
     healthy.ungrab.assert_called_once_with()
+
+
+# ---------------------------------------------------------------------------
+# lookup_string() must return the shifted symbol for a shifted key, not just
+# upper-case the unshifted one ("1".upper() is "1"), or abbreviations with
+# symbols such as "cl!" can never match under Wayland (#1334).
+# ---------------------------------------------------------------------------
+
+import pytest
+
+
+def _lookup(evdev_key_name, shifted):
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    interface.translate_to_evdev = lambda key: (e.ecodes[evdev_key_name], False)
+    return interface.lookup_string((e.ecodes[evdev_key_name], False), shifted, False, False)
+
+
+@pytest.mark.parametrize("key_name, plain, shifted_symbol", [
+    ("KEY_1", "1", "!"), ("KEY_2", "2", "@"), ("KEY_3", "3", "#"), ("KEY_4", "4", "$"),
+    ("KEY_5", "5", "%"), ("KEY_6", "6", "^"), ("KEY_7", "7", "&"), ("KEY_8", "8", "*"),
+    ("KEY_9", "9", "("), ("KEY_0", "0", ")"),
+    ("KEY_APOSTROPHE", "'", '"'), ("KEY_DOT", ".", ">"), ("KEY_COMMA", ",", "<"),
+    ("KEY_SEMICOLON", ";", ":"), ("KEY_LEFTBRACE", "[", "{"), ("KEY_RIGHTBRACE", "]", "}"),
+    ("KEY_SLASH", "/", "?"), ("KEY_EQUAL", "=", "+"), ("KEY_MINUS", "-", "_"),
+    ("KEY_GRAVE", "`", "~"), ("KEY_BACKSLASH", "\\", "|"),
+])
+def test_lookup_string_returns_shifted_symbol(key_name, plain, shifted_symbol):
+    assert _lookup(key_name, True) == shifted_symbol
+    assert _lookup(key_name, False) == plain
+
+
+def test_lookup_string_still_upper_cases_letters_when_shifted():
+    assert _lookup("KEY_A", True) == "A"
+    assert _lookup("KEY_A", False) == "a"
+
+
+def test_every_shifted_char_is_reachable_through_lookup_string():
+    """The send-side table and the lookup must agree, so typing what AutoKey sends round-trips."""
+    for symbol, key_name in uinput_interface.UInputInterface.shifted_chars.items():
+        assert _lookup(key_name, True) == symbol
