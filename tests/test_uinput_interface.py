@@ -569,3 +569,51 @@ def test_cancel_ungrabs_remaining_keyboards_when_one_fails():
     interface.cancel()
 
     healthy.ungrab.assert_called_once_with()
+
+
+# ---------------------------------------------------------------------------
+# handle_mouseclick() must cope with mouse_location() returning None, which
+# KdeMouseInterface does when KWin does not answer in time (#1340).
+# ---------------------------------------------------------------------------
+def _make_mouseclick_interface(location):
+    interface = _make_hotplug_interface()
+    interface.mediator = MagicMock()
+    interface.mouse_location = MagicMock(return_value=location)
+    return interface
+
+
+def _handle_mouseclick(interface, *args):
+    # handle_mouseclick is wrapped by queue_method; call the undecorated function.
+    uinput_interface.UInputInterface.handle_mouseclick.__wrapped__(interface, *args)
+
+
+def test_handle_mouseclick_without_location_warns_and_forwards(caplog, monkeypatch):
+    monkeypatch.setattr(uinput_interface.time, "sleep", lambda s: None)
+    interface = _make_mouseclick_interface(None)
+
+    with caplog.at_level("DEBUG"):
+        _handle_mouseclick(interface, 1)
+
+    assert not [r for r in caplog.records if r.levelname == "ERROR"]
+    assert len([r for r in caplog.records if r.levelname == "WARNING"]) == 1
+    interface.mediator.handle_mouse_click.assert_called_once()
+    args = interface.mediator.handle_mouse_click.call_args[0]
+    assert args[:4] == (None, None, None, None)
+    assert args[4] == 1
+    interface.mouse_location.assert_called_once_with()
+
+
+def test_handle_mouseclick_with_location_still_forwards_coordinates(monkeypatch):
+    monkeypatch.setattr(uinput_interface.time, "sleep", lambda s: None)
+    interface = _make_mouseclick_interface([100, 200])
+    interface.mediator.windowInterface.get_active_window.return_value = {"x": 10, "y": 20}
+
+    _handle_mouseclick(interface, 1)
+
+    args = interface.mediator.handle_mouse_click.call_args[0]
+    assert args[:4] == (100, 200, 90, 180)
+
+
+def test_relative_mouse_location_is_none_without_location():
+    interface = _make_mouseclick_interface(None)
+    assert interface.relative_mouse_location() is None
