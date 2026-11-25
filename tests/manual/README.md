@@ -90,6 +90,22 @@ is visible to X11-based window tools (`xdotool`, `wmctrl`) via
 XWayland; GTK3 otherwise defaults to a native Wayland surface that
 those tools cannot see at all.
 
+## stuck_key_repro.py
+
+Reproduces keys left "pressed" after a hotkey on Wayland/uinput
+(dlk3/autokey-wayland#39) with exact timing. It creates a fake keyboard
+for AutoKey to grab, presses the hotkey on it, keeps the modifiers held
+for a range of times after the hotkey fires, and reports which keys are
+still down on AutoKey's output device (what the compositor sees):
+
+```
+python3 tests/manual/stuck_key_repro.py [--holds 0,100,200,400,800] [--repeat 3]
+```
+
+Start it before AutoKey, since AutoKey only grabs keyboards at startup.
+The hotkey script to bind and the other details are in the script's
+docstring. Stuck keys are released again after each trial.
+
 ## gopher_hunt.py / gopher.png
 
 A "whack-a-mole" style target for testing AutoKey's image-matching

@@ -275,6 +275,11 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         self.app = app            #  type - AutokeyApplication
         self.shutdown = False
         self.sending = False
+        #  Keys whose press was forwarded to the compositor, and releases of those keys that arrived
+        #  while a script was sending and so could not be forwarded yet. See __forward_physical_event().
+        self._keys_passed_through = set()
+        self._releases_during_send = []
+        self._send_lock = threading.Lock()
         #  support multiple keyboards/mice
         self.keyboards = []
         self.mice = []
@@ -957,6 +962,33 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         if self._ui_write_failures >= self.MAX_PASS_THROUGH_FAILURES:
             self.__release_keyboards_and_stop()
 
+    def __forward_physical_event(self, event):
+        """
+        Re-inject a grabbed keyboard event, unless a script is currently sending its own keys.
+
+        Presses (and everything else) are dropped while sending, so they cannot land in the middle of
+        the script's output. Releases are not: the compositor only ever sees this uinput device, and the
+        press of a key the user is holding was already forwarded before sending began. Dropping its
+        release leaves that key down forever: the stuck Alt after an Alt hotkey, and the key that
+        auto-repeats until pressed again (dlk3/autokey-wayland#39). Such releases are held back and
+        written by ungrab_keyboard() once the script's own output is finished, so they cannot cut a
+        modifier the script itself is holding short either.
+        """
+        with self._send_lock:
+            if self.sending:
+                if event.type == e.EV_KEY and event.value == 0 and event.code in self._keys_passed_through:
+                    self._keys_passed_through.discard(event.code)
+                    self._releases_during_send.append(event.code)
+                return
+        self.__pass_through_event(event)
+        #  value 2 is a kernel repeat of a key already recorded at press time.
+        if event.type == e.EV_KEY and event.value != 2:
+            with self._send_lock:
+                if event.value:
+                    self._keys_passed_through.add(event.code)
+                else:
+                    self._keys_passed_through.discard(event.code)
+
     def __release_keyboards(self):
         for keyboard in self.keyboards:
             try:
@@ -1050,8 +1082,8 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 # support multiple keyboards/mice
                 # pass through to autokey uinput device
                 for keyboard in self.keyboards:
-                    if not self.sending and fd == keyboard.fd:
-                        self.__pass_through_event(event)
+                    if fd == keyboard.fd:
+                        self.__forward_physical_event(event)
 
     #  Does the list of keys from __flush_events() match an AutoKey hotkey?
     def __isAutoKeyHotkey(self, key_list):
@@ -1142,16 +1174,22 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #TODO: something weird is happening with grab/ungrab
         #self.keyboard.grab()
 
-        self.sending = True
-
-        pass
+        with self._send_lock:
+            self.sending = True
 
     @queue_method(queue)
     def ungrab_keyboard(self, ):
-        #TODO: need to implement this
-        pass
-        self.sending = False
-        #self.keyboard.ungrab()
+        #  Drop the flag and take the pending releases under one lock, so a release arriving now is
+        #  forwarded by __forward_physical_event() instead of being added to a list nobody will read.
+        with self._send_lock:
+            self.sending = False
+            pending = self._releases_during_send
+            self._releases_during_send = []
+        for code in pending:
+            self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_KEY, code, 0))
+        if pending:
+            #  One report for the whole batch: until it is sent, clients still see the keys held.
+            self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_SYN, e.SYN_REPORT, 0))
 
 
     def _consume_mouse_button_event(self, event_type):

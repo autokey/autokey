@@ -46,6 +46,10 @@ Wayland support
   uinput hotkey block layer invert-aware so an inverted filter's excluded
   window no longer silently swallows the keystroke with no phrase firing
   to replace it (confirmed live on KDE Wayland).
+- On Wayland, a key released while a script or phrase was sending its output stayed down on
+  AutoKey's virtual keyboard, so the compositor kept treating it as held: Alt stuck after an
+  Alt hotkey, or a letter auto-repeating until pressed again. Those releases are now delivered
+  when sending finishes. Fixes `dlk3/autokey-wayland#39 <https://github.com/dlk3/autokey-wayland/issues/39>`__.
 - Fix #1088: stop leaking an X11 connection on every keymap-change event.
   ``XInterfaceBase.__initMappings()`` unconditionally opened a new
   connection each time it ran -- both at startup and again on every
