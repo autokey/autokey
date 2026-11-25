@@ -533,3 +533,39 @@ def test_validate_passes_when_uinput_is_writable_even_if_not_in_input_group(monk
     monkeypatch.setattr(uinput_interface.os, "geteuid", lambda: 1000)
     monkeypatch.setattr(uinput_interface.os, "access", lambda path, mode: True)
     interface.validate()
+
+
+# ---------------------------------------------------------------------------
+# cancel() must give the grabbed keyboards back even if the process lingers (#1338).
+# ---------------------------------------------------------------------------
+def test_cancel_ungrabs_the_keyboards():
+    interface = _make_hotplug_interface()
+    keyboards = [MagicMock(), MagicMock()]
+    interface.keyboards = keyboards
+    interface.queue = MagicMock()
+    interface.udev_observer = MagicMock()
+    interface.listenerThread = MagicMock()
+    interface.eventThread = MagicMock()
+    interface.join = MagicMock()
+
+    interface.cancel()
+
+    for keyboard in keyboards:
+        keyboard.ungrab.assert_called_once_with()
+    assert interface.shutdown
+
+
+def test_cancel_ungrabs_remaining_keyboards_when_one_fails():
+    interface = _make_hotplug_interface()
+    broken, healthy = MagicMock(), MagicMock()
+    broken.ungrab.side_effect = OSError("gone")
+    interface.keyboards = [broken, healthy]
+    interface.queue = MagicMock()
+    interface.udev_observer = MagicMock()
+    interface.listenerThread = MagicMock()
+    interface.eventThread = MagicMock()
+    interface.join = MagicMock()
+
+    interface.cancel()
+
+    healthy.ungrab.assert_called_once_with()

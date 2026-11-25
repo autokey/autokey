@@ -957,13 +957,16 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         if self._ui_write_failures >= self.MAX_PASS_THROUGH_FAILURES:
             self.__release_keyboards_and_stop()
 
-    def __release_keyboards_and_stop(self):
-        logger.critical("The uinput output device is not working; releasing the keyboards so typing works again.")
+    def __release_keyboards(self):
         for keyboard in self.keyboards:
             try:
                 keyboard.ungrab()
             except Exception as ex:
                 logger.warning("Unable to release \"{}\": {}".format(keyboard.name, ex))
+
+    def __release_keyboards_and_stop(self):
+        logger.critical("The uinput output device is not working; releasing the keyboards so typing works again.")
+        self.__release_keyboards()
         self.shutdown = True
         self.app.show_error_dialog(
             "AutoKey cannot send keystrokes",
@@ -1289,6 +1292,11 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
         self.listenerThread.join()
         self.eventThread.join()
+
+        #  The keyboards are grabbed exclusively, so give them back explicitly rather than relying on the
+        #  process exiting to close the file descriptors; if anything else keeps the process alive, the
+        #  user would otherwise be left with no keyboard (#1338).
+        self.__release_keyboards()
 
         self.join()
 

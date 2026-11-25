@@ -115,11 +115,26 @@ class IoMediator(threading.Thread):
     def shutdown(self):
         logger.debug("IoMediator shutting down")
         self.interface.cancel()
+        self.__cancel_window_interface()
         logger.debug("queue.put_nowait()")
         self.queue.put_nowait((None, None))
         logger.debug("Waiting for IoMediator thread to end")
         self.join()
         logger.debug("IoMediator shutdown completed")
+
+    def __cancel_window_interface(self):
+        """
+        Stop any threads the window interface started.  The KDE interface runs a non-daemon DBus thread, which
+        keeps the process alive after shutdown (with the keyboards still grabbed under Wayland) unless it is
+        stopped (#1338).
+        """
+        cancel = getattr(self.windowInterface, "cancel", None)
+        if cancel is None:
+            return
+        try:
+            cancel()
+        except Exception:
+            logger.exception("Error shutting down the window interface")
 
     def begin_send(self):
         self.interface.grab_keyboard()

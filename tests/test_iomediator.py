@@ -352,3 +352,40 @@ def test_capslock_and_shift_cancel_out():
 
 def test_capslock_alone_shifts():
     assert_that(_run_one_keypress({Key.CAPSLOCK: True}), is_(True))
+
+
+def _shutdown_mediator(window_interface):
+    mediator = IoMediator.__new__(IoMediator)
+    mediator.interface = MagicMock()
+    mediator.windowInterface = window_interface
+    mediator.queue = MagicMock()
+    mediator.join = MagicMock()
+    return mediator
+
+
+def test_shutdown_cancels_the_window_interface():
+    # The KDE window interface runs a non-daemon DBus thread that keeps the process (and the grabbed
+    # keyboards under Wayland) alive unless it is stopped (#1338).
+    window_interface = MagicMock()
+    mediator = _shutdown_mediator(window_interface)
+
+    mediator.shutdown()
+
+    mediator.interface.cancel.assert_called_once_with()
+    window_interface.cancel.assert_called_once_with()
+
+
+def test_shutdown_tolerates_a_window_interface_without_cancel():
+    mediator = _shutdown_mediator(object())
+    mediator.shutdown()
+    mediator.join.assert_called_once_with()
+
+
+def test_shutdown_completes_when_the_window_interface_cancel_fails():
+    window_interface = MagicMock()
+    window_interface.cancel.side_effect = RuntimeError("boom")
+    mediator = _shutdown_mediator(window_interface)
+
+    mediator.shutdown()
+
+    mediator.join.assert_called_once_with()
