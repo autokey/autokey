@@ -11,6 +11,10 @@ while it was sending, used to be dropped, so it stayed down on that device.
 In real use the timing that decides this is the gap between the user releasing
 the keys and the script's ``begin_send()`` being dequeued, which is why the
 bug looks random. Here the order is fixed by hand.
+
+The same symptom without any script running (autokey/autokey#1342) came from
+querying a grabbed keyboard's key state, which discards its unread key events,
+and from grabbing a keyboard while one of its keys was down.
 """
 
 import itertools
@@ -48,7 +52,10 @@ class _KernelLikeUI:
 
 
 class _FakeKeyboard:
-    """A grabbed physical keyboard: events queue up until read(), active_keys() is the live kernel state."""
+    """
+    A grabbed physical keyboard: events queue up until read(), active_keys() is the live kernel state.
+    Like the kernel's EVIOCGKEY, active_keys() also discards the key events queued and not yet read.
+    """
 
     _fds = itertools.count(100)
 
@@ -57,10 +64,12 @@ class _FakeKeyboard:
         self.path = str(path)
         self.name = "Fake keyboard"
         self._pending = []
+        self._arriving_during_read = []
         self._down = set()
 
-    def _emit(self, code, value):
-        self._pending += [
+    @staticmethod
+    def _events(code, value):
+        return [
             evdev.InputEvent(0, 0, e.EV_MSC, e.MSC_SCAN, code),
             evdev.InputEvent(0, 0, e.EV_KEY, code, value),
             evdev.InputEvent(0, 0, e.EV_SYN, e.SYN_REPORT, 0),
@@ -69,18 +78,27 @@ class _FakeKeyboard:
     def press(self, name):
         code = e.ecodes[name]
         self._down.add(code)
-        self._emit(code, 1)
+        self._pending += self._events(code, 1)
 
     def release(self, name):
         code = e.ecodes[name]
         self._down.discard(code)
-        self._emit(code, 0)
+        self._pending += self._events(code, 0)
+
+    def release_during_next_read(self, name):
+        """The release reaches the kernel just after AutoKey's next read(), while it handles what it read."""
+        self._arriving_during_read.append(e.ecodes[name])
 
     def read(self):
         events, self._pending = self._pending, []
+        for code in self._arriving_during_read:
+            self._down.discard(code)
+            self._pending += self._events(code, 0)
+        self._arriving_during_read = []
         return iter(events)
 
     def active_keys(self, verbose=False):
+        self._pending = [event for event in self._pending if event.type != e.EV_KEY]
         return [(e.KEY[code], code) if verbose else code for code in sorted(self._down)]
 
 
@@ -111,6 +129,7 @@ def rig(monkeypatch, tmp_path):
     interface._keys_passed_through = set()
     interface._releases_during_send = []
     interface._send_lock = threading.Lock()
+    interface._keys_down = {}
     interface.shutdown = False
     interface.handle_keypress = MagicMock()
     interface.handle_keyrelease = MagicMock()
@@ -212,6 +231,71 @@ def test_a_key_pressed_only_while_sending_is_not_released_afterwards(rig):
     script_finishes()
 
     assert interface.ui.held_names() == ["KEY_X"]
+
+
+def test_a_release_arriving_while_a_chord_is_handled_is_not_lost(rig):
+    """
+    The stuck Ctrl+C / Ctrl+W seen live on KDE (autokey/autokey#1342): the letter's release reached the kernel
+    while AutoKey was still handling the Ctrl release read just before it. Querying the keyboard's key state
+    at that point discarded the queued release, so the letter stayed held on AutoKey's output device.
+    """
+    interface, keyboard, pump, _, _ = rig
+
+    keyboard.press("KEY_LEFTCTRL")
+    keyboard.press("KEY_C")
+    pump()
+    keyboard.release("KEY_LEFTCTRL")
+    keyboard.release_during_next_read("KEY_C")
+    pump()
+    pump()
+
+    assert interface.ui.held_names() == []
+
+
+def test_releases_read_together_with_a_hotkey_are_passed_through(rig):
+    """Only the hotkey's own event is held back; the rest of the same read is not thrown away with it."""
+    interface, keyboard, pump, _, _ = rig
+
+    for name in ("KEY_LEFTALT", "KEY_LEFTCTRL", "KEY_Z"):
+        keyboard.press(name)
+    for name in ("KEY_Z", "KEY_LEFTCTRL", "KEY_LEFTALT"):
+        keyboard.release(name)
+    pump()
+
+    assert interface.ui.held_names() == []
+
+
+def _drop_events_and_release(keyboard, name):
+    """AutoKey's read buffer overflows: the kernel discards the queued events, a release among them."""
+    keyboard._down.discard(e.ecodes[name])
+    keyboard._pending.append(evdev.InputEvent(0, 0, e.EV_SYN, e.SYN_DROPPED, 0))
+
+
+def test_a_release_lost_to_a_buffer_overflow_is_still_delivered(rig):
+    interface, keyboard, pump, _, _ = rig
+
+    keyboard.press("KEY_W")
+    keyboard.press("KEY_LEFTSHIFT")
+    pump()
+    _drop_events_and_release(keyboard, "KEY_W")
+    pump()
+
+    assert interface.ui.held_names() == ["KEY_LEFTSHIFT"]
+
+
+def test_a_release_lost_to_a_buffer_overflow_while_sending_is_delivered_after_the_send(rig):
+    """Releases during a send belong to ungrab_keyboard(), so a modifier the script relies on is not cut short."""
+    interface, keyboard, pump, script_sends_ctrl_v, script_finishes = rig
+
+    keyboard.press("KEY_LEFTALT")
+    pump()
+    script_sends_ctrl_v()
+    _drop_events_and_release(keyboard, "KEY_LEFTALT")
+    pump()
+    assert interface.ui.held_names() == ["KEY_LEFTALT"]
+
+    script_finishes()
+    assert interface.ui.held_names() == []
 
 
 class _KeyboardBeingGrabbed:

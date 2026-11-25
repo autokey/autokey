@@ -106,6 +106,18 @@ Start it before AutoKey, since AutoKey only grabs keyboards at startup.
 The hotkey script to bind and the other details are in the script's
 docstring. Stuck keys are released again after each trial.
 
+## stuck_key_monitor.py
+
+Watches for stuck keys during normal use, from the compositor's point of
+view: it opens every keyboard and AutoKey's output device without
+grabbing them and logs a key that stays held on AutoKey's device while
+no keyboard holds it, with the recent history of that one key only.
+Ordinary typing is not logged:
+
+```
+python3 tests/manual/stuck_key_monitor.py [logfile]
+```
+
 ## gopher_hunt.py / gopher.png
 
 A "whack-a-mole" style target for testing AutoKey's image-matching
