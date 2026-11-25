@@ -86,7 +86,7 @@
        <item row="1" column="0" colspan="3">
         <widget class="QLabel" name="about_text">
          <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;AutoKey is a desktop automation utility for Linux and X11.&lt;/p&gt;&lt;p&gt;Website: &lt;a href=&quot;https://github.com/autokey/autokey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;AutoKey on GitHub&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;AutoKey is a desktop automation utility for Linux (X11 and Wayland).&lt;/p&gt;&lt;p&gt;Website: &lt;a href=&quot;https://github.com/autokey/autokey&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;AutoKey on GitHub&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="openExternalLinks">
           <bool>true</bool>
