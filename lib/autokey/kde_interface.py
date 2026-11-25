@@ -189,7 +189,7 @@ class KWinInterface():
         #  Save the KWin script in a temporary file
         kwin_script = ' '.join([x.strip() for x in kwin_script.split('\n')]).strip()
         (f, self.script_fn) = tempfile.mkstemp(prefix='autokey.kwin.script.', suffix='.js')
-        with open(self.script_fn, 'w') as script_file:
+        with os.fdopen(f, 'w') as script_file:
             script_file.write(kwin_script)
 
         #  Load the script file into KWin
@@ -226,7 +226,7 @@ class KWinInterface():
             kwin_script = ' '.join([x.strip() for x in kwin_script.split('\n')]).strip()
             #  Save the KWin script in a temporary file
             (f, fn) = tempfile.mkstemp(prefix=f'autokey.kwin.script.{script_name}.', suffix='.js')
-            with open(fn, 'w') as script_file:
+            with os.fdopen(f, 'w') as script_file:
                 script_file.write(kwin_script)
 
             #  Load the script file into KWin
