@@ -1338,23 +1338,42 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         # Do not invent (0, 0) when absolute/relative coords are unavailable.
         # WindowGrabber only needs the button event + focused-window info
         # (Wayland cannot query the window under the pointer via X11).
-        if x is None or y is None:
+        location_known = x is not None and y is not None
+        if not location_known:
             try:
-                x, y = self.mouse_location()
+                location = self.mouse_location()
             except Exception:
                 logger.exception(
                     "Failed to resolve mouse location for click; "
                     "forwarding button event without invented coordinates"
                 )
                 # leave x/y as None
+            else:
+                if location is None:
+                    # KWin did not answer in time (see issue #1333). The click
+                    # is still forwarded, but without coordinates: log a single
+                    # warning instead of failing to unpack None.
+                    logger.warning(
+                        "KWin did not report the mouse location; "
+                        "forwarding button event without coordinates"
+                    )
+                else:
+                    x, y = location
+                    location_known = True
 
-        try:
-            rel_x, rel_y = self.relative_mouse_location()
-        except Exception:
-            logger.debug(
-                "relative_mouse_location unavailable; omitting relative coords",
-                exc_info=True,
-            )
+        if location_known:
+            try:
+                rel_x, rel_y = self.relative_mouse_location()
+            except Exception:
+                logger.debug(
+                    "relative_mouse_location unavailable; omitting relative coords",
+                    exc_info=True,
+                )
+                rel_x, rel_y = None, None
+        else:
+            # relative_mouse_location() calls mouse_location() again, so asking
+            # for it after an unanswered KWin query would repeat the same DBus
+            # timeout and then fail on `None - winx` with a TypeError. Skip it.
             rel_x, rel_y = None, None
 
         logger.debug(

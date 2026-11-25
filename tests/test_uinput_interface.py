@@ -609,3 +609,56 @@ def test_every_shifted_char_is_reachable_through_lookup_string():
     """The send-side table and the lookup must agree, so typing what AutoKey sends round-trips."""
     for symbol, key_name in uinput_interface.UInputInterface.shifted_chars.items():
         assert _lookup(key_name, True) == symbol
+
+def test_handle_mouseclick_forwards_without_coordinates_when_kwin_does_not_reply(caplog):
+    """
+    On KDE Wayland the mouse location comes from KWin, which returns None
+    when its DBus listener times out (see issue #1333). handle_mouseclick()
+    used to unpack that None and log a TypeError traceback at ERROR level on
+    every click while the listener was unresponsive. The click must still be
+    forwarded, with no coordinates, and only one warning -- no traceback --
+    must be logged.
+    """
+    interface = _make_interface()
+    interface.mediator = MagicMock()
+    interface.mediator.windowInterface.get_window_info.return_value = ("title", "class")
+    interface.mouse_location = MagicMock(return_value=None)
+    interface.relative_mouse_location = MagicMock(side_effect=RuntimeError("unavailable"))
+
+    with patch.object(uinput_interface.time, "sleep", lambda seconds: None):
+        uinput_interface.UInputInterface.handle_mouseclick.__wrapped__(
+            interface, Button.LEFT
+        )
+
+    interface.mediator.handle_mouse_click.assert_called_once()
+    args = interface.mediator.handle_mouse_click.call_args[0]
+    assert args[0] is None and args[1] is None
+    assert (args[2], args[3]) == (None, None)
+
+    # relative_mouse_location() queries KWin again, so after an unanswered
+    # mouse_location() it must not be called at all: that second query is what
+    # produced the `None - winx` TypeError on every click (#1333).
+    interface.relative_mouse_location.assert_not_called()
+
+    warnings = [r for r in caplog.records if r.levelname == "WARNING"]
+    assert len(warnings) == 1
+    assert warnings[0].exc_info is None
+    errors = [r for r in caplog.records if r.levelname == "ERROR"]
+    assert errors == []
+
+
+def test_handle_mouseclick_uses_kwin_coordinates_when_available():
+    """The None-guard must not change the normal path: KWin's reply is used as-is."""
+    interface = _make_interface()
+    interface.mediator = MagicMock()
+    interface.mediator.windowInterface.get_window_info.return_value = ("title", "class")
+    interface.mouse_location = MagicMock(return_value=[12, 34])
+    interface.relative_mouse_location = MagicMock(return_value=(1, 2))
+
+    with patch.object(uinput_interface.time, "sleep", lambda seconds: None):
+        uinput_interface.UInputInterface.handle_mouseclick.__wrapped__(
+            interface, Button.LEFT
+        )
+
+    args = interface.mediator.handle_mouse_click.call_args[0]
+    assert (args[0], args[1]) == (12, 34)
