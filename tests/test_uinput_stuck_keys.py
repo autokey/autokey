@@ -212,3 +212,68 @@ def test_a_key_pressed_only_while_sending_is_not_released_afterwards(rig):
     script_finishes()
 
     assert interface.ui.held_names() == ["KEY_X"]
+
+
+class _KeyboardBeingGrabbed:
+    """
+    A keyboard whose held keys change over successive active_keys() calls, recording grab/ungrab and
+    which buffered events were discarded.
+    """
+
+    name = "Fake keyboard"
+
+    def __init__(self, held_per_check, buffered=0):
+        self._held_per_check = list(held_per_check)
+        self._buffered = buffered
+        self.calls = []
+
+    def grab(self):
+        self.calls.append("grab")
+
+    def ungrab(self):
+        self.calls.append("ungrab")
+
+    def read_one(self):
+        if self._buffered:
+            self._buffered -= 1
+            return object()
+        return None
+
+    def active_keys(self):
+        return self._held_per_check.pop(0) if self._held_per_check else []
+
+
+def _grab(keyboard):
+    interface = uinput_interface.UInputInterface.__new__(uinput_interface.UInputInterface)
+    interface._UInputInterface__grab_keyboard_when_idle(keyboard)
+
+
+def test_an_idle_keyboard_is_grabbed_at_once():
+    keyboard = _KeyboardBeingGrabbed([[]])
+    _grab(keyboard)
+    assert keyboard.calls == ["grab"]
+
+
+def test_a_keyboard_with_a_key_down_is_released_until_the_key_is_let_go(monkeypatch):
+    """
+    The compositor saw the press of a key that is down at grab time, so it must also get the release:
+    otherwise it treats the key as held until AutoKey exits (autokey/autokey#1342).
+    """
+    monkeypatch.setattr(uinput_interface.time, "sleep", lambda seconds: None)
+    keyboard = _KeyboardBeingGrabbed([[e.KEY_H], [e.KEY_H], []])
+    _grab(keyboard)
+    assert keyboard.calls == ["grab", "ungrab", "grab", "ungrab", "grab"]
+
+
+def test_events_from_before_the_grab_are_discarded():
+    """The compositor already received them directly; passing them through again would duplicate them."""
+    keyboard = _KeyboardBeingGrabbed([[]], buffered=3)
+    _grab(keyboard)
+    assert keyboard.read_one() is None
+
+
+def test_a_key_that_is_never_let_go_does_not_block_the_grab_forever(monkeypatch):
+    monkeypatch.setattr(uinput_interface.UInputInterface, "GRAB_IDLE_TIMEOUT", 0)
+    keyboard = _KeyboardBeingGrabbed([[e.KEY_H]] * 5)
+    _grab(keyboard)
+    assert keyboard.calls == ["grab"]

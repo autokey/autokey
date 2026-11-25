@@ -404,7 +404,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device has the word \"keyboard\" as part of its name, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -423,7 +423,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device's capabilities look like a keyboard, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -442,7 +442,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device name matches a keyboard listed in the config file, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -478,6 +478,38 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
         self.devices = self.keyboards + self.mice
         self.devices = {dev.fd: dev for dev in self.devices}
+
+    #  Seconds to wait for every key on a keyboard to be let go before grabbing it anyway.
+    GRAB_IDLE_TIMEOUT = 10
+
+    def __grab_keyboard_when_idle(self, keyboard):
+        """
+        Grab a keyboard exclusively, but only at a moment when none of its keys are down.
+
+        Until the grab, the compositor reads the keyboard directly. A key that is down when the grab
+        starts has had its press seen by the compositor, while its release goes only to AutoKey, so the
+        compositor treats that key as held on that keyboard until AutoKey exits; pressing the key again
+        does not clear it, because those events now reach the compositor from AutoKey's own device. This
+        happens when AutoKey starts, or re-grabs a keyboard after resume, while the user is typing.
+
+        If keys are down right after grabbing, the grab is dropped again so the compositor receives their
+        releases, and retried. Events read before the final grab were already seen by the compositor and
+        are discarded, so they are not passed through a second time.
+        """
+        deadline = time.monotonic() + self.GRAB_IDLE_TIMEOUT
+        while True:
+            keyboard.grab()
+            while keyboard.read_one() is not None:
+                pass
+            held = keyboard.active_keys()
+            if not held:
+                return
+            if time.monotonic() >= deadline:
+                logger.warning("Grabbing \"{}\" while keys {} are still down; the compositor may treat them as "
+                               "held until AutoKey exits.".format(keyboard.name, held))
+                return
+            keyboard.ungrab()
+            time.sleep(0.05)
 
     def supports_abs(self):
         has_abs_x = False
