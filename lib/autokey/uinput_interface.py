@@ -609,7 +609,10 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
     #     raise NotImplementedError
 
     def relative_mouse_location(self, window=None):
-        mousex,mousey = self.mouse_location()
+        location = self.mouse_location()
+        if location is None:
+            return None
+        mousex, mousey = location
         if window is None:
             window = self.mediator.windowInterface.get_active_window()
         winx = window.get('x')
@@ -1211,22 +1214,34 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         # (Wayland cannot query the window under the pointer via X11).
         if x is None or y is None:
             try:
-                x, y = self.mouse_location()
+                location = self.mouse_location()
             except Exception:
                 logger.exception(
                     "Failed to resolve mouse location for click; "
                     "forwarding button event without invented coordinates"
                 )
-                # leave x/y as None
+                location = None
+            else:
+                if location is None:
+                    # e.g. KWin did not answer in time (#1340). The click is
+                    # still forwarded, just without coordinates.
+                    logger.warning(
+                        "Mouse location unavailable; forwarding click without coordinates"
+                    )
+            if location is not None:
+                x, y = location
 
-        try:
-            rel_x, rel_y = self.relative_mouse_location()
-        except Exception:
-            logger.debug(
-                "relative_mouse_location unavailable; omitting relative coords",
-                exc_info=True,
-            )
-            rel_x, rel_y = None, None
+        rel_x, rel_y = None, None
+        if x is not None and y is not None:
+            try:
+                relative = self.relative_mouse_location()
+                if relative is not None:
+                    rel_x, rel_y = relative
+            except Exception:
+                logger.debug(
+                    "relative_mouse_location unavailable; omitting relative coords",
+                    exc_info=True,
+                )
 
         logger.debug(
             "UInput mouse click button=%s at (%s, %s) rel=(%s, %s) window=%s",
