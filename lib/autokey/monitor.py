@@ -91,7 +91,9 @@ class FileMonitor(threading.Thread):
     def __unsuspend(self):
         time.sleep(1.5)
         self.__isSuspended = False
-        for watch in self.watches:
+        # Iterate over a copy: removing from the list being iterated skips the
+        # entry following each removed one, leaving some stale watches behind.
+        for watch in list(self.watches):
             if not os.path.exists(watch):
                 logger.debug("Removed stale watch on %s", watch)
                 self.watches.remove(watch)
@@ -110,20 +112,25 @@ class FileMonitor(threading.Thread):
     def remove_watch(self, path):
         logger.debug("Removing watch for %s", path)
         wd = self.manager.get_wd(path)
-        self.manager.rm_watch(wd, True)
-        self.watches.remove(path)
-        for i in range(len(self.watches)):
-            try:
-                if self.watches[i].startswith(path):
-                    self.watches.remove(self.watches[i])
-            except IndexError:
-                break
+        if wd is not None:
+            self.manager.rm_watch(wd, True)
+        # Forget `path` and everything below it. Compare against "path/" so that a
+        # sibling sharing the same name prefix ("Foo" vs "Foobar") is kept, and
+        # rebuild the list instead of removing from it while indexing it.
+        prefix = os.path.join(path, "")
+        self.watches[:] = [w for w in self.watches if w != path and not w.startswith(prefix)]
 
     def run(self):
         while not self.event.is_set():
-            self.notifier.process_events()
-            if self.notifier.check_events(1000):
-                self.notifier.read_events()
+            try:
+                self.notifier.process_events()
+                if self.notifier.check_events(1000):
+                    self.notifier.read_events()
+            except Exception:  # pylint: disable=broad-except
+                # An exception raised by a listener callback must not end this
+                # thread: it would silently stop all file monitoring until restart.
+                logger.exception("Error while processing file system events, continuing to monitor")
+                self.event.wait(1)
 
         logger.info("Shutting down file monitor")
         self.notifier.stop()
