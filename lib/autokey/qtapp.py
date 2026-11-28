@@ -61,6 +61,9 @@ class Application(AutokeyUIInterface, QApplication, AutokeyApplication, metaclas
     monitoring_disabled = pyqtSignal(bool, name="monitoring_disabled")
     show_configure_signal = pyqtSignal()
 
+    # The file monitor thread can report a created config file before initialise() has built the window.
+    configWindow = None
+
     def __init__(self, argv: list=sys.argv):
         super().__init__(argv, UI=self)
         self.setQuitOnLastWindowClosed(False)
