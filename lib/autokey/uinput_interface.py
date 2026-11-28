@@ -279,6 +279,13 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         self.app = app            #  type - AutokeyApplication
         self.shutdown = False
         self.sending = False
+        #  Keys whose press was forwarded to the compositor, and releases of those keys that arrived
+        #  while a script was sending and so could not be forwarded yet. See __forward_physical_event().
+        self._keys_passed_through = set()
+        self._releases_during_send = []
+        self._send_lock = threading.Lock()
+        #  Keys held on each grabbed keyboard, by fd, as told by the events read from it. See __note_key_state().
+        self._keys_down = {}
         #  support multiple keyboards/mice
         self.keyboards = []
         self.mice = []
@@ -403,7 +410,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device has the word \"keyboard\" as part of its name, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -422,7 +429,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device's capabilities look like a keyboard, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -441,7 +448,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 try:
                     #logger.debug("Device name matches a keyboard listed in the config file, grabbing it.")
                     keyboard = self.grab_device(devices, dev.name)
-                    keyboard.grab()
+                    self.__grab_keyboard_when_idle(keyboard)
                     self.keyboards.append(keyboard)
                     self.device_paths.append(keyboard.path)
                     #logger.debug("Keyboard: {}, Path: {}".format(keyboard.name, keyboard.path))
@@ -477,6 +484,38 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
         self.devices = self.keyboards + self.mice
         self.devices = {dev.fd: dev for dev in self.devices}
+
+    #  Seconds to wait for every key on a keyboard to be let go before grabbing it anyway.
+    GRAB_IDLE_TIMEOUT = 10
+
+    def __grab_keyboard_when_idle(self, keyboard):
+        """
+        Grab a keyboard exclusively, but only at a moment when none of its keys are down.
+
+        Until the grab, the compositor reads the keyboard directly. A key that is down when the grab
+        starts has had its press seen by the compositor, while its release goes only to AutoKey, so the
+        compositor treats that key as held on that keyboard until AutoKey exits; pressing the key again
+        does not clear it, because those events now reach the compositor from AutoKey's own device. This
+        happens when AutoKey starts, or re-grabs a keyboard after resume, while the user is typing.
+
+        If keys are down right after grabbing, the grab is dropped again so the compositor receives their
+        releases, and retried. Events read before the final grab were already seen by the compositor and
+        are discarded, so they are not passed through a second time.
+        """
+        deadline = time.monotonic() + self.GRAB_IDLE_TIMEOUT
+        while True:
+            keyboard.grab()
+            while keyboard.read_one() is not None:
+                pass
+            held = keyboard.active_keys()
+            if not held:
+                return
+            if time.monotonic() >= deadline:
+                logger.warning("Grabbing \"{}\" while keys {} are still down; the compositor may treat them as "
+                               "held until AutoKey exits.".format(keyboard.name, held))
+                return
+            keyboard.ungrab()
+            time.sleep(0.05)
 
     def supports_abs(self):
         has_abs_x = False
@@ -717,9 +756,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
     def clear_held_keys(self):
         #self.held_keys = self.keyboard.active_keys()
         #  mutiple devices fix
-        self.held_keys = []
-        for keyboard in self.keyboards:
-            self.held_keys = self.held_keys + keyboard.active_keys(verbose=True)
+        self.held_keys = sorted(self.__keys_held_on_keyboards())
 
         logger.debug("Clearing keys: {}".format(self.held_keys))
         for key in self.held_keys:
@@ -961,6 +998,79 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         if self._ui_write_failures >= self.MAX_PASS_THROUGH_FAILURES:
             self.__release_keyboards_and_stop()
 
+    def __forward_physical_event(self, event):
+        """
+        Re-inject a grabbed keyboard event, unless a script is currently sending its own keys.
+
+        Presses (and everything else) are dropped while sending, so they cannot land in the middle of
+        the script's output. Releases are not: the compositor only ever sees this uinput device, and the
+        press of a key the user is holding was already forwarded before sending began. Dropping its
+        release leaves that key down forever: the stuck Alt after an Alt hotkey, and the key that
+        auto-repeats until pressed again (dlk3/autokey-wayland#39). Such releases are held back and
+        written by ungrab_keyboard() once the script's own output is finished, so they cannot cut a
+        modifier the script itself is holding short either.
+        """
+        with self._send_lock:
+            if self.sending:
+                if event.type == e.EV_KEY and event.value == 0 and event.code in self._keys_passed_through:
+                    self._keys_passed_through.discard(event.code)
+                    self._releases_during_send.append(event.code)
+                return
+        self.__pass_through_event(event)
+        #  value 2 is a kernel repeat of a key already recorded at press time.
+        if event.type == e.EV_KEY and event.value != 2:
+            with self._send_lock:
+                if event.value:
+                    self._keys_passed_through.add(event.code)
+                else:
+                    self._keys_passed_through.discard(event.code)
+
+    def __note_key_state(self, fd, event):
+        """
+        Keep track of the keys held on a grabbed keyboard from the events read from it.
+
+        The kernel's own key state (EVIOCGKEY, evdev's active_keys()) must not be queried on a keyboard
+        AutoKey reads from: that ioctl also discards every key event still queued, unread, on the same
+        file descriptor. Any press or release arriving between a read() and the query was silently lost;
+        a lost release leaves the key held on AutoKey's output device, and the focused Wayland client
+        auto-repeats it until the key is pressed again (autokey/autokey#1342).
+        """
+        if event.type != e.EV_KEY or event.value == 2:
+            return
+        keys_down = self._keys_down.setdefault(fd, set())
+        if event.value:
+            keys_down.add(event.code)
+        else:
+            keys_down.discard(event.code)
+
+    def __keys_held_on_keyboards(self):
+        held = set()
+        for keyboard in self.keyboards:
+            held |= self._keys_down.get(keyboard.fd, set())
+        return held
+
+    def __resync_after_dropped_events(self, keyboard):
+        """
+        Catch up with a keyboard whose events overflowed AutoKey's read buffer (SYN_DROPPED).
+
+        Here querying the kernel's key state is what is wanted: the events still queued are stale, and
+        the ioctl discards them. Forwarded keys that are no longer down are released on the output
+        device (after the send, if a script is sending); a press that was lost is not replayed.
+        """
+        self._keys_down[keyboard.fd] = set(keyboard.active_keys())
+        held = self.__keys_held_on_keyboards()
+        with self._send_lock:
+            released = self._keys_passed_through - held
+            self._keys_passed_through -= released
+            if self.sending:
+                self._releases_during_send.extend(released)
+                return
+        if not released:
+            return
+        for code in released:
+            self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_KEY, code, 0))
+        self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_SYN, e.SYN_REPORT, 0))
+
     def __release_keyboards(self):
         for keyboard in self.keyboards:
             try:
@@ -987,6 +1097,7 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                 logger.info(f"The \"{self.devices[fd].name}\" device has dissappeared from the system.")
                 self.device_paths.remove(self.devices[fd].path)
                 self.devices.pop(fd)
+                self._keys_down.pop(fd, None)
 
                 if len(self.devices) == 0:
                     logger.error("The last keyboard/mouse input device has been removed from the system")
@@ -1008,12 +1119,20 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
 
                 self.__replace_ui()
                 continue
-            for event in self.devices[fd].read(): # type: ignore
+            device = self.devices[fd]
+            is_keyboard = any(keyboard.fd == fd for keyboard in self.keyboards)
+            for event in device.read():
+                if event.type == e.EV_SYN and event.code == e.SYN_DROPPED:
+                    logger.warning("Input events from \"{}\" were dropped before AutoKey could read them".format(
+                        device.name))
+                    if is_keyboard:
+                        self.__resync_after_dropped_events(device)
+                    continue
+                if is_keyboard:
+                    self.__note_key_state(fd, event)
                 event_type = evdev.categorize(event)
                 # mutiple devices fix
-                held = []
-                for keyboard in self.keyboards:
-                    held = held + keyboard.active_keys(verbose=True)
+                held = [(e.KEY.get(code, code), code) for code in sorted(self.__keys_held_on_keyboards())]
 
                 if type(event_type) is evdev.KeyEvent:
                     # Mouse buttons arrive as EV_KEY / BTN_* on the mouse device.
@@ -1046,16 +1165,16 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
                     #self.handle_mouseclick(event)
 
                 # the following self.ui.write sends through AutoKey hotkeys,
-                # which it shouldn't do, so return now, before that happens,
-                # if the "held" list holds an AutoKey hotkey
+                # which it shouldn't do, so skip the event if the "held" list
+                # holds an AutoKey hotkey. Only this event: the rest of what was
+                # read can hold the releases of keys already passed through.
                 if self.__isAutoKeyHotkey(held):
-                    return
+                    continue
 
                 # support multiple keyboards/mice
                 # pass through to autokey uinput device
-                for keyboard in self.keyboards:
-                    if not self.sending and fd == keyboard.fd:
-                        self.__pass_through_event(event)
+                if is_keyboard:
+                    self.__forward_physical_event(event)
 
     #  Does the list of keys from __flush_events() match an AutoKey hotkey?
     def __isAutoKeyHotkey(self, key_list):
@@ -1146,16 +1265,22 @@ class UInputInterface(threading.Thread, MouseReadInterface, AbstractSysInterface
         #TODO: something weird is happening with grab/ungrab
         #self.keyboard.grab()
 
-        self.sending = True
-
-        pass
+        with self._send_lock:
+            self.sending = True
 
     @queue_method(queue)
     def ungrab_keyboard(self, ):
-        #TODO: need to implement this
-        pass
-        self.sending = False
-        #self.keyboard.ungrab()
+        #  Drop the flag and take the pending releases under one lock, so a release arriving now is
+        #  forwarded by __forward_physical_event() instead of being added to a list nobody will read.
+        with self._send_lock:
+            self.sending = False
+            pending = self._releases_during_send
+            self._releases_during_send = []
+        for code in pending:
+            self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_KEY, code, 0))
+        if pending:
+            #  One report for the whole batch: until it is sent, clients still see the keys held.
+            self.__pass_through_event(evdev.InputEvent(0, 0, e.EV_SYN, e.SYN_REPORT, 0))
 
 
     def _consume_mouse_button_event(self, event_type):
