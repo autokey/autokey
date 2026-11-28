@@ -319,13 +319,18 @@ class KdeMouseInterface():
         """
         Returns the x/y coordinates of the mouse pointer
 
-        :return: [x, y]
-        :rtype: list
+        Returns ``None`` when KWin did not answer the query in time, which
+        happens while the DBus listener is timing out (see issue #1333).
+        Callers must check for it instead of unpacking the result.
+
+        :return: [x, y] or None if KWin did not reply
+        :rtype: list or None
         """
         kwin_script = 'let result = JSON.stringify(["mouse_location", workspace.cursorPos]);'
         result = self.mediator.windowInterface.kwin.run(kwin_script, script_name='mouse_location', response_expected=True)
         if result:
             return [result['x'], result['y']]
+        return None
 
 
 class KdeWindowInterface(AbstractWindowInterface):
