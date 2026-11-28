@@ -168,6 +168,20 @@ class TestKWinInterfaceOneShot(unittest.TestCase):
         )
         self.assertIsNone(result)
 
+    @unittest.skipUnless(os.path.isdir('/proc/self/fd'), 'needs /proc to count open descriptors')
+    def test_loading_scripts_does_not_leak_file_descriptors(self):
+        """Every one-shot script used to leave its temp file open; past ~1000 calls select() on the
+        grabbed keyboards failed and AutoKey stopped passing keys through."""
+        iface = _make_kwin_interface()
+        before = len(os.listdir('/proc/self/fd'))
+
+        with patch.object(kde, 'SessionBus'):
+            for _ in range(20):
+                iface._load_script('let result = 1;')
+                os.unlink(iface.script_fn)
+
+        self.assertEqual(len(os.listdir('/proc/self/fd')), before)
+
 
 # ---------------------------------------------------------------------------
 # KdeWindowInterface
